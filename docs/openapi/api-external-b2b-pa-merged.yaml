@@ -125,9 +125,21 @@ info:
       #### 2. Richiesta di invio della notifica
 
       Per effettuare una richiesta di invio notifica, invocare l'operazione 
-      [sendNewNotification](#/NewNotification/sendNewNotificationV23) utilizzando i riferimenti dei file 
-      caricati ottenuti al punto (1.b).
-      
+      [sendNewNotification](#/NewNotification/sendNewNotificationV21) valorizzando il campo <b>payments</b> (scegliendo in base alla tipologia di file caricato <b>F24</b>/<b>pagoPa</b>) e il campo <b>documents</b> utilizzando i riferimenti dei file
+        caricati in precedenza nel seguente:
+        <br>
+        - <b>digests.sha256 </b>: SHA256 associato all'allegato caricato
+        - <b>contentType </b>: in caso la tipologia dell'allegato fosse <b>documento</b> e <b>avviso di pagamento</b> dovrà essere popolato con "application/pdf" in caso di <b>F24</b> invece dovrà contenere "application/json"
+        - <b>ref.key</b>: key ottenuta nella response della chiamata [presignedUploadRequest](#/NewNotification/presignedUploadRequest)
+        - <b>ref.versionToken</b>: valore dell'header x-amz-version-id ottenuto dalla response in fase di upload dell'allegato ad esso associato.
+        </br>
+        Nel caso si voglia valorizzare il campo <b>payments</b>  con un bolletino di pagamento <b>pagoPa</b> oltre al riferimento al file tramite la sezione <b>pagoPaForm</b> con le indicazioni riportate sopra, sono da valorizzare i campi <b>noticeCode</b> "codice avviso pagoPA" ,univoco, di pagamento del sistema pagoPA utilizzato , usato per pagamento online;
+        <b> creditorTaxId</b>: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA"; il campo
+        <b>applyCost</b>: flag per indicare se l'avviso pagoPA deve contenere i costi di notifica e il campo
+        </br>
+        Nel caso,invece, nel campo payments si voglia valorizzare un pagamento <b>F24</b>,oltre al riferimento al file caricato tramite la sezione <b>metadataAttachment</b> con le indicazioni riportate sopra, sono da valorizzare i campi <b> title</b>: titolo del documento pdf da mostrare all'utente e
+          <b>applyCost</b>: flag per indicare se il modello F24 deve contenere i costi di notifica.
+
       </br>
       </br>
       </br>
@@ -180,7 +192,7 @@ info:
 
       ### 5. Download dei Legal Facts
 
-      É possibile scaricare le Attestazioni Opponibili a Terzi e gli altri documenti conservati da Piattaforma Notifiche attraverso il servizio di [download Legal Fact](#/SenderReadB2B/retrieveSentNotificationDocument) passando all'interno del path lo <strong>Iun</strong>, il <strong>legalFactType</strong> ed il <strong>legalFactId</strong>; si otterrà nella response un link che permette di scaricare il documento richiesto.</br> Per ottenere il <strong>legalFactType</strong> ed il <strong>legalFactId</strong> bisogna chiamare il servizio di [lettura dettaglio notifica](#/SenderReadB2B/retrieveSentNotification) con lo <code>{Iun}</code> della notifica di interesse: all'interno del campo <i>timeline</i> della response è possibile trovare l'elenco degli eventi di quella notifica ed i <strong>legalFactType</strong> e <strong>legalFactId</strong> in corrispondenza degli eventi che generano documenti.
+      É possibile scaricare le Attestazioni Opponibili a Terzi e gli altri documenti conservati da Piattaforma Notifiche attraverso il servizio di [download Legal Fact](#/LegalFacts/downloadLegalFactById) passando all'interno del path lo <strong>Iun</strong>, il <strong>legalFactType</strong> ed il <strong>legalFactId</strong>; si otterrà nella response un link che permette di scaricare il documento richiesto.</br> Per ottenere il <strong>legalFactType</strong> ed il <strong>legalFactId</strong> bisogna chiamare il servizio di [lettura dettaglio notifica](#/SenderReadB2B/retrieveSentNotificationV21) con lo <code>{Iun}</code> della notifica di interesse: all'interno del campo <i>timeline</i> della response è possibile trovare l'elenco degli eventi di quella notifica ed i <strong>legalFactType</strong> e <strong>legalFactId</strong> in corrispondenza degli eventi che generano documenti.
       
     </br>
 

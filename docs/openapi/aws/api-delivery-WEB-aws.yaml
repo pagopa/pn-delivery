@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 0wyrEkwoJvDPE2RwWRm+QDf5ikNmfp829ZIXlNbi7dI=
+  version: YETGi69GZNoTBoSEfX+LUcVEzgqyUXeK/e9yAUaT3Lg=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1777,6 +1777,7 @@ components:
       properties:
         elementId:
           type: string
+          maxLength: 512
           description: >-
             Identificativo dell'elemento di timeline: insieme allo IUN della
             notifica definisce in maniera univoca l'elemento di timeline
@@ -2444,8 +2445,8 @@ components:
           * `COMPLETELY_UNREACHABLE` - Tutti i destinatari risultano irraggiungibili
           * `AAR_CREATION_REQUEST` - Invio della richiesta di creazione dell'AAR (Avviso di Avvenuta Ricezione) a safe storage
           * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
-          * `PAYMENT` - Ricezione da parte della Pubblica Amministrazione di un evento di chiusura di una o più posizioni debitorie di tipo PagoPA.
-          * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
+          * `PAYMENT` - Ricezione da parte della Pubblica Amministrazione di un evento di chiusura di una o più posizioni debitorie di tipo PagoPA. La presenza di questo evento inibisce l'invio di eventuali comunicazioni analogiche future ma non perfeziona la notifica.
+          * `NOT_HANDLED` - [DEPRECATO] Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
           * `PROBABLE_SCHEDULING_ANALOG_DATE` - Data probabile di inizio del flusso analogico
           * `NOTIFICATION_CANCELLATION_REQUEST` - Richiesta di annullamento di una notifica
           * `NOTIFICATION_CANCELLED` - Notifica annullata
@@ -2499,6 +2500,7 @@ components:
       properties:
         legalFactId:
           type: string
+          maxLength: 128
           description: >-
             Identificativo dell'atto opponibile a terzi del quale è stata
             richiesta la creazione
@@ -2573,6 +2575,7 @@ components:
           description: Index destinatario notifica digitale
         generatedAarUrl:
           type: string
+          maxLength: 128
           description: Chiave per recupero da safe-storage del documento aar
     AnalogSuccessWorkflowDetails:
       type: object
@@ -2601,6 +2604,7 @@ components:
           description: Index destinatario notifica digitale
         legalfactId:
           type: string
+          maxLength: 128
           description: >-
             Identificativo dell'atto opponibile a terzi del quale è stata
             richiesta la creazione
@@ -2656,6 +2660,7 @@ components:
           format: date-time
         legalfactId:
           type: string
+          maxLength: 128
           description: >-
             Identificativo dell'atto opponibile a terzi del quale è stata
             richiesta la creazione
@@ -2714,6 +2719,7 @@ components:
     RaddTransactionId:
       type: string
       description: Identificativo della pratica all'interno della rete RADD
+      maxLength: 512
     RecipientType:
       type: string
       enum:
@@ -2724,16 +2730,21 @@ components:
       properties:
         internalId:
           type: string
+          maxLength: 128
         taxId:
           x-field-extra-annotation: '@lombok.ToString.Exclude'
           type: string
+          maxLength: 128
         operatorUuid:
           type: string
+          maxLength: 128
         mandateId:
           type: string
+          maxLength: 128
         denomination:
           x-field-extra-annotation: '@lombok.ToString.Exclude'
           type: string
+          maxLength: 128
         delegateType:
           $ref: '#/components/schemas/RecipientType'
     NotificationViewedCreationRequestDetailsV23:
@@ -2746,6 +2757,7 @@ components:
           description: Index destinatario notifica digitale
         legalfactId:
           type: string
+          maxLength: 128
           description: >-
             Identificativo dell'atto opponibile a terzi del quale è stata
             richiesta la creazione
@@ -2872,6 +2884,7 @@ components:
       properties:
         errorCode:
           type: string
+          maxLength: 128
           description: |-
             Errori di rifiuto della notifica.
               - FILE_NOTFOUND
@@ -2887,6 +2900,7 @@ components:
               ...
         detail:
           type: string
+          maxLength: 2048
     RequestRefusedDetailsV23:
       type: object
       properties:
@@ -3028,8 +3042,12 @@ components:
       properties:
         id:
           type: string
+          description: messageId del server mittente
+          maxLength: 1024
         system:
           type: string
+          description: nome del server mittente
+          maxLength: 128
     SendDigitalFeedbackDetails:
       type: object
       required:
@@ -3134,6 +3152,7 @@ components:
         relatedRequestId:
           type: string
           description: Id relativo alla eventuale precedente richiesta di invio cartaceo
+          maxLength: 512
     SendAnalogDetails:
       type: object
       required:
@@ -3155,8 +3174,10 @@ components:
         relatedRequestId:
           type: string
           description: Id relativo alla eventuale precedente richiesta di invio cartaceo
+          maxLength: 512
         productType:
           type: string
+          maxLength: 10
           description: |
             Tipo di invio cartaceo effettivamente inviato
               - __AR__: Raccomandata nazionale Andata e Ritorno
@@ -3174,19 +3195,23 @@ components:
         prepareRequestId:
           type: string
           description: request id della relativa richiesta di prepare
+          maxLength: 512
     AttachmentDetails:
       type: object
       properties:
         id:
           type: string
+          maxLength: 128
         documentType:
           type: string
+          maxLength: 20
           description: >
             Codici documentType: - Plico: Indica il plico cartaceo - AR: Indica
             la ricevuta di ritorno - Indagine: Indica la ricevuta dell'analisi
             dell'indagine - 23L: Indica la ricevuta 23L
         url:
           type: string
+          maxLength: 128
         date:
           type: string
           format: date-time
@@ -3218,6 +3243,7 @@ components:
           format: date-time
         deliveryFailureCause:
           type: string
+          maxLength: 10
           description: >
             __Motivazione di mancata consegna__ obbligatorie negli stati di
             mancata consegna
@@ -3234,6 +3260,7 @@ components:
               - __F03__ - in caso di deterioramento
         deliveryDetailCode:
           type: string
+          maxLength: 20
           description: >
             Formato: - __deliveryDetailCode__- [prodotto] - [statusCode] -
             statusDescription
@@ -3275,9 +3302,11 @@ components:
         sendRequestId:
           type: string
           description: RequestId della richiesta d'invio
+          maxLength: 512
         registeredLetterCode:
           type: string
           description: Codice della raccomandata
+          maxLength: 128
     BaseRegisteredLetterDetails:
       type: object
       required:
@@ -3302,6 +3331,7 @@ components:
           $ref: '#/components/schemas/PhysicalAddress'
         productType:
           type: string
+          maxLength: 10
           description: |
             Tipo di invio cartaceo effettivamente inviato
               - __RS__: Raccomandata nazionale Semplice (per Avviso di mancato Recapito)
@@ -3318,6 +3348,7 @@ components:
         prepareRequestId:
           type: string
           description: request id della relativa richiesta di prepare
+          maxLength: 512
     AarCreationRequestDetails:
       type: object
       required:
@@ -3331,6 +3362,7 @@ components:
         aarKey:
           type: string
           description: Chiave per recupero da safe-storage del documento aar
+          maxLength: 128
         numberOfPages:
           type: number
           description: numero di pagine del PDF generato
@@ -3347,6 +3379,7 @@ components:
         generatedAarUrl:
           type: string
           description: Chiave per recupero da safe-storage del documento aar
+          maxLength: 128
         numberOfPages:
           type: number
           description: numero di pagine del PDF generato
@@ -3363,9 +3396,11 @@ components:
         reasonCode:
           type: string
           description: Codice motivazione casistica non gestita
+          maxLength: 10
         reason:
           type: string
           description: Motivazione casistica non gestita
+          maxLength: 2048
     NotificationPaidDetailsV23:
       type: object
       required:
@@ -3388,9 +3423,11 @@ components:
         idF24:
           type: string
           description: un UUID che identifica un pagamento f24
+          maxLength: 512
         paymentSourceChannel:
           type: string
           description: Canale sorgente della richiesta di pagamento
+          maxLength: 512
         uncertainPaymentDate:
           deprecated: true
           type: boolean
@@ -3412,9 +3449,11 @@ components:
           format: date-time
         deliveryFailureCause:
           type: string
+          maxLength: 10
           description: Vedi deliveryFailureCause in SendAnalogFeedbackDetails
         deliveryDetailCode:
           type: string
+          maxLength: 20
           description: Vedi deliveryDetailCode in SendAnalogFeedbackDetails
         attachments:
           type: array
@@ -3423,9 +3462,11 @@ components:
         sendRequestId:
           type: string
           description: RequestId della richiesta d'invio
+          maxLength: 512
         registeredLetterCode:
           type: string
           description: Codice della raccomandata
+          maxLength: 128
         serviceLevel:
           $ref: '#/components/schemas/ServiceLevel'
     SimpleRegisteredLetterProgressDetails:
@@ -3441,9 +3482,11 @@ components:
           format: date-time
         deliveryFailureCause:
           type: string
+          maxLength: 10
           description: Vedi deliveryFailureCause in SendAnalogFeedbackDetails
         deliveryDetailCode:
           type: string
+          maxLength: 20
           description: Vedi deliveryDetailCode in SendAnalogFeedbackDetails
         attachments:
           type: array
@@ -3452,9 +3495,11 @@ components:
         sendRequestId:
           type: string
           description: RequestId della richiesta d'invio
+          maxLength: 512
         registeredLetterCode:
           type: string
           description: Codice della raccomandata
+          maxLength: 128
     ProbableDateAnalogWorkflowDetails:
       type: object
       required:
@@ -3476,6 +3521,7 @@ components:
         cancellationRequestId:
           type: string
           description: Id della richiesta
+          maxLength: 512
     NotificationCancelledDetails:
       type: object
       required:
@@ -3505,6 +3551,7 @@ components:
           $ref: '#/components/schemas/PhysicalAddress'
         failureCause:
           type: string
+          maxLength: 10
           description: |
             __Motivazione fallimento prepare
               - __D00__ Indirizzo non trovato
@@ -3513,6 +3560,7 @@ components:
         prepareRequestId:
           type: string
           description: RequestId della richiesta di prepare
+          maxLength: 512
     TimelineElementDetailsV23:
       description: The raw event payload that will be different based on the event.
       oneOf:
