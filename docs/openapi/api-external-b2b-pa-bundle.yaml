@@ -1772,6 +1772,7 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery-progresses/streams:
     post:
+      deprecated: true
       summary: Crea nuovo stream di eventi
       description: >-
         Viene richiesta la creazione di un flusso di eventi specificando se gli
@@ -1810,6 +1811,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     get:
+      deprecated: true
       summary: Elenca stream di eventi
       description: Elenca gli stream di eventi
       tags:
@@ -1840,6 +1842,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/pathStreamId'
     get:
+      deprecated: true
       summary: Leggi metadati dello stream
       description: Permette di leggere le configurazioni di uno stream di eventi.
       tags:
@@ -1867,6 +1870,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     put:
+      deprecated: true
       summary: Update Stream metadata
       description: >-
         Permette di cambiare le configurazioni dei filtri associati a uno stream
@@ -1902,6 +1906,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     delete:
+      deprecated: true
       summary: Remove Event Stream
       description: >-
         Elimina uno steam di eventi: elimina sia le configurazioni sia tutti gli
@@ -1928,6 +1933,7 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery-progresses/streams/{streamId}/events:
     get:
+      deprecated: true
       summary: Leggi progressi notifiche
       description: >-
         Permette di leggere gli eventi presenti nello stream di aggiornamenti e
@@ -2592,9 +2598,9 @@ components:
           * `DELIVERED` - La notifica è stata consegnata a tutti i destinatari
           * `VIEWED` - Il destinatario ha letto la notifica entro il termine stabilito
           * `EFFECTIVE_DATE` - Il destinatario non ha letto la notifica entro il termine stabilito
-          * `PAID` - Uno dei destinatari ha pagato la notifica
           * `UNREACHABLE` - Il destinatario non è reperibile
           * `CANCELLED` - L'ente ha annullato l'invio della notifica
+          * `PAID` - [DEPRECATO] Uno dei destinatari ha pagato la notifica
       enum:
         - IN_VALIDATION
         - ACCEPTED
@@ -3640,6 +3646,7 @@ components:
           description: Informazioni sui destinatari
           items:
             $ref: '#/components/schemas/NotificationRecipientV23'
+          minItems: 1
         documents:
           type: array
           description: Documenti notificati
