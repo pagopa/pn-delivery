@@ -1,6 +1,78 @@
 diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-external-b2b-pa-bundle.yaml
 --- a/docs/openapi/api-external-b2b-pa-bundle.yaml
 +++ b/docs/openapi/api-external-b2b-pa-bundle.yaml
+@@ -997,8 +997,6 @@ paths:
+       tags:
+         - NewNotification
+       operationId: sendNewNotification
+-      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-sendnewnotification-lambda:live
+-      x-pagopa-lambda-account: core
+       requestBody:
+         content:
+           application/json:
+@@ -1033,8 +1031,6 @@ paths:
+     get:
+       deprecated: true
+       operationId: retrieveNotificationRequestStatus
+-      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live
+-      x-pagopa-lambda-account: core
+       tags:
+         - SenderReadB2B
+       summary: Verifica accettazione richiesta notifica
+@@ -1094,8 +1090,6 @@ paths:
+       tags:
+         - NewNotification
+       operationId: sendNewNotificationV21
+-      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-sendnewnotification-lambda:live
+-      x-pagopa-lambda-account: core
+       requestBody:
+         content:
+           application/json:
+@@ -1130,8 +1124,6 @@ paths:
+     get:
+       deprecated: true
+       operationId: retrieveNotificationRequestStatusV21
+-      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live
+-      x-pagopa-lambda-account: core
+       tags:
+         - SenderReadB2B
+       summary: Verifica accettazione richiesta notifica
+@@ -1179,8 +1171,6 @@ paths:
+       tags:
+         - SenderReadB2B
+       operationId: retrieveSentNotification
+-      x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda:live
+-      x-pagopa-lambda-account: core
+       parameters:
+         - $ref: '#/components/parameters/pathIun'
+       responses:
+@@ -1212,8 +1202,6 @@ paths:
+       tags:
+         - SenderReadB2B
+       operationId: retrieveSentNotificationV20
+-      x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda:live
+-      x-pagopa-lambda-account: core
+       parameters:
+         - $ref: '#/components/parameters/pathIun'
+       responses:
+@@ -1245,8 +1233,6 @@ paths:
+       tags:
+         - SenderReadB2B
+       operationId: retrieveSentNotificationV21
+-      x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda:live
+-      x-pagopa-lambda-account: core
+       parameters:
+         - $ref: '#/components/parameters/pathIun'
+       responses:
+@@ -1272,8 +1258,6 @@ paths:
+     get:
+       deprecated: true
+       operationId: retrieveNotificationPrice
+-      x-pagopa-lambda-name: pn-delivery-versioning-v1v23-getnotificationprice-lambda:live
+-      x-pagopa-lambda-account: core
+       summary: Retrieve notification price and effective date
+       description: |-
+         Usata dalla PA per recuperare il costo di notificazione tramite
 @@ -1355,7 +1355,6 @@ paths:
        operationId: retrieveNotificationLegalFacts
        parameters:
