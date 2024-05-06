@@ -1795,8 +1795,6 @@ paths:
       tags:
         - Streams
       operationId: createEventStream
-      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
-      x-pagopa-lambda-account: core
       requestBody:
         required: true
         content:
@@ -1829,8 +1827,6 @@ paths:
       tags:
         - Streams
       operationId: listEventStreams
-      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
-      x-pagopa-lambda-account: core
       responses:
         '200':
           description: OK
@@ -1860,8 +1856,6 @@ paths:
       tags:
         - Streams
       operationId: retrieveEventStream
-      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
-      x-pagopa-lambda-account: core
       responses:
         '200':
           description: OK
@@ -1890,8 +1884,6 @@ paths:
       tags:
         - Streams
       operationId: updateEventStream
-      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
-      x-pagopa-lambda-account: core
       requestBody:
         required: true
         content:
@@ -1926,8 +1918,6 @@ paths:
       tags:
         - Streams
       operationId: removeEventStream
-      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
-      x-pagopa-lambda-account: core
       responses:
         '204':
           description: OK
@@ -1955,8 +1945,6 @@ paths:
       tags:
         - Events
       operationId: consumeEventStream
-      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
-      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
         - $ref: '#/components/parameters/queryLastEventId'
@@ -3804,7 +3792,7 @@ components:
       type: string
       description: |
         stato di avanzamento del processo di notifica:`
-          * `SENDER_ACK_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa in carico per il mittente a safe storage
+          * `SENDER_ACK_CREATION_REQUEST` - Invio della richiesta di creazione, firma e marca dell'atto opponibile a terzi di presa in carico per il mittente a safe storage
           * `VALIDATE_NORMALIZE_ADDRESSES_REQUEST` - Invio della richiesta di validazione e normalizzazione indirizzi fisici presenti nella richiesta di notifica
           * `NORMALIZED_ADDRESS` - Salvataggio indirizzi normalizzati
           * `REQUEST_ACCEPTED` - Richiesta di notifica accettata a seguito dei controlli di validazione
@@ -3821,7 +3809,7 @@ components:
           * `SEND_DIGITAL_FEEDBACK` - Ottenuto esito ad un invio digitale
           * `SCHEDULE_REFINEMENT` - Pianificato il perfezionamento per decorrenza termini
           * `REFINEMENT` - Perfezionamento per decorrenza termini
-          * `DIGITAL_DELIVERY_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di chiusura del workflow digitale a safe storage
+          * `DIGITAL_DELIVERY_CREATION_REQUEST` - Invio della richiesta di creazione, firma e marca dell'atto opponibile a terzi di chiusura del workflow digitale a safe storage
           * `DIGITAL_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio digitale
           * `DIGITAL_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio digitale: tutti i tentativi di invio ai domicili digitali sono falliti.
           * `ANALOG_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio cartaceo
@@ -3829,17 +3817,17 @@ components:
           * `PREPARE_SIMPLE_REGISTERED_LETTER` - Invio richiesta di prepare (preparazione ad invio) raccomandata semplice a paperChannel
           * `SEND_SIMPLE_REGISTERED_LETTER` - Invio di raccomandata semplice
           * `SEND_SIMPLE_REGISTERED_LETTER_PROGRESS` - Ricezione informazioni intermedia relative ad una notificazione cartacea semplice
-          * `NOTIFICATION_VIEWED_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa visione a safe storage
+          * `NOTIFICATION_VIEWED_CREATION_REQUEST` - Invio della richiesta di creazione, firma e marca dell'atto opponibile a terzi di presa visione a safe storage
           * `NOTIFICATION_VIEWED` - Visualizzazione della notifica (perfeziona la notifica se non già perfezionata per decorrenza termini o da altro destinatario)
           * `PREPARE_ANALOG_DOMICILE` - Invio richiesta di prepare (preparazione ad invio) cartaceo a paperChannel
           * `SEND_ANALOG_DOMICILE` - Invio cartaceo dell’avviso di notifica
           * `SEND_ANALOG_PROGRESS` - Ricezione informazioni intermedia relative ad una notificazione cartacea
           * `SEND_ANALOG_FEEDBACK` - Ricezione esito dell'invio cartaceo
-          * `COMPLETELY_UNREACHABLE_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto (simile a opponibile a terzi) di completamento con fallimento del workflow di invio cartaceo
+          * `COMPLETELY_UNREACHABLE_CREATION_REQUEST` - Invio della richiesta di creazione, firma e marca dell'atto (simile a opponibile a terzi) di completamento con fallimento del workflow di invio cartaceo
           * `COMPLETELY_UNREACHABLE` - Tutti i destinatari risultano irraggiungibili
-          * `AAR_CREATION_REQUEST` - Invio della richiesta di creazione dell'AAR (Avviso di Avvenuta Ricezione) a safe storage
+          * `AAR_CREATION_REQUEST` - Invio della richiesta di creazione, firma e marca dell'AAR (Avviso di Avvenuta Ricezione) a safe storage
           * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
-          * `PAYMENT` - Ricezione da parte della Pubblica Amministrazione di un evento di chiusura di una o più posizioni debitorie di tipo PagoPA. La presenza di questo evento inibisce l'invio di eventuali comunicazioni analogiche future ma non perfeziona la notifica.
+          * `PAYMENT` - Evento di ricezione __dal mittente__ dell'informazione di chiusura di uno o più pagamenti di tipo pagoPA (vedi #/components/schemas/PagoPaPayment). La presenza di questo evento inibisce l'invio di eventuali comunicazioni analogiche future ma non perfeziona la notifica.
           * `NOT_HANDLED` - [DEPRECATO] Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
           * `PROBABLE_SCHEDULING_ANALOG_DATE` - Data probabile di inizio del flusso analogico
           * `NOTIFICATION_CANCELLATION_REQUEST` - Richiesta di annullamento di una notifica
