@@ -19,8 +19,8 @@ components:
       type: string
       x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
       minLength: 1
-      maxLength: 80
-      pattern: ^.*$
+      maxLength: 44
+      pattern: ^[ -{}-¿]*$
 
     TaxId:
       description: C.F. persona fisica o persona giuridica
@@ -374,6 +374,7 @@ components:
     NotificationPaymentItem:
       minProperties: 1
       additionalProperties: false
+      nullable: false
       properties:
         pagoPa:
           $ref: '#/components/schemas/PagoPaPayment'

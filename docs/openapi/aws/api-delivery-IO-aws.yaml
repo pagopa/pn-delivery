@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: zvH/3f4NQChSox04e2cVlPhbRYZX0jLJe8iJf+OjaSg=
+  version: 38u2NeZHY4acWiDJ3CPMmPXsxrYEs5LC2HcYB0T3oas=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -509,8 +509,8 @@ components:
       description: Denominazione ente o persona fisica / ragione sociale
       type: string
       minLength: 1
-      maxLength: 80
-      pattern: ^.*$
+      maxLength: 44
+      pattern: ^[ -{}-¿]*$
     noticeCode:
       description: Payment notice number  numero avviso
       example: '302000100000019421'

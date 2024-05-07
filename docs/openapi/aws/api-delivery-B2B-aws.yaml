@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: ufG6kuJdwh4ICKiDo7tArwSvONxaWBBfh+B4LU0GOco=
+  version: cS74zCbbwoFgECzJ+PLSTpiLb2Y58+RlDK2bzNCbSdQ=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1845,8 +1845,8 @@ components:
       description: Denominazione ente o persona fisica / ragione sociale
       type: string
       minLength: 1
-      maxLength: 80
-      pattern: ^.*$
+      maxLength: 44
+      pattern: ^[ -{}-¿]*$
     NotificationDigitalAddress:
       description: Indirizzo di invio della notifica
       required:
@@ -2062,6 +2062,7 @@ components:
     NotificationPaymentItem:
       minProperties: 1
       additionalProperties: false
+      nullable: false
       properties:
         pagoPa:
           $ref: '#/components/schemas/PagoPaPayment'
