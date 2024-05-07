@@ -23,8 +23,8 @@ components:
       type: string
       x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
       minLength: 1
-      maxLength: 44                     # ONLY EXTERNAL
-      pattern: ^[ -{}~\u00A0-ÿ]*$       # ONLY EXTERNAL
+#      maxLength: 44                     # ONLY EXTERNAL
+#      pattern: ^[ -{}~\u00A0-ÿ]*$       # ONLY EXTERNAL
 
 
     TaxId:
