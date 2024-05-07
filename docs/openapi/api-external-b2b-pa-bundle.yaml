@@ -3275,8 +3275,8 @@ components:
       description: Denominazione ente o persona fisica / ragione sociale
       type: string
       minLength: 1
-      maxLength: 80
-      pattern: ^.*$
+      maxLength: 44
+      pattern: ^[ -{}-¿]*$
     NotificationDigitalAddress:
       description: Indirizzo di invio della notifica
       required:
@@ -3492,6 +3492,7 @@ components:
     NotificationPaymentItem:
       minProperties: 1
       additionalProperties: false
+      nullable: false
       properties:
         pagoPa:
           $ref: '#/components/schemas/PagoPaPayment'
