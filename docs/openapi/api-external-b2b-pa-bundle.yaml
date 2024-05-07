@@ -3276,7 +3276,7 @@ components:
       type: string
       minLength: 1
       maxLength: 44
-      pattern: ^[ -{}-¿]*$
+      pattern: ^[ -{}~\u00A0-ÿ]*$
     NotificationDigitalAddress:
       description: Indirizzo di invio della notifica
       required:
