@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 38u2NeZHY4acWiDJ3CPMmPXsxrYEs5LC2HcYB0T3oas=
+  version: cZZ9qFDdT8uGsX/ZzsGq3DS34EKJ63Hlryps/QkiEJY=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -510,7 +510,7 @@ components:
       type: string
       minLength: 1
       maxLength: 44
-      pattern: ^[ -{}-¿]*$
+      pattern: ^[ -{}~\u00A0-ÿ]*$
     noticeCode:
       description: Payment notice number  numero avviso
       example: '302000100000019421'

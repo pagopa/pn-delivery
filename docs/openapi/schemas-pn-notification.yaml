@@ -14,13 +14,18 @@ components:
       maxLength: 25
       pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
 
+# La denomination prevede i caratteri isolatin 1, senza | e senza i caratteri di controllo.
+# Si veda la classe DenominationValidationUtils e la property denominationValidationExcludedCharacter che rappresenta i caratteri
+# da togliere. Si lasciano quindi con ONLY EXTERNAL per continuare ad avere che la logica di filtro è governata dalla configurazione del ms
+
     Denomination:
       description: Denominazione ente o persona fisica / ragione sociale
       type: string
       x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
       minLength: 1
-      maxLength: 44
-      pattern: ^[ -{}-¿]*$
+      maxLength: 44                     # ONLY EXTERNAL
+      pattern: ^[ -{}~\u00A0-ÿ]*$       # ONLY EXTERNAL
+
 
     TaxId:
       description: C.F. persona fisica o persona giuridica
