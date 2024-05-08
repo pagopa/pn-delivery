@@ -15,7 +15,7 @@ public interface NotificationViewedProducer extends MomProducer<PnDeliveryNotifi
         String eventId = iun + "_notification_viewed_rec" + recipientIndex;
         return PnDeliveryNotificationViewedEvent.builder()
                 .messageDeduplicationId(eventId)
-                .messageGroupId("delivery")
+                .messageGroupId(eventId)
                 .header( StandardEventHeader.builder()
                         .iun( iun )
                         .eventId( eventId)
