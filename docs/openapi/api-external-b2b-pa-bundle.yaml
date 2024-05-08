@@ -997,6 +997,8 @@ paths:
       tags:
         - NewNotification
       operationId: sendNewNotification
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-sendnewnotification-lambda:live
+      x-pagopa-lambda-account: core
       requestBody:
         content:
           application/json:
@@ -1031,6 +1033,8 @@ paths:
     get:
       deprecated: true
       operationId: retrieveNotificationRequestStatus
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live
+      x-pagopa-lambda-account: core
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -1090,6 +1094,8 @@ paths:
       tags:
         - NewNotification
       operationId: sendNewNotificationV21
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-sendnewnotification-lambda:live
+      x-pagopa-lambda-account: core
       requestBody:
         content:
           application/json:
@@ -1124,6 +1130,8 @@ paths:
     get:
       deprecated: true
       operationId: retrieveNotificationRequestStatusV21
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live
+      x-pagopa-lambda-account: core
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -1171,6 +1179,8 @@ paths:
       tags:
         - SenderReadB2B
       operationId: retrieveSentNotification
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda:live
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:
@@ -1202,6 +1212,8 @@ paths:
       tags:
         - SenderReadB2B
       operationId: retrieveSentNotificationV20
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda:live
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:
@@ -1233,6 +1245,8 @@ paths:
       tags:
         - SenderReadB2B
       operationId: retrieveSentNotificationV21
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda:live
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:
@@ -1258,6 +1272,8 @@ paths:
     get:
       deprecated: true
       operationId: retrieveNotificationPrice
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v23-getnotificationprice-lambda:live
+      x-pagopa-lambda-account: core
       summary: Retrieve notification price and effective date
       description: |-
         Usata dalla PA per recuperare il costo di notificazione tramite
@@ -1351,6 +1367,7 @@ paths:
       operationId: retrieveNotificationLegalFacts
       parameters:
         - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
       responses:
         '200':
           description: OK
@@ -1387,6 +1404,7 @@ paths:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactType'
         - $ref: '#/components/parameters/pathLegalFactId'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
       responses:
         '200':
           description: OK
@@ -1422,6 +1440,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactId'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
       responses:
         '200':
           description: OK
@@ -1429,6 +1448,43 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LegalFactDownloadMetadataResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /delivery-push/{iun}/document/{documentType}:
+    get:
+      summary: Restituisce il singolo documento identificato dalla documentKey
+      description: Permette di scaricare un documento correlato alla notificazione
+      tags:
+        - DocumentsWeb
+      operationId: getDocumentsWeb
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
+        - $ref: '#/components/parameters/pathDocumentType'
+        - $ref: '#/components/parameters/queryDocumentId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentDownloadMetadataResponse'
         '400':
           description: Invalid input
           content:
@@ -2275,8 +2331,9 @@ components:
         totalPrice:
           description: >-
             Costo totale di notificazione che include la paFee e vat applicato
-            ai costi cartacei. Presente solo se entrambi i campi paFee e vat
-            sono stati valorizzati
+            ai costi cartacei. Se vat e paFee non sono valorizzati, verranno
+            usati i loro valori di default (vedi /components/schemas/VatV23 e
+            /components/schemas/PaFeeV23).
           type: integer
           format: int32
         vat:
@@ -3272,11 +3329,14 @@ components:
       pattern: >-
         ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
     Denomination:
-      description: Denominazione ente o persona fisica / ragione sociale
+      description: >-
+        Denominazione ente o persona fisica / ragione sociale. La codifica
+        prevede i caratteri ISO LATIN 1, senza | e senza i caratteri di
+        controllo, ovvero la seguente regexp: ^[ -{}~\u00A0-ÿ]*$
       type: string
       minLength: 1
       maxLength: 44
-      pattern: ^[ -{}~\u00A0-ÿ]*$
+      pattern: ^.*$
     NotificationDigitalAddress:
       description: Indirizzo di invio della notifica
       required:

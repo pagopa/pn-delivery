@@ -877,7 +877,7 @@ components:
           type: integer
           format: int32
         totalPrice:
-          description: Costo totale di notificazione che include la paFee e vat applicato ai costi cartacei. Presente solo se entrambi i campi paFee e vat sono stati valorizzati
+          description: Costo totale di notificazione che include la paFee e vat applicato ai costi cartacei. Se vat e paFee non sono valorizzati, verranno usati i loro valori di default (vedi /components/schemas/VatV23 e /components/schemas/PaFeeV23).
           type: integer
           format: int32
         vat:

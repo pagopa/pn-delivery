@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: JC9W19vghx0cSr1mU9SDdNCLVBV7SS1TkpTsl1dUhdw=
+  version: UfWD8JGrpZFWzsF721Ipgp9QFA0CR3Ry+dpoXdRTa5Q=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1441,8 +1441,9 @@ components:
         totalPrice:
           description: >-
             Costo totale di notificazione che include la paFee e vat applicato
-            ai costi cartacei. Presente solo se entrambi i campi paFee e vat
-            sono stati valorizzati
+            ai costi cartacei. Se vat e paFee non sono valorizzati, verranno
+            usati i loro valori di default (vedi /components/schemas/VatV23 e
+            /components/schemas/PaFeeV23).
           type: number
         vat:
           $ref: '#/components/schemas/VatV23'
@@ -1842,11 +1843,14 @@ components:
       pattern: >-
         ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
     Denomination:
-      description: Denominazione ente o persona fisica / ragione sociale
+      description: >-
+        Denominazione ente o persona fisica / ragione sociale. La codifica
+        prevede i caratteri ISO LATIN 1, senza | e senza i caratteri di
+        controllo, ovvero la seguente regexp: ^[ -{}~\u00A0-ÿ]*$
       type: string
       minLength: 1
       maxLength: 44
-      pattern: ^[ -{}~\u00A0-ÿ]*$
+      pattern: ^.*$
     NotificationDigitalAddress:
       description: Indirizzo di invio della notifica
       required:
