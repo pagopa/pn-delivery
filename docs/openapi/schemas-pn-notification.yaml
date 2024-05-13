@@ -56,9 +56,12 @@ components:
     PaFeeV23:
       type: integer
       description: >-
-        Costo espresso in eurocent che la PA imputa per la notifica. <br/>
-        Obbligatoria per notifiche con notificationFeePolicy=DELIVERY_MODE<br/>
-        Il default nei casi di non obbligatorietà è 100 <br/>
+        Costo espresso in eurocent sostenuto dal mittente, per l'elaborazione degli
+        atti, provvedimenti, avvisi e comunicazioni oggetto di notifica, per
+        il relativo deposito sulla piattaforma e per la gestione degli  esiti
+        della notifica (Decreto 30 maggio 2022 - Art. 3, comma 1, lettera a). <br/>
+        Obbligatoria per notifiche con notificationFeePolicy=DELIVERY_MODE <br/>
+        Per le notifiche effettuate con versioni precedenti alla 2.3 si assume il valore di default 100.<br/>
         Esempio paFee ad 1€ -> 100 <br/>
       format: int32
       minimum: 0
@@ -68,9 +71,9 @@ components:
     VatV23:
       type: integer
       description: >-
-        IVA espressa in percentuale imposta al mittente sulla notifica analogica. <br/>
+        IVA espressa in percentuale sui costi degli avvisi in formato cartaceo.<br/>
         Obbligatoria per notifiche con notificationFeePolicy=DELIVERY_MODE. <br/>
-        Il default nei casi di non obbligatorietà è 22 <br/>
+        Per le notifiche effettuate con versioni precedenti alla 2.3 si assume il valore di default 22. <br/>
         Esempio vat al 22% -> 22 <br/>
       format: int32
       minimum: 0
@@ -80,7 +83,8 @@ components:
       type: string
       description: >-
         Politica di addebitamento dei costi di notifica. <br/>
-        - _FLAT_RATE_: costo forfettario fisso. <br/>
+        - _FLAT_RATE_: costo forfettario fisso. In questa modalità SEND non gestisce 
+        il costo della notifica per il destinatario.<br/>
         - _DELIVERY_MODE_: costo calcolato in base all'effettivo percorso di notifica. <br/>
       enum:
         - FLAT_RATE
