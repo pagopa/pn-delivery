@@ -20,7 +20,7 @@ public interface PaymentEventsProducer extends MomProducer<PnDeliveryPaymentEven
             String eventId = internalPaymentEvent.getIun() + "_notification_paid_" + internalPaymentEvent.getRecipientIdx() + "_" + internalPaymentEvent.getCreditorTaxId() + internalPaymentEvent.getNoticeCode();
             paymentEvents.add( PnDeliveryPaymentEvent.builder()
                     .messageDeduplicationId( eventId )
-                    .messageGroupId("delivery")
+                    .messageGroupId(eventId)
                     .header( StandardEventHeader.builder()
                             .iun( internalPaymentEvent.getIun() )
                             .eventId( eventId )
