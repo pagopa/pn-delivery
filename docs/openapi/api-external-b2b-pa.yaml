@@ -3,7 +3,7 @@
 # <span id="numberOfPresignedRequest">15</span> pn.delivery.number-of-presigned-request=15 numero di maxItems della preloadRequest
 openapi: 3.0.3
 info:
-  termsOfService: https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html
+  termsOfService: https://selfcare.notifichedigitali.it/termini-di-servizio
   x-api-id: api-external-b2b-pa # ONLY EXTERNAL
   title: 'Piattaforma Notifiche: API B2B per le Pubbliche Amministrazioni'
   x-summary: 'Piattaforma Notifiche: API B2B per le Pubbliche Amministrazioni'
@@ -34,19 +34,19 @@ info:
     
       Per questa verifica possono essere utilizzate due modalità:
       
-      1. __richiesta puntale__: consigliato solo ai fini di test
+      1. __richiesta puntuale__: consigliato solo ai fini di test
       2. __lettura da stream configurato__: consigliato per ambienti di produzione
       
       La differenza tra le due modalità è nell'interazione e nell'efficienza.
       
-      Con la modalità _"richiesta puntuale"_ è necessario l'invocazione per ogni notifica,
+      Con la modalità _"richiesta puntuale"_ è necessaria l'invocazione per ogni notifica,
       mentre con la modalità _"stream"_ è possibile avere gli aggiornamenti
       di stato di più notifiche con una sola invocazione.
       
       #### 3.1 Richiesta puntuale di verifica accettazione
     
       Questa modalità è resa disponibile solo ai fini di test o di eventuali operazioni
-      di allineamento poiché richiede l'invio di una richiesta per ogni notifica.
+      di allineamento. Richiede l'invio di una richiesta per ogni notifica.
       Se il passo (2) avviene con successo si utilizza l'operazione 
       [getNotificationRequestStatus](#/SenderReadB2B/retrieveNotificationRequestStatusV23)
       per ottenere informazioni riguardo allo stato della "richiesta di invio di notifica". </br>
@@ -60,7 +60,7 @@ info:
 
       #### 3.2 Richiesta avanzamento via "stream" di verifica di accettazione
     
-      Questa modalità è consigliata. Per essere fruita è necessaria un'operazione preliminare 
+      Questa è la modalità consigliata. Per essere utilizzata è necessaria un'operazione preliminare
       tramite la chiamata alla API [createEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fmain%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook.yaml#/Streams/createEventStream)
       per configurare uno "stream" che registri il cambio di stato della notifica con il seguente payload:</br></br>``
       {
@@ -90,7 +90,7 @@ info:
       
       #### 1. Caricamento dei documenti della notifica
     
-      Prima di invocare la richiesta di notifica è necessario caricare i documenti della notifica (documenti e bollettini/metadati di pagamento).
+      Prima di invocare la richiesta di notifica è necessario caricare i documenti della notifica (documenti e bollettini/metadata di pagamento).
       [Schema Metadata F24](#/components/schemas/F24Metadata)
     
       #### 1.a. Richiesta presigned Url
@@ -128,9 +128,21 @@ info:
       #### 2. Richiesta di invio della notifica
     
       Per effettuare una richiesta di invio notifica, invocare l'operazione 
-      [sendNewNotification](#/NewNotification/sendNewNotificationV23) utilizzando i riferimenti dei file 
-      caricati ottenuti al punto (1.b).
-      
+      [sendNewNotification](#/NewNotification/sendNewNotificationV21) valorizzando il campo <b>payments</b> (scegliendo in base alla tipologia di file caricato <b>F24</b>/<b>pagoPa</b>) e il campo <b>documents</b> utilizzando i riferimenti dei file
+        caricati in precedenza nel seguente:
+        <br>
+        - <b>digests.sha256 </b>: SHA256 associato all'allegato caricato
+        - <b>contentType </b>: in caso la tipologia dell'allegato fosse <b>documento</b> e <b>avviso di pagamento</b> dovrà essere popolato con "application/pdf" in caso di <b>F24</b> invece dovrà contenere "application/json"
+        - <b>ref.key</b>: key ottenuta nella response della chiamata [presignedUploadRequest](#/NewNotification/presignedUploadRequest)
+        - <b>ref.versionToken</b>: valore dell'header x-amz-version-id ottenuto dalla response in fase di upload dell'allegato ad esso associato.
+        </br>
+        Nel caso si voglia valorizzare il campo <b>payments</b>  con un bolletino di pagamento <b>pagoPa</b> oltre al riferimento al file tramite la sezione <b>pagoPaForm</b> con le indicazioni riportate sopra, sono da valorizzare i campi <b>noticeCode</b> "codice avviso pagoPA" ,univoco, di pagamento del sistema pagoPA utilizzato , usato per pagamento online;
+        <b> creditorTaxId</b>: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA"; il campo
+        <b>applyCost</b>: flag per indicare se l'avviso pagoPA deve contenere i costi di notifica e il campo
+        </br>
+        Nel caso,invece, nel campo payments si voglia valorizzare un pagamento <b>F24</b>,oltre al riferimento al file caricato tramite la sezione <b>metadataAttachment</b> con le indicazioni riportate sopra, sono da valorizzare i campi <b> title</b>: titolo del documento pdf da mostrare all'utente e
+          <b>applyCost</b>: flag per indicare se il modello F24 deve contenere i costi di notifica.
+
       </br>
       </br>
       </br>
@@ -145,21 +157,22 @@ info:
     
       ### 4. Monitorare l'avanzamento di una notifica
     
-      Allo stesso modo del monitoraggio dell'accettazione della notifica da parte della Piattaforma sono 
-      disponibili le due modalità.
-      
+      Per questa verifica possono essere utilizzate due modalità:
+            1. __monitoraggio puntuale__: consigliato solo ai fini di test
+            2. __monitoraggio tramite stream__: consigliato per ambienti di produzione
+
       #### 4.1 Monitoraggio puntuale
     
-      Se la "richiesta di invio di notifica" passa le validazioni viene trasformata in "notifica" e sarà 
-      identificata dalla IUN restituito dall'operazione 
+      Se la "richiesta di invio di notifica" passa le validazioni viene trasformata in "notifica" . Sarà possibile
+      identificarla dallo IUN restituito dall'operazione
       [getNotificationRequestStatus](#/SenderReadB2B/retrieveNotificationRequestStatusV23).</br> 
-      A tal punto si potranno utilizzare l'operazione _GET /delivery/v2.3/notifications/sent/{iun}_ per 
+      A questo punto, si potranno utilizzare l'operazione _GET /delivery/v2.3/notifications/sent/{iun}_ per
       ottenere i dettagli della notifica, la _timeline_ che dettaglia il perfezionamento della
       notifica per il mittente e l'avanzamento delle comunicazioni nei confronti dei destinatari.
       
-      #### 4.1 Monitoraggio tramite stream
+      #### 4.2 Monitoraggio tramite stream
     
-      Questa modalità è consigliata in produzione. Per essere fruita è necessaria una operazione preliminare
+      Questa è la modalità consigliata in produzione. Per essere utilizzata è necessaria un'operazione preliminare
       tramite la chiamata alla API [createEventStream](#/Streams/createEventStream)
       per configurare uno "stream" che registri il cambio di stato della notifica con il seguente payload di esempio:</br></br>``
       {
@@ -182,7 +195,7 @@ info:
 
       ### 5. Download dei Legal Facts
 
-      E' possibile scaricare le Attestazioni Opponibili a Terzi e gli altri documenti conservati da Piattaforma Notifiche attraverso il servizio di [dowload Legal Fact](#/SenderReadB2B/retrieveSentNotificationDocument) passando all'interno del path lo <strong>Iun</strong>, il <strong>legalFactType</strong> ed il <strong>legalFactId</strong>; si otterrà nella response un link che permette di scaricare il documento richiesto.</br> Per ottenere il <strong>legalFactType</strong> ed il <strong>legalFactId</strong> bisogna chiamare il servizio di [lettura dettaglio notifica](#/SenderReadB2B/retrieveSentNotification) con lo <code>{Iun}</code> della notifica di interesse: all'interno del campo <i>timeline</i> della response è possibile trovare l'elenco degli eventi di quella notifica ed i <strong>legalFactType</strong> e <strong>legalFactId</strong> in corrispondenza degli eventi che generano documenti.
+      É possibile scaricare le Attestazioni Opponibili a Terzi e gli altri documenti conservati da Piattaforma Notifiche attraverso il servizio di [download Legal Fact](#/LegalFacts/downloadLegalFactById) passando all'interno del path lo <strong>Iun</strong>, il <strong>legalFactType</strong> ed il <strong>legalFactId</strong>; si otterrà nella response un link che permette di scaricare il documento richiesto.</br> Per ottenere il <strong>legalFactType</strong> ed il <strong>legalFactId</strong> bisogna chiamare il servizio di [lettura dettaglio notifica](#/SenderReadB2B/retrieveSentNotificationV21) con lo <code>{Iun}</code> della notifica di interesse: all'interno del campo <i>timeline</i> della response è possibile trovare l'elenco degli eventi di quella notifica ed i <strong>legalFactType</strong> e <strong>legalFactId</strong> in corrispondenza degli eventi che generano documenti.
       
     </br>
     
@@ -190,15 +203,13 @@ info:
       <summary><strong><big><big><big><big>AMBIENTI</big></big></big></big></strong></summary>
     <ul>  
     <li><strong>https://api.notifichedigitali.it:</strong></br>Ambiente di produzione</li>
-    <li><strong>https://api.uat.notifichedigitali.it:</strong></br>Ambiente di collaudo. Potrebbe subire modifiche/integrazioni in futuro, rimanendo comunque non-bloccante e rispettando il principio di retrocompatibilità</li>
+    <li><strong>https://api.uat.notifichedigitali.it:</strong></br>Ambiente di collaudo. Potrebbe subire modifiche/integrazioni in futuro, rimanendo comunque non-bloccante e rispettando il principio di retro compatibilità</li>
     </ul>  
     </details></br>
 
   contact:
-    email: pn-supporto-enti@pagopa.it
-  license:
-    name: Licenza di PN
-    url: 'https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html'
+    name: 'SEND: supporto enti'
+    url: https://pagopa.atlassian.net/servicedesk/customer/portal/5
 servers:
   - url: https://api.notifichedigitali.it
     description: Ambiente di produzione
@@ -866,7 +877,7 @@ components:
           type: integer
           format: int32
         totalPrice:
-          description: Costo totale di notificazione che include la paFee e vat applicato ai costi cartacei. Presente solo se entrambi i campi paFee e vat sono stati valorizzati
+          description: Costo totale di notificazione che include la paFee e vat applicato ai costi cartacei. Se vat e paFee non sono valorizzati, verranno usati i loro valori di default (vedi /components/schemas/VatV23 e /components/schemas/PaFeeV23).
           type: integer
           format: int32
         vat:

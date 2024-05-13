@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: zvH/3f4NQChSox04e2cVlPhbRYZX0jLJe8iJf+OjaSg=
+  version: ojYR6odlIrns4vAn/JREQjSOeX6xPXFyTx2VaCxW0Nk=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -506,10 +506,13 @@ components:
       pattern: >-
         ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
     Denomination:
-      description: Denominazione ente o persona fisica / ragione sociale
+      description: >-
+        Denominazione ente o persona fisica / ragione sociale. La codifica
+        prevede i caratteri ISO LATIN 1, senza | e senza i caratteri di
+        controllo, ovvero la seguente regexp: ^[ -{}~\u00A0-ÿ]*$
       type: string
       minLength: 1
-      maxLength: 80
+      maxLength: 44
       pattern: ^.*$
     noticeCode:
       description: Payment notice number  numero avviso

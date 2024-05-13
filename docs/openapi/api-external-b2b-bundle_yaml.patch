@@ -1,7 +1,79 @@
 diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-external-b2b-pa-bundle.yaml
 --- a/docs/openapi/api-external-b2b-pa-bundle.yaml
 +++ b/docs/openapi/api-external-b2b-pa-bundle.yaml
-@@ -1356,7 +1356,6 @@ paths:
+@@ -997,8 +997,6 @@ paths:
+       tags:
+         - NewNotification
+       operationId: sendNewNotification
+-      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-sendnewnotification-lambda:live
+-      x-pagopa-lambda-account: core
+       requestBody:
+         content:
+           application/json:
+@@ -1033,8 +1031,6 @@ paths:
+     get:
+       deprecated: true
+       operationId: retrieveNotificationRequestStatus
+-      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live
+-      x-pagopa-lambda-account: core
+       tags:
+         - SenderReadB2B
+       summary: Verifica accettazione richiesta notifica
+@@ -1094,8 +1090,6 @@ paths:
+       tags:
+         - NewNotification
+       operationId: sendNewNotificationV21
+-      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-sendnewnotification-lambda:live
+-      x-pagopa-lambda-account: core
+       requestBody:
+         content:
+           application/json:
+@@ -1130,8 +1124,6 @@ paths:
+     get:
+       deprecated: true
+       operationId: retrieveNotificationRequestStatusV21
+-      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live
+-      x-pagopa-lambda-account: core
+       tags:
+         - SenderReadB2B
+       summary: Verifica accettazione richiesta notifica
+@@ -1179,8 +1171,6 @@ paths:
+       tags:
+         - SenderReadB2B
+       operationId: retrieveSentNotification
+-      x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda:live
+-      x-pagopa-lambda-account: core
+       parameters:
+         - $ref: '#/components/parameters/pathIun'
+       responses:
+@@ -1212,8 +1202,6 @@ paths:
+       tags:
+         - SenderReadB2B
+       operationId: retrieveSentNotificationV20
+-      x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda:live
+-      x-pagopa-lambda-account: core
+       parameters:
+         - $ref: '#/components/parameters/pathIun'
+       responses:
+@@ -1245,8 +1233,6 @@ paths:
+       tags:
+         - SenderReadB2B
+       operationId: retrieveSentNotificationV21
+-      x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda:live
+-      x-pagopa-lambda-account: core
+       parameters:
+         - $ref: '#/components/parameters/pathIun'
+       responses:
+@@ -1272,8 +1258,6 @@ paths:
+     get:
+       deprecated: true
+       operationId: retrieveNotificationPrice
+-      x-pagopa-lambda-name: pn-delivery-versioning-v1v23-getnotificationprice-lambda:live
+-      x-pagopa-lambda-account: core
+       summary: Retrieve notification price and effective date
+       description: |-
+         Usata dalla PA per recuperare il costo di notificazione tramite
+@@ -1355,7 +1355,6 @@ paths:
        operationId: retrieveNotificationLegalFacts
        parameters:
          - $ref: '#/components/parameters/pathIun'
@@ -9,7 +81,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        responses:
          '200':
            description: OK
-@@ -1393,7 +1392,6 @@ paths:
+@@ -1392,7 +1391,6 @@ paths:
          - $ref: '#/components/parameters/pathIun'
          - $ref: '#/components/parameters/pathLegalFactType'
          - $ref: '#/components/parameters/pathLegalFactId'
@@ -17,7 +89,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        responses:
          '200':
            description: OK
-@@ -1429,7 +1427,6 @@ paths:
+@@ -1428,7 +1426,6 @@ paths:
        parameters:
          - $ref: '#/components/parameters/pathIun'
          - $ref: '#/components/parameters/pathLegalFactId'
@@ -25,28 +97,10 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        responses:
          '200':
            description: OK
-@@ -1437,43 +1434,6 @@ paths:
-             application/json:
+@@ -1454,43 +1451,6 @@ paths:
+             application/problem+json:
                schema:
-                 $ref: '#/components/schemas/LegalFactDownloadMetadataResponse'
--        '400':
--          description: Invalid input
--          content:
--            application/problem+json:
--              schema:
--                $ref: '#/components/schemas/Problem'
--        '404':
--          description: Not found
--          content:
--            application/problem+json:
--              schema:
--                $ref: '#/components/schemas/Problem'
--        '500':
--          description: Internal Server Error
--          content:
--            application/problem+json:
--              schema:
--                $ref: '#/components/schemas/Problem'
+                 $ref: '#/components/schemas/Problem'
 -  /delivery-push/{iun}/document/{documentType}:
 -    get:
 -      summary: Restituisce il singolo documento identificato dalla documentKey
@@ -66,6 +120,32 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
 -            application/json:
 -              schema:
 -                $ref: '#/components/schemas/DocumentDownloadMetadataResponse'
-         '400':
-           description: Invalid input
-           content:
+-        '400':
+-          description: Invalid input
+-          content:
+-            application/problem+json:
+-              schema:
+-                $ref: '#/components/schemas/Problem'
+-        '404':
+-          description: Not found
+-          content:
+-            application/problem+json:
+-              schema:
+-                $ref: '#/components/schemas/Problem'
+-        '500':
+-          description: Internal Server Error
+-          content:
+-            application/problem+json:
+-              schema:
+-                $ref: '#/components/schemas/Problem'
+   /delivery-progresses/v2.3/streams:
+     post:
+       summary: Crea nuovo stream di eventi
+@@ -6254,7 +6214,6 @@ paths:
+         - legalFactsId
+       properties:
+         taxId:
+-          x-field-extra-annotation: '@lombok.ToString.Exclude'
+           description: Valorizzato se l'atto si riferisce a uno specifico destinatario
+           type: string
+           minLength: 11

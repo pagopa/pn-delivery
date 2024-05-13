@@ -63,17 +63,17 @@ components:
     ###                          STRUTTURE DATI DI PN-DELIVERY_PUSH                          ###
     ############################################################################################
     TimelineElementV23:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/657ce23d087cdc1266e4f97070410d09c8a045d0/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElementV23'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/9066cd0dce34244393c86ff59ceb28d2dae2bcdd/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElementV23'
     NotificationStatus:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/657ce23d087cdc1266e4f97070410d09c8a045d0/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatus'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/9066cd0dce34244393c86ff59ceb28d2dae2bcdd/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/657ce23d087cdc1266e4f97070410d09c8a045d0/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatusHistory'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/9066cd0dce34244393c86ff59ceb28d2dae2bcdd/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatusHistory'
     LegalFactDownloadMetadataResponse:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/657ce23d087cdc1266e4f97070410d09c8a045d0/docs/openapi/schemas-pn-legal-facts.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/9066cd0dce34244393c86ff59ceb28d2dae2bcdd/docs/openapi/schemas-pn-legal-facts.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
     RequestStatus:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/657ce23d087cdc1266e4f97070410d09c8a045d0/docs/openapi/api-internal-pn-delivery-push.yaml#/components/schemas/RequestStatus'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/9066cd0dce34244393c86ff59ceb28d2dae2bcdd/docs/openapi/api-internal-pn-delivery-push.yaml#/components/schemas/RequestStatus'
     DocumentDownloadMetadataResponse:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/657ce23d087cdc1266e4f97070410d09c8a045d0/docs/openapi/api-private.yaml#/components/schemas/DocumentDownloadMetadataResponse'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/9066cd0dce34244393c86ff59ceb28d2dae2bcdd/docs/openapi/api-private.yaml#/components/schemas/DocumentDownloadMetadataResponse'
     ############################################################################################
     ###                          STRUTTURE DATI DI PN-COMMONS                                ###
     ############################################################################################
@@ -100,10 +100,10 @@ components:
     ############################################################################################
     TimelineElement:
       # DO NOT CHANGE: this is timeline V1 commit id.
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/4b1a46d233cfc4e301750d3847b7b7176d1a16ca/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElement'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/ef3971ff1d7ec76a8af96f6ba2a7f4b71c015484/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElement'
 
     TimelineElementV20:
       # DO NOT CHANGE: this is timeline V2.0 commit id.
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/dcfc9feb7108b4193f77d045173342850f1f8934/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElementV20'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/350cd3c83e471cc057ae611bcca887859cf471bf/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElementV20'
 
 

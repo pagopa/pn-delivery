@@ -14,13 +14,20 @@ components:
       maxLength: 25
       pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
 
+# La denomination prevede max 44 caratteri, codifica isolatin 1, senza | e senza i caratteri di controllo.
+# Si veda la classe DenominationValidationUtils e la property denominationValidationExcludedCharacter che rappresenta i caratteri
+# da togliere. Si modifica solo la configurazione,  Si lasciano quindi con ONLY EXTERNAL per continuare ad avere che la logica di filtro è governata dalla configurazione del ms
+
     Denomination:
-      description: Denominazione ente o persona fisica / ragione sociale
+      description: >-
+        Denominazione ente o persona fisica / ragione sociale.
+        La codifica prevede i caratteri ISO LATIN 1, senza | e senza i caratteri di controllo, ovvero la seguente regexp: ^[ -{}~\u00A0-ÿ]*$
       type: string
       x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
       minLength: 1
-      maxLength: 80
+#      maxLength: 44                     # ONLY EXTERNAL
       pattern: ^.*$
+
 
     TaxId:
       description: C.F. persona fisica o persona giuridica
@@ -49,9 +56,12 @@ components:
     PaFeeV23:
       type: integer
       description: >-
-        Costo espresso in eurocent che la PA imputa per la notifica. <br/>
-        Obbligatoria per notifiche con notificationFeePolicy=DELIVERY_MODE<br/>
-        Il default nei casi di non obbligatorietà è 100 <br/>
+        Costo espresso in eurocent sostenuto dal mittente, per l'elaborazione degli
+        atti, provvedimenti, avvisi e comunicazioni oggetto di notifica, per
+        il relativo deposito sulla piattaforma e per la gestione degli  esiti
+        della notifica (Decreto 30 maggio 2022 - Art. 3, comma 1, lettera a). <br/>
+        Obbligatoria per notifiche con notificationFeePolicy=DELIVERY_MODE <br/>
+        Per le notifiche effettuate con versioni precedenti alla 2.3 si assume il valore di default 100.<br/>
         Esempio paFee ad 1€ -> 100 <br/>
       format: int32
       minimum: 0
@@ -61,9 +71,9 @@ components:
     VatV23:
       type: integer
       description: >-
-        IVA espressa in percentuale imposta al mittente sulla notifica analogica. <br/>
+        IVA espressa in percentuale sui costi degli avvisi in formato cartaceo.<br/>
         Obbligatoria per notifiche con notificationFeePolicy=DELIVERY_MODE. <br/>
-        Il default nei casi di non obbligatorietà è 22 <br/>
+        Per le notifiche effettuate con versioni precedenti alla 2.3 si assume il valore di default 22. <br/>
         Esempio vat al 22% -> 22 <br/>
       format: int32
       minimum: 0
@@ -73,7 +83,8 @@ components:
       type: string
       description: >-
         Politica di addebitamento dei costi di notifica. <br/>
-        - _FLAT_RATE_: costo forfettario fisso. <br/>
+        - _FLAT_RATE_: costo forfettario fisso. In questa modalità SEND non gestisce 
+        il costo della notifica per il destinatario.<br/>
         - _DELIVERY_MODE_: costo calcolato in base all'effettivo percorso di notifica. <br/>
       enum:
         - FLAT_RATE
@@ -164,6 +175,7 @@ components:
           description: Informazioni sui destinatari
           items:
             $ref: "#/components/schemas/NotificationRecipientV23"
+          minItems: 1
         documents:
           type: array
           description: Documenti notificati
@@ -218,7 +230,7 @@ components:
             Modalitá di integrazione pagoPA per l'attualizazione del costo della notifica. <br/>
             - _NONE_: nessuna attualizzazione. <br/>
             - _SYNC_: modalitá sincrona. <br/>
-            - _ASYNC_: modalitá asincrona. (non ancora supportata)<br/>
+            - _ASYNC_: modalitá asincrona. <br/>
           enum:
             - NONE
             - SYNC
@@ -373,6 +385,7 @@ components:
     NotificationPaymentItem:
       minProperties: 1
       additionalProperties: false
+      nullable: false
       properties:
         pagoPa:
           $ref: '#/components/schemas/PagoPaPayment'
