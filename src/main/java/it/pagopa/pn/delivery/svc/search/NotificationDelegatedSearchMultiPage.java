@@ -227,6 +227,7 @@ public class NotificationDelegatedSearchMultiPage extends NotificationSearch {
                 .collect(Collectors.toMap(e -> DataUtils.extractIUN(e.getIunRecipientIdDelegateIdGroupId()), Function.identity(), (a, b) -> a))
                 .values()
                 .stream()
+                .sorted(Comparator.comparing(NotificationDelegationMetadataEntity::getSentAt).reversed())
                 .toList();
     }
 }
