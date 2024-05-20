@@ -41,7 +41,11 @@ Parameters:
   DeliveryPushInputsQueueName:
     Type: String
     Description: 'Queue to pull for inputs event'
-
+  
+  DeliveryPushValidationUrlArn:
+    Type: String
+    Description: 'pn-delivery-push validation input queue url and arn, key pair'
+    
   SandboxSafeStorageBaseUrl:
      Type: String
      Description: 'Url to the SafeStorage microservice'
@@ -808,7 +812,7 @@ Resources:
                   - sqs:GetQueueUrl
                   - sqs:SendMessage
                 Resource:
-                  - !Ref DeliveryPushInputsQueueARN
+                  - !Select [ "1", !Ref DeliveryPushValidationUrlArn ]
                   - !Ref PnDeliveryInsertTriggerDLQARN
               - Sid: ReceiveDynamoStream
                 Effect: Allow
@@ -864,7 +868,7 @@ Resources:
         - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
       Environment:
         Variables:
-          QUEUE_URL: !Ref DeliveryPushInputsQueueURL
+          QUEUE_URL: !Select [ "0", !Ref DeliveryPushValidationUrlArn ]
       Code:
         ZipFile: |
               const { SQSClient, SendMessageBatchCommand } = require("@aws-sdk/client-sqs");
