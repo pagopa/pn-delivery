@@ -4,16 +4,11 @@ AWSXRay.captureHTTPsGlobal(require("http"));
 AWSXRay.captureHTTPsGlobal(require("https"));
 AWSXRay.capturePromise();
 
-const { SQSClient, SendMessageBatchCommand } = require("@aws-sdk/client-sqs");
-let sqsParams = { region: process.env.REGION };
-if (process.env.ENDPOINT) sqsParams.endpoint = process.env.ENDPOINT;
-const sqs = new SQSClient(sqsParams);
+const { sendMessages } = require("./eventBridgeFunctions");
+const { mapMessage, isRecordToSend } = require("./messageUtils");
 
-const QUEUE_URL = process.env.QUEUE_URL;
-
-exports.handler = async (event, context) => {
-  console.log(JSON.stringify(event, null, 2));
-  console.log(QUEUE_URL);
+exports.handler = async (event) => {
+  console.debug("PN-DELIVERY-INSERT-TRIGGER", JSON.stringify(event, null, 2));
 
   let messagesToSend = [];
 
@@ -23,13 +18,17 @@ exports.handler = async (event, context) => {
 
     const message = mapMessage(record);
 
-    console.log("Enqueuing message: %j", message);
+    console.info(
+      "PN-DELIVERY-INSERT-TRIGGER",
+      "Enqueuing message: %j",
+      message
+    );
     messagesToSend.push(message);
   }
 
   // se ho messaggi da spedire, procedo
   if (messagesToSend.length > 0) await sendMessages(messagesToSend);
-  else console.log("Nothing to send");
+  else console.info("PN-DELIVERY-INSERT-TRIGGER", "Nothing to send");
 
   const response = {
     StatusCode: 200,

@@ -1,11 +1,18 @@
 function isRecordToSend(record) {
   if (record.eventName != "INSERT") return false;
 
-  console.log("Processing dynamoDB Record: %j", record.dynamodb);
+  console.debug(
+    "PN-DELIVERY-INSERT-TRIGGER",
+    "Processing dynamoDB Record: %j",
+    record.dynamodb
+  );
   const iun = record.dynamodb.Keys.iun.S;
 
   if (iun.match(/^\S\S\S\S-\S\S\S\S-\S\S\S\S-\d\d\d\d\d\d-\S-\d$/) == null) {
-    console.log("Record is not a notification, skipping");
+    console.debug(
+      "PN-DELIVERY-INSERT-TRIGGER",
+      "Record is not a notification, skipping"
+    );
     return false;
   }
 
