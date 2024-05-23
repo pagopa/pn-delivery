@@ -486,11 +486,6 @@ Parameters:
     Default: "-"
     Description: Cron for which you send the metric to CloudWatch
 
-  DeliveryPushInputValidationEventBusArn:
-    Type: String
-    Default: "-"
-    Description: Event Bus Arn used for message notification to pn-delivery-push
-
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
 
@@ -797,28 +792,18 @@ Resources:
             Action:
               - sts:AssumeRole
       Path: /
-      # ManagedPolicyArns:
-      #   - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
       Policies:
         - PolicyName: !Sub ${ProjectName}-PnDeliveryInsertTriggerLambdaRolePolicy
           PolicyDocument:
             Version: 2012-10-17
             Statement:
-              - Sid: "VisualEditor0",
-			          Effect: "Allow",
-			          Action: "events:PutEvents",
-			          Resource: !Ref DeliveryPushInputValidationEventBusArn
-              - Sid: ReceiveDynamoStream
+              - Sid: PutEvents
                 Effect: Allow
                 Action:
-                  - "dynamodb:DescribeStream"
-                  - "dynamodb:GetRecords"
-                  - "dynamodb:GetShardIterator"
-                  - "dynamodb:ListStreams"
-                Resource:
-                  - !Ref NotificationsDynamoTableStreamArn
+                  - "events:PutEvents"
+                Resource: !Sub "arn:${AWS::Partition}:events:${AWS::Region}:${AWS::AccountId}:event-bus/pn-CoreEventBus"
               - Sid: CanWriteLogs
-                Effect: "Allow"
+                Effect: Allow
                 Action:
                   - "logs:CreateLogGroup"
                   - "logs:CreateLogStream"
@@ -866,7 +851,9 @@ Resources:
           [
             !Sub [
               "EVENT_BUS_ENDPOINT=${url}",
-              { url: !Ref DeliveryPushInputValidationEventBusArn },
+              {
+                url: !Sub "arn:${AWS::Partition}:events:${AWS::Region}:${AWS::AccountId}:event-bus/pn-CoreEventBus",
+              },
             ],
           ]
         FunctionBucketName: !Ref MicroserviceBucketName
