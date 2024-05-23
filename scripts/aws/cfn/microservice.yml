@@ -849,12 +849,11 @@ Resources:
         UseLambdaInsights: "true"
         EnvVariables:
           !Sub [
-            "EVENT_BUS_ENDPOINT=${url}",
+            "EVENT_BUS_ENDPOINT=${arm}",
             {
               url: !Sub "arn:${AWS::Partition}:events:${AWS::Region}:${AWS::AccountId}:event-bus/pn-CoreEventBus",
             },
           ]
-
         FunctionBucketName: !Ref MicroserviceBucketName
         FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/insertTrigger.zip"
         #TODO Valutare la necessità di inserire la VPC
