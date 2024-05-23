@@ -1,6 +1,6 @@
 let options = {
   "sonar.organization": "pagopa",
-  "sonar.projectKey": "pagopa_pn-delivery-insert-trigger",
+  "sonar.projectKey": "pagopa_pn-delivery-ValidationMessageInsertTrigger",
 };
 
 if (process.env.PR_NUM) {
