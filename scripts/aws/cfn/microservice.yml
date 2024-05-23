@@ -849,9 +849,9 @@ Resources:
         UseLambdaInsights: "true"
         EnvVariables:
           !Sub [
-            "EVENT_BUS_ENDPOINT=${arm}",
+            "EVENT_BUS_ENDPOINT=${arn}",
             {
-              url: !Sub "arn:${AWS::Partition}:events:${AWS::Region}:${AWS::AccountId}:event-bus/pn-CoreEventBus",
+              arn: !Sub "arn:${AWS::Partition}:events:${AWS::Region}:${AWS::AccountId}:event-bus/pn-CoreEventBus",
             },
           ]
         FunctionBucketName: !Ref MicroserviceBucketName
