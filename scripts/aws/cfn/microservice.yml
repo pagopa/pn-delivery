@@ -843,7 +843,7 @@ Resources:
         FunctionName: !Ref PnDeliveryInsertTriggerLambdaName
         Runtime: nodejs18.x
         Handler: "index.handler"
-        MemorySize: 128
+        MemorySize: 256
         Timeout: 10
         RoleArn: !GetAtt PnDeliveryInsertTriggerLambdaRole.Arn
         EnvVariables:
