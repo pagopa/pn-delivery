@@ -846,7 +846,6 @@ Resources:
         MemorySize: 128
         Timeout: 10
         RoleArn: !GetAtt PnDeliveryInsertTriggerLambdaRole.Arn
-        UseLambdaInsights: "true"
         EnvVariables:
           !Sub [
             "EVENT_BUS_ENDPOINT=${arn}",
