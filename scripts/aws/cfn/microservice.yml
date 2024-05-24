@@ -730,7 +730,7 @@ Resources:
             - !Ref NotificationsQRDynamoTableName
         LambdaArns: !Join
           - ","
-          - - !GetAtt PnDeliveryInsertTriggerLambda.Arn
+          - - !GetAtt PnDeliveryInsertTriggerLambda.Outputs.LambdaArn
             - !GetAtt PnDeliveryAsseverationLambda.Arn
             - !GetAtt VersioningV1V2GetNotificationLambda.Arn
             - !GetAtt VersioningV1V21SendNewNotificationLambda.Arn
@@ -819,7 +819,7 @@ Resources:
       MaximumBatchingWindowInSeconds: !Sub ${PnDeliveryInsertTriggerLambdaEventSourceMappingMaximumBatchingWindowInSeconds}
       MaximumRetryAttempts: !Sub ${PnDeliveryInsertTriggerLambdaEventSourceMappingMaximumRetryAttempts}
       FunctionName:
-        !GetAtt PnDeliveryInsertTriggerLambda.Arn
+        !GetAtt PnDeliveryInsertTriggerLambda.Outputs.LambdaArn
         # Add an OnFailure destination on the event source mapping
       DestinationConfig:
         OnFailure:
