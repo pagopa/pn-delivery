@@ -730,7 +730,7 @@ Resources:
             - !Ref NotificationsQRDynamoTableName
         LambdaArns: !Join
           - ","
-          - - !GetAtt PnDeliveryInsertTriggerLambda.Outputs.LambdaArn
+          - - !GetAtt PnDeliveryInsertTriggerLambdaStack.Outputs.LambdaArn
             - !GetAtt PnDeliveryAsseverationLambda.Arn
             - !GetAtt VersioningV1V2GetNotificationLambda.Arn
             - !GetAtt VersioningV1V21SendNewNotificationLambda.Arn
@@ -819,7 +819,7 @@ Resources:
       MaximumBatchingWindowInSeconds: !Sub ${PnDeliveryInsertTriggerLambdaEventSourceMappingMaximumBatchingWindowInSeconds}
       MaximumRetryAttempts: !Sub ${PnDeliveryInsertTriggerLambdaEventSourceMappingMaximumRetryAttempts}
       FunctionName:
-        !GetAtt PnDeliveryInsertTriggerLambda.Outputs.LambdaArn
+        !GetAtt PnDeliveryInsertTriggerLambdaStack.Outputs.LambdaArn
         # Add an OnFailure destination on the event source mapping
       DestinationConfig:
         OnFailure:
@@ -830,10 +830,10 @@ Resources:
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
       Parameters:
-        FunctionName: !Ref PnDeliveryInsertTriggerLambda
+        FunctionName: !Ref PnDeliveryInsertTriggerLambdaName
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
 
-  PnDeliveryInsertTriggerLambda:
+  PnDeliveryInsertTriggerLambdaStack:
     Type: AWS::CloudFormation::Stack
     UpdateReplacePolicy: Retain
     DeletionPolicy: Retain
