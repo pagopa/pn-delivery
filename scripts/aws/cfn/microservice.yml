@@ -830,7 +830,8 @@ Resources:
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
       Parameters:
-        FunctionName: !Ref PnDeliveryInsertTriggerLambdaName
+#        FunctionName: !Ref PnDeliveryInsertTriggerLambdaName
+        FunctionName:  "PnDeliveryInsertTriggerLambdaNameTest"
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
 
   PnDeliveryInsertTriggerLambdaStack:
@@ -840,7 +841,7 @@ Resources:
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda.yaml"
       Parameters:
-        FunctionName: !Ref PnDeliveryInsertTriggerLambdaName
+        FunctionName: "PnDeliveryInsertTriggerLambdaNameTest"
         Runtime: nodejs18.x
         Handler: "index.handler"
         MemorySize: 256
