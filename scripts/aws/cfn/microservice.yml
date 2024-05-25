@@ -835,8 +835,8 @@ Resources:
 
   PnDeliveryInsertTriggerLambdaStack:
     Type: AWS::CloudFormation::Stack
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
+    # UpdateReplacePolicy: Retain
+    # DeletionPolicy: Delete
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda.yaml"
       Parameters:
