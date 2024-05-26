@@ -812,29 +812,6 @@ Resources:
 
 
 
-  PnDeliveryInsertTriggerLambdaStack:
-    Type: AWS::CloudFormation::Stack
-    # UpdateReplacePolicy: Retain
-    # DeletionPolicy: Delete
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda.yaml"
-      Parameters:
-        FunctionName: !Ref PnDeliveryInsertTriggerLambdaName
-        Runtime: nodejs18.x
-        Handler: "index.handler"
-        MemorySize: 256
-        Timeout: 10
-        RoleArn: !GetAtt PnDeliveryInsertTriggerLambdaRole.Arn
-        EnvVariables:
-          !Sub [
-            "EVENT_BUS_ENDPOINT=${arn}",
-            {
-              arn: !Sub "arn:${AWS::Partition}:events:${AWS::Region}:${AWS::AccountId}:event-bus/pn-CoreEventBus",
-            },
-          ]
-        FunctionBucketName: !Ref MicroserviceBucketName
-        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/insertTrigger.zip"
-        #TODO Valutare la necessità di inserire la VPC
 
 
   PnDeliveryInsertTriggerLambdaEventSourceMapping:
@@ -859,6 +836,31 @@ Resources:
       Parameters:
         FunctionName: !Ref PnDeliveryInsertTriggerLambdaName
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+
+  
+  PnDeliveryInsertTriggerLambdaStack:
+    Type: AWS::CloudFormation::Stack
+    # UpdateReplacePolicy: Retain
+    # DeletionPolicy: Delete
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda.yaml"
+      Parameters:
+        FunctionName: !Ref PnDeliveryInsertTriggerLambdaName
+        Runtime: nodejs18.x
+        Handler: "index.handler"
+        MemorySize: 256
+        Timeout: 10
+        RoleArn: !GetAtt PnDeliveryInsertTriggerLambdaRole.Arn
+        EnvVariables:
+          !Sub [
+            "EVENT_BUS_ENDPOINT=${arn}",
+            {
+              arn: !Sub "arn:${AWS::Partition}:events:${AWS::Region}:${AWS::AccountId}:event-bus/pn-CoreEventBus",
+            },
+          ]
+        FunctionBucketName: !Ref MicroserviceBucketName
+        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/insertTrigger.zip"
+        #TODO Valutare la necessità di inserire la VPC
   # Asseveration Lambda function role
   PnDeliveryAsseverationLambdaRole:
     Type: AWS::IAM::Role
