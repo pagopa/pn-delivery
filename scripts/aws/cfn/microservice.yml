@@ -798,7 +798,7 @@ Resources:
                 - dynamodb:DescribeStream
                 - dynamodb:GetRecords
                 - dynamodb:ListStreams
-                Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/pn-Notifications"
+                Resource: !Ref NotificationsDynamoTableStreamArn
               - Sid: CanWriteLogs
                 Effect: Allow
                 Action:
