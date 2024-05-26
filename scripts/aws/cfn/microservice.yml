@@ -839,6 +839,13 @@ Resources:
         OnFailure:
           Destination: !Ref PnDeliveryInsertTriggerDLQARN
 
+  
+  PnDeliveryInsertTriggerLambdaLogGrout:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${PnDeliveryInsertTriggerLambdaName}"
+      RetentionInDays: 14
+
   PnDeliveryInsertTriggerLambdaAlarms:
     Type: AWS::CloudFormation::Stack
     Properties:
