@@ -718,7 +718,7 @@ Resources:
             - !Ref NotificationsQRDynamoTableName
         LambdaArns: !Join
           - ","
-          - - !GetAtt PnDeliveryInsertTriggerLambdaStack.Outputs.LambdaArn
+          - - !GetAtt PnDeliveryInsertTriggerLambdaStack.Outputs.FunctionArn
             - !GetAtt PnDeliveryAsseverationLambda.Arn
             - !GetAtt VersioningV1V2GetNotificationLambda.Arn
             - !GetAtt VersioningV1V21SendNewNotificationLambda.Arn
@@ -791,6 +791,14 @@ Resources:
                 Action:
                   - "events:PutEvents"
                 Resource: !Sub "arn:${AWS::Partition}:events:${AWS::Region}:${AWS::AccountId}:event-bus/pn-CoreEventBus"
+              - Sid: VisualEditor0
+                Effect: Allow
+                Action:
+                - dynamodb:GetShardIterator
+                - dynamodb:DescribeStream
+                - dynamodb:GetRecords
+                - dynamodb:ListStreams
+                Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/pn-Notifications"
               - Sid: CanWriteLogs
                 Effect: Allow
                 Action:
