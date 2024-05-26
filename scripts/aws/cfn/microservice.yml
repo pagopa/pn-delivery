@@ -127,9 +127,6 @@ Parameters:
     Type: String
     Description: ARN of alarm topic
 
-  Version:
-    Type: String
-    Description: "keep track of used projects commitIds"
 
   IsMvpDefaultValue:
     Type: String
@@ -223,10 +220,6 @@ Parameters:
     Type: String
     Description: "Target queue ARN for insert asseveration"
 
-  PnDeliveryAsseverationDLQARN:
-    Type: String
-    Description: "DLQ ARN for insert asseveration"
-
   PnDeliveryAsseverationDLQAlarmARN:
     Type: String
     Description: "DLQ Alarm ARN for insert asseveration"
@@ -280,11 +273,6 @@ Parameters:
   PnDeliveryInsertTriggerLambdaEventSourceMappingMaximumRetryAttempts:
     Type: String
     Description: "MaxRetry stream mapping"
-
-  LogsKinesisFilterPattern:
-    Type: String
-    Default: ""
-    Description: "Log kinesis filter pattern"
 
   AlbSecurityGroup:
     Type: String
@@ -778,6 +766,7 @@ Resources:
             - !Sub "/aws/lambda/${VersioningV1V23GetNotificationPriceLambdaName}"
 
   # Lambda function role
+  
   PnDeliveryInsertTriggerLambdaRole:
     Type: AWS::IAM::Role
     Properties:
@@ -810,8 +799,29 @@ Resources:
                   - "logs:PutLogEvents"
                 Resource: "*"
 
-
-
+  PnDeliveryInsertTriggerLambdaStack:
+    Type: AWS::CloudFormation::Stack
+    # UpdateReplacePolicy: Retain
+    # DeletionPolicy: Delete
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda.yaml"
+      Parameters:
+        FunctionName: !Ref PnDeliveryInsertTriggerLambdaName
+        Runtime: nodejs18.x
+        Handler: "index.handler"
+        MemorySize: 256
+        Timeout: 10
+        RoleArn: !GetAtt PnDeliveryInsertTriggerLambdaRole.Arn
+        EnvVariables:
+          !Sub [
+            "EVENT_BUS_ENDPOINT=${arn}",
+            {
+              arn: !Sub "arn:${AWS::Partition}:events:${AWS::Region}:${AWS::AccountId}:event-bus/pn-CoreEventBus",
+            },
+          ]
+        FunctionBucketName: !Ref MicroserviceBucketName
+        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/insertTrigger.zip"
+        #TODO Valutare la necessità di inserire la VPC
 
 
   PnDeliveryInsertTriggerLambdaEventSourceMapping:
@@ -838,29 +848,7 @@ Resources:
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
 
   
-  PnDeliveryInsertTriggerLambdaStack:
-    Type: AWS::CloudFormation::Stack
-    # UpdateReplacePolicy: Retain
-    # DeletionPolicy: Delete
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda.yaml"
-      Parameters:
-        FunctionName: !Ref PnDeliveryInsertTriggerLambdaName
-        Runtime: nodejs18.x
-        Handler: "index.handler"
-        MemorySize: 256
-        Timeout: 10
-        RoleArn: !GetAtt PnDeliveryInsertTriggerLambdaRole.Arn
-        EnvVariables:
-          !Sub [
-            "EVENT_BUS_ENDPOINT=${arn}",
-            {
-              arn: !Sub "arn:${AWS::Partition}:events:${AWS::Region}:${AWS::AccountId}:event-bus/pn-CoreEventBus",
-            },
-          ]
-        FunctionBucketName: !Ref MicroserviceBucketName
-        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/insertTrigger.zip"
-        #TODO Valutare la necessità di inserire la VPC
+
   # Asseveration Lambda function role
   PnDeliveryAsseverationLambdaRole:
     Type: AWS::IAM::Role
