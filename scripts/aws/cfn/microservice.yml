@@ -800,6 +800,16 @@ Resources:
                   - "dynamodb:ListStreams"
                 Resource:
                   - !Ref NotificationsDynamoTableStreamArn
+              - Sid: DLQWrite
+                Effect: Allow
+                Action:
+                  - sqs:ChangeMessageVisibility
+                  - sqs:GetQueueAttributes
+                  - sqs:GetQueueUrl
+                  - sqs:SendMessage
+                Resource:
+ #                 - !Ref DeliveryPushInputsQueueARN
+                  - !Ref PnDeliveryInsertTriggerDLQARN
               - Sid: CanWriteLogs
                 Effect: Allow
                 Action:
