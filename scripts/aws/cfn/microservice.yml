@@ -833,7 +833,7 @@ Resources:
       MaximumBatchingWindowInSeconds: !Sub ${PnDeliveryInsertTriggerLambdaEventSourceMappingMaximumBatchingWindowInSeconds}
       MaximumRetryAttempts: !Sub ${PnDeliveryInsertTriggerLambdaEventSourceMappingMaximumRetryAttempts}
       FunctionName:
-        !GetAtt PnDeliveryInsertTriggerLambdaStack.Outputs.LambdaArn
+        !GetAtt PnDeliveryInsertTriggerLambdaStack.Outputs.FunctionArn
         # Add an OnFailure destination on the event source mapping
       DestinationConfig:
         OnFailure:
