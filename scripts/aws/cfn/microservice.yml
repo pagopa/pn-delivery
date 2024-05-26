@@ -791,14 +791,15 @@ Resources:
                 Action:
                   - "events:PutEvents"
                 Resource: !Sub "arn:${AWS::Partition}:events:${AWS::Region}:${AWS::AccountId}:event-bus/pn-CoreEventBus"
-              - Sid: VisualEditor0
+              - Sid: ReceiveDynamoStream
                 Effect: Allow
                 Action:
-                - dynamodb:GetShardIterator
-                - dynamodb:DescribeStream
-                - dynamodb:GetRecords
-                - dynamodb:ListStreams
-                Resource: !Ref NotificationsDynamoTableStreamArn
+                  - "dynamodb:DescribeStream"
+                  - "dynamodb:GetRecords"
+                  - "dynamodb:GetShardIterator"
+                  - "dynamodb:ListStreams"
+                Resource:
+                  - !Ref NotificationsDynamoTableStreamArn
               - Sid: CanWriteLogs
                 Effect: Allow
                 Action:
