@@ -38,6 +38,10 @@ exports.versioning = async (event, context) => {
       const IUN = event.pathParameters["iun"];
       
       const url = `${process.env.PN_DELIVERY_URL}${path}${IUN}`;
+
+      const attemptTimeout = ${process.env.ATTEMPT_TIMEOUT} * 1000;
+
+      const numRetry = ${process.env.NUM_RETRY};
       
       // ora è necessario sapere da che versione sto invocando, per prendere le decisioni corrette.
       let version = 10;
@@ -89,8 +93,20 @@ exports.versioning = async (event, context) => {
       console.log("calling ", url);
       let response;
       try {
-        response = await axios.get(url, { headers: headers });
-        
+        for (var i=0; i<numRetry; i++) {
+            console.log('attempt #',i);
+            try {
+              response = await axios.get(url, { headers: headers , timeout: attemptTimeout} );
+              if (response) {
+                break;
+              } else {
+                console.log('cannot fetch data');
+              }
+            } catch (error) {
+              console.log('cannot fetch data');
+            }
+        }
+
         const notificationStatus_ENUM = [
           "IN_VALIDATION",
           "ACCEPTED",
