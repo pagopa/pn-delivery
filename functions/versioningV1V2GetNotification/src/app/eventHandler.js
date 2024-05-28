@@ -39,9 +39,9 @@ exports.versioning = async (event, context) => {
       
       const url = `${process.env.PN_DELIVERY_URL}${path}${IUN}`;
 
-      const attemptTimeout = ${process.env.ATTEMPT_TIMEOUT} * 1000;
+      const attemptTimeout = `${process.env.ATTEMPT_TIMEOUT}` * 1000;
 
-      const numRetry = ${process.env.NUM_RETRY};
+      const numRetry = `${process.env.NUM_RETRY}`;
       
       // ora è necessario sapere da che versione sto invocando, per prendere le decisioni corrette.
       let version = 10;
