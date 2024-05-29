@@ -127,6 +127,8 @@ describe('EventHandler Testing', () => {
 
             process.env = Object.assign(process.env, {
                 PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery",
+                ATTEMPT_TIMEOUT: "5",
+                NUM_RETRY: "3"
             });
 
             const eventHandler = proxyquire

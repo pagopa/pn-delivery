@@ -27,6 +27,8 @@ exports.handleEvent = async (event) => {
 
     // post verso pn-delivery
     const url = process.env.PN_DELIVERY_URL.concat('/requests');
+    const attemptTimeout = `${process.env.ATTEMPT_TIMEOUT}` * 1000;
+    const numRetry = `${process.env.NUM_RETRY}`;
 
     const headers = JSON.parse(JSON.stringify(event["headers"]));
     headers["x-pagopa-pn-src-ch"] = "B2B";
@@ -65,31 +67,50 @@ exports.handleEvent = async (event) => {
         break;
     }
 
-  try {
     console.log ('calling ',url);
-    response = await axios.post(url, finalVersionRequest, { headers: headers });
-    
-    const ret = {
-      statusCode: response.status,
-      body: JSON.stringify(response.data)
+    let response;
+    let lastError = null;
+    try {
+        for (var i=0; i<numRetry; i++) {
+            console.log('attempt #',i);
+            try {
+                response = await axios.post(url, finalVersionRequest, { headers: headers , timeout: attemptTimeout});
+                if (response) {
+                  lastError = null;
+                  break;
+                } else {
+                  console.log('cannot fetch data');
+                }
+            } catch (error) {
+                lastError = error;
+                console.log('cannot fetch data');
+            }
+        }
+
+        if (lastError != null) {
+            throw lastError;
+        }
+        const ret = {
+          statusCode: response.status,
+          body: JSON.stringify(response.data)
+        }
+        return ret;
+    } catch(error) {
+        if (error.response) {
+          console.log("risposta negativa: ", error.response.data);
+          const ret = {
+            statusCode: error.response.status,
+            body: JSON.stringify(error.response.data)
+          };
+          return ret;
+        } else {
+          console.warn("Error on url " + url, error)
+          return {
+            statusCode: 500,
+            body: JSON.stringify(generateProblem(500, error.message))
+          }
+        }
     }
-    return ret;
-  } catch(error) {
-    if (error.response) {
-      console.log("risposta negativa: ", error.response.data);
-      const ret = {
-        statusCode: error.response.status,
-        body: JSON.stringify(error.response.data)
-      };
-      return ret;
-    } else {
-      console.warn("Error on url " + url, error)
-      return {
-        statusCode: 500,
-        body: JSON.stringify(generateProblem(500, error.message))
-      }
-    }
-  }
   
   function generateProblem(status, message) {
     return {
@@ -101,4 +122,4 @@ exports.handleEvent = async (event) => {
       ]
     }
   }
-}
+};

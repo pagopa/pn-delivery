@@ -50,6 +50,8 @@ describe("eventHandler tests", function () {
 
         process.env = Object.assign(process.env, {
             PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery",
+            ATTEMPT_TIMEOUT: "5",
+            NUM_RETRY: "3"
         });
         
         let url = `${process.env.PN_DELIVERY_URL}/requests?`;

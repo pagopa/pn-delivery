@@ -24,7 +24,9 @@ exports.handleEvent = async (event) => {
     
     // get verso pn-delivery
     const url = process.env.PN_DELIVERY_URL.concat('/requests?');
-    
+    const attemptTimeout = `${process.env.ATTEMPT_TIMEOUT}` * 1000;
+    const numRetry = `${process.env.NUM_RETRY}`;
+
     const headers = JSON.parse(JSON.stringify(event["headers"]));
     headers["x-pagopa-pn-src-ch"] = "B2B";
     
@@ -78,9 +80,27 @@ exports.handleEvent = async (event) => {
     
     console.log ('calling ',url + searchParams);
     let response;
+    let lastError = null;
     try {
-        response = await axios.get(url, { params: searchParams, headers: headers });
+        for (var i=0; i<numRetry; i++) {
+            console.log('attempt #',i);
+            try {
+                response = await axios.get(url, { params: searchParams, headers: headers , timeout: attemptTimeout});
+                if (response) {
+                    lastError = null;
+                    break;
+                } else {
+                  console.log('cannot fetch data');
+                }
+            } catch (error) {
+                lastError = error;
+                console.log('cannot fetch data');
+            }
+        }
 
+        if (lastError != null) {
+            throw lastError;
+        }
         let finalVersionObject = response.data;
         switch(version) {
             case 10:
@@ -96,7 +116,6 @@ exports.handleEvent = async (event) => {
             body: JSON.stringify(finalVersionObject),
         };
         return ret;
-        
     } catch (error) {
         if (error instanceof ValidationException) {
             console.info("Validation Exception: ", error)
