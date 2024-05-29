@@ -31,7 +31,7 @@ exports.handleEvent = async (event) => {
         for (var i=0; i<numRetry; i++) {
             console.log('attempt #',i);
           try {
-            response = await axios.get(url);
+            response = await axios.get(url, {timeout: attemptTimeout});
             if (response) {
               lastError = null;
               break;
