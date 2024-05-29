@@ -20,13 +20,32 @@ exports.handleEvent = async (event) => {
     const paTaxId = event.pathParameters["paTaxId"];
     const noticeCode = event.pathParameters["noticeCode"];
 
-    // get verso pn-delivery
     const url = `${process.env.PN_DELIVERY_URL}${path}${paTaxId}/${noticeCode}`;
-
+    const attemptTimeout = `${process.env.ATTEMPT_TIMEOUT}` * 1000;
+    const numRetry = `${process.env.NUM_RETRY}`;
     console.log ('calling ', url);
-    
+    // get verso pn-delivery
+    let response;
+    let lastError = null;
     try {
-        let response = await axios.get(url);
+        for (var i=0; i<numRetry; i++) {
+            console.log('attempt #',i);
+          try {
+            response = await axios.get(url);
+            if (response) {
+              lastError = null;
+              break;
+            } else {
+              console.log('cannot fetch data');
+            }
+          } catch (error) {
+            lastError = error;
+            console.log('cannot fetch data');
+          }
+        }
+        if (lastError != null) {
+            throw lastError;
+        }
         const transformedObject = transformFromV23ToV1(response.data);
         const ret = {
             statusCode: response.status,

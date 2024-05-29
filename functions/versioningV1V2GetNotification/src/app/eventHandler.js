@@ -92,19 +92,27 @@ exports.versioning = async (event, context) => {
       
       console.log("calling ", url);
       let response;
+      let lastError = null;
+
       try {
         for (var i=0; i<numRetry; i++) {
             console.log('attempt #',i);
             try {
               response = await axios.get(url, { headers: headers , timeout: attemptTimeout} );
               if (response) {
+                lastError = null;
                 break;
               } else {
                 console.log('cannot fetch data');
               }
             } catch (error) {
+              lastError = error;
               console.log('cannot fetch data');
             }
+        }
+
+        if (lastError != null) {
+            throw lastError;
         }
 
         const notificationStatus_ENUM = [
