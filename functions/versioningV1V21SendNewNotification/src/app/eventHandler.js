@@ -67,29 +67,13 @@ exports.handleEvent = async (event) => {
         break;
     }
 
-    console.log ('calling ',url);
-    let response;
-    let lastError = null;
     try {
-        for (var i=0; i<numRetry; i++) {
-            console.log('attempt #',i);
-            try {
-                response = await axios.post(url, finalVersionRequest, { headers: headers , timeout: attemptTimeout});
-                if (response) {
-                  lastError = null;
-                  break;
-                } else {
-                  console.log('cannot fetch data');
-                }
-            } catch (error) {
-                lastError = error;
-                console.log('cannot fetch data');
-            }
-        }
+        console.log ('calling ',url);
+        let response;
+        let postTimeout = this.attemptTimeout * this.numRetry;
 
-        if (lastError != null) {
-            throw lastError;
-        }
+        response = await axios.post(url, finalVersionRequest, { headers: headers , timeout: postTimeout});
+
         const ret = {
           statusCode: response.status,
           body: JSON.stringify(response.data)
@@ -104,11 +88,11 @@ exports.handleEvent = async (event) => {
           };
           return ret;
         } else {
-          console.warn("Error on url " + url, error)
-          return {
-            statusCode: 500,
-            body: JSON.stringify(generateProblem(500, error.message))
-          }
+              console.warn("Error on url " + url, error)
+              return {
+                statusCode: 500,
+                body: JSON.stringify(generateProblem(500, error.message))
+              }
         }
     }
   
