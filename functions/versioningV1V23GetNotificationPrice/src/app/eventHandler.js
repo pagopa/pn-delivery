@@ -6,6 +6,7 @@ AWSXRay.captureHTTPsGlobal(require('https'));
 AWSXRay.capturePromise();
 
 const axios = require("axios");
+const axiosRetry = require("axios-retry").default;
 
 exports.handleEvent = async (event) => {
     const path = "/price/";
@@ -23,29 +24,15 @@ exports.handleEvent = async (event) => {
     const url = `${process.env.PN_DELIVERY_URL}${path}${paTaxId}/${noticeCode}`;
     const attemptTimeout = `${process.env.ATTEMPT_TIMEOUT}` * 1000;
     const numRetry = `${process.env.NUM_RETRY}`;
+    axiosRetry(axios, { retries: numRetry, shouldResetTimeout: true });
+
     console.log ('calling ', url);
     // get verso pn-delivery
     let response;
     let lastError = null;
     try {
-        for (var i=0; i<numRetry; i++) {
-            console.log('attempt #',i);
-          try {
-            response = await axios.get(url, {timeout: attemptTimeout});
-            if (response) {
-              lastError = null;
-              break;
-            } else {
-              console.log('cannot fetch data');
-            }
-          } catch (error) {
-            lastError = error;
-            console.log('cannot fetch data');
-          }
-        }
-        if (lastError != null) {
-            throw lastError;
-        }
+        response = await axios.get(url, {timeout: attemptTimeout});
+
         const transformedObject = transformFromV23ToV1(response.data);
         const ret = {
             statusCode: response.status,

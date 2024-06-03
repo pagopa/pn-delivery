@@ -10,6 +10,7 @@ AWSXRay.captureHTTPsGlobal(require('https'));
 AWSXRay.capturePromise();
 
 const axios = require("axios");
+const axiosRetry = require("axios-retry").default;
 
 exports.versioning = async (event, context) => {
   const path = "/notifications/sent/";
@@ -42,7 +43,9 @@ exports.versioning = async (event, context) => {
       const attemptTimeout = `${process.env.ATTEMPT_TIMEOUT}` * 1000;
 
       const numRetry = `${process.env.NUM_RETRY}`;
-      
+
+      axiosRetry(axios, { retries: numRetry, shouldResetTimeout: true });
+
       // ora è necessario sapere da che versione sto invocando, per prendere le decisioni corrette.
       let version = 10;
       
@@ -95,25 +98,7 @@ exports.versioning = async (event, context) => {
       let lastError = null;
 
       try {
-        for (var i=0; i<numRetry; i++) {
-            console.log('attempt #',i);
-            try {
-              response = await axios.get(url, { headers: headers , timeout: attemptTimeout} );
-              if (response) {
-                lastError = null;
-                break;
-              } else {
-                console.log('cannot fetch data');
-              }
-            } catch (error) {
-              lastError = error;
-              console.log('cannot fetch data');
-            }
-        }
-
-        if (lastError != null) {
-            throw lastError;
-        }
+        response = await axios.get(url, { headers: headers , timeout: attemptTimeout} );
 
         const notificationStatus_ENUM = [
           "IN_VALIDATION",

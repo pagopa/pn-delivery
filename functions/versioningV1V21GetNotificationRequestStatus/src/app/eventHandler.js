@@ -7,6 +7,7 @@ AWSXRay.captureHTTPsGlobal(require('https'));
 AWSXRay.capturePromise();
 
 const axios = require("axios");
+const axiosRetry = require("axios-retry").default;
 
 exports.handleEvent = async (event) => {
     
@@ -26,6 +27,7 @@ exports.handleEvent = async (event) => {
     const url = process.env.PN_DELIVERY_URL.concat('/requests?');
     const attemptTimeout = `${process.env.ATTEMPT_TIMEOUT}` * 1000;
     const numRetry = `${process.env.NUM_RETRY}`;
+    axiosRetry(axios, { retries: numRetry, shouldResetTimeout: true });
 
     const headers = JSON.parse(JSON.stringify(event["headers"]));
     headers["x-pagopa-pn-src-ch"] = "B2B";
@@ -82,25 +84,8 @@ exports.handleEvent = async (event) => {
     let response;
     let lastError = null;
     try {
-        for (var i=0; i<numRetry; i++) {
-            console.log('attempt #',i);
-            try {
-                response = await axios.get(url, { params: searchParams, headers: headers , timeout: attemptTimeout});
-                if (response) {
-                    lastError = null;
-                    break;
-                } else {
-                  console.log('cannot fetch data');
-                }
-            } catch (error) {
-                lastError = error;
-                console.log('cannot fetch data');
-            }
-        }
+        response = await axios.get(url, { params: searchParams, headers: headers , timeout: attemptTimeout});
 
-        if (lastError != null) {
-            throw lastError;
-        }
         let finalVersionObject = response.data;
         switch(version) {
             case 10:
