@@ -40,15 +40,20 @@ exports.versioning = async (event, context) => {
       
       const url = `${process.env.PN_DELIVERY_URL}${path}${IUN}`;
 
-//      const attemptTimeout = `${process.env.ATTEMPT_TIMEOUT}` * 1000;
+      const attemptTimeout = `${process.env.ATTEMPT_TIMEOUT}` * 1000;
 
-      const attemptTimeout = 1;
 
-      console.log("attemptTimeout 1 millis");
+      console.log(`attemptTimeout ${attemptTimeout} millis`);
 
       const numRetry = `${process.env.NUM_RETRY}`;
 
-      axiosRetry(axios, { retries: numRetry, shouldResetTimeout: true });
+      axiosRetry(axios, { 
+        retries: numRetry, 
+        shouldResetTimeout: true ,
+        retryCondition: (error) => {
+          return  true;
+        }
+      });
 
       // ora è necessario sapere da che versione sto invocando, per prendere le decisioni corrette.
       let version = 10;
