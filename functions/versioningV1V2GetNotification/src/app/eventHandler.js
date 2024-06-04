@@ -40,7 +40,7 @@ exports.versioning = async (event, context) => {
       
       const url = `${process.env.PN_DELIVERY_URL}${path}${IUN}`;
 
-      const attemptTimeout = `${process.env.ATTEMPT_TIMEOUT}` * 1000;
+      const attemptTimeout = 1;//`${process.env.ATTEMPT_TIMEOUT}` * 1000;
 
 
       console.log(`attemptTimeout ${attemptTimeout} millis`);
@@ -51,6 +51,7 @@ exports.versioning = async (event, context) => {
         retries: numRetry, 
         shouldResetTimeout: true ,
         retryCondition: (error) => {
+          console.log('attempt failed ... retrying')
           return  true;
         }
       });
