@@ -44,6 +44,8 @@ exports.versioning = async (event, context) => {
 
       const attemptTimeout = 1;
 
+      console.log("attemptTimeout 1 millis");
+
       const numRetry = `${process.env.NUM_RETRY}`;
 
       axiosRetry(axios, { retries: numRetry, shouldResetTimeout: true });
