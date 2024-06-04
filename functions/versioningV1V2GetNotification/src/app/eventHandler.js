@@ -40,7 +40,9 @@ exports.versioning = async (event, context) => {
       
       const url = `${process.env.PN_DELIVERY_URL}${path}${IUN}`;
 
-      const attemptTimeout = `${process.env.ATTEMPT_TIMEOUT}` * 1000;
+//      const attemptTimeout = `${process.env.ATTEMPT_TIMEOUT}` * 1000;
+
+      const attemptTimeout = 1;
 
       const numRetry = `${process.env.NUM_RETRY}`;
 
