@@ -58,7 +58,8 @@ exports.versioning = async (event, context) => {
       if (event["path"].startsWith("/delivery/v2.3/")) {
         version = 23;
       }
-      
+      console.log('.............using version '+version);
+
       const headers = JSON.parse(JSON.stringify(event["headers"]));
       headers["x-pagopa-pn-src-ch"] = "B2B";
       
@@ -120,7 +121,8 @@ exports.versioning = async (event, context) => {
           transformedObject = transformFromV23ToV21(response.data);
           break;
         }
-        
+
+
         const ret = {
           statusCode: response.status,
           body: JSON.stringify(transformedObject),
