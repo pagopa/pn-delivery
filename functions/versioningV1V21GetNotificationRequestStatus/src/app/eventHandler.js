@@ -7,6 +7,7 @@ AWSXRay.captureHTTPsGlobal(require('https'));
 AWSXRay.capturePromise();
 
 const axios = require("axios");
+const axiosRetry = require("axios-retry").default;
 
 exports.handleEvent = async (event) => {
     
@@ -24,7 +25,18 @@ exports.handleEvent = async (event) => {
     
     // get verso pn-delivery
     const url = process.env.PN_DELIVERY_URL.concat('/requests?');
-    
+    const attemptTimeout = `${process.env.ATTEMPT_TIMEOUT_SEC}` * 1000;
+    const numRetry = `${process.env.NUM_RETRY}`;
+    axiosRetry(axios, {
+        retries: numRetry,
+        shouldResetTimeout: true ,
+        retryCondition: (error) => {
+          return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.code === 'ECONNABORTED';
+        },
+        onRetry: retryCallback,
+        onMaxRetryTimesExceeded: retryTimesExceededCallback
+      });
+
     const headers = JSON.parse(JSON.stringify(event["headers"]));
     headers["x-pagopa-pn-src-ch"] = "B2B";
     
@@ -78,8 +90,9 @@ exports.handleEvent = async (event) => {
     
     console.log ('calling ',url + searchParams);
     let response;
+    let lastError = null;
     try {
-        response = await axios.get(url, { params: searchParams, headers: headers });
+        response = await axios.get(url, { params: searchParams, headers: headers , timeout: attemptTimeout});
 
         let finalVersionObject = response.data;
         switch(version) {
@@ -96,7 +109,6 @@ exports.handleEvent = async (event) => {
             body: JSON.stringify(finalVersionObject),
         };
         return ret;
-        
     } catch (error) {
         if (error instanceof ValidationException) {
             console.info("Validation Exception: ", error)
@@ -296,5 +308,13 @@ exports.handleEvent = async (event) => {
           title: title,
           docIdx: docIdx,
         };
+      }
+
+      function retryCallback(retryCount, error, requestConfig) {
+        console.warn(`Retry num ${retryCount} - error:${error.message}`);
+      }
+
+      function retryTimesExceededCallback(error, retryCount) {
+        console.warn(`Retries exceeded: ${retryCount} - error:${error.message}`);
       }
 };

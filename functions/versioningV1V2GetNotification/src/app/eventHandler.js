@@ -10,6 +10,7 @@ AWSXRay.captureHTTPsGlobal(require('https'));
 AWSXRay.capturePromise();
 
 const axios = require("axios");
+const axiosRetry = require("axios-retry").default;
 
 exports.versioning = async (event, context) => {
   const path = "/notifications/sent/";
@@ -38,7 +39,23 @@ exports.versioning = async (event, context) => {
       const IUN = event.pathParameters["iun"];
       
       const url = `${process.env.PN_DELIVERY_URL}${path}${IUN}`;
-      
+
+      const attemptTimeout = `${process.env.ATTEMPT_TIMEOUT_SEC}` * 1000;
+
+      const numRetry = `${process.env.NUM_RETRY}`;
+
+      console.log(`attemptTimeout ${attemptTimeout} millis  ${numRetry} retry`);
+
+      axiosRetry(axios, {
+        retries: numRetry, 
+        shouldResetTimeout: true ,
+        retryCondition: (error) => {
+          return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.code === 'ECONNABORTED';
+        },
+        onRetry: retryCallback,
+        onMaxRetryTimesExceeded: retryTimesExceededCallback
+      });
+
       // ora è necessario sapere da che versione sto invocando, per prendere le decisioni corrette.
       let version = 10;
       
@@ -88,9 +105,11 @@ exports.versioning = async (event, context) => {
       
       console.log("calling ", url);
       let response;
+      let lastError = null;
+
       try {
-        response = await axios.get(url, { headers: headers });
-        
+        response = await axios.get(url, { headers: headers , timeout: attemptTimeout} );
+
         const notificationStatus_ENUM = [
           "IN_VALIDATION",
           "ACCEPTED",
@@ -158,5 +177,13 @@ exports.versioning = async (event, context) => {
             }
           ]
         }
+      }
+
+      function retryCallback(retryCount, error, requestConfig) {
+        console.warn(`Retry num ${retryCount} - error:${error.message}`);
+      }
+
+      function retryTimesExceededCallback(error, retryCount) {
+        console.warn(`Retries exceeded: ${retryCount} - error:${error.message}`);
       }
     };

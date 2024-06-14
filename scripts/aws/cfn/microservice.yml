@@ -486,6 +486,16 @@ Parameters:
     Default: '-'
     Description: Cron for which you send the metric to CloudWatch
 
+  AttemptTimeoutSec:
+    Type: Number
+    Description: 'Timeout in seconds for each retry attempt for each idempotent versioning lambda'
+    Default: 7
+
+  NumRetry:
+    Type: Number
+    Description: 'Number of retries for each idempotent versioning lambda'
+    Default: 3
+    
 Conditions:
     SendLogToKinesis: !Not [ !Equals [ !Ref LogsKinesisSourceStreamArn, '' ] ]
 
@@ -1162,11 +1172,13 @@ Resources:
         Variables:
           REGION: !Sub ${AWS::Region}
           PN_DELIVERY_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery/v2.3"
+          NUM_RETRY: !Ref NumRetry
+          ATTEMPT_TIMEOUT_SEC: !Ref AttemptTimeoutSec
       TracingConfig:
         Mode: Active
       Layers:
         - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
-      Timeout: 10
+      Timeout: 30
       MemorySize: 512
       Tags:
         - Key: "pn-eni-related"
@@ -1256,11 +1268,13 @@ Resources:
         Variables:
           REGION: !Sub ${AWS::Region}
           PN_DELIVERY_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery/v2.3"
+          NUM_RETRY: !Ref NumRetry
+          ATTEMPT_TIMEOUT_SEC: !Ref AttemptTimeoutSec
       TracingConfig:
         Mode: Active
       Layers:
         - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
-      Timeout: 10
+      Timeout: 30
       MemorySize: 512
       Tags:
         - Key: "pn-eni-related"
@@ -1350,11 +1364,13 @@ Resources:
         Variables:
           REGION: !Sub ${AWS::Region}
           PN_DELIVERY_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery/v2.3"
+          NUM_RETRY: !Ref NumRetry
+          ATTEMPT_TIMEOUT_SEC: !Ref AttemptTimeoutSec
       TracingConfig:
         Mode: Active
       Layers:
         - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
-      Timeout: 10
+      Timeout: 30
       MemorySize: 512
       Tags:
         - Key: "pn-eni-related"
@@ -1445,11 +1461,13 @@ Resources:
         Variables:
           REGION: !Sub ${AWS::Region}
           PN_DELIVERY_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery/v2.3"
+          NUM_RETRY: !Ref NumRetry
+          ATTEMPT_TIMEOUT_SEC: !Ref AttemptTimeoutSec
       TracingConfig:
         Mode: Active
       Layers:
         - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
-      Timeout: 10
+      Timeout: 30
       MemorySize: 512
       Tags:
         - Key: "pn-eni-related"

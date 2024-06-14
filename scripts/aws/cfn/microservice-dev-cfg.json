@@ -31,6 +31,8 @@
     "DenominationValidationExcludedCharacter": "NONE",
     "MountEfs": "false",
     "PnCronAnalyzer": "* */1 * * * *",
-    "WireTapLogActivation": "false"
+    "WireTapLogActivation": "false",
+    "AttemptTimeoutSec": "7",
+    "NumRetry": "3"
   }
 }
