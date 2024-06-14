@@ -180,10 +180,10 @@ exports.versioning = async (event, context) => {
       }
 
       function retryCallback(retryCount, error, requestConfig) {
-        console.warn(`Retry num ${retryCount} - error:${JSON.stringify(error)} -${JSON.stringify(requestConfig)}`);
+        console.warn(`Retry num ${retryCount} - error:${error.message}`);
       }
 
       function retryTimesExceededCallback(error, retryCount) {
-        console.warn(`Retries exceeded: ${retryCount} - error:${JSON.stringify(error)}`);
+        console.warn(`Retries exceeded: ${retryCount} - error:${error.message}`);
       }
     };
