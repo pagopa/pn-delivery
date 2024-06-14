@@ -48,7 +48,9 @@ exports.versioning = async (event, context) => {
 
       axiosRetry(axios, {
         retries: numRetry, 
-        shouldResetTimeout: true 
+        shouldResetTimeout: true ,
+        onRetry: retryCallback,
+        onMaxRetryTimesExceeded: retryTimesExceededCallback
       });
 
       // ora è necessario sapere da che versione sto invocando, per prendere le decisioni corrette.
@@ -172,5 +174,13 @@ exports.versioning = async (event, context) => {
             }
           ]
         }
+      }
+
+      function retryCallback(retryCount, error, requestConfig) {
+        console.warn(`Retry num ${retryCount} - error:${JSON.stringify(error)} -${JSON.stringify(requestConfig)}`);
+      }
+
+      function retryTimesExceededCallback(error, retryCount) {
+        console.warn(`Retries exceeded: ${retryCount} - error:${JSON.stringify(error)}`);
       }
     };
