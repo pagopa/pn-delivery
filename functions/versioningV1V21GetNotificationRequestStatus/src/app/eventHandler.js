@@ -27,7 +27,15 @@ exports.handleEvent = async (event) => {
     const url = process.env.PN_DELIVERY_URL.concat('/requests?');
     const attemptTimeout = `${process.env.ATTEMPT_TIMEOUT_SEC}` * 1000;
     const numRetry = `${process.env.NUM_RETRY}`;
-    axiosRetry(axios, { retries: numRetry, shouldResetTimeout: true });
+    axiosRetry(axios, {
+        retries: numRetry,
+        shouldResetTimeout: true ,
+        retryCondition: (error) => {
+          return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.code === 'ECONNABORTED';
+        },
+        onRetry: retryCallback,
+        onMaxRetryTimesExceeded: retryTimesExceededCallback
+      });
 
     const headers = JSON.parse(JSON.stringify(event["headers"]));
     headers["x-pagopa-pn-src-ch"] = "B2B";
@@ -300,5 +308,13 @@ exports.handleEvent = async (event) => {
           title: title,
           docIdx: docIdx,
         };
+      }
+
+      function retryCallback(retryCount, error, requestConfig) {
+        console.warn(`Retry num ${retryCount} - error:${error.message}`);
+      }
+
+      function retryTimesExceededCallback(error, retryCount) {
+        console.warn(`Retries exceeded: ${retryCount} - error:${error.message}`);
       }
 };
