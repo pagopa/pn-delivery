@@ -22,7 +22,7 @@ exports.handleEvent = async (event) => {
     const noticeCode = event.pathParameters["noticeCode"];
 
     const url = `${process.env.PN_DELIVERY_URL}${path}${paTaxId}/${noticeCode}`;
-    const attemptTimeout = `${process.env.ATTEMPT_TIMEOUT}` * 1000;
+    const attemptTimeout = `${process.env.ATTEMPT_TIMEOUT_SEC}` * 1000;
     const numRetry = `${process.env.NUM_RETRY}`;
     axiosRetry(axios, { retries: numRetry, shouldResetTimeout: true });
 

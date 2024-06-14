@@ -17,8 +17,8 @@ describe("eventHandler tests", function () {
 
     process.env = Object.assign(process.env, {
       PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
-      ATTEMPT_TIMEOUT: "5",
-      NUM_RETRY: "3"
+      ATTEMPT_TIMEOUT_SEC: 5,
+      NUM_RETRY: 3
     });
 
     const iunValue = "12345";
