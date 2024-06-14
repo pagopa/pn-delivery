@@ -486,6 +486,16 @@ Parameters:
     Default: '-'
     Description: Cron for which you send the metric to CloudWatch
 
+  AttemptTimeoutSec:
+    Type: Number
+    Description: 'Timeout in seconds for each retry attempt for each idempotent versioning lambda'
+    Default: 7
+
+  NumRetry:
+    Type: Number
+    Description: 'Number of retries for each idempotent versioning lambda'
+    Default: 3
+    
 Conditions:
     SendLogToKinesis: !Not [ !Equals [ !Ref LogsKinesisSourceStreamArn, '' ] ]
 
