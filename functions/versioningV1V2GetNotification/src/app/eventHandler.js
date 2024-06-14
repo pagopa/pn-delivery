@@ -49,6 +49,9 @@ exports.versioning = async (event, context) => {
       axiosRetry(axios, {
         retries: numRetry, 
         shouldResetTimeout: true ,
+        retryCondition: (error) => {
+          return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.code === 'ECONNABORTED';
+        },
         onRetry: retryCallback,
         onMaxRetryTimesExceeded: retryTimesExceededCallback
       });
