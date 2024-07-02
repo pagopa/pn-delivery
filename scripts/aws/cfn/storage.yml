@@ -394,7 +394,7 @@ Outputs:
   PnDeliveryAsseverationLambdaName:
     Value: !Sub "${ProjectName}-delivery-asseveration-lambda"
   PnDeliveryInsertTriggerLambdaName:
-    Value: !Sub "${ProjectName}-delivery-insert-trigger-lambda"
+    Value: !Sub "${ProjectName}-delivery-insert-trigger-eb-lambda"
 
   VersioningV1V2GetNotificationLambdaName:
     Value: !Sub "${ProjectName}-delivery-versioning-v1v2-getnotification-lambda"
