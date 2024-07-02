@@ -840,8 +840,6 @@ Resources:
           ]
         FunctionBucketName: !Ref MicroserviceBucketName
         FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/insertTrigger.zip"
-        #TODO Valutare la necessità di inserire la VPC
-
 
   PnDeliveryInsertTriggerLambdaEventSourceMapping:
     Type: AWS::Lambda::EventSourceMapping
