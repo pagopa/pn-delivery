@@ -20,6 +20,9 @@ const sendMessages = async (messages = []) => {
 
   const entries = [];
   for (let i = 0; i < messages.length; i++) {
+    let body = messages[i].MessageBody;
+    body.iun = messages[i].MessageAttributes.iun;
+    
     const currEntry = {
       Detail: JSON.stringify({
         body: messages[i].MessageBody,
