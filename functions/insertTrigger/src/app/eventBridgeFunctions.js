@@ -20,9 +20,13 @@ const sendMessages = async (messages = []) => {
 
   const entries = [];
   for (let i = 0; i < messages.length; i++) {
-    let body = messages[i].MessageBody;
-    body.iun = messages[i].MessageAttributes.iun;
 
+    let oldBody = JSON.parse(messages[i].MessageBody);
+    let body = {
+      paId:oldBody.paId,
+      iun:messages[i].MessageAttributes.iun.StringValue
+    }
+    
     const currEntry = {
       Detail: JSON.stringify({
         body: body,
