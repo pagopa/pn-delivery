@@ -22,10 +22,10 @@ const sendMessages = async (messages = []) => {
   for (let i = 0; i < messages.length; i++) {
     let body = messages[i].MessageBody;
     body.iun = messages[i].MessageAttributes.iun;
-    
+
     const currEntry = {
       Detail: JSON.stringify({
-        body: messages[i].MessageBody,
+        body: body,
         cxId: DESTINATION_ID,
         Id: messages[i].Id,
         DelaySeconds: messages[i].DelaySeconds,
