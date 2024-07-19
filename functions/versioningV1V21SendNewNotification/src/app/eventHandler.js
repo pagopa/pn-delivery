@@ -69,10 +69,8 @@ exports.handleEvent = async (event) => {
 
     try {
         console.log ('calling ',url);
-        let response;
         let postTimeout = this.attemptTimeout * this.numRetry;
-
-        response = await axios.post(url, finalVersionRequest, { headers: headers , timeout: postTimeout});
+        let response = await axios.post(url, finalVersionRequest, { headers: headers , timeout: postTimeout});
 
         const ret = {
           statusCode: response.status,
