@@ -96,6 +96,10 @@ class ValidationsTest {
                                 "municipalityDetails": "",
                                 "province": "MI",
                                 "foreignState": "Spagna"
+                            },
+                            "digitalDomicile": {
+                                "type": "PEC",
+                                "address": "mail_ok@abc.it"
                             }
                         }
                     ],
