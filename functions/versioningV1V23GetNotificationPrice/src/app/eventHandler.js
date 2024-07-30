@@ -1,9 +1,5 @@
 const { validateRequest, generateResponse } = require('./requestHelper')
-const AWSXRay = require("aws-xray-sdk-core");
 
-AWSXRay.captureHTTPsGlobal(require('http'));
-AWSXRay.captureHTTPsGlobal(require('https'));
-AWSXRay.capturePromise();
 
 const axios = require("axios");
 

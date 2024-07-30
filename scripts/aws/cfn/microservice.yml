@@ -818,6 +818,17 @@ Resources:
                   - "logs:PutLogEvents"
                 Resource: "*"
 
+  PnDeliveryInsertTriggerLambdaLibrariesLayer:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      CompatibleRuntimes:
+        - nodejs18.x
+      Content:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/insertTrigger_libs.zip"
+      Description: NodeJs Libs layer
+      LayerName: insertTriggerLambda-libs-layer
+
   PnDeliveryInsertTriggerLambdaStack:
     Type: AWS::CloudFormation::Stack
     # UpdateReplacePolicy: Retain
@@ -838,8 +849,10 @@ Resources:
               arn: !Sub "arn:${AWS::Partition}:events:${AWS::Region}:${AWS::AccountId}:event-bus/pn-CoreEventBus",
             },
           ]
+        
+        Layer1: !Ref PnDeliveryInsertTriggerLambdaLibrariesLayer
         FunctionBucketName: !Ref MicroserviceBucketName
-        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/insertTrigger.zip"
+        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/insertTrigger_code.zip"
 
   PnDeliveryInsertTriggerLambdaEventSourceMapping:
     Type: AWS::Lambda::EventSourceMapping
@@ -1083,7 +1096,7 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
-        - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
+        # - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
         # - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
 
   VersioningV1V2GetNotificationLambdaAlarms:
@@ -1176,7 +1189,7 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
-        - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
+       # - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
         # - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
 
   VersioningV1V21SendNewNotificationLambdaAlarms:
@@ -1269,7 +1282,7 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
-        - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
+        # - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
         # - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
 
   VersioningV1V21GetNotificationRequestStatusLambdaAlarms:
@@ -1362,7 +1375,7 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
-        - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
+        # - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
         # - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
 
   VersioningV1V23GetNotificationPriceLambdaAlarms:

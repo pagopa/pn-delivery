@@ -3,11 +3,6 @@ const { transformFromV23ToV21 } = require('./mapper/mapperV23ToV21.js');
 const { transformFromV21ToV20 } = require('./mapper/mapperV21ToV20.js');
 const { transformFromV20ToV1 } = require('./mapper/mapperV20ToV1.js');
 const {ValidationException} = require("./exceptions.js");
-const AWSXRay = require("aws-xray-sdk-core");
-
-AWSXRay.captureHTTPsGlobal(require('http'));
-AWSXRay.captureHTTPsGlobal(require('https'));
-AWSXRay.capturePromise();
 
 const axios = require("axios");
 

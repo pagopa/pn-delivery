@@ -25,7 +25,6 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "aws-xray-sdk-core": "^3.3.6",
     "axios": "^0.25.0"
   }
 }

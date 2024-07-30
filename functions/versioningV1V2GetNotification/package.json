@@ -23,7 +23,6 @@
         "axios-mock-adapter": "^1.22.0"
     },
     "dependencies": {
-      "aws-xray-sdk-core": "^3.3.6",
       "axios": "^0.25.0"
     },
     "author": "",
