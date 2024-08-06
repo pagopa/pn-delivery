@@ -393,3 +393,11 @@ components:
         mandateId:
           description: identificativo della delega
           type: string
+
+#  securitySchemes:                                      # ONLY EXTERNAL
+#    bearerAuth:                                         # ONLY EXTERNAL
+#      type: http                                        # ONLY EXTERNAL
+#      scheme: bearer                                    # ONLY EXTERNAL
+#      bearerFormat: JWT                                 # ONLY EXTERNAL
+#security:                                               # ONLY EXTERNAL
+# - bearerAuth: []                                       # ONLY EXTERNAL
