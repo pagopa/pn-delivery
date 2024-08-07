@@ -1,10 +1,6 @@
 const { validateRequest, generateResponse, validateQueryStringParameters, findRequestVersion } = require('./requestHelper')
 const {ValidationException} = require("./exceptions.js");
-const AWSXRay = require("aws-xray-sdk-core");
 
-AWSXRay.captureHTTPsGlobal(require('http'));
-AWSXRay.captureHTTPsGlobal(require('https'));
-AWSXRay.capturePromise();
 
 const axios = require("axios");
 const axiosRetry = require("axios-retry").default;

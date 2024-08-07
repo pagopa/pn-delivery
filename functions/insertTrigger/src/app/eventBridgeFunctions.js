@@ -14,7 +14,7 @@ const EVENT_BUS_ARN = process.env.EVENT_BUS_ENDPOINT
 const sendMessages = async (messages = []) => {
   const client = new EventBridgeClient({});
   console.debug(
-    "PN-DELIVERY-INSERT-TRIGGER",
+    "[PN-DELIVERY-INSERT-TRIGGER]",
     `Using ${EVENT_BUS_ARN} as endpoint`
   );
 
@@ -46,7 +46,7 @@ const sendMessages = async (messages = []) => {
   }
 
   console.debug(
-    "PN-DELIVERY-INSERT-TRIGGER",
+    "[PN-DELIVERY-INSERT-TRIGGER]",
     "PutEvents sending events",
     entries
   );
@@ -56,7 +56,7 @@ const sendMessages = async (messages = []) => {
     })
   );
 
-  console.debug("PN-DELIVERY-INSERT-TRIGGER", "PutEvents response:", response);
+  console.debug("[PN-DELIVERY-INSERT-TRIGGER]", "PutEvents response:", response);
 
   return response;
 };

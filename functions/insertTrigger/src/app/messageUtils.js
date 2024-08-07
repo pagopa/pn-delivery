@@ -2,7 +2,7 @@ function isRecordToSend(record) {
   if (record.eventName != "INSERT") return false;
 
   console.debug(
-    "PN-DELIVERY-INSERT-TRIGGER",
+    "[PN-DELIVERY-INSERT-TRIGGER]",
     "Processing dynamoDB Record: %j",
     record.dynamodb
   );
@@ -10,7 +10,7 @@ function isRecordToSend(record) {
 
   if (iun.match(/^\S\S\S\S-\S\S\S\S-\S\S\S\S-\d\d\d\d\d\d-\S-\d$/) == null) {
     console.debug(
-      "PN-DELIVERY-INSERT-TRIGGER",
+      "[PN-DELIVERY-INSERT-TRIGGER]",
       "Record is not a notification, skipping"
     );
     return false;

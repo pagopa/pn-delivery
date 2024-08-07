@@ -23,7 +23,6 @@
         "sonarqube-scanner": "^3.3.0"
     },
     "dependencies": {
-        "aws-xray-sdk-core": "^3.3.6",
         "axios": "^0.25.0",
         "axios-retry": "^4.3.0"
     },

@@ -1,9 +1,5 @@
 const { validateRequest, generateResponse, validateNewNotification, findRequestVersion, fromNewNotificationRequestV1ToV21, fromNewNotificationRequestV21ToV23 } = require('./requestHelper')
-const AWSXRay = require("aws-xray-sdk-core");
 
-AWSXRay.captureHTTPsGlobal(require('http'));
-AWSXRay.captureHTTPsGlobal(require('https'));
-AWSXRay.capturePromise();
 
 const axios = require("axios");
 
