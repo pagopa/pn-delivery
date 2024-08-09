@@ -5,22 +5,7 @@ info:
   title: pn-delivery-b2b-internal
   x-summary: 'Piattaforma Notifiche: API B2B per destintari strutturati'
   description: |-
-    ## Abstract
-      API utilizzate dai destinatari strutturati per poter gestire gli atti di una notifica:
-      - visualizzare l’elenco di tutte le notifiche per le quali risulto destinatario affinché possa 
-        prendere visione della loro esistenza e del loro contenuto;  
-      - visualizzare una notifica a me destinata affinché possa accedere agli atti, visualizzare la sua 
-        timeline e scaricare le attestazioni opponibili a terzi associate;  
-      - scaricare gli atti di una notifica a me destinata;  
-      - scaricare gli allegati di pagamento di una notifica a me destinata;  
-      - avere la lista delle notifiche non ancora perfezionate;  
-      - Come delegato, visualizzare l’elenco di tutte le notifiche di un mio delegante affinché possa 
-        prendere visione della loro esistenza e del loro contenuto;  
-      - Come delegato, vedere i dettagli di una notifica (timeline e stato attuale);  
-      - Come delegato, scaricare gli allegati di uno step della timeline;
-      - Come delegato, effettuare i pagamenti di una notifica per conto del delegante (questa operazione è da 
-        considerare fuori dal perimetro di SeND);
-      - Come delegato, avere la lista delle notifiche non ancora perfezionate
+    Invocazioni utilizzate dai destinatari per ottenere informazioni sulle notifiche a loro destinate.
   contact:
     email: pn@pagopa.it
   license:
@@ -74,7 +59,6 @@ paths:
         - $ref: '#/components/parameters/cxTypeAuthFleet'      # NO EXTERNAL
         - $ref: '#/components/parameters/cxIdAuthFleet'        # NO EXTERNAL
         - $ref: '#/components/parameters/cxGroupsAuthFleet'    # NO EXTERNAL
-        - $ref: '#/components/parameters/clientId'             # NO EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchStartDate'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchEndDate'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchMandateId'
@@ -117,7 +101,6 @@ paths:
         - $ref: '#/components/parameters/cxTypeAuthFleet'      # NO EXTERNAL
         - $ref: '#/components/parameters/cxIdAuthFleet'        # NO EXTERNAL
         - $ref: '#/components/parameters/cxGroupsAuthFleet'    # NO EXTERNAL
-        - $ref: '#/components/parameters/clientId'             # NO EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchStartDate'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchEndDate'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchSenderId'
@@ -163,7 +146,6 @@ paths:
         - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
         - $ref: '#/components/parameters/cxIdAuthFleet'           # NO EXTERNAL
         - $ref: '#/components/parameters/cxGroupsAuthFleet'       # NO EXTERNAL
-        - $ref: '#/components/parameters/clientId'                # NO EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchMandateId'
       responses:
@@ -205,7 +187,6 @@ paths:
         - $ref: '#/components/parameters/cxTypeAuthFleet'        # NO EXTERNAL
         - $ref: '#/components/parameters/cxIdAuthFleet'          # NO EXTERNAL
         - $ref: '#/components/parameters/cxGroupsAuthFleet'      # NO EXTERNAL
-        - $ref: '#/components/parameters/clientId'               # NO EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathDocumentIdx'
         - $ref: '#/components/parameters/queryMandateId'
@@ -230,7 +211,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-
   "/delivery/notifications/received/{iun}/attachments/payment/{attachmentName}":
     get:
       summary: Download allegato per pagamento
@@ -244,7 +224,6 @@ paths:
         - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
         - $ref: '#/components/parameters/cxIdAuthFleet'             # NO EXTERNAL
         - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
-        - $ref: '#/components/parameters/clientId'                  # NO EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathAttachmentName'
         - $ref: '#/components/parameters/queryMandateId'
@@ -270,8 +249,49 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-
-
+  '/delivery-push/{iun}/download/legal-facts/{legalFactId}':
+    get:
+      summary: Singolo atto opponibile a terzi
+      description: >-
+        Permette di scaricare un atto opponibile a terzi
+        <br/>
+      tags:
+        - LegalFacts
+      operationId: getLegalFactById                                      # NO EXTERNAL
+      #      operationId: downloadLegalFactById                                # ONLY EXTERNAL
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet' # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet' # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet' # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet' # NO EXTERNAL
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathLegalFactId'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LegalFactDownloadMetadataResponse"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
 
 components:
@@ -288,9 +308,6 @@ components:
       $ref: './remote-refs.yaml#/components/parameters/cxGroupsAuthFleet'          # NO EXTERNAL
     uidAuthFleet:                                                                  # NO EXTERNAL
       $ref: './remote-refs.yaml#/components/parameters/uidAuthFleet'               # NO EXTERNAL
-    clientId:                                                                      # NO EXTERNAL
-      $ref: './remote-refs.yaml#/components/parameters/clientId'                   # NO EXTERNAL
-
 
     ############################################################################################
     ###                             PARAMETRI DOWNLOAD DOCUMENTI                             ###
@@ -326,6 +343,40 @@ components:
       schema:
         type: integer
         format: int32
+    pathIun:
+      description: >-
+        Identificativo Univoco Notifica
+      name: iun
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 25
+        maxLength: 25
+        pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+
+    pathLegalFactId:
+      description: >-
+        Identificativo dell'atto opponibile a terzi
+      name: legalFactId
+      in: path
+      required: true
+      schema:
+        type: string
+        # ASCII printable characters
+        pattern: ^[ -~]*$
+        maxLength: 1024
+    legalFactsSearchMandateId:
+      name: mandateId
+      in: query
+      required: false
+      description: identificativo della delega, non utilizzato nelle API B2B
+      x-pn-intended-usage: [ "WEB" ]
+      schema:
+        type: string
+        format: uuid
+        #minLength: 36
+        #maxLength: 36
 
   responses:
     UnauthorizedError:
