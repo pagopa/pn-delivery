@@ -35,6 +35,8 @@ paths:
       tags:
         - HealthCheck
       operationId: status
+      x-api-permissions:
+        - 'BASE'
       responses:
         '200':
           description: Ok
@@ -54,6 +56,8 @@ paths:
       operationId: searchReceivedNotification
       #      security:                                      # ONLY EXTERNAL
       #        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      x-api-permissions:
+        - 'BASE'
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'         # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'      # NO EXTERNAL
@@ -96,6 +100,8 @@ paths:
       tags:
         - RecipientReadB2B
       operationId: searchReceivedDelegatedNotification
+      x-api-permissions:
+        - 'BASE'
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'         # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'      # NO EXTERNAL
@@ -141,6 +147,8 @@ paths:
       operationId: getReceivedNotificationV23
       #      security:                                      # ONLY EXTERNAL
       #        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      x-api-permissions:
+        - 'REFINEMENT'
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
@@ -182,6 +190,8 @@ paths:
       operationId: getReceivedNotificationDocument
       #      security:                                      # ONLY EXTERNAL
       #        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      x-api-permissions:
+        - 'REFINEMENT'
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'           # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'        # NO EXTERNAL
@@ -219,6 +229,8 @@ paths:
       operationId: getReceivedNotificationAttachment
       #      security:                                      # ONLY EXTERNAL
       #        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      x-api-permissions:
+        - 'REFINEMENT'
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
@@ -259,6 +271,8 @@ paths:
         - LegalFacts
       operationId: getLegalFactById                                      # NO EXTERNAL
       #      operationId: downloadLegalFactById                                # ONLY EXTERNAL
+      x-api-permissions:
+        - 'BASE'
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet' # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet' # NO EXTERNAL
