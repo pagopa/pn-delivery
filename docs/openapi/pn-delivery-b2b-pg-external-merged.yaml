@@ -59,10 +59,6 @@ paths:
       x-api-permissions:
         - 'BASE'
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'         # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'      # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'        # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'    # NO EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchStartDate'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchEndDate'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchMandateId'
@@ -103,10 +99,6 @@ paths:
       x-api-permissions:
         - 'BASE'
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'         # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'      # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'        # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'    # NO EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchStartDate'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchEndDate'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchSenderId'
@@ -150,10 +142,6 @@ paths:
       x-api-permissions:
         - 'REFINEMENT'
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'           # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'       # NO EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchMandateId'
       responses:
@@ -193,10 +181,6 @@ paths:
       x-api-permissions:
         - 'REFINEMENT'
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'           # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'        # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'          # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'      # NO EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathDocumentIdx'
         - $ref: '#/components/parameters/queryMandateId'
@@ -232,10 +216,6 @@ paths:
       x-api-permissions:
         - 'REFINEMENT'
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'             # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathAttachmentName'
         - $ref: '#/components/parameters/queryMandateId'
@@ -261,52 +241,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  '/delivery-push/{iun}/download/legal-facts/{legalFactId}':
-    get:
-      summary: Singolo atto opponibile a terzi
-      description: >-
-        Permette di scaricare un atto opponibile a terzi
-        <br/>
-      tags:
-        - LegalFacts
-      operationId: getLegalFactById                                      # NO EXTERNAL
-      #      operationId: downloadLegalFactById                                # ONLY EXTERNAL
-      x-api-permissions:
-        - 'BASE'
-      parameters:
-        - $ref: '#/components/parameters/uidAuthFleet' # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet' # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet' # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet' # NO EXTERNAL
-        - $ref: '#/components/parameters/pathIun'
-        - $ref: '#/components/parameters/pathLegalFactId'
-        - $ref: '#/components/parameters/legalFactsSearchMandateId'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/LegalFactDownloadMetadataResponse"
-        '400':
-          description: Invalid input
-          content:
-            application/problem+json:
-              schema:
-                $ref: 'remote-refs.yaml#/components/schemas/Problem'
-        '404':
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: 'remote-refs.yaml#/components/schemas/Problem'
-        '500':
-          description: Internal Server Error
-          content:
-            application/problem+json:
-              schema:
-                $ref: 'remote-refs.yaml#/components/schemas/Problem'
-
 
 components:
 
@@ -314,14 +248,6 @@ components:
     ############################################################################################
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
     ############################################################################################
-    cxTypeAuthFleet:                                                               # NO EXTERNAL
-      $ref: './remote-refs.yaml#/components/parameters/cxTypeAuthFleet'            # NO EXTERNAL
-    cxIdAuthFleet:                                                                 # NO EXTERNAL
-      $ref: './remote-refs.yaml#/components/parameters/cxIdAuthFleet'              # NO EXTERNAL
-    cxGroupsAuthFleet:                                                             # NO EXTERNAL
-      $ref: './remote-refs.yaml#/components/parameters/cxGroupsAuthFleet'          # NO EXTERNAL
-    uidAuthFleet:                                                                  # NO EXTERNAL
-      $ref: './remote-refs.yaml#/components/parameters/uidAuthFleet'               # NO EXTERNAL
 
     ############################################################################################
     ###                             PARAMETRI DOWNLOAD DOCUMENTI                             ###
@@ -357,29 +283,6 @@ components:
       schema:
         type: integer
         format: int32
-    pathIun:
-      description: >-
-        Identificativo Univoco Notifica
-      name: iun
-      in: path
-      required: true
-      schema:
-        type: string
-        minLength: 25
-        maxLength: 25
-        pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
-
-    pathLegalFactId:
-      description: >-
-        Identificativo dell'atto opponibile a terzi
-      name: legalFactId
-      in: path
-      required: true
-      schema:
-        type: string
-        # ASCII printable characters
-        pattern: ^[ -~]*$
-        maxLength: 1024
     legalFactsSearchMandateId:
       name: mandateId
       in: query
@@ -459,10 +362,10 @@ components:
           description: identificativo della delega
           type: string
 
-#  securitySchemes:                                      # ONLY EXTERNAL
-#    bearerAuth:                                         # ONLY EXTERNAL
-#      type: http                                        # ONLY EXTERNAL
-#      scheme: bearer                                    # ONLY EXTERNAL
-#      bearerFormat: JWT                                 # ONLY EXTERNAL
-#security:                                               # ONLY EXTERNAL
-# - bearerAuth: []                                       # ONLY EXTERNAL
+  securitySchemes:                                      # ONLY EXTERNAL
+    bearerAuth:                                         # ONLY EXTERNAL
+      type: http                                        # ONLY EXTERNAL
+      scheme: bearer                                    # ONLY EXTERNAL
+      bearerFormat: JWT                                 # ONLY EXTERNAL
+security:                                               # ONLY EXTERNAL
+ - bearerAuth: []                                       # ONLY EXTERNAL
