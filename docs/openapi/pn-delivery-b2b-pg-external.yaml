@@ -1,0 +1,371 @@
+openapi: 3.0.3
+info:
+  termsOfService: https://da-definire/
+  x-api-id: pn-delivery-b2b-internal
+  title: pn-delivery-b2b-internal
+  x-summary: 'Piattaforma Notifiche: API B2B per destintari strutturati'
+  description: |-
+    Invocazioni utilizzate dai destinatari per ottenere informazioni sulle notifiche a loro destinate.
+  contact:
+    email: pn@pagopa.it
+  license:
+    name: Licenza di PN
+    url: https://da-definire/
+  version: "1.0.0"
+servers:
+  - url: https://da-definire/
+    description: Ambiente di produzione
+  - url: https://da-definire/
+    description: Ambiente di test
+  - url: https://da-definire/
+    description: Ambiente di sviluppo
+tags:
+  - name: HealthCheck
+    description: >-
+      Invocazioni per sapere lo stato del microservizio
+  - name: RecipientReadB2B
+    description: >-
+      Invocazioni B2B utilizzate dai destinatari per ottenere informazioni sulle notifiche a loro destinate.
+
+paths:
+  "/status":
+    get:
+      summary: healthCheck path
+      description: healtCheck path per verificare lo stato del microservizio
+      tags:
+        - HealthCheck
+      operationId: status
+      x-api-permissions:
+        - 'BASE'
+      responses:
+        '200':
+          description: Ok
+        '500':
+          description: Internal Server Error
+    ###########################################################################################
+    ###                             RICERCA NOTIFICHE RICEVUTE                             ###
+    ###########################################################################################
+  "/delivery/notifications/received":
+    get:
+      summary: Ricerca notifiche inviate
+      description: >-
+        servizio di consultazione dello stato di invio delle notifiche individuate dai parametri 
+        di ricerca specificati
+      tags:
+        - RecipientReadB2B
+      operationId: searchReceivedNotification
+      #      security:                                      # ONLY EXTERNAL
+      #        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      x-api-permissions:
+        - 'BASE'
+      parameters:
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchStartDate'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchEndDate'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchMandateId'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchSenderId'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchStatus'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchSubject'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchIun'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchPageSize'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchNextPagesKey'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-notification.yaml#/components/schemas/NotificationSearchResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  "/delivery/notifications/received/delegated":
+    get:
+      summary: Ricerca notifiche delegate ricevute
+      description: >-
+        Servizio di consultazione delle notifiche delegate
+      tags:
+        - RecipientReadB2B
+      operationId: searchReceivedDelegatedNotification
+      x-api-permissions:
+        - 'BASE'
+      parameters:
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchStartDate'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchEndDate'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchSenderId'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchRecipientId'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchGroup'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchIun'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchStatus'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchPageSize'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchNextPagesKey'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-notification.yaml#/components/schemas/NotificationSearchResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  "/delivery/v2.3/notifications/received/{iun}":
+    get:
+      summary: Accesso dettaglio di una notifica ricevute
+      description: >-
+        Utilizzato da Persone Fisiche e Persone Giuridiche per accedere ai dettagli delle 
+        notifiche ricevute.
+      tags:
+        - RecipientReadB2B
+      operationId: getReceivedNotificationV23
+      #      security:                                      # ONLY EXTERNAL
+      #        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      x-api-permissions:
+        - 'REFINEMENT'
+      parameters:
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/FullReceivedNotificationV23"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found - PN_DELIVERY_USER_ID_NOT_RECIPIENT_OR_DELEGATOR
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+    ###########################################################################################
+    ###                     DOWNLOAD DOCUMENTI E ALLEGATI PER PAGAMENTO                     ###
+    ###########################################################################################
+
+  "/delivery/notifications/received/{iun}/attachments/documents/{docIdx}":
+    get:
+      summary: Download documento notificato
+      tags:
+        - RecipientReadB2B
+      operationId: getReceivedNotificationDocument
+      #      security:                                      # ONLY EXTERNAL
+      #        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      x-api-permissions:
+        - 'REFINEMENT'
+      parameters:
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathDocumentIdx'
+        - $ref: '#/components/parameters/queryMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-notification.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  "/delivery/notifications/received/{iun}/attachments/payment/{attachmentName}":
+    get:
+      summary: Download allegato per pagamento
+      tags:
+        - RecipientReadB2B
+      operationId: getReceivedNotificationAttachment
+      #      security:                                      # ONLY EXTERNAL
+      #        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      x-api-permissions:
+        - 'REFINEMENT'
+      parameters:
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathAttachmentName'
+        - $ref: '#/components/parameters/queryMandateId'
+        - $ref: '#/components/parameters/attachmentIdx'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-notification.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+components:
+
+  parameters:
+    ############################################################################################
+    ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
+    ############################################################################################
+
+    ############################################################################################
+    ###                             PARAMETRI DOWNLOAD DOCUMENTI                             ###
+    ############################################################################################
+    pathDocumentIdx:
+      name: docIdx
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+    pathAttachmentName:
+      name: attachmentName
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 3
+        maxLength: 6
+        pattern: "PAGOPA|F24"
+    queryMandateId:
+      name: mandateId
+      in: query
+      required: false
+      schema:
+        type: string
+        format: uuid
+    attachmentIdx:
+      in: query
+      name: attachmentIdx
+      description: indice del documento di pagamento partendo da 0
+      required: false
+      schema:
+        type: integer
+        format: int32
+    legalFactsSearchMandateId:
+      name: mandateId
+      in: query
+      required: false
+      description: identificativo della delega, non utilizzato nelle API B2B
+      x-pn-intended-usage: [ "WEB" ]
+      schema:
+        type: string
+        format: uuid
+        #minLength: 36
+        #maxLength: 36
+
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
+  schemas:
+    FullReceivedNotificationV23:
+      description: >-
+        Le informazioni riguardanti una richiesta di notifica accettata e il processo di 
+        inoltro della notifica verso i destinatari (Persone Fisiche o Giuridiche).
+      allOf:
+        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotificationV23'
+        - type: object
+          required:
+            - notificationStatus
+            - notificationStatusHistory
+            - timeline
+          properties:
+            notificationStatus:
+              $ref: '#/components/schemas/NotificationStatus'
+            notificationStatusHistory:
+              $ref: '#/components/schemas/NotificationStatusHistory'
+            timeline:
+              description: >-
+                elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica
+              type: array
+              items:
+                $ref: '#/components/schemas/TimelineElementV23'
+
+    Problem:
+      $ref: './remote-refs.yaml#/components/schemas/Problem'
+
+    TimelineElementV23:
+      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV23'
+    NotificationStatus:
+      $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
+    NotificationStatusHistory:
+      $ref: './remote-refs.yaml#/components/schemas/NotificationStatusHistory'
+    LegalFactDownloadMetadataResponse:
+      $ref: './remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
+    DocumentDownloadMetadataResponse:
+      $ref: './remote-refs.yaml#/components/schemas/DocumentDownloadMetadataResponse'
+
+    RequestCheckAarMandateDto:
+      description: Le informazioni fornite per verificare l'AAR-QR-CodeValue
+      type: object
+      required:
+        - aarQrCodeValue
+      properties:
+        aarQrCodeValue:
+          type: string
+          description: valore del token QR-Code presente sull'avviso di avvenuta ricezione
+          pattern: ^[A-Za-z0-9_-]*$
+          minLength: 106
+          maxLength: 136
+
+    ResponseCheckAarMandateDto:
+      description: >-
+        Le informazioni fornite in risposta alla verifica del AAR-QR-CodeValue con possibile identificativo della delega attiva
+      type: object
+      required:
+        - iun
+      properties:
+        iun:
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/IUN'
+        mandateId:
+          description: identificativo della delega
+          type: string
+
+  securitySchemes:                                      # ONLY EXTERNAL
+    bearerAuth:                                         # ONLY EXTERNAL
+      type: http                                        # ONLY EXTERNAL
+      scheme: bearer                                    # ONLY EXTERNAL
+      bearerFormat: JWT                                 # ONLY EXTERNAL
+security:                                               # ONLY EXTERNAL
+ - bearerAuth: []                                       # ONLY EXTERNAL
