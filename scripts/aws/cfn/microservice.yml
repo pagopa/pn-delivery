@@ -23,7 +23,7 @@ Parameters:
     Type: String
     Description: "The DNS name used for IO rest API."
 
-  ApiB2BPgDnsName:
+  ApiDnsName:
     Type: String
     Description: "The DNS name used for B2BPG rest API."
 
@@ -666,7 +666,7 @@ Resources:
       Parameters:
         MicroServiceUniqueName: !Sub "${ProjectName}-delivery"
         IntendedUsage: B2BPG
-        DnsName: !Ref ApiB2BPgDnsName
+        DnsName: !Ref ApiDnsName
         ProjectName: !Ref ProjectName
         ServiceApiPath: "delivery"
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
