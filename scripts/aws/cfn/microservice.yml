@@ -11,7 +11,7 @@ Parameters:
       "Usually pn can be pnXYZ where XYZ are the feature number, useful to create
       experimental environments without crash official development environment"
 
-  PgApiDnsName:
+  ApiDnsName:
     Type: String
     Description: "The DNS name used for B2B rest API."
 
@@ -637,7 +637,7 @@ Resources:
       Parameters:
         MicroServiceUniqueName: !Sub "${ProjectName}-delivery"
         IntendedUsage: B2B
-        DnsName: !Ref PgApiDnsName
+        DnsName: !Ref ApiDnsName
         ProjectName: !Ref ProjectName
         ServiceApiPath: "delivery"
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
