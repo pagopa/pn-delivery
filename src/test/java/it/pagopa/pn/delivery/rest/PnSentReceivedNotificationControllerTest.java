@@ -104,7 +104,7 @@ class PnSentReceivedNotificationControllerTest {
 				
 		// Then		
 		webTestClient.get()
-			.uri( "/delivery/v2.3/notifications/sent/" + IUN  )
+			.uri( "/delivery/v2.4/notifications/sent/" + IUN  )
 			.accept( MediaType.ALL )
 			.header(HttpHeaders.ACCEPT, "application/json")
 			.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
@@ -115,7 +115,7 @@ class PnSentReceivedNotificationControllerTest {
 			.exchange()
 			.expectStatus()
 			.isOk()
-			.expectBody(FullSentNotificationV23.class);
+			.expectBody(FullSentNotificationV24.class);
 		
 		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck(IUN, PA_ID, GROUPS);
 	}
@@ -131,7 +131,7 @@ class PnSentReceivedNotificationControllerTest {
 
 		// Then
 		webTestClient.get()
-				.uri( "/delivery/v2.3/notifications/sent/" + IUN  )
+				.uri( "/delivery/v2.4/notifications/sent/" + IUN  )
 				.accept( MediaType.ALL )
 				.header(HttpHeaders.ACCEPT, "application/json")
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
@@ -158,7 +158,7 @@ class PnSentReceivedNotificationControllerTest {
 
 		// Then
 		webTestClient.get()
-				.uri( "/delivery/v2.3/notifications/sent/" + IUN  )
+				.uri( "/delivery/v2.4/notifications/sent/" + IUN  )
 				.accept( MediaType.ALL )
 				.header(HttpHeaders.ACCEPT, "application/json")
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
@@ -496,7 +496,7 @@ class PnSentReceivedNotificationControllerTest {
 		notification.setNotificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElement.builder()
 						.status( NotificationStatus.REFUSED )
 				.build() ) );
-		notification.setTimeline( Collections.singletonList( TimelineElementV23.builder()
+		notification.setTimeline( Collections.singletonList( TimelineElementV24.builder()
 						.category( TimelineElementCategoryV23.REQUEST_REFUSED )
 						.details( TimelineElementDetailsV23.builder()
 								.refusalReasons( Collections.singletonList( NotificationRefusedErrorV23.builder()

@@ -166,7 +166,7 @@ info:
       Se la "richiesta di invio di notifica" passa le validazioni viene trasformata in "notifica" . Sarà possibile
       identificarla dallo IUN restituito dall'operazione
       [getNotificationRequestStatus](#/SenderReadB2B/retrieveNotificationRequestStatusV23).</br> 
-      A questo punto, si potranno utilizzare l'operazione _GET /delivery/v2.3/notifications/sent/{iun}_ per
+      A questo punto, si potranno utilizzare l'operazione _GET /delivery/v2.4/notifications/sent/{iun}_ per
       ottenere i dettagli della notifica, la _timeline_ che dettaglia il perfezionamento della
       notifica per il mittente e l'avanzamento delle comunicazioni nei confronti dei destinatari.
       
@@ -422,7 +422,7 @@ paths:
     ###                             RICERCA NOTIFICHE ACCETTATE                             ###
     ###########################################################################################
 
-  "/delivery/v2.3/notifications/sent/{iun}":
+  "/delivery/v2.4/notifications/sent/{iun}":
     get:
       summary: 'Mittente: lettura dettagli notifica versione 2'
       description: |-
@@ -430,7 +430,7 @@ paths:
 
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationV23                                # ONLY EXTERNAL
+      operationId: retrieveSentNotificationV24                                # ONLY EXTERNAL
       parameters:
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
       responses:
@@ -439,7 +439,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/FullSentNotificationV23"
+                $ref: "#/components/schemas/FullSentNotificationV24"
         '400':
           description: Bad request
           content:
@@ -975,7 +975,7 @@ components:
     ###                              DTO NOTIFICA CON DETTAGLI                              ###
     ###########################################################################################
 
-    FullSentNotificationV23:
+    FullSentNotificationV24:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
         processo di inoltro della notifica verso il cittadino.
@@ -996,7 +996,7 @@ components:
                 elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV23'
+                $ref: '#/components/schemas/TimelineElementV24'
 
     ###########################################################################################
     ###                              DTO EVENTO DI PAGAMENTO                                ###
@@ -1101,8 +1101,8 @@ components:
           type: integer
           format: int32
 
-    TimelineElementV23:
-      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV23'
+    TimelineElementV24:
+      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV24'
     NotificationStatus:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:

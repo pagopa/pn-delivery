@@ -21,7 +21,7 @@
     <properties>
         <default.package>it.pagopa.pn.delivery</default.package>
         <ant.windows_bash_exe>c:\Program Files\Git\bin\bash.exe</ant.windows_bash_exe>
-        <pagopa.codegen.version>v01.03.03</pagopa.codegen.version>
+        <pagopa.codegen.version>v01.06.01</pagopa.codegen.version>
     </properties>
 
     <dependencies>
@@ -498,7 +498,7 @@
                         </goals>
                         <phase>process-resources</phase>
                         <configuration>
-                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery-push/1a89b841b4fd4a245bfc08e3dfc6b0f12e5d5c13/docs/openapi/api-private.yaml</inputSpec>
+                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery-push/044bc0b8ee43b8c1918497eb9aa1083f3a4f7c58/docs/openapi/api-private.yaml</inputSpec>
                             <generatorName>java</generatorName>
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>
