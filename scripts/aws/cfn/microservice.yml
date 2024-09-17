@@ -23,10 +23,6 @@ Parameters:
     Type: String
     Description: "The DNS name used for IO rest API."
 
-  ApiDnsName:
-    Type: String
-    Description: "The DNS name used for B2BPG rest API."
-
   CorsAllowedDomains:
     Type: String
     Description: "Comma separated list of domains allowed to make cross origin request"
