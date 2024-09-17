@@ -417,6 +417,8 @@ paths:
         - SenderReadB2B
       operationId: getSentNotificationV23                                      # NO EXTERNAL
 #      operationId: retrieveSentNotificationV23                                # ONLY EXTERNAL
+      x-pagopa-lambda-name: 'pn-delivery-versioning-v1v2-getnotification-lambda:live'
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
