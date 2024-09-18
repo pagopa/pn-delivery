@@ -598,8 +598,6 @@ components:
       type: object
       properties:
         iun:
-          type: string
-          description: Identificativo Univoco Notifica
           $ref: '#/components/schemas/IUN'
         paProtocolNumber:
           type: string

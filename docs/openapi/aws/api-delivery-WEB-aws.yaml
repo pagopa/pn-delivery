@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: AGKRG+InW7mi1xHM3d6tFc1ECzzcJ+C5Du02NLHzUXc=
+  version: jz52wGVwAC7rZq4cdz7frdB9OspWIIuIR46FxXX7gbM=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -64,10 +64,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
         timeoutInMillis: 29000
@@ -149,10 +149,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
         timeoutInMillis: 29000
@@ -209,10 +209,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
         timeoutInMillis: 29000
@@ -271,10 +271,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.path.iun: method.request.path.iun
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
@@ -341,10 +341,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.path.iun: method.request.path.iun
           integration.request.path.docIdx: method.request.path.docIdx
         passthroughBehavior: when_no_match
@@ -417,10 +417,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.path.iun: method.request.path.iun
           integration.request.path.recipientIdx: method.request.path.recipientIdx
           integration.request.path.attachmentName: method.request.path.attachmentName
@@ -508,10 +508,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.path.paTaxId: method.request.path.paTaxId
           integration.request.path.noticeCode: method.request.path.noticeCode
         passthroughBehavior: when_no_match
@@ -580,10 +580,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
         timeoutInMillis: 29000
@@ -649,10 +649,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
         timeoutInMillis: 29000
@@ -719,10 +719,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
         timeoutInMillis: 29000
@@ -789,10 +789,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
         timeoutInMillis: 29000
@@ -857,10 +857,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
         timeoutInMillis: 29000
@@ -922,10 +922,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.path.iun: method.request.path.iun
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
@@ -988,10 +988,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.path.iun: method.request.path.iun
           integration.request.path.docIdx: method.request.path.docIdx
         passthroughBehavior: when_no_match
@@ -1059,10 +1059,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.path.iun: method.request.path.iun
           integration.request.path.attachmentName: method.request.path.attachmentName
         passthroughBehavior: when_no_match
@@ -1124,10 +1124,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
         timeoutInMillis: 29000
@@ -4345,8 +4345,6 @@ components:
       type: object
       properties:
         iun:
-          type: string
-          description: Identificativo Univoco Notifica
           $ref: '#/components/schemas/IUN'
         paProtocolNumber:
           type: string
