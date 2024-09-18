@@ -62,18 +62,18 @@ components:
     ############################################################################################
     ###                          STRUTTURE DATI DI PN-DELIVERY_PUSH                          ###
     ############################################################################################
-    TimelineElementV23:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/9066cd0dce34244393c86ff59ceb28d2dae2bcdd/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElementV23'
+    TimelineElementV24:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/044bc0b8ee43b8c1918497eb9aa1083f3a4f7c58/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElementV24'
     NotificationStatus:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/9066cd0dce34244393c86ff59ceb28d2dae2bcdd/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatus'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/044bc0b8ee43b8c1918497eb9aa1083f3a4f7c58/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/9066cd0dce34244393c86ff59ceb28d2dae2bcdd/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatusHistory'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/044bc0b8ee43b8c1918497eb9aa1083f3a4f7c58/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatusHistory'
     LegalFactDownloadMetadataResponse:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/9066cd0dce34244393c86ff59ceb28d2dae2bcdd/docs/openapi/schemas-pn-legal-facts.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/044bc0b8ee43b8c1918497eb9aa1083f3a4f7c58/docs/openapi/schemas-pn-legal-facts.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
     RequestStatus:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/9066cd0dce34244393c86ff59ceb28d2dae2bcdd/docs/openapi/api-internal-pn-delivery-push.yaml#/components/schemas/RequestStatus'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/044bc0b8ee43b8c1918497eb9aa1083f3a4f7c58/docs/openapi/api-internal-pn-delivery-push.yaml#/components/schemas/RequestStatus'
     DocumentDownloadMetadataResponse:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/9066cd0dce34244393c86ff59ceb28d2dae2bcdd/docs/openapi/api-private.yaml#/components/schemas/DocumentDownloadMetadataResponse'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/044bc0b8ee43b8c1918497eb9aa1083f3a4f7c58/docs/openapi/api-private.yaml#/components/schemas/DocumentDownloadMetadataResponse'
     ############################################################################################
     ###                          STRUTTURE DATI DI PN-COMMONS                                ###
     ############################################################################################
@@ -106,4 +106,6 @@ components:
       # DO NOT CHANGE: this is timeline V2.0 commit id.
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/350cd3c83e471cc057ae611bcca887859cf471bf/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElementV20'
 
-
+    TimelineElementV23:
+      # DO NOT CHANGE: this is timeline V2.3 commit id.
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/0dcbba2aa85532c925f444cf3ff53b2b138ad898/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElementV23'

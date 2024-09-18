@@ -262,7 +262,7 @@ class IOMapperTest {
 
     private InternalNotification internalNotification() {
         InternalNotification internalNotification = new InternalNotification();
-        TimelineElementV23 timelineElement = new TimelineElementV23();
+        TimelineElementV24 timelineElement = new TimelineElementV24();
         timelineElement.setCategory(TimelineElementCategoryV23.AAR_CREATION_REQUEST);
         internalNotification.setTimeline(List.of(timelineElement));
         internalNotification.setSentAt(OffsetDateTime.now());

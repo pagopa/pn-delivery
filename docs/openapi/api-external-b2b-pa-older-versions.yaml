@@ -301,6 +301,39 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
 
+  "/delivery/v2.3/notifications/sent/{iun}":
+    get:
+      summary: 'Mittente: lettura dettagli notifica versione 2'
+      description: |-
+        Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
+        
+      tags:
+        - SenderReadB2B
+      operationId: retrieveSentNotificationV23                                # ONLY EXTERNAL
+      x-pagopa-lambda-name: 'pn-delivery-versioning-v1v2-getnotification-lambda:live'
+      x-pagopa-lambda-account: core
+      parameters:
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
+      responses:
+        '200':
+          description: OK
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/FullSentNotificationV23"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
   '/delivery/price/{paTaxId}/{noticeCode}':
     get:
       deprecated: true
@@ -925,6 +958,29 @@ components:
               items:
                 $ref: '#/components/schemas/TimelineElementV20'
 
+    FullSentNotificationV23:
+      description: >-
+        Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
+        processo di inoltro della notifica verso il cittadino.
+      allOf:
+        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotificationV23'
+        - type: object
+          required:
+            - notificationStatus
+            - notificationStatusHistory
+            - timeline
+          properties:
+            notificationStatus:
+              $ref: '#/components/schemas/NotificationStatus'
+            notificationStatusHistory:
+              $ref: '#/components/schemas/NotificationStatusHistory'
+            timeline:
+              description: >-
+                elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
+              type: array
+              items:
+                $ref: '#/components/schemas/TimelineElementV23'
+
     PaFeeV21:
       type: integer
       description: >-
@@ -1110,6 +1166,8 @@ components:
       $ref: './remote-refs.yaml#/components/schemas/TimelineElement'
     TimelineElementV20:
       $ref: './remote-refs.yaml#/components/schemas/TimelineElementV20'
+    TimelineElementV23:
+      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV23'
     NotificationStatus:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:
