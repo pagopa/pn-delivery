@@ -664,7 +664,7 @@ Resources:
         IntendedUsage: B2BPG
         DnsName: !Ref ApiDnsName
         ProjectName: !Ref ProjectName
-        ServiceApiPath: "delivery"
+        ServiceApiPath: "delivery-pg"
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
