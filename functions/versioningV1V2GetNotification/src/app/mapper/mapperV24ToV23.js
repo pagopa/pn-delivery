@@ -10,12 +10,11 @@ exports.transformFromV24ToV23 = function(responseV24) {
 }
 
 function transformTimeline(tl){
-    // in 2.4 sono stati aggiunti: ingestionTimestamp, eventTimestamp e notificationSentAt
-    if( tl.ingestionTimestamp || tl.eventTimestamp || tl.notificationSentAt ) {
-        console.log("transformTimeline - rm ingestionTimestamp, eventTimestamp e notificationSentAt")
+    // in 2.4 sono stati aggiunti: ingestionTimestamp e notificationSentAt
+    if( tl.ingestionTimestamp || tl.notificationSentAt ) {
+        console.log("transformTimeline - rm ingestionTimestamp e notificationSentAt")
         delete tl.notificationSentAt;
         delete tl.ingestionTimestamp;
-        delete tl.eventTimestamp;
     }
     return tl;
 }
