@@ -33,10 +33,24 @@
                 "api-internal-web-recipient.yaml"
             ],
             "servicePath": "delivery"
+        },
+        {
+            "intendedUsage": "B2BPG",
+            "commonFiles": [
+                "schemas-pn-notification.yaml"
+            ],
+            "openapiFiles": [
+                "pn-delivery-b2b-pg-internal.yaml",
+                { "url": "https://raw.githubusercontent.com/pagopa/pn-delivery-push/b30dff5b8dcb02e4a28e80be983d0ffd2c73d1aa/docs/openapi/api-external-pn-delivery-push-b2b-pg-bundle.yaml", "mergeDescription": false }
+            ],
+            "servicePath": "delivery",
+            "generateBundle": true,
+            "mergeBeforeBundleGeneration": true
         }
     ],
     "openapiBundlePresenceCheck": [
-        "api-external-b2b-pa-bundle.yaml"
+        "api-external-b2b-pa-bundle.yaml",
+        "pn-delivery-b2b-pg-external-bundle.yaml"
     ],
     "bundlePatch": "api-external-b2b-bundle_yaml.patch"
 }
