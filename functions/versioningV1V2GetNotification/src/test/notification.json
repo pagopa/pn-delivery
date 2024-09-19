@@ -390,6 +390,7 @@
             "timestamp": "2023-09-14T10:55:32.508729612Z",
             "legalFactsIds": [],
             "category": "ANALOG_SUCCESS_WORKFLOW",
+            "ingestionTimestamp": "2023-09-14T10:55:32.508729612Z",
             "details": {
                 "recIndex": 0,
                 "physicalAddress": {
@@ -409,6 +410,7 @@
             "elementId": "SCHEDULE_REFINEMENT_WORKFLOW.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0",
             "timestamp": "2023-09-14T10:55:32.630866286Z",
             "legalFactsIds": [],
+            "notificationSentAt": "2023-09-14T10:48:52.338693292Z",
             "category": "SCHEDULE_REFINEMENT",
             "details": {
                 "recIndex": 0,
@@ -421,6 +423,8 @@
             "timestamp": "2023-09-14T10:59:34.366420178Z",
             "legalFactsIds": [],
             "category": "REFINEMENT",
+            "ingestionTimestamp": "2023-09-14T10:55:32.508729612Z",
+            "notificationSentAt": "2023-09-14T10:48:52.338693292Z",
             "details": {
                 "recIndex": 0,
                 "notificationCost": 100,
