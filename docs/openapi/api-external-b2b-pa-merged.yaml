@@ -163,7 +163,7 @@ info:
       Se la "richiesta di invio di notifica" passa le validazioni viene trasformata in "notifica" . Sarà possibile
       identificarla dallo IUN restituito dall'operazione
       [getNotificationRequestStatus](#/SenderReadB2B/retrieveNotificationRequestStatusV23).</br> 
-      A questo punto, si potranno utilizzare l'operazione _GET /delivery/v2.3/notifications/sent/{iun}_ per
+      A questo punto, si potranno utilizzare l'operazione _GET /delivery/v2.4/notifications/sent/{iun}_ per
       ottenere i dettagli della notifica, la _timeline_ che dettaglia il perfezionamento della
       notifica per il mittente e l'avanzamento delle comunicazioni nei confronti dei destinatari.
       
@@ -408,7 +408,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery/v2.3/notifications/sent/{iun}:
+  /delivery/v2.4/notifications/sent/{iun}:
     get:
       summary: 'Mittente: lettura dettagli notifica versione 2'
       description: >-
@@ -416,7 +416,7 @@ paths:
         accettata. <br/>
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationV23
+      operationId: retrieveSentNotificationV24
       parameters:
         - $ref: ./parameters-notification-search.yaml#/components/parameters/pathIun
       responses:
@@ -425,7 +425,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FullSentNotificationV23'
+                $ref: '#/components/schemas/FullSentNotificationV24'
         '400':
           description: Bad request
           content:
@@ -927,6 +927,38 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+  /delivery/v2.3/notifications/sent/{iun}:
+    get:
+      summary: 'Mittente: lettura dettagli notifica versione 2'
+      description: >-
+        Questa operazione permette di leggere tutti i dettagli di una notifica
+        accettata. <br/>
+      tags:
+        - SenderReadB2B
+      operationId: retrieveSentNotificationV23
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda:live
+      x-pagopa-lambda-account: core
+      parameters:
+        - $ref: ./parameters-notification-search.yaml#/components/parameters/pathIun
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FullSentNotificationV23'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
   /delivery/price/{paTaxId}/{noticeCode}:
     get:
       deprecated: true
@@ -1265,7 +1297,7 @@ components:
       $ref: ./remote-refs.yaml#/components/schemas/Problem
     ProblemError:
       $ref: ./remote-refs.yaml#/components/schemas/ProblemError
-    FullSentNotificationV23:
+    FullSentNotificationV24:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica
         accettata) e il  processo di inoltro della notifica verso il cittadino.
@@ -1288,7 +1320,7 @@ components:
                 processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV23'
+                $ref: '#/components/schemas/TimelineElementV24'
     PaymentEventsRequestPagoPa:
       title: Invio eventi di pagamento da PA a PN
       description: >-
@@ -1379,8 +1411,8 @@ components:
         amount:
           type: integer
           format: int32
-    TimelineElementV23:
-      $ref: ./remote-refs.yaml#/components/schemas/TimelineElementV23
+    TimelineElementV24:
+      $ref: ./remote-refs.yaml#/components/schemas/TimelineElementV24
     NotificationStatus:
       $ref: ./remote-refs.yaml#/components/schemas/NotificationStatus
     NotificationStatusHistory:
@@ -1800,6 +1832,30 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/TimelineElementV20'
+    FullSentNotificationV23:
+      description: >-
+        Le informazioni riguardanti una notifica (richiesta di notifica
+        accettata) e il  processo di inoltro della notifica verso il cittadino.
+      allOf:
+        - $ref: >-
+            ./schemas-pn-notification.yaml#/components/schemas/SentNotificationV23
+        - type: object
+          required:
+            - notificationStatus
+            - notificationStatusHistory
+            - timeline
+          properties:
+            notificationStatus:
+              $ref: '#/components/schemas/NotificationStatus'
+            notificationStatusHistory:
+              $ref: '#/components/schemas/NotificationStatusHistory'
+            timeline:
+              description: >-
+                elenco dettagliato di tutto ciò che è accaduto durrante il
+                processo di notifica
+              type: array
+              items:
+                $ref: '#/components/schemas/TimelineElementV23'
     PaFeeV21:
       type: integer
       description: >-
@@ -1886,6 +1942,8 @@ components:
       $ref: ./remote-refs.yaml#/components/schemas/TimelineElement
     TimelineElementV20:
       $ref: ./remote-refs.yaml#/components/schemas/TimelineElementV20
+    TimelineElementV23:
+      $ref: ./remote-refs.yaml#/components/schemas/TimelineElementV23
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

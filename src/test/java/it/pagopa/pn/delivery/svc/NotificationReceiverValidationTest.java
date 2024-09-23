@@ -1176,10 +1176,10 @@ class NotificationReceiverValidationTest {
             .senderTaxId("paId").recipients(Arrays.asList(notificationRecipient)).build();
   }
 
-  private FullSentNotificationV23 newFullSentNotification() {
-    return FullSentNotificationV23.builder().sentAt(OffsetDateTime.now()).iun(IUN)
+  private FullSentNotificationV24 newFullSentNotification() {
+    return FullSentNotificationV24.builder().sentAt(OffsetDateTime.now()).iun(IUN)
         .paProtocolNumber("protocol1").group("group_1").idempotenceToken("idempotenceToken")
-        .timeline(Collections.singletonList(TimelineElementV23.builder().build()))
+        .timeline(Collections.singletonList(TimelineElementV24.builder().build()))
         .notificationStatus(NotificationStatus.ACCEPTED)
         .documents(Collections.singletonList(NotificationDocument.builder()
             .contentType("application/pdf")
@@ -1200,7 +1200,7 @@ class NotificationReceiverValidationTest {
         .senderDenomination("Comune di Milano").senderTaxId("01199250158").subject("subject_length")
         .sourceChannel(X_PAGOPA_PN_SRC_CH)
         .physicalCommunicationType(
-                FullSentNotificationV23.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
+                FullSentNotificationV24.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
         .build();
   }
 

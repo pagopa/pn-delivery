@@ -27,7 +27,7 @@ public class InternalNotification {
     private List<NotificationDocument> documents;
     private NotificationFeePolicy notificationFeePolicy;
     private String cancelledIun;
-    private FullSentNotificationV23.PhysicalCommunicationTypeEnum physicalCommunicationType;
+    private FullSentNotificationV24.PhysicalCommunicationTypeEnum physicalCommunicationType;
     private String senderDenomination;
     private String senderTaxId;
     private String group;
@@ -43,7 +43,7 @@ public class InternalNotification {
     private Boolean documentsAvailable;
     private NotificationStatus notificationStatus;
     private List<NotificationStatusHistoryElement> notificationStatusHistory;
-    private List<TimelineElementV23> timeline;
+    private List<TimelineElementV24> timeline;
     private List<String> recipientIds;
     private String sourceChannel;
     private String sourceChannelDetails;
@@ -170,16 +170,16 @@ public class InternalNotification {
         this.cancelledIun = cancelledIun;
     }
 
-    public InternalNotification physicalCommunicationType(FullSentNotificationV23.PhysicalCommunicationTypeEnum physicalCommunicationType) {
+    public InternalNotification physicalCommunicationType(FullSentNotificationV24.PhysicalCommunicationTypeEnum physicalCommunicationType) {
         this.physicalCommunicationType = physicalCommunicationType;
         return this;
     }
 
-    public FullSentNotificationV23.PhysicalCommunicationTypeEnum getPhysicalCommunicationType() {
+    public FullSentNotificationV24.PhysicalCommunicationTypeEnum getPhysicalCommunicationType() {
         return physicalCommunicationType;
     }
 
-    public void setPhysicalCommunicationType(FullSentNotificationV23.PhysicalCommunicationTypeEnum physicalCommunicationType) {
+    public void setPhysicalCommunicationType(FullSentNotificationV24.PhysicalCommunicationTypeEnum physicalCommunicationType) {
         this.physicalCommunicationType = physicalCommunicationType;
     }
 
@@ -382,12 +382,12 @@ public class InternalNotification {
         this.notificationStatusHistory = notificationStatusHistory;
     }
 
-    public InternalNotification timeline(List<TimelineElementV23> timeline) {
+    public InternalNotification timeline(List<TimelineElementV24> timeline) {
         this.timeline = timeline;
         return this;
     }
 
-    public InternalNotification addTimelineItem(TimelineElementV23 timelineItem) {
+    public InternalNotification addTimelineItem(TimelineElementV24 timelineItem) {
         if (this.timeline == null) {
             this.timeline = new ArrayList<>();
         }
@@ -395,11 +395,11 @@ public class InternalNotification {
         return this;
     }
 
-    public List<TimelineElementV23> getTimeline() {
+    public List<TimelineElementV24> getTimeline() {
         return timeline;
     }
 
-    public void setTimeline(List<TimelineElementV23> timeline) {
+    public void setTimeline(List<TimelineElementV24> timeline) {
         this.timeline = timeline;
     }
 
