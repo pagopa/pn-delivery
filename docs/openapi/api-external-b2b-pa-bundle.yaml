@@ -1256,6 +1256,7 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery/v2.3/notifications/sent/{iun}:
     get:
+      deprecated: true
       summary: 'Mittente: lettura dettagli notifica versione 2'
       description: >-
         Questa operazione permette di leggere tutti i dettagli di una notifica
