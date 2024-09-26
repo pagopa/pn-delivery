@@ -138,7 +138,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
 -            application/problem+json:
 -              schema:
 -                $ref: '#/components/schemas/Problem'
-   /delivery-progresses/v2.3/streams:
+   /delivery-progresses/v2.4/streams:
      post:
        summary: Crea nuovo stream di eventi
 @@ -6254,7 +6214,6 @@ paths:

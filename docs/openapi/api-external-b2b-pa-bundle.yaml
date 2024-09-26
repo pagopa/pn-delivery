@@ -428,7 +428,7 @@ info:
     id="webhookTtl">7</span> giorni__ dopo i quali sono automaticamente
     cancellati anche se non sono stati consumati. Sarà comunque possibile
     ottenere lo stato della notifica attraverso il servizio
-    [getNotificationRequestStatus](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/default/docs/openapi/api-external-b2b-pa-bundle.yaml#/SenderReadB2B/retrieveSentNotificationV23)
+    [getNotificationRequestStatus](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/8e2dc3447abc5a338b9e7bc809fa2381d3dacada/docs/openapi/api-external-b2b-pa-bundle.yaml#/SenderReadB2B/retrieveSentNotificationV24)
 
 
 
@@ -1480,7 +1480,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery-progresses/v2.3/streams:
+  /delivery-progresses/v2.4/streams:
     post:
       summary: Crea nuovo stream di eventi
       description: >-
@@ -1493,20 +1493,20 @@ paths:
         pochi secondi dopo che è stata  invocata l'operazione.
       tags:
         - Streams
-      operationId: createEventStreamV23
+      operationId: createEventStreamV24
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StreamCreationRequestV23'
+              $ref: '#/components/schemas/StreamCreationRequestV24'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StreamMetadataResponseV23'
+                $ref: '#/components/schemas/StreamMetadataResponseV24'
         '400':
           description: Invalid input
           content:
@@ -1536,7 +1536,7 @@ paths:
       description: Elenca gli stream di eventi
       tags:
         - Streams
-      operationId: listEventStreamsV23
+      operationId: listEventStreamsV24
       responses:
         '200':
           description: OK
@@ -1556,7 +1556,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery-progresses/v2.3/streams/{streamId}:
+  /delivery-progresses/v2.4/streams/{streamId}:
     parameters:
       - $ref: '#/components/parameters/pathStreamId'
     get:
@@ -1564,14 +1564,14 @@ paths:
       description: Lettura delle configurazioni di uno stream di eventi.
       tags:
         - Streams
-      operationId: retrieveEventStreamV23
+      operationId: retrieveEventStreamV24
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StreamMetadataResponseV23'
+                $ref: '#/components/schemas/StreamMetadataResponseV24'
         '400':
           description: Invalid input
           content:
@@ -1603,20 +1603,20 @@ paths:
         eventi
       tags:
         - Streams
-      operationId: updateEventStreamV23
+      operationId: updateEventStreamV24
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StreamRequestV23'
+              $ref: '#/components/schemas/StreamRequestV24'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StreamMetadataResponseV23'
+                $ref: '#/components/schemas/StreamMetadataResponseV24'
         '400':
           description: Invalid input
           content:
@@ -1648,7 +1648,7 @@ paths:
         tutti gli eventi associati allo stream e non ancora consumati.
       tags:
         - Streams
-      operationId: removeEventStreamV23
+      operationId: removeEventStreamV24
       responses:
         '204':
           description: OK
@@ -1676,7 +1676,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery-progresses/v2.3/streams/{streamId}/action/disable:
+  /delivery-progresses/v2.4/streams/{streamId}/action/disable:
     post:
       summary: Disabilita uno stream
       description: >-
@@ -1696,7 +1696,7 @@ paths:
         id="webhookTtlDisabled">14</span> giorni.
       tags:
         - Streams
-      operationId: disableEventStreamV23
+      operationId: disableEventStreamV24
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
       responses:
@@ -1705,7 +1705,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StreamMetadataResponseV23'
+                $ref: '#/components/schemas/StreamMetadataResponseV24'
         '400':
           description: Invalid input
           content:
@@ -2017,8 +2017,277 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+  /delivery-progresses/v2.3/streams:
+    post:
+      deprecated: true
+      summary: Crea nuovo stream di eventi
+      description: >-
+        Creazione di un flusso di eventi specificando se gli eventi saranno
+        relativi ai cambi di stato o agli eventi di timeline.
+
+
+        In risposta, Piattaforma Notifiche, comunicherà un identificativo dello
+        stream e il  timestamp di effettiva attivazione del flusso, tipicamente
+        pochi secondi dopo che è stata  invocata l'operazione.
+      tags:
+        - Streams
+      operationId: createEventStreamV23
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StreamCreationRequestV23'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamMetadataResponseV23'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: ReplacedId Stream not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+    get:
+      deprecated: true
+      summary: Elenca stream di eventi
+      description: Elenca gli stream di eventi
+      tags:
+        - Streams
+      operationId: listEventStreamsV23
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamListResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /delivery-progresses/v2.3/streams/{streamId}:
+    parameters:
+      - $ref: '#/components/parameters/pathStreamId'
+    get:
+      deprecated: true
+      summary: Leggi metadata dello stream
+      description: Lettura delle configurazioni di uno stream di eventi.
+      tags:
+        - Streams
+      operationId: retrieveEventStreamV23
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamMetadataResponseV23'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Stream not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+    put:
+      deprecated: true
+      summary: Update Stream metadata
+      description: >-
+        Modifica delle configurazioni dei filtri associati a uno stream di
+        eventi
+      tags:
+        - Streams
+      operationId: updateEventStreamV23
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StreamRequestV23'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamMetadataResponseV23'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Stream not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+    delete:
+      deprecated: true
+      summary: Remove Event Stream
+      description: >-
+        Cancellazione dello steam di eventi: elimina sia le configurazioni sia
+        tutti gli eventi associati allo stream e non ancora consumati.
+      tags:
+        - Streams
+      operationId: removeEventStreamV23
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Stream not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /delivery-progresses/v2.3/streams/{streamId}/action/disable:
+    post:
+      deprecated: true
+      summary: Disabilita uno stream
+      description: >-
+        Disabilita uno stream.
+
+
+        Da uno stream disabilitato è possibile leggere gli eventi presenti nello
+        stream salvati prima della disabilitazione, ma non ne saranno aggiunti
+        di nuovi.
+
+
+        Non è possibile modificare o riabilitare uno stream disabilitato.
+
+
+        Uno stream disabilitato non rientra nel conteggio degli stream massimi,
+        non può essere riabilitato e verrà eliminato automaticamente dopo <span
+        id="webhookTtlDisabled">14</span> giorni.
+      tags:
+        - Streams
+      operationId: disableEventStreamV23
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
+      parameters:
+        - $ref: '#/components/parameters/pathStreamId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamMetadataResponseV23'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Stream not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
   /delivery-progresses/v2.3/streams/{streamId}/events:
     get:
+      deprecated: true
       summary: Leggi progressi notifiche
       description: >-
         Lettura degli eventi presenti nello stream di aggiornamenti con
@@ -6496,13 +6765,13 @@ components:
           description: >-
             Stima del numero di secondi da aspettare prima che il contenuto del 
             documento sia scaricabile.
-    StreamCreationRequestV23:
+    StreamCreationRequestV24:
       description: >-
         Richiesta di creazione di uno stream di eventi di avanzamento delle
         notifiche. Lo stream verrà creato nello stato abilitato
       type: object
       allOf:
-        - $ref: '#/components/schemas/StreamRequestV23'
+        - $ref: '#/components/schemas/StreamRequestV24'
         - type: object
           properties:
             replacedStreamId:
@@ -6519,7 +6788,7 @@ components:
                 autorizzazione dell'apiKey sui gruppi del precedente stream.
               type: string
               format: uuid
-    StreamRequestV23:
+    StreamRequestV24:
       description: >-
         Struttura comune per eventi di creazione/aggiornamento di uno stream di
         eventi di avanzamento delle notifiche. L'aggiornamento delle proprietà
@@ -6581,10 +6850,10 @@ components:
     StreamGroup:
       type: string
       description: Identificativo del gruppo.
-    StreamMetadataResponseV23:
+    StreamMetadataResponseV24:
       description: Configurazioni di un flusso di eventi
       allOf:
-        - $ref: '#/components/schemas/StreamRequestV23'
+        - $ref: '#/components/schemas/StreamRequestV24'
         - type: object
           required:
             - streamId
@@ -6708,10 +6977,6 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/ProgressResponseElement'
-    ProgressResponseV23:
-      type: array
-      items:
-        $ref: '#/components/schemas/ProgressResponseElementV23'
     ProgressResponseElement:
       type: object
       required:
@@ -6771,6 +7036,124 @@ components:
           description: eventuali errori di validazione associati all'evento
           items:
             $ref: '#/components/schemas/RefusedReason'
+    RefusedReason:
+      type: object
+      properties:
+        errorCode:
+          type: string
+        detail:
+          type: string
+    StreamCreationRequestV23:
+      description: >-
+        Richiesta di creazione di uno stream di eventi di avanzamento delle
+        notifiche. Lo stream verrà creato nello stato abilitato
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/StreamRequestV23'
+        - type: object
+          properties:
+            replacedStreamId:
+              description: >-
+                opzionale, eventuale streamId che viene sostituito da questo. Se
+                specificato, lo stream indicato sarà disabilitato
+                contestualmente alla creazione del nuovo stream, permettendo di
+                consumare tutti gli eventi del vecchio stream senza che ne
+                vengano aggiunti di nuovi. Inoltre, il nuovo stream partirà da
+                un eventId successivo rispetto al vecchio stream (anche se non
+                "esattamente" successivo per evitare sovrapposizioni con
+                eventuali eventi salvati durante il cambio di configurazione).
+                La creazione del nuovo stream è soggetta al controllo di
+                autorizzazione dell'apiKey sui gruppi del precedente stream.
+              type: string
+              format: uuid
+    StreamRequestV23:
+      description: >-
+        Struttura comune per eventi di creazione/aggiornamento di uno stream di
+        eventi di avanzamento delle notifiche. L'aggiornamento delle proprietà
+        dello stream è soggetta al controllo di autorizzazione dell'apiKey sui
+        gruppi.
+      type: object
+      required:
+        - title
+        - eventType
+        - groups
+      properties:
+        title:
+          description: Nome sintetico dello stream
+          type: string
+          maxLength: 256
+          pattern: ^.*$
+        eventType:
+          description: |-
+            Tipo di eventi presenti nel flusso:
+              - _STATUS_: cambiamenti di stato delle notifiche
+              - _TIMELINE_: eventi a granularità fine
+          type: string
+          enum:
+            - STATUS
+            - TIMELINE
+        groups:
+          description: >-
+            rappresenta l'elenco degli id gruppi abilitati a richiedere i
+            dettagli. Una apiKey può consumare o modificare uno stream solo se
+            non ha gruppi o se tutti i gruppi dello stream sono presenti nella
+            apiKey. Se viene specificato array vuoto, si noti che solo apiKey
+            senza gruppi potranno consumare o modificare lo stream. Inoltre, nel
+            caso di updateEventStream, la lista dei gruppi presente nello stream
+            deve essere un sottoinsieme dei gruppi passati nella richiesta (in
+            pratica si possono solo aggiungere gruppi a quelli esistenti) oppure
+            entrambi array vuoti.
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/StreamGroup'
+            minLength: 0
+        filterValues:
+          description: >-
+            rappresenta l'elenco degli stati o elementi di timeline che si
+            vogliono filtrare; inserendo un array vuoto [] si riceveranno solo
+            gli elementi relativi alla versione con cui è stato creato lo
+            stream. Se specificati invece, avranno priorità rispetto agli eventi
+            della versione (quindi se sono un sottoinsieme, si riceveranno solo
+            quelli. Se si specificano eventi introdotti in versioni più recenti,
+            questi saranno inviati) Infine, è possibile utilizzare il
+            placeholder "DEFAULT" per specificare l'insieme di eventi più
+            rilevanti di una notifica.
+          type: array
+          items:
+            type: string
+            minLength: 4
+            maxLength: 256
+            pattern: ^[A-Z_]+$
+    StreamMetadataResponseV23:
+      description: Configurazioni di un flusso di eventi
+      allOf:
+        - $ref: '#/components/schemas/StreamRequestV23'
+        - type: object
+          required:
+            - streamId
+            - activationDate
+          properties:
+            streamId:
+              description: Identificativo del flusso di eventi
+              type: string
+              format: uuid
+            activationDate:
+              description: Timestamp in cui il flusso di eventi è stato attivato
+              type: string
+              format: date-time
+            disabledDate:
+              description: Timestamp in cui il flusso di eventi è stato disabilitato
+              type: string
+              format: date-time
+            version:
+              description: versione di base dello stream.
+              type: string
+              pattern: ^v\d\d\d?$
+    ProgressResponseV23:
+      type: array
+      items:
+        $ref: '#/components/schemas/ProgressResponseElementV23'
     ProgressResponseElementV23:
       type: object
       required:
@@ -6796,13 +7179,6 @@ components:
           $ref: '#/components/schemas/NotificationStatus'
         element:
           $ref: '#/components/schemas/TimelineElementV23'
-    RefusedReason:
-      type: object
-      properties:
-        errorCode:
-          type: string
-        detail:
-          type: string
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
