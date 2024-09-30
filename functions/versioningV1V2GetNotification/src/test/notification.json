@@ -363,6 +363,7 @@
             "timestamp": "2023-09-14T10:55:24Z",
             "legalFactsIds": [],
             "category": "SEND_ANALOG_FEEDBACK",
+            "eventTimestamp": "2023-09-14T10:57:12.366420178Z",
             "details": {
                 "recIndex": 0,
                 "physicalAddress": {
@@ -425,6 +426,7 @@
             "category": "REFINEMENT",
             "ingestionTimestamp": "2023-09-14T10:55:32.508729612Z",
             "notificationSentAt": "2023-09-14T10:48:52.338693292Z",
+            "eventTimestamp": "2023-09-14T10:57:12.366420178Z",
             "details": {
                 "recIndex": 0,
                 "notificationCost": 100,
