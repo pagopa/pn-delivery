@@ -8,7 +8,7 @@ info:
     ## Abstract
       API utilizzate dalle persone giuridiche per avere la lista delle notifiche e il dettaglio di ognuna di queste.
     ## Una possibile sequenza di utilizzo delle API di questa collection
-    <img src="https://raw.githubusercontent.com/pagopa/pn-delivery/refs/heads/feature/openApi_doc/docs/images/pg.svg">
+    <img src="https://raw.githubusercontent.com/pagopa/pn-delivery/refs/heads/feature/openApi_doc/docs/openapi/images/pg.svg">
     
     Descrizione delle operazioni:
     <ul>
@@ -22,7 +22,7 @@ info:
     </ul>
 
     
-    <img src="https://raw.githubusercontent.com/pagopa/pn-delivery/refs/heads/feature/openApi_doc/docs/images/notifications_management.png">
+    <img src="https://raw.githubusercontent.com/pagopa/pn-delivery/refs/heads/feature/openApi_doc/docs/openapi/images/notifications_management.png">
   contact:
     email: pn@pagopa.it
   license:
