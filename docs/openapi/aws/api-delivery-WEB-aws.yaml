@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: PwZSzPQuUpQoCtAcNPkk1L3hGNMOK7qGZBrwspXfcdE=
+  version: rgnGlEFzSq/ZhucbrqKJYYTK+r4eRegQsOwilaG4/hs=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1237,7 +1237,9 @@ components:
       name: startDate
       in: query
       required: true
-      description: data/ora di inizio dell'intervallo entro cui eseguire la ricerca
+      description: >-
+        data/ora di inizio dell'intervallo entro cui eseguire la ricerca (es
+        2017-07-21T17:32:28Z)
       schema:
         type: string
         format: date-time
@@ -1245,7 +1247,9 @@ components:
       name: endDate
       in: query
       required: true
-      description: data/ora di fine dell'intervallo entro cui eseguire la ricerca
+      description: >-
+        data/ora di fine dell'intervallo entro cui eseguire la ricerca  (es
+        2017-07-21T17:32:28Z)
       schema:
         type: string
         format: date-time
@@ -2368,7 +2372,8 @@ components:
               type: string
               description: >-
                 Identificativo (non IPA) della PA mittente che ha eseguito
-                l'onboarding su SelfCare.
+                l'onboarding su SelfCare. La risoluzione di questo è ottenibile
+                da /ext-registry/pa/v1/activated-on-pn
               pattern: ^.*$
               maxLength: 256
             iun:
@@ -4391,7 +4396,7 @@ components:
           format: date-time
         group:
           type: string
-          description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
+          description: Gruppo di utenti che può visualizzare la notifica
           pattern: ^[ -~]*$
           maxLength: 1024
         mandateId:
