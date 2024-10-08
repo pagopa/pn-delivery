@@ -22,9 +22,23 @@ info:
     </ul>
 
 
-    **Andando a vedere nel dettaglio le sole operazioni sulle deleghe**
-    Di seguito un diagramma in cuii vengono riportati degli esempi di dati ricevuti in risposta alla chiamata API nella gestione di una notifica.
+    ##### Dettaglio le sole operazioni sulle deleghe
+
+    Di seguito un diagramma in cui vengono mostrati degli esempi di dati ricevuti in risposta alla chiamata API nella gestione di una notifica.<br>
+    Dei dai mostrati vengono messi in evidenza quelli utilizzati per le chiamate API successive. 
     <img src="https://raw.githubusercontent.com/pagopa/pn-delivery/refs/heads/feature/openApi_doc/docs/openapi/images/lettura_notifica.svg">
+  
+    Nella prima richiesta (*GET /delivery/notifications/received/delegated*) fornisce una lista di deleghe; nel riquadro verde più piccolo viene mostrato un estratto di risposta mettendo in evidenza la prima notifica (in particolare lo *iun* di questa).
+    <br>
+    Nel riquadro più grande viene mostrata la risposta alla richiesta di dettaglio della notifica 
+    (*GET /delivery/v2.3/notifications/received/{iun}*). <br>
+    Di questa viene evidenziato:
+
+    - l'identificativo dei documenti di pagamento da utilizzare per la chiamata(*GET /delivery/notifications/received/{iun}/attachments/payment/{attachmentName}*)
+    
+    - l'identificativo dei documenti della notifica da utilizzare per la chiamata(*GET /delivery/notifications/received/{iun}/attachments/documents/{docIdx}*)
+  
+    - l'identificativo dei documenti della notifica da utilizzare per la chiamata(*GET /delivery-push/{iun}/download/legal-facts/{legalFactId}*)
   contact:
     email: pn@pagopa.it
   license:
@@ -32,11 +46,13 @@ info:
     url: https://da-definire/
   version: "1.0.0"
 servers:
-  - url: https://da-definire/
+  - url: https://api.prod.notifichedigitali.it
     description: Ambiente di produzione
-  - url: https://da-definire/
+  - url: https://api.uat.notifichedigitali.it
+    description: Ambiente di UAT
+  - url: https://api.test.notifichedigitali.it
     description: Ambiente di test
-  - url: https://api.dev.notifichedigitali.it/
+  - url: https://api.dev.notifichedigitali.it
     description: Ambiente di sviluppo
 tags:
   - name: HealthCheck
