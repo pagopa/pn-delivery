@@ -26,7 +26,7 @@ components:
       name: startDate
       in: query
       required: true
-      description: data/ora di inizio dell'intervallo entro cui eseguire la ricerca
+      description: data/ora di inizio dell'intervallo entro cui eseguire la ricerca (es 2017-07-21T17:32:28Z)
       schema:
         type: string
         format: date-time
@@ -34,7 +34,7 @@ components:
       name: endDate
       in: query
       required: true
-      description: data/ora di fine dell'intervallo entro cui eseguire la ricerca
+      description: data/ora di fine dell'intervallo entro cui eseguire la ricerca  (es 2017-07-21T17:32:28Z)
       schema:
         type: string
         format: date-time
