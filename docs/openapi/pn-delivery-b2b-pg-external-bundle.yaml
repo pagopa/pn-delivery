@@ -829,7 +829,7 @@ components:
           type: string
           description: Campo "presso" dell'indirizzo
           pattern: ^.*$
-          maxLength: 256
+          maxLength: 44
         address:
           type: string
           description: Indirizzo del domicilio fisico

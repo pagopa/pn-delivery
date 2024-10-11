@@ -203,7 +203,6 @@ class NotificationReceiverTest {
 		ArgumentCaptor<InternalNotification> savedNotification = ArgumentCaptor.forClass(InternalNotification.class);
 
 		// Given
-		//InternalNotification notification = newNotificationWithPaymentsFlat( );
 		NewNotificationRequestV23 notificationRequest = newNotificationRequest();
 
 		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
@@ -218,9 +217,9 @@ class NotificationReceiverTest {
 				.thenReturn( fileData );
 		Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( false );
 
-		NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,notificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY, null);
+        deliveryService.receiveNotification(PAID, notificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY, null);
 
-		// Then
+        // Then
 		Mockito.verify( notificationDao ).addNotification( savedNotification.capture()  );
 	}
 
@@ -229,7 +228,6 @@ class NotificationReceiverTest {
 		ArgumentCaptor<InternalNotification> savedNotification = ArgumentCaptor.forClass(InternalNotification.class);
 
 		// Given
-		//InternalNotification notification = newNotificationWithoutPayments( );
 		NewNotificationRequestV23 notificationRequest = newNotificationRequest();
 
 		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
@@ -272,7 +270,6 @@ class NotificationReceiverTest {
 		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
 				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
 
-		//InternalNotification notification = newNotificationWithoutPayments();
 		NewNotificationRequestV23 newNotificationRequest = newNotificationRequest();
 
 		// When
@@ -306,7 +303,6 @@ class NotificationReceiverTest {
 
 		Mockito.when( pnDeliveryConfigs.getMaxAttachmentsCount()).thenReturn(2);
 
-		//InternalNotification notification = newNotificationWithoutPayments();
 		NewNotificationRequestV23 newNotificationRequest = newNotificationRequest();
 		newNotificationRequest.setDocuments(List.of(NotificationDocument.builder()
 						.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID()).versionToken("v1").build())
@@ -326,7 +322,7 @@ class NotificationReceiverTest {
 
 		// When
 		Executable todo = () -> {
-			NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY, null);
+			deliveryService.receiveNotification( PAID ,newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY, null);
 		};
 
 		// Then
@@ -357,7 +353,6 @@ class NotificationReceiverTest {
 
 		Mockito.when( pnDeliveryConfigs.getMaxAttachmentsCount()).thenReturn(5);
 
-		//InternalNotification notification = newNotificationWithoutPayments();
 		NewNotificationRequestV23 newNotificationRequest = newNotificationRequest();
 		newNotificationRequest.setDocuments(List.of(NotificationDocument.builder()
 						.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID()).versionToken("v1").build())
@@ -376,9 +371,9 @@ class NotificationReceiverTest {
 						.build()));
 
 		// When
-		NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY, null);
+        deliveryService.receiveNotification(PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY, null);
 
-		// Then
+        // Then
 		Mockito.verify( notificationDao ).addNotification( savedNotification.capture() );
 
 	}
@@ -403,7 +398,6 @@ class NotificationReceiverTest {
 
 		Mockito.when( pnDeliveryConfigs.getMaxRecipientsCount()).thenReturn(2);
 
-		//InternalNotification notification = newNotificationWithoutPayments();
 		NewNotificationRequestV23 newNotificationRequest = newNotificationRequest();
 		newNotificationRequest.setRecipients(
 				List.of(
@@ -414,7 +408,7 @@ class NotificationReceiverTest {
 
 		// When
 		Executable todo = () -> {
-			NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY, null);
+			deliveryService.receiveNotification( PAID ,newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY, null);
 		};
 
 		// Then
@@ -445,7 +439,6 @@ class NotificationReceiverTest {
 
 		Mockito.when( pnDeliveryConfigs.getMaxAttachmentsCount()).thenReturn(3);
 
-		//InternalNotification notification = newNotificationWithoutPayments();
 		NewNotificationRequestV23 newNotificationRequest = newNotificationRequest();
 		newNotificationRequest.setRecipients(
 				List.of(
@@ -455,9 +448,9 @@ class NotificationReceiverTest {
 		);
 
 		// When
-		NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY, null);
+        deliveryService.receiveNotification(PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY, null);
 
-		// Then
+        // Then
 		Mockito.verify( notificationDao ).addNotification( savedNotification.capture() );
 
 	}
@@ -572,6 +565,7 @@ class NotificationReceiverTest {
 				.paProtocolNumber("test")
 				.notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
 				.recipients( Collections.singletonList( NotificationRecipientV23.builder()
+								.physicalAddress(NotificationPhysicalAddress.builder().build())
 								.recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
 						.build() ) )
 				.documents( Collections.singletonList( NotificationDocument.builder().build() ) )
@@ -625,8 +619,8 @@ class NotificationReceiverTest {
 		Executable todo = () -> deliveryService.receiveNotification( X_PAGOPA_PN_CX_ID, notification, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY, null);
 
 		// Then
-		PnIdConflictException exc = Assertions.assertThrows( PnIdConflictException.class, todo );
-		Mockito.verify( notificationDao, Mockito.times( 1 ) )
+        Assertions.assertThrows(PnIdConflictException.class, todo);
+        Mockito.verify( notificationDao, Mockito.times( 1 ) )
 				.addNotification( Mockito.any( InternalNotification.class ));
 	}
 

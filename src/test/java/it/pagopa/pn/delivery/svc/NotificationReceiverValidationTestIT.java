@@ -23,8 +23,6 @@ import java.util.Set;
 })
 class NotificationReceiverValidationTestIT {
 
-    private static final String IUN = "FAKE-FAKE-FAKE-202209-F-1";
-    private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
     private static final String INVALID_TAX_ID_NOT_IN_WHITE_LIST = "ASDASDASD";
     private static final String INVALID_TAX_ID_IN_WHITE_LIST = "EEEEEE00E00E000A";
 
@@ -62,6 +60,7 @@ class NotificationReceiverValidationTestIT {
         notificationRequest.addRecipientsItem( NotificationRecipientV23.builder()
                         .taxId( INVALID_TAX_ID_NOT_IN_WHITE_LIST )
                         .recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
+                        .physicalAddress(NotificationPhysicalAddress.builder().build())
                 .build() );
 
         Set<ConstraintViolation<NewNotificationRequestV23>> constraintViolations = validator.checkNewNotificationRequestBeforeInsert(notificationRequest);

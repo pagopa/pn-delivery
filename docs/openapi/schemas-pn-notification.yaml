@@ -514,7 +514,7 @@ components:
           description: Campo "presso" dell'indirizzo
           # wide range of characters
           pattern: ^.*$
-          maxLength: 256
+#          maxLength: 44                                        # ONLY EXTERNAL
         address:
           type: string
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
