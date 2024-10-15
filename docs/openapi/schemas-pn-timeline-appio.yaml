@@ -795,8 +795,8 @@ components:
   ###########################################################
 
     DigitalAddress:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/f9ff771e3f69893eb33cc6b3a39b27f45fa1c4a6/docs/openapi/schemas-addresses-v1.yaml#/components/schemas/DigitalAddress'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/29559ab37f8a7b92e6edb463c4cee49b473ea189/docs/openapi/schemas-addresses-v1.yaml#/components/schemas/DigitalAddress'
 
     PhysicalAddress:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/f9ff771e3f69893eb33cc6b3a39b27f45fa1c4a6/docs/openapi/schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/29559ab37f8a7b92e6edb463c4cee49b473ea189/docs/openapi/schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress'
 
