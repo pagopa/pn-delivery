@@ -2,27 +2,11 @@ openapi: 3.0.3
 info:
   termsOfService: https://da-definire/
   x-api-id: pn-delivery-b2b-internal
-  title: pn-delivery-b2b-pg
+  title: pn-delivery-b2b-internal
   x-summary: 'Piattaforma Notifiche: API B2B per destintari strutturati'
   description: >-
-    ## Abstract
-      API utilizzate dalle persone giuridiche per avere la lista delle notifiche e il dettaglio di ognuna di queste.
-    ## Una possibile sequenza di utilizzo delle API di questa collection <img
-    src="https://raw.githubusercontent.com/pagopa/pn-delivery/refs/heads/feature/openApi_doc/docs/openapi/images/pg.svg">
-
-    Descrizione delle operazioni: <ul>
-      <li>1: lista dei gruppi di appartenenza dell'utente della PG</li>
-      <li>3) lista delle notifiche ricevute: fornendo l'identificativo della delega si ottengono le notifiche relative alla delega</li>
-      <li>5) lista degli enti mittenti per decodificare il codice ente fornito nella richiesta della lista delle notifiche</li>
-      <li>7) dettaglio di una notifica caratterizzata dallo iun fornito</li>
-      <li>9) download dei documenti associati alla notifica</li>
-      <li>11) download del documento di pagamento relativo alla notifica</li>
-      <li>13) download di un'attestazione opponibile a terzi associata ad un evento della timeline</li>
-    </ul>
-
-
-    <img
-    src="https://raw.githubusercontent.com/pagopa/pn-delivery/refs/heads/feature/openApi_doc/docs/openapi/images/notifications_management.png">
+    Invocazioni utilizzate dai destinatari per ottenere informazioni sulle
+    notifiche a loro destinate.
   contact:
     email: pn@pagopa.it
   license:
@@ -62,10 +46,10 @@ paths:
           description: Internal Server Error
   /delivery/notifications/received:
     get:
-      summary: Ricerca notifiche inviate
+      summary: Ricerca notifiche ricevute
       description: >-
         Servizio di consultazione dello stato di invio delle notifiche
-        individuate dai parametri  di ricerca specificati     
+        individuate dai parametri  di ricerca specificati
       tags:
         - RecipientReadB2B
       operationId: searchReceivedNotification
@@ -102,12 +86,11 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery/notifications/received/delegated:
     get:
-      summary: Ricerca notifiche delegate ricevute
-      description: >-
-        Servizio di consultazione delle notifiche delegate  (per cui si è
-        ricevuta una delega).  Si basa sul recipientId e sul gruppo passato come
-        parametro. Il recipientId si può  ricavare dai dati della delega. Il
-        gruppo dalla chiamata /ext-registry/pg/v1/user-groups      
+      summary: Ricerca notifiche delegate (per cui si è ricevuta una delega) ricevute
+      description:  >-
+        Servizio di consultazione delle notifiche delegate  (per cui si è ricevuta una delega). 
+        Si basa sul recipientId e sul gruppo passato come parametro. Il recipientId si può 
+        ricavare dai dati della delega. Il gruppo dalla chiamata /ext-registry/pg/v1/user-groups
       tags:
         - RecipientReadB2B
       operationId: searchReceivedDelegatedNotification
@@ -147,7 +130,8 @@ paths:
       summary: Dettaglio di una notifica ricevuta.
       description: >-
         Utilizzato da Persone Fisiche e Persone Giuridiche per accedere ai
-        dettagli delle  notifiche ricevute. Fornisce:
+        dettagli delle  notifiche ricevute.
+        Fornisce:
                   - tutti gli elementi di timeline con i dettagli di ogni elemento e le attestazioni associate
                   - lo stato di una notifica
                   - la storia dello stato della notifica (raggruppando gli elementi di timeline per stato)
@@ -187,10 +171,9 @@ paths:
     get:
       summary: Download documento notificato
       description: >-
-        Permette il download di un documento associato alla notifica tramite il
-        suo identificativo. Il parametro pathDocumentIdx è ottenuto dal
-        dettaglio della notifica (la lista dei documenti  dentro la struttura
-        SentNotificationV23 contiene l'identificativo)
+        Permette il download di un documento associato alla notifica tramite il suo identificativo.
+        Il parametro pathDocumentIdx è ottenuto dal dettaglio della notifica (la lista dei documenti 
+        dentro la struttura SentNotificationV23 contiene l'identificativo)
       tags:
         - RecipientReadB2B
       operationId: getReceivedNotificationDocument
@@ -340,9 +323,7 @@ components:
       name: startDate
       in: query
       required: true
-      description: >-
-        data/ora di inizio dell'intervallo entro cui eseguire la ricerca (es
-        2017-07-21T17:32:28Z)
+      description: data/ora di inizio dell'intervallo entro cui eseguire la ricerca (es 2017-07-21T17:32:28Z)
       schema:
         type: string
         format: date-time
@@ -350,9 +331,7 @@ components:
       name: endDate
       in: query
       required: true
-      description: >-
-        data/ora di fine dell'intervallo entro cui eseguire la ricerca  (es
-        2017-07-21T17:32:28Z)
+      description: data/ora di fine dell'intervallo entro cui eseguire la ricerca  (es 2017-07-21T17:32:28Z)
       schema:
         type: string
         format: date-time
@@ -529,8 +508,7 @@ components:
           type: string
           maxLength: 512
           description: >-
-            Identificativo dell'elemento di timeline: insieme allo IUN della
-            notifica definisce in maniera univoca l'elemento di timeline
+            Identificativo dell'elemento di timeline: definisce in maniera univoca l'elemento di timeline
         timestamp:
           type: string
           description: >-
@@ -1201,8 +1179,8 @@ components:
               type: string
               description: >-
                 Identificativo (non IPA) della PA mittente che ha eseguito
-                l'onboarding su SelfCare. La risoluzione di questo è ottenibile
-                da /ext-registry/pa/v1/activated-on-pn
+                l'onboarding su SelfCare. La risoluzione di questo è ottenibile da
+                /ext-registry/pa/v1/activated-on-pn
               pattern: ^.*$
               maxLength: 256
             iun:
