@@ -49,7 +49,7 @@ paths:
     get:
       summary: Ricerca notifiche inviate
       description: >-
-        Servizio di consultazione dello stato di invio delle notifiche individuate dai parametri 
+        servizio di consultazione dello stato di invio delle notifiche individuate dai parametri 
         di ricerca specificati
       tags:
         - RecipientReadB2B
@@ -368,4 +368,4 @@ components:
       scheme: bearer                                    # ONLY EXTERNAL
       bearerFormat: JWT                                 # ONLY EXTERNAL
 security:                                               # ONLY EXTERNAL
-  - bearerAuth: []                                       # ONLY EXTERNAL
+ - bearerAuth: []                                       # ONLY EXTERNAL
