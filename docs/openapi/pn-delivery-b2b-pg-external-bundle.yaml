@@ -21,10 +21,8 @@ info:
     </ul>
 
 
-    **Andando a vedere nel dettaglio le sole operazioni sulle deleghe** Di
-    seguito un diagramma in cuii vengono riportati degli esempi di dati ricevuti
-    in risposta alla chiamata API nella gestione di una notifica. <img
-    src="https://raw.githubusercontent.com/pagopa/pn-delivery/refs/heads/feature/openApi_doc/docs/openapi/images/lettura_notifica.svg">
+    <img
+    src="https://raw.githubusercontent.com/pagopa/pn-delivery/refs/heads/feature/openApi_doc/docs/openapi/images/notifications_management.png">
   contact:
     email: pn@pagopa.it
   license:
