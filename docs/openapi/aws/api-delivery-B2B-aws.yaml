@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: Qmro0jZYa0N5mfjIX2kNHFb7i2jLzX4GJHtr/c1Il6o=
+  version: ztGpK9YkFqBc9hIHq8y0uptl5oLbJhKFs4rX0UskRTc=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1954,7 +1954,7 @@ components:
           type: string
           description: Campo "presso" dell'indirizzo
           pattern: ^.*$
-          maxLength: 256
+          maxLength: 44
         address:
           type: string
           description: Indirizzo del domicilio fisico
