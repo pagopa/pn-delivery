@@ -50,11 +50,11 @@ components:
     pathLegalFactId:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/3a6a266b166664f1e8a9832883caf32973a2aedc/docs/openapi/api-internal-pn-delivery-push.yaml#/components/parameters/pathLegalFactId'
     legalFactsSearchMandateId:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/3a6a266b166664f1e8a9832883caf32973a2aedc/docs/openapi/api-private.yaml#/components/parameters/legalFactsSearchMandateId'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/f9ff771e3f69893eb33cc6b3a39b27f45fa1c4a6/docs/openapi/api-private.yaml#/components/parameters/legalFactsSearchMandateId'
     pathDocumentType:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/3a6a266b166664f1e8a9832883caf32973a2aedc/docs/openapi/api-private.yaml#/components/parameters/pathDocumentType'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/f9ff771e3f69893eb33cc6b3a39b27f45fa1c4a6/docs/openapi/api-private.yaml#/components/parameters/pathDocumentType'
     queryDocumentId:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/3a6a266b166664f1e8a9832883caf32973a2aedc/docs/openapi/api-private.yaml#/components/parameters/queryDocumentId'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/f9ff771e3f69893eb33cc6b3a39b27f45fa1c4a6/docs/openapi/api-private.yaml#/components/parameters/queryDocumentId'
 
 
   schemas:
@@ -63,7 +63,7 @@ components:
     ###                          STRUTTURE DATI DI PN-DELIVERY_PUSH                          ###
     ############################################################################################
     TimelineElementV24:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/e737a389c18b9e1b728699e74d7b1b42fb4add60/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElementV24'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/f9ff771e3f69893eb33cc6b3a39b27f45fa1c4a6/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElementV24'
     NotificationStatus:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/e737a389c18b9e1b728699e74d7b1b42fb4add60/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:
