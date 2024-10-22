@@ -95,11 +95,11 @@ components:
 
 
 
-    SentNotificationV23:
+    SentNotificationV24:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata
       allOf:
-        - $ref: '#/components/schemas/NewNotificationRequestV23'
+        - $ref: '#/components/schemas/NewNotificationRequestV24'
         - type: object
           required:
             - iun
@@ -129,7 +129,7 @@ components:
               type: string                                              # NO EXTERNAL
               description: Indica la versione della notifica            # NO EXTERNAL
 
-    NewNotificationRequestV23:
+    NewNotificationRequestV24:
       description: I campi utilizzati per la creazione di una nuova Notifica.
       type: object
       required:
@@ -238,7 +238,21 @@ components:
             - NONE
             - SYNC
             - ASYNC
-
+        additionalLanguages:
+          description: >-
+            In questo campo è possibile definire la lingua addizionale (oltre a quella italiana) da utilizzare per la generazione documenti, atti opponibili a terzi ecc.<br/>
+            Le lingue accettate e dunque i valori possibili degli item dell'array sono: <br/>
+            - DE <br/>
+            - SI <br/>
+            - FR <br/>
+            - EN <br/>
+            DE (tedesco), SI (sloveno), FR (francese), EN (inglese) 
+            Attualmente è possibile indicare un solo item e dunque una sola lingua aggiuntiva. Se non vengono indicate lingue aggiuntive la lingua utilizzata per generare <br/>
+            documenti, atti opponibili a terzi ecc. sarà quella italiana.
+          type: array
+          items:
+            type: string
+            maxItems: 1
 
     ############################################################################################
     ###                                ELEMENTI DI DETTAGLIO                                 ###

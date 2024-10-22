@@ -1,0 +1,161 @@
+openapi: 3.0.3
+info:
+  termsOfService: https://da-definire/
+  x-api-id: pn-delivery-b2b-internal
+  title: pn-delivery-b2b-pg
+  x-summary: "Piattaforma Notifiche: API B2B per destintari strutturati"
+  description: >-
+    ## Abstract
+      API utilizzate dalle persone giuridiche per avere la lista delle notifiche e il dettaglio di ognuna di queste.
+    ## Una possibile sequenza di utilizzo delle API di questa collection
+    <img src="https://raw.githubusercontent.com/pagopa/pn-delivery/refs/heads/feature/openApi_doc/docs/openapi/images/pg.svg">
+    
+    Descrizione delle operazioni:
+    <ul>
+      <li>1: lista dei gruppi di appartenenza dell'utente della PG</li>
+      <li>3) lista delle notifiche ricevute: fornendo l'identificativo della delega si ottengono le notifiche relative alla delega</li>
+      <li>5) lista degli enti mittenti per decodificare il codice ente fornito nella richiesta della lista delle notifiche</li>
+      <li>7) dettaglio di una notifica caratterizzata dallo iun fornito</li>
+      <li>9) download dei documenti associati alla notifica</li>
+      <li>11) download del documento di pagamento relativo alla notifica</li>
+      <li>13) download di un'attestazione opponibile a terzi associata ad un evento della timeline</li>
+    </ul>
+
+
+    ##### Dettaglio le sole operazioni sulle deleghe
+
+    Di seguito un diagramma in cui vengono mostrati degli esempi di dati ricevuti in risposta alla chiamata API nella gestione di una notifica.<br>
+    Dei dai mostrati vengono messi in evidenza quelli utilizzati per le chiamate API successive. 
+    <img src="https://raw.githubusercontent.com/pagopa/pn-delivery/refs/heads/feature/openApi_doc/docs/openapi/images/lettura_notifica.svg">
+  
+    Nella prima richiesta (*GET /delivery/notifications/received/delegated*) fornisce una lista di deleghe; nel riquadro verde più piccolo viene mostrato un estratto di risposta mettendo in evidenza la prima notifica (in particolare lo *iun* di questa).
+    <br>
+    Nel riquadro più grande viene mostrata la risposta alla richiesta di dettaglio della notifica 
+    (*GET /delivery/v2.3/notifications/received/{iun}*). <br>
+    Di questa viene evidenziato:
+
+    - l'identificativo dei documenti di pagamento da utilizzare per la chiamata(*GET /delivery/notifications/received/{iun}/attachments/payment/{attachmentName}*)
+    
+    - l'identificativo dei documenti della notifica da utilizzare per la chiamata(*GET /delivery/notifications/received/{iun}/attachments/documents/{docIdx}*)
+  
+    - l'identificativo dei documenti della notifica da utilizzare per la chiamata(*GET /delivery-push/{iun}/download/legal-facts/{legalFactId}*)
+  contact:
+    email: pn@pagopa.it
+  license:
+    name: Licenza di PN
+    url: https://da-definire/
+  version: "1.0.0"
+servers:
+  - url: https://api.prod.notifichedigitali.it
+    description: Ambiente di produzione
+  - url: https://api.uat.notifichedigitali.it
+    description: Ambiente di UAT
+  - url: https://api.test.notifichedigitali.it
+    description: Ambiente di test
+  - url: https://api.dev.notifichedigitali.it
+    description: Ambiente di sviluppo
+tags:
+  - name: HealthCheck
+    description: >-
+      Invocazioni per sapere lo stato del microservizio
+  - name: RecipientReadB2B
+    description: >-
+      Invocazioni B2B utilizzate dai destinatari per ottenere informazioni sulle
+      notifiche a loro destinate.
+
+paths:
+  "/delivery/v2.3/notifications/received/{iun}":
+    get:
+      summary: Dettaglio di una notifica ricevuta.
+      description: >-
+        Utilizzato da Persone Fisiche e Persone Giuridiche per accedere ai
+        dettagli delle  notifiche ricevute.
+        Fornisce:
+                  - tutti gli elementi di timeline con i dettagli di ogni elemento e le attestazioni associate
+                  - lo stato di una notifica
+                  - la storia dello stato della notifica (raggruppando gli elementi di timeline per stato)
+                  - i documenti della notifica (dentro la struttura SentNotificationV23)
+                  - i dettagli relativi ai destinatari della notifica (dentro la struttura SentNotificationV23)
+                  - eventuali documenti di pagamento (campo payments reperibile nel dettaglio del destinatario)
+      tags:
+        - RecipientReadB2B
+      operationId: getReceivedNotificationV23
+      #      security:                                      # ONLY EXTERNAL
+      #        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      x-api-permissions:
+        - "REFINEMENT"
+      parameters:
+        - $ref: "./parameters-notification-search.yaml#/components/parameters/pathIun"
+        - $ref: "./parameters-notification-search.yaml#/components/parameters/notificationSearchMandateId"
+      responses:
+        "200":
+          description: OK
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/FullReceivedNotificationV23"
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Not Found - PN_DELIVERY_USER_ID_NOT_RECIPIENT_OR_DELEGATOR
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+
+components:
+  parameters:
+    ############################################################################################
+    ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
+    ############################################################################################
+
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
+  schemas:
+    FullReceivedNotificationV23:
+      description: >-
+        Le informazioni riguardanti una richiesta di notifica accettata e il processo di 
+        inoltro della notifica verso i destinatari (Persone Fisiche o Giuridiche).
+      allOf:
+        - $ref: "./schemas-pn-notification-older-version.yaml#/components/schemas/SentNotificationV23"
+        - type: object
+          required:
+            - notificationStatus
+            - notificationStatusHistory
+            - timeline
+          properties:
+            notificationStatus:
+              $ref: "#/components/schemas/NotificationStatus"
+            notificationStatusHistory:
+              $ref: "#/components/schemas/NotificationStatusHistory"
+            timeline:
+              description: >-
+                elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica
+              type: array
+              items:
+                $ref: "#/components/schemas/TimelineElementV23"
+                
+    TimelineElementV23:
+      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV23'
+    NotificationStatus:
+      $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
+    NotificationStatusHistory:
+      $ref: './remote-refs.yaml#/components/schemas/NotificationStatusHistory'
+      
+    Problem:
+      $ref: "./remote-refs.yaml#/components/schemas/Problem"
+
+  securitySchemes:                                      # ONLY EXTERNAL
+    bearerAuth:                                         # ONLY EXTERNAL
+      type: http                                        # ONLY EXTERNAL
+      scheme: bearer                                    # ONLY EXTERNAL
+      bearerFormat: JWT                                 # ONLY EXTERNAL
+security:                                               # ONLY EXTERNAL
+ - bearerAuth: []                                       # ONLY EXTERNAL
