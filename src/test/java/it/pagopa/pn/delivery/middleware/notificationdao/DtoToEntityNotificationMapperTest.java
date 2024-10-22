@@ -75,7 +75,7 @@ class DtoToEntityNotificationMapperTest {
         actualInternalNotification.paProtocolNumber("42");
         actualInternalNotification.paymentExpirationDate("2020-03-01");
         actualInternalNotification
-                .physicalCommunicationType(FullSentNotificationV24.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
+                .physicalCommunicationType(FullSentNotificationV25.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
         ArrayList<String> recipientIds = new ArrayList<>();
         actualInternalNotification.recipientIds(recipientIds);
         ArrayList<NotificationRecipient> recipients = new ArrayList<>();
@@ -101,7 +101,7 @@ class DtoToEntityNotificationMapperTest {
         actualInternalNotification.setPaProtocolNumber("42");
         actualInternalNotification.setPaymentExpirationDate("2020-03-01");
         actualInternalNotification
-                .setPhysicalCommunicationType(FullSentNotificationV24.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
+                .setPhysicalCommunicationType(FullSentNotificationV25.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
         ArrayList<String> recipientIds2 = new ArrayList<>();
         actualInternalNotification.setRecipientIds(recipientIds2);
         ArrayList<NotificationRecipient> recipients2 = new ArrayList<>();
@@ -137,7 +137,7 @@ class DtoToEntityNotificationMapperTest {
         assertEquals(NotificationStatus.IN_VALIDATION, actualInternalNotification.getNotificationStatus());
         assertEquals("42", actualInternalNotification.getPaProtocolNumber());
         assertEquals("2020-03-01", actualInternalNotification.getPaymentExpirationDate());
-        assertEquals(FullSentNotificationV24.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER,
+        assertEquals(FullSentNotificationV25.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER,
                 actualInternalNotification.getPhysicalCommunicationType());
         assertEquals("Sender Denomination", actualInternalNotification.getSenderDenomination());
         assertEquals("42", actualInternalNotification.getSenderPaId());
@@ -150,7 +150,7 @@ class DtoToEntityNotificationMapperTest {
 
     private InternalNotification newInternalNotification() {
         InternalNotification internalNotification = new InternalNotification();
-        internalNotification.setPagoPaIntMode(NewNotificationRequestV23.PagoPaIntModeEnum.NONE);
+        internalNotification.setPagoPaIntMode(NewNotificationRequestV24.PagoPaIntModeEnum.NONE);
         internalNotification.setSentAt(OffsetDateTime.now());
         internalNotification.setIun("IUN_01");
         internalNotification.setPaProtocolNumber("protocol_01");

@@ -75,6 +75,9 @@ class PnSentReceivedNotificationControllerTest {
 	private static final NotificationStatus STATUS = NotificationStatus.IN_VALIDATION;
 	private static final String RECIPIENT_ID = "CGNNMO80A01H501M";
 	public static final List<String> GROUPS = List.of("Group1", "Group2");
+	public static final String DELIVERY_REQUESTS_PATH = "/delivery/v2.4/requests";
+	public static final String DELIVERY_RECEIVED_PATH = "/delivery/v2.4/notifications/received/";
+	public static final String DELIVERY_SENT_PATH = "/delivery/v2.5/notifications/sent/";
 
 	@Autowired
     WebTestClient webTestClient;
@@ -104,7 +107,7 @@ class PnSentReceivedNotificationControllerTest {
 				
 		// Then		
 		webTestClient.get()
-			.uri( "/delivery/v2.4/notifications/sent/" + IUN  )
+			.uri( DELIVERY_SENT_PATH + IUN  )
 			.accept( MediaType.ALL )
 			.header(HttpHeaders.ACCEPT, "application/json")
 			.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
@@ -115,7 +118,7 @@ class PnSentReceivedNotificationControllerTest {
 			.exchange()
 			.expectStatus()
 			.isOk()
-			.expectBody(FullSentNotificationV24.class);
+			.expectBody(FullSentNotificationV25.class);
 		
 		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck(IUN, PA_ID, GROUPS);
 	}
@@ -131,7 +134,7 @@ class PnSentReceivedNotificationControllerTest {
 
 		// Then
 		webTestClient.get()
-				.uri( "/delivery/v2.4/notifications/sent/" + IUN  )
+				.uri( DELIVERY_SENT_PATH + IUN  )
 				.accept( MediaType.ALL )
 				.header(HttpHeaders.ACCEPT, "application/json")
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
@@ -158,7 +161,7 @@ class PnSentReceivedNotificationControllerTest {
 
 		// Then
 		webTestClient.get()
-				.uri( "/delivery/v2.4/notifications/sent/" + IUN  )
+				.uri( DELIVERY_SENT_PATH + IUN  )
 				.accept( MediaType.ALL )
 				.header(HttpHeaders.ACCEPT, "application/json")
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
@@ -185,7 +188,7 @@ class PnSentReceivedNotificationControllerTest {
 		webTestClient.get()
 				.uri(uriBuilder ->
 						uriBuilder
-								.path( "/delivery/v2.3/requests" )
+								.path(DELIVERY_REQUESTS_PATH)
 								.queryParam("notificationRequestId", REQUEST_ID)
 								.build())
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
@@ -196,7 +199,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody( NewNotificationRequestStatusResponseV23.class );
+				.expectBody( NewNotificationRequestStatusResponseV24.class );
 
 		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS );
 	}
@@ -511,7 +514,7 @@ class PnSentReceivedNotificationControllerTest {
 		webTestClient.get()
 				.uri(uriBuilder ->
 						uriBuilder
-								.path( "/delivery/v2.3/requests" )
+								.path(DELIVERY_REQUESTS_PATH)
 								.queryParam("notificationRequestId", REQUEST_ID)
 								.build())
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
@@ -522,7 +525,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody( NewNotificationRequestStatusResponseV23.class );
+				.expectBody( NewNotificationRequestStatusResponseV24.class );
 
 		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS );
 	}
@@ -537,7 +540,7 @@ class PnSentReceivedNotificationControllerTest {
 		webTestClient.get()
 				.uri(uriBuilder ->
 						uriBuilder
-								.path( "/delivery/v2.3/requests" )
+								.path(DELIVERY_REQUESTS_PATH)
 								.queryParam("notificationRequestId", REQUEST_ID)
 								.build())
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
@@ -548,7 +551,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody( NewNotificationRequestStatusResponseV23.class );
+				.expectBody( NewNotificationRequestStatusResponseV24.class );
 
 		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS );
 	}
@@ -558,7 +561,7 @@ class PnSentReceivedNotificationControllerTest {
 		webTestClient.get()
 				.uri(uriBuilder ->
 						uriBuilder
-								.path( "/delivery/v2.3/requests" )
+								.path(DELIVERY_REQUESTS_PATH)
 								.queryParam("paProtocolNumber", PA_PROTOCOL_NUMBER)
 								.build())
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
@@ -575,7 +578,7 @@ class PnSentReceivedNotificationControllerTest {
 		webTestClient.get()
 				.uri(uriBuilder ->
 						uriBuilder
-								.path( "/delivery/v2.3/requests" )
+								.path(DELIVERY_REQUESTS_PATH)
 								.build())
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
@@ -596,7 +599,7 @@ class PnSentReceivedNotificationControllerTest {
 		webTestClient.get()
 				.uri(uriBuilder ->
 						uriBuilder
-								.path( "/delivery/v2.3/requests" )
+								.path(DELIVERY_REQUESTS_PATH)
 								.queryParam("paProtocolNumber", PA_PROTOCOL_NUMBER)
 								.queryParam( "idempotenceToken", IDEMPOTENCE_TOKEN )
 								.build())
@@ -608,7 +611,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody( NewNotificationRequestStatusResponseV23.class );
+				.expectBody( NewNotificationRequestStatusResponseV24.class );
 
 		Mockito.verify( svc ).getNotificationInformation( PA_ID, PA_PROTOCOL_NUMBER, IDEMPOTENCE_TOKEN, GROUPS );
 	}
@@ -625,7 +628,7 @@ class PnSentReceivedNotificationControllerTest {
 
 		// Then
 		webTestClient.get()
-				.uri( "/delivery/v2.3/notifications/received/" + IUN  )
+				.uri( DELIVERY_RECEIVED_PATH + IUN  )
 				.accept( MediaType.ALL )
 				.header(HttpHeaders.ACCEPT, "application/json")
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, CX_ID)
@@ -635,7 +638,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody(FullReceivedNotificationV23.class);
+				.expectBody(FullReceivedNotificationV24.class);
 
 		Mockito.verify(svc).getNotificationAndNotifyViewedEvent(IUN, internalAuthHeader, null);
 	}
@@ -675,7 +678,7 @@ class PnSentReceivedNotificationControllerTest {
 		webTestClient.get()
 				.uri(uriBuilder ->
 						uriBuilder
-								.path( "/delivery/v2.3/notifications/received/" + IUN )
+								.path( DELIVERY_RECEIVED_PATH + IUN )
 								.queryParam("mandateId", MANDATE_ID)
 								.build())
 				.accept( MediaType.ALL )
@@ -687,7 +690,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody(FullReceivedNotificationV23.class);
+				.expectBody(FullReceivedNotificationV24.class);
 
 		Mockito.verify(svc).getNotificationAndNotifyViewedEvent(IUN, internalAuthHeader, MANDATE_ID);
 	}

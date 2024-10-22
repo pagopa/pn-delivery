@@ -132,7 +132,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
 
-  "/delivery/v2.3/notifications/received/{iun}":
+  "/delivery/v2.4/notifications/received/{iun}":
     get:
       summary: Accesso notifiche ricevute
       description: >-
@@ -156,7 +156,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/FullReceivedNotificationV23"
+                $ref: "#/components/schemas/FullReceivedNotificationV24"
         '400':
           description: Bad request
           content:
@@ -450,12 +450,12 @@ components:
     UnauthorizedError:
       description: Access token is missing or invalid
   schemas:
-    FullReceivedNotificationV23:
+    FullReceivedNotificationV24:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata e il processo di 
         inoltro della notifica verso i destinatari (Persone Fisiche o Giuridiche).
       allOf:
-        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotificationV23'
+        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotificationV24'
         - type: object
           required:
             - notificationStatus

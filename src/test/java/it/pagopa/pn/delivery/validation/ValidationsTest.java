@@ -1,6 +1,6 @@
 package it.pagopa.pn.delivery.validation;
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV23;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV24;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -28,7 +28,7 @@ class ValidationsTest {
     private static ValidatorFactory validatorFactory;
 
     @Autowired
-    private JacksonTester<NewNotificationRequestV23> jacksonTester;
+    private JacksonTester<NewNotificationRequestV24> jacksonTester;
 
 
     @BeforeAll
@@ -46,11 +46,11 @@ class ValidationsTest {
     @Test
     void newNotificationRequestValidationTest() throws IOException {
         String json = getJSON();
-        NewNotificationRequestV23 newNotificationRequest = jacksonTester.parseObject(json);
+        NewNotificationRequestV24 newNotificationRequest = jacksonTester.parseObject(json);
 
         System.out.println(newNotificationRequest);
 
-        Set<ConstraintViolation<NewNotificationRequestV23>> violations = validator.validate(newNotificationRequest);
+        Set<ConstraintViolation<NewNotificationRequestV24>> violations = validator.validate(newNotificationRequest);
 
         assertThat(violations).isEmpty();
     }

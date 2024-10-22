@@ -103,7 +103,7 @@ class PnReceivedIONotificationsControllerTest {
         InternalNotification internalNotification = new InternalNotification();
         internalNotification.setNotificationStatusHistory(List.of(NotificationStatusHistoryElement.builder()
                 .status(NotificationStatus.ACCEPTED).build()));
-        internalNotification.setPagoPaIntMode(NewNotificationRequestV23.PagoPaIntModeEnum.NONE);
+        internalNotification.setPagoPaIntMode(NewNotificationRequestV24.PagoPaIntModeEnum.NONE);
         internalNotification.setTimeline(List.of(timelineElement));
         internalNotification.setIun("iun");
         internalNotification.setPaProtocolNumber("protocol_01");
