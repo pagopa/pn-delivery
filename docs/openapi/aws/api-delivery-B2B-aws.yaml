@@ -2557,8 +2557,7 @@ components:
               type: string
               description: >-
                 Identificativo (non IPA) della PA mittente che ha eseguito
-                l'onboarding su SelfCare. La risoluzione di questo è ottenibile
-                da /ext-registry/pa/v1/activated-on-pn
+                l'onboarding su SelfCare.
               pattern: ^.*$
               maxLength: 256
             iun:

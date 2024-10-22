@@ -107,10 +107,7 @@ components:
           properties:
             senderPaId:
               type: string
-              description: >-
-                Identificativo (non IPA) della PA mittente che ha eseguito
-                l'onboarding su SelfCare. La risoluzione di questo è ottenibile da
-                /ext-registry/pa/v1/activated-on-pn
+              description: Identificativo (non IPA) della PA mittente che ha eseguito l'onboarding su SelfCare.
               # wide range of characters
               pattern: ^.*$
               maxLength: 256
@@ -645,7 +642,7 @@ components:
           format: date-time
         group:
           type: string
-          description: Gruppo di utenti che può visualizzare la notifica
+          description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
           # ASCII printable characters
           pattern: ^[ -~]*$
           maxLength: 1024
