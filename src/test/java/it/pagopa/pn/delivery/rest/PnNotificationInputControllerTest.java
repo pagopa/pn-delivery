@@ -4,6 +4,8 @@ import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.middleware.notificationdao.TaxonomyCodeDaoDynamo;
+import it.pagopa.pn.delivery.models.TaxonomyCodeDto;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
@@ -54,6 +56,9 @@ class PnNotificationInputControllerTest {
 	@MockBean
 	private PnDeliveryConfigs cfg;
 
+	@MockBean
+	TaxonomyCodeDaoDynamo taxonomyCodeDaoDynamo;
+
 	@Test
 	void postSuccess() throws PnIdConflictException {
 		// Given
@@ -62,7 +67,7 @@ class PnNotificationInputControllerTest {
 		NewNotificationResponse savedNotification = NewNotificationResponse.builder()
 						.notificationRequestId( Base64Utils.encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) )
 						.paProtocolNumber("protocol_number").build();
-				
+
 		// When
 		Mockito.when(deliveryService.receiveNotification(
 						Mockito.anyString(),
@@ -94,6 +99,54 @@ class PnNotificationInputControllerTest {
 						null,
 						GROUPS,
 						null);
+	}
+
+	@Test
+	void postSuccessWithTaxonomyCodeCheck() throws PnIdConflictException {
+		// Given
+		NewNotificationRequestV23 notificationRequest = newNotificationRequest();
+
+		NewNotificationResponse savedNotification = NewNotificationResponse.builder()
+				.notificationRequestId( Base64Utils.encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) )
+				.paProtocolNumber("protocol_number").build();
+		System.out.println("Notification: " + notificationRequest);
+
+		// When
+		TaxonomyCodeDto taxonomyCodeDto = new TaxonomyCodeDto();
+
+		Mockito.when(taxonomyCodeDaoDynamo.getTaxonomyCodeByKeyAndPaId(notificationRequest.getTaxonomyCode(), "default")).thenReturn(Optional.of(taxonomyCodeDto));
+		Mockito.when(deliveryService.receiveNotification(
+				Mockito.anyString(),
+				Mockito.any( NewNotificationRequestV23.class ),
+				Mockito.anyString(),
+				Mockito.isNull(),
+				Mockito.anyList(),
+				Mockito.isNull())
+		).thenReturn( savedNotification );
+
+		// Then
+		webTestClient.post()
+				.uri("/delivery/v2.3/requests")
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+				.body(Mono.just(notificationRequest), NewNotificationRequestV23.class)
+				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(0) +","+GROUPS.get(1) )
+				.header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
+				.exchange()
+				.expectStatus().isAccepted();
+
+		Mockito.verify( deliveryService ).receiveNotification(
+				PA_ID,
+				notificationRequest,
+				X_PAGOPA_PN_SRC_CH,
+				null,
+				GROUPS,
+				null);
+
+		Mockito.verify(taxonomyCodeDaoDynamo).getTaxonomyCodeByKeyAndPaId(notificationRequest.getTaxonomyCode(), "default");
 	}
 
 	@Test
@@ -229,6 +282,7 @@ class PnNotificationInputControllerTest {
 		Map<String,String> conflictMap = new HashMap<>();
 		conflictMap.put( "noticeCode", "duplicatedNoticeCode" );
 		PnIdConflictException exception = new PnIdConflictException( conflictMap );
+		System.out.println("request: "+request);
 
 		// When
 		Mockito.when( deliveryService.receiveNotification(
@@ -253,6 +307,42 @@ class PnNotificationInputControllerTest {
 				.exchange()
 				.expectStatus()
 				.isEqualTo(HttpStatus.CONFLICT);
+	}
+
+	@Test
+	void postFailureWithTaxonomyCode() {
+		// Given
+		NewNotificationRequestV23 request = newNotificationRequest();
+
+		PnInvalidInputException exception = new PnInvalidInputException("400", "Invalid input exception");
+		// When
+		Mockito.when(taxonomyCodeDaoDynamo.getTaxonomyCodeByKeyAndPaId("TEST_FAIL", "default")).thenThrow(exception);
+		Mockito.when( deliveryService.receiveNotification(
+				Mockito.anyString(),
+				Mockito.any( NewNotificationRequestV23.class ),
+				Mockito.anyString(),
+				Mockito.isNull(),
+				Mockito.isNull(),
+				Mockito.isNull())
+		).thenThrow( exception );
+
+
+		//Then
+		webTestClient.post()
+				.uri("/delivery/v2.3/requests")
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+				.body(Mono.just(request), NewNotificationRequestV23.class)
+				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PA"  )
+				.header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
+				.exchange()
+				.expectStatus()
+				.isEqualTo(HttpStatus.BAD_REQUEST);
+
+		Mockito.verify(taxonomyCodeDaoDynamo).getTaxonomyCodeByKeyAndPaId("TEST_FAIL", "default");
+
 	}
 
 	@Test
