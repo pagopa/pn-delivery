@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV24;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV25;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -153,7 +153,7 @@ class EntityToDtoNotificationMapperTest {
                 .idempotenceToken("idempotenceToken")
                 .paNotificationId("protocol_01")
                 .subject("Subject 01")
-                .physicalCommunicationType(FullSentNotificationV24.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
+                .physicalCommunicationType(FullSentNotificationV25.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
                 .cancelledByIun("IUN_05")
                 .cancelledIun("IUN_00")
                 .senderPaId("pa_02")

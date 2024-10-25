@@ -327,7 +327,7 @@ paths:
     ###                          CREAZIONE RICHIESTE DI NOTIFICA                           ###
     ###########################################################################################
 
-  "/delivery/v2.3/requests":
+  "/delivery/v2.4/requests":
     post:
       summary: Richiesta invio notifica
       description: |-
@@ -340,12 +340,12 @@ paths:
         
       tags:
         - NewNotification
-      operationId: sendNewNotificationV23
+      operationId: sendNewNotificationV24
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV23"
+              $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV24"
         required: true
       responses:
         '202':
@@ -397,7 +397,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/NewNotificationRequestStatusResponseV23"
+                $ref: "#/components/schemas/NewNotificationRequestStatusResponseV24"
         '400':
           description: Bad request
           content:
@@ -422,7 +422,7 @@ paths:
     ###                             RICERCA NOTIFICHE ACCETTATE                             ###
     ###########################################################################################
 
-  "/delivery/v2.4/notifications/sent/{iun}":
+  "/delivery/v2.5/notifications/sent/{iun}":
     get:
       summary: 'Mittente: lettura dettagli notifica versione 2'
       description: |-
@@ -430,7 +430,7 @@ paths:
 
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationV24                                # ONLY EXTERNAL
+      operationId: retrieveSentNotificationV25                                # ONLY EXTERNAL
       parameters:
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
       responses:
@@ -439,7 +439,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/FullSentNotificationV24"
+                $ref: "#/components/schemas/FullSentNotificationV25"
         '400':
           description: Bad request
           content:
@@ -932,9 +932,9 @@ components:
             effettuate con lo stesso numero di protocollo (campo _paProtocolNumber_).
           type: string
 
-    NewNotificationRequestStatusResponseV23:
+    NewNotificationRequestStatusResponseV24:
       allOf:
-        - $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV23"
+        - $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV24"
         - type: object
           required:
             - notificationRequestId
@@ -975,12 +975,12 @@ components:
     ###                              DTO NOTIFICA CON DETTAGLI                              ###
     ###########################################################################################
 
-    FullSentNotificationV24:
+    FullSentNotificationV25:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
         processo di inoltro della notifica verso il cittadino.
       allOf:
-        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotificationV23'
+        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotificationV24'
         - type: object
           required:
             - notificationStatus
