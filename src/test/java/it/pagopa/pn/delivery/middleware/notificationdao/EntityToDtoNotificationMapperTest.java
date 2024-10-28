@@ -10,6 +10,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -18,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class EntityToDtoNotificationMapperTest {
     public static final Integer VAT = 22;
+    private static final String ADDITIONAL_LANGUAGE_IT = "IT";
 
     private EntityToDtoNotificationMapper mapper;
 
@@ -52,6 +55,9 @@ class EntityToDtoNotificationMapperTest {
     }
 
     private NotificationEntity newNotificationEntity() {
+        List<String> additionalLangs = new ArrayList<>(Arrays.asList("FR", "IT"));
+        additionalLangs.remove(ADDITIONAL_LANGUAGE_IT);
+
         F24PaymentEntity f24PaymentEntity = new F24PaymentEntity();
         f24PaymentEntity.setTitle("title");
         f24PaymentEntity.setApplyCost(false);
@@ -163,6 +169,7 @@ class EntityToDtoNotificationMapperTest {
                 .recipients(List.of(notificationRecipientEntity, notificationRecipientEntity1))
                 .version("1")
                 .vat(VAT)
+                .languages(additionalLangs)
                 .build();
     }
 

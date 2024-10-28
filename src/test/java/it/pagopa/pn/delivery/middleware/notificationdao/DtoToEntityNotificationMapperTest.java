@@ -32,6 +32,7 @@ class DtoToEntityNotificationMapperTest {
     public static final String CREDITOR_TAX_ID = "77777777777";
     public static final Integer VAT = 22;
     private static final String FILE_SHA_256 = "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=";
+    private static final String ADDITIONAL_LANGUAGE_IT = "IT";
 
     private DtoToEntityNotificationMapper mapper;
 
@@ -149,6 +150,8 @@ class DtoToEntityNotificationMapperTest {
     }
 
     private InternalNotification newInternalNotification() {
+        List<String> languages = new ArrayList<>();
+        languages.add(ADDITIONAL_LANGUAGE_IT);
         InternalNotification internalNotification = new InternalNotification();
         internalNotification.setPagoPaIntMode(NewNotificationRequestV24.PagoPaIntModeEnum.NONE);
         internalNotification.setSentAt(OffsetDateTime.now());
@@ -162,6 +165,7 @@ class DtoToEntityNotificationMapperTest {
         internalNotification.setPaFee(0);
         internalNotification.setVat(VAT);
         internalNotification.setNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
+        internalNotification.setAdditionalLanguages(languages);
         internalNotification.setDocuments(List.of(NotificationDocument
                 .builder()
                 .digests(NotificationAttachmentDigests.builder()
