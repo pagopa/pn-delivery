@@ -51,8 +51,8 @@ public class DtoToEntityNotificationMapper {
         List<String> additionalLanguagesWithIT = new ArrayList<>();
         if(!CollectionUtils.isEmpty(additionalLanguages)){
             additionalLanguagesWithIT.addAll(additionalLanguages);
-            additionalLanguagesWithIT.add(IT_LANGUAGE);
         }
+        additionalLanguagesWithIT.add(IT_LANGUAGE);
         return additionalLanguagesWithIT;
     }
 

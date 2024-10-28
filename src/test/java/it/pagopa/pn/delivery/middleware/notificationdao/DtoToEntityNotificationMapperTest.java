@@ -19,6 +19,7 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -41,7 +42,7 @@ class DtoToEntityNotificationMapperTest {
     }
 
     @Test
-    void dto2EntitySuccess() {
+    void dto2EntitySuccessWithAdditionalLanguages() {
         InternalNotification internalNotification = newInternalNotification();
 
         NotificationEntity notificationEntity = mapper.dto2Entity(internalNotification);
@@ -53,6 +54,36 @@ class DtoToEntityNotificationMapperTest {
         Assertions.assertEquals(List.of("DE","IT"), notificationEntity.getLanguages());
         assertEquals( VAT, notificationEntity.getVat() );
 
+    }
+
+    @Test
+    void dto2EntitySuccessWithITLanguages() {
+        InternalNotification internalNotification = newInternalNotification();
+        internalNotification.setAdditionalLanguages(null);
+
+        NotificationEntity notificationEntity = mapper.dto2Entity(internalNotification);
+
+        Assertions.assertNotNull( notificationEntity );
+        Assertions.assertEquals( 1 , notificationEntity.getRecipients().get( 0 ).getPayments().size() );
+        Assertions.assertEquals( NOTICE_CODE , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getNoticeCode() );
+        Assertions.assertEquals( CREDITOR_TAX_ID , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getCreditorTaxId() );
+        Assertions.assertEquals(List.of("IT"), notificationEntity.getLanguages());
+        assertEquals( VAT, notificationEntity.getVat() );
+    }
+
+    @Test
+    void dto2EntitySuccessWithITLanguages2() {
+        InternalNotification internalNotification = newInternalNotification();
+        internalNotification.setAdditionalLanguages(Collections.emptyList());
+
+        NotificationEntity notificationEntity = mapper.dto2Entity(internalNotification);
+
+        Assertions.assertNotNull( notificationEntity );
+        Assertions.assertEquals( 1 , notificationEntity.getRecipients().get( 0 ).getPayments().size() );
+        Assertions.assertEquals( NOTICE_CODE , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getNoticeCode() );
+        Assertions.assertEquals( CREDITOR_TAX_ID , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getCreditorTaxId() );
+        Assertions.assertEquals(List.of("IT"), notificationEntity.getLanguages());
+        assertEquals( VAT, notificationEntity.getVat() );
     }
 
 

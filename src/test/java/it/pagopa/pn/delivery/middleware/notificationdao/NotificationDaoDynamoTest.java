@@ -127,6 +127,7 @@ class NotificationDaoDynamoTest {
         when( pnDataVaultClient.getNotificationAddressesByIun( "IUN_01" ) ).thenReturn( List.of( notificationRecipientAddressesDto ,notificationRecipientAddressesDto1 ) );
         Optional<InternalNotification> saved = this.dao.getNotificationByIun( notification.getIun(), true );
         Assertions.assertTrue( saved.isPresent() );
+        Assertions.assertEquals(0, saved.get().getAdditionalLanguages().size());
         // verifica ordine taxId destinatari
         Assertions.assertEquals(saved.get().getRecipients().get(0).getTaxId(), baseRecipientDto.getTaxId());
         // verifica ordine indirizzi
