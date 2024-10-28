@@ -5,6 +5,7 @@ import it.pagopa.pn.commons.exceptions.ExceptionHelper;
 import it.pagopa.pn.commons.exceptions.dto.ProblemError;
 import it.pagopa.pn.commons.utils.ValidateUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -36,7 +37,7 @@ public class NotificationReceiverValidator {
     private final MVPParameterConsumer mvpParameterConsumer;
     private final ValidateUtils validateUtils;
     private final PnDeliveryConfigs pnDeliveryConfigs;
-    public static final String REQUIRED_ADDITIONAL_LANG = "È obbligatorio fornire una sola lingua aggiuntiva.";
+    public static final String REQUIRED_ADDITIONAL_LANG_SIZE = "È obbligatorio fornire una sola lingua aggiuntiva.";
 
     public NotificationReceiverValidator(Validator validator, MVPParameterConsumer mvpParameterConsumer, ValidateUtils validateUtils, PnDeliveryConfigs pnDeliveryConfigs) {
         this.validator = validator;
@@ -75,17 +76,20 @@ public class NotificationReceiverValidator {
         checkAdditionalLanguages(newNotificationRequestV2.getAdditionalLanguages());
     }
 
-    public void checkAdditionalLanguages(List<String> additionalLanguages) {
-        if(CollectionUtils.isNullOrEmpty(additionalLanguages) ||
-                additionalLanguages.size() > 1){
-            throw new PnInvalidInputException(ERROR_CODE_DELIVERY_REQUIRED_ADDITIONAL_LANG, REQUIRED_ADDITIONAL_LANG);
+    protected void checkAdditionalLanguages(List<String> additionalLanguages) {
+        if((!CollectionUtils.isNullOrEmpty(additionalLanguages) && additionalLanguages.size() > 1)){
+            throw new PnBadRequestException(REQUIRED_ADDITIONAL_LANG_SIZE, REQUIRED_ADDITIONAL_LANG_SIZE, ERROR_CODE_DELIVERY_REQUIRED_ADDITIONAL_LANG, REQUIRED_ADDITIONAL_LANG_SIZE);
         }
-        if (Arrays.stream(AllowedAdditionalLanguages.values())
-                .map(AllowedAdditionalLanguages::name)
-                .noneMatch(additionalLanguages::contains)) {
+        else if(!CollectionUtils.isNullOrEmpty(additionalLanguages) && !isValidAdditionalLanguage(additionalLanguages.get(0))){
             String logMessage = String.format("Lingua aggiuntiva non valida, i valori accettati sono %s", Arrays.stream(AllowedAdditionalLanguages.values()).map(Enum::name).collect(Collectors.joining(",")));
-            throw new PnInvalidInputException(ERROR_CODE_DELIVERY_INVALID_ADDITIONAL_LANG, logMessage);
+            throw new PnBadRequestException(logMessage, logMessage, ERROR_CODE_DELIVERY_INVALID_ADDITIONAL_LANG, logMessage);
         }
+    }
+
+    private boolean isValidAdditionalLanguage(String lang) {
+        return Arrays.stream(AllowedAdditionalLanguages.values())
+                .map(AllowedAdditionalLanguages::name)
+                .anyMatch(lang::equalsIgnoreCase);
     }
 
     protected Set<ConstraintViolation<NewNotificationRequestV24>> checkNewNotificationRequestBeforeInsert(NewNotificationRequestV24 NewNotificationRequestV24) {

@@ -4,12 +4,13 @@ import it.pagopa.pn.common.rest.error.v1.dto.ProblemError;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.utils.ValidateUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.exception.PnInvalidInputException;
+import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import lombok.extern.slf4j.Slf4j;
 import org.hamcrest.Matchers;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -24,40 +25,40 @@ import javax.validation.ValidatorFactory;
 import java.time.OffsetDateTime;
 import java.util.*;
 
-import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_INVALID_ADDITIONAL_LANG;
-import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_REQUIRED_ADDITIONAL_LANG;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
 @Slf4j
 class NotificationReceiverValidationTest {
 
-  @Mock
-  private PnDeliveryConfigs cfg;
+    @Mock
+    private PnDeliveryConfigs cfg;
 
-  @Mock
-  private MVPParameterConsumer mvpParameterConsumer;
+    @Mock
+    private ValidateUtils validateUtils;
 
-  @Mock
-  private ValidateUtils validateUtils;
+    private static final String IUN = "FAKE-FAKE-FAKE-202209-F-1";
 
-  private static final String IUN = "FAKE-FAKE-FAKE-202209-F-1";
+    private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
+    public static final String SHA256_BODY = "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=";
+    public static final String VERSION_TOKEN = "version_token";
+    public static final String KEY = "safestorage://PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG"; // or also PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG
+    public static final String PHYSICAL_ADDRESS_VALIDATION_PATTERN = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ./ '-";
+    public static final Integer PHYSICAL_ADDRESS_VALIDATION_LENGTH = 44;
 
-  private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
-  public static final String SHA256_BODY = "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=";
-  public static final String VERSION_TOKEN = "version_token";
-  public static final String KEY = "safestorage://PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG"; // or also PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG
-  public static final String PHYSICAL_ADDRESS_VALIDATION_PATTERN = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ./ '-";
-  public static final Integer PHYSICAL_ADDRESS_VALIDATION_LENGTH = 44;
-
-  private NotificationReceiverValidator validator;
+    private NotificationReceiverValidator validator;
+    private MVPParameterConsumer mvpParameterConsumer;
 
   @BeforeEach
   void initializeValidator() {
     this.cfg = Mockito.mock(PnDeliveryConfigs.class);
     this.validateUtils = Mockito.mock( ValidateUtils.class );
     ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+      mvpParameterConsumer = mock(MVPParameterConsumer.class);
     validator = new NotificationReceiverValidator(factory.getValidator(), mvpParameterConsumer, validateUtils, cfg);
   }
   @Test
@@ -1592,40 +1593,95 @@ class NotificationReceiverValidationTest {
     Assertions.assertEquals(0, actual);
   }
 
-  @Test
-  void testCheckAdditionalLanguages_emptyList() {
-    NewNotificationRequestV24 newNotificationRequestV24 = new NewNotificationRequestV24();
-    newNotificationRequestV24.setAdditionalLanguages(List.of());
+    @Test
+    void checkNewNotificationRequestBeforeInsertAndThrow_validRequest_noErrors() {
+        String sha256 = "cvZKB4NCsHjo0stdb47gnfx0/Hjiipov0+M9oXcJT2Y=";
+        NewNotificationRequestV24 validRequest = getNewNotificationRequestV24(sha256);
 
-    PnInvalidInputException exception = assertThrows(PnInvalidInputException.class, () -> {
-      validator.checkAdditionalLanguages(newNotificationRequestV24.getAdditionalLanguages());
-    });
+        when(validateUtils.validate("26188370808", false, false)).thenReturn(true);
+        when(mvpParameterConsumer.isMvp(validRequest.getSenderTaxId())).thenReturn(false);
 
-    Assertions.assertEquals(ERROR_CODE_DELIVERY_REQUIRED_ADDITIONAL_LANG, exception.getMessage());
-  }
+        assertDoesNotThrow(() -> validator.checkNewNotificationRequestBeforeInsertAndThrow(validRequest));
+    }
 
-  @Test
-  void testCheckAdditionalLanguages_invalidSizeList() {
-    NewNotificationRequestV24 newNotificationRequestV24 = new NewNotificationRequestV24();
-    newNotificationRequestV24.setAdditionalLanguages(List.of("FR", "SL")); // Use an invalid size list
+    @Test
+    void checkNewNotificationRequestBeforeInsertAndThrow_WithInvalidAdditionalLang() {
+        String sha256 = "cvZKB4NCsHjo0stdb47gnfx0/Hjiipov0+M9oXcJT2Y=";
+        NewNotificationRequestV24 validRequest = getNewNotificationRequestV24(sha256);
+        validRequest.setAdditionalLanguages(List.of("en"));
 
-    PnInvalidInputException exception = assertThrows(PnInvalidInputException.class, () -> {
-      validator.checkAdditionalLanguages(newNotificationRequestV24.getAdditionalLanguages());
-    });
+        when(validateUtils.validate("26188370808", false, false)).thenReturn(true);
+        when(mvpParameterConsumer.isMvp(validRequest.getSenderTaxId())).thenReturn(false);
 
-    Assertions.assertEquals(ERROR_CODE_DELIVERY_REQUIRED_ADDITIONAL_LANG, exception.getMessage());
-  }
+        Assertions.assertThrows(PnBadRequestException.class, () -> validator.checkNewNotificationRequestBeforeInsertAndThrow(validRequest),
+                "Lingua aggiuntiva non valida, i valori accettati sono DE,FR,SL");
+    }
 
-  @Test
-  void testCheckAdditionalLanguages_noMatchingList() {
-    NewNotificationRequestV24 newNotificationRequestV24 = new NewNotificationRequestV24();
-    newNotificationRequestV24.setAdditionalLanguages(List.of("XX")); // Use an invalid language
+    @Test
+    void checkNewNotificationRequestBeforeInsertAndThrow_WithMultipleAdditionalLang() {
+        String sha256 = "cvZKB4NCsHjo0stdb47gnfx0/Hjiipov0+M9oXcJT2Y=";
+        NewNotificationRequestV24 validRequest = getNewNotificationRequestV24(sha256);
+        validRequest.setAdditionalLanguages(List.of("de","sl"));
+        when(validateUtils.validate("26188370808", false, false)).thenReturn(true);
+        when(mvpParameterConsumer.isMvp(validRequest.getSenderTaxId())).thenReturn(false);
 
-    PnInvalidInputException exception = assertThrows(PnInvalidInputException.class, () -> {
-      validator.checkAdditionalLanguages(newNotificationRequestV24.getAdditionalLanguages());
-    });
+        Assertions.assertThrows(PnBadRequestException.class, () -> validator.checkNewNotificationRequestBeforeInsertAndThrow(validRequest),
+                "È obbligatorio fornire una sola lingua aggiuntiva.");
+    }
 
-    Assertions.assertEquals(ERROR_CODE_DELIVERY_INVALID_ADDITIONAL_LANG, exception.getMessage());
-  }
+    @Test
+    void checkNewNotificationRequestBeforeInsertAndThrow_WithValidAdditionalLang() {
+        String sha256 = "cvZKB4NCsHjo0stdb47gnfx0/Hjiipov0+M9oXcJT2Y=";
+        NewNotificationRequestV24 validRequest = getNewNotificationRequestV24(sha256);
+        validRequest.setAdditionalLanguages(List.of("de"));
+        when(validateUtils.validate("26188370808", false, false)).thenReturn(true);
+        when(mvpParameterConsumer.isMvp(validRequest.getSenderTaxId())).thenReturn(false);
+
+        assertDoesNotThrow(() -> validator.checkNewNotificationRequestBeforeInsertAndThrow(validRequest));
+    }
+
+    @NotNull
+    private static NewNotificationRequestV24 getNewNotificationRequestV24(String sha256) {
+        NewNotificationRequestV24 validRequest = new NewNotificationRequestV24();
+
+        validRequest.setSenderTaxId("12345678958");
+        validRequest.setSenderDenomination("sender");
+        validRequest.setSubject("sub");
+
+        NotificationRecipientV23 recipient = NotificationRecipientV23.builder()
+                .recipientType(NotificationRecipientV23.RecipientTypeEnum.PG)
+                .denomination("Mario Rossi")
+                .taxId("26188370808")
+                .digitalDomicile(NotificationDigitalAddress.builder()
+                        .type(NotificationDigitalAddress.TypeEnum.PEC)
+                        .address("address@pec.it")
+                        .build())
+                .physicalAddress(NotificationPhysicalAddress.builder()
+                        .at("at")
+                        .province("province")
+                        .zip("83100")
+                        .address("address")
+                        .addressDetails("addressDetail")
+                        .municipality("municipality")
+                        .municipalityDetails("municipalityDetail")
+                        .build())
+                .build();
+
+        NotificationDocument document = NotificationDocument.builder()
+                .ref(NotificationAttachmentBodyRef.builder().key("key1").versionToken("token").build())
+                .digests(NotificationAttachmentDigests.builder().sha256(sha256).build())
+                .contentType("application/pdf")
+                .build();
+        validRequest.addDocumentsItem(document);
+
+        validRequest.setRecipients(List.of(recipient));
+        validRequest.setNotificationFeePolicy(NotificationFeePolicy.FLAT_RATE);
+        validRequest.setPaFee(1);
+        validRequest.setVat(90);
+        validRequest.setTaxonomyCode("123456A");
+        validRequest.setPaProtocolNumber("prot");
+        validRequest.setPhysicalCommunicationType(NewNotificationRequestV24.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
+        return validRequest;
+    }
 }
 
