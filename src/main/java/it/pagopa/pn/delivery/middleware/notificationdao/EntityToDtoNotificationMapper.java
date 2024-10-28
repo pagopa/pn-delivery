@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -66,9 +67,12 @@ public class EntityToDtoNotificationMapper {
     }
 
     private List<String> removeITLanguageFromDto(List<String> languages) {
-        return languages.stream()
-                .filter(language -> !IT_LANGUAGE.equalsIgnoreCase(language))
-                .toList();
+        if(!CollectionUtils.isEmpty(languages)) {
+            return languages.stream()
+                    .filter(language -> !IT_LANGUAGE.equalsIgnoreCase(language))
+                    .toList();
+        }
+        return Collections.emptyList();
     }
 
     private List<NotificationRecipient> entity2RecipientsDto(List<NotificationRecipientEntity> recipients) {

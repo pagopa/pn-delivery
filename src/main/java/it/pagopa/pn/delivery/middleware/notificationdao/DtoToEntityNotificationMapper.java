@@ -48,8 +48,11 @@ public class DtoToEntityNotificationMapper {
     }
 
     private List<String> addITLanguageToEntity(List<String> additionalLanguages) {
-        List<String> additionalLanguagesWithIT = new ArrayList<>(additionalLanguages);
-        additionalLanguagesWithIT.add(IT_LANGUAGE);
+        List<String> additionalLanguagesWithIT = new ArrayList<>();
+        if(!CollectionUtils.isEmpty(additionalLanguages)){
+            additionalLanguagesWithIT.addAll(additionalLanguages);
+            additionalLanguagesWithIT.add(IT_LANGUAGE);
+        }
         return additionalLanguagesWithIT;
     }
 
