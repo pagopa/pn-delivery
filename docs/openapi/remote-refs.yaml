@@ -46,13 +46,13 @@ components:
     ###                          STRUTTURE DATI DI PN-DELIVERY_PUSH                          ###
     ############################################################################################
     TimelineElementV25:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/d1293bfbbd1eae0a033f5879fa68070410b82023/docs/openapi/api-external-b2b-webhook-bundle.yaml#/components/schemas/TimelineElementV25'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/40082dbb81bb4288689aa2a6ebfcbc7d878e8684/docs/openapi/api-external-b2b-webhook-bundle.yaml#/components/schemas/TimelineElementV25'
     NotificationStatus:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/d1293bfbbd1eae0a033f5879fa68070410b82023/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatus'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/40082dbb81bb4288689aa2a6ebfcbc7d878e8684/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/d1293bfbbd1eae0a033f5879fa68070410b82023/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatusHistory'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/40082dbb81bb4288689aa2a6ebfcbc7d878e8684/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatusHistory'
     RequestStatus:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/d1293bfbbd1eae0a033f5879fa68070410b82023/docs/openapi/api-internal-pn-delivery-push.yaml#/components/schemas/RequestStatus'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/40082dbb81bb4288689aa2a6ebfcbc7d878e8684/docs/openapi/api-internal-pn-delivery-push.yaml#/components/schemas/RequestStatus'
     ############################################################################################
     ###                          STRUTTURE DATI DI PN-COMMONS                                ###
     ############################################################################################

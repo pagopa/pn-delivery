@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: hTD7WtsHrEbJN2BcVPQX38IxdNB62J7Z8jI3EzXAS4E=
+  version: fxdKvv3k74S7KIavYTURvwZcwekM5Gh/SQQD8M9NLQc=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2547,7 +2547,16 @@ components:
             $ref: '#/components/schemas/TimelineElementId'
     LegalFactCategoryV20:
       title: Tipi di atti opponibili a terzi
-      description: prova descrizione
+      description: >-
+        Tipi di atti opponibili a terzi che Piattaforma Notifiche mette a
+        disposizione dei suoi utenti. <br/>
+          - SENDER_ACK  <br/>
+          - DIGITAL_DELIVERY  <br/>
+          - ANALOG_DELIVERY  <br/>
+          - RECIPIENT_ACCESS <br/>
+          - PEC_RECEIPT  <br/>
+          - ANALOG_FAILURE_DELIVERY  <br/>
+          - NOTIFICATION_CANCELLED  <br/>
       type: string
     LegalFactsIdV20:
       description: Chiavi dei documenti generati durante il processo di consegna cartacea
