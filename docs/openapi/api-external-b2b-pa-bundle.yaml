@@ -997,6 +997,8 @@ paths:
       tags:
         - NewNotification
       operationId: sendNewNotification
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-sendnewnotification-lambda:live
+      x-pagopa-lambda-account: core
       requestBody:
         content:
           application/json:
@@ -1031,6 +1033,8 @@ paths:
     get:
       deprecated: true
       operationId: retrieveNotificationRequestStatus
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live
+      x-pagopa-lambda-account: core
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -1090,6 +1094,8 @@ paths:
       tags:
         - NewNotification
       operationId: sendNewNotificationV21
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-sendnewnotification-lambda:live
+      x-pagopa-lambda-account: core
       requestBody:
         content:
           application/json:
@@ -1124,6 +1130,8 @@ paths:
     get:
       deprecated: true
       operationId: retrieveNotificationRequestStatusV21
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live
+      x-pagopa-lambda-account: core
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -1265,6 +1273,8 @@ paths:
       tags:
         - SenderReadB2B
       operationId: retrieveSentNotification
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda:live
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:
@@ -1296,6 +1306,8 @@ paths:
       tags:
         - SenderReadB2B
       operationId: retrieveSentNotificationV20
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda:live
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:
@@ -1327,6 +1339,8 @@ paths:
       tags:
         - SenderReadB2B
       operationId: retrieveSentNotificationV21
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda:live
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:
@@ -1416,6 +1430,8 @@ paths:
     get:
       deprecated: true
       operationId: retrieveNotificationPrice
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v23-getnotificationprice-lambda:live
+      x-pagopa-lambda-account: core
       summary: Retrieve notification price and effective date
       description: |-
         Usata dalla PA per recuperare il costo di notificazione tramite
@@ -1498,7 +1514,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery-push/{iun}/legal-facts:
+  /delivery-push/v2.0/{iun}/legal-facts:
     get:
       summary: Elenco atti opponibili a terzi
       description: >-
@@ -1506,16 +1522,17 @@ paths:
         a terzi  registrati durante il processo di notifica. <br/>
       tags:
         - LegalFacts
-      operationId: retrieveNotificationLegalFacts
+      operationId: retrieveNotificationLegalFactsV20
       parameters:
         - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LegalFactList'
+                $ref: '#/components/schemas/LegalFactListV20'
         '400':
           description: Invalid input
           content:
@@ -1536,6 +1553,7 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery-push/{iun}/legal-facts/{legalFactType}/{legalFactId}:
     get:
+      deprecated: true
       summary: Singolo atto opponibile a terzi
       description: Permette di scaricare un atto opponibile a terzi <br/>
       tags:
@@ -1545,6 +1563,7 @@ paths:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactType'
         - $ref: '#/components/parameters/pathLegalFactId'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
       responses:
         '200':
           description: OK
@@ -1580,6 +1599,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactId'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
       responses:
         '200':
           description: OK
@@ -1605,7 +1625,84 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery-progresses/v2.4/streams:
+  /delivery-push/{iun}/document/{documentType}:
+    get:
+      summary: Restituisce il singolo documento identificato dalla documentKey
+      description: Permette di scaricare un documento correlato alla notificazione
+      tags:
+        - DocumentsWeb
+      operationId: getDocumentsWeb
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
+        - $ref: '#/components/parameters/pathDocumentType'
+        - $ref: '#/components/parameters/queryDocumentId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentDownloadMetadataResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /delivery-push/{iun}/legal-facts:
+    get:
+      deprecated: true
+      summary: Elenco atti opponibili a terzi
+      description: >-
+        Elenca le informazione di categorizzazione di tutti gli atti opponibili
+        a terzi  registrati durante il processo di notifica. <br/>
+      tags:
+        - LegalFacts
+      operationId: retrieveNotificationLegalFacts
+      x-pagopa-lambda-name: pn-versioningGetNotificationLegalFactsLambda:live
+      x-pagopa-lambda-account: core
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegalFactList'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /delivery-progresses/v2.5/streams:
     post:
       summary: Crea nuovo stream di eventi
       description: >-
@@ -1618,20 +1715,20 @@ paths:
         pochi secondi dopo che è stata  invocata l'operazione.
       tags:
         - Streams
-      operationId: createEventStreamV24
+      operationId: createEventStreamV25
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StreamCreationRequestV24'
+              $ref: '#/components/schemas/StreamCreationRequestV25'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StreamMetadataResponseV24'
+                $ref: '#/components/schemas/StreamMetadataResponseV25'
         '400':
           description: Invalid input
           content:
@@ -1661,7 +1758,7 @@ paths:
       description: Elenca gli stream di eventi
       tags:
         - Streams
-      operationId: listEventStreamsV24
+      operationId: listEventStreamsV25
       responses:
         '200':
           description: OK
@@ -1681,7 +1778,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery-progresses/v2.4/streams/{streamId}:
+  /delivery-progresses/v2.5/streams/{streamId}:
     parameters:
       - $ref: '#/components/parameters/pathStreamId'
     get:
@@ -1689,14 +1786,14 @@ paths:
       description: Lettura delle configurazioni di uno stream di eventi.
       tags:
         - Streams
-      operationId: retrieveEventStreamV24
+      operationId: retrieveEventStreamV25
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StreamMetadataResponseV24'
+                $ref: '#/components/schemas/StreamMetadataResponseV25'
         '400':
           description: Invalid input
           content:
@@ -1728,20 +1825,20 @@ paths:
         eventi
       tags:
         - Streams
-      operationId: updateEventStreamV24
+      operationId: updateEventStreamV25
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StreamRequestV24'
+              $ref: '#/components/schemas/StreamRequestV25'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StreamMetadataResponseV24'
+                $ref: '#/components/schemas/StreamMetadataResponseV25'
         '400':
           description: Invalid input
           content:
@@ -1773,7 +1870,7 @@ paths:
         tutti gli eventi associati allo stream e non ancora consumati.
       tags:
         - Streams
-      operationId: removeEventStreamV24
+      operationId: removeEventStreamV25
       responses:
         '204':
           description: OK
@@ -1801,7 +1898,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery-progresses/v2.4/streams/{streamId}/action/disable:
+  /delivery-progresses/v2.5/streams/{streamId}/action/disable:
     post:
       summary: Disabilita uno stream
       description: >-
@@ -1821,7 +1918,7 @@ paths:
         id="webhookTtlDisabled">14</span> giorni.
       tags:
         - Streams
-      operationId: disableEventStreamV24
+      operationId: disableEventStreamV25
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
       responses:
@@ -1830,7 +1927,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StreamMetadataResponseV24'
+                $ref: '#/components/schemas/StreamMetadataResponseV25'
         '400':
           description: Invalid input
           content:
@@ -1855,7 +1952,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery-progresses/v2.4/streams/{streamId}/events:
+  /delivery-progresses/v2.5/streams/{streamId}/events:
     get:
       summary: Leggi progressi notifiche
       description: >-
@@ -1865,7 +1962,7 @@ paths:
         Tali eventi potranno essere cancellati dallo stream.
       tags:
         - Events
-      operationId: consumeEventStreamV24
+      operationId: consumeEventStreamV25
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
         - $ref: '#/components/parameters/queryLastEventId'
@@ -1889,7 +1986,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProgressResponseV24'
+                $ref: '#/components/schemas/ProgressResponseV25'
         '400':
           description: Invalid input
           content:
@@ -2482,6 +2579,344 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+  /delivery-progresses/v2.4/streams:
+    post:
+      deprecated: true
+      summary: Crea nuovo stream di eventi
+      description: >-
+        Creazione di un flusso di eventi specificando se gli eventi saranno
+        relativi ai cambi di stato o agli eventi di timeline.
+
+
+        In risposta, Piattaforma Notifiche, comunicherà un identificativo dello
+        stream e il  timestamp di effettiva attivazione del flusso, tipicamente
+        pochi secondi dopo che è stata  invocata l'operazione.
+      tags:
+        - Streams
+      operationId: createEventStreamV24
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StreamCreationRequestV24'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamMetadataResponseV24'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: ReplacedId Stream not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+    get:
+      deprecated: true
+      summary: Elenca stream di eventi
+      description: Elenca gli stream di eventi
+      tags:
+        - Streams
+      operationId: listEventStreamsV24
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamListResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /delivery-progresses/v2.4/streams/{streamId}:
+    parameters:
+      - $ref: '#/components/parameters/pathStreamId'
+    get:
+      deprecated: true
+      summary: Leggi metadata dello stream
+      description: Lettura delle configurazioni di uno stream di eventi.
+      tags:
+        - Streams
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamMetadataResponseV24'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Stream not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+    put:
+      deprecated: true
+      summary: Update Stream metadata
+      description: >-
+        Modifica delle configurazioni dei filtri associati a uno stream di
+        eventi
+      tags:
+        - Streams
+      operationId: updateEventStreamV24
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StreamRequestV24'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamMetadataResponseV24'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Stream not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+    delete:
+      deprecated: true
+      summary: Remove Event Stream
+      description: >-
+        Cancellazione dello steam di eventi: elimina sia le configurazioni sia
+        tutti gli eventi associati allo stream e non ancora consumati.
+      tags:
+        - Streams
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Stream not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /delivery-progresses/v2.4/streams/{streamId}/action/disable:
+    post:
+      deprecated: true
+      summary: Disabilita uno stream
+      description: >-
+        Disabilita uno stream.
+
+
+        Da uno stream disabilitato è possibile leggere gli eventi presenti nello
+        stream salvati prima della disabilitazione, ma non ne saranno aggiunti
+        di nuovi.
+
+
+        Non è possibile modificare o riabilitare uno stream disabilitato.
+
+
+        Uno stream disabilitato non rientra nel conteggio degli stream massimi,
+        non può essere riabilitato e verrà eliminato automaticamente dopo <span
+        id="webhookTtlDisabled">14</span> giorni.
+      tags:
+        - Streams
+      operationId: disableEventStreamV24
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
+      parameters:
+        - $ref: '#/components/parameters/pathStreamId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamMetadataResponseV24'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Stream not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /delivery-progresses/v2.4/streams/{streamId}/events:
+    get:
+      deprecated: true
+      summary: Leggi progressi notifiche
+      description: >-
+        Lettura degli eventi presenti nello stream di aggiornamenti con
+        indicazione che il mittente ha ricevuto e memorizzato l'evento
+        identificato dal parametro _lastEventId_ e tutti gli eventi precedenti.
+        Tali eventi potranno essere cancellati dallo stream.
+      tags:
+        - Events
+      operationId: consumeEventStreamV24
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
+      parameters:
+        - $ref: '#/components/parameters/pathStreamId'
+        - $ref: '#/components/parameters/queryLastEventId'
+      responses:
+        '200':
+          description: OK
+          headers:
+            retry-after:
+              schema:
+                type: integer
+                format: int32
+              description: >-
+                Numero di millisecondi di attesa prima di effettuare una nuova
+                lettura di eventi.
+
+                Sarà valorizzato a zero se ci sono eventi in coda che non sono
+                stati forniti per  raggiunta dimensione massima della risposta.
+
+                Sarà maggiore di zero se gli eventi in coda sono stati tutti
+                inviati.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProgressResponseV24'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Not allowed to consume details
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Stream not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '429':
+          description: Too Many Requests
+          headers:
+            retry-after:
+              schema:
+                type: integer
+                format: int32
+              description: >-
+                Numero di millisecondi di attesa prima di effettuare una nuova
+                lettura di eventi.
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
 components:
   parameters:
     notificationRequestId:
@@ -2551,22 +2986,6 @@ components:
       schema:
         type: integer
         format: int32
-    pathLegalFactType:
-      description: Categoria dell'atto opponibile a terzi
-      name: legalFactType
-      in: path
-      required: true
-      schema:
-        $ref: '#/components/schemas/LegalFactCategory'
-    pathLegalFactId:
-      description: Identificativo dell'atto opponibile a terzi
-      name: legalFactId
-      in: path
-      required: true
-      schema:
-        type: string
-        pattern: ^[ -~]*$
-        maxLength: 1024
     pathIun:
       description: Identificativo Univoco Notifica
       name: iun
@@ -2587,6 +3006,22 @@ components:
       schema:
         type: string
         format: uuid
+    pathLegalFactType:
+      description: Categoria dell'atto opponibile a terzi
+      name: legalFactType
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/LegalFactCategory'
+    pathLegalFactId:
+      description: Identificativo dell'atto opponibile a terzi
+      name: legalFactId
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^[ -~]*$
+        maxLength: 1024
     pathDocumentType:
       description: Categoria documento
       name: documentType
@@ -2965,7 +3400,7 @@ components:
                 processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV24'
+                $ref: '#/components/schemas/TimelineElementV25'
     PaymentEventsRequestPagoPa:
       title: Invio eventi di pagamento da PA a PN
       description: >-
@@ -3056,7 +3491,7 @@ components:
         amount:
           type: integer
           format: int32
-    TimelineElementV24:
+    TimelineElementV25:
       type: object
       additionalProperties: false
       properties:
@@ -3092,7 +3527,7 @@ components:
         legalFactsIds:
           type: array
           items:
-            $ref: '#/components/schemas/LegalFactsId'
+            $ref: '#/components/schemas/LegalFactsIdV20'
           description: >-
             Chiavi dei documenti che provano l'effettivo accadimento dell'evento
             descritto in timeline. Questo elemento
@@ -3130,37 +3565,6 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/NotificationStatusHistoryElement'
-    LegalFactDownloadMetadataResponse:
-      title: Url e metadati per il download di un allegato di una notifica
-      description: |-
-        I due campi più importanti sono __url__ e __retryAfter__. <br/>
-          - __url__ è presente se il file è pronto per essere scaricato ed indica l'url a cui fare GET.
-          - __retryAfter__ indica che il file non è stato archiviato e bisognerà aspettare un numero di
-            secondi non inferiore a quanto indicato dal campo _retryAfter_. <br/>
-      type: object
-      required:
-        - filename
-        - contentLength
-      properties:
-        filename:
-          type: string
-        contentLength:
-          type: number
-          format: decimal32
-          example: 54092
-          description: dimensione, in byte, del contenuto.
-        url:
-          type: string
-          description: >-
-            URL preautorizzato a cui effettuare una richiesta GET per ottenere
-            il  contenuto del documento. Presente solo se il documento è pronto
-            per il download.
-        retryAfter:
-          type: number
-          format: decimal32
-          description: >-
-            Stima del numero di secondi da aspettare prima che il contenuto del 
-            documento sia scaricabile.
     F24Metadata:
       type: object
       description: >-
@@ -3978,6 +4382,50 @@ components:
           $ref: '#/components/schemas/TimelineElementCategoryV23'
         details:
           $ref: '#/components/schemas/TimelineElementDetailsV23'
+    TimelineElementV24:
+      type: object
+      additionalProperties: false
+      properties:
+        elementId:
+          type: string
+          maxLength: 512
+          description: >-
+            Identificativo dell'elemento di timeline: insieme allo IUN della
+            notifica definisce in maniera univoca l'elemento di timeline
+        timestamp:
+          type: string
+          deprecated: true
+          description: >-
+            Istante in cui avviene l'evento descritto in questo elemento di
+            timeline (deprecato, fare riferimento al campo eventTimestamp)
+          format: date-time
+        ingestionTimestamp:
+          type: string
+          description: >-
+            Istante in cui l'evento descritto in questo elemento di timeline è
+            gestito da SEND
+          format: date-time
+        eventTimestamp:
+          type: string
+          description: >-
+            Istante in cui avviene l'evento descritto in questo elemento di
+            timeline
+          format: date-time
+        notificationSentAt:
+          type: string
+          description: Momento di ricezione della richiesta di notifica da parte di SEND
+          format: date-time
+        legalFactsIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/LegalFactsId'
+          description: >-
+            Chiavi dei documenti che provano l'effettivo accadimento dell'evento
+            descritto in timeline. Questo elemento
+        category:
+          $ref: '#/components/schemas/TimelineElementCategoryV23'
+        details:
+          $ref: '#/components/schemas/TimelineElementDetailsV23'
     PnFunctionality:
       title: Funzionalità di PN
       description: >-
@@ -4537,22 +4985,11 @@ components:
           description: Eventi avvenuti nello stato
           items:
             $ref: '#/components/schemas/TimelineElementId'
-    LegalFactCategory:
+    LegalFactCategoryV20:
       title: Tipi di atti opponibili a terzi
-      description: >-
-        Tipi di atti opponibili a terzi che Piattaforma Notifiche mette a
-        disposizione dei suoi utenti.
-          - _SENDER_ACK_: atto di "presa in carico" di una notifica
-          - _DIGITAL_DELIVERY_: ...
+      description: prova descrizione
       type: string
-      enum:
-        - SENDER_ACK
-        - DIGITAL_DELIVERY
-        - ANALOG_DELIVERY
-        - RECIPIENT_ACCESS
-        - PEC_RECEIPT
-        - ANALOG_FAILURE_DELIVERY
-    LegalFactsId:
+    LegalFactsIdV20:
       description: Chiavi dei documenti generati durante il processo di consegna cartacea
       type: object
       required:
@@ -4567,7 +5004,7 @@ components:
           pattern: ^(safestorage:\/\/)?[A-Za-z0-9._-]+$
           maxLength: 512
         category:
-          $ref: '#/components/schemas/LegalFactCategory'
+          $ref: '#/components/schemas/LegalFactCategoryV20'
     TimelineElementCategoryV23:
       type: string
       description: |
@@ -5887,6 +6324,37 @@ components:
           $ref: '#/components/schemas/noticeCode'
         pagoPaForm:
           $ref: '#/components/schemas/NotificationPaymentAttachment'
+    LegalFactCategory:
+      title: Tipi di atti opponibili a terzi
+      description: >-
+        Tipi di atti opponibili a terzi che Piattaforma Notifiche mette a
+        disposizione dei suoi utenti.
+          - _SENDER_ACK_: atto di "presa in carico" di una notifica
+          - _DIGITAL_DELIVERY_: ...
+      type: string
+      enum:
+        - SENDER_ACK
+        - DIGITAL_DELIVERY
+        - ANALOG_DELIVERY
+        - RECIPIENT_ACCESS
+        - PEC_RECEIPT
+        - ANALOG_FAILURE_DELIVERY
+    LegalFactsId:
+      description: Chiavi dei documenti generati durante il processo di consegna cartacea
+      type: object
+      required:
+        - key
+        - category
+      properties:
+        key:
+          description: >-
+            Chiave dell'atto opponibile a terzi generato durante il processo di
+            consegna
+          type: string
+          pattern: ^(safestorage:\/\/)?[A-Za-z0-9._-]+$
+          maxLength: 512
+        category:
+          $ref: '#/components/schemas/LegalFactCategory'
     TimelineElementCategory:
       type: string
       description: |
@@ -7041,7 +7509,7 @@ components:
             problem.
           example: Parameter not valid
           type: string
-    LegalFactListElement:
+    LegalFactListElementV20:
       description: Informazioni relative ad un atto opponibile a terzi
       type: object
       required:
@@ -7061,13 +7529,44 @@ components:
           maxLength: 25
           pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
         legalFactsId:
-          $ref: '#/components/schemas/LegalFactsId'
-    LegalFactList:
+          $ref: '#/components/schemas/LegalFactsIdV20'
+    LegalFactListV20:
       title: Elenco atti opponibili
       description: Elenco degli atti opponibili a terzi correlati a una notifica
       type: array
       items:
-        $ref: '#/components/schemas/LegalFactListElement'
+        $ref: '#/components/schemas/LegalFactListElementV20'
+    LegalFactDownloadMetadataResponse:
+      title: Url e metadati per il download di un allegato di una notifica
+      description: |-
+        I due campi più importanti sono __url__ e __retryAfter__. <br/>
+          - __url__ è presente se il file è pronto per essere scaricato ed indica l'url a cui fare GET.
+          - __retryAfter__ indica che il file non è stato archiviato e bisognerà aspettare un numero di
+            secondi non inferiore a quanto indicato dal campo _retryAfter_. <br/>
+      type: object
+      required:
+        - filename
+        - contentLength
+      properties:
+        filename:
+          type: string
+        contentLength:
+          type: number
+          format: decimal32
+          example: 54092
+          description: dimensione, in byte, del contenuto.
+        url:
+          type: string
+          description: >-
+            URL preautorizzato a cui effettuare una richiesta GET per ottenere
+            il  contenuto del documento. Presente solo se il documento è pronto
+            per il download.
+        retryAfter:
+          type: number
+          format: decimal32
+          description: >-
+            Stima del numero di secondi da aspettare prima che il contenuto del 
+            documento sia scaricabile.
     DocumentCategory:
       title: Tipi di documenti
       description: Tipologie di documenti
@@ -7105,13 +7604,40 @@ components:
           description: >-
             Stima del numero di secondi da aspettare prima che il contenuto del 
             documento sia scaricabile.
-    StreamCreationRequestV24:
+    LegalFactListElement:
+      description: Informazioni relative ad un atto opponibile a terzi
+      type: object
+      required:
+        - iun
+        - legalFactsId
+      properties:
+        taxId:
+          description: Valorizzato se l'atto si riferisce a uno specifico destinatario
+          type: string
+          minLength: 11
+          maxLength: 16
+          pattern: >-
+            ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
+        iun:
+          description: Identificativo Univoco Notifica a cui l'atto è associato
+          type: string
+          maxLength: 25
+          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+        legalFactsId:
+          $ref: '#/components/schemas/LegalFactsId'
+    LegalFactList:
+      title: Elenco atti opponibili
+      description: Elenco degli atti opponibili a terzi correlati a una notifica
+      type: array
+      items:
+        $ref: '#/components/schemas/LegalFactListElement'
+    StreamCreationRequestV25:
       description: >-
         Richiesta di creazione di uno stream di eventi di avanzamento delle
         notifiche. Lo stream verrà creato nello stato abilitato
       type: object
       allOf:
-        - $ref: '#/components/schemas/StreamRequestV24'
+        - $ref: '#/components/schemas/StreamRequestV25'
         - type: object
           properties:
             replacedStreamId:
@@ -7128,7 +7654,7 @@ components:
                 autorizzazione dell'apiKey sui gruppi del precedente stream.
               type: string
               format: uuid
-    StreamRequestV24:
+    StreamRequestV25:
       description: >-
         Struttura comune per eventi di creazione/aggiornamento di uno stream di
         eventi di avanzamento delle notifiche. L'aggiornamento delle proprietà
@@ -7190,10 +7716,10 @@ components:
     StreamGroup:
       type: string
       description: Identificativo del gruppo.
-    StreamMetadataResponseV24:
+    StreamMetadataResponseV25:
       description: Configurazioni di un flusso di eventi
       allOf:
-        - $ref: '#/components/schemas/StreamRequestV24'
+        - $ref: '#/components/schemas/StreamRequestV25'
         - type: object
           required:
             - streamId
@@ -7233,11 +7759,11 @@ components:
           type: string
           maxLength: 256
           pattern: ^.*$
-    ProgressResponseV24:
+    ProgressResponseV25:
       type: array
       items:
-        $ref: '#/components/schemas/ProgressResponseElementV24'
-    ProgressResponseElementV24:
+        $ref: '#/components/schemas/ProgressResponseElementV25'
+    ProgressResponseElementV25:
       type: object
       required:
         - eventId
@@ -7261,7 +7787,7 @@ components:
         newStatus:
           $ref: '#/components/schemas/NotificationStatus'
         element:
-          $ref: '#/components/schemas/TimelineElementV24'
+          $ref: '#/components/schemas/TimelineElementV25'
     StreamCreationRequest:
       description: >-
         Richiesta di creazione di uno stream di eventi di avanzamento delle
@@ -7519,6 +8045,142 @@ components:
           $ref: '#/components/schemas/NotificationStatus'
         element:
           $ref: '#/components/schemas/TimelineElementV23'
+    StreamCreationRequestV24:
+      description: >-
+        Richiesta di creazione di uno stream di eventi di avanzamento delle
+        notifiche. Lo stream verrà creato nello stato abilitato
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/StreamRequestV24'
+        - type: object
+          properties:
+            replacedStreamId:
+              description: >-
+                opzionale, eventuale streamId che viene sostituito da questo. Se
+                specificato, lo stream indicato sarà disabilitato
+                contestualmente alla creazione del nuovo stream, permettendo di
+                consumare tutti gli eventi del vecchio stream senza che ne
+                vengano aggiunti di nuovi. Inoltre, il nuovo stream partirà da
+                un eventId successivo rispetto al vecchio stream (anche se non
+                "esattamente" successivo per evitare sovrapposizioni con
+                eventuali eventi salvati durante il cambio di configurazione).
+                La creazione del nuovo stream è soggetta al controllo di
+                autorizzazione dell'apiKey sui gruppi del precedente stream.
+              type: string
+              format: uuid
+    StreamRequestV24:
+      description: >-
+        Struttura comune per eventi di creazione/aggiornamento di uno stream di
+        eventi di avanzamento delle notifiche. L'aggiornamento delle proprietà
+        dello stream è soggetta al controllo di autorizzazione dell'apiKey sui
+        gruppi.
+      type: object
+      required:
+        - title
+        - eventType
+        - groups
+      properties:
+        title:
+          description: Nome sintetico dello stream
+          type: string
+          maxLength: 256
+          pattern: ^.*$
+        eventType:
+          description: |-
+            Tipo di eventi presenti nel flusso:
+              - _STATUS_: cambiamenti di stato delle notifiche
+              - _TIMELINE_: eventi a granularità fine
+          type: string
+          enum:
+            - STATUS
+            - TIMELINE
+        groups:
+          description: >-
+            rappresenta l'elenco degli id gruppi abilitati a richiedere i
+            dettagli. Una apiKey può consumare o modificare uno stream solo se
+            non ha gruppi o se tutti i gruppi dello stream sono presenti nella
+            apiKey. Se viene specificato array vuoto, si noti che solo apiKey
+            senza gruppi potranno consumare o modificare lo stream. Inoltre, nel
+            caso di updateEventStream, la lista dei gruppi presente nello stream
+            deve essere un sottoinsieme dei gruppi passati nella richiesta (in
+            pratica si possono solo aggiungere gruppi a quelli esistenti) oppure
+            entrambi array vuoti.
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/StreamGroup'
+            minLength: 0
+        filterValues:
+          description: >-
+            rappresenta l'elenco degli stati o elementi di timeline che si
+            vogliono filtrare; inserendo un array vuoto [] si riceveranno solo
+            gli elementi relativi alla versione con cui è stato creato lo
+            stream. Se specificati invece, avranno priorità rispetto agli eventi
+            della versione (quindi se sono un sottoinsieme, si riceveranno solo
+            quelli. Se si specificano eventi introdotti in versioni più recenti,
+            questi saranno inviati) Infine, è possibile utilizzare il
+            placeholder "DEFAULT" per specificare l'insieme di eventi più
+            rilevanti di una notifica.
+          type: array
+          items:
+            type: string
+            minLength: 4
+            maxLength: 256
+            pattern: ^[A-Z_]+$
+    StreamMetadataResponseV24:
+      description: Configurazioni di un flusso di eventi
+      allOf:
+        - $ref: '#/components/schemas/StreamRequestV24'
+        - type: object
+          required:
+            - streamId
+            - activationDate
+          properties:
+            streamId:
+              description: Identificativo del flusso di eventi
+              type: string
+              format: uuid
+            activationDate:
+              description: Timestamp in cui il flusso di eventi è stato attivato
+              type: string
+              format: date-time
+            disabledDate:
+              description: Timestamp in cui il flusso di eventi è stato disabilitato
+              type: string
+              format: date-time
+            version:
+              description: versione di base dello stream.
+              type: string
+              pattern: ^v\d\d\d?$
+    ProgressResponseV24:
+      type: array
+      items:
+        $ref: '#/components/schemas/ProgressResponseElementV24'
+    ProgressResponseElementV24:
+      type: object
+      required:
+        - eventId
+        - element
+      properties:
+        eventId:
+          description: >-
+            Elemento che garantisce univocità e ordinamento temporale
+            all'interno dello stream
+          type: string
+        notificationRequestId:
+          description: Identificativo della richiesta di notifica
+          type: string
+        iun:
+          description: >-
+            Identificativo della notifica, presente solo se la richiesta di
+            notifica è  stata accettata.
+          type: string
+          maxLength: 25
+          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+        newStatus:
+          $ref: '#/components/schemas/NotificationStatus'
+        element:
+          $ref: '#/components/schemas/TimelineElementV24'
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

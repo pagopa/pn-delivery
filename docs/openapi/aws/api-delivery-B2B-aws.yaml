@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 6+dM9MIu9Vqs44IE3y0K0+NV9xxM8ldfTVvsij+y+WM=
+  version: hTD7WtsHrEbJN2BcVPQX38IxdNB62J7Z8jI3EzXAS4E=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1498,22 +1498,6 @@ components:
       required: false
       schema:
         type: number
-    pathLegalFactType:
-      description: Categoria dell'atto opponibile a terzi
-      name: legalFactType
-      in: path
-      required: true
-      schema:
-        $ref: '#/components/schemas/LegalFactCategory'
-    pathLegalFactId:
-      description: Identificativo dell'atto opponibile a terzi
-      name: legalFactId
-      in: path
-      required: true
-      schema:
-        type: string
-        pattern: ^[ -~]*$
-        maxLength: 1024
     pathIun:
       description: Identificativo Univoco Notifica
       name: iun
@@ -1857,7 +1841,7 @@ components:
                 processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV24'
+                $ref: '#/components/schemas/TimelineElementV25'
     PaymentEventsRequestPagoPa:
       title: Invio eventi di pagamento da PA a PN
       description: >-
@@ -1946,7 +1930,7 @@ components:
           pattern: PF|PG
         amount:
           type: number
-    TimelineElementV24:
+    TimelineElementV25:
       type: object
       additionalProperties: false
       properties:
@@ -1982,7 +1966,7 @@ components:
         legalFactsIds:
           type: array
           items:
-            $ref: '#/components/schemas/LegalFactsId'
+            $ref: '#/components/schemas/LegalFactsIdV20'
           description: >-
             Chiavi dei documenti che provano l'effettivo accadimento dell'evento
             descritto in timeline. Questo elemento
@@ -2020,37 +2004,6 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/NotificationStatusHistoryElement'
-    LegalFactDownloadMetadataResponse:
-      title: Url e metadati per il download di un allegato di una notifica
-      description: |-
-        I due campi più importanti sono __url__ e __retryAfter__. <br/>
-          - __url__ è presente se il file è pronto per essere scaricato ed indica l'url a cui fare GET.
-          - __retryAfter__ indica che il file non è stato archiviato e bisognerà aspettare un numero di
-            secondi non inferiore a quanto indicato dal campo _retryAfter_. <br/>
-      type: object
-      required:
-        - filename
-        - contentLength
-      properties:
-        filename:
-          type: string
-        contentLength:
-          type: number
-          format: decimal32
-          example: 54092
-          description: dimensione, in byte, del contenuto.
-        url:
-          type: string
-          description: >-
-            URL preautorizzato a cui effettuare una richiesta GET per ottenere
-            il  contenuto del documento. Presente solo se il documento è pronto
-            per il download.
-        retryAfter:
-          type: number
-          format: decimal32
-          description: >-
-            Stima del numero di secondi da aspettare prima che il contenuto del 
-            documento sia scaricabile.
     F24Metadata:
       type: object
       description: >-
@@ -2592,22 +2545,11 @@ components:
           description: Eventi avvenuti nello stato
           items:
             $ref: '#/components/schemas/TimelineElementId'
-    LegalFactCategory:
+    LegalFactCategoryV20:
       title: Tipi di atti opponibili a terzi
-      description: >-
-        Tipi di atti opponibili a terzi che Piattaforma Notifiche mette a
-        disposizione dei suoi utenti.
-          - _SENDER_ACK_: atto di "presa in carico" di una notifica
-          - _DIGITAL_DELIVERY_: ...
+      description: prova descrizione
       type: string
-      enum:
-        - SENDER_ACK
-        - DIGITAL_DELIVERY
-        - ANALOG_DELIVERY
-        - RECIPIENT_ACCESS
-        - PEC_RECEIPT
-        - ANALOG_FAILURE_DELIVERY
-    LegalFactsId:
+    LegalFactsIdV20:
       description: Chiavi dei documenti generati durante il processo di consegna cartacea
       type: object
       required:
@@ -2622,7 +2564,7 @@ components:
           pattern: ^(safestorage:\/\/)?[A-Za-z0-9._-]+$
           maxLength: 512
         category:
-          $ref: '#/components/schemas/LegalFactCategory'
+          $ref: '#/components/schemas/LegalFactCategoryV20'
     TimelineElementCategoryV23:
       type: string
       description: |
@@ -5318,6 +5260,50 @@ components:
           $ref: '#/components/schemas/TimelineElementCategoryV23'
         details:
           $ref: '#/components/schemas/TimelineElementDetailsV23'
+    TimelineElementV24:
+      type: object
+      additionalProperties: false
+      properties:
+        elementId:
+          type: string
+          maxLength: 512
+          description: >-
+            Identificativo dell'elemento di timeline: insieme allo IUN della
+            notifica definisce in maniera univoca l'elemento di timeline
+        timestamp:
+          type: string
+          deprecated: true
+          description: >-
+            Istante in cui avviene l'evento descritto in questo elemento di
+            timeline (deprecato, fare riferimento al campo eventTimestamp)
+          format: date-time
+        ingestionTimestamp:
+          type: string
+          description: >-
+            Istante in cui l'evento descritto in questo elemento di timeline è
+            gestito da SEND
+          format: date-time
+        eventTimestamp:
+          type: string
+          description: >-
+            Istante in cui avviene l'evento descritto in questo elemento di
+            timeline
+          format: date-time
+        notificationSentAt:
+          type: string
+          description: Momento di ricezione della richiesta di notifica da parte di SEND
+          format: date-time
+        legalFactsIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/LegalFactsId'
+          description: >-
+            Chiavi dei documenti che provano l'effettivo accadimento dell'evento
+            descritto in timeline. Questo elemento
+        category:
+          $ref: '#/components/schemas/TimelineElementCategoryV23'
+        details:
+          $ref: '#/components/schemas/TimelineElementDetailsV23'
     NotificationPaymentInfo:
       title: Informazioni per effettuare il pagamento
       description: >-
@@ -5340,6 +5326,37 @@ components:
           $ref: '#/components/schemas/noticeCode'
         pagoPaForm:
           $ref: '#/components/schemas/NotificationPaymentAttachment'
+    LegalFactCategory:
+      title: Tipi di atti opponibili a terzi
+      description: >-
+        Tipi di atti opponibili a terzi che Piattaforma Notifiche mette a
+        disposizione dei suoi utenti.
+          - _SENDER_ACK_: atto di "presa in carico" di una notifica
+          - _DIGITAL_DELIVERY_: ...
+      type: string
+      enum:
+        - SENDER_ACK
+        - DIGITAL_DELIVERY
+        - ANALOG_DELIVERY
+        - RECIPIENT_ACCESS
+        - PEC_RECEIPT
+        - ANALOG_FAILURE_DELIVERY
+    LegalFactsId:
+      description: Chiavi dei documenti generati durante il processo di consegna cartacea
+      type: object
+      required:
+        - key
+        - category
+      properties:
+        key:
+          description: >-
+            Chiave dell'atto opponibile a terzi generato durante il processo di
+            consegna
+          type: string
+          pattern: ^(safestorage:\/\/)?[A-Za-z0-9._-]+$
+          maxLength: 512
+        category:
+          $ref: '#/components/schemas/LegalFactCategory'
     TimelineElementCategory:
       type: string
       description: |
