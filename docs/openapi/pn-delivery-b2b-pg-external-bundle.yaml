@@ -67,6 +67,12 @@ security:
 tags:
   - name: HealthCheck
     description: Invocazioni per sapere lo stato del microservizio
+  - name: Notifications
+    description: Invocazioni per conoscere la lista delle notifiche
+  - name: NotificationsDetails
+    description: >-
+      Invocazioni per conoscere i dettagli di una notifica (informazioni e
+      allegati)    
   - name: RecipientReadB2B
     description: >-
       Invocazioni B2B utilizzate dai destinatari per ottenere informazioni sulle
@@ -93,7 +99,7 @@ paths:
         Servizio di consultazione dello stato di invio delle notifiche
         individuate dai parametri  di ricerca specificati     
       tags:
-        - RecipientReadB2B
+        - Notifications
       operationId: searchReceivedNotification
       x-api-permissions:
         - BASE
@@ -135,7 +141,7 @@ paths:
         parametro. Il recipientId si può  ricavare dai dati della delega. Il
         gruppo dalla chiamata /ext-registry/pg/v1/user-groups      
       tags:
-        - RecipientReadB2B
+        - Notifications
       operationId: searchReceivedDelegatedNotification
       x-api-permissions:
         - BASE
@@ -181,7 +187,7 @@ paths:
                   - i dettagli relativi ai destinatari della notifica (dentro la struttura SentNotificationV23)
                   - eventuali documenti di pagamento (campo payments reperibile nel dettaglio del destinatario)
       tags:
-        - RecipientReadB2B
+        - NotificationsDetails
       operationId: getReceivedNotificationV23
       x-api-permissions:
         - REFINEMENT
@@ -218,7 +224,7 @@ paths:
         dettaglio della notifica (la lista dei documenti  dentro la struttura
         SentNotificationV23 contiene l'identificativo)
       tags:
-        - RecipientReadB2B
+        - NotificationsDetails
       operationId: getReceivedNotificationDocument
       x-api-permissions:
         - REFINEMENT
@@ -251,8 +257,13 @@ paths:
   /delivery/notifications/received/{iun}/attachments/payment/{attachmentName}:
     get:
       summary: Download allegato per pagamento
+      description: >-
+        Permette il download di un allegato di pagamento assocciato ad una
+        notifica. Si sperifica il tipo di allegato di  pagamento
+        <b>attachmentName</b> (PAGOPA|F24) e il numero <b>attachmentIdx</b> (la
+        numerazione parte da 0)
       tags:
-        - RecipientReadB2B
+        - NotificationsDetails
       operationId: getReceivedNotificationAttachment
       x-api-permissions:
         - REFINEMENT
@@ -366,9 +377,7 @@ components:
       name: startDate
       in: query
       required: true
-      description: >-
-        data/ora di inizio dell'intervallo entro cui eseguire la ricerca (es
-        2017-07-21T17:32:28Z)
+      description: data/ora di inizio dell'intervallo entro cui eseguire la ricerca
       schema:
         type: string
         format: date-time
@@ -376,9 +385,7 @@ components:
       name: endDate
       in: query
       required: true
-      description: >-
-        data/ora di fine dell'intervallo entro cui eseguire la ricerca  (es
-        2017-07-21T17:32:28Z)
+      description: data/ora di fine dell'intervallo entro cui eseguire la ricerca
       schema:
         type: string
         format: date-time
@@ -635,62 +642,6 @@ components:
           description: >-
             Stima del numero di secondi da aspettare prima che il contenuto del 
             documento sia scaricabile.
-    DocumentDownloadMetadataResponse:
-      title: Url e metadati per il download di un documento correlato alla notifica
-      description: |-
-        I due campi più importanti sono __url__ e __retryAfter__. <br/>
-          - __url__ è presente se il file è pronto per essere scaricato ed indica l'url a cui fare GET.
-          - __retryAfter__ indica che il file non è stato archiviato e bisognerà aspettare un numero di
-            secondi non inferiore a quanto indicato dal campo _retryAfter_. <br/>
-      type: object
-      required:
-        - filename
-        - contentLength
-      properties:
-        filename:
-          type: string
-        contentLength:
-          type: number
-          format: decimal32
-          example: 54092
-          description: dmensione, in byte, del contenuto.
-        url:
-          type: string
-          description: >-
-            URL preautorizzato a cui effettuare una richiesta GET per ottenere
-            il  contenuto del documento. Presente solo se il documento è pronto
-            per il download.
-        retryAfter:
-          type: number
-          format: decimal32
-          description: >-
-            Stima del numero di secondi da aspettare prima che il contenuto del 
-            documento sia scaricabile.
-    RequestCheckAarMandateDto:
-      description: Le informazioni fornite per verificare l'AAR-QR-CodeValue
-      type: object
-      required:
-        - aarQrCodeValue
-      properties:
-        aarQrCodeValue:
-          type: string
-          description: valore del token QR-Code presente sull'avviso di avvenuta ricezione
-          pattern: ^[A-Za-z0-9_-]*$
-          minLength: 106
-          maxLength: 136
-    ResponseCheckAarMandateDto:
-      description: >-
-        Le informazioni fornite in risposta alla verifica del AAR-QR-CodeValue
-        con possibile identificativo della delega attiva
-      type: object
-      required:
-        - iun
-      properties:
-        iun:
-          $ref: '#/components/schemas/IUN'
-        mandateId:
-          description: identificativo della delega
-          type: string
     IUN:
       description: Identificativo Univoco Notifica
       type: string
@@ -730,7 +681,7 @@ components:
           format: date-time
         group:
           type: string
-          description: Gruppo di utenti che può visualizzare la notifica
+          description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
           pattern: ^[ -~]*$
           maxLength: 1024
         mandateId:
@@ -1227,8 +1178,7 @@ components:
               type: string
               description: >-
                 Identificativo (non IPA) della PA mittente che ha eseguito
-                l'onboarding su SelfCare. La risoluzione di questo è ottenibile
-                da /ext-registry/pa/v1/activated-on-pn
+                l'onboarding su SelfCare.
               pattern: ^.*$
               maxLength: 256
             iun:

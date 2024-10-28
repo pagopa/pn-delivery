@@ -58,10 +58,12 @@ tags:
   - name: HealthCheck
     description: >-
       Invocazioni per sapere lo stato del microservizio
-  - name: RecipientReadB2B
+  - name: Notifications
     description: >-
-      Invocazioni B2B utilizzate dai destinatari per ottenere informazioni sulle
-      notifiche a loro destinate.
+      Invocazioni per conoscere la lista delle notifiche
+  - name: NotificationsDetails
+    description: >-
+      Invocazioni per conoscere i dettagli di una notifica (informazioni e allegati)    
 
 paths:
   "/status":
@@ -88,7 +90,7 @@ paths:
         Servizio di consultazione dello stato di invio delle notifiche
         individuate dai parametri  di ricerca specificati     
       tags:
-        - RecipientReadB2B
+        - Notifications
       operationId: searchReceivedNotification
       #      security:                                      # ONLY EXTERNAL
       #        - bearerAuth: [ ]                            # ONLY EXTERNAL
@@ -132,7 +134,7 @@ paths:
         Si basa sul recipientId e sul gruppo passato come parametro. Il recipientId si può 
         ricavare dai dati della delega. Il gruppo dalla chiamata /ext-registry/pg/v1/user-groups      
       tags:
-        - RecipientReadB2B
+        - Notifications
       operationId: searchReceivedDelegatedNotification
       x-api-permissions:
         - "BASE"
@@ -180,7 +182,7 @@ paths:
                   - i dettagli relativi ai destinatari della notifica (dentro la struttura SentNotificationV23)
                   - eventuali documenti di pagamento (campo payments reperibile nel dettaglio del destinatario)
       tags:
-        - RecipientReadB2B
+        - NotificationsDetails
       operationId: getReceivedNotificationV23
       #      security:                                      # ONLY EXTERNAL
       #        - bearerAuth: [ ]                            # ONLY EXTERNAL
@@ -223,7 +225,7 @@ paths:
         Il parametro pathDocumentIdx è ottenuto dal dettaglio della notifica (la lista dei documenti 
         dentro la struttura SentNotificationV23 contiene l'identificativo)
       tags:
-        - RecipientReadB2B
+        - NotificationsDetails
       operationId: getReceivedNotificationDocument
       #      security:                                      # ONLY EXTERNAL
       #        - bearerAuth: [ ]                            # ONLY EXTERNAL
@@ -257,8 +259,11 @@ paths:
   "/delivery/notifications/received/{iun}/attachments/payment/{attachmentName}":
     get:
       summary: Download allegato per pagamento
+      description: >-
+        Permette il download di un allegato di pagamento assocciato ad una notifica. Si sperifica il tipo di allegato di 
+        pagamento <b>attachmentName</b> (PAGOPA|F24) e il numero <b>attachmentIdx</b> (la numerazione parte da 0)
       tags:
-        - RecipientReadB2B
+        - NotificationsDetails
       operationId: getReceivedNotificationAttachment
       #      security:                                      # ONLY EXTERNAL
       #        - bearerAuth: [ ]                            # ONLY EXTERNAL
@@ -381,34 +386,6 @@ components:
       $ref: "./remote-refs.yaml#/components/schemas/NotificationStatusHistory"
     LegalFactDownloadMetadataResponse:
       $ref: "./remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse"
-    DocumentDownloadMetadataResponse:
-      $ref: "./remote-refs.yaml#/components/schemas/DocumentDownloadMetadataResponse"
-
-    RequestCheckAarMandateDto:
-      description: Le informazioni fornite per verificare l'AAR-QR-CodeValue
-      type: object
-      required:
-        - aarQrCodeValue
-      properties:
-        aarQrCodeValue:
-          type: string
-          description: valore del token QR-Code presente sull'avviso di avvenuta ricezione
-          pattern: ^[A-Za-z0-9_-]*$
-          minLength: 106
-          maxLength: 136
-
-    ResponseCheckAarMandateDto:
-      description: >-
-        Le informazioni fornite in risposta alla verifica del AAR-QR-CodeValue con possibile identificativo della delega attiva
-      type: object
-      required:
-        - iun
-      properties:
-        iun:
-          $ref: "schemas-pn-notification.yaml#/components/schemas/IUN"
-        mandateId:
-          description: identificativo della delega
-          type: string
   securitySchemes:                                      # ONLY EXTERNAL
     bearerAuth:                                         # ONLY EXTERNAL
       type: http                                        # ONLY EXTERNAL
