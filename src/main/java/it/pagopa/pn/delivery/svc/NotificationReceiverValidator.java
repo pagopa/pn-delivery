@@ -77,7 +77,7 @@ public class NotificationReceiverValidator {
     }
 
     protected void checkAdditionalLanguages(List<String> additionalLanguages) {
-        if((!CollectionUtils.isNullOrEmpty(additionalLanguages) && additionalLanguages.size() > 1)){
+        if(!CollectionUtils.isNullOrEmpty(additionalLanguages) && additionalLanguages.size() > 1){
             throw new PnBadRequestException(REQUIRED_ADDITIONAL_LANG_SIZE, REQUIRED_ADDITIONAL_LANG_SIZE, ERROR_CODE_DELIVERY_REQUIRED_ADDITIONAL_LANG, REQUIRED_ADDITIONAL_LANG_SIZE);
         }
         else if(!CollectionUtils.isNullOrEmpty(additionalLanguages) && !isValidAdditionalLanguage(additionalLanguages.get(0))){
