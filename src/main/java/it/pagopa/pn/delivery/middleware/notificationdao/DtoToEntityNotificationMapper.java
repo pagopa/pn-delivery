@@ -13,7 +13,7 @@ import java.util.List;
 @Component
 public class DtoToEntityNotificationMapper {
 
-    private static final String ADDITIONAL_LANGUAGE_IT = "IT";
+    private static final String IT_LANGUAGE = "IT";
 
     public NotificationEntity dto2Entity(InternalNotification dto) {
         NotificationEntity.NotificationEntityBuilder builder = NotificationEntity.builder()
@@ -48,8 +48,9 @@ public class DtoToEntityNotificationMapper {
     }
 
     private List<String> addITLanguageToEntity(List<String> additionalLanguages) {
-        additionalLanguages.add(ADDITIONAL_LANGUAGE_IT);
-        return additionalLanguages;
+        List<String> additionalLanguagesWithIT = new ArrayList<>(additionalLanguages);
+        additionalLanguagesWithIT.add(IT_LANGUAGE);
+        return additionalLanguagesWithIT;
     }
 
     private List<NotificationRecipientEntity> dto2RecipientsEntity(

@@ -20,8 +20,7 @@ import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_COD
 
 @Component
 public class EntityToDtoNotificationMapper {
-    private static final String ADDITIONAL_LANGUAGE_IT = "IT";
-
+    private static final String IT_LANGUAGE = "IT";
 
     public InternalNotification entity2Dto(NotificationEntity entity) {
         if (entity.getPhysicalCommunicationType() == null) {
@@ -68,7 +67,7 @@ public class EntityToDtoNotificationMapper {
 
     private List<String> removeITLanguageFromDto(List<String> languages) {
         return languages.stream()
-                .filter(language -> !ADDITIONAL_LANGUAGE_IT.equals(language))
+                .filter(language -> !IT_LANGUAGE.equalsIgnoreCase(language))
                 .toList();
     }
 
