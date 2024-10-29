@@ -331,10 +331,6 @@ components:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatusHistory'
-    LegalFactDownloadMetadataResponse:
-      $ref: './remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
-    DocumentDownloadMetadataResponse:
-      $ref: './remote-refs.yaml#/components/schemas/DocumentDownloadMetadataResponse'
 
     RequestCheckAarMandateDto:
       description: Le informazioni fornite per verificare l'AAR-QR-CodeValue
