@@ -8,6 +8,7 @@
     "documentsAvailable": true,
     "notificationStatus": "EFFECTIVE_DATE",
     "paFee": 100,
+    "additionalLanguages": ["DE"],
     "vat": 22,
     "recipients": [
         {
