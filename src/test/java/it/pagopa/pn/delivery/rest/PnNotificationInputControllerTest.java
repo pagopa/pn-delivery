@@ -26,6 +26,7 @@ import reactor.core.publisher.Mono;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_TAXONOMYCODE;
 import static org.mockito.Mockito.mock;
 
 @WebFluxTest(PnNotificationInputController.class)
@@ -69,6 +70,9 @@ class PnNotificationInputControllerTest {
 						.paProtocolNumber("protocol_number").build();
 
 		// When
+		TaxonomyCodeDto taxonomyCodeDto = new TaxonomyCodeDto();
+
+		Mockito.when(taxonomyCodeDaoDynamo.getTaxonomyCodeByKeyAndPaId(notificationRequest.getTaxonomyCode(), PA_ID)).thenReturn(Optional.of(taxonomyCodeDto));
 		Mockito.when(deliveryService.receiveNotification(
 						Mockito.anyString(),
 						Mockito.any( NewNotificationRequestV23.class ),
@@ -99,8 +103,10 @@ class PnNotificationInputControllerTest {
 						null,
 						GROUPS,
 						null);
-	}
+		Mockito.verify(taxonomyCodeDaoDynamo).getTaxonomyCodeByKeyAndPaId(notificationRequest.getTaxonomyCode(), PA_ID);
 
+	}
+/*
 	@Test
 	void postSuccessWithTaxonomyCodeCheck() throws PnIdConflictException {
 		// Given
@@ -109,12 +115,11 @@ class PnNotificationInputControllerTest {
 		NewNotificationResponse savedNotification = NewNotificationResponse.builder()
 				.notificationRequestId( Base64Utils.encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) )
 				.paProtocolNumber("protocol_number").build();
-		System.out.println("Notification: " + notificationRequest);
 
 		// When
 		TaxonomyCodeDto taxonomyCodeDto = new TaxonomyCodeDto();
 
-		Mockito.when(taxonomyCodeDaoDynamo.getTaxonomyCodeByKeyAndPaId(notificationRequest.getTaxonomyCode(), "default")).thenReturn(Optional.of(taxonomyCodeDto));
+		Mockito.when(taxonomyCodeDaoDynamo.getTaxonomyCodeByKeyAndPaId(notificationRequest.getTaxonomyCode(), PA_ID)).thenReturn(Optional.of(taxonomyCodeDto));
 		Mockito.when(deliveryService.receiveNotification(
 				Mockito.anyString(),
 				Mockito.any( NewNotificationRequestV23.class ),
@@ -146,8 +151,8 @@ class PnNotificationInputControllerTest {
 				GROUPS,
 				null);
 
-		Mockito.verify(taxonomyCodeDaoDynamo).getTaxonomyCodeByKeyAndPaId(notificationRequest.getTaxonomyCode(), "default");
-	}
+		Mockito.verify(taxonomyCodeDaoDynamo).getTaxonomyCodeByKeyAndPaId(notificationRequest.getTaxonomyCode(), PA_ID);
+	}*/
 
 	@Test
 	void postSuccessWithSourceChannelDetails() throws PnIdConflictException {
@@ -159,6 +164,9 @@ class PnNotificationInputControllerTest {
 				.paProtocolNumber("protocol_number").build();
 
 		// When
+		TaxonomyCodeDto taxonomyCodeDto = new TaxonomyCodeDto();
+
+		Mockito.when(taxonomyCodeDaoDynamo.getTaxonomyCodeByKeyAndPaId(notificationRequest.getTaxonomyCode(), PA_ID)).thenReturn(Optional.of(taxonomyCodeDto));
 		Mockito.when(deliveryService.receiveNotification(
 				Mockito.anyString(),
 				Mockito.any( NewNotificationRequestV23.class ),
@@ -190,6 +198,8 @@ class PnNotificationInputControllerTest {
 				X_PAGOPA_PN_SRC_CH_DETAILS,
 				GROUPS,
 				null);
+		Mockito.verify(taxonomyCodeDaoDynamo).getTaxonomyCodeByKeyAndPaId(notificationRequest.getTaxonomyCode(), PA_ID);
+
 	}
 
 	@Test
@@ -202,6 +212,9 @@ class PnNotificationInputControllerTest {
 				.paProtocolNumber("protocol_number").build();
 
 		// When
+		TaxonomyCodeDto taxonomyCodeDto = new TaxonomyCodeDto();
+
+		Mockito.when(taxonomyCodeDaoDynamo.getTaxonomyCodeByKeyAndPaId(notificationRequest.getTaxonomyCode(), PA_ID)).thenReturn(Optional.of(taxonomyCodeDto));
 		Mockito.when(deliveryService.receiveNotification(
 				Mockito.anyString(),
 				Mockito.any( NewNotificationRequestV23.class ),
@@ -234,6 +247,8 @@ class PnNotificationInputControllerTest {
 				X_PAGOPA_PN_SRC_CH_DETAILS,
 				GROUPS,
 				"1");
+		Mockito.verify(taxonomyCodeDaoDynamo).getTaxonomyCodeByKeyAndPaId(notificationRequest.getTaxonomyCode(), PA_ID);
+
 	}
 
 	private NewNotificationRequestV23 newNotificationRequest() {
@@ -282,9 +297,11 @@ class PnNotificationInputControllerTest {
 		Map<String,String> conflictMap = new HashMap<>();
 		conflictMap.put( "noticeCode", "duplicatedNoticeCode" );
 		PnIdConflictException exception = new PnIdConflictException( conflictMap );
-		System.out.println("request: "+request);
 
 		// When
+		TaxonomyCodeDto taxonomyCodeDto = new TaxonomyCodeDto();
+
+		Mockito.when(taxonomyCodeDaoDynamo.getTaxonomyCodeByKeyAndPaId(request.getTaxonomyCode(), PA_ID)).thenReturn(Optional.of(taxonomyCodeDto));
 		Mockito.when( deliveryService.receiveNotification(
 						Mockito.anyString(),
 						Mockito.any( NewNotificationRequestV23.class ),
@@ -307,6 +324,8 @@ class PnNotificationInputControllerTest {
 				.exchange()
 				.expectStatus()
 				.isEqualTo(HttpStatus.CONFLICT);
+		Mockito.verify(taxonomyCodeDaoDynamo).getTaxonomyCodeByKeyAndPaId(request.getTaxonomyCode(), PA_ID);
+
 	}
 
 	@Test
@@ -314,7 +333,7 @@ class PnNotificationInputControllerTest {
 		// Given
 		NewNotificationRequestV23 request = newNotificationRequest();
 
-		PnInvalidInputException exception = new PnInvalidInputException("400", "Invalid input exception");
+		PnInvalidInputException exception = new PnInvalidInputException(ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_TAXONOMYCODE, "Invalid taxonomyCode exception");
 		// When
 		Mockito.when(taxonomyCodeDaoDynamo.getTaxonomyCodeByKeyAndPaId("TEST_FAIL", "default")).thenThrow(exception);
 		Mockito.when( deliveryService.receiveNotification(
@@ -341,7 +360,7 @@ class PnNotificationInputControllerTest {
 				.expectStatus()
 				.isEqualTo(HttpStatus.BAD_REQUEST);
 
-		Mockito.verify(taxonomyCodeDaoDynamo).getTaxonomyCodeByKeyAndPaId("TEST_FAIL", "default");
+		Mockito.verify(taxonomyCodeDaoDynamo).getTaxonomyCodeByKeyAndPaId(request.getTaxonomyCode(), PA_ID);
 
 	}
 
@@ -369,6 +388,9 @@ class PnNotificationInputControllerTest {
 		// Given
 		NewNotificationRequestV23 request = newNotificationRequest();
 
+		TaxonomyCodeDto taxonomyCodeDto = new TaxonomyCodeDto();
+
+		Mockito.when(taxonomyCodeDaoDynamo.getTaxonomyCodeByKeyAndPaId(request.getTaxonomyCode(), PA_ID)).thenReturn(Optional.of(taxonomyCodeDto));
 		Mockito.when( deliveryService.receiveNotification( PA_ID, request, X_PAGOPA_PN_SRC_CH,null, Collections.emptyList(), null ) ).thenThrow( RuntimeException.class );
 
 		webTestClient.post()
@@ -383,6 +405,8 @@ class PnNotificationInputControllerTest {
 				.exchange()
 				.expectStatus()
 				.is5xxServerError();
+		Mockito.verify(taxonomyCodeDaoDynamo).getTaxonomyCodeByKeyAndPaId(request.getTaxonomyCode(), PA_ID);
+
 	}
 
 	@Test
@@ -431,6 +455,9 @@ class PnNotificationInputControllerTest {
 				.paProtocolNumber( "protocol_number" ).build();
 
 		// When
+		TaxonomyCodeDto taxonomyCodeDto = new TaxonomyCodeDto();
+
+		Mockito.when(taxonomyCodeDaoDynamo.getTaxonomyCodeByKeyAndPaId(notificationRequest.getTaxonomyCode(), PA_ID)).thenReturn(Optional.of(taxonomyCodeDto));
 		Mockito.when(deliveryService.receiveNotification(
 						Mockito.anyString(),
 						Mockito.any( NewNotificationRequestV23.class ),
@@ -461,6 +488,8 @@ class PnNotificationInputControllerTest {
 						Mockito.isNull(),
 						Mockito.anyList(),
 						Mockito.isNull());
+		Mockito.verify(taxonomyCodeDaoDynamo).getTaxonomyCodeByKeyAndPaId(notificationRequest.getTaxonomyCode(), PA_ID);
+
 	}
 
 	@Test

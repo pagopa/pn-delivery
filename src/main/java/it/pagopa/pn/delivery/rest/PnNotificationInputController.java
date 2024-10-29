@@ -8,6 +8,8 @@ import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.NewNotificationApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.middleware.notificationdao.TaxonomyCodeDaoDynamo;
+import it.pagopa.pn.delivery.models.TaxonomyCodeDto;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +21,7 @@ import javax.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_SIZE;
+import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.*;
 import static it.pagopa.pn.commons.utils.MDCUtils.MDC_PN_IUN_KEY;
 
 
@@ -30,11 +32,13 @@ public class PnNotificationInputController implements NewNotificationApi {
     private final PnDeliveryConfigs cfgs;
     private final NotificationReceiverService svc;
     private final NotificationAttachmentService notificationAttachmentService;
+    private final TaxonomyCodeDaoDynamo taxonomyCodeDaoDynamo;
 
-    public PnNotificationInputController(PnDeliveryConfigs cfgs, NotificationReceiverService svc, NotificationAttachmentService notificationAttachmentService) {
+    public PnNotificationInputController(PnDeliveryConfigs cfgs, NotificationReceiverService svc, NotificationAttachmentService notificationAttachmentService, TaxonomyCodeDaoDynamo taxonomyCodeDaoDynamo) {
         this.cfgs = cfgs;
         this.svc = svc;
         this.notificationAttachmentService = notificationAttachmentService;
+        this.taxonomyCodeDaoDynamo = taxonomyCodeDaoDynamo;
     }
 
     @Override
@@ -42,10 +46,17 @@ public class PnNotificationInputController implements NewNotificationApi {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         @NotNull String paProtocolNumber = newNotificationRequest.getPaProtocolNumber();
         String paIdempotenceToken = newNotificationRequest.getIdempotenceToken();
+        String taxonomyCode = newNotificationRequest.getTaxonomyCode();
+
         PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_INSERT, "sendNewNotification for protocolNumber={}, idempotenceToken={}", paProtocolNumber, paIdempotenceToken)
                 .build();
         logEvent.log();
         NewNotificationResponse svcRes;
+
+        if (taxonomyCodeDaoDynamo.getTaxonomyCodeByKeyAndPaId(taxonomyCode, xPagopaPnCxId).isEmpty()) {
+            throw new PnInvalidInputException(ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_TAXONOMYCODE, taxonomyCode);
+        }
+
         try {
             svcRes = svc.receiveNotification(xPagopaPnCxId, newNotificationRequest, xPagopaPnSrcCh, xPagopaPnSrcChDetails, xPagopaPnCxGroups, xPagopaPnNotificationVersion);
         } catch (PnRuntimeException ex) {
