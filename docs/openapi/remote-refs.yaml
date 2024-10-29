@@ -89,6 +89,6 @@ components:
       # DO NOT CHANGE: this is timeline V2.3 commit id.
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/0dcbba2aa85532c925f444cf3ff53b2b138ad898/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElementV23'
       
-      # DO NOT CHANGE: this is timeline V2.3 commit id.
+      # DO NOT CHANGE: this is timeline V2.4 commit id.
     TimelineElementV24:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/e737a389c18b9e1b728699e74d7b1b42fb4add60/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElementV24'
