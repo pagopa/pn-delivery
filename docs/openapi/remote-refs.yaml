@@ -40,40 +40,19 @@ components:
     lollipopSignature:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/lollipopSignature'
 
-
-    ############################################################################################
-    ###                      PARAMETRI DOWNLOAD ATTI OPPONIBILI A TERZI                      ###
-    ############################################################################################
-
-    pathLegalFactType:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/3a6a266b166664f1e8a9832883caf32973a2aedc/docs/openapi/api-internal-pn-delivery-push.yaml#/components/parameters/pathLegalFactType'
-    pathLegalFactId:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/3a6a266b166664f1e8a9832883caf32973a2aedc/docs/openapi/api-internal-pn-delivery-push.yaml#/components/parameters/pathLegalFactId'
-    legalFactsSearchMandateId:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/3a6a266b166664f1e8a9832883caf32973a2aedc/docs/openapi/api-private.yaml#/components/parameters/legalFactsSearchMandateId'
-    pathDocumentType:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/3a6a266b166664f1e8a9832883caf32973a2aedc/docs/openapi/api-private.yaml#/components/parameters/pathDocumentType'
-    queryDocumentId:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/3a6a266b166664f1e8a9832883caf32973a2aedc/docs/openapi/api-private.yaml#/components/parameters/queryDocumentId'
-
-
   schemas:
 
     ############################################################################################
     ###                          STRUTTURE DATI DI PN-DELIVERY_PUSH                          ###
     ############################################################################################
-    TimelineElementV24:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/e737a389c18b9e1b728699e74d7b1b42fb4add60/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElementV24'
+    TimelineElementV25:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/40082dbb81bb4288689aa2a6ebfcbc7d878e8684/docs/openapi/api-external-b2b-webhook-bundle.yaml#/components/schemas/TimelineElementV25'
     NotificationStatus:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/e737a389c18b9e1b728699e74d7b1b42fb4add60/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatus'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/40082dbb81bb4288689aa2a6ebfcbc7d878e8684/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/e737a389c18b9e1b728699e74d7b1b42fb4add60/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatusHistory'
-    LegalFactDownloadMetadataResponse:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/e737a389c18b9e1b728699e74d7b1b42fb4add60/docs/openapi/schemas-pn-legal-facts.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/40082dbb81bb4288689aa2a6ebfcbc7d878e8684/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatusHistory'
     RequestStatus:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/e737a389c18b9e1b728699e74d7b1b42fb4add60/docs/openapi/api-internal-pn-delivery-push.yaml#/components/schemas/RequestStatus'
-    DocumentDownloadMetadataResponse:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/e737a389c18b9e1b728699e74d7b1b42fb4add60/docs/openapi/api-private.yaml#/components/schemas/DocumentDownloadMetadataResponse'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/40082dbb81bb4288689aa2a6ebfcbc7d878e8684/docs/openapi/api-internal-pn-delivery-push.yaml#/components/schemas/RequestStatus'
     ############################################################################################
     ###                          STRUTTURE DATI DI PN-COMMONS                                ###
     ############################################################################################
@@ -109,3 +88,7 @@ components:
     TimelineElementV23:
       # DO NOT CHANGE: this is timeline V2.3 commit id.
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/0dcbba2aa85532c925f444cf3ff53b2b138ad898/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElementV23'
+      
+      # DO NOT CHANGE: this is timeline V2.4 commit id.
+    TimelineElementV24:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/e737a389c18b9e1b728699e74d7b1b42fb4add60/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElementV24'
