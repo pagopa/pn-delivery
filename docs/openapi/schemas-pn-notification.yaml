@@ -242,8 +242,7 @@ components:
             - DE <br/>
             - SI <br/>
             - FR <br/>
-            - EN <br/>
-            DE (tedesco), SI (sloveno), FR (francese), EN (inglese) 
+            DE (tedesco), SI (sloveno), FR (francese)
             Attualmente è possibile indicare un solo item e dunque una sola lingua aggiuntiva. Se non vengono indicate lingue aggiuntive la lingua utilizzata per generare <br/>
             documenti, atti opponibili a terzi ecc. sarà quella italiana.
           type: array
