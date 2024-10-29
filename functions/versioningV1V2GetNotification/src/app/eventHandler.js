@@ -1,4 +1,5 @@
 // converte la risposta V2.x a V1
+const { transformFromV25ToV24 } = require('./mapper/mapperV25ToV24.js');
 const { transformFromV24ToV23 } = require('./mapper/mapperV24ToV23.js');
 const { transformFromV23ToV21 } = require('./mapper/mapperV23ToV21.js');
 const { transformFromV21ToV20 } = require('./mapper/mapperV21ToV20.js');
@@ -130,16 +131,20 @@ exports.versioning = async (event, context) => {
         let transformedObject = response.data;
         switch(version) {
           case 10:
-          transformedObject = transformFromV20ToV1(transformFromV21ToV20(transformFromV23ToV21(transformFromV24ToV23(response.data))));
+          transformedObject = transformFromV20ToV1(transformFromV21ToV20(transformFromV23ToV21(transformFromV24ToV23(transformFromV25ToV24(response.data)))));
           break;
           case 20:
-          transformedObject = transformFromV21ToV20(transformFromV23ToV21(transformFromV24ToV23(response.data)));
+          transformedObject = transformFromV21ToV20(transformFromV23ToV21(transformFromV24ToV23(transformFromV25ToV24(response.data))));
           break;
           case 21:
-          transformedObject = transformFromV23ToV21(transformFromV24ToV23(response.data));
+          transformedObject = transformFromV23ToV21(transformFromV24ToV23(transformFromV25ToV24(response.data)));
           break;
           case 23:
-          transformedObject = transformFromV24ToV23(response.data);
+          transformedObject = transformFromV24ToV23(transformFromV25ToV24(response.data));
+          break;
+          case 24:
+          transformedObject = transformFromV25ToV24(response.data);
+          break;
         }
         
         const ret = {
