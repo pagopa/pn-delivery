@@ -12,7 +12,6 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TaxonomyCodeDto {
-
     private String key;
     private String paId;
     private Map<String,Object> description;

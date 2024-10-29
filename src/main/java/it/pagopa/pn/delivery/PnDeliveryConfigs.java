@@ -50,6 +50,8 @@ public class PnDeliveryConfigs {
 
     private NotificationMetadataDao notificationMetadataDao;
 
+    private TaxonomyCodeDao taxonomyCodeDao;
+
     private NotificationDelegationMetadataDao notificationDelegationMetadataDao;
 
     private NotificationCostDao notificationCostDao;
@@ -98,6 +100,11 @@ public class PnDeliveryConfigs {
 
     @Data
     public static class NotificationMetadataDao {
+        private String tableName;
+    }
+
+    @Data
+    public static class TaxonomyCodeDao {
         private String tableName;
     }
 
