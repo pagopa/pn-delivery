@@ -370,7 +370,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     get:
-      operationId: retrieveNotificationRequestStatusV23
+      operationId: retrieveNotificationRequestStatusV24
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -883,6 +883,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     get:
+      operationId: retrieveNotificationRequestStatusV23
       x-pagopa-lambda-name: pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live
       x-pagopa-lambda-account: core
       tags:
@@ -1062,6 +1063,7 @@ paths:
         accettata. <br/>
       tags:
         - SenderReadB2B
+      operationId: retrieveSentNotificationV24
       x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda:live
       x-pagopa-lambda-account: core
       parameters:
