@@ -201,6 +201,26 @@ Resources:
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
 
+  TaxonomyCodeTable:
+    Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TableName: !Sub '${ProjectName}-TaxonomyCode'
+      AttributeDefinitions:
+        - AttributeName: "key"
+          AttributeType: "S"
+        - AttributeName: "PAId"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "key"
+          KeyType: "HASH"
+        - AttributeName: "PAId"
+          KeyType: "RANGE"
+      BillingMode: "PAY_PER_REQUEST"
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
   ### DLQ used by lambda for communication between PN-DELIVERY and PN-DELIVERY-PUSH ###
   # NB: la coda stessa è di DLQ, quindi va allarmata. Non è necessario invece che sia allarmata la sua DLQ
   PnDeliveryInsertTriggerDLQ:
@@ -313,6 +333,9 @@ Resources:
 Outputs:
 
   # Dynamo table
+  TaxonomyCodeTableName:
+    Description: Name of dynamodb table containing taxonomy codes
+    Value: !Ref TaxonomyCodeTable
   NotificationsDynamoTableName:
     Description: Name of dynamodb table containing notifications
     Value: !Ref NotificationsTable
