@@ -17,15 +17,11 @@ import java.util.Optional;
 @Component
 @Slf4j
 public class TaxonomyCodeDaoDynamo implements TaxonomyCodeDao {
-    private final DynamoDbEnhancedClient dynamoDbEnhancedClient;
-    private final PnDeliveryConfigs cfg;
     private final DynamoDbTable<TaxonomyCodeEntity> taxonomyCodeTable;
 
     @Autowired
     public TaxonomyCodeDaoDynamo(DynamoDbEnhancedClient dynamoDbEnhancedClient, PnDeliveryConfigs cfg) {
-        this.dynamoDbEnhancedClient = dynamoDbEnhancedClient;
-        this.cfg = cfg;
-        this.taxonomyCodeTable = this.dynamoDbEnhancedClient.table(tableName(cfg), TableSchema.fromClass(TaxonomyCodeEntity.class));
+        this.taxonomyCodeTable = dynamoDbEnhancedClient.table(tableName(cfg), TableSchema.fromClass(TaxonomyCodeEntity.class));
     }
 
     private static String tableName(PnDeliveryConfigs cfg) {
