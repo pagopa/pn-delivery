@@ -210,7 +210,7 @@ describe("eventHandler tests", function () {
        
         expect(res.statusCode).to.equal(200);
         expect(resJson.paFee).to.be.equal(100);
-        expect(resJson.vat).to.be.equal(undefined);
+        expect(resJson.vat).to.be.equal(22);
         expect(resJson.additionalLanguages).to.be.undefined;
     });
 
