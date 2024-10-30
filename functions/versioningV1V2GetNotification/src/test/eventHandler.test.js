@@ -87,9 +87,15 @@ describe("eventHandler tests", function () {
     expect(analogProgElement.category).to.be.equal('SEND_ANALOG_PROGRESS');
     expect(analogProgElement.details.serviceLevel).to.be.equal(undefined);
 
+    const notifCancelledElement = resJson.timeline[NOTIFICATION_CANCELLED_IDX-1];
+    expect(notifCancelledElement.category).to.be.equal('NOTIFICATION_CANCELLED');
+    expect(notifCancelledElement.legalFactsIds).to.be.an('array').that.is.empty;
+
     // check che NON siano presenti i campi vat e paFee
     expect(resJson.paFee).to.be.equal(undefined);
     expect(resJson.vat).to.be.equal(undefined);
+    expect(resJson.additionalLanguages).to.be.undefined;
+
   });
 
 
@@ -134,9 +140,16 @@ describe("eventHandler tests", function () {
     const analogProgElement = resJson.timeline[SEND_ANALOG_PROGRESS_IDX];
     expect(analogProgElement.category).to.be.equal('SEND_ANALOG_PROGRESS');
     expect(analogProgElement.details.serviceLevel).to.be.equal(undefined);
+
+    const notifCancelledElement = resJson.timeline[NOTIFICATION_CANCELLED_IDX-1];
+    expect(notifCancelledElement.category).to.be.equal('NOTIFICATION_CANCELLED');
+    expect(notifCancelledElement.legalFactsIds).to.be.an('array').that.is.empty;
+
     // check che NON siano presenti i campi vat e paFee
     expect(resJson.paFee).to.be.equal(100);
     expect(resJson.vat).to.be.equal(undefined);
+    expect(resJson.additionalLanguages).to.be.undefined;
+
   });
 
   it("statusCode 200 v2.3", async () => {
@@ -180,13 +193,20 @@ describe("eventHandler tests", function () {
     const analogProgElement = resJson.timeline[SEND_ANALOG_PROGRESS_IDX];
     expect(analogProgElement.category).to.be.equal('SEND_ANALOG_PROGRESS');
     expect(analogProgElement.details.serviceLevel).to.be.equal("REGISTERED_LETTER_890");
+
+    const notifCancelledElement = resJson.timeline[NOTIFICATION_CANCELLED_IDX];
+    expect(notifCancelledElement.category).to.be.equal('NOTIFICATION_CANCELLED');
+    expect(notifCancelledElement.legalFactsIds).to.be.an('array').that.is.empty;
+
     // check che SIANO presenti i campi vat e paFee
     expect(resJson.paFee).to.be.equal(100);
     expect(resJson.vat).to.be.equal(22);
+    expect(resJson.additionalLanguages).to.be.undefined;
+
   });
 
   it("statusCode 200 v2.4", async () => {
-    const notificationJSON = fs.readFileSync("./src/test/notification_lang.json");
+    const notificationJSON = fs.readFileSync("./src/test/notification.json");
     let notification = JSON.parse(notificationJSON);
 
     process.env = Object.assign(process.env, {
@@ -280,6 +300,12 @@ describe("eventHandler tests", function () {
     const analogProgElement = resJson.timeline[SEND_ANALOG_PROGRESS_IDX];
     expect(analogProgElement.category).to.be.equal('SEND_ANALOG_PROGRESS');
     expect(analogProgElement.details.serviceLevel).to.be.equal(undefined);
+    // check che l'elemento NOTIFICATION_CANCELLED non sia presente in quanto viene eliminato dal mapperV20ToV1
+    let isNotificationCancelledPresent = resJson.timeline.some(element => element.category === 'NOTIFICATION_CANCELLED');
+    expect(isNotificationCancelledPresent).to.be.false;
+
+    expect(resJson.additionalLanguages).to.be.undefined;
+
   });
 
   it("statusCode 400", async () => {
