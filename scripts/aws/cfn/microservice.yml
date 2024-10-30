@@ -99,7 +99,7 @@ Parameters:
     Type: String
     Description: "TaxonomyCode Dynamo table name"
 
-  TaxonomyCodeDynamoTableNameArn:
+  TaxonomyCodeDynamoTableArn:
     Type: String
     Description: "ARN of dynamodb table containing taxonomy codes"
 
