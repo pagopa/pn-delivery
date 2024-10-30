@@ -29,6 +29,7 @@ import static it.pagopa.pn.commons.utils.MDCUtils.MDC_PN_IUN_KEY;
 @RestController
 public class PnNotificationInputController implements NewNotificationApi {
 
+    private static final String DEFAULT_PAID = "default";
     private final PnDeliveryConfigs cfgs;
     private final NotificationReceiverService svc;
     private final NotificationAttachmentService notificationAttachmentService;
@@ -53,7 +54,7 @@ public class PnNotificationInputController implements NewNotificationApi {
         logEvent.log();
         NewNotificationResponse svcRes;
 
-        if (taxonomyCodeDaoDynamo.getTaxonomyCodeByKeyAndPaId(taxonomyCode, xPagopaPnCxId).isEmpty()) {
+        if (taxonomyCodeDaoDynamo.getTaxonomyCodeByKeyAndPaId(taxonomyCode, DEFAULT_PAID).isEmpty()) {
             throw new PnInvalidInputException(ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_TAXONOMYCODE, taxonomyCode);
         }
 
