@@ -103,10 +103,6 @@ Parameters:
     Type: String
     Description: "ARN of dynamodb table containing taxonomy codes"
 
-  TaxonomyCodeDynamoTableNameStreamArn:
-    Type: String
-    Description: "ARN of dynamodb table containing taxonomy codes streams"
-
   ECSClusterName:
     Type: String
     Description: "The name of the ECS cluster where the microservice is going to be deployed"

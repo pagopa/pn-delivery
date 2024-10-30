@@ -339,9 +339,6 @@ Outputs:
   TaxonomyCodeDynamoTableArn:
     Description: ARN of dynamodb table containing taxonomy codes
     Value: !Sub '${TaxonomyCodeTable.Arn}'
-  TaxonomyCodeDynamoTableStreamArn:
-    Description: ARN of dynamodb table containing stream taxonomy codes
-    Value: !GetAtt TaxonomyCodeTable.StreamArn
 
   NotificationsDynamoTableName:
     Description: Name of dynamodb table containing notifications
