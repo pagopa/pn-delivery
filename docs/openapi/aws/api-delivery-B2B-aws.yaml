@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: fxdKvv3k74S7KIavYTURvwZcwekM5Gh/SQQD8M9NLQc=
+  version: tfuCpMLW/keQiccT2kNbSq07h09Tn3DFNbNDHUum1NE=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -161,7 +161,7 @@ paths:
         type: http_proxy
       parameters: []
     get:
-      operationId: retrieveNotificationRequestStatusV23
+      operationId: retrieveNotificationRequestStatusV24
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -1031,6 +1031,7 @@ paths:
         type: aws_proxy
       parameters: []
     get:
+      operationId: retrieveNotificationRequestStatusV23
       x-pagopa-lambda-name: pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live
       x-pagopa-lambda-account: core
       tags:
@@ -1314,6 +1315,7 @@ paths:
         accettata. <br/>
       tags:
         - SenderReadB2B
+      operationId: retrieveSentNotificationV24
       x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda:live
       x-pagopa-lambda-account: core
       parameters:
@@ -2488,11 +2490,11 @@ components:
             quella italiana) da utilizzare per la generazione documenti, atti
             opponibili a terzi ecc.<br/> Le lingue accettate e dunque i valori
             possibili degli item dell'array sono: <br/> - DE <br/> - SI <br/> -
-            FR <br/> - EN <br/> DE (tedesco), SI (sloveno), FR (francese), EN
-            (inglese)  Attualmente è possibile indicare un solo item e dunque
-            una sola lingua aggiuntiva. Se non vengono indicate lingue
-            aggiuntive la lingua utilizzata per generare <br/> documenti, atti
-            opponibili a terzi ecc. sarà quella italiana.
+            FR <br/> DE (tedesco), SI (sloveno), FR (francese) Attualmente è
+            possibile indicare un solo item e dunque una sola lingua aggiuntiva.
+            Se non vengono indicate lingue aggiuntive la lingua utilizzata per
+            generare <br/> documenti, atti opponibili a terzi ecc. sarà quella
+            italiana.
           type: array
           items:
             type: string

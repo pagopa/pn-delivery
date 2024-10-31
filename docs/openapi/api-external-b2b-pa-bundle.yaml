@@ -711,7 +711,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     get:
-      operationId: retrieveNotificationRequestStatusV23
+      operationId: retrieveNotificationRequestStatusV24
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -1214,6 +1214,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     get:
+      operationId: retrieveNotificationRequestStatusV23
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -1383,6 +1384,7 @@ paths:
         accettata. <br/>
       tags:
         - SenderReadB2B
+      operationId: retrieveSentNotificationV24
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:
@@ -2573,6 +2575,7 @@ paths:
       description: Lettura delle configurazioni di uno stream di eventi.
       tags:
         - Streams
+      operationId: retrieveEventStreamV24
       responses:
         '200':
           description: OK
@@ -2658,6 +2661,7 @@ paths:
         tutti gli eventi associati allo stream e non ancora consumati.
       tags:
         - Streams
+      operationId: removeEventStreamV24
       responses:
         '204':
           description: OK
@@ -4821,11 +4825,11 @@ components:
             quella italiana) da utilizzare per la generazione documenti, atti
             opponibili a terzi ecc.<br/> Le lingue accettate e dunque i valori
             possibili degli item dell'array sono: <br/> - DE <br/> - SI <br/> -
-            FR <br/> - EN <br/> DE (tedesco), SI (sloveno), FR (francese), EN
-            (inglese)  Attualmente è possibile indicare un solo item e dunque
-            una sola lingua aggiuntiva. Se non vengono indicate lingue
-            aggiuntive la lingua utilizzata per generare <br/> documenti, atti
-            opponibili a terzi ecc. sarà quella italiana.
+            FR <br/> DE (tedesco), SI (sloveno), FR (francese) Attualmente è
+            possibile indicare un solo item e dunque una sola lingua aggiuntiva.
+            Se non vengono indicate lingue aggiuntive la lingua utilizzata per
+            generare <br/> documenti, atti opponibili a terzi ecc. sarà quella
+            italiana.
           type: array
           items:
             type: string

@@ -378,7 +378,7 @@ paths:
     ###                        VERIFICA STATO RICHIESTE DI NOTIFICA                         ###
     ###########################################################################################
     get:
-      operationId: retrieveNotificationRequestStatusV23                 # ONLY EXTERNAL
+      operationId: retrieveNotificationRequestStatusV24                 # ONLY EXTERNAL
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica

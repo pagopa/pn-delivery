@@ -5,24 +5,29 @@ import it.pagopa.pn.commons.exceptions.ExceptionHelper;
 import it.pagopa.pn.commons.exceptions.dto.ProblemError;
 import it.pagopa.pn.commons.utils.ValidateUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
+import it.pagopa.pn.delivery.svc.search.AllowedAdditionalLanguages;
 import it.pagopa.pn.delivery.utils.DenominationValidationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import software.amazon.awssdk.utils.CollectionUtils;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static it.pagopa.pn.delivery.utils.DenominationValidationUtils.ValidationTypeAllowedValues.REGEX;
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_INVALID_ADDITIONAL_LANG;
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_REQUIRED_ADDITIONAL_LANG;
 import static it.pagopa.pn.delivery.utils.DenominationValidationUtils.ValidationTypeAllowedValues.NONE;
+import static it.pagopa.pn.delivery.utils.DenominationValidationUtils.ValidationTypeAllowedValues.REGEX;
 
 @Slf4j
 @Component
@@ -32,6 +37,7 @@ public class NotificationReceiverValidator {
     private final MVPParameterConsumer mvpParameterConsumer;
     private final ValidateUtils validateUtils;
     private final PnDeliveryConfigs pnDeliveryConfigs;
+    public static final String REQUIRED_ADDITIONAL_LANG_SIZE = "È obbligatorio fornire una sola lingua aggiuntiva.";
 
     public NotificationReceiverValidator(Validator validator, MVPParameterConsumer mvpParameterConsumer, ValidateUtils validateUtils, PnDeliveryConfigs pnDeliveryConfigs) {
         this.validator = validator;
@@ -66,6 +72,24 @@ public class NotificationReceiverValidator {
             List<ProblemError> errorList = new ExceptionHelper(Optional.empty()).generateProblemErrorsFromConstraintViolation(errors);
             throw new PnInvalidInputException(newNotificationRequestV2.getPaProtocolNumber(), errorList);
         }
+
+        checkAdditionalLanguages(newNotificationRequestV2.getAdditionalLanguages());
+    }
+
+    protected void checkAdditionalLanguages(List<String> additionalLanguages) {
+        if(!CollectionUtils.isNullOrEmpty(additionalLanguages) && additionalLanguages.size() > 1){
+            throw new PnBadRequestException(REQUIRED_ADDITIONAL_LANG_SIZE, REQUIRED_ADDITIONAL_LANG_SIZE, ERROR_CODE_DELIVERY_REQUIRED_ADDITIONAL_LANG, REQUIRED_ADDITIONAL_LANG_SIZE);
+        }
+        else if(!CollectionUtils.isNullOrEmpty(additionalLanguages) && !isValidAdditionalLanguage(additionalLanguages.get(0))){
+            String logMessage = String.format("Lingua aggiuntiva non valida, i valori accettati sono %s", Arrays.stream(AllowedAdditionalLanguages.values()).map(Enum::name).collect(Collectors.joining(",")));
+            throw new PnBadRequestException(logMessage, logMessage, ERROR_CODE_DELIVERY_INVALID_ADDITIONAL_LANG, logMessage);
+        }
+    }
+
+    private boolean isValidAdditionalLanguage(String lang) {
+        return Arrays.stream(AllowedAdditionalLanguages.values())
+                .map(AllowedAdditionalLanguages::name)
+                .anyMatch(lang::equals);
     }
 
     protected Set<ConstraintViolation<NewNotificationRequestV24>> checkNewNotificationRequestBeforeInsert(NewNotificationRequestV24 NewNotificationRequestV24) {
