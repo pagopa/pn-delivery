@@ -1607,7 +1607,7 @@ class NotificationReceiverValidationTest {
     void checkNewNotificationRequestBeforeInsertAndThrow_WithInvalidAdditionalLang() {
         String sha256 = "cvZKB4NCsHjo0stdb47gnfx0/Hjiipov0+M9oXcJT2Y=";
         NewNotificationRequestV24 validRequest = getNewNotificationRequestV24(sha256);
-        validRequest.setAdditionalLanguages(List.of("en"));
+        validRequest.setAdditionalLanguages(List.of("EN"));
 
         when(validateUtils.validate("26188370808", false, false)).thenReturn(true);
         when(mvpParameterConsumer.isMvp(validRequest.getSenderTaxId())).thenReturn(false);
@@ -1620,7 +1620,7 @@ class NotificationReceiverValidationTest {
     void checkNewNotificationRequestBeforeInsertAndThrow_WithMultipleAdditionalLang() {
         String sha256 = "cvZKB4NCsHjo0stdb47gnfx0/Hjiipov0+M9oXcJT2Y=";
         NewNotificationRequestV24 validRequest = getNewNotificationRequestV24(sha256);
-        validRequest.setAdditionalLanguages(List.of("de","sl"));
+        validRequest.setAdditionalLanguages(List.of("DE","SL"));
         when(validateUtils.validate("26188370808", false, false)).thenReturn(true);
         when(mvpParameterConsumer.isMvp(validRequest.getSenderTaxId())).thenReturn(false);
 
@@ -1632,7 +1632,7 @@ class NotificationReceiverValidationTest {
     void checkNewNotificationRequestBeforeInsertAndThrow_WithValidAdditionalLang() {
         String sha256 = "cvZKB4NCsHjo0stdb47gnfx0/Hjiipov0+M9oXcJT2Y=";
         NewNotificationRequestV24 validRequest = getNewNotificationRequestV24(sha256);
-        validRequest.setAdditionalLanguages(List.of("de"));
+        validRequest.setAdditionalLanguages(List.of("DE"));
         when(validateUtils.validate("26188370808", false, false)).thenReturn(true);
         when(mvpParameterConsumer.isMvp(validRequest.getSenderTaxId())).thenReturn(false);
 

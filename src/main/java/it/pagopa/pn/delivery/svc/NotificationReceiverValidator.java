@@ -89,7 +89,7 @@ public class NotificationReceiverValidator {
     private boolean isValidAdditionalLanguage(String lang) {
         return Arrays.stream(AllowedAdditionalLanguages.values())
                 .map(AllowedAdditionalLanguages::name)
-                .anyMatch(lang::equalsIgnoreCase);
+                .anyMatch(lang::equals);
     }
 
     protected Set<ConstraintViolation<NewNotificationRequestV24>> checkNewNotificationRequestBeforeInsert(NewNotificationRequestV24 NewNotificationRequestV24) {
