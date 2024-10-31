@@ -40,13 +40,12 @@ public class TaxonomyCodeDaoDynamo implements TaxonomyCodeDao {
                                .sortValue(paId)
                                .build();
 
-            TaxonomyCodeEntity result = taxonomyCodeTable.getItem(r -> r.key(dynamoKey));
+            Optional<TaxonomyCodeEntity> result = Optional.ofNullable(taxonomyCodeTable.getItem(r -> r.key(dynamoKey)));
 
-            return Optional.ofNullable(
-                    TaxonomyCodeDto.builder()
-                                   .key(result.getKey())
-                                   .paId(result.getPaId())
-                                   .build());
+            return result.map(taxonomyCodeEntity -> TaxonomyCodeDto.builder()
+                    .key(taxonomyCodeEntity.getKey())
+                    .paId(taxonomyCodeEntity.getPaId())
+                    .build());
 
         } catch (DynamoDbException e) {
             log.error("Unable to get item from DynamoDB: {}", e.getMessage(), e);
