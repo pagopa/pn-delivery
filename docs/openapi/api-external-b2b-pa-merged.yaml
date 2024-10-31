@@ -370,7 +370,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     get:
-      operationId: retrieveNotificationRequestStatusV23
+      operationId: retrieveNotificationRequestStatusV24
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -883,6 +883,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     get:
+      operationId: retrieveNotificationRequestStatusV23
       x-pagopa-lambda-name: pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live
       x-pagopa-lambda-account: core
       tags:
@@ -1062,6 +1063,7 @@ paths:
         accettata. <br/>
       tags:
         - SenderReadB2B
+      operationId: retrieveSentNotificationV24
       x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda:live
       x-pagopa-lambda-account: core
       parameters:
@@ -1206,10 +1208,6 @@ components:
       schema:
         type: integer
         format: int32
-    pathLegalFactType:
-      $ref: ./remote-refs.yaml#/components/parameters/pathLegalFactType
-    pathLegalFactId:
-      $ref: ./remote-refs.yaml#/components/parameters/pathLegalFactId
   schemas:
     PnStatusResponse:
       $ref: ./remote-refs.yaml#/components/schemas/PnStatusResponse
@@ -1446,7 +1444,7 @@ components:
                 processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV24'
+                $ref: '#/components/schemas/TimelineElementV25'
     PaymentEventsRequestPagoPa:
       title: Invio eventi di pagamento da PA a PN
       description: >-
@@ -1537,14 +1535,12 @@ components:
         amount:
           type: integer
           format: int32
-    TimelineElementV24:
-      $ref: ./remote-refs.yaml#/components/schemas/TimelineElementV24
+    TimelineElementV25:
+      $ref: ./remote-refs.yaml#/components/schemas/TimelineElementV25
     NotificationStatus:
       $ref: ./remote-refs.yaml#/components/schemas/NotificationStatus
     NotificationStatusHistory:
       $ref: ./remote-refs.yaml#/components/schemas/NotificationStatusHistory
-    LegalFactDownloadMetadataResponse:
-      $ref: ./remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse
     F24Metadata:
       $ref: ./remote-refs.yaml#/components/schemas/F24Metadata
     RequestStatus:
@@ -2134,6 +2130,8 @@ components:
       $ref: ./remote-refs.yaml#/components/schemas/TimelineElementV20
     TimelineElementV23:
       $ref: ./remote-refs.yaml#/components/schemas/TimelineElementV23
+    TimelineElementV24:
+      $ref: ./remote-refs.yaml#/components/schemas/TimelineElementV24
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
