@@ -13,6 +13,8 @@ import java.util.List;
 @Component
 public class DtoToEntityNotificationMapper {
 
+    private static final String IT_LANGUAGE = "IT";
+
     public NotificationEntity dto2Entity(InternalNotification dto) {
         NotificationEntity.NotificationEntityBuilder builder = NotificationEntity.builder()
                 .iun( dto.getIun() )
@@ -39,9 +41,19 @@ public class DtoToEntityNotificationMapper {
                 .sourceChannelDetails( dto.getSourceChannelDetails() )
                 .paFee(dto.getPaFee())
                 .vat(dto.getVat())
-                .version( dto.getVersion() );
+                .version( dto.getVersion() )
+                .languages( addITLanguageToEntity(dto.getAdditionalLanguages()) );
 
         return builder.build();
+    }
+
+    private List<String> addITLanguageToEntity(List<String> additionalLanguages) {
+        List<String> additionalLanguagesWithIT = new ArrayList<>();
+        if(!CollectionUtils.isEmpty(additionalLanguages)){
+            additionalLanguagesWithIT.addAll(additionalLanguages);
+        }
+        additionalLanguagesWithIT.add(IT_LANGUAGE);
+        return additionalLanguagesWithIT;
     }
 
     private List<NotificationRecipientEntity> dto2RecipientsEntity(
