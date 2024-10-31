@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: CXoI03D2gLBR/woMt7MbugTwZ9wqurlQV7svkRz3bP8=
+  version: 776ibEFZ7XlJki60V9BSnLBrSI6XZ/kLWBrRNyQl3hs=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -708,68 +708,6 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/NotificationStatusHistoryElement'
-    LegalFactDownloadMetadataResponse:
-      title: Url e metadati per il download di un allegato di una notifica
-      description: |-
-        I due campi più importanti sono __url__ e __retryAfter__. <br/>
-          - __url__ è presente se il file è pronto per essere scaricato ed indica l'url a cui fare GET.
-          - __retryAfter__ indica che il file non è stato archiviato e bisognerà aspettare un numero di
-            secondi non inferiore a quanto indicato dal campo _retryAfter_. <br/>
-      type: object
-      required:
-        - filename
-        - contentLength
-      properties:
-        filename:
-          type: string
-        contentLength:
-          type: number
-          format: decimal32
-          example: 54092
-          description: dimensione, in byte, del contenuto.
-        url:
-          type: string
-          description: >-
-            URL preautorizzato a cui effettuare una richiesta GET per ottenere
-            il  contenuto del documento. Presente solo se il documento è pronto
-            per il download.
-        retryAfter:
-          type: number
-          format: decimal32
-          description: >-
-            Stima del numero di secondi da aspettare prima che il contenuto del 
-            documento sia scaricabile.
-    DocumentDownloadMetadataResponse:
-      title: Url e metadati per il download di un documento correlato alla notifica
-      description: |-
-        I due campi più importanti sono __url__ e __retryAfter__. <br/>
-          - __url__ è presente se il file è pronto per essere scaricato ed indica l'url a cui fare GET.
-          - __retryAfter__ indica che il file non è stato archiviato e bisognerà aspettare un numero di
-            secondi non inferiore a quanto indicato dal campo _retryAfter_. <br/>
-      type: object
-      required:
-        - filename
-        - contentLength
-      properties:
-        filename:
-          type: string
-        contentLength:
-          type: number
-          format: decimal32
-          example: 54092
-          description: dmensione, in byte, del contenuto.
-        url:
-          type: string
-          description: >-
-            URL preautorizzato a cui effettuare una richiesta GET per ottenere
-            il  contenuto del documento. Presente solo se il documento è pronto
-            per il download.
-        retryAfter:
-          type: number
-          format: decimal32
-          description: >-
-            Stima del numero di secondi da aspettare prima che il contenuto del 
-            documento sia scaricabile.
     RequestCheckAarMandateDto:
       description: Le informazioni fornite per verificare l'AAR-QR-CodeValue
       type: object
@@ -1321,11 +1259,11 @@ components:
             quella italiana) da utilizzare per la generazione documenti, atti
             opponibili a terzi ecc.<br/> Le lingue accettate e dunque i valori
             possibili degli item dell'array sono: <br/> - DE <br/> - SI <br/> -
-            FR <br/> - EN <br/> DE (tedesco), SI (sloveno), FR (francese), EN
-            (inglese)  Attualmente è possibile indicare un solo item e dunque
-            una sola lingua aggiuntiva. Se non vengono indicate lingue
-            aggiuntive la lingua utilizzata per generare <br/> documenti, atti
-            opponibili a terzi ecc. sarà quella italiana.
+            FR <br/> DE (tedesco), SI (sloveno), FR (francese) Attualmente è
+            possibile indicare un solo item e dunque una sola lingua aggiuntiva.
+            Se non vengono indicate lingue aggiuntive la lingua utilizzata per
+            generare <br/> documenti, atti opponibili a terzi ecc. sarà quella
+            italiana.
           type: array
           items:
             type: string

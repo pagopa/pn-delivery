@@ -43,7 +43,7 @@ public class InternalNotification {
     private Boolean documentsAvailable;
     private NotificationStatus notificationStatus;
     private List<NotificationStatusHistoryElement> notificationStatusHistory;
-    private List<TimelineElementV24> timeline;
+    private List<TimelineElementV25> timeline;
     private List<String> recipientIds;
     private String sourceChannel;
     private String sourceChannelDetails;
@@ -383,12 +383,12 @@ public class InternalNotification {
         this.notificationStatusHistory = notificationStatusHistory;
     }
 
-    public InternalNotification timeline(List<TimelineElementV24> timeline) {
+    public InternalNotification timeline(List<TimelineElementV25> timeline) {
         this.timeline = timeline;
         return this;
     }
 
-    public InternalNotification addTimelineItem(TimelineElementV24 timelineItem) {
+    public InternalNotification addTimelineItem(TimelineElementV25 timelineItem) {
         if (this.timeline == null) {
             this.timeline = new ArrayList<>();
         }
@@ -396,11 +396,11 @@ public class InternalNotification {
         return this;
     }
 
-    public List<TimelineElementV24> getTimeline() {
+    public List<TimelineElementV25> getTimeline() {
         return timeline;
     }
 
-    public void setTimeline(List<TimelineElementV24> timeline) {
+    public void setTimeline(List<TimelineElementV25> timeline) {
         this.timeline = timeline;
     }
 

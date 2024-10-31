@@ -246,7 +246,7 @@ paths:
     ###                        VERIFICA STATO RICHIESTE DI NOTIFICA                         ###
     ###########################################################################################
     get:
-      #      operationId: retrieveNotificationRequestStatusV23                 # ONLY EXTERNAL
+      operationId: retrieveNotificationRequestStatusV23                 # ONLY EXTERNAL
       x-pagopa-lambda-name: 'pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live'
       x-pagopa-lambda-account: core
       tags:
@@ -436,7 +436,7 @@ paths:
         
       tags:
         - SenderReadB2B
-      #      operationId: retrieveSentNotificationV24                                # ONLY EXTERNAL
+      operationId: retrieveSentNotificationV24                                # ONLY EXTERNAL
       x-pagopa-lambda-name: 'pn-delivery-versioning-v1v2-getnotification-lambda:live'
       x-pagopa-lambda-account: core
       parameters:
@@ -601,14 +601,6 @@ components:
       schema:
         type: integer
         format: int32
-    ############################################################################################
-    ###                      PARAMETRI DOWNLOAD ATTI OPPONIBILI A TERZI                      ###
-    ############################################################################################
-    pathLegalFactType:
-      $ref: './remote-refs.yaml#/components/parameters/pathLegalFactType'
-    pathLegalFactId:
-      $ref: './remote-refs.yaml#/components/parameters/pathLegalFactId'
-
 
   schemas:
     ###########################################################################################
@@ -1365,8 +1357,6 @@ components:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatusHistory'
-    LegalFactDownloadMetadataResponse:
-      $ref: './remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
 
   securitySchemes:        # ONLY EXTERNAL
     ApiKeyAuth:           # ONLY EXTERNAL

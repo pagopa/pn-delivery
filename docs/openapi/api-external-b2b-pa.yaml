@@ -378,7 +378,7 @@ paths:
     ###                        VERIFICA STATO RICHIESTE DI NOTIFICA                         ###
     ###########################################################################################
     get:
-      operationId: retrieveNotificationRequestStatusV23                 # ONLY EXTERNAL
+      operationId: retrieveNotificationRequestStatusV24                 # ONLY EXTERNAL
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -751,14 +751,6 @@ components:
       schema:
         type: integer
         format: int32
-    ############################################################################################
-    ###                      PARAMETRI DOWNLOAD ATTI OPPONIBILI A TERZI                      ###
-    ############################################################################################
-    pathLegalFactType:
-      $ref: './remote-refs.yaml#/components/parameters/pathLegalFactType'
-    pathLegalFactId:
-      $ref: './remote-refs.yaml#/components/parameters/pathLegalFactId'
-
 
   schemas:
     ###########################################################################################
@@ -996,7 +988,7 @@ components:
                 elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV24'
+                $ref: '#/components/schemas/TimelineElementV25'
 
     ###########################################################################################
     ###                              DTO EVENTO DI PAGAMENTO                                ###
@@ -1101,14 +1093,12 @@ components:
           type: integer
           format: int32
 
-    TimelineElementV24:
-      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV24'
+    TimelineElementV25:
+      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV25'
     NotificationStatus:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatusHistory'
-    LegalFactDownloadMetadataResponse:
-      $ref: './remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
     F24Metadata:
       $ref: './remote-refs.yaml#/components/schemas/F24Metadata'
     RequestStatus:
