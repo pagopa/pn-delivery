@@ -4,11 +4,13 @@ import it.pagopa.pn.common.rest.error.v1.dto.ProblemError;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.utils.ValidateUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import lombok.extern.slf4j.Slf4j;
 import org.hamcrest.Matchers;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -25,43 +27,45 @@ import java.util.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
 @Slf4j
 class NotificationReceiverValidationTest {
 
-  @Mock
-  private PnDeliveryConfigs cfg;
+    @Mock
+    private PnDeliveryConfigs cfg;
 
-  @Mock
-  private MVPParameterConsumer mvpParameterConsumer;
+    @Mock
+    private ValidateUtils validateUtils;
 
-  @Mock
-  private ValidateUtils validateUtils;
+    private static final String IUN = "FAKE-FAKE-FAKE-202209-F-1";
 
-  private static final String IUN = "FAKE-FAKE-FAKE-202209-F-1";
+    private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
+    public static final String SHA256_BODY = "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=";
+    public static final String VERSION_TOKEN = "version_token";
+    public static final String KEY = "safestorage://PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG"; // or also PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG
+    public static final String PHYSICAL_ADDRESS_VALIDATION_PATTERN = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ./ '-";
+    public static final Integer PHYSICAL_ADDRESS_VALIDATION_LENGTH = 44;
 
-  private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
-  public static final String SHA256_BODY = "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=";
-  public static final String VERSION_TOKEN = "version_token";
-  public static final String KEY = "safestorage://PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG"; // or also PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG
-  public static final String PHYSICAL_ADDRESS_VALIDATION_PATTERN = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ./ '-";
-  public static final Integer PHYSICAL_ADDRESS_VALIDATION_LENGTH = 44;
-
-  private NotificationReceiverValidator validator;
+    private NotificationReceiverValidator validator;
+    private MVPParameterConsumer mvpParameterConsumer;
 
   @BeforeEach
   void initializeValidator() {
     this.cfg = Mockito.mock(PnDeliveryConfigs.class);
     this.validateUtils = Mockito.mock( ValidateUtils.class );
     ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+      mvpParameterConsumer = mock(MVPParameterConsumer.class);
     validator = new NotificationReceiverValidator(factory.getValidator(), mvpParameterConsumer, validateUtils, cfg);
   }
   @Test
   void invalidNotificationDeliveryModeNoPaFee() {
-    NewNotificationRequestV23 newNotificationRequest = newNotificationWithoutPayments();
+    NewNotificationRequestV24 newNotificationRequest = newNotificationWithoutPayments();
     newNotificationRequest.setNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
     newNotificationRequest.setVat(22);
-    Set<ConstraintViolation<NewNotificationRequestV23>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV24>> errors;
     errors = validator.checkNewNotificationRequestBeforeInsert(newNotificationRequest);
 
     assertThat(errors, hasItems(
@@ -71,10 +75,10 @@ class NotificationReceiverValidationTest {
 
   @Test
   void invalidNotificationDeliveryModeNoVat() {
-    NewNotificationRequestV23 newNotificationRequest = newNotificationWithoutPayments();
+    NewNotificationRequestV24 newNotificationRequest = newNotificationWithoutPayments();
     newNotificationRequest.setNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
     newNotificationRequest.setPaFee(100);
-    Set<ConstraintViolation<NewNotificationRequestV23>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV24>> errors;
     errors = validator.checkNewNotificationRequestBeforeInsert(newNotificationRequest);
 
     assertThat(errors, hasItems(
@@ -132,9 +136,9 @@ class NotificationReceiverValidationTest {
   @Disabled
   void invalidRecipientPGTaxId() {
     // Given
-    NewNotificationRequestV23 n = newNotificationPG();
+    NewNotificationRequestV24 n = newNotificationPG();
     // When
-    Set<ConstraintViolation<NewNotificationRequestV23>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV24>> errors;
     errors = validator.checkNewNotificationRequestBeforeInsert(n);
 
     // Then
@@ -310,10 +314,10 @@ class NotificationReceiverValidationTest {
   @Test
   void duplicatedRecipientTaxId() {
     // Given
-    NewNotificationRequestV23 n = newNotificationDuplicateRecipient();
+    NewNotificationRequestV24 n = newNotificationDuplicateRecipient();
 
     // When
-    Set<ConstraintViolation<NewNotificationRequestV23>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV24>> errors;
     errors = validator.checkNewNotificationRequestBeforeInsert(n);
 
     // Then
@@ -323,10 +327,10 @@ class NotificationReceiverValidationTest {
   @Test
   void applyCostNotGivenWhenNotificationIsDeliveryMode() {
     // Given
-    NewNotificationRequestV23 n = newNotificationWithPaymentsWithoutApplyCosts();
+    NewNotificationRequestV24 n = newNotificationWithPaymentsWithoutApplyCosts();
 
     // When
-    Set<ConstraintViolation<NewNotificationRequestV23>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV24>> errors;
     errors = validator.checkNewNotificationRequestBeforeInsert(n);
 
     // Then
@@ -338,10 +342,10 @@ class NotificationReceiverValidationTest {
   @Test
   void applyCostGivenWhenNotificationIsFlatRate() {
     // Given
-    NewNotificationRequestV23 n = newNotificationWithApplyCostsAndFeePolicyFlatRate();
+    NewNotificationRequestV24 n = newNotificationWithApplyCostsAndFeePolicyFlatRate();
 
     // When
-    Set<ConstraintViolation<NewNotificationRequestV23>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV24>> errors;
     errors = validator.checkNewNotificationRequestBeforeInsert(n);
 
     // Then
@@ -353,10 +357,10 @@ class NotificationReceiverValidationTest {
   @Test
   void validationFailsWhenNotificationHasDuplicatedIuvs() {
     // Given
-    NewNotificationRequestV23 notification = newNotificationWithSameIuvs();
+    NewNotificationRequestV24 notification = newNotificationWithSameIuvs();
 
     // When
-    Set<ConstraintViolation<NewNotificationRequestV23>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV24>> errors;
     errors = validator.checkNewNotificationRequestBeforeInsert(notification);
 
     String error = createExpectedIuvDuplicatedErrorMessage(notification, 0, 1);
@@ -372,7 +376,7 @@ class NotificationReceiverValidationTest {
    * @param paymIdx indice del pagamento in cui si trova lo IUV duplicato
    * @return Il messaggio d'errore di validazione per gli IUV duplicati
    */
-  private String createExpectedIuvDuplicatedErrorMessage(NewNotificationRequestV23 n, int recIdx, int paymIdx) {
+  private String createExpectedIuvDuplicatedErrorMessage(NewNotificationRequestV24 n, int recIdx, int paymIdx) {
     NotificationPaymentItem expectedPayment = n.getRecipients().get(recIdx).getPayments().get(paymIdx);
     String expectedIuvDuplicated = expectedPayment.getPagoPa().getCreditorTaxId() + expectedPayment.getPagoPa().getNoticeCode();
     return String.format("Duplicated iuv { %s } on recipient with index %s in payment with index %s", expectedIuvDuplicated, recIdx, paymIdx);
@@ -795,7 +799,7 @@ class NotificationReceiverValidationTest {
   @Test
   void newNotificationRequestWhitInvalidPhysicalAddress() {
     // GIVEN
-    NewNotificationRequestV23 n = newNotification();
+    NewNotificationRequestV24 n = newNotification();
     n.getRecipients().get(0).setPhysicalAddress(NotificationPhysicalAddress.builder()
             .municipality( "municipality" )
             .address( "address" )
@@ -803,7 +807,7 @@ class NotificationReceiverValidationTest {
     );
 
     // WHEN
-    Set<ConstraintViolation<NewNotificationRequestV23>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV24>> errors;
     errors = validator.checkNewNotificationRequestBeforeInsert(n);
 
     // THEN
@@ -813,7 +817,7 @@ class NotificationReceiverValidationTest {
   @Test
   void newNotificationRequestWhitInvalidPhysicalAddressForeignStateItaly() {
     // GIVEN
-    NewNotificationRequestV23 n = newNotification();
+    NewNotificationRequestV24 n = newNotification();
     n.getRecipients().get(0).setPhysicalAddress(NotificationPhysicalAddress.builder()
             .foreignState("Italia")
             .municipality( "municipality" )
@@ -822,7 +826,7 @@ class NotificationReceiverValidationTest {
     );
 
     // WHEN
-    Set<ConstraintViolation<NewNotificationRequestV23>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV24>> errors;
     errors = validator.checkNewNotificationRequestBeforeInsert(n);
 
     // THEN
@@ -835,11 +839,11 @@ class NotificationReceiverValidationTest {
   void newNotificationRequestForValidDontCheckAddress() {
 
     // GIVEN
-    NewNotificationRequestV23 n = newNotification();
+    NewNotificationRequestV24 n = newNotification();
     n.getRecipients().get(0).setPhysicalAddress(null);
 
     // WHEN
-    Set<ConstraintViolation<NewNotificationRequestV23>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV24>> errors;
     errors = validator.checkNewNotificationRequestBeforeInsert(n);
 
     // THEN
@@ -854,7 +858,7 @@ class NotificationReceiverValidationTest {
   void newNotificationRequestForMVPInvalid() {
 
     // GIVEN
-    NewNotificationRequestV23 n = newNotification();
+    NewNotificationRequestV24 n = newNotification();
     n.setSenderDenomination(null);
     n.addRecipientsItem(
             NotificationRecipientV23.builder().recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
@@ -862,7 +866,7 @@ class NotificationReceiverValidationTest {
                     .digitalDomicile(NotificationDigitalAddress.builder().build()).build());
 
     // WHEN
-    Set<ConstraintViolation<NewNotificationRequestV23>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV24>> errors;
     errors = validator.checkNewNotificationRequestForMVP(n);
 
     // THEN
@@ -877,10 +881,10 @@ class NotificationReceiverValidationTest {
   void newNotificationRequestForMVP() {
 
     // GIVEN
-    NewNotificationRequestV23 n = newNotificationWithoutPayments();
+    NewNotificationRequestV24 n = newNotificationWithoutPayments();
 
     // WHEN
-    Set<ConstraintViolation<NewNotificationRequestV23>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV24>> errors;
     errors = validator.checkNewNotificationRequestForMVP(n);
 
     // THEN
@@ -1000,7 +1004,7 @@ class NotificationReceiverValidationTest {
   }
 
 
-  private NewNotificationRequestV23 newNotificationWithoutPayments() {
+  private NewNotificationRequestV24 newNotificationWithoutPayments() {
     NotificationRecipientV23 notificationRecipientV23 = NotificationRecipientV23.builder()
             .recipientType( NotificationRecipientV23.RecipientTypeEnum.PF )
             .denomination( "Ada Lovelace" )
@@ -1019,14 +1023,14 @@ class NotificationReceiverValidationTest {
                     .municipalityDetails( "municipalityDetail" )
                     .build() )
             .build();
-    return NewNotificationRequestV23.builder()
+    return NewNotificationRequestV24.builder()
             .notificationFeePolicy(NotificationFeePolicy.valueOf("FLAT_RATE"))
             .senderDenomination("Sender Denomination")
             .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
             .senderTaxId("paId").recipients(List.of(notificationRecipientV23)).build();
   }
 
-  private NewNotificationRequestV23 newNotificationDuplicateRecipient() {
+  private NewNotificationRequestV24 newNotificationDuplicateRecipient() {
     NotificationRecipientV23 notificationRecipientV23 = NotificationRecipientV23.builder()
             .payments( List.of(NotificationPaymentItem.builder()
                     .pagoPa(PagoPaPayment.builder()
@@ -1061,14 +1065,14 @@ class NotificationReceiverValidationTest {
                     .municipalityDetails( "municipalityDetail" )
                     .build() )
             .build();
-    return NewNotificationRequestV23.builder()
+    return NewNotificationRequestV24.builder()
             .notificationFeePolicy(NotificationFeePolicy.valueOf("FLAT_RATE"))
             .senderDenomination("Sender Denomination")
             .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
             .senderTaxId("paId").recipients(List.of(notificationRecipientV23, notificationRecipientV23)).build();
   }
 
-  private NewNotificationRequestV23 newNotificationPG() {
+  private NewNotificationRequestV24 newNotificationPG() {
     NotificationRecipientV23 notificationRecipientV23 = NotificationRecipientV23.builder()
             .payments( List.of(NotificationPaymentItem.builder()
                     .pagoPa(PagoPaPayment.builder()
@@ -1103,14 +1107,14 @@ class NotificationReceiverValidationTest {
                     .municipalityDetails( "municipalityDetail" )
                     .build() )
             .build();
-    return NewNotificationRequestV23.builder()
+    return NewNotificationRequestV24.builder()
             .notificationFeePolicy(NotificationFeePolicy.valueOf("FLAT_RATE"))
             .senderDenomination("Sender Denomination")
             .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
             .senderTaxId("paId").recipients(List.of(notificationRecipientV23)).build();
   }
 
-  private NewNotificationRequestV23 newNotification() {
+  private NewNotificationRequestV24 newNotification() {
     NotificationRecipientV23 notificationRecipientV23 = NotificationRecipientV23.builder()
             .payments( List.of(NotificationPaymentItem.builder()
                     .pagoPa(PagoPaPayment.builder()
@@ -1145,14 +1149,14 @@ class NotificationReceiverValidationTest {
                     .municipalityDetails( "municipalityDetail" )
                     .build() )
             .build();
-    return NewNotificationRequestV23.builder()
+    return NewNotificationRequestV24.builder()
             .notificationFeePolicy(NotificationFeePolicy.valueOf("FLAT_RATE"))
             .senderDenomination("Sender Denomination")
             .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
             .senderTaxId("paId").recipients(List.of(notificationRecipientV23)).build();
   }
 
-  private NewNotificationRequestV23 newNotificationDenominationCustom(String denomination) {
+  private NewNotificationRequestV24 newNotificationDenominationCustom(String denomination) {
     NotificationRecipientV23 notificationRecipient = NotificationRecipientV23.builder()
             .recipientType( NotificationRecipientV23.RecipientTypeEnum.PF )
             .denomination( denomination )
@@ -1171,15 +1175,15 @@ class NotificationReceiverValidationTest {
                     .municipalityDetails( "municipalityDetail" )
                     .build() )
             .build();
-    return NewNotificationRequestV23.builder().senderDenomination("Sender Denomination")
+    return NewNotificationRequestV24.builder().senderDenomination("Sender Denomination")
             .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
             .senderTaxId("paId").recipients(Arrays.asList(notificationRecipient)).build();
   }
 
-  private FullSentNotificationV24 newFullSentNotification() {
-    return FullSentNotificationV24.builder().sentAt(OffsetDateTime.now()).iun(IUN)
+  private FullSentNotificationV25 newFullSentNotification() {
+    return FullSentNotificationV25.builder().sentAt(OffsetDateTime.now()).iun(IUN)
         .paProtocolNumber("protocol1").group("group_1").idempotenceToken("idempotenceToken")
-        .timeline(Collections.singletonList(TimelineElementV24.builder().build()))
+        .timeline(Collections.singletonList(TimelineElementV25.builder().build()))
         .notificationStatus(NotificationStatus.ACCEPTED)
         .documents(Collections.singletonList(NotificationDocument.builder()
             .contentType("application/pdf")
@@ -1200,11 +1204,11 @@ class NotificationReceiverValidationTest {
         .senderDenomination("Comune di Milano").senderTaxId("01199250158").subject("subject_length")
         .sourceChannel(X_PAGOPA_PN_SRC_CH)
         .physicalCommunicationType(
-                FullSentNotificationV24.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
+                FullSentNotificationV25.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
         .build();
   }
 
-  private NewNotificationRequestV23 badRecipientsNewNotification2() {
+  private NewNotificationRequestV24 badRecipientsNewNotification2() {
     List<NotificationRecipientV23> recipients = new ArrayList<>();
     recipients.add(
             NotificationRecipientV23.builder().recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
@@ -1227,13 +1231,13 @@ class NotificationReceiverValidationTest {
                     //.payment(NotificationPaymentInfo.builder().noticeCode("noticeCode")
                     //.noticeCodeAlternative("noticeCodeAlternative").build())
                     .build());
-    return NewNotificationRequestV23.builder().senderDenomination("Sender Denomination")
+    return NewNotificationRequestV24.builder().senderDenomination("Sender Denomination")
             .notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
             .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
             .senderTaxId("paId").recipients(recipients).build();
   }
 
-  private NewNotificationRequestV23 badRecipientsNewNotification() {
+  private NewNotificationRequestV24 badRecipientsNewNotification() {
     List<NotificationRecipientV23> recipients = new ArrayList<>();
     recipients.add(
             NotificationRecipientV23.builder().recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
@@ -1252,13 +1256,13 @@ class NotificationReceiverValidationTest {
                     //.payment(NotificationPaymentInfo.builder().noticeCode("noticeCode")
                     //.noticeCodeAlternative("noticeCodeAlternative").build())
                     .build());
-    return NewNotificationRequestV23.builder().senderDenomination("Sender Denomination")
+    return NewNotificationRequestV24.builder().senderDenomination("Sender Denomination")
             .notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
             .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
             .senderTaxId("paId").recipients(recipients).build();
   }
 
-  private NewNotificationRequestV23 moreBadRecipientsNewNotification() {
+  private NewNotificationRequestV24 moreBadRecipientsNewNotification() {
     List<NotificationRecipientV23> recipients = new ArrayList<>();
     recipients.add(NotificationRecipientV23.builder().recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
             .taxId("FiscalCode").denomination("Nome Cognome! / Ragione Sociale!")
@@ -1292,7 +1296,7 @@ class NotificationReceiverValidationTest {
                     )
             )
             .build());
-    return NewNotificationRequestV23.builder().senderDenomination("Sender Denomination")
+    return NewNotificationRequestV24.builder().senderDenomination("Sender Denomination")
             .notificationFeePolicy(NotificationFeePolicy.FLAT_RATE)
             .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
             .senderTaxId("paId").recipients(recipients).build();
@@ -1382,7 +1386,7 @@ class NotificationReceiverValidationTest {
     return internalNotification;
   }
 
-  private NewNotificationRequestV23 newNotificationWithPaymentsWithoutApplyCosts() {
+  private NewNotificationRequestV24 newNotificationWithPaymentsWithoutApplyCosts() {
     NotificationRecipientV23 notificationRecipientV23 = NotificationRecipientV23.builder()
             .payments( List.of(NotificationPaymentItem.builder()
                     .pagoPa(PagoPaPayment.builder()
@@ -1417,14 +1421,14 @@ class NotificationReceiverValidationTest {
                     .municipalityDetails( "municipalityDetail" )
                     .build() )
             .build();
-    return NewNotificationRequestV23.builder()
+    return NewNotificationRequestV24.builder()
             .notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
             .senderDenomination("Sender Denomination")
             .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
             .senderTaxId("paId").recipients(List.of(notificationRecipientV23)).build();
   }
 
-  private NewNotificationRequestV23 newNotificationWithApplyCostsAndFeePolicyFlatRate() {
+  private NewNotificationRequestV24 newNotificationWithApplyCostsAndFeePolicyFlatRate() {
     List<NotificationPaymentItem> paymentItems = new ArrayList<>();
     paymentItems.add(NotificationPaymentItem.builder()
             .pagoPa(PagoPaPayment.builder()
@@ -1462,15 +1466,15 @@ class NotificationReceiverValidationTest {
                     .municipalityDetails( "municipalityDetail" )
                     .build() )
             .build();
-    return NewNotificationRequestV23.builder()
+    return NewNotificationRequestV24.builder()
             .notificationFeePolicy(NotificationFeePolicy.FLAT_RATE)
             .senderDenomination("Sender Denomination")
             .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
             .senderTaxId("paId").recipients(List.of(notificationRecipientV23)).build();
   }
 
-  private NewNotificationRequestV23 newNotificationWithSameIuvs() {
-    NewNotificationRequestV23 notification = newNotificationWithApplyCostsAndFeePolicyFlatRate();
+  private NewNotificationRequestV24 newNotificationWithSameIuvs() {
+    NewNotificationRequestV24 notification = newNotificationWithApplyCostsAndFeePolicyFlatRate();
     NotificationPaymentItem firstPayment = notification.getRecipients().get(0).getPayments().get(0);
     NotificationPaymentItem duplicatedPayment = NotificationPaymentItem.builder()
             .pagoPa(PagoPaPayment.builder()
@@ -1488,7 +1492,7 @@ class NotificationReceiverValidationTest {
     String sha256 = "sha256";
     String key="key";
     // Given
-    NewNotificationRequestV23 n = newNotification();
+    NewNotificationRequestV24 n = newNotification();
     NotificationDocument document = NotificationDocument.builder()
         .ref(NotificationAttachmentBodyRef.builder().key(key).build())
         .digests(NotificationAttachmentDigests.builder().sha256(sha256).build())
@@ -1502,7 +1506,7 @@ class NotificationReceiverValidationTest {
         .build();
     pagopa.setAttachment(attachment);
     // When
-    Set<ConstraintViolation<NewNotificationRequestV23>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV24>> errors;
     errors = validator.checkNewNotificationRequestBeforeInsert(n);
 
     // Then
@@ -1514,7 +1518,7 @@ class NotificationReceiverValidationTest {
     String sha256 = "sha256";
     String key="key";
     // Given
-    NewNotificationRequestV23 n = newNotification();
+    NewNotificationRequestV24 n = newNotification();
     NotificationDocument document = NotificationDocument.builder()
         .ref(NotificationAttachmentBodyRef.builder().key("key1").build())
         .digests(NotificationAttachmentDigests.builder().sha256(sha256).build())
@@ -1580,12 +1584,103 @@ class NotificationReceiverValidationTest {
     n.setRecipients(Arrays.asList(recipient, recipient2));
 
     // When
-    Set<ConstraintViolation<NewNotificationRequestV23>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV24>> errors;
     errors = validator.checkNewNotificationRequestBeforeInsert(n);
 
     // Then
     long actual = errors.stream().filter(cv -> cv.getMessage().equals("Same attachment compares more then once in the same request")).count();
     Assertions.assertEquals(0, actual);
   }
+
+    @Test
+    void checkNewNotificationRequestBeforeInsertAndThrow_validRequest_noErrors() {
+        String sha256 = "cvZKB4NCsHjo0stdb47gnfx0/Hjiipov0+M9oXcJT2Y=";
+        NewNotificationRequestV24 validRequest = getNewNotificationRequestV24(sha256);
+
+        when(validateUtils.validate("26188370808", false, false)).thenReturn(true);
+        when(mvpParameterConsumer.isMvp(validRequest.getSenderTaxId())).thenReturn(false);
+
+        assertDoesNotThrow(() -> validator.checkNewNotificationRequestBeforeInsertAndThrow(validRequest));
+    }
+
+    @Test
+    void checkNewNotificationRequestBeforeInsertAndThrow_WithInvalidAdditionalLang() {
+        String sha256 = "cvZKB4NCsHjo0stdb47gnfx0/Hjiipov0+M9oXcJT2Y=";
+        NewNotificationRequestV24 validRequest = getNewNotificationRequestV24(sha256);
+        validRequest.setAdditionalLanguages(List.of("EN"));
+
+        when(validateUtils.validate("26188370808", false, false)).thenReturn(true);
+        when(mvpParameterConsumer.isMvp(validRequest.getSenderTaxId())).thenReturn(false);
+
+        Assertions.assertThrows(PnBadRequestException.class, () -> validator.checkNewNotificationRequestBeforeInsertAndThrow(validRequest),
+                "Lingua aggiuntiva non valida, i valori accettati sono DE,FR,SL");
+    }
+
+    @Test
+    void checkNewNotificationRequestBeforeInsertAndThrow_WithMultipleAdditionalLang() {
+        String sha256 = "cvZKB4NCsHjo0stdb47gnfx0/Hjiipov0+M9oXcJT2Y=";
+        NewNotificationRequestV24 validRequest = getNewNotificationRequestV24(sha256);
+        validRequest.setAdditionalLanguages(List.of("DE","SL"));
+        when(validateUtils.validate("26188370808", false, false)).thenReturn(true);
+        when(mvpParameterConsumer.isMvp(validRequest.getSenderTaxId())).thenReturn(false);
+
+        Assertions.assertThrows(PnBadRequestException.class, () -> validator.checkNewNotificationRequestBeforeInsertAndThrow(validRequest),
+                "È obbligatorio fornire una sola lingua aggiuntiva.");
+    }
+
+    @Test
+    void checkNewNotificationRequestBeforeInsertAndThrow_WithValidAdditionalLang() {
+        String sha256 = "cvZKB4NCsHjo0stdb47gnfx0/Hjiipov0+M9oXcJT2Y=";
+        NewNotificationRequestV24 validRequest = getNewNotificationRequestV24(sha256);
+        validRequest.setAdditionalLanguages(List.of("DE"));
+        when(validateUtils.validate("26188370808", false, false)).thenReturn(true);
+        when(mvpParameterConsumer.isMvp(validRequest.getSenderTaxId())).thenReturn(false);
+
+        assertDoesNotThrow(() -> validator.checkNewNotificationRequestBeforeInsertAndThrow(validRequest));
+    }
+
+    @NotNull
+    private static NewNotificationRequestV24 getNewNotificationRequestV24(String sha256) {
+        NewNotificationRequestV24 validRequest = new NewNotificationRequestV24();
+
+        validRequest.setSenderTaxId("12345678958");
+        validRequest.setSenderDenomination("sender");
+        validRequest.setSubject("sub");
+
+        NotificationRecipientV23 recipient = NotificationRecipientV23.builder()
+                .recipientType(NotificationRecipientV23.RecipientTypeEnum.PG)
+                .denomination("Mario Rossi")
+                .taxId("26188370808")
+                .digitalDomicile(NotificationDigitalAddress.builder()
+                        .type(NotificationDigitalAddress.TypeEnum.PEC)
+                        .address("address@pec.it")
+                        .build())
+                .physicalAddress(NotificationPhysicalAddress.builder()
+                        .at("at")
+                        .province("province")
+                        .zip("83100")
+                        .address("address")
+                        .addressDetails("addressDetail")
+                        .municipality("municipality")
+                        .municipalityDetails("municipalityDetail")
+                        .build())
+                .build();
+
+        NotificationDocument document = NotificationDocument.builder()
+                .ref(NotificationAttachmentBodyRef.builder().key("key1").versionToken("token").build())
+                .digests(NotificationAttachmentDigests.builder().sha256(sha256).build())
+                .contentType("application/pdf")
+                .build();
+        validRequest.addDocumentsItem(document);
+
+        validRequest.setRecipients(List.of(recipient));
+        validRequest.setNotificationFeePolicy(NotificationFeePolicy.FLAT_RATE);
+        validRequest.setPaFee(1);
+        validRequest.setVat(90);
+        validRequest.setTaxonomyCode("123456A");
+        validRequest.setPaProtocolNumber("prot");
+        validRequest.setPhysicalCommunicationType(NewNotificationRequestV24.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
+        return validRequest;
+    }
 }
 
