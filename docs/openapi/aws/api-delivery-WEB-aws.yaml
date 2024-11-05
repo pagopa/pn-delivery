@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: O9p7zlkpkoSLQrfZ/gNpsdK9x6QX/loA2RJrSTU0KQY=
+  version: Dvldma+B4znJUiHJWPAahZi7LerdKMVa1oNH1K3LtSw=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -885,7 +885,7 @@ paths:
         dettagli delle  notifiche ricevute.
       tags:
         - RecipientRead
-      operationId: getReceivedNotificationV23
+      operationId: getReceivedNotificationV24
       security:
         - pn-auth-fleet_jwtAuthorizer_openapi: []
       parameters:
@@ -4387,7 +4387,7 @@ components:
                 processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV23'
+                $ref: '#/components/schemas/TimelineElementV25'
     TimelineElementV23:
       type: object
       additionalProperties: false
