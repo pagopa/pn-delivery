@@ -316,7 +316,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery/v2.3/requests:
+  /delivery/v2.4/requests:
     post:
       summary: Richiesta invio notifica
       description: >-
@@ -336,13 +336,13 @@ paths:
         prevista dai webhook. <br/>
       tags:
         - NewNotification
-      operationId: sendNewNotificationV23
+      operationId: sendNewNotificationV24
       requestBody:
         content:
           application/json:
             schema:
               $ref: >-
-                ./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV23
+                ./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV24
         required: true
       responses:
         '202':
@@ -370,7 +370,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     get:
-      operationId: retrieveNotificationRequestStatusV23
+      operationId: retrieveNotificationRequestStatusV24
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -389,7 +389,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NewNotificationRequestStatusResponseV23'
+                $ref: '#/components/schemas/NewNotificationRequestStatusResponseV24'
         '400':
           description: Bad request
           content:
@@ -408,7 +408,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery/v2.4/notifications/sent/{iun}:
+  /delivery/v2.5/notifications/sent/{iun}:
     get:
       summary: 'Mittente: lettura dettagli notifica versione 2'
       description: >-
@@ -416,7 +416,7 @@ paths:
         accettata. <br/>
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationV24
+      operationId: retrieveSentNotificationV25
       parameters:
         - $ref: ./parameters-notification-search.yaml#/components/parameters/pathIun
       responses:
@@ -425,7 +425,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FullSentNotificationV24'
+                $ref: '#/components/schemas/FullSentNotificationV25'
         '400':
           description: Bad request
           content:
@@ -828,6 +828,101 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+  /delivery/v2.3/requests:
+    post:
+      summary: Richiesta invio notifica
+      description: >-
+        Operazione utilizzata dalla Pubblica Amministrazione per richiedere
+        l'invio di una notifica.
+
+
+        La restituzione di uno stato HTTP 202 significa solo che la richiesta è
+        sintatticamente
+
+        valida, non che la richiesta sia stata validata ed accettata. <br/>
+
+        Per conoscere lo stato di accettazione della richiesta di notifica
+        bisogna utilizzare l'operazione
+
+        _getNotificationRequestStatus_ oppure utilizzare la modalità push
+        prevista dai webhook. <br/>
+      tags:
+        - NewNotification
+      operationId: sendNewNotificationV23
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-sendnewnotification-lambda:live
+      x-pagopa-lambda-account: core
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewNotificationRequestV23'
+        required: true
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewNotificationResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+    get:
+      operationId: retrieveNotificationRequestStatusV23
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live
+      x-pagopa-lambda-account: core
+      tags:
+        - SenderReadB2B
+      summary: Verifica accettazione richiesta notifica
+      description: >-
+        Questa operazione serve per verificare se la richiesta di notifica è
+        stata accettata e ottenere lo IUN associato a tale richiesta. <br/>
+        Bisogna specificare il parametro _requestId_ oppure la coppia costituita
+        dai parametri  _paProtocolNumber_ e _idempotenceToken_. <br/>
+      parameters:
+        - $ref: '#/components/parameters/notificationRequestId'
+        - $ref: '#/components/parameters/paProtocolNumber'
+        - $ref: '#/components/parameters/idempotenceToken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewNotificationRequestStatusResponseV23'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
   /delivery/notifications/sent/{iun}:
     get:
       deprecated: true
@@ -948,6 +1043,38 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FullSentNotificationV23'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /delivery/v2.4/notifications/sent/{iun}:
+    get:
+      summary: 'Mittente: lettura dettagli notifica versione 2'
+      description: >-
+        Questa operazione permette di leggere tutti i dettagli di una notifica
+        accettata. <br/>
+      tags:
+        - SenderReadB2B
+      operationId: retrieveSentNotificationV24
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda:live
+      x-pagopa-lambda-account: core
+      parameters:
+        - $ref: ./parameters-notification-search.yaml#/components/parameters/pathIun
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FullSentNotificationV24'
         '400':
           description: Bad request
           content:
@@ -1081,10 +1208,6 @@ components:
       schema:
         type: integer
         format: int32
-    pathLegalFactType:
-      $ref: ./remote-refs.yaml#/components/parameters/pathLegalFactType
-    pathLegalFactId:
-      $ref: ./remote-refs.yaml#/components/parameters/pathLegalFactId
   schemas:
     PnStatusResponse:
       $ref: ./remote-refs.yaml#/components/schemas/PnStatusResponse
@@ -1257,10 +1380,10 @@ components:
             notificazione"  effettuate con lo stesso numero di protocollo (campo
             _paProtocolNumber_).
           type: string
-    NewNotificationRequestStatusResponseV23:
+    NewNotificationRequestStatusResponseV24:
       allOf:
         - $ref: >-
-            ./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV23
+            ./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV24
         - type: object
           required:
             - notificationRequestId
@@ -1298,13 +1421,13 @@ components:
       $ref: ./remote-refs.yaml#/components/schemas/Problem
     ProblemError:
       $ref: ./remote-refs.yaml#/components/schemas/ProblemError
-    FullSentNotificationV24:
+    FullSentNotificationV25:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica
         accettata) e il  processo di inoltro della notifica verso il cittadino.
       allOf:
         - $ref: >-
-            ./schemas-pn-notification.yaml#/components/schemas/SentNotificationV23
+            ./schemas-pn-notification.yaml#/components/schemas/SentNotificationV24
         - type: object
           required:
             - notificationStatus
@@ -1321,7 +1444,7 @@ components:
                 processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV24'
+                $ref: '#/components/schemas/TimelineElementV25'
     PaymentEventsRequestPagoPa:
       title: Invio eventi di pagamento da PA a PN
       description: >-
@@ -1412,14 +1535,12 @@ components:
         amount:
           type: integer
           format: int32
-    TimelineElementV24:
-      $ref: ./remote-refs.yaml#/components/schemas/TimelineElementV24
+    TimelineElementV25:
+      $ref: ./remote-refs.yaml#/components/schemas/TimelineElementV25
     NotificationStatus:
       $ref: ./remote-refs.yaml#/components/schemas/NotificationStatus
     NotificationStatusHistory:
       $ref: ./remote-refs.yaml#/components/schemas/NotificationStatusHistory
-    LegalFactDownloadMetadataResponse:
-      $ref: ./remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse
     F24Metadata:
       $ref: ./remote-refs.yaml#/components/schemas/F24Metadata
     RequestStatus:
@@ -1665,6 +1786,9 @@ components:
             - NONE
             - SYNC
             - ASYNC
+    NewNotificationRequestV23:
+      $ref: >-
+        ./schemas-pn-notification-older-version.yaml#/components/schemas/NewNotificationRequestV23
     SentNotificationV21:
       description: Le informazioni riguardanti una richiesta di notifica accettata
       allOf:
@@ -1692,6 +1816,9 @@ components:
             documentsAvailable:
               type: boolean
               description: Indica se i documenti notificati sono ancora disponibili.
+    SentNotificationV23:
+      $ref: >-
+        ./schemas-pn-notification-older-version.yaml#/components/schemas/SentNotificationV23
     NewNotificationRequestStatusResponse:
       allOf:
         - $ref: '#/components/schemas/NewNotificationRequest'
@@ -1731,6 +1858,42 @@ components:
     NewNotificationRequestStatusResponseV21:
       allOf:
         - $ref: '#/components/schemas/NewNotificationRequestV21'
+        - type: object
+          required:
+            - notificationRequestId
+            - notificationRequestStatus
+          properties:
+            notificationRequestId:
+              description: >-
+                identificativo univoco di una richiesta di invio notifica, non è
+                lo IUN
+              type: string
+            notificationRequestStatus:
+              description: >-
+                - __WAITING__: in attesa di essere valutata - __ACCEPTED__:
+                richiesta di notifica accettata, lo IUN è valorizzato -
+                __REFUSED__: richiesta di notifica rifiutata, è valorizzato il
+                campo _errors_
+              type: string
+            retryAfter:
+              type: integer
+              format: int32
+              description: >-
+                Numero di secondi da attendere prima di effettuare una nuova
+                richiesta per  la stessa entità; valorizzato quando lo status è
+                __WAITING__.
+            iun:
+              $ref: ./schemas-pn-notification.yaml#/components/schemas/IUN
+            errors:
+              description: >-
+                Elenco degli errori che hanno causato il rifiuto della richiesta
+                di notifica
+              type: array
+              items:
+                $ref: '#/components/schemas/ProblemError'
+    NewNotificationRequestStatusResponseV23:
+      allOf:
+        - $ref: '#/components/schemas/NewNotificationRequestV23'
         - type: object
           required:
             - notificationRequestId
@@ -1838,8 +2001,7 @@ components:
         Le informazioni riguardanti una notifica (richiesta di notifica
         accettata) e il  processo di inoltro della notifica verso il cittadino.
       allOf:
-        - $ref: >-
-            ./schemas-pn-notification.yaml#/components/schemas/SentNotificationV23
+        - $ref: '#/components/schemas/SentNotificationV23'
         - type: object
           required:
             - notificationStatus
@@ -1857,6 +2019,29 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/TimelineElementV23'
+    FullSentNotificationV24:
+      description: >-
+        Le informazioni riguardanti una notifica (richiesta di notifica
+        accettata) e il  processo di inoltro della notifica verso il cittadino.
+      allOf:
+        - $ref: '#/components/schemas/SentNotificationV23'
+        - type: object
+          required:
+            - notificationStatus
+            - notificationStatusHistory
+            - timeline
+          properties:
+            notificationStatus:
+              $ref: '#/components/schemas/NotificationStatus'
+            notificationStatusHistory:
+              $ref: '#/components/schemas/NotificationStatusHistory'
+            timeline:
+              description: >-
+                elenco dettagliato di tutto ciò che è accaduto durrante il
+                processo di notifica
+              type: array
+              items:
+                $ref: '#/components/schemas/TimelineElementV24'
     PaFeeV21:
       type: integer
       description: >-
@@ -1945,6 +2130,8 @@ components:
       $ref: ./remote-refs.yaml#/components/schemas/TimelineElementV20
     TimelineElementV23:
       $ref: ./remote-refs.yaml#/components/schemas/TimelineElementV23
+    TimelineElementV24:
+      $ref: ./remote-refs.yaml#/components/schemas/TimelineElementV24
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
