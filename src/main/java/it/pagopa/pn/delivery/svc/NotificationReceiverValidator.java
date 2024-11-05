@@ -259,10 +259,13 @@ public class NotificationReceiverValidator {
         for (NotificationRecipientV23 recipient : internalNotification.getRecipients()) {
 
             Pair<String, String> denomination = Pair.of("denomination", recipient.getDenomination());
+            Pair<String, String> at = Pair.of("at", recipient.getPhysicalAddress().getAt());
+
+            List<Pair<String, String>> fieldsToCheck = List.of(denomination, at);
 
             int finalRecIdx = recIdx;
             if(this.pnDeliveryConfigs.getDenominationLength() != null && this.pnDeliveryConfigs.getDenominationLength() != 0){
-                Stream.of(denomination)
+                fieldsToCheck.stream()
                         .filter(field -> field.getValue() != null && field.getValue().trim().length() > this.pnDeliveryConfigs.getDenominationLength() )
                         .map(field -> new ConstraintViolationImpl<NewNotificationRequestV24>(String.format("Field %s in recipient %s exceed max length of %s chars", field.getKey(), finalRecIdx, this.pnDeliveryConfigs.getDenominationLength())))
                         .forEach(errors::add);
@@ -276,8 +279,8 @@ public class NotificationReceiverValidator {
                 String regex = validationRegex.regex;
                 String excludeCharacterRegex = validationRegex.excludedCharacterRegex;
 
-                log.info("Check denomination with validation type {}",denominationValidationType);
-                Stream.of( denomination)
+                log.info("Check denomination/at with validation type {}",denominationValidationType);
+                fieldsToCheck.stream()
                         .filter(field -> filterDenomination(field,regex,excludeCharacterRegex))
                         .map(field -> new ConstraintViolationImpl<NewNotificationRequestV24>(String.format("Field %s in recipient %s contains invalid characters.", field.getKey(), finalRecIdx)))
                         .forEach(errors::add);
