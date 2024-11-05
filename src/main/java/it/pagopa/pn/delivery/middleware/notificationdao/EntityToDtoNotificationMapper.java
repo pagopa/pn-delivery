@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -20,6 +21,7 @@ import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_COD
 
 @Component
 public class EntityToDtoNotificationMapper {
+    private static final String IT_LANGUAGE = "IT";
 
     public InternalNotification entity2Dto(NotificationEntity entity) {
         if (entity.getPhysicalCommunicationType() == null) {
@@ -58,9 +60,19 @@ public class EntityToDtoNotificationMapper {
                 .vat(entity.getVat())
                 .sourceChannelDetails(entity.getSourceChannelDetails())
                 .pagoPaIntMode(entity.getPagoPaIntMode() != null ? NewNotificationRequestV24.PagoPaIntModeEnum.fromValue(entity.getPagoPaIntMode()) : null)
-                .version(entity.getVersion());
+                .version(entity.getVersion())
+                .additionalLanguages(removeITLanguageFromDto(entity.getLanguages()));
 
         return builder.build();
+    }
+
+    private List<String> removeITLanguageFromDto(List<String> languages) {
+        if(!CollectionUtils.isEmpty(languages)) {
+            return languages.stream()
+                    .filter(language -> !IT_LANGUAGE.equalsIgnoreCase(language))
+                    .toList();
+        }
+        return Collections.emptyList();
     }
 
     private List<NotificationRecipient> entity2RecipientsDto(List<NotificationRecipientEntity> recipients) {
