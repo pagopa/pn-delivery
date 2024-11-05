@@ -27,7 +27,7 @@ public class InternalNotification {
     private List<NotificationDocument> documents;
     private NotificationFeePolicy notificationFeePolicy;
     private String cancelledIun;
-    private FullSentNotificationV24.PhysicalCommunicationTypeEnum physicalCommunicationType;
+    private FullSentNotificationV25.PhysicalCommunicationTypeEnum physicalCommunicationType;
     private String senderDenomination;
     private String senderTaxId;
     private String group;
@@ -43,12 +43,13 @@ public class InternalNotification {
     private Boolean documentsAvailable;
     private NotificationStatus notificationStatus;
     private List<NotificationStatusHistoryElement> notificationStatusHistory;
-    private List<TimelineElementV24> timeline;
+    private List<TimelineElementV25> timeline;
     private List<String> recipientIds;
     private String sourceChannel;
     private String sourceChannelDetails;
-    private NewNotificationRequestV23.PagoPaIntModeEnum pagoPaIntMode;
+    private NewNotificationRequestV24.PagoPaIntModeEnum pagoPaIntMode;
     private String version;
+    private List<String> additionalLanguages;
 
     public InternalNotification idempotenceToken(String idempotenceToken) {
         this.idempotenceToken = idempotenceToken;
@@ -170,16 +171,16 @@ public class InternalNotification {
         this.cancelledIun = cancelledIun;
     }
 
-    public InternalNotification physicalCommunicationType(FullSentNotificationV24.PhysicalCommunicationTypeEnum physicalCommunicationType) {
+    public InternalNotification physicalCommunicationType(FullSentNotificationV25.PhysicalCommunicationTypeEnum physicalCommunicationType) {
         this.physicalCommunicationType = physicalCommunicationType;
         return this;
     }
 
-    public FullSentNotificationV24.PhysicalCommunicationTypeEnum getPhysicalCommunicationType() {
+    public FullSentNotificationV25.PhysicalCommunicationTypeEnum getPhysicalCommunicationType() {
         return physicalCommunicationType;
     }
 
-    public void setPhysicalCommunicationType(FullSentNotificationV24.PhysicalCommunicationTypeEnum physicalCommunicationType) {
+    public void setPhysicalCommunicationType(FullSentNotificationV25.PhysicalCommunicationTypeEnum physicalCommunicationType) {
         this.physicalCommunicationType = physicalCommunicationType;
     }
 
@@ -382,12 +383,12 @@ public class InternalNotification {
         this.notificationStatusHistory = notificationStatusHistory;
     }
 
-    public InternalNotification timeline(List<TimelineElementV24> timeline) {
+    public InternalNotification timeline(List<TimelineElementV25> timeline) {
         this.timeline = timeline;
         return this;
     }
 
-    public InternalNotification addTimelineItem(TimelineElementV24 timelineItem) {
+    public InternalNotification addTimelineItem(TimelineElementV25 timelineItem) {
         if (this.timeline == null) {
             this.timeline = new ArrayList<>();
         }
@@ -395,11 +396,11 @@ public class InternalNotification {
         return this;
     }
 
-    public List<TimelineElementV24> getTimeline() {
+    public List<TimelineElementV25> getTimeline() {
         return timeline;
     }
 
-    public void setTimeline(List<TimelineElementV24> timeline) {
+    public void setTimeline(List<TimelineElementV25> timeline) {
         this.timeline = timeline;
     }
 
@@ -432,5 +433,7 @@ public class InternalNotification {
     public String getVersion() { return version; }
 
     public void setVersion(String version) { this.version = version; }
+
+
 
 }

@@ -136,8 +136,10 @@ describe("eventHandler tests", function () {
         }
         
         const res = await handleEvent(event)
+        let resJson = JSON.parse(res.body);
        
         expect(res.statusCode).to.equal(200);
+        expect(resJson.additionalLanguages).to.be.undefined;
     });
 
     it("should return 200 for v2.1", async () => {
@@ -173,6 +175,43 @@ describe("eventHandler tests", function () {
         expect(res.statusCode).to.equal(200);
         expect(resJson.paFee).to.be.equal(100);
         expect(resJson.vat).to.be.equal(undefined);
+        expect(resJson.additionalLanguages).to.be.undefined;
+    });
+
+    it("should return 200 for v2.4", async () => {
+        const notificationRequestStatusJSON = fs.readFileSync("./src/test/notificationRequestStatusV23.json");
+        let notificationRequestStatusV24 = JSON.parse(notificationRequestStatusJSON);
+
+        process.env = Object.assign(process.env, {
+            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery/v2.4/",
+        });
+        
+        let url = `${process.env.PN_DELIVERY_URL}/requests?`;
+        const params = new URLSearchParams({
+            notificationRequestId: 'validNotificationRequestId'
+        });
+
+        mock.onGet(url, { params: params }).reply(200, notificationRequestStatusV24, { "Content-Type": "application/json" });
+
+        const event = {
+            path: '/delivery/v2.4/requests',
+            httpMethod: "GET",
+            headers: {},
+            requestContext: {
+                authorizer: {},
+            },
+            queryStringParameters: {
+                notificationRequestId: 'validNotificationRequestId'
+            }
+        }
+        
+        const res = await handleEvent(event)
+        let resJson = JSON.parse(res.body);
+       
+        expect(res.statusCode).to.equal(200);
+        expect(resJson.paFee).to.be.equal(100);
+        expect(resJson.vat).to.be.equal(22);
+        expect(resJson.additionalLanguages).to.be.undefined;
     });
 
     it("should return 200 with paProtocolNumber and idempotenceToken", async () => {

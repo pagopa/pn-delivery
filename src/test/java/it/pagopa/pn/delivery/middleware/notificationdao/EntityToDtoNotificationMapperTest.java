@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV24;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV25;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -10,6 +10,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -48,10 +50,33 @@ class EntityToDtoNotificationMapperTest {
         Assertions.assertNotNull(internalNotification.getRecipients().get(1).getPayments().get(0).getPagoPa());
         Assertions.assertNull(internalNotification.getRecipients().get(0).getPayments().get(0).getPagoPa().getAttachment());
         Assertions.assertNotNull(internalNotification.getRecipients().get(1).getPayments().get(0).getPagoPa().getAttachment());
+        Assertions.assertEquals(List.of("FR"), internalNotification.getAdditionalLanguages());
+        assertEquals( VAT, internalNotification.getVat() );
+    }
+
+    @Test
+    void entity2DtoSuccessWithoutAdditionalLang() {
+        // Given
+        NotificationEntity notificationEntity = newNotificationEntity();
+        notificationEntity.setLanguages(List.of("IT"));
+
+        // When
+        InternalNotification internalNotification = mapper.entity2Dto(notificationEntity);
+
+        // Then
+        Assertions.assertNotNull(internalNotification);
+        Assertions.assertEquals("noticeCode", internalNotification.getRecipients().get(0).getPayments().get(0).getPagoPa().getNoticeCode());
+        Assertions.assertNotNull(internalNotification.getRecipients().get(0).getPayments().get(0).getPagoPa());
+        Assertions.assertNotNull(internalNotification.getRecipients().get(1).getPayments().get(0).getPagoPa());
+        Assertions.assertNull(internalNotification.getRecipients().get(0).getPayments().get(0).getPagoPa().getAttachment());
+        Assertions.assertNotNull(internalNotification.getRecipients().get(1).getPayments().get(0).getPagoPa().getAttachment());
+        Assertions.assertEquals(0, internalNotification.getAdditionalLanguages().size());
         assertEquals( VAT, internalNotification.getVat() );
     }
 
     private NotificationEntity newNotificationEntity() {
+        List<String> additionalLangs = new ArrayList<>(Arrays.asList("FR", "IT"));
+
         F24PaymentEntity f24PaymentEntity = new F24PaymentEntity();
         f24PaymentEntity.setTitle("title");
         f24PaymentEntity.setApplyCost(false);
@@ -153,7 +178,7 @@ class EntityToDtoNotificationMapperTest {
                 .idempotenceToken("idempotenceToken")
                 .paNotificationId("protocol_01")
                 .subject("Subject 01")
-                .physicalCommunicationType(FullSentNotificationV24.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
+                .physicalCommunicationType(FullSentNotificationV25.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
                 .cancelledByIun("IUN_05")
                 .cancelledIun("IUN_00")
                 .senderPaId("pa_02")
@@ -163,6 +188,7 @@ class EntityToDtoNotificationMapperTest {
                 .recipients(List.of(notificationRecipientEntity, notificationRecipientEntity1))
                 .version("1")
                 .vat(VAT)
+                .languages(additionalLangs)
                 .build();
     }
 
