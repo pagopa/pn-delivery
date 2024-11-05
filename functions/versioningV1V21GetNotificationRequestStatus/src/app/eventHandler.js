@@ -93,10 +93,10 @@ exports.handleEvent = async (event) => {
         let finalVersionObject = response.data;
         switch(version) {
             case 10:
-                finalVersionObject = transformFromV21ToV1(transformFromV23ToV21(transformFromV25ToV24(response.data)));
+                finalVersionObject = transformFromV21ToV1(transformFromV23ToV21(transformFromV24ToV23(response.data)));
                 break;
             case 21:
-                finalVersionObject = transformFromV23ToV21(transformFromV25ToV24(response.data));
+                finalVersionObject = transformFromV23ToV21(transformFromV24ToV23(response.data));
                 break;
             case 23:
                 finalVersionObject = transformFromV24ToV23(response.data);
