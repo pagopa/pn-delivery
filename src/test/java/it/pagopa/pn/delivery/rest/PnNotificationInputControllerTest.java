@@ -333,14 +333,14 @@ class PnNotificationInputControllerTest {
 	@Test
 	void postFailureWithTaxonomyCode() {
 		// Given
-		NewNotificationRequestV23 request = newNotificationRequest();
+		NewNotificationRequestV24 request = newNotificationRequest();
 
 		PnInvalidInputException exception = new PnInvalidInputException(ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_TAXONOMYCODE, "Invalid taxonomyCode exception");
 		// When
 		Mockito.when(taxonomyCodeDaoDynamo.getTaxonomyCodeByKeyAndPaId("TEST_FAIL", PA_ID_DEFAULT)).thenThrow(exception);
 		Mockito.when( deliveryService.receiveNotification(
 				Mockito.anyString(),
-				Mockito.any( NewNotificationRequestV23.class ),
+				Mockito.any( NewNotificationRequestV24.class ),
 				Mockito.anyString(),
 				Mockito.isNull(),
 				Mockito.isNull(),
@@ -350,10 +350,10 @@ class PnNotificationInputControllerTest {
 
 		//Then
 		webTestClient.post()
-				.uri("/delivery/v2.3/requests")
+				.uri("/delivery/v2.4/requests")
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
-				.body(Mono.just(request), NewNotificationRequestV23.class)
+				.body(Mono.just(request), NewNotificationRequestV24.class)
 				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PA"  )
