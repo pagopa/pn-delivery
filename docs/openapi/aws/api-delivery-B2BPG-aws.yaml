@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: q/NKk0IHBdMYt91BQM4Qh41l6M27RXoNKCShYgq6WxU=
+  version: Gm7NecpSLVqvZIiAtgZIe31p9e/N21jEe1Y+L4QnX1g=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -15,8 +15,8 @@ paths:
     get:
       summary: Ricerca notifiche inviate
       description: >-
-        Servizio di consultazione dello stato di invio delle notifiche
-        individuate dai parametri  di ricerca specificati     
+        servizio di consultazione dello stato di invio delle notifiche
+        individuate dai parametri  di ricerca specificati
       tags:
         - RecipientReadB2B
       operationId: searchReceivedNotification
@@ -86,11 +86,7 @@ paths:
   /notifications/received/delegated:
     get:
       summary: Ricerca notifiche delegate ricevute
-      description: >-
-        Servizio di consultazione delle notifiche delegate  (per cui si è
-        ricevuta una delega).  Si basa sul recipientId e sul gruppo passato come
-        parametro. Il recipientId si può  ricavare dai dati della delega. Il
-        gruppo dalla chiamata /ext-registry/pg/v1/user-groups      
+      description: Servizio di consultazione delle notifiche delegate
       tags:
         - RecipientReadB2B
       operationId: searchReceivedDelegatedNotification
@@ -157,21 +153,15 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
-  /v2.3/notifications/received/{iun}:
+  /v2.4/notifications/received/{iun}:
     get:
-      summary: Dettaglio di una notifica ricevuta.
+      summary: Accesso dettaglio di una notifica ricevute
       description: >-
         Utilizzato da Persone Fisiche e Persone Giuridiche per accedere ai
-        dettagli delle  notifiche ricevute. Fornisce:
-                  - tutti gli elementi di timeline con i dettagli di ogni elemento e le attestazioni associate
-                  - lo stato di una notifica
-                  - la storia dello stato della notifica (raggruppando gli elementi di timeline per stato)
-                  - i documenti della notifica (dentro la struttura SentNotificationV23)
-                  - i dettagli relativi ai destinatari della notifica (dentro la struttura SentNotificationV23)
-                  - eventuali documenti di pagamento (campo payments reperibile nel dettaglio del destinatario)
+        dettagli delle  notifiche ricevute.
       tags:
         - RecipientReadB2B
-      operationId: getReceivedNotificationV23
+      operationId: getReceivedNotificationV24
       x-api-permissions:
         - REFINEMENT
       parameters:
@@ -183,7 +173,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FullReceivedNotificationV23'
+                $ref: '#/components/schemas/FullReceivedNotificationV24'
         '400':
           description: Bad request
           content:
@@ -202,7 +192,7 @@ paths:
         - pn-auth-fleet_b2bAuthorizer_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.3/notifications/received/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.4/notifications/received/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -220,10 +210,10 @@ paths:
         timeoutInMillis: 29000
         type: http_proxy
     options:
-      operationId: Options for /v2.3/notifications/received/{iun} API CORS
+      operationId: Options for /v2.4/notifications/received/{iun} API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.3/notifications/received/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.4/notifications/received/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -235,11 +225,6 @@ paths:
   /notifications/received/{iun}/attachments/documents/{docIdx}:
     get:
       summary: Download documento notificato
-      description: >-
-        Permette il download di un documento associato alla notifica tramite il
-        suo identificativo. Il parametro pathDocumentIdx è ottenuto dal
-        dettaglio della notifica (la lista dei documenti  dentro la struttura
-        SentNotificationV23 contiene l'identificativo)
       tags:
         - RecipientReadB2B
       operationId: getReceivedNotificationDocument
@@ -383,6 +368,81 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
+  /v2.3/notifications/received/{iun}:
+    get:
+      summary: Dettaglio di una notifica ricevuta.
+      description: >-
+        Utilizzato da Persone Fisiche e Persone Giuridiche per accedere ai
+        dettagli delle  notifiche ricevute. Fornisce:
+                  - tutti gli elementi di timeline con i dettagli di ogni elemento e le attestazioni associate
+                  - lo stato di una notifica
+                  - la storia dello stato della notifica (raggruppando gli elementi di timeline per stato)
+                  - i documenti della notifica (dentro la struttura SentNotificationV23)
+                  - i dettagli relativi ai destinatari della notifica (dentro la struttura SentNotificationV23)
+                  - eventuali documenti di pagamento (campo payments reperibile nel dettaglio del destinatario)
+      tags:
+        - RecipientReadB2B
+      operationId: getReceivedNotificationV23
+      x-api-permissions:
+        - REFINEMENT
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/notificationSearchMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FullReceivedNotificationV23'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not Found - PN_DELIVERY_USER_ID_NOT_RECIPIENT_OR_DELEGATOR
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_b2bAuthorizer_openapi: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.3/notifications/received/{iun}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: context.authorizer.sourceChannel
+          integration.request.path.iun: method.request.path.iun
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+    options:
+      operationId: Options for /v2.3/notifications/received/{iun} API CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.3/notifications/received/{iun}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.path.iun: method.request.path.iun
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
 components:
   parameters:
     pathDocumentIdx:
@@ -428,9 +488,7 @@ components:
       name: startDate
       in: query
       required: true
-      description: >-
-        data/ora di inizio dell'intervallo entro cui eseguire la ricerca (es
-        2017-07-21T17:32:28Z)
+      description: data/ora di inizio dell'intervallo entro cui eseguire la ricerca
       schema:
         type: string
         format: date-time
@@ -438,9 +496,7 @@ components:
       name: endDate
       in: query
       required: true
-      description: >-
-        data/ora di fine dell'intervallo entro cui eseguire la ricerca  (es
-        2017-07-21T17:32:28Z)
+      description: data/ora di fine dell'intervallo entro cui eseguire la ricerca
       schema:
         type: string
         format: date-time
@@ -526,13 +582,13 @@ components:
         maxLength: 25
         pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
   schemas:
-    FullReceivedNotificationV23:
+    FullReceivedNotificationV24:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata e il
         processo di  inoltro della notifica verso i destinatari (Persone Fisiche
         o Giuridiche).
       allOf:
-        - $ref: '#/components/schemas/SentNotificationV23'
+        - $ref: '#/components/schemas/SentNotificationV24'
         - type: object
           required:
             - notificationStatus
@@ -652,68 +708,6 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/NotificationStatusHistoryElement'
-    LegalFactDownloadMetadataResponse:
-      title: Url e metadati per il download di un allegato di una notifica
-      description: |-
-        I due campi più importanti sono __url__ e __retryAfter__. <br/>
-          - __url__ è presente se il file è pronto per essere scaricato ed indica l'url a cui fare GET.
-          - __retryAfter__ indica che il file non è stato archiviato e bisognerà aspettare un numero di
-            secondi non inferiore a quanto indicato dal campo _retryAfter_. <br/>
-      type: object
-      required:
-        - filename
-        - contentLength
-      properties:
-        filename:
-          type: string
-        contentLength:
-          type: number
-          format: decimal32
-          example: 54092
-          description: dimensione, in byte, del contenuto.
-        url:
-          type: string
-          description: >-
-            URL preautorizzato a cui effettuare una richiesta GET per ottenere
-            il  contenuto del documento. Presente solo se il documento è pronto
-            per il download.
-        retryAfter:
-          type: number
-          format: decimal32
-          description: >-
-            Stima del numero di secondi da aspettare prima che il contenuto del 
-            documento sia scaricabile.
-    DocumentDownloadMetadataResponse:
-      title: Url e metadati per il download di un documento correlato alla notifica
-      description: |-
-        I due campi più importanti sono __url__ e __retryAfter__. <br/>
-          - __url__ è presente se il file è pronto per essere scaricato ed indica l'url a cui fare GET.
-          - __retryAfter__ indica che il file non è stato archiviato e bisognerà aspettare un numero di
-            secondi non inferiore a quanto indicato dal campo _retryAfter_. <br/>
-      type: object
-      required:
-        - filename
-        - contentLength
-      properties:
-        filename:
-          type: string
-        contentLength:
-          type: number
-          format: decimal32
-          example: 54092
-          description: dmensione, in byte, del contenuto.
-        url:
-          type: string
-          description: >-
-            URL preautorizzato a cui effettuare una richiesta GET per ottenere
-            il  contenuto del documento. Presente solo se il documento è pronto
-            per il download.
-        retryAfter:
-          type: number
-          format: decimal32
-          description: >-
-            Stima del numero di secondi da aspettare prima che il contenuto del 
-            documento sia scaricabile.
     RequestCheckAarMandateDto:
       description: Le informazioni fornite per verificare l'AAR-QR-CodeValue
       type: object
@@ -778,7 +772,7 @@ components:
           format: date-time
         group:
           type: string
-          description: Gruppo di utenti che può visualizzare la notifica
+          description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
           pattern: ^[ -~]*$
           maxLength: 1024
         mandateId:
@@ -877,7 +871,7 @@ components:
           type: string
           description: Campo "presso" dell'indirizzo
           pattern: ^.*$
-          maxLength: 256
+          maxLength: 44
         address:
           type: string
           description: Indirizzo del domicilio fisico
@@ -1154,7 +1148,7 @@ components:
         <br/> Esempio vat al 22% -> 22 <br/>
       minimum: 0
       maximum: 100
-    NewNotificationRequestV23:
+    NewNotificationRequestV24:
       description: I campi utilizzati per la creazione di una nuova Notifica.
       type: object
       required:
@@ -1259,10 +1253,25 @@ components:
             - NONE
             - SYNC
             - ASYNC
-    SentNotificationV23:
+        additionalLanguages:
+          description: >-
+            In questo campo è possibile definire la lingua addizionale (oltre a
+            quella italiana) da utilizzare per la generazione documenti, atti
+            opponibili a terzi ecc.<br/> Le lingue accettate e dunque i valori
+            possibili degli item dell'array sono: <br/> - DE <br/> - SI <br/> -
+            FR <br/> DE (tedesco), SI (sloveno), FR (francese) Attualmente è
+            possibile indicare un solo item e dunque una sola lingua aggiuntiva.
+            Se non vengono indicate lingue aggiuntive la lingua utilizzata per
+            generare <br/> documenti, atti opponibili a terzi ecc. sarà quella
+            italiana.
+          type: array
+          items:
+            type: string
+            maxItems: 1
+    SentNotificationV24:
       description: Le informazioni riguardanti una richiesta di notifica accettata
       allOf:
-        - $ref: '#/components/schemas/NewNotificationRequestV23'
+        - $ref: '#/components/schemas/NewNotificationRequestV24'
         - type: object
           required:
             - iun
@@ -1272,8 +1281,7 @@ components:
               type: string
               description: >-
                 Identificativo (non IPA) della PA mittente che ha eseguito
-                l'onboarding su SelfCare. La risoluzione di questo è ottenibile
-                da /ext-registry/pa/v1/activated-on-pn
+                l'onboarding su SelfCare.
               pattern: ^.*$
               maxLength: 256
             iun:
@@ -2575,6 +2583,163 @@ components:
           description: >-
             Stima del numero di secondi da aspettare prima che il contenuto del 
             documento sia disponibile per il download.
+    FullReceivedNotificationV23:
+      description: >-
+        Le informazioni riguardanti una richiesta di notifica accettata e il
+        processo di  inoltro della notifica verso i destinatari (Persone Fisiche
+        o Giuridiche).
+      allOf:
+        - $ref: '#/components/schemas/SentNotificationV23'
+        - type: object
+          required:
+            - notificationStatus
+            - notificationStatusHistory
+            - timeline
+          properties:
+            notificationStatus:
+              $ref: '#/components/schemas/NotificationStatus'
+            notificationStatusHistory:
+              $ref: '#/components/schemas/NotificationStatusHistory'
+            timeline:
+              description: >-
+                elenco dettagliato di tutto ciò che è accaduto durante il
+                processo di notifica
+              type: array
+              items:
+                $ref: '#/components/schemas/TimelineElementV23'
+    NewNotificationRequestV23:
+      description: I campi utilizzati per la creazione di una nuova Notifica.
+      type: object
+      required:
+        - paProtocolNumber
+        - subject
+        - recipients
+        - documents
+        - physicalCommunicationType
+        - notificationFeePolicy
+        - senderDenomination
+        - senderTaxId
+        - taxonomyCode
+      properties:
+        idempotenceToken:
+          description: >-
+            Identificativo utilizzabile dal chiamante per disambiguare
+            differenti  "richieste di notificazione" effettuate con lo stesso
+            numero di protocollo  (campo _paProtocolNumber_). Questo può essere
+            necessario in caso di  "richiesta di notifica" rifiutata per errori
+            nei codici di verifica degli allegati.
+          type: string
+          pattern: ^[ -~]*$
+          maxLength: 256
+        paProtocolNumber:
+          description: Numero di protocollo che la PA mittente assegna alla notifica stessa
+          type: string
+          pattern: ^.*$
+          maxLength: 256
+        subject:
+          type: string
+          description: titolo della notifica
+          maxLength: 134
+          pattern: ^.*$
+        abstract:
+          type: string
+          description: descrizione sintetica della notifica
+          pattern: ^.*$
+          maxLength: 1024
+        recipients:
+          type: array
+          description: Informazioni sui destinatari
+          items:
+            $ref: '#/components/schemas/NotificationRecipientV23'
+          minItems: 1
+        documents:
+          type: array
+          description: Documenti notificati
+          items:
+            $ref: '#/components/schemas/NotificationDocument'
+          minItems: 1
+        notificationFeePolicy:
+          $ref: '#/components/schemas/NotificationFeePolicy'
+        cancelledIun:
+          $ref: '#/components/schemas/IUN'
+        physicalCommunicationType:
+          type: string
+          description: Tipologia comunicazione fisica
+          enum:
+            - AR_REGISTERED_LETTER
+            - REGISTERED_LETTER_890
+        senderDenomination:
+          $ref: '#/components/schemas/Denomination'
+        senderTaxId:
+          $ref: '#/components/schemas/paTaxId'
+        group:
+          type: string
+          description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
+          pattern: ^[ -~]*$
+          maxLength: 1024
+        amount:
+          type: number
+          description: Importo della notifica in eurocent
+        paymentExpirationDate:
+          type: string
+          minLength: 10
+          maxLength: 10
+          pattern: ^([0-9]{4})-(1[0-2]|0[1-9])-(3[01]|[12][0-9]|0[1-9])$
+          description: >-
+            Data di scadenza del pagamento nel formato YYYY-MM-DD riferito
+            all'Italia
+        taxonomyCode:
+          type: string
+          minLength: 7
+          maxLength: 7
+          pattern: ^([0-9]{6}[A-Z]{1})$
+          description: >-
+            Codice tassonomico della notifica basato sulla definizione presente
+            nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5
+            PIATTAFORMA NOTIFICHE
+            DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)
+        paFee:
+          $ref: '#/components/schemas/PaFeeV23'
+        vat:
+          $ref: '#/components/schemas/VatV23'
+        pagoPaIntMode:
+          type: string
+          description: >-
+            Modalitá di integrazione pagoPA per l'attualizazione del costo della
+            notifica. <br/> - _NONE_: nessuna attualizzazione. <br/> - _SYNC_:
+            modalitá sincrona. <br/> - _ASYNC_: modalitá asincrona. <br/>
+          enum:
+            - NONE
+            - SYNC
+            - ASYNC
+    SentNotificationV23:
+      description: Le informazioni riguardanti una richiesta di notifica accettata
+      allOf:
+        - $ref: '#/components/schemas/NewNotificationRequestV23'
+        - type: object
+          required:
+            - iun
+            - sentAt
+          properties:
+            senderPaId:
+              type: string
+              description: >-
+                Identificativo (non IPA) della PA mittente che ha eseguito
+                l'onboarding su SelfCare. La risoluzione di questo è ottenibile
+                da /ext-registry/pa/v1/activated-on-pn
+              pattern: ^.*$
+              maxLength: 256
+            iun:
+              $ref: '#/components/schemas/IUN'
+            sentAt:
+              type: string
+              description: Momento di ricezione della notifica da parte di PN
+              format: date-time
+            cancelledByIun:
+              $ref: '#/components/schemas/IUN'
+            documentsAvailable:
+              type: boolean
+              description: Indica se i documenti notificati sono ancora disponibili.
   responses:
     UnauthorizedError:
       description: Access token is missing or invalid

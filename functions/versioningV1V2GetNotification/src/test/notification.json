@@ -8,6 +8,7 @@
     "documentsAvailable": true,
     "notificationStatus": "EFFECTIVE_DATE",
     "paFee": 100,
+    "additionalLanguages": ["DE"],
     "vat": 22,
     "recipients": [
         {
@@ -461,6 +462,21 @@
             "timestamp": "2023-09-15T10:59:34.566420178Z",
             "legalFactsIds": [],
             "category": "NOTIFICATION_CANCELLATION_REQUEST",
+            "details": {
+                "nextSourceAttemptsMade": 0,
+                "cancellationRequestId": "f4fcc954-8d21-4cf7-ae4d-347cc2f64ac0"
+            }
+        },
+        {
+            "elementId": "NOTIFICATION_CANCELLED.IUN_EDXD-TUPX-LNWH-202309-Z-1",
+            "timestamp": "2023-09-15T10:59:34.566420178Z",
+            "legalFactsIds": [
+                {
+                    "key": "safestorage://PN_EXTERNAL_LEGAL_FACTS-c562b3e8d01048f2a8b051ec194b5a36.pdf",
+                    "category": "NOTIFICATION_CANCELLED"
+                }
+            ],
+            "category": "NOTIFICATION_CANCELLED",
             "details": {
                 "nextSourceAttemptsMade": 0,
                 "cancellationRequestId": "f4fcc954-8d21-4cf7-ae4d-347cc2f64ac0"
