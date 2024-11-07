@@ -41,6 +41,8 @@ exports.validateNewNotification = function(newNotificationRequest, requestVersio
       return validateNewNotificationV1(newNotificationRequest);
     case 21:
       return validateNewNotificationV21(newNotificationRequest);
+    default:
+      return newNotificationRequest;
   }
 }
 
