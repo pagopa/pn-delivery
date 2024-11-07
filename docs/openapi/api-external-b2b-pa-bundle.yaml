@@ -5409,25 +5409,19 @@ components:
         errorCode:
           type: string
           maxLength: 128
-          description: >-
-            Errori di rifiuto della notifica. - FILE_NOTFOUND - I riferimenti
-            dei documenti nella notifica non sono corretti o i documenti non
-            sono stati caricati con successo. - FILE_GONE - Allegato non
-            disponibile: superati i termini di conservazione. - FILE_SHA_ERROR -
-            Il digest calcolato con algoritmo sha256 dei documenti inseriti non
-            è corrispondete a quello del file referenziato. -
-            FILE_PDF_INVALID_ERROR - Il file inserito non è in formato pdf. -
-            FILE_PDF_TOOBIG_ERROR - Il file pdf ha una dimensione eccedente il
-            limite di xxxMB. - F24_METADATA_NOT_VALID - I dati contenuti del
-            file dei metadati F24 non rispettano lo schema di validazione. -
-            TAXID_NOT_VALID - Codice fiscale del destinatario non corretto. -
-            RECIPIENT_ID_NOT_VALID - Destinatario non valido (utilizzato solo
-            per funzionalità in sperimentazione). - NOT_VALID_ADDRESS -
-            L'indirizzo di invio cartaceo inserito per il destinatario non ha
-            superato i controlli di correttezza. - PAYMENT_NOT_VALID - I dati
-            del pagamento non sono sono registrati sulla piattaforma GPD (solo
-            per modalità asincrona di integrazione pagoPA). -
-            SERVICE_UNAVAILABLE - Il sistema non è attualmente disponibile.
+          description: |-
+            Errori di rifiuto della notifica.
+              - FILE_NOTFOUND - I riferimenti dei documenti nella notifica non sono corretti o i documenti non sono stati caricati con successo.
+              - FILE_GONE - Allegato non disponibile: superati i termini di conservazione
+              - FILE_SHA_ERROR - Il digest calcolato con algoritmi sha256 dei documenti inseriti non è corrispondete a quello del file referenziato.
+              - FILE_PDF_INVALID_ERROR - Il file inserito non è in formato pdf.
+              - FILE_PDF_TOOBIG_ERROR - Il file pdf ha una dimensione eccedente il limite di 200MB.
+              - F24_METADATA_NOT_VALID - I dati contenuti del file dei metadati F24 non rispettano lo schema di validazione.
+              - TAXID_NOT_VALID - Codice fiscale del destinatario non corretto (non ancora implementato).
+              - RECIPIENT_ID_NOT_VALID - Destinatario non Valido (utilizzato solo per funzionalità non ancora implementate)
+              - NOT_VALID_ADDRESS - L'indirizzo di invio cartaceo inserito per il destinatario non ha superato i controlli di correttezza.
+              - PAYMENT_NOT_VALID - I dati del pagamento non sono sono registrati sulla piattaforma GPD (modalità asincrona di integrazione pagoPA)
+              - SERVICE_UNAVAILABLE - Il sistema non è attualmente disponibile.
               ...
         detail:
           type: string
