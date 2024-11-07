@@ -43,7 +43,6 @@
             ],
             "openapiFiles": [
                 "pn-delivery-b2b-pg-internal.yaml",
-                "pn-delivery-b2b-pg-older-version.yaml",
                 { "url": "https://raw.githubusercontent.com/pagopa/pn-delivery-push/a26f48c339488b8847454b4fbac98ec8f148043b/docs/openapi/api-external-pn-delivery-push-b2b-pg-bundle.yaml", "mergeDescription": false }
             ],
             "servicePath": "delivery",
