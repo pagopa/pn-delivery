@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.utils;
 
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementV25;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementV25;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
