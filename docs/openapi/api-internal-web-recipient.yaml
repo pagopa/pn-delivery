@@ -387,8 +387,6 @@ components:
     
     TimelineElementV25:
       $ref: './remote-refs.yaml#/components/schemas/TimelineElementV25'
-    TimelineElementV23:
-      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV23'
     NotificationStatus:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:

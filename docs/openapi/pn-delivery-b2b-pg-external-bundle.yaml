@@ -439,7 +439,7 @@ components:
                 processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV23'
+                $ref: '#/components/schemas/TimelineElementV25'
     Problem:
       properties:
         type:
@@ -486,7 +486,7 @@ components:
       required:
         - status
         - errors
-    TimelineElementV23:
+    TimelineElementV25:
       type: object
       additionalProperties: false
       properties:
@@ -498,21 +498,38 @@ components:
             notifica definisce in maniera univoca l'elemento di timeline
         timestamp:
           type: string
+          deprecated: true
           description: >-
-            Momento in cui avviene l'evento descritto in questo elemento di
+            Istante in cui avviene l'evento descritto in questo elemento di
+            timeline (deprecato, fare riferimento al campo eventTimestamp)
+          format: date-time
+        ingestionTimestamp:
+          type: string
+          description: >-
+            Istante in cui l'evento descritto in questo elemento di timeline è
+            gestito da SEND
+          format: date-time
+        eventTimestamp:
+          type: string
+          description: >-
+            Istante in cui avviene l'evento descritto in questo elemento di
             timeline
+          format: date-time
+        notificationSentAt:
+          type: string
+          description: Momento di ricezione della richiesta di notifica da parte di SEND
           format: date-time
         legalFactsIds:
           type: array
           items:
-            $ref: '#/components/schemas/LegalFactsId'
+            $ref: '#/components/schemas/LegalFactsIdV20'
           description: >-
             Chiavi dei documenti che provano l'effettivo accadimento dell'evento
             descritto in timeline. Questo elemento
         category:
           $ref: '#/components/schemas/TimelineElementCategoryV23'
         details:
-          $ref: '#/components/schemas/TimelineElementDetailsV23'
+          $ref: '#/components/schemas/TimelineElementDetailsV25'
     NotificationStatus:
       type: string
       description: |
@@ -1154,22 +1171,20 @@ components:
           description: Eventi avvenuti nello stato
           items:
             $ref: '#/components/schemas/TimelineElementId'
-    LegalFactCategory:
+    LegalFactCategoryV20:
       title: Tipi di atti opponibili a terzi
       description: >-
         Tipi di atti opponibili a terzi che Piattaforma Notifiche mette a
-        disposizione dei suoi utenti.
-          - _SENDER_ACK_: atto di "presa in carico" di una notifica
-          - _DIGITAL_DELIVERY_: ...
+        disposizione dei suoi utenti. <br/>
+          - SENDER_ACK  <br/>
+          - DIGITAL_DELIVERY  <br/>
+          - ANALOG_DELIVERY  <br/>
+          - RECIPIENT_ACCESS <br/>
+          - PEC_RECEIPT  <br/>
+          - ANALOG_FAILURE_DELIVERY  <br/>
+          - NOTIFICATION_CANCELLED  <br/>
       type: string
-      enum:
-        - SENDER_ACK
-        - DIGITAL_DELIVERY
-        - ANALOG_DELIVERY
-        - RECIPIENT_ACCESS
-        - PEC_RECEIPT
-        - ANALOG_FAILURE_DELIVERY
-    LegalFactsId:
+    LegalFactsIdV20:
       description: Chiavi dei documenti generati durante il processo di consegna cartacea
       type: object
       required:
@@ -1184,7 +1199,7 @@ components:
           pattern: ^(safestorage:\/\/)?[A-Za-z0-9._-]+$
           maxLength: 512
         category:
-          $ref: '#/components/schemas/LegalFactCategory'
+          $ref: '#/components/schemas/LegalFactCategoryV20'
     TimelineElementCategoryV23:
       type: string
       description: |
@@ -1677,7 +1692,7 @@ components:
           type: string
           description: Data evento refinement
           format: date-time
-    NotificationRefusedErrorV23:
+    NotificationRefusedErrorV25:
       type: object
       properties:
         errorCode:
@@ -1685,28 +1700,29 @@ components:
           maxLength: 128
           description: |-
             Errori di rifiuto della notifica.
-              - FILE_NOTFOUND
-              - FILE_SHA_ERROR
-              - TAXID_NOT_VALID
-              - SERVICE_UNAVAILABLE
-              - FILE_PDF_INVALID_ERROR
-              - FILE_PDF_TOOBIG_ERROR
-              - NOT_VALID_ADDRESS
-              - RECIPIENT_ID_NOT_VALID
-              - F24_METADATA_NOT_VALID
-              - PAYMENT_NOT_VALID
+              - FILE_NOTFOUND - I riferimenti dei documenti nella notifica non sono corretti o i documenti non sono stati caricati con successo.
+              - FILE_GONE - Allegato non disponibile: superati i termini di conservazione
+              - FILE_SHA_ERROR - Il digest calcolato con algoritmi sha256 dei documenti inseriti non è corrispondete a quello del file referenziato.
+              - FILE_PDF_INVALID_ERROR - Il file inserito non è in formato pdf.
+              - FILE_PDF_TOOBIG_ERROR - Il file pdf ha una dimensione eccedente il limite di 200MB.
+              - F24_METADATA_NOT_VALID - I dati contenuti del file dei metadati F24 non rispettano lo schema di validazione.
+              - TAXID_NOT_VALID - Codice fiscale del destinatario non corretto (non ancora implementato).
+              - RECIPIENT_ID_NOT_VALID - Destinatario non Valido (utilizzato solo per funzionalità non ancora implementate)
+              - NOT_VALID_ADDRESS - L'indirizzo di invio cartaceo inserito per il destinatario non ha superato i controlli di correttezza.
+              - PAYMENT_NOT_VALID - I dati del pagamento non sono sono registrati sulla piattaforma GPD (modalità asincrona di integrazione pagoPA)
+              - SERVICE_UNAVAILABLE - Il sistema non è attualmente disponibile.
               ...
         detail:
           type: string
           maxLength: 2048
-    RequestRefusedDetailsV23:
+    RequestRefusedDetailsV25:
       type: object
       properties:
         refusalReasons:
           type: array
           description: Motivazioni che hanno portato al rifiuto della notifica
           items:
-            $ref: '#/components/schemas/NotificationRefusedErrorV23'
+            $ref: '#/components/schemas/NotificationRefusedErrorV25'
     ScheduleAnalogWorkflowDetailsV23:
       type: object
       required:
@@ -2033,7 +2049,7 @@ components:
         date:
           type: string
           format: date-time
-    SendAnalogFeedbackDetails:
+    SendAnalogFeedbackDetailsV25:
       type: object
       required:
         - recIndex
@@ -2084,6 +2100,7 @@ components:
           description: >
             Formato: - __deliveryDetailCode__- [prodotto] - [statusCode] -
             statusDescription
+              - __CON020__- [ALL] - [PROGRESS] - Originale dell’AAR (documento nativo digitale) reso disponibile dal Consolidatore e firmato digitalmente da PagoPA
               - __CON080__- [ALL] - [PROGRESS] - Stampato ed Imbustato
               - __RECRS001C__- [RS] - [OK] - Consegnato - Fascicolo Chiuso
               - __RECRS002C__- [RS] - [KO] - Mancata consegna - Fascicolo Chiuso
@@ -2399,7 +2416,7 @@ components:
           type: string
           description: RequestId della richiesta di prepare
           maxLength: 512
-    TimelineElementDetailsV23:
+    TimelineElementDetailsV25:
       description: The raw event payload that will be different based on the event.
       oneOf:
         - $ref: '#/components/schemas/SenderAckCreationRequestDetails'
@@ -2419,7 +2436,7 @@ components:
         - $ref: '#/components/schemas/PublicRegistryCallDetails'
         - $ref: '#/components/schemas/PublicRegistryResponseDetails'
         - $ref: '#/components/schemas/RefinementDetailsV23'
-        - $ref: '#/components/schemas/RequestRefusedDetailsV23'
+        - $ref: '#/components/schemas/RequestRefusedDetailsV25'
         - $ref: '#/components/schemas/ScheduleAnalogWorkflowDetailsV23'
         - $ref: '#/components/schemas/ScheduleDigitalWorkflowDetailsV23'
         - $ref: '#/components/schemas/ScheduleRefinementDetails'
@@ -2430,7 +2447,7 @@ components:
         - $ref: '#/components/schemas/SendDigitalProgressDetailsV23'
         - $ref: '#/components/schemas/BaseAnalogDetails'
         - $ref: '#/components/schemas/SendAnalogDetails'
-        - $ref: '#/components/schemas/SendAnalogFeedbackDetails'
+        - $ref: '#/components/schemas/SendAnalogFeedbackDetailsV25'
         - $ref: '#/components/schemas/BaseRegisteredLetterDetails'
         - $ref: '#/components/schemas/SimpleRegisteredLetterDetails'
         - $ref: '#/components/schemas/AarCreationRequestDetails'
