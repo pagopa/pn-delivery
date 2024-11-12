@@ -49,7 +49,7 @@ public class InternalNotification {
     private String sourceChannelDetails;
     private NewNotificationRequestV24.PagoPaIntModeEnum pagoPaIntMode;
     private String version;
-    private List<NotificationLang> additionalLanguages;
+    private List<String> additionalLanguages;
 
     public InternalNotification idempotenceToken(String idempotenceToken) {
         this.idempotenceToken = idempotenceToken;

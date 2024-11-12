@@ -1,16 +1,15 @@
 package it.pagopa.pn.delivery.models;
 
 import lombok.*;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 
-import java.util.List;
-
-@EqualsAndHashCode
-@ToString
-@Getter
-@Setter
-@Builder(toBuilder = true)
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
+@ToString
+@Data
+@DynamoDbBean
 public class NotificationLang {
-    private List<Language> languages;
+    private String lang;
 }
