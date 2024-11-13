@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.NotificationLang;
 import it.pagopa.pn.delivery.models.internal.notification.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -47,13 +48,20 @@ public class DtoToEntityNotificationMapper {
         return builder.build();
     }
 
-    private List<String> addITLanguageToEntity(List<String> additionalLanguages) {
-        List<String> additionalLanguagesWithIT = new ArrayList<>();
+    private List<NotificationLang> addITLanguageToEntity(List<String> additionalLanguages) {
+        List<NotificationLang> additionalLanguagesWithIT = new ArrayList<>();
         if(!CollectionUtils.isEmpty(additionalLanguages)){
-            additionalLanguagesWithIT.addAll(additionalLanguages);
+            additionalLanguagesWithIT.addAll(additionalLanguages.stream()
+                    .map(lang -> NotificationLang.builder().lang(lang).build()).toList());
         }
-        additionalLanguagesWithIT.add(IT_LANGUAGE);
+        additionalLanguagesWithIT.add(createITLanguageList());
         return additionalLanguagesWithIT;
+    }
+
+    private NotificationLang createITLanguageList() {
+        return NotificationLang.builder()
+                .lang(IT_LANGUAGE)
+                .build();
     }
 
     private List<NotificationRecipientEntity> dto2RecipientsEntity(
