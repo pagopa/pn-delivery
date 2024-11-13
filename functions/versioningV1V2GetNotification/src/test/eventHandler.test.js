@@ -259,6 +259,118 @@ describe("eventHandler tests", function () {
     expect(resJson.additionalLanguages).to.be.undefined;
   });
 
+  it("statusCode 400 v2.5", async () => {
+    const notificationJSON = fs.readFileSync("./src/test/notification_deceased.json");
+    let notification = JSON.parse(notificationJSON);
+
+    process.env = Object.assign(process.env, {
+      PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
+      ENABLE_DECEASED_WORKFLOW: false,
+    });
+
+    const iunValue = "12345";
+
+    let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
+
+    mock.onGet(url).reply(200, notification, { "Content-Type": "application/json" });
+
+    const event = {
+      pathParameters: { iun: iunValue },
+      headers: {},
+      requestContext: {
+        authorizer: {},
+      },
+      resource: "v2.5/notifications/sent/{iun}",
+      path: "/delivery/v2.5/notifications/sent/MOCK_IUN",
+      httpMethod: "GET",
+    };
+    const context = {};
+
+    const response = await versioning(event, context);
+
+    expect(response.statusCode).to.equal(400);
+    expect(response.body).to.contain("Deceased workflow not enabled");
+  });
+
+  it("statusCode 200 v2.5", async () => {
+    const notificationJSON = fs.readFileSync("./src/test/notification_deceased.json");
+    let notification = JSON.parse(notificationJSON);
+
+    process.env = Object.assign(process.env, {
+      PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
+      ENABLE_DECEASED_WORKFLOW: true,
+    });
+
+    const iunValue = "12345";
+
+    let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
+
+    mock.onGet(url).reply(200, notification, { "Content-Type": "application/json" });
+
+    const event = {
+      pathParameters: { iun: iunValue },
+      headers: {},
+      requestContext: {
+        authorizer: {},
+      },
+      resource: "v2.5/notifications/sent/{iun}",
+      path: "/delivery/v2.5/notifications/sent/MOCK_IUN",
+      httpMethod: "GET",
+    };
+    const context = {};
+
+    const response = await versioning(event, context);
+
+    expect(response.statusCode).to.equal(200);
+
+    // check che NON sia presente la categoria ANALOG_WORKFLOW_RECIPIENT_DECEASED
+    let resJson = JSON.parse(response.body);
+    expect(resJson.notificationStatus).to.be.equal("DELIVERING");
+    const deceasedStatusElement = resJson.notificationStatusHistory[2];
+    expect(deceasedStatusElement).to.be.undefined;
+    expect(resJson.timeline.some((tl) => tl.elementId == "ANALOG_WORKFLOW_RECIPIENT_DECEASED.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0")).to.be.false;
+  });
+
+  it("statusCode 200 multidestinatario v2.5", async () => {
+    const notificationJSON = fs.readFileSync("./src/test/notification_viewed.json");
+    let notification = JSON.parse(notificationJSON);
+
+    process.env = Object.assign(process.env, {
+      PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
+      ENABLE_DECEASED_WORKFLOW: true,
+    });
+
+    const iunValue = "12345";
+
+    let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
+
+    mock.onGet(url).reply(200, notification, { "Content-Type": "application/json" });
+
+    const event = {
+      pathParameters: { iun: iunValue },
+      headers: {},
+      requestContext: {
+        authorizer: {},
+      },
+      resource: "v2.5/notifications/sent/{iun}",
+      path: "/delivery/v2.5/notifications/sent/MOCK_IUN",
+      httpMethod: "GET",
+    };
+    const context = {};
+
+    const response = await versioning(event, context);
+
+    expect(response.statusCode).to.equal(200);
+
+    // check che NON sia presente la categoria ANALOG_WORKFLOW_RECIPIENT_DECEASED
+    let resJson = JSON.parse(response.body);
+    expect(resJson.notificationStatus).to.be.equal("VIEWED");
+    const deceasedStatusElement = resJson.notificationStatusHistory[2];
+    expect(deceasedStatusElement.status).to.be.equal("VIEWED");
+    expect(resJson.timeline.some((tl) => tl.elementId == "ANALOG_WORKFLOW_RECIPIENT_DECEASED.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0")).to.be.false;
+    expect(resJson.timeline.some((tl) => tl.elementId == "NOTIFICATION_VIEWED.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0")).to.be.true;
+  });
+
   it("statusCode 200 v1", async () => {
     const notificationJSON = fs.readFileSync("./src/test/notification.json");
     let notification = JSON.parse(notificationJSON);

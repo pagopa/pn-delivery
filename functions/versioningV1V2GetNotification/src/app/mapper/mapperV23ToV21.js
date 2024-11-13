@@ -10,6 +10,8 @@ exports.transformFromV23ToV21 = function(responseV23) {
     
     responseV21.timeline = adjustedTimelineAndHistory.timeline;
     responseV21.notificationStatusHistory = adjustedTimelineAndHistory.history;
+    responseV21.notificationStatus = adjustedTimelineAndHistory.history[adjustedTimelineAndHistory.history.length -1].status;
+
     return responseV21;
 }
 

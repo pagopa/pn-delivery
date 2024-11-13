@@ -487,6 +487,11 @@ Parameters:
     Type: Number
     Description: 'Number of retries for each idempotent versioning lambda'
     Default: 3
+
+  EnableDeceasedWorkflow:
+    Type: Number
+    Description: 'Enables the workflow for the deceased recipient'
+    Default: 3
     
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
@@ -1101,6 +1106,7 @@ Resources:
           PN_DELIVERY_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery/v2.5"
           NUM_RETRY: !Ref NumRetry
           ATTEMPT_TIMEOUT_SEC: !Ref AttemptTimeoutSec
+          ENABLE_DECEASED_WORKFLOW: !Ref EnableDeceasedWorkflow
       TracingConfig:
         Mode: Active
       Layers:
