@@ -6,6 +6,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePoli
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV23;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.NotificationLang;
 import it.pagopa.pn.delivery.models.internal.notification.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -66,9 +67,10 @@ public class EntityToDtoNotificationMapper {
         return builder.build();
     }
 
-    private List<String> removeITLanguageFromDto(List<String> languages) {
+    private List<String> removeITLanguageFromDto(List<NotificationLang> languages) {
         if(!CollectionUtils.isEmpty(languages)) {
             return languages.stream()
+                    .map(NotificationLang::getLang)
                     .filter(language -> !IT_LANGUAGE.equalsIgnoreCase(language))
                     .toList();
         }

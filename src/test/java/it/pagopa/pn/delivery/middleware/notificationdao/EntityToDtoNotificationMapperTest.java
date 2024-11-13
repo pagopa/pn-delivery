@@ -5,6 +5,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificatio
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.NotificationLang;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,7 +59,7 @@ class EntityToDtoNotificationMapperTest {
     void entity2DtoSuccessWithoutAdditionalLang() {
         // Given
         NotificationEntity notificationEntity = newNotificationEntity();
-        notificationEntity.setLanguages(List.of("IT"));
+        notificationEntity.setLanguages(List.of(NotificationLang.builder().lang("IT").build()));
 
         // When
         InternalNotification internalNotification = mapper.entity2Dto(notificationEntity);
@@ -75,7 +76,9 @@ class EntityToDtoNotificationMapperTest {
     }
 
     private NotificationEntity newNotificationEntity() {
-        List<String> additionalLangs = new ArrayList<>(Arrays.asList("FR", "IT"));
+        List<NotificationLang> additionalLangs = new ArrayList<>(Arrays.asList
+                (NotificationLang.builder().lang("FR").build(),
+                        NotificationLang.builder().lang("IT").build()));
 
         F24PaymentEntity f24PaymentEntity = new F24PaymentEntity();
         f24PaymentEntity.setTitle("title");
