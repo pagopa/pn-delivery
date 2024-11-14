@@ -1,8 +1,7 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestUpdateStatusDto;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationCostEntityDao;
@@ -12,8 +11,6 @@ import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationCos
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
-import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.utils.DataUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -60,7 +57,7 @@ public class StatusService {
             InternalNotification notification = notificationOptional.get();
             log.debug("Notification with protocolNumber={} and iun={} is present", notification.getPaProtocolNumber(), dto.getIun());
 
-            NotificationStatus nextStatus = dto.getNextStatus();
+            NotificationStatusV26 nextStatus = dto.getNextStatus();
             OffsetDateTime acceptedAt;
             switch (nextStatus) {
                 case ACCEPTED -> {
@@ -108,7 +105,7 @@ public class StatusService {
     }
 
     private List<NotificationMetadataEntity> computeMetadataEntry(RequestUpdateStatusDto dto, InternalNotification notification, OffsetDateTime acceptedAt) {
-        NotificationStatus lastStatus = dto.getNextStatus();
+        NotificationStatusV26 lastStatus = dto.getNextStatus();
         String rootSenderId = externalRegistriesClient.getRootSenderId(notification.getSenderPaId());
         String creationMonth = DataUtils.extractCreationMonth( notification.getSentAt().toInstant() );
 
@@ -121,7 +118,7 @@ public class StatusService {
 
     private NotificationMetadataEntity buildOneSearchMetadataEntry(
             InternalNotification notification,
-            NotificationStatus lastStatus,
+            NotificationStatusV26 lastStatus,
             String recipientId,
             List<String> recipientsIds,
             String creationMonth,
@@ -150,7 +147,7 @@ public class StatusService {
     }
 
     @NotNull
-    private Map<String, String> createTableRowMap(InternalNotification notification, NotificationStatus lastStatus, List<String> recipientsIds, OffsetDateTime acceptedAt) {
+    private Map<String, String> createTableRowMap(InternalNotification notification, NotificationStatusV26 lastStatus, List<String> recipientsIds, OffsetDateTime acceptedAt) {
         Map<String,String> tableRowMap = new HashMap<>();
         tableRowMap.put( "iun", notification.getIun() );
         tableRowMap.put( "recipientsIds", recipientsIds.toString() );
