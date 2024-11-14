@@ -72,7 +72,7 @@ class PnSentReceivedNotificationControllerTest {
 	private static final String SENDER_ID = "CSRGGL44L13H501E";
 	private static final String START_DATE = "2021-09-17T00:00:00.000Z";
 	private static final String END_DATE = "2021-09-18T00:00:00.000Z";
-	private static final NotificationStatus STATUS = NotificationStatus.IN_VALIDATION;
+	private static final NotificationStatusV26 STATUS = NotificationStatusV26.IN_VALIDATION;
 	private static final String RECIPIENT_ID = "CGNNMO80A01H501M";
 	public static final List<String> GROUPS = List.of("Group1", "Group2");
 	public static final String DELIVERY_REQUESTS_PATH = "/delivery/v2.4/requests";
