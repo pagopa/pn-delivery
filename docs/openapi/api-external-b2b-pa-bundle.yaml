@@ -1414,8 +1414,6 @@ paths:
         accettata. <br/>
       tags:
         - SenderReadB2B
-      x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda:live
-      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:
