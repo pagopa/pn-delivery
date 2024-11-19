@@ -422,7 +422,7 @@ paths:
     ###                             RICERCA NOTIFICHE ACCETTATE                             ###
     ###########################################################################################
 
-  "/delivery/v2.5/notifications/sent/{iun}":
+  "/delivery/v2.6/notifications/sent/{iun}":
     get:
       summary: 'Mittente: lettura dettagli notifica versione 2'
       description: |-
@@ -430,7 +430,7 @@ paths:
 
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationV25                                # ONLY EXTERNAL
+      operationId: retrieveSentNotificationV26                                # ONLY EXTERNAL
       parameters:
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
       responses:
@@ -439,7 +439,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/FullSentNotificationV25"
+                $ref: "#/components/schemas/FullSentNotificationV26"
         '400':
           description: Bad request
           content:
@@ -967,7 +967,7 @@ components:
     ###                              DTO NOTIFICA CON DETTAGLI                              ###
     ###########################################################################################
 
-    FullSentNotificationV25:
+    FullSentNotificationV26:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
         processo di inoltro della notifica verso il cittadino.
@@ -980,15 +980,15 @@ components:
             - timeline
           properties:
             notificationStatus:
-              $ref: '#/components/schemas/NotificationStatus'
+              $ref: '#/components/schemas/NotificationStatusV26'
             notificationStatusHistory:
-              $ref: '#/components/schemas/NotificationStatusHistory'
+              $ref: '#/components/schemas/NotificationStatusHistoryV26'
             timeline:
               description: >-
                 elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV25'
+                $ref: '#/components/schemas/TimelineElementV26'
 
     ###########################################################################################
     ###                              DTO EVENTO DI PAGAMENTO                                ###
@@ -1093,12 +1093,12 @@ components:
           type: integer
           format: int32
 
-    TimelineElementV25:
-      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV25'
-    NotificationStatus:
-      $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
-    NotificationStatusHistory:
-      $ref: './remote-refs.yaml#/components/schemas/NotificationStatusHistory'
+    TimelineElementV26:
+      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV26'
+    NotificationStatusV26:
+      $ref: './remote-refs.yaml#/components/schemas/NotificationStatusV26'
+    NotificationStatusHistoryV26:
+      $ref: './remote-refs.yaml#/components/schemas/NotificationStatusHistoryV26'
     F24Metadata:
       $ref: './remote-refs.yaml#/components/schemas/F24Metadata'
     RequestStatus:

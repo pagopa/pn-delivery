@@ -502,7 +502,7 @@ components:
         iun:
           $ref: 'schemas-pn-notification.yaml#/components/schemas/IUN'
         nextStatus:
-          $ref: "remote-refs.yaml#/components/schemas/NotificationStatus"
+          $ref: "remote-refs.yaml#/components/schemas/NotificationStatusV26"
         timestamp:
           type: string
           description: timestamp del passaggio di stato
