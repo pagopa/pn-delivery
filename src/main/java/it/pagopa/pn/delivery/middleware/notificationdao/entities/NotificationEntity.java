@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao.entities;
 
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV25;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
+import it.pagopa.pn.delivery.models.NotificationLang;
 import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
@@ -75,5 +76,5 @@ public class NotificationEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_VERSION)})) private String version;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PA_FEE)})) private Integer paFee;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_VAT)})) private Integer vat;
-    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_LANG)})) private List<String> languages;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_LANG)})) private List<NotificationLang> languages;
 }

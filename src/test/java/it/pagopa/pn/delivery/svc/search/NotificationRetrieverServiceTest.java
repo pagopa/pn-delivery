@@ -1422,7 +1422,7 @@ class NotificationRetrieverServiceTest {
                         .elementId( "elementId_1" )
                         .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV23.NOTIFICATION_VIEWED )
                         .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-12T00:00:00.00Z" ), ZoneOffset.UTC ) )
-                        .details(new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementDetailsV23().recIndex(1)));
+                        .details(new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementDetailsV25().recIndex(1)));
 
         NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
                 .timeline( tle )
@@ -1466,7 +1466,7 @@ class NotificationRetrieverServiceTest {
                         .elementId( "elementId_1" )
                         .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV23.NOTIFICATION_VIEWED )
                         .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-12T00:00:00.00Z" ), ZoneOffset.UTC ) )
-                        .details(new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementDetailsV23().recIndex(0)));
+                        .details(new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementDetailsV25().recIndex(0)));
 
         NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
                 .timeline( tle )

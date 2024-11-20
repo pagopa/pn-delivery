@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: LKNpVIxAJpf6f2GyCEYzoSnl9zJNm9f8rn2q5p8xqVg=
+  version: XyIGGyByEisITo4eB1spX6+JleygRAOlmv2fld07l9s=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1975,7 +1975,7 @@ components:
         category:
           $ref: '#/components/schemas/TimelineElementCategoryV23'
         details:
-          $ref: '#/components/schemas/TimelineElementDetailsV23'
+          $ref: '#/components/schemas/TimelineElementDetailsV25'
     NotificationStatus:
       type: string
       description: |
@@ -3049,7 +3049,7 @@ components:
           type: string
           description: Data evento refinement
           format: date-time
-    NotificationRefusedErrorV23:
+    NotificationRefusedErrorV25:
       type: object
       properties:
         errorCode:
@@ -3057,28 +3057,29 @@ components:
           maxLength: 128
           description: |-
             Errori di rifiuto della notifica.
-              - FILE_NOTFOUND
-              - FILE_SHA_ERROR
-              - TAXID_NOT_VALID
-              - SERVICE_UNAVAILABLE
-              - FILE_PDF_INVALID_ERROR
-              - FILE_PDF_TOOBIG_ERROR
-              - NOT_VALID_ADDRESS
-              - RECIPIENT_ID_NOT_VALID
-              - F24_METADATA_NOT_VALID
-              - PAYMENT_NOT_VALID
+              - FILE_NOTFOUND - I riferimenti dei documenti nella notifica non sono corretti o i documenti non sono stati caricati con successo.
+              - FILE_GONE - Allegato non disponibile: superati i termini di conservazione
+              - FILE_SHA_ERROR - Il digest calcolato con algoritmi sha256 dei documenti inseriti non è corrispondete a quello del file referenziato.
+              - FILE_PDF_INVALID_ERROR - Il file inserito non è in formato pdf.
+              - FILE_PDF_TOOBIG_ERROR - Il file pdf ha una dimensione eccedente il limite di 200MB.
+              - F24_METADATA_NOT_VALID - I dati contenuti del file dei metadati F24 non rispettano lo schema di validazione.
+              - TAXID_NOT_VALID - Codice fiscale del destinatario non corretto (non ancora implementato).
+              - RECIPIENT_ID_NOT_VALID - Destinatario non Valido (utilizzato solo per funzionalità non ancora implementate)
+              - NOT_VALID_ADDRESS - L'indirizzo di invio cartaceo inserito per il destinatario non ha superato i controlli di correttezza.
+              - PAYMENT_NOT_VALID - I dati del pagamento non sono sono registrati sulla piattaforma GPD (modalità asincrona di integrazione pagoPA)
+              - SERVICE_UNAVAILABLE - Il sistema non è attualmente disponibile.
               ...
         detail:
           type: string
           maxLength: 2048
-    RequestRefusedDetailsV23:
+    RequestRefusedDetailsV25:
       type: object
       properties:
         refusalReasons:
           type: array
           description: Motivazioni che hanno portato al rifiuto della notifica
           items:
-            $ref: '#/components/schemas/NotificationRefusedErrorV23'
+            $ref: '#/components/schemas/NotificationRefusedErrorV25'
     ScheduleAnalogWorkflowDetailsV23:
       type: object
       required:
@@ -3385,7 +3386,7 @@ components:
         date:
           type: string
           format: date-time
-    SendAnalogFeedbackDetails:
+    SendAnalogFeedbackDetailsV25:
       type: object
       required:
         - recIndex
@@ -3434,6 +3435,7 @@ components:
           description: >
             Formato: - __deliveryDetailCode__- [prodotto] - [statusCode] -
             statusDescription
+              - __CON020__- [ALL] - [PROGRESS] - Originale dell’AAR (documento nativo digitale) reso disponibile dal Consolidatore e firmato digitalmente da PagoPA
               - __CON080__- [ALL] - [PROGRESS] - Stampato ed Imbustato
               - __RECRS001C__- [RS] - [OK] - Consegnato - Fascicolo Chiuso
               - __RECRS002C__- [RS] - [KO] - Mancata consegna - Fascicolo Chiuso
@@ -3731,7 +3733,7 @@ components:
           type: string
           description: RequestId della richiesta di prepare
           maxLength: 512
-    TimelineElementDetailsV23:
+    TimelineElementDetailsV25:
       description: The raw event payload that will be different based on the event.
       oneOf:
         - $ref: '#/components/schemas/SenderAckCreationRequestDetails'
@@ -3751,7 +3753,7 @@ components:
         - $ref: '#/components/schemas/PublicRegistryCallDetails'
         - $ref: '#/components/schemas/PublicRegistryResponseDetails'
         - $ref: '#/components/schemas/RefinementDetailsV23'
-        - $ref: '#/components/schemas/RequestRefusedDetailsV23'
+        - $ref: '#/components/schemas/RequestRefusedDetailsV25'
         - $ref: '#/components/schemas/ScheduleAnalogWorkflowDetailsV23'
         - $ref: '#/components/schemas/ScheduleDigitalWorkflowDetailsV23'
         - $ref: '#/components/schemas/ScheduleRefinementDetails'
@@ -3762,7 +3764,7 @@ components:
         - $ref: '#/components/schemas/SendDigitalProgressDetailsV23'
         - $ref: '#/components/schemas/BaseAnalogDetails'
         - $ref: '#/components/schemas/SendAnalogDetails'
-        - $ref: '#/components/schemas/SendAnalogFeedbackDetails'
+        - $ref: '#/components/schemas/SendAnalogFeedbackDetailsV25'
         - $ref: '#/components/schemas/BaseRegisteredLetterDetails'
         - $ref: '#/components/schemas/SimpleRegisteredLetterDetails'
         - $ref: '#/components/schemas/AarCreationRequestDetails'
@@ -5594,6 +5596,98 @@ components:
         retryNumber:
           type: number
           description: numero dei tentativi effettuati
+    SendAnalogFeedbackDetails:
+      type: object
+      required:
+        - recIndex
+        - physicalAddress
+        - serviceLevel
+        - sentAttemptMade
+        - responseStatus
+      properties:
+        recIndex:
+          type: number
+          description: Index destinatario notifica digitale
+        physicalAddress:
+          $ref: '#/components/schemas/PhysicalAddress'
+        serviceLevel:
+          $ref: '#/components/schemas/ServiceLevel'
+        sentAttemptMade:
+          type: number
+          description: numero dei tentativi effettuati
+        newAddress:
+          $ref: '#/components/schemas/PhysicalAddress'
+        responseStatus:
+          $ref: '#/components/schemas/ResponseStatus'
+        notificationDate:
+          type: string
+          format: date-time
+        deliveryFailureCause:
+          type: string
+          maxLength: 10
+          description: >
+            __Motivazione di mancata consegna__ obbligatorie negli stati di
+            mancata consegna
+              - __M01__ destinatario irreperibile
+              - __M02__ destinatario deceduto
+              - __M03__ destinatario sconosciuto
+              - __M04__ destinatario trasferito
+              - __M05__ invio rifiutato
+              - __M06__ indirizzo inesatto
+              - __M07__ indirizzo inesistente
+              - __M08__ indirizzo insufficiente
+              - __F01__ - in caso di furto
+              - __F02__ - in caso di smarrimento
+              - __F03__ - in caso di deterioramento
+        deliveryDetailCode:
+          type: string
+          maxLength: 20
+          description: >
+            Formato: - __deliveryDetailCode__- [prodotto] - [statusCode] -
+            statusDescription
+              - __CON080__- [ALL] - [PROGRESS] - Stampato ed Imbustato
+              - __RECRS001C__- [RS] - [OK] - Consegnato - Fascicolo Chiuso
+              - __RECRS002C__- [RS] - [KO] - Mancata consegna - Fascicolo Chiuso
+              - __RECRS002F__- [RS] - [KO] - Irreperibilità Assoluta - Fascicolo Chiuso
+              - __RECRS003C__- [RS] - [OK] - Consegnato presso Punti di Giacenza - Fascicolo Chiuso
+              - __RECRS004C__- [RS] - [OK] - Mancata consegna presso Punti di Giacenza - Fascicolo Chiuso
+              - __RECRS005C__- [RS] - [OK] - Compiuta giacenza - Fascicolo Chiuso
+              - __RECRS006__- [RS] - [PROGRESS] - Furto/Smarrimento/deterioramento
+              - __RECRN001C__- [AR] - [OK] - Consegnato - Fascicolo Chiuso
+              - __RECRN002C__- [AR] - [KO] - Mancata consegna - Fascicolo Chiuso
+              - __RECRN002F__- [AR] - [KO] - Irreperibilità Assoluta - Fascicolo Chiuso
+              - __RECRN003C__- [AR] - [OK] - Consegnato presso Punti di Giacenza - Fascicolo Chiuso
+              - __RECRN004C__- [AR] - [KO] - Mancata consegna presso Punti di Giacenza - Fascicolo Chiuso
+              - __RECRN005C__- [AR] - [OK] - Compiuta giacenza - Fascicolo Chiuso
+              - __RECRN006__- [AR] - [PROGRESS] - Furto/Smarrimento/deterioramento
+              - __RECAG001C__- [890] - [OK] - Consegnato - Fascicolo Chiuso
+              - __RECAG002C__- [890] - [OK] - Consegnato a persona abilitata - Fascicolo Chiuso
+              - __RECAG003C__- [890] - [KO] - Mancata consegna - Fascicolo Chiuso
+              - __RECAG003F__- [890] - [KO] - Irreperibilità Assoluta - Fascicolo Chiuso
+              - __RECAG004__- [890] - [PROGRESS] - Furto/Smarrimento/deterioramento
+              - __RECAG005C__- [890] - [OK | PROGRESS] - Consegnato presso Punti di Giacenza - Fascicolo Chiuso
+              - __RECAG006C__- [890] - [OK | PROGRESS] - Consegna a persona abilitata presso Punti di Giacenza - Fas. Ch.
+              - __RECAG007C__- [890] - [KO | PROGRESS] - Mancata consegna presso Punti di Giacenza - Fascicolo Chiuso
+              - __RECAG008C__- [890] - [PROGRESS] - Compiuta giacenza - Fascicolo Chiuso
+              - __PNAG012__- [890] - [KO] - Distacco d'ufficio 23L - Fascicolo Chiuso
+              - __RECRI003C__- [RIR] - [OK] - Consegnato - Fascicolo Chiuso
+              - __RECRI004C__- [RIR] - [KO] - Non Consegnato - fascicolo Chiuso
+              - __RECRI005__- [RIR] - [PROGRESS] - Furto/Smarrimento/deterioramento
+              - __RECRSI003C__- [RIS] - [OK] - Consegnato - Fascicolo Chiuso
+              - __RECRSI004C__- [RIS] - [KO] - Non Consegnato - fascicolo Chiuso
+              - __RECRSI005__- [RIS] - [PROGRESS] - Furto/Smarrimento/deterioramento
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttachmentDetails'
+        sendRequestId:
+          type: string
+          description: RequestId della richiesta d'invio
+          maxLength: 512
+        registeredLetterCode:
+          type: string
+          description: Codice della raccomandata
+          maxLength: 128
     NotificationPaidDetails:
       type: object
       required:
@@ -5871,6 +5965,80 @@ components:
         - $ref: '#/components/schemas/NotHandledDetails'
         - $ref: '#/components/schemas/NotificationPaidDetailsV20'
         - $ref: '#/components/schemas/SendAnalogProgressDetails'
+        - $ref: '#/components/schemas/SimpleRegisteredLetterProgressDetails'
+        - $ref: '#/components/schemas/ProbableDateAnalogWorkflowDetails'
+        - $ref: '#/components/schemas/NotificationCancellationRequestDetails'
+        - $ref: '#/components/schemas/NotificationCancelledDetails'
+        - $ref: '#/components/schemas/PrepareAnalogDomicileFailureDetails'
+    NotificationRefusedErrorV23:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          maxLength: 128
+          description: |-
+            Errori di rifiuto della notifica.
+              - FILE_NOTFOUND
+              - FILE_SHA_ERROR
+              - TAXID_NOT_VALID
+              - SERVICE_UNAVAILABLE
+              - FILE_PDF_INVALID_ERROR
+              - FILE_PDF_TOOBIG_ERROR
+              - NOT_VALID_ADDRESS
+              - RECIPIENT_ID_NOT_VALID
+              - F24_METADATA_NOT_VALID
+              - PAYMENT_NOT_VALID
+              ...
+        detail:
+          type: string
+          maxLength: 2048
+    RequestRefusedDetailsV23:
+      type: object
+      properties:
+        refusalReasons:
+          type: array
+          description: Motivazioni che hanno portato al rifiuto della notifica
+          items:
+            $ref: '#/components/schemas/NotificationRefusedErrorV23'
+    TimelineElementDetailsV23:
+      description: The raw event payload that will be different based on the event.
+      oneOf:
+        - $ref: '#/components/schemas/SenderAckCreationRequestDetails'
+        - $ref: '#/components/schemas/NormalizedAddressDetails'
+        - $ref: '#/components/schemas/NotificationRequestAcceptedDetails'
+        - $ref: '#/components/schemas/AnalogFailureWorkflowDetails'
+        - $ref: '#/components/schemas/AnalogSuccessWorkflowDetails'
+        - $ref: '#/components/schemas/CompletelyUnreachableCreationRequestDetails'
+        - $ref: '#/components/schemas/CompletelyUnreachableDetails'
+        - $ref: '#/components/schemas/DigitalDeliveryCreationRequestDetails'
+        - $ref: '#/components/schemas/DigitalFailureWorkflowDetails'
+        - $ref: '#/components/schemas/DigitalSuccessWorkflowDetails'
+        - $ref: '#/components/schemas/GetAddressInfoDetails'
+        - $ref: '#/components/schemas/NotificationViewedCreationRequestDetailsV23'
+        - $ref: '#/components/schemas/NotificationViewedDetailsV23'
+        - $ref: '#/components/schemas/NotificationRADDRetrievedDetails'
+        - $ref: '#/components/schemas/PublicRegistryCallDetails'
+        - $ref: '#/components/schemas/PublicRegistryResponseDetails'
+        - $ref: '#/components/schemas/RefinementDetailsV23'
+        - $ref: '#/components/schemas/RequestRefusedDetailsV23'
+        - $ref: '#/components/schemas/ScheduleAnalogWorkflowDetailsV23'
+        - $ref: '#/components/schemas/ScheduleDigitalWorkflowDetailsV23'
+        - $ref: '#/components/schemas/ScheduleRefinementDetails'
+        - $ref: '#/components/schemas/SendCourtesyMessageDetails'
+        - $ref: '#/components/schemas/PrepareDigitalDetails'
+        - $ref: '#/components/schemas/SendDigitalDetails'
+        - $ref: '#/components/schemas/SendDigitalFeedbackDetails'
+        - $ref: '#/components/schemas/SendDigitalProgressDetailsV23'
+        - $ref: '#/components/schemas/BaseAnalogDetails'
+        - $ref: '#/components/schemas/SendAnalogDetails'
+        - $ref: '#/components/schemas/SendAnalogFeedbackDetails'
+        - $ref: '#/components/schemas/BaseRegisteredLetterDetails'
+        - $ref: '#/components/schemas/SimpleRegisteredLetterDetails'
+        - $ref: '#/components/schemas/AarCreationRequestDetails'
+        - $ref: '#/components/schemas/AarGenerationDetails'
+        - $ref: '#/components/schemas/NotHandledDetails'
+        - $ref: '#/components/schemas/NotificationPaidDetailsV23'
+        - $ref: '#/components/schemas/SendAnalogProgressDetailsV23'
         - $ref: '#/components/schemas/SimpleRegisteredLetterProgressDetails'
         - $ref: '#/components/schemas/ProbableDateAnalogWorkflowDetails'
         - $ref: '#/components/schemas/NotificationCancellationRequestDetails'

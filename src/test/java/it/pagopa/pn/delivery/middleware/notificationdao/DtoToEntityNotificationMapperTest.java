@@ -4,6 +4,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigital
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.NotificationLang;
 import it.pagopa.pn.delivery.models.internal.notification.F24Payment;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentDigests;
@@ -51,7 +52,7 @@ class DtoToEntityNotificationMapperTest {
         Assertions.assertEquals( 1 , notificationEntity.getRecipients().get( 0 ).getPayments().size() );
         Assertions.assertEquals( NOTICE_CODE , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getNoticeCode() );
         Assertions.assertEquals( CREDITOR_TAX_ID , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getCreditorTaxId() );
-        Assertions.assertEquals(List.of("DE","IT"), notificationEntity.getLanguages());
+        Assertions.assertEquals(List.of(NotificationLang.builder().lang("DE").build(),NotificationLang.builder().lang("IT").build()), notificationEntity.getLanguages());
         assertEquals( VAT, notificationEntity.getVat() );
 
     }
@@ -67,7 +68,7 @@ class DtoToEntityNotificationMapperTest {
         Assertions.assertEquals( 1 , notificationEntity.getRecipients().get( 0 ).getPayments().size() );
         Assertions.assertEquals( NOTICE_CODE , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getNoticeCode() );
         Assertions.assertEquals( CREDITOR_TAX_ID , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getCreditorTaxId() );
-        Assertions.assertEquals(List.of("IT"), notificationEntity.getLanguages());
+        Assertions.assertEquals(List.of(NotificationLang.builder().lang("IT").build()), notificationEntity.getLanguages());
         assertEquals( VAT, notificationEntity.getVat() );
     }
 
@@ -82,7 +83,7 @@ class DtoToEntityNotificationMapperTest {
         Assertions.assertEquals( 1 , notificationEntity.getRecipients().get( 0 ).getPayments().size() );
         Assertions.assertEquals( NOTICE_CODE , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getNoticeCode() );
         Assertions.assertEquals( CREDITOR_TAX_ID , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getCreditorTaxId() );
-        Assertions.assertEquals(List.of("IT"), notificationEntity.getLanguages());
+        Assertions.assertEquals(List.of(NotificationLang.builder().lang("IT").build()), notificationEntity.getLanguages());
         assertEquals( VAT, notificationEntity.getVat() );
     }
 
