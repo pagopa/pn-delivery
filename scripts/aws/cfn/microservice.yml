@@ -95,6 +95,14 @@ Parameters:
     Type: String
     Description: ARN of dynamodb table containing delegated notifications metadata
 
+  TaxonomyCodeDynamoTableName:
+    Type: String
+    Description: "TaxonomyCode Dynamo table name"
+
+  TaxonomyCodeDynamoTableArn:
+    Type: String
+    Description: "ARN of dynamodb table containing taxonomy codes"
+
   ECSClusterName:
     Type: String
     Description: "The name of the ECS cluster where the microservice is going to be deployed"
@@ -558,6 +566,8 @@ Resources:
         ContainerEnvEntry39: !Sub "PN_CRON_ANALYZER=${PnCronAnalyzer}"
         ContainerEnvEntry40: !Sub "WIRE_TAP_LOG=${WireTapLogActivation}"
         ContainerEnvEntry41: !Sub "PN_DELIVERY_DENOMINATIONVALIDATIONEXCLUDEDCHARACTER=${DenominationValidationExcludedCharacter}"
+        ContainerEnvEntry42: !Sub "PN_DELIVERY_TAXONOMYCODEDAO_TABLENAME=${TaxonomyCodeDynamoTableName}"
+
         ContainerSecret1: !Sub "ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:"
         MicroServiceSecretPrefix: pn-Delivery-Secrets
         JavaToolOptions: "-Dreactor.netty.ioWorkerCount=120 -XX:MaxMetaspaceSize=512M"
@@ -607,6 +617,7 @@ Resources:
               - !Sub "${NotificationsCostDynamoTableArn}/*"
               - !Sub "${NotificationsQRDynamoTableArn}"
               - !Sub "${NotificationsQRDynamoTableArn}/*"
+              - !Sub "${TaxonomyCodeDynamoTableArn}"
           - Effect: Allow
             Action:
               - "dynamodb:BatchWriteItem"
@@ -759,6 +770,7 @@ Resources:
             - !Ref NotificationsMetadataDynamoTableName
             - !Ref NotificationDelegationMetadataDynamoTableName
             - !Ref NotificationsQRDynamoTableName
+            - !Ref TaxonomyCodeDynamoTableName
         LambdaArns: !Join
           - ","
           - - !GetAtt PnDeliveryInsertTriggerLambdaStack.Outputs.FunctionArn
