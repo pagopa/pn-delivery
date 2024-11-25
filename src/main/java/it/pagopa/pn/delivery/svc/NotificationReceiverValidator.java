@@ -259,9 +259,15 @@ public class NotificationReceiverValidator {
         for (NotificationRecipientV23 recipient : internalNotification.getRecipients()) {
 
             Pair<String, String> denomination = Pair.of("denomination", recipient.getDenomination());
-            Pair<String, String> at = Pair.of("at", recipient.getPhysicalAddress().getAt());
+            ArrayList<Pair<String, String>> fieldsToCheck = new ArrayList<>();
+            fieldsToCheck.add(denomination);
 
-            List<Pair<String, String>> fieldsToCheck = List.of(denomination, at);
+            Pair<String, String> at;
+            String atValue = recipient.getPhysicalAddress().getAt();
+            if (atValue != null && !atValue.isEmpty()) {
+                at = Pair.of("at", atValue);
+                fieldsToCheck.add(at);
+            }
 
             int finalRecIdx = recIdx;
             if(this.pnDeliveryConfigs.getDenominationLength() != null && this.pnDeliveryConfigs.getDenominationLength() != 0){
