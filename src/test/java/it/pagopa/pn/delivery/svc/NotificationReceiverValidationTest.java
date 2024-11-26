@@ -404,6 +404,26 @@ class NotificationReceiverValidationTest {
   }
 
   @Test
+  void atLengthValidationKo() {
+    //WHEN
+    when(cfg.getDenominationLength()).thenReturn(44);
+    when(cfg.getDenominationValidationTypeValue()).thenReturn("NONE");
+    when(cfg.getDenominationValidationExcludedCharacter()).thenReturn("adas");
+
+    StringBuilder at = new StringBuilder();
+    for(int i = 0; i < 45; i++){
+      at.append("a");
+    }
+    var errors = validator.checkDenomination(newNotificationAtCustom(at.toString()));
+
+    //THEN
+    assertThat(errors, hasSize(1));
+    assertThat(errors, hasItems(
+            hasProperty("message", allOf(Matchers.containsString("at"), Matchers.containsString("recipient 0")))
+    ));
+  }
+
+  @Test
   void denominationLengthNOValidation() {
     //WHEN
     when(cfg.getDenominationLength()).thenReturn(0);
@@ -462,6 +482,20 @@ class NotificationReceiverValidationTest {
 
     String denomination = "qwertyuiopasdfghjklzxcvbnm1234567890ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ";
     var errors = validator.checkDenomination(newNotificationDenominationCustom(denomination));
+
+    //THEN
+    assertThat(errors, hasSize(0));
+  }
+
+  @Test
+  void atValidationIsoLatin1Ok() {
+    //WHEN
+    when(cfg.getDenominationLength()).thenReturn(44);
+    when(cfg.getDenominationValidationTypeValue()).thenReturn("ISO_LATIN_1");
+    when(cfg.getDenominationValidationExcludedCharacter()).thenReturn("NONE");
+
+    String at = "";
+    var errors = validator.checkDenomination(newNotificationAtCustom(at));
 
     //THEN
     assertThat(errors, hasSize(0));
@@ -1167,6 +1201,30 @@ class NotificationReceiverValidationTest {
                     .build() )
             .physicalAddress( NotificationPhysicalAddress.builder()
                     .at( "at" )
+                    .province( "province" )
+                    .zip( "83100" )
+                    .address( "address" )
+                    .addressDetails( "addressDetail" )
+                    .municipality( "municipality" )
+                    .municipalityDetails( "municipalityDetail" )
+                    .build() )
+            .build();
+    return NewNotificationRequestV24.builder().senderDenomination("Sender Denomination")
+            .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
+            .senderTaxId("paId").recipients(Arrays.asList(notificationRecipient)).build();
+  }
+
+  private NewNotificationRequestV24 newNotificationAtCustom(String at) {
+    NotificationRecipientV23 notificationRecipient = NotificationRecipientV23.builder()
+            .recipientType( NotificationRecipientV23.RecipientTypeEnum.PF )
+            .denomination( "denomination" )
+            .taxId( "taxID" )
+            .digitalDomicile( NotificationDigitalAddress.builder()
+                    .type( NotificationDigitalAddress.TypeEnum.PEC )
+                    .address( "address@pec.it" )
+                    .build() )
+            .physicalAddress( NotificationPhysicalAddress.builder()
+                    .at( at )
                     .province( "province" )
                     .zip( "83100" )
                     .address( "address" )
