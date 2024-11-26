@@ -497,9 +497,9 @@ Parameters:
     Default: 3
 
   EnableDeceasedWorkflow:
-    Type: Number
+    Type: String
     Description: 'Enables the workflow for the deceased recipient'
-    Default: 3
+    Default: false
     
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
