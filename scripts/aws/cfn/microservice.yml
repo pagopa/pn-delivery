@@ -103,6 +103,12 @@ Parameters:
     Type: String
     Description: "ARN of dynamodb table containing taxonomy codes"
 
+  CheckTaxonomyCodeEnabled:
+    Type: String
+    Description: "Flag to enable taxonomy code validation"
+    AllowedValues: [ true, false ]
+    Default: false
+
   ECSClusterName:
     Type: String
     Description: "The name of the ECS cluster where the microservice is going to be deployed"
