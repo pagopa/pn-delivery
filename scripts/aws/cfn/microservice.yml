@@ -579,6 +579,7 @@ Resources:
         ContainerEnvEntry41: !Sub "PN_DELIVERY_DENOMINATIONVALIDATIONEXCLUDEDCHARACTER=${DenominationValidationExcludedCharacter}"
         ContainerEnvEntry42: !Sub "PN_DELIVERY_TAXONOMYCODEDAO_TABLENAME=${TaxonomyCodeDynamoTableName}"
         ContainerEnvEntry43: !Sub "PN_DELIVERY_CHECK_TAXONOMY_CODE_ENABLED=${CheckTaxonomyCodeEnabled}"
+        ContainerEnvEntry44: !Sub "PN_DELIVERY_ENABLE_DECEASED_WORKFLOW=${EnableDeceasedWorkflow}"
 
         ContainerSecret1: !Sub "ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:"
         MicroServiceSecretPrefix: pn-Delivery-Secrets

@@ -4,6 +4,7 @@ const {DeceasedWorkflowException} = require("../exceptions.js");
 exports.transformFromV26ToV25 = function (responseV26) {
     console.log("transformFromV26ToV25");
 
+    console.log("ENABLE_DECEASED_WORKFLOW flag is : ", process.env.ENABLE_DECEASED_WORKFLOW);
     if(process.env.ENABLE_DECEASED_WORKFLOW == "false"){
         console.log("Deceased workflow not enabled");
         throw new DeceasedWorkflowException("Deceased workflow not enabled");
