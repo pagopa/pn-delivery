@@ -34,6 +34,7 @@
     "WireTapLogActivation": "false",
     "AttemptTimeoutSec": "7",
     "NumRetry": "3",
+    "CheckTaxonomyCodeEnabled": "true",
     "EnableDeceasedWorkflow": "true"
   }
 }

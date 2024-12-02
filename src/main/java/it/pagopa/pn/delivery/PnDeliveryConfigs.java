@@ -81,6 +81,8 @@ public class PnDeliveryConfigs {
     private String denominationValidationRegexValue;
     private String denominationValidationExcludedCharacter;
 
+    private boolean checkTaxonomyCodeEnabled;
+
     @PostConstruct
     public void init(){
         log.info("CONFIGURATION {}",this);
