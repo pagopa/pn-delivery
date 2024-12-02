@@ -33,6 +33,7 @@
     "PnCronAnalyzer": "* */1 * * * *",
     "WireTapLogActivation": "false",
     "AttemptTimeoutSec": "7",
-    "NumRetry": "3"
+    "NumRetry": "3",
+    "CheckTaxonomyCodeEnabled": "true"
   }
 }
