@@ -33,12 +33,14 @@ public class PnNotificationInputController implements NewNotificationApi {
     private final NotificationReceiverService svc;
     private final NotificationAttachmentService notificationAttachmentService;
     private final TaxonomyCodeDaoDynamo taxonomyCodeDaoDynamo;
+    private final PnDeliveryConfigs pnDeliveryConfigs;
 
-    public PnNotificationInputController(PnDeliveryConfigs cfgs, NotificationReceiverService svc, NotificationAttachmentService notificationAttachmentService, TaxonomyCodeDaoDynamo taxonomyCodeDaoDynamo) {
+    public PnNotificationInputController(PnDeliveryConfigs cfgs, NotificationReceiverService svc, NotificationAttachmentService notificationAttachmentService, TaxonomyCodeDaoDynamo taxonomyCodeDaoDynamo, PnDeliveryConfigs pnDeliveryConfigs) {
         this.cfgs = cfgs;
         this.svc = svc;
         this.notificationAttachmentService = notificationAttachmentService;
         this.taxonomyCodeDaoDynamo = taxonomyCodeDaoDynamo;
+        this.pnDeliveryConfigs = pnDeliveryConfigs;
     }
 
     @Override
@@ -53,7 +55,7 @@ public class PnNotificationInputController implements NewNotificationApi {
         logEvent.log();
         NewNotificationResponse svcRes;
 
-        if (taxonomyCodeDaoDynamo.getTaxonomyCodeByKeyAndPaId(taxonomyCode, DEFAULT_PAID).isEmpty()) {
+        if (pnDeliveryConfigs.isCheckTaxonomyCodeEnabled() && taxonomyCodeDaoDynamo.getTaxonomyCodeByKeyAndPaId(taxonomyCode, DEFAULT_PAID).isEmpty()) {
             throw new PnInvalidInputException(ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_TAXONOMYCODE, taxonomyCode);
         }
 
