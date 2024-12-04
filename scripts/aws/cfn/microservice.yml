@@ -491,23 +491,23 @@ Parameters:
   LollipopIdpRestConfigReadTimeout:
     Type: String
     Default: "8000ms"
-    Description: Read timeout for Lollipop Idp endpoint
+    Description: Read timeout for Lollipop Idp endpoint in duration format
 
   LollipopIdpRestConfigConnectionTimeout:
     Type: String
     Default: "3000ms"
-    Description: Connection timeout for Lollipop Idp endpoint
+    Description: Connection timeout for Lollipop Idp endpoint in duration format
 
   LollipopAssertionRestConfigReadTimeout:
     Type: String
     Default: "8000ms"
-    Description: Read timeout for Lollipop Assertion endpoint
+    Description: Read timeout for Lollipop Assertion endpoint in duration format
 
   LollipopAssertionRestConfigConnectionTimeout:
     Type: String
     Default: "3000ms"
-    Description: Connection timeout for Lollipop Assertion endpoint
-    
+    Description: Connection timeout for Lollipop Assertion endpoint in duration format
+
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
 
