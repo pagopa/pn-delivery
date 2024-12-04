@@ -487,6 +487,26 @@ Parameters:
     Type: Number
     Description: 'Number of retries for each idempotent versioning lambda'
     Default: 3
+
+  LollipopIdpRestConfigReadTimeout:
+    Type: String
+    Default: "8000ms"
+    Description: Read timeout for Lollipop Idp endpoint
+
+  LollipopIdpRestConfigConnectionTimeout:
+    Type: String
+    Default: "3000ms"
+    Description: Read timeout for Lollipop Idp endpoint
+
+  LollipopAssertionRestConfigReadTimeout:
+    Type: String
+    Default: "8000ms"
+    Description: Read timeout for Lollipop Assertion endpoint
+
+  LollipopAssertionRestConfigConnectionTimeout:
+    Type: String
+    Default: "3000ms"
+    Description: Read timeout for Lollipop Idp endpoint
     
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
@@ -558,6 +578,10 @@ Resources:
         ContainerEnvEntry39: !Sub "PN_CRON_ANALYZER=${PnCronAnalyzer}"
         ContainerEnvEntry40: !Sub "WIRE_TAP_LOG=${WireTapLogActivation}"
         ContainerEnvEntry41: !Sub "PN_DELIVERY_DENOMINATIONVALIDATIONEXCLUDEDCHARACTER=${DenominationValidationExcludedCharacter}"
+        ContainerEnvEntry42: !Sub "LOLLIPOP_IDP_REST_CONFIG_READ_TIMEOUT=${LollipopIdpRestConfigReadTimeout}"
+        ContainerEnvEntry43: !Sub "LOLLIPOP_IDP_REST_CONFIG_CONNECTION_TIMEOUT=${LollipopIdpRestConfigConnectionTimeout}"
+        ContainerEnvEntry44: !Sub "LOLLIPOP_ASSERTION_REST_CONFIG_READ_TIMEOUT=${LollipopAssertionRestConfigReadTimeout}"
+        ContainerEnvEntry45: !Sub "LOLLIPOP_ASSERTION_REST_CONFIG_CONNECTION_TIMEOUT=${LollipopAssertionRestConfigConnectionTimeout}"
         ContainerSecret1: !Sub "ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:"
         MicroServiceSecretPrefix: pn-Delivery-Secrets
         JavaToolOptions: "-Dreactor.netty.ioWorkerCount=120 -XX:MaxMetaspaceSize=512M"
