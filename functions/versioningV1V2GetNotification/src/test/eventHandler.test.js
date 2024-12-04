@@ -293,6 +293,38 @@ describe("eventHandler tests", function () {
   });
 
   it("statusCode 200 v2.5", async () => {
+    const notificationJSON = fs.readFileSync("./src/test/notification.json");
+    let notification = JSON.parse(notificationJSON);
+
+    process.env = Object.assign(process.env, {
+      PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
+      ENABLE_DECEASED_WORKFLOW: false,
+    });
+
+    const iunValue = "12345";
+
+    let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
+
+    mock.onGet(url).reply(200, notification, { "Content-Type": "application/json" });
+
+    const event = {
+      pathParameters: { iun: iunValue },
+      headers: {},
+      requestContext: {
+        authorizer: {},
+      },
+      resource: "v2.5/notifications/sent/{iun}",
+      path: "/delivery/v2.5/notifications/sent/MOCK_IUN",
+      httpMethod: "GET",
+    };
+    const context = {};
+
+    const response = await versioning(event, context);
+
+    expect(response.statusCode).to.equal(200);
+  });
+
+  it("statusCode 200 v2.5", async () => {
     const notificationJSON = fs.readFileSync("./src/test/notification_deceased.json");
     let notification = JSON.parse(notificationJSON);
 
