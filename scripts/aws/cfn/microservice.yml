@@ -506,7 +506,7 @@ Parameters:
   LollipopAssertionRestConfigConnectionTimeout:
     Type: String
     Default: "3000ms"
-    Description: Read timeout for Lollipop Idp endpoint
+    Description: Read timeout for Lollipop Assertion endpoint
     
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
