@@ -9,7 +9,7 @@ exports.transformFromV26ToV25 = function (responseV26) {
     console.log("ENABLE_DECEASED_WORKFLOW flag is : ", process.env.ENABLE_DECEASED_WORKFLOW);
     if(process.env.ENABLE_DECEASED_WORKFLOW == "false" && notificationHasDeceasedWorkflow(responseV26, CATEGORY_TO_EXCLUDE)){
         console.log("Deceased workflow not enabled");
-        throw new DeceasedWorkflowException("Deceased workflow not enabled");
+        throw new DeceasedWorkflowException("To view this notification correctly, the SEND API must be updated. While waiting for the update to take place, you can view the notification by logging into the SEND back office");
     }
 
     let responseV25 = responseV26;

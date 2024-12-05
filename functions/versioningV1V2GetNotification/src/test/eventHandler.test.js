@@ -289,7 +289,7 @@ describe("eventHandler tests", function () {
     const response = await versioning(event, context);
 
     expect(response.statusCode).to.equal(400);
-    expect(response.body).to.contain("Deceased workflow not enabled");
+    expect(response.body).to.contain("To view this notification correctly, the SEND API must be updated. While waiting for the update to take place, you can view the notification by logging into the SEND back office");
   });
 
   it("statusCode 200 v2.5", async () => {
