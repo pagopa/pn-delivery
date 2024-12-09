@@ -18,6 +18,7 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
  * Il container (e quindi la classe) può essere condivisa tra più classi di test.
  * Per utilizzare questa classe, le classi di test dovranno essere annotate con
  * @Import(LocalStackTestConfig.class)
+ *
  */
 @TestConfiguration
 public class LocalStackTestConfig {
