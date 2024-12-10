@@ -602,7 +602,7 @@ Resources:
         ContainerEnvEntry45: !Sub "LOLLIPOP_ASSERTION_REST_CONFIG_CONNECTION_TIMEOUT=${LollipopAssertionRestConfigConnectionTimeout}"
         ContainerEnvEntry46: !Sub "PN_DELIVERY_TAXONOMYCODEDAO_TABLENAME=${TaxonomyCodeDynamoTableName}"
         ContainerEnvEntry47: !Sub "PN_DELIVERY_CHECK_TAXONOMY_CODE_ENABLED=${CheckTaxonomyCodeEnabled}"
-        ContainerEnvEntry48: !Sub "PN_DELIVERY_ENABLE_NUMERICAL_TAX_ID_VALIDATION=${EnableNumericalTaxIdValidation}"
+        ContainerEnvEntry48: !Sub "PN_DELIVERY_ENABLENUMERICALTAXIDVALIDATION=${EnableNumericalTaxIdValidation}"
         ContainerSecret1: !Sub "ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:"
         MicroServiceSecretPrefix: pn-Delivery-Secrets
         JavaToolOptions: "-Dreactor.netty.ioWorkerCount=120 -XX:MaxMetaspaceSize=512M"

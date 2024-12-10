@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.ExceptionHelper;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.dto.ProblemError;
 import it.pagopa.pn.commons.utils.ValidateUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
@@ -20,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestClientException;
 import software.amazon.awssdk.utils.CollectionUtils;
 
 import javax.validation.ConstraintViolation;
@@ -28,8 +30,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_INVALID_ADDITIONAL_LANG;
-import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_REQUIRED_ADDITIONAL_LANG;
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.*;
 import static it.pagopa.pn.delivery.utils.DenominationValidationUtils.ValidationTypeAllowedValues.NONE;
 import static it.pagopa.pn.delivery.utils.DenominationValidationUtils.ValidationTypeAllowedValues.REGEX;
 
@@ -424,27 +425,28 @@ public class NotificationReceiverValidator {
             ConstraintViolationImpl<NewNotificationRequestV24> constraintViolation = new ConstraintViolationImpl<>("SEND accepts only numerical taxId for PG recipient " + recIdx);
             errors.add(constraintViolation);
         } else if (Boolean.TRUE.equals(pnDeliveryConfigs.isEnableNumericalTaxIdValidation())) {
-            checkValidationNumericalTaxIdForPG(errors, recIdx, recipient.getTaxId());
+            externalNumericalTaxIdValidation(errors, recIdx, recipient.getTaxId());
         }
     }
 
-    protected void checkValidationNumericalTaxIdForPG(Set<ConstraintViolation<NewNotificationRequestV24>> errors, int recIdx, String taxId) {
+    private void externalNumericalTaxIdValidation(Set<ConstraintViolation<NewNotificationRequestV24>> errors, int recIdx, String taxId) {
+        boolean isValid = callAdeCheckTaxId(taxId);
+        if (Boolean.FALSE.equals(isValid)) {
+            ConstraintViolationImpl<NewNotificationRequestV24> constraintViolation = new ConstraintViolationImpl<>("Invalid taxId for PG recipient " + recIdx);
+            errors.add(constraintViolation);
+        }
+    }
+
+    private boolean callAdeCheckTaxId(String taxId) {
         try {
             CheckTaxIdRequestBodyFilter filter = new CheckTaxIdRequestBodyFilter();
             filter.setTaxId(taxId);
             CheckTaxIdRequestBody requestBody = new CheckTaxIdRequestBody();
             requestBody.setFilter(filter);
             CheckTaxIdOK response = agenziaEntrateApi.checkTaxId(requestBody);
-            boolean isValid = response != null && Boolean.TRUE.equals(response.getIsValid());
-
-            if (Boolean.FALSE.equals(isValid)) {
-                ConstraintViolationImpl<NewNotificationRequestV24> constraintViolation = new ConstraintViolationImpl<>("Invalid taxId for PG recipient " + recIdx);
-                errors.add(constraintViolation);
-            }
-        } catch (Exception e) {
-            ConstraintViolationImpl<NewNotificationRequestV24> constraintViolation = new ConstraintViolationImpl<>("Error validating taxId for PG recipient at index " + recIdx);
-            log.error(constraintViolation.getMessage(), e);
-            errors.add(constraintViolation);
+            return response != null && Boolean.TRUE.equals(response.getIsValid());
+        } catch (RestClientException e){
+            throw new PnInternalException("Error calling check taxId on AdE", ERROR_CODE_DELIVERY_CHECKNUMERICALCF);
         }
     }
 

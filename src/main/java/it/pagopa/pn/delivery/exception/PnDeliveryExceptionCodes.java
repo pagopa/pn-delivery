@@ -31,4 +31,6 @@ public class PnDeliveryExceptionCodes extends PnExceptionsCodes {
 
     public static final String ERROR_CODE_DELIVERY_HANDLEEVENTFAILED = "PN_DELIVERY_HANDLEEVENTFAILED";
 
+    public static final String ERROR_CODE_DELIVERY_CHECKNUMERICALCF = "PN_DELIVERY_CHECKNUMERICALCF";
+
 }
