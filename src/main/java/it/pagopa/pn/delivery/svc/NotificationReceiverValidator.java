@@ -7,6 +7,10 @@ import it.pagopa.pn.commons.utils.ValidateUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
+import it.pagopa.pn.delivery.generated.openapi.msclient.nationalregistries.v1.api.AgenziaEntrateApi;
+import it.pagopa.pn.delivery.generated.openapi.msclient.nationalregistries.v1.model.CheckTaxIdOK;
+import it.pagopa.pn.delivery.generated.openapi.msclient.nationalregistries.v1.model.CheckTaxIdRequestBody;
+import it.pagopa.pn.delivery.generated.openapi.msclient.nationalregistries.v1.model.CheckTaxIdRequestBodyFilter;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
@@ -37,13 +41,15 @@ public class NotificationReceiverValidator {
     private final MVPParameterConsumer mvpParameterConsumer;
     private final ValidateUtils validateUtils;
     private final PnDeliveryConfigs pnDeliveryConfigs;
+    private final AgenziaEntrateApi agenziaEntrateApi;
     public static final String REQUIRED_ADDITIONAL_LANG_SIZE = "È obbligatorio fornire una sola lingua aggiuntiva.";
 
-    public NotificationReceiverValidator(Validator validator, MVPParameterConsumer mvpParameterConsumer, ValidateUtils validateUtils, PnDeliveryConfigs pnDeliveryConfigs) {
+    public NotificationReceiverValidator(Validator validator, MVPParameterConsumer mvpParameterConsumer, ValidateUtils validateUtils, PnDeliveryConfigs pnDeliveryConfigs, AgenziaEntrateApi agenziaEntrateApi) {
         this.validator = validator;
         this.mvpParameterConsumer = mvpParameterConsumer;
         this.validateUtils = validateUtils;
         this.pnDeliveryConfigs = pnDeliveryConfigs;
+        this.agenziaEntrateApi = agenziaEntrateApi;
 
         log.info("Validation enabled={}", pnDeliveryConfigs.isPhysicalAddressValidation());
         log.info("Validation pattern={}", pnDeliveryConfigs.getPhysicalAddressValidationPattern());
@@ -412,10 +418,32 @@ public class NotificationReceiverValidator {
     }
 
 
-    private static void onlyNumericalTaxIdForPGV2(Set<ConstraintViolation<NewNotificationRequestV24>> errors, int recIdx, NotificationRecipientV23 recipient) {
+    private void onlyNumericalTaxIdForPGV2(Set<ConstraintViolation<NewNotificationRequestV24>> errors, int recIdx, NotificationRecipientV23 recipient) {
         if (NotificationRecipientV23.RecipientTypeEnum.PG.equals(recipient.getRecipientType()) &&
                 (!recipient.getTaxId().matches("^\\d+$"))) {
             ConstraintViolationImpl<NewNotificationRequestV24> constraintViolation = new ConstraintViolationImpl<>("SEND accepts only numerical taxId for PG recipient " + recIdx);
+            errors.add(constraintViolation);
+        } else if (Boolean.TRUE.equals(pnDeliveryConfigs.isEnableNumericalTaxIdValidation())) {
+            checkValidationNumericalTaxIdForPG(errors, recIdx, recipient.getTaxId());
+        }
+    }
+
+    protected void checkValidationNumericalTaxIdForPG(Set<ConstraintViolation<NewNotificationRequestV24>> errors, int recIdx, String taxId) {
+        try {
+            CheckTaxIdRequestBodyFilter filter = new CheckTaxIdRequestBodyFilter();
+            filter.setTaxId(taxId);
+            CheckTaxIdRequestBody requestBody = new CheckTaxIdRequestBody();
+            requestBody.setFilter(filter);
+            CheckTaxIdOK response = agenziaEntrateApi.checkTaxId(requestBody);
+            boolean isValid = response != null && Boolean.TRUE.equals(response.getIsValid());
+
+            if (Boolean.FALSE.equals(isValid)) {
+                ConstraintViolationImpl<NewNotificationRequestV24> constraintViolation = new ConstraintViolationImpl<>("Invalid taxId for PG recipient " + recIdx);
+                errors.add(constraintViolation);
+            }
+        } catch (Exception e) {
+            ConstraintViolationImpl<NewNotificationRequestV24> constraintViolation = new ConstraintViolationImpl<>("Error validating taxId for PG recipient at index " + recIdx);
+            log.error(constraintViolation.getMessage(), e);
             errors.add(constraintViolation);
         }
     }

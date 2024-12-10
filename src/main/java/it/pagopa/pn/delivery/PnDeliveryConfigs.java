@@ -83,6 +83,8 @@ public class PnDeliveryConfigs {
 
     private boolean checkTaxonomyCodeEnabled;
 
+    private boolean enableNumericalTaxIdValidation;
+
     @PostConstruct
     public void init(){
         log.info("CONFIGURATION {}",this);
