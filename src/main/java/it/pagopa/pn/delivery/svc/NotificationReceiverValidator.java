@@ -21,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import org.springframework.web.client.RestClientException;
 import software.amazon.awssdk.utils.CollectionUtils;
 
 import javax.validation.ConstraintViolation;
@@ -430,23 +429,31 @@ public class NotificationReceiverValidator {
     }
 
     private void externalNumericalTaxIdValidation(Set<ConstraintViolation<NewNotificationRequestV24>> errors, int recIdx, String taxId) {
-        boolean isValid = callAdeCheckTaxId(taxId);
+        boolean isValid = callAdeCheckTaxId(taxId, recIdx);
         if (Boolean.FALSE.equals(isValid)) {
-            ConstraintViolationImpl<NewNotificationRequestV24> constraintViolation = new ConstraintViolationImpl<>("Invalid taxId for PG recipient " + recIdx);
+            ConstraintViolationImpl<NewNotificationRequestV24> constraintViolation = new ConstraintViolationImpl<>("Invalid taxId for recipient " + recIdx);
             errors.add(constraintViolation);
         }
     }
 
-    private boolean callAdeCheckTaxId(String taxId) {
+    private boolean callAdeCheckTaxId(String taxId, int recIdx) {
+        boolean isValid = false;
         try {
             CheckTaxIdRequestBodyFilter filter = new CheckTaxIdRequestBodyFilter();
             filter.setTaxId(taxId);
             CheckTaxIdRequestBody requestBody = new CheckTaxIdRequestBody();
             requestBody.setFilter(filter);
             CheckTaxIdOK response = agenziaEntrateApi.checkTaxId(requestBody);
-            return response != null && Boolean.TRUE.equals(response.getIsValid());
-        } catch (RestClientException e){
-            throw new PnInternalException("Error calling check taxId on AdE", ERROR_CODE_DELIVERY_CHECKNUMERICALCF);
+            if (Objects.nonNull(response)) {
+                isValid = Boolean.TRUE.equals(response.getIsValid());
+                if (!isValid) {
+                    log.warn("AdE - invalid taxId for recipient {}, error: {}", recIdx, response.getErrorCode());
+                }
+            }
+            return isValid;
+        } catch (Exception e) {
+            log.error("Error calling check taxId on AdE", e);
+            throw new PnInternalException("Error calling check taxId on AdE", 503, ERROR_CODE_DELIVERY_CHECKNUMERICALCF);
         }
     }
 

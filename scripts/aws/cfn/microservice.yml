@@ -368,7 +368,11 @@ Parameters:
 
   EnableNumericalTaxIdValidation:
     Type: String
+    Default: false
     Description: "Boolean that enables the validation of the numerical tax id"
+    AllowedValues:
+      - true
+      - false
 
   # Autoscaling parameters
   AutoscalingCheckPeriod:
@@ -603,6 +607,7 @@ Resources:
         ContainerEnvEntry46: !Sub "PN_DELIVERY_TAXONOMYCODEDAO_TABLENAME=${TaxonomyCodeDynamoTableName}"
         ContainerEnvEntry47: !Sub "PN_DELIVERY_CHECK_TAXONOMY_CODE_ENABLED=${CheckTaxonomyCodeEnabled}"
         ContainerEnvEntry48: !Sub "PN_DELIVERY_ENABLENUMERICALTAXIDVALIDATION=${EnableNumericalTaxIdValidation}"
+        ContainerEnvEntry49: !Sub "PN_DELIVERY_NATIONALREGISTRIESBASEURL=http://${ApplicationLoadBalancerDomain}:8080"
         ContainerSecret1: !Sub "ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:"
         MicroServiceSecretPrefix: pn-Delivery-Secrets
         JavaToolOptions: "-Dreactor.netty.ioWorkerCount=120 -XX:MaxMetaspaceSize=512M"
