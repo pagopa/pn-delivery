@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.common.rest.error.v1.dto.ProblemError;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.utils.ValidateUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.web.client.RestClientException;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Path;
@@ -30,8 +32,7 @@ import java.util.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
@@ -142,7 +143,6 @@ class NotificationReceiverValidationTest {
 
 
     @Test
-    @Disabled
     void invalidRecipientPGTaxId() {
         // Given
         NewNotificationRequestV24 n = newNotificationPG();
@@ -151,9 +151,114 @@ class NotificationReceiverValidationTest {
         errors = validator.checkNewNotificationRequestBeforeInsert(n);
 
         // Then
-        assertConstraintViolationPresentByMessage(errors, "SEND accepts only numerical taxId for PG recipient 1");
+        assertConstraintViolationPresentByMessage(errors, "SEND accepts only numerical taxId for PG recipient 0");
     }
 
+    @Test
+    void ValidRecipientPGTaxIdSkipAdE() {
+        // Given
+        NewNotificationRequestV24 n = newNotificationPG();
+        n.getRecipients().get(0).setTaxId("76898480348");
+        n.getRecipients().get(0).getPayments().get(0).getPagoPa().setCreditorTaxId("12345678901");
+        n.setTaxonomyCode("123456A");
+        n.senderTaxId("12345678901");
+        n.physicalCommunicationType(NewNotificationRequestV24.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
+        n.documents(Collections.singletonList(NotificationDocument.builder()
+                .contentType("application/pdf")
+                .ref(NotificationAttachmentBodyRef.builder().key(KEY).versionToken(VERSION_TOKEN)
+                        .build())
+                .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build()));
+
+        when(validateUtils.validate(anyString(), anyBoolean(), anyBoolean())).thenReturn(true);
+
+        // When
+        Set<ConstraintViolation<NewNotificationRequestV24>> errors;
+        errors = validator.checkNewNotificationRequestBeforeInsert(n);
+        // Then
+        Assertions.assertTrue(errors.isEmpty());
+    }
+
+    @Test
+    void invalidRecipientPGTaxIdOnAdE() {
+        // Given
+        NewNotificationRequestV24 n = newNotificationPG();
+        n.getRecipients().get(0).setTaxId("76898480348");
+        n.getRecipients().get(0).getPayments().get(0).getPagoPa().setCreditorTaxId("12345678901");
+        n.setTaxonomyCode("123456A");
+        n.senderTaxId("12345678901");
+        n.physicalCommunicationType(NewNotificationRequestV24.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
+        n.documents(Collections.singletonList(NotificationDocument.builder()
+                .contentType("application/pdf")
+                .ref(NotificationAttachmentBodyRef.builder().key(KEY).versionToken(VERSION_TOKEN)
+                        .build())
+                .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build()));
+
+        when(validateUtils.validate(anyString(), anyBoolean(), anyBoolean())).thenReturn(true);
+
+        when(cfg.isEnableNumericalTaxIdValidation()).thenReturn(true);
+        CheckTaxIdOK checkTaxIdOK = new CheckTaxIdOK();
+        checkTaxIdOK.setIsValid(Boolean.FALSE);
+        when(agenziaEntrateApi.checkTaxId(any())).thenReturn(checkTaxIdOK);
+        // When
+        Set<ConstraintViolation<NewNotificationRequestV24>> errors;
+        errors = validator.checkNewNotificationRequestBeforeInsert(n);
+
+        // Then
+        assertConstraintViolationPresentByMessage(errors, "Invalid taxId for PG recipient 0");
+    }
+
+
+    @Test
+    void validRecipientPGTaxIdOnAdE() {
+        // Given
+        NewNotificationRequestV24 n = newNotificationPG();
+        n.getRecipients().get(0).setTaxId("76898480348");
+        n.getRecipients().get(0).getPayments().get(0).getPagoPa().setCreditorTaxId("12345678901");
+        n.setTaxonomyCode("123456A");
+        n.senderTaxId("12345678901");
+        n.physicalCommunicationType(NewNotificationRequestV24.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
+        n.documents(Collections.singletonList(NotificationDocument.builder()
+                .contentType("application/pdf")
+                .ref(NotificationAttachmentBodyRef.builder().key(KEY).versionToken(VERSION_TOKEN)
+                        .build())
+                .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build()));
+
+        when(validateUtils.validate(anyString(), anyBoolean(), anyBoolean())).thenReturn(true);
+
+        when(cfg.isEnableNumericalTaxIdValidation()).thenReturn(true);
+        CheckTaxIdOK checkTaxIdOK = new CheckTaxIdOK();
+        checkTaxIdOK.setIsValid(Boolean.TRUE);
+        when(agenziaEntrateApi.checkTaxId(any())).thenReturn(checkTaxIdOK);
+
+        // When
+        Set<ConstraintViolation<NewNotificationRequestV24>> errors;
+        errors = validator.checkNewNotificationRequestBeforeInsert(n);
+
+        Assertions.assertTrue(errors.isEmpty());
+    }
+
+    @Test
+    void invalidNotificationErrorOnAdE() {
+        // Given
+        NewNotificationRequestV24 n = newNotificationPG();
+        n.getRecipients().get(0).setTaxId("76898480348");
+        n.getRecipients().get(0).getPayments().get(0).getPagoPa().setCreditorTaxId("12345678901");
+        n.setTaxonomyCode("123456A");
+        n.senderTaxId("12345678901");
+        n.physicalCommunicationType(NewNotificationRequestV24.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
+        n.documents(Collections.singletonList(NotificationDocument.builder()
+                .contentType("application/pdf")
+                .ref(NotificationAttachmentBodyRef.builder().key(KEY).versionToken(VERSION_TOKEN)
+                        .build())
+                .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build()));
+
+        when(validateUtils.validate(anyString(), anyBoolean(), anyBoolean())).thenReturn(true);
+
+        when(cfg.isEnableNumericalTaxIdValidation()).thenReturn(true);
+        when(agenziaEntrateApi.checkTaxId(any())).thenThrow(RestClientException.class);
+
+        Assertions.assertThrows(PnInternalException.class, () -> validator.checkNewNotificationRequestBeforeInsertAndThrow(n), "Error calling check taxId on AdE");
+    }
     @Test
     @Disabled
     void invalidRecipient() {
@@ -1700,61 +1805,6 @@ class NotificationReceiverValidationTest {
         when(mvpParameterConsumer.isMvp(validRequest.getSenderTaxId())).thenReturn(false);
 
         assertDoesNotThrow(() -> validator.checkNewNotificationRequestBeforeInsertAndThrow(validRequest));
-    }
-
-    @Test
-    void testCheckValidationNumericalTaxIdForPG_ValidTaxId() throws Exception {
-        // Arrange
-        Set<ConstraintViolation<NewNotificationRequestV24>> errors = new HashSet<>();
-        int recIdx = 0;
-        String taxId = "12345678901";
-
-        CheckTaxIdOK response = new CheckTaxIdOK();
-        response.setIsValid(true);
-        when(agenziaEntrateApi.checkTaxId(any(CheckTaxIdRequestBody.class))).thenReturn(response);
-
-        // Act
-        validator.checkValidationNumericalTaxIdForPG(errors, recIdx, taxId);
-
-        // Assert
-        assertEquals(0, errors.size());
-        verify(agenziaEntrateApi, times(1)).checkTaxId(any(CheckTaxIdRequestBody.class));
-    }
-
-    @Test
-    void testCheckValidationNumericalTaxIdForPG_InvalidTaxId() throws Exception {
-        // Arrange
-        Set<ConstraintViolation<NewNotificationRequestV24>> errors = new HashSet<>();
-        int recIdx = 0;
-        String taxId = "12345678901";
-
-        CheckTaxIdOK response = new CheckTaxIdOK();
-        response.setIsValid(false);
-        when(agenziaEntrateApi.checkTaxId(any(CheckTaxIdRequestBody.class))).thenReturn(response);
-
-        // Act
-        validator.checkValidationNumericalTaxIdForPG(errors, recIdx, taxId);
-
-        // Assert
-        assertEquals(1, errors.size());
-        verify(agenziaEntrateApi, times(1)).checkTaxId(any(CheckTaxIdRequestBody.class));
-    }
-
-    @Test
-    void testCheckValidationNumericalTaxIdForPG_Exception() throws Exception {
-        // Arrange
-        Set<ConstraintViolation<NewNotificationRequestV24>> errors = new HashSet<>();
-        int recIdx = 0;
-        String taxId = "12345678901";
-
-        when(agenziaEntrateApi.checkTaxId(any(CheckTaxIdRequestBody.class))).thenThrow(new RuntimeException("API error"));
-
-        // Act
-        validator.checkValidationNumericalTaxIdForPG(errors, recIdx, taxId);
-
-        // Assert
-        assertEquals(1, errors.size());
-        verify(agenziaEntrateApi, times(1)).checkTaxId(any(CheckTaxIdRequestBody.class));
     }
 
     @NotNull
