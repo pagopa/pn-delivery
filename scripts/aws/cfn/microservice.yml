@@ -502,11 +502,31 @@ Parameters:
     Description: 'Number of retries for each idempotent versioning lambda'
     Default: 3
 
+  LollipopIdpRestConfigReadTimeout:
+    Type: String
+    Default: "8000ms"
+    Description: Read timeout for Lollipop Idp endpoint in duration format
+
+  LollipopIdpRestConfigConnectionTimeout:
+    Type: String
+    Default: "3000ms"
+    Description: Connection timeout for Lollipop Idp endpoint in duration format
+
+  LollipopAssertionRestConfigReadTimeout:
+    Type: String
+    Default: "8000ms"
+    Description: Read timeout for Lollipop Assertion endpoint in duration format
+
+  LollipopAssertionRestConfigConnectionTimeout:
+    Type: String
+    Default: "3000ms"
+    Description: Connection timeout for Lollipop Assertion endpoint in duration format
+
   EnableDeceasedWorkflow:
     Type: String
     Description: 'Enables the workflow for the deceased recipient'
     Default: false
-    
+
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
 
@@ -577,9 +597,13 @@ Resources:
         ContainerEnvEntry39: !Sub "PN_CRON_ANALYZER=${PnCronAnalyzer}"
         ContainerEnvEntry40: !Sub "WIRE_TAP_LOG=${WireTapLogActivation}"
         ContainerEnvEntry41: !Sub "PN_DELIVERY_DENOMINATIONVALIDATIONEXCLUDEDCHARACTER=${DenominationValidationExcludedCharacter}"
-        ContainerEnvEntry42: !Sub "PN_DELIVERY_TAXONOMYCODEDAO_TABLENAME=${TaxonomyCodeDynamoTableName}"
-        ContainerEnvEntry43: !Sub "PN_DELIVERY_CHECK_TAXONOMY_CODE_ENABLED=${CheckTaxonomyCodeEnabled}"
-        ContainerEnvEntry44: !Sub "PN_DELIVERY_ENABLE_DECEASED_WORKFLOW=${EnableDeceasedWorkflow}"
+        ContainerEnvEntry42: !Sub "LOLLIPOP_IDP_REST_CONFIG_READ_TIMEOUT=${LollipopIdpRestConfigReadTimeout}"
+        ContainerEnvEntry43: !Sub "LOLLIPOP_IDP_REST_CONFIG_CONNECTION_TIMEOUT=${LollipopIdpRestConfigConnectionTimeout}"
+        ContainerEnvEntry44: !Sub "LOLLIPOP_ASSERTION_REST_CONFIG_READ_TIMEOUT=${LollipopAssertionRestConfigReadTimeout}"
+        ContainerEnvEntry45: !Sub "LOLLIPOP_ASSERTION_REST_CONFIG_CONNECTION_TIMEOUT=${LollipopAssertionRestConfigConnectionTimeout}"
+        ContainerEnvEntry46: !Sub "PN_DELIVERY_TAXONOMYCODEDAO_TABLENAME=${TaxonomyCodeDynamoTableName}"
+        ContainerEnvEntry47: !Sub "PN_DELIVERY_CHECK_TAXONOMY_CODE_ENABLED=${CheckTaxonomyCodeEnabled}"
+        ContainerEnvEntry48: !Sub "PN_DELIVERY_ENABLE_DECEASED_WORKFLOW=${EnableDeceasedWorkflow}"
 
         ContainerSecret1: !Sub "ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:"
         MicroServiceSecretPrefix: pn-Delivery-Secrets
