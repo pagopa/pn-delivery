@@ -1,4 +1,5 @@
 const { validateRequest, generateResponse } = require('./requestHelper')
+const { headerMapper } = require('./utils')
 
 
 const axios = require("axios");
@@ -30,12 +31,14 @@ exports.handleEvent = async (event) => {
         onMaxRetryTimesExceeded: retryTimesExceededCallback
     });
 
+    const headers = headerMapper(event);
+
     console.log ('calling ', url);
     // get verso pn-delivery
     let response;
     let lastError = null;
     try {
-        response = await axios.get(url, {timeout: attemptTimeout});
+        response = await axios.get(url, { headers: headers, timeout: attemptTimeout} );
 
         const transformedObject = transformFromV23ToV1(response.data);
         const ret = {
