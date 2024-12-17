@@ -53,50 +53,52 @@ public class StatusService {
     public void updateStatus(RequestUpdateStatusDto dto) {
         Optional<InternalNotification> notificationOptional = notificationDao.getNotificationByIun(dto.getIun(), false);
 
-        if (notificationOptional.isPresent()) {
-            InternalNotification notification = notificationOptional.get();
-            log.debug("Notification with protocolNumber={} and iun={} is present", notification.getPaProtocolNumber(), dto.getIun());
-
-            NotificationStatus nextStatus = dto.getNextStatus();
-            OffsetDateTime acceptedAt;
-            switch (nextStatus) {
-                case ACCEPTED -> {
-                    acceptedAt = dto.getTimestamp();
-                    putNotificationMetadata(dto, notification, acceptedAt);
-                }
-                case REFUSED ->
-                        notification.getRecipients().stream()
-                                .filter(r -> Objects.nonNull(r.getPayments()))
-                                .forEach(r -> r.getPayments().forEach(notificationPaymentInfo -> {
-                                    if(notificationPaymentInfo.getPagoPa() != null && StringUtils.hasText(notificationPaymentInfo.getPagoPa().getNoticeCode())){
-                                        notificationCostEntityDao.deleteItem(NotificationCostEntity.builder()
-                                                .creditorTaxIdNoticeCode(notificationPaymentInfo.getPagoPa().getCreditorTaxId() +"##"+ notificationPaymentInfo.getPagoPa().getNoticeCode())
-                                                .build());
-                                    }
-                                }));
-                default -> {
-                    Key key = Key.builder()
-                            .partitionValue( notification.getIun() + "##" + notification.getRecipients().get( 0 ).getInternalId() )
-                            .sortValue( notification.getSentAt().toString() )
-                            .build();
-                    Optional<NotificationMetadataEntity> optMetadata = notificationMetadataEntityDao.get( key );
-                    if (optMetadata.isPresent()) {
-                        if(!isNewStatus(optMetadata.get(), dto.getTimestamp())) {
-                            log.debug("Notification with iun={} already has a status with a more recent timestamp", dto.getIun());
-                            return;
-                        }
-
-                        acceptedAt = OffsetDateTime.parse( optMetadata.get().getTableRow().get( "acceptedAt" ) );
-                        putNotificationMetadata(dto, notification, acceptedAt);
-                    } else {
-                        log.debug( "Unable to retrieve accepted date - iun={} recipientId={}", notification.getIun(), notification.getRecipientIds().get( 0 ) );
-                    }
-                }
-            }
-
-        } else {
+        if(notificationOptional.isEmpty()) {
             throw new PnInternalException("Try to update status for non existing iun=" + dto.getIun(),
                     ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND);
+        }
+
+        InternalNotification notification = notificationOptional.get();
+        log.debug("Notification with protocolNumber={} and iun={} is present", notification.getPaProtocolNumber(), dto.getIun());
+
+        NotificationStatus nextStatus = dto.getNextStatus();
+        OffsetDateTime acceptedAt;
+        switch (nextStatus) {
+            case ACCEPTED -> {
+                acceptedAt = dto.getTimestamp();
+                putNotificationMetadata(dto, notification, acceptedAt);
+            }
+            case REFUSED ->
+                    notification.getRecipients().stream()
+                            .filter(r -> Objects.nonNull(r.getPayments()))
+                            .forEach(r -> r.getPayments().forEach(notificationPaymentInfo -> {
+                                if(notificationPaymentInfo.getPagoPa() != null && StringUtils.hasText(notificationPaymentInfo.getPagoPa().getNoticeCode())){
+                                    notificationCostEntityDao.deleteItem(NotificationCostEntity.builder()
+                                            .creditorTaxIdNoticeCode(notificationPaymentInfo.getPagoPa().getCreditorTaxId() +"##"+ notificationPaymentInfo.getPagoPa().getNoticeCode())
+                                            .build());
+                                }
+                            }));
+            default -> handleDefaultStatusUpdate(dto, notification);
+        }
+    }
+
+    private void handleDefaultStatusUpdate(RequestUpdateStatusDto dto, InternalNotification notification) {
+        OffsetDateTime acceptedAt;
+        Key key = Key.builder()
+                .partitionValue( notification.getIun() + "##" + notification.getRecipients().get( 0 ).getInternalId() )
+                .sortValue( notification.getSentAt().toString() )
+                .build();
+        Optional<NotificationMetadataEntity> optMetadata = notificationMetadataEntityDao.get( key );
+        if (optMetadata.isPresent()) {
+            if(!isNewStatus(optMetadata.get(), dto.getTimestamp())) {
+                log.debug("Notification with iun={} already has a status with a more recent timestamp", dto.getIun());
+                return;
+            }
+
+            acceptedAt = OffsetDateTime.parse( optMetadata.get().getTableRow().get( "acceptedAt" ) );
+            putNotificationMetadata(dto, notification, acceptedAt);
+        } else {
+            log.debug( "Unable to retrieve accepted date - iun={} recipientId={}", notification.getIun(), notification.getRecipientIds().get( 0 ) );
         }
     }
 
@@ -115,30 +117,30 @@ public class StatusService {
     }
 
     private List<NotificationMetadataEntity> computeMetadataEntry(RequestUpdateStatusDto dto, InternalNotification notification, OffsetDateTime acceptedAt) {
-        NotificationStatus lastStatus = dto.getNextStatus();
         String rootSenderId = externalRegistriesClient.getRootSenderId(notification.getSenderPaId());
         String creationMonth = DataUtils.extractCreationMonth( notification.getSentAt().toInstant() );
 
         List<String> opaqueTaxIds = notification.getRecipientIds();
 
         return opaqueTaxIds.stream()
-                    .map( recipientId -> this.buildOneSearchMetadataEntry( notification, lastStatus, recipientId, opaqueTaxIds, creationMonth, acceptedAt, dto.getTimestamp(), rootSenderId))
+                    .map( recipientId -> this.buildOneSearchMetadataEntry( notification, dto, recipientId, opaqueTaxIds, creationMonth, acceptedAt, rootSenderId))
                     .toList();
     }
 
     private NotificationMetadataEntity buildOneSearchMetadataEntry(
             InternalNotification notification,
-            NotificationStatus lastStatus,
+            RequestUpdateStatusDto dto,
             String recipientId,
             List<String> recipientsIds,
             String creationMonth,
             OffsetDateTime acceptedAt,
-            OffsetDateTime notificationStatusTimestamp,
             String rootSenderId
     ) {
         int recipientIndex = recipientsIds.indexOf( recipientId );
+        NotificationStatus lastStatus = dto.getNextStatus();
+        OffsetDateTime notificationStatusTimestamp = dto.getTimestamp();
 
-        Map<String,String> tableRowMap = createTableRowMap(notification, lastStatus, recipientsIds, acceptedAt);
+        Map<String,String> tableRowMap = createTableRowMap(notification, recipientsIds, acceptedAt);
 
         return NotificationMetadataEntity.builder()
                 .notificationStatus( lastStatus.toString() )
@@ -159,7 +161,7 @@ public class StatusService {
     }
 
     @NotNull
-    private Map<String, String> createTableRowMap(InternalNotification notification, NotificationStatus lastStatus, List<String> recipientsIds, OffsetDateTime acceptedAt) {
+    private Map<String, String> createTableRowMap(InternalNotification notification, List<String> recipientsIds, OffsetDateTime acceptedAt) {
         Map<String,String> tableRowMap = new HashMap<>();
         tableRowMap.put( "iun", notification.getIun() );
         tableRowMap.put( "recipientsIds", recipientsIds.toString() );
