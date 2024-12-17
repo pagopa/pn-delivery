@@ -1,7 +1,6 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestUpdateStatusDto;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
@@ -12,8 +11,6 @@ import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationCos
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
-import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.utils.DataUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -83,7 +80,12 @@ public class StatusService {
                             .sortValue( notification.getSentAt().toString() )
                             .build();
                     Optional<NotificationMetadataEntity> optMetadata = notificationMetadataEntityDao.get( key );
-                    if (optMetadata.isPresent() ) {
+                    if (optMetadata.isPresent()) {
+                        if(!isNewStatus(optMetadata.get(), dto.getTimestamp())) {
+                            log.debug("Notification with iun={} already has a status with a more recent timestamp", dto.getIun());
+                            return;
+                        }
+
                         acceptedAt = OffsetDateTime.parse( optMetadata.get().getTableRow().get( "acceptedAt" ) );
                         putNotificationMetadata(dto, notification, acceptedAt);
                     } else {
@@ -96,6 +98,11 @@ public class StatusService {
             throw new PnInternalException("Try to update status for non existing iun=" + dto.getIun(),
                     ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND);
         }
+    }
+
+    private boolean isNewStatus(NotificationMetadataEntity notificationMetadataEntity, OffsetDateTime timestamp) {
+        return notificationMetadataEntity.getNotificationStatusTimestamp() == null ||
+                notificationMetadataEntity.getNotificationStatusTimestamp().isBefore( timestamp.toInstant() );
     }
 
     private void putNotificationMetadata(RequestUpdateStatusDto dto, InternalNotification notification, OffsetDateTime acceptedAt) {
@@ -115,7 +122,7 @@ public class StatusService {
         List<String> opaqueTaxIds = notification.getRecipientIds();
 
         return opaqueTaxIds.stream()
-                    .map( recipientId -> this.buildOneSearchMetadataEntry( notification, lastStatus, recipientId, opaqueTaxIds, creationMonth, acceptedAt, rootSenderId))
+                    .map( recipientId -> this.buildOneSearchMetadataEntry( notification, lastStatus, recipientId, opaqueTaxIds, creationMonth, acceptedAt, dto.getTimestamp(), rootSenderId))
                     .toList();
     }
 
@@ -126,6 +133,7 @@ public class StatusService {
             List<String> recipientsIds,
             String creationMonth,
             OffsetDateTime acceptedAt,
+            OffsetDateTime notificationStatusTimestamp,
             String rootSenderId
     ) {
         int recipientIndex = recipientsIds.indexOf( recipientId );
@@ -134,6 +142,7 @@ public class StatusService {
 
         return NotificationMetadataEntity.builder()
                 .notificationStatus( lastStatus.toString() )
+                .notificationStatusTimestamp( notificationStatusTimestamp.toInstant() )
                 .senderId( notification.getSenderPaId() )
                 .rootSenderId(rootSenderId)
                 .recipientId( recipientId )
