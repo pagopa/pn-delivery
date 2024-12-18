@@ -135,7 +135,14 @@ public class NotificationReceiverValidator {
             if( !validateUtils.validate(recipient.getTaxId(), isPF, false)) {
                 ConstraintViolationImpl<NewNotificationRequestV24> constraintViolation = new ConstraintViolationImpl<>( "Invalid taxId for recipient " + recIdx );
                 errors.add(constraintViolation);
+            }else{
+                if(pnDeliveryConfigs.isEnableTaxIdExternalValidation() && !callAdeCheckTaxId(recipient.getTaxId(), recIdx)){
+                    ConstraintViolationImpl<NewNotificationRequestV24> constraintViolation = new ConstraintViolationImpl<>("Invalid taxId for recipient " + recIdx);
+                    errors.add(constraintViolation);
+                }
             }
+
+
             if ( !distinctTaxIds.add( recipient.getTaxId() )){
                 ConstraintViolationImpl<NewNotificationRequestV24> constraintViolation = new ConstraintViolationImpl<>( "Duplicated recipient taxId" );
                 errors.add(constraintViolation);
@@ -418,20 +425,10 @@ public class NotificationReceiverValidator {
     }
 
 
-    private void onlyNumericalTaxIdForPGV2(Set<ConstraintViolation<NewNotificationRequestV24>> errors, int recIdx, NotificationRecipientV23 recipient) {
+    private static void onlyNumericalTaxIdForPGV2(Set<ConstraintViolation<NewNotificationRequestV24>> errors, int recIdx, NotificationRecipientV23 recipient) {
         if (NotificationRecipientV23.RecipientTypeEnum.PG.equals(recipient.getRecipientType()) &&
                 (!recipient.getTaxId().matches("^\\d+$"))) {
             ConstraintViolationImpl<NewNotificationRequestV24> constraintViolation = new ConstraintViolationImpl<>("SEND accepts only numerical taxId for PG recipient " + recIdx);
-            errors.add(constraintViolation);
-        } else if (Boolean.TRUE.equals(pnDeliveryConfigs.isEnableNumericalTaxIdValidation())) {
-            externalNumericalTaxIdValidation(errors, recIdx, recipient.getTaxId());
-        }
-    }
-
-    private void externalNumericalTaxIdValidation(Set<ConstraintViolation<NewNotificationRequestV24>> errors, int recIdx, String taxId) {
-        boolean isValid = callAdeCheckTaxId(taxId, recIdx);
-        if (Boolean.FALSE.equals(isValid)) {
-            ConstraintViolationImpl<NewNotificationRequestV24> constraintViolation = new ConstraintViolationImpl<>("Invalid taxId for recipient " + recIdx);
             errors.add(constraintViolation);
         }
     }
@@ -453,7 +450,7 @@ public class NotificationReceiverValidator {
             return isValid;
         } catch (Exception e) {
             log.error("Error calling check taxId on AdE", e);
-            throw new PnInternalException("Error calling check taxId on AdE", 503, ERROR_CODE_DELIVERY_CHECKNUMERICALCF);
+            throw new PnInternalException("Error calling check taxId on AdE", 503, ERROR_CODE_DELIVERY_ADECHECKCF);
         }
     }
 
