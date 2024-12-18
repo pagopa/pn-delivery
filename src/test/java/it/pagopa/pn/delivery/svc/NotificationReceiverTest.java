@@ -14,6 +14,7 @@ import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroupStatus;
+import it.pagopa.pn.delivery.generated.openapi.msclient.nationalregistries.v1.api.AgenziaEntrateApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -81,6 +82,7 @@ class NotificationReceiverTest {
 	private PnDeliveryConfigs pnDeliveryConfigs;
 	private PnF24ClientImpl pnF24Client;
 	private PnDeliveryConfigs cfg;
+	private AgenziaEntrateApi agenziaEntrateApi;
 
 	@BeforeEach
 	public void setup() {
@@ -96,10 +98,11 @@ class NotificationReceiverTest {
 		pnDeliveryConfigs = Mockito.mock(PnDeliveryConfigs.class);
 		pnF24Client = Mockito.mock(PnF24ClientImpl.class);
 		cfg = Mockito.mock(PnDeliveryConfigs.class);
+		agenziaEntrateApi = Mockito.mock(AgenziaEntrateApi.class);
 
 		// - Separate Tests
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator(), mvpParameterConsumer, validateUtils, pnDeliveryConfigs);
+		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator(), mvpParameterConsumer, validateUtils, pnDeliveryConfigs, agenziaEntrateApi);
 
 		Mockito.when( validateUtils.validate( Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean() ) ).thenReturn( true );
 		Mockito.when( sendActiveParameterConsumer.isSendActive( Mockito.anyString() ) ).thenReturn( true );
