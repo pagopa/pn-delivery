@@ -1,14 +1,15 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.exception.PnNotificationCancelledException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationProcessCostResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.AsseverationEventsProducer;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationCostEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
-import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.AsseverationEvent;
 import it.pagopa.pn.delivery.models.InternalAsseverationEvent;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -26,7 +27,6 @@ import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV23.RecipientTypeEnum.PF;
+import static it.pagopa.pn.delivery.svc.NotificationPriceService.ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED;
+import static it.pagopa.pn.delivery.svc.NotificationPriceService.ERROR_CODE_DELIVERY_PUSH_NOTIFICATION_NOT_ACCEPTED;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
@@ -98,11 +100,6 @@ class NotificationPriceServiceTest {
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), anyBoolean() ) )
                 .thenReturn( Optional.of( internalNotification ) );
 
-        Mockito.when( notificationMetadataEntityDao.get( any( Key.class ) ) ).thenReturn( Optional.of(NotificationMetadataEntity.builder()
-                .iunRecipientId( "iun##recipientInternalId0" )
-                .build())
-        );
-
         Mockito.when( deliveryPushClient.getNotificationProcessCost(
                         anyString(),
                         anyInt(),
@@ -145,7 +142,7 @@ class NotificationPriceServiceTest {
 
     @ExtendWith(MockitoExtension.class)
     @Test
-    void getNotificationPriceFailure() {
+    void getNotificationPriceFailureForNotificationNotAccepted() {
         //Given
         InternalNotification internalNotification = getNewInternalNotification();
         internalNotification.setNotificationFeePolicy( NotificationFeePolicy.FLAT_RATE );
@@ -163,13 +160,60 @@ class NotificationPriceServiceTest {
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), anyBoolean() ) )
                 .thenReturn( Optional.of( internalNotification ) );
 
-        Mockito.when( notificationMetadataEntityDao.get( any( Key.class ) ) ).thenReturn( Optional.empty() );
+        PnHttpResponseException exception =  new PnHttpResponseException("errore", 404);
+        it.pagopa.pn.common.rest.error.v1.dto.ProblemError problemError = new it.pagopa.pn.common.rest.error.v1.dto.ProblemError().code(ERROR_CODE_DELIVERY_PUSH_NOTIFICATION_NOT_ACCEPTED);
+        exception.getProblem().setErrors(Collections.singletonList(problemError));
 
+        Mockito.when( deliveryPushClient.getNotificationProcessCost(
+                        anyString(),
+                        anyInt(),
+                        any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ),
+                        anyBoolean(),
+                        anyInt(),
+                        any()))
+                .thenThrow(exception);
 
         Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
 
         //Then
         assertThrows(PnNotFoundException.class, todo);
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void getNotificationPriceFailureForDownstreamProblem() {
+        //Given
+        InternalNotification internalNotification = getNewInternalNotification();
+        internalNotification.setNotificationFeePolicy( NotificationFeePolicy.FLAT_RATE );
+
+        InternalNotificationCost internalNotificationCost = InternalNotificationCost.builder()
+                .recipientIdx( 0 )
+                .iun( "iun" )
+                .creditorTaxIdNoticeCode( "creditorTaxId##noticeCode" )
+                .build();
+
+        //When
+        Mockito.when( notificationCostEntityDao.getNotificationByPaymentInfo( Mockito.anyString(),Mockito.anyString() ) )
+                .thenReturn( Optional.of(internalNotificationCost) );
+
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), anyBoolean() ) )
+                .thenReturn( Optional.of( internalNotification ) );
+
+        PnInternalException exception =  new PnInternalException("errore", "GENERIC_ERROR");
+
+        Mockito.when( deliveryPushClient.getNotificationProcessCost(
+                        anyString(),
+                        anyInt(),
+                        any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ),
+                        anyBoolean(),
+                        anyInt(),
+                        any()))
+                .thenThrow(exception);
+
+        Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
+
+        //Then
+        assertThrows(PnInternalException.class, todo);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -192,11 +236,6 @@ class NotificationPriceServiceTest {
 
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), anyBoolean() ) )
                 .thenReturn( Optional.of( internalNotification ) );
-
-        Mockito.when( notificationMetadataEntityDao.get( any( Key.class ) ) ).thenReturn( Optional.of(NotificationMetadataEntity.builder()
-                .iunRecipientId( "iun##recipientInternalId0" )
-                .build())
-        );
 
         Mockito.when( deliveryPushClient.getNotificationProcessCost(
                         anyString(),
@@ -235,12 +274,9 @@ class NotificationPriceServiceTest {
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), anyBoolean() ) )
                 .thenReturn( Optional.of( internalNotification ) );
 
-        Mockito.when( notificationMetadataEntityDao.get( any( Key.class ) ) ).thenReturn( Optional.of(NotificationMetadataEntity.builder()
-                .iunRecipientId( "iun##recipientInternalId0" )
-                .build())
-        );
-
         PnHttpResponseException exception =  new PnHttpResponseException("errore", 404);
+        it.pagopa.pn.common.rest.error.v1.dto.ProblemError problemError = new it.pagopa.pn.common.rest.error.v1.dto.ProblemError().code(ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED);
+        exception.getProblem().setErrors(Collections.singletonList(problemError));
 
         Mockito.when( deliveryPushClient.getNotificationProcessCost(
                         anyString(),
@@ -255,7 +291,7 @@ class NotificationPriceServiceTest {
         Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
 
         //Then
-        Assertions.assertThrows(PnHttpResponseException.class, todo);
+        Assertions.assertThrows(PnNotificationCancelledException.class, todo);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -278,11 +314,6 @@ class NotificationPriceServiceTest {
 
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), anyBoolean() ) )
                 .thenReturn( Optional.of( internalNotification ) );
-
-        Mockito.when( notificationMetadataEntityDao.get( any( Key.class ) ) ).thenReturn( Optional.of(NotificationMetadataEntity.builder()
-                .iunRecipientId( "iun##recipientInternalId0" )
-                .build())
-        );
 
         PnHttpResponseException exception =  new PnHttpResponseException("errore", 404);
 

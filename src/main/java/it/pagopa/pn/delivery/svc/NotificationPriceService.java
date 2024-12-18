@@ -12,7 +12,6 @@ import it.pagopa.pn.delivery.middleware.AsseverationEventsProducer;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationCostEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
-import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.AsseverationEvent;
 import it.pagopa.pn.delivery.models.InternalAsseverationEvent;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -25,15 +24,12 @@ import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.util.Optional;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_NOTIFICATIONCOSTNOTFOUND;
-import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_NOTIFICATIONMETADATANOTFOUND;
 
 @Service
 @Slf4j
@@ -49,6 +45,7 @@ public class NotificationPriceService {
 
 
     public static final String ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED = "PN_DELIVERYPUSH_NOTIFICATION_CANCELLED";
+    public static final String ERROR_CODE_DELIVERY_PUSH_NOTIFICATION_NOT_ACCEPTED = "PN_DELIVERY_PUSH_NOTIFICATION_NOT_ACCEPTED";
 
     public NotificationPriceService(Clock clock, NotificationCostEntityDao notificationCostEntityDao, NotificationDao notificationDao, NotificationMetadataEntityDao notificationMetadataEntityDao, PnDeliveryPushClientImpl deliveryPushClient, AsseverationEventsProducer asseverationEventsProducer, RefinementLocalDate refinementLocalDateUtils) {
         this.clock = clock;
@@ -149,12 +146,8 @@ public class NotificationPriceService {
 
     private NotificationProcessCostResponse getNotificationProcessCost(InternalNotification internalNotification, NotificationFeePolicy notificationFeePolicy, String recipientId, int recipientIdx, boolean applyCost) {
         String iun = internalNotification.getIun();
-        OffsetDateTime sentAt = internalNotification.getSentAt();
         Integer paFee = internalNotification.getPaFee();
         Integer vat = internalNotification.getVat();
-
-        // controllo che notifica sia stata accettata cercandola nella tabella notificationMetadata tramite PK iun##recipientId
-        getNotificationMetadataEntity(iun, recipientId, sentAt);
 
         // contatto delivery-push per farmi calcolare tramite iun, recipientIdx, notificationFeePolicy costo della notifica
         // delivery-push mi risponde con amount, data perfezionamento presa visione, data perfezionamento decorrenza termini
@@ -170,22 +163,15 @@ public class NotificationPriceService {
 
                 throw new PnNotificationCancelledException("Cannot retrive price for cancelled notification", exc);
             }
+            if (exc instanceof PnHttpResponseException pnHttpResponseException
+                    && pnHttpResponseException.getStatusCode() == HttpStatus.NOT_FOUND.value()
+                    && (((PnHttpResponseException) exc).getProblem().getErrors().get(0).getCode().equals(ERROR_CODE_DELIVERY_PUSH_NOTIFICATION_NOT_ACCEPTED))) {
+                throw new PnNotFoundException("Notification is not ACCEPTED", String.format(
+                        "Notification with iun=%s, has not been accepted yet", iun),
+                        ERROR_CODE_DELIVERY_PUSH_NOTIFICATION_NOT_ACCEPTED );
+            }
 
             throw exc;
-        }
-    }
-
-    private void getNotificationMetadataEntity(String iun, String recipientId, OffsetDateTime sentAt) {
-        Optional<NotificationMetadataEntity> optionalNotificationMetadataEntity = notificationMetadataEntityDao.get(Key.builder()
-                .partitionValue(iun + "##" + recipientId)
-                .sortValue( sentAt.toString() )
-                .build()
-        );
-        if (optionalNotificationMetadataEntity.isEmpty()) {
-            log.info( "Notification iun={}, recipientId={} not found in NotificationsMetadata", iun, recipientId);
-            throw new PnNotFoundException("Notification metadata not found", String.format(
-                    "Notification iun=%s, recipientId=%s not found in NotificationsMetadata", iun, recipientId),
-                    ERROR_CODE_DELIVERY_NOTIFICATIONMETADATANOTFOUND );
         }
     }
 
