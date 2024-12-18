@@ -9,7 +9,6 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.AsseverationEventsProducer;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationCostEntityDao;
-import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
 import it.pagopa.pn.delivery.models.AsseverationEvent;
 import it.pagopa.pn.delivery.models.InternalAsseverationEvent;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -59,9 +58,6 @@ class NotificationPriceServiceTest {
     private NotificationCostEntityDao notificationCostEntityDao;
 
     @Mock
-    private NotificationMetadataEntityDao notificationMetadataEntityDao;
-
-    @Mock
     private PnDeliveryPushClientImpl deliveryPushClient;
 
     @Mock
@@ -74,7 +70,7 @@ class NotificationPriceServiceTest {
     @BeforeEach
     void setup() {
         Clock clock = Clock.fixed( Instant.parse( EVENT_DATE ), ZoneId.of("UTC"));
-        svc = new NotificationPriceService(clock, notificationCostEntityDao, notificationDao, notificationMetadataEntityDao, deliveryPushClient, asseverationEventsProducer, refinementLocalDateUtils);
+        svc = new NotificationPriceService(clock, notificationCostEntityDao, notificationDao, deliveryPushClient, asseverationEventsProducer, refinementLocalDateUtils);
     }
 
     @ExtendWith(MockitoExtension.class)

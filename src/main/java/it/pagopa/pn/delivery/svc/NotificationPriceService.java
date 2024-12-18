@@ -11,7 +11,6 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPriceRe
 import it.pagopa.pn.delivery.middleware.AsseverationEventsProducer;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationCostEntityDao;
-import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
 import it.pagopa.pn.delivery.models.AsseverationEvent;
 import it.pagopa.pn.delivery.models.InternalAsseverationEvent;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -37,7 +36,6 @@ public class NotificationPriceService {
     private final Clock clock;
     private final NotificationCostEntityDao notificationCostEntityDao;
     private final NotificationDao notificationDao;
-    private final NotificationMetadataEntityDao notificationMetadataEntityDao;
     private final PnDeliveryPushClientImpl deliveryPushClient;
 
     private final AsseverationEventsProducer asseverationEventsProducer;
@@ -47,11 +45,10 @@ public class NotificationPriceService {
     public static final String ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED = "PN_DELIVERYPUSH_NOTIFICATION_CANCELLED";
     public static final String ERROR_CODE_DELIVERY_PUSH_NOTIFICATION_NOT_ACCEPTED = "PN_DELIVERY_PUSH_NOTIFICATION_NOT_ACCEPTED";
 
-    public NotificationPriceService(Clock clock, NotificationCostEntityDao notificationCostEntityDao, NotificationDao notificationDao, NotificationMetadataEntityDao notificationMetadataEntityDao, PnDeliveryPushClientImpl deliveryPushClient, AsseverationEventsProducer asseverationEventsProducer, RefinementLocalDate refinementLocalDateUtils) {
+    public NotificationPriceService(Clock clock, NotificationCostEntityDao notificationCostEntityDao, NotificationDao notificationDao, PnDeliveryPushClientImpl deliveryPushClient, AsseverationEventsProducer asseverationEventsProducer, RefinementLocalDate refinementLocalDateUtils) {
         this.clock = clock;
         this.notificationCostEntityDao = notificationCostEntityDao;
         this.notificationDao = notificationDao;
-        this.notificationMetadataEntityDao = notificationMetadataEntityDao;
         this.deliveryPushClient = deliveryPushClient;
         this.asseverationEventsProducer = asseverationEventsProducer;
         this.refinementLocalDateUtils = refinementLocalDateUtils;
@@ -73,7 +70,7 @@ public class NotificationPriceService {
 
         boolean applyCost = getApplyCost(internalNotification, noticeCode);
 
-        NotificationProcessCostResponse notificationProcessCost = getNotificationProcessCost(internalNotification, notificationFeePolicy, recipientId, recipientIdx, applyCost);
+        NotificationProcessCostResponse notificationProcessCost = getNotificationProcessCost(internalNotification, notificationFeePolicy, recipientIdx, applyCost);
 
         // invio l'evento di asseverazione sulla coda
         log.info( "Send asseveration event iun={} creditorTaxId={} noticeCode={}", iun, paTaxId, noticeCode );
@@ -144,7 +141,7 @@ public class NotificationPriceService {
         }
     }
 
-    private NotificationProcessCostResponse getNotificationProcessCost(InternalNotification internalNotification, NotificationFeePolicy notificationFeePolicy, String recipientId, int recipientIdx, boolean applyCost) {
+    private NotificationProcessCostResponse getNotificationProcessCost(InternalNotification internalNotification, NotificationFeePolicy notificationFeePolicy, int recipientIdx, boolean applyCost) {
         String iun = internalNotification.getIun();
         Integer paFee = internalNotification.getPaFee();
         Integer vat = internalNotification.getVat();
@@ -159,13 +156,13 @@ public class NotificationPriceService {
             // direttamente l'exception originale
             if (exc instanceof PnHttpResponseException pnHttpResponseException
                     && pnHttpResponseException.getStatusCode() == HttpStatus.NOT_FOUND.value()
-                    && (((PnHttpResponseException) exc).getProblem().getErrors().get(0).getCode().equals(ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED))) {
+                    && (pnHttpResponseException.getProblem().getErrors().get(0).getCode().equals(ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED))) {
 
                 throw new PnNotificationCancelledException("Cannot retrive price for cancelled notification", exc);
             }
             if (exc instanceof PnHttpResponseException pnHttpResponseException
                     && pnHttpResponseException.getStatusCode() == HttpStatus.NOT_FOUND.value()
-                    && (((PnHttpResponseException) exc).getProblem().getErrors().get(0).getCode().equals(ERROR_CODE_DELIVERY_PUSH_NOTIFICATION_NOT_ACCEPTED))) {
+                    && (pnHttpResponseException.getProblem().getErrors().get(0).getCode().equals(ERROR_CODE_DELIVERY_PUSH_NOTIFICATION_NOT_ACCEPTED))) {
                 throw new PnNotFoundException("Notification is not ACCEPTED", String.format(
                         "Notification with iun=%s, has not been accepted yet", iun),
                         ERROR_CODE_DELIVERY_PUSH_NOTIFICATION_NOT_ACCEPTED );
