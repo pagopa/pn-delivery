@@ -31,6 +31,8 @@ public class NotificationMetadataEntity {
     public static final String FIELD_RECIPIENT_ID_CREATION_MONTH = "recipientId_creationMonth";
     public static final String FIELD_SENDER_ID_RECIPIENT_ID = "senderId_recipientId";
     public static final String FIELD_ROOT_SENDER_ID = "rootSenderId";
+    public static final String FIELD_NOTIFICATION_STATUS_TIMESTAMP = "notificationStatusTimestamp";
+
 
 
     private String iunRecipientId;
@@ -46,6 +48,7 @@ public class NotificationMetadataEntity {
     private String recipientIdCreationMonth;
     private String senderIdRecipientId;
     private String rootSenderId;
+    private Instant notificationStatusTimestamp;
 
     @DynamoDbPartitionKey
     @DynamoDbAttribute(value = FIELD_IUN_RECIPIENT_ID)
@@ -166,5 +169,14 @@ public class NotificationMetadataEntity {
 
     public void setRootSenderId(String rootSenderId) {
         this.rootSenderId = rootSenderId;
+    }
+
+    @DynamoDbAttribute(value = FIELD_NOTIFICATION_STATUS_TIMESTAMP)
+    public Instant getNotificationStatusTimestamp() {
+        return notificationStatusTimestamp;
+    }
+
+    public void setNotificationStatusTimestamp(Instant notificationStatusTimestamp) {
+        this.notificationStatusTimestamp = notificationStatusTimestamp;
     }
 }
