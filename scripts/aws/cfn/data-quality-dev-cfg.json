@@ -1,0 +1,5 @@
+{
+  "Parameters" : {
+    "NotificationsGlueTableName": "pn_notifications"
+  }
+}
