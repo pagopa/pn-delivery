@@ -4,7 +4,7 @@ import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.BaseRecipientDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.EntityToDtoNotificationMapper;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationDaoDynamo;
@@ -189,7 +189,7 @@ class ReceivedNotificationsDocumentTest {
 		internalNotification.setCancelledIun("IUN_05");
 		internalNotification.setCancelledIun("IUN_00");
 		internalNotification.setSenderPaId("PA_ID");
-		internalNotification.setNotificationStatus(NotificationStatus.IN_VALIDATION);
+		internalNotification.setNotificationStatus(NotificationStatusV26.IN_VALIDATION);
 		internalNotification.setDocuments(List.of(NotificationDocument.builder()
 				.docIdx("doc")
 				.title("title")
@@ -218,7 +218,7 @@ class ReceivedNotificationsDocumentTest {
 		internalNotification.setCancelledIun("IUN_05");
 		internalNotification.setCancelledIun("IUN_00");
 		internalNotification.setSenderPaId("PA_ID");
-		internalNotification.setNotificationStatus(NotificationStatus.IN_VALIDATION);
+		internalNotification.setNotificationStatus(NotificationStatusV26.IN_VALIDATION);
 		internalNotification.setRecipients(Collections.singletonList(
 				NotificationRecipient.builder()
 						.taxId("Codice Fiscale 01")

@@ -6,6 +6,8 @@ exports.transformFromV24ToV23 = function(responseV24) {
     const adjustedTimelineAndHistory = adjustTimelineAndHistory(responseV23.timeline, responseV23.notificationStatusHistory, CATEGORY_TO_EXCLUDE, transformTimeline)
     
     responseV23.timeline = adjustedTimelineAndHistory.timeline;
+    responseV23.notificationStatus = adjustedTimelineAndHistory.history[adjustedTimelineAndHistory.history.length -1].status;
+
     return responseV23;
 }
 

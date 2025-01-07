@@ -6,7 +6,7 @@ import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.LocalStackTestConfig;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.BaseRecipientDto;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -333,7 +333,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( "c_h501" )
                 .size( 10 )
-                .statuses(List.of(NotificationStatus.ACCEPTED))
+                .statuses(List.of(NotificationStatusV26.ACCEPTED))
                 .build();
 
         String indexName = "senderId";
@@ -380,7 +380,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
 
         NotificationMetadataEntity notificationMetadataEntity1 = buildOneSearchMetadataEntry(
                 internalNotification1,
-                NotificationStatus.ACCEPTED,
+                NotificationStatusV26.ACCEPTED,
                 recipientId,
                 List.of(recipientId),
                 "202205",
@@ -396,7 +396,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
 
         NotificationMetadataEntity notificationMetadataEntity2 = buildOneSearchMetadataEntry(
                 internalNotification2,
-                NotificationStatus.ACCEPTED,
+                NotificationStatusV26.ACCEPTED,
                 recipientId,
                 List.of(recipientId),
                 "202205",
@@ -462,7 +462,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
 
         NotificationMetadataEntity notificationMetadataEntity1 = buildOneSearchMetadataEntry(
                 internalNotification1,
-                NotificationStatus.ACCEPTED,
+                NotificationStatusV26.ACCEPTED,
                 recipientId,
                 List.of(recipientId),
                 "202205",
@@ -478,7 +478,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
 
         NotificationMetadataEntity notificationMetadataEntity2 = buildOneSearchMetadataEntry(
                 internalNotification2,
-                NotificationStatus.ACCEPTED,
+                NotificationStatusV26.ACCEPTED,
                 recipientId,
                 List.of(recipientId),
                 "202205",
@@ -540,7 +540,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
 
         NotificationMetadataEntity notificationMetadataEntity1 = buildOneSearchMetadataEntry(
                 internalNotification1,
-                NotificationStatus.ACCEPTED,
+                NotificationStatusV26.ACCEPTED,
                 recipientId,
                 List.of(recipientId),
                 "202205",
@@ -556,7 +556,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
 
         NotificationMetadataEntity notificationMetadataEntity2 = buildOneSearchMetadataEntry(
                 internalNotification2,
-                NotificationStatus.ACCEPTED,
+                NotificationStatusV26.ACCEPTED,
                 recipientId,
                 List.of(recipientId),
                 "202205",
@@ -645,7 +645,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
 
         NotificationMetadataEntity notificationMetadataEntity1 = buildOneSearchMetadataEntry(
                 internalNotification1,
-                NotificationStatus.ACCEPTED,
+                NotificationStatusV26.ACCEPTED,
                 recipientId,
                 List.of(recipientId),
                 "202205",
@@ -660,7 +660,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
 
         NotificationMetadataEntity notificationMetadataEntity2 = buildOneSearchMetadataEntry(
                 internalNotification2,
-                NotificationStatus.ACCEPTED,
+                NotificationStatusV26.ACCEPTED,
                 recipientId,
                 List.of(recipientId),
                 "202205",
@@ -732,7 +732,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
 
         NotificationMetadataEntity notificationMetadataEntity1 = buildOneSearchMetadataEntry(
                 internalNotification1,
-                NotificationStatus.ACCEPTED,
+                NotificationStatusV26.ACCEPTED,
                 recipientId,
                 List.of(recipientId),
                 "202205",
@@ -747,7 +747,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
 
         NotificationMetadataEntity notificationMetadataEntity2 = buildOneSearchMetadataEntry(
                 internalNotification2,
-                NotificationStatus.ACCEPTED,
+                NotificationStatusV26.ACCEPTED,
                 recipientId,
                 List.of(recipientId),
                 "202205",
@@ -820,7 +820,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
 
         NotificationMetadataEntity notificationMetadataEntity1 = buildOneSearchMetadataEntry(
                 internalNotification1,
-                NotificationStatus.ACCEPTED,
+                NotificationStatusV26.ACCEPTED,
                 recipientId,
                 List.of(recipientId),
                 "202205",
@@ -835,7 +835,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
 
         NotificationMetadataEntity notificationMetadataEntity2 = buildOneSearchMetadataEntry(
                 internalNotification2,
-                NotificationStatus.ACCEPTED,
+                NotificationStatusV26.ACCEPTED,
                 recipientId,
                 List.of(recipientId),
                 "202205",
@@ -896,7 +896,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
 
         NotificationMetadataEntity notificationMetadataEntity1 = buildOneSearchMetadataEntry(
                 internalNotification1,
-                NotificationStatus.ACCEPTED,
+                NotificationStatusV26.ACCEPTED,
                 recipientId,
                 List.of(recipientId),
                 "202205",
@@ -912,7 +912,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
 
         NotificationMetadataEntity notificationMetadataEntity2 = buildOneSearchMetadataEntry(
                 internalNotification2,
-                NotificationStatus.ACCEPTED,
+                NotificationStatusV26.ACCEPTED,
                 recipientId,
                 List.of(recipientId),
                 "202205",
@@ -978,7 +978,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
 
         NotificationMetadataEntity notificationMetadataEntity1 = buildOneSearchMetadataEntry(
                 internalNotification1,
-                NotificationStatus.ACCEPTED,
+                NotificationStatusV26.ACCEPTED,
                 recipientId,
                 List.of(recipientId),
                 "202205",
@@ -994,7 +994,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
 
         NotificationMetadataEntity notificationMetadataEntity2 = buildOneSearchMetadataEntry(
                 internalNotification2,
-                NotificationStatus.ACCEPTED,
+                NotificationStatusV26.ACCEPTED,
                 recipientId,
                 List.of(recipientId),
                 "202205",
@@ -1061,7 +1061,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
 
         NotificationMetadataEntity notificationMetadataEntity1 = buildOneSearchMetadataEntry(
                 internalNotification1,
-                NotificationStatus.ACCEPTED,
+                NotificationStatusV26.ACCEPTED,
                 recipientId,
                 List.of(recipientId),
                 "202205",
@@ -1077,7 +1077,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
 
         NotificationMetadataEntity notificationMetadataEntity2 = buildOneSearchMetadataEntry(
                 internalNotification2,
-                NotificationStatus.ACCEPTED,
+                NotificationStatusV26.ACCEPTED,
                 recipientId,
                 List.of(recipientId),
                 "202205",
@@ -1122,7 +1122,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
 
 
     @NotNull
-    private Map<String, String> createTableRowMap(InternalNotification notification, NotificationStatus lastStatus, List<String> recipientsIds, OffsetDateTime acceptedAt) {
+    private Map<String, String> createTableRowMap(InternalNotification notification, NotificationStatusV26 lastStatus, List<String> recipientsIds, OffsetDateTime acceptedAt) {
         Map<String,String> tableRowMap = new HashMap<>();
         tableRowMap.put( "iun", notification.getIun() );
         tableRowMap.put( "recipientsIds", recipientsIds.toString() );
@@ -1137,7 +1137,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
 
     private NotificationMetadataEntity buildOneSearchMetadataEntry(
             InternalNotification notification,
-            NotificationStatus lastStatus,
+            NotificationStatusV26 lastStatus,
             String recipientId,
             List<String> recipientsIds,
             String creationMonth,
@@ -1199,7 +1199,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
         return NotificationMetadataEntity.builder()
                 .iunRecipientId( "KSAU-CKOB-OFKR-202205-O-1##"+OPAQUE_TAX_ID_R1 )
                 .notificationGroup( "NotificationGroup1" )
-                .notificationStatus( NotificationStatus.ACCEPTED.toString() )
+                .notificationStatus( NotificationStatusV26.ACCEPTED.toString() )
                 .recipientIds( List.of( OPAQUE_TAX_ID_R1, OPAQUE_TAX_ID_R2 ) )
                 .recipientOne( false )
                 .senderId( "c_h501" )

@@ -1,0 +1,457 @@
+{
+    "abstract": "Abstract della notifica",
+    "subject": "invio notifica con cucumber",
+    "senderPaId": "5b994d4a-0fa8-47ac-9c7b-354f1d44a1ce",
+    "iun": "EDXD-TUPX-LNWH-202309-Z-1",
+    "sentAt": "2023-09-14T10:48:52.338693292Z",
+    "paProtocolNumber": "302321694688513851",
+    "documentsAvailable": true,
+    "notificationStatus": "RETURNED_TO_SENDER",
+    "paFee": 100,
+    "additionalLanguages": ["DE"],
+    "vat": 22,
+    "recipients": [
+        {
+            "recipientType": "PF",
+            "taxId": "CLMCST42R12D969Z",
+            "denomination": "Mario Gherkin",
+            "payments": [
+                {
+                    "pagoPa": {
+                        "noticeCode": "302011695374606354",
+                        "creditorTaxId": "77777777777",
+                        "applyCost": true,
+                        "attachment": {
+                            "digests": {
+                                "sha256": "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE="
+                            },
+                            "contentType": "application/pdf",
+                            "ref": {
+                                "key": "PN_NOTIFICATION_ATTACHMENTS-7e5e2a329ead4a8aa57240cde190710a.pdf",
+                                "versionToken": "v1"
+                            }
+                        }
+                    }
+                },
+                {
+                    "pagoPa": {
+                        "noticeCode": "302011695374606355",
+                        "creditorTaxId": "77777777777",
+                        "applyCost": true
+                    }
+                }
+            ],
+            "physicalAddress": {
+                "at": "Presso",
+                "address": "VIA@OK_AR",
+                "addressDetails": "SCALA B",
+                "zip": "87100",
+                "municipality": "COSENZA",
+                "municipalityDetails": "COSENZA",
+                "province": "CS",
+                "foreignState": "ITALIA"
+            }
+        },
+        {
+            "recipientType": "PF",
+            "taxId": "CLMCKN42R12D969Z",
+            "denomination": "Clemente Gherkin",
+            "payments": [
+                {
+                    "pagoPa": {
+                        "noticeCode": "302011695374606354",
+                        "creditorTaxId": "77777777777",
+                        "applyCost": true,
+                        "attachment": {
+                            "digests": {
+                                "sha256": "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE="
+                            },
+                            "contentType": "application/pdf",
+                            "ref": {
+                                "key": "PN_NOTIFICATION_ATTACHMENTS-7e5e2a329ead4a8aa57240cde190710a.pdf",
+                                "versionToken": "v1"
+                            }
+                        }
+                    }
+                },
+                {
+                    "pagoPa": {
+                        "noticeCode": "302011695374606355",
+                        "creditorTaxId": "77777777777",
+                        "applyCost": true
+                    }
+                }
+            ],
+            "physicalAddress": {
+                "at": "Presso",
+                "address": "VIA@OK_AR",
+                "addressDetails": "SCALA B",
+                "zip": "87100",
+                "municipality": "COSENZA",
+                "municipalityDetails": "COSENZA",
+                "province": "CS",
+                "foreignState": "ITALIA"
+            }
+        }
+    ],
+    "documents": [
+        {
+            "contentType": "application/pdf",
+            "digests": {
+                "sha256": "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE="
+            },
+            "ref": {
+                "key": "PN_NOTIFICATION_ATTACHMENTS-42e254366cc846858852430b0c543eb8.pdf",
+                "versionToken": "v1"
+            },
+            "docIdx": "0"
+        }
+    ],
+    "notificationFeePolicy": "FLAT_RATE",
+    "notificationStatusHistory": [
+        {
+            "status": "ACCEPTED",
+            "activeFrom": "2023-09-14T10:48:52.338693292Z",
+            "relatedTimelineElements": [
+                "REQUEST_ACCEPTED.IUN_EDXD-TUPX-LNWH-202309-Z-1",
+                "AAR_CREATION_REQUEST.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0",
+                "AAR_GEN.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0",
+                "GET_ADDRESS.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0.SOURCE_PLATFORM.ATTEMPT_0",
+                "GET_ADDRESS.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0.SOURCE_SPECIAL.ATTEMPT_0",
+                "NATIONAL_REGISTRY_CALL.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0.DELIVERYMODE_DIGITAL.CONTACTPHASE_CHOOSE_DELIVERY.ATTEMPT_0",
+                "NATIONAL_REGISTRY_RESPONSE.CORRELATIONID_NATIONAL_REGISTRY_CALL.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0.DELIVERYMODE_DIGITAL.CONTACTPHASE_CHOOSE_DELIVERY.ATTEMPT_0",
+                "GET_ADDRESS.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0.SOURCE_GENERAL.ATTEMPT_0",
+                "SCHEDULE_ANALOG_WORKFLOW.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0",
+                "PREPARE_ANALOG_DOMICILE.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0.ATTEMPT_0"
+            ]
+        },
+        {
+            "status": "DELIVERING",
+            "activeFrom": "2023-09-14T10:51:05.688688798Z",
+            "relatedTimelineElements": [
+                "SEND_ANALOG_DOMICILE.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0.ATTEMPT_0",
+                "SEND_ANALOG_PROGRESS.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0.ATTEMPT_0.IDX_1",
+                "SEND_ANALOG_PROGRESS.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0.ATTEMPT_0.IDX_2",
+                "SEND_ANALOG_FEEDBACK.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0.ATTEMPT_0",
+                "SEND_ANALOG_DOMICILE.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_1.ATTEMPT_0",
+                "SEND_ANALOG_PROGRESS.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_1.ATTEMPT_0.IDX_1"
+            ]
+        },
+        {
+            "status": "VIEWED",
+            "activeFrom": "2023-09-14T10:55:32.508729612Z",
+            "relatedTimelineElements": [
+                "NOTIFICATION_VIEWED.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0",
+                "SEND_ANALOG_FEEDBACK.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_1.ATTEMPT_0",
+                "ANALOG_WORKFLOW_RECIPIENT_DECEASED.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_1"
+            ]
+        }
+    ],
+    "timeline": [
+        {
+            "elementId": "VALIDATE_NORMALIZE_ADDRESSES_REQUEST.IUN_EDXD-TUPX-LNWH-202309-Z-1",
+            "timestamp": "2023-09-14T10:49:10.12349562Z",
+            "legalFactsIds": [],
+            "category": "VALIDATE_NORMALIZE_ADDRESSES_REQUEST"
+        },
+        {
+            "elementId": "NORMALIZED_ADDRESS.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0",
+            "timestamp": "2023-09-14T10:49:11.825356697Z",
+            "legalFactsIds": [],
+            "category": "NORMALIZED_ADDRESS",
+            "details": {
+                "recIndex": 0,
+                "oldAddress": {
+                    "at": "Presso",
+                    "address": "Via@ok_AR",
+                    "addressDetails": "scala b",
+                    "zip": "87100",
+                    "municipality": "Cosenza",
+                    "municipalityDetails": "Cosenza",
+                    "province": "CS",
+                    "foreignState": "ITALIA"
+                },
+                "normalizedAddress": {
+                    "at": "Presso",
+                    "address": "VIA@OK_AR",
+                    "addressDetails": "SCALA B",
+                    "zip": "87100",
+                    "municipality": "COSENZA",
+                    "municipalityDetails": "COSENZA",
+                    "province": "CS",
+                    "foreignState": "ITALIA"
+                },
+                "notRefinedRecipientIndexes": []
+            }
+        },
+        {
+            "elementId": "SENDERACK_LEGALFACT_CREATION_REQUEST.IUN_EDXD-TUPX-LNWH-202309-Z-1",
+            "timestamp": "2023-09-14T10:49:22.070921709Z",
+            "legalFactsIds": [],
+            "category": "SENDER_ACK_CREATION_REQUEST",
+            "details": {
+                "legalFactId": "safestorage://PN_LEGAL_FACTS-4b16e925306b4e8db301a9e561703ca3.pdf",
+                "notRefinedRecipientIndexes": []
+            }
+        },
+        {
+            "elementId": "REQUEST_ACCEPTED.IUN_EDXD-TUPX-LNWH-202309-Z-1",
+            "timestamp": "2023-09-14T10:49:41.312990195Z",
+            "legalFactsIds": [
+                {
+                    "key": "safestorage://PN_LEGAL_FACTS-4b16e925306b4e8db301a9e561703ca3.pdf",
+                    "category": "SENDER_ACK"
+                }
+            ],
+            "category": "REQUEST_ACCEPTED",
+            "details": {
+                "notRefinedRecipientIndexes": []
+            }
+        },
+        {
+            "elementId": "AAR_CREATION_REQUEST.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0",
+            "timestamp": "2023-09-14T10:49:51.007004509Z",
+            "legalFactsIds": [],
+            "category": "AAR_CREATION_REQUEST",
+            "details": {
+                "recIndex": 0,
+                "numberOfPages": 1,
+                "aarKey": "safestorage://PN_AAR-1e432ccb59c44d41adb8d15bc755e61b.pdf",
+                "notRefinedRecipientIndexes": []
+            }
+        },
+        {
+            "elementId": "AAR_GEN.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0",
+            "timestamp": "2023-09-14T10:50:11.290604707Z",
+            "legalFactsIds": [],
+            "category": "AAR_GENERATION",
+            "details": {
+                "recIndex": 0,
+                "generatedAarUrl": "safestorage://PN_AAR-1e432ccb59c44d41adb8d15bc755e61b.pdf",
+                "numberOfPages": 1,
+                "notRefinedRecipientIndexes": []
+            }
+        },
+        {
+            "elementId": "GET_ADDRESS.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0.SOURCE_PLATFORM.ATTEMPT_0",
+            "timestamp": "2023-09-14T10:50:25.817503438Z",
+            "legalFactsIds": [],
+            "category": "GET_ADDRESS",
+            "details": {
+                "recIndex": 0,
+                "digitalAddressSource": "PLATFORM",
+                "isAvailable": false,
+                "attemptDate": "2023-09-14T10:50:25.8174986Z",
+                "notRefinedRecipientIndexes": []
+            }
+        },
+        {
+            "elementId": "GET_ADDRESS.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0.SOURCE_SPECIAL.ATTEMPT_0",
+            "timestamp": "2023-09-14T10:50:25.850592471Z",
+            "legalFactsIds": [],
+            "category": "GET_ADDRESS",
+            "details": {
+                "recIndex": 0,
+                "digitalAddressSource": "SPECIAL",
+                "isAvailable": false,
+                "attemptDate": "2023-09-14T10:50:25.850588843Z",
+                "notRefinedRecipientIndexes": []
+            }
+        },
+        {
+            "elementId": "NATIONAL_REGISTRY_CALL.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0.DELIVERYMODE_DIGITAL.CONTACTPHASE_CHOOSE_DELIVERY.ATTEMPT_0",
+            "timestamp": "2023-09-14T10:50:26.715922781Z",
+            "legalFactsIds": [],
+            "category": "PUBLIC_REGISTRY_CALL",
+            "details": {
+                "recIndex": 0,
+                "deliveryMode": "DIGITAL",
+                "contactPhase": "CHOOSE_DELIVERY",
+                "sentAttemptMade": 0,
+                "sendDate": "2023-09-14T10:50:26.715911568Z",
+                "notRefinedRecipientIndexes": []
+            }
+        },
+        {
+            "elementId": "NATIONAL_REGISTRY_RESPONSE.CORRELATIONID_NATIONAL_REGISTRY_CALL.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0.DELIVERYMODE_DIGITAL.CONTACTPHASE_CHOOSE_DELIVERY.ATTEMPT_0",
+            "timestamp": "2023-09-14T10:50:52.364947422Z",
+            "legalFactsIds": [],
+            "category": "PUBLIC_REGISTRY_RESPONSE",
+            "details": {
+                "recIndex": 0,
+                "notRefinedRecipientIndexes": []
+            }
+        },
+        {
+            "elementId": "GET_ADDRESS.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0.SOURCE_GENERAL.ATTEMPT_0",
+            "timestamp": "2023-09-14T10:50:52.402237063Z",
+            "legalFactsIds": [],
+            "category": "GET_ADDRESS",
+            "details": {
+                "recIndex": 0,
+                "digitalAddressSource": "GENERAL",
+                "isAvailable": false,
+                "attemptDate": "2023-09-14T10:50:52.402232342Z",
+                "notRefinedRecipientIndexes": []
+            }
+        },
+        {
+            "elementId": "SCHEDULE_ANALOG_WORKFLOW.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0",
+            "timestamp": "2023-09-14T10:50:52.437118886Z",
+            "legalFactsIds": [],
+            "category": "SCHEDULE_ANALOG_WORKFLOW",
+            "details": {
+                "recIndex": 0,
+                "notRefinedRecipientIndexes": []
+            }
+        },
+        {
+            "elementId": "PREPARE_ANALOG_DOMICILE.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0.ATTEMPT_0",
+            "timestamp": "2023-09-14T10:51:02.52717704Z",
+            "legalFactsIds": [],
+            "category": "PREPARE_ANALOG_DOMICILE",
+            "details": {
+                "recIndex": 0,
+                "physicalAddress": {
+                    "at": "Presso",
+                    "address": "VIA@OK_AR",
+                    "addressDetails": "SCALA B",
+                    "zip": "87100",
+                    "municipality": "COSENZA",
+                    "municipalityDetails": "COSENZA",
+                    "province": "CS",
+                    "foreignState": "ITALIA"
+                },
+                "sentAttemptMade": 0,
+                "serviceLevel": "REGISTERED_LETTER_890",
+                "notRefinedRecipientIndexes": []
+            }
+        },
+        {
+            "elementId": "SEND_ANALOG_DOMICILE.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0.ATTEMPT_0",
+            "timestamp": "2023-09-14T10:51:05.688688798Z",
+            "legalFactsIds": [],
+            "category": "SEND_ANALOG_DOMICILE",
+            "details": {
+                "recIndex": 0,
+                "physicalAddress": {
+                    "at": "Presso",
+                    "address": "VIA@OK_AR",
+                    "addressDetails": "SCALA B",
+                    "zip": "87100",
+                    "municipality": "COSENZA",
+                    "municipalityDetails": "COSENZA",
+                    "province": "CS",
+                    "foreignState": "ITALIA"
+                },
+                "sentAttemptMade": 0,
+                "serviceLevel": "REGISTERED_LETTER_890",
+                "productType": "890",
+                "analogCost": 857,
+                "numberOfPages": 3,
+                "envelopeWeight": 20,
+                "prepareRequestId": "PREPARE_ANALOG_DOMICILE.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0.ATTEMPT_0",
+                "notRefinedRecipientIndexes": []
+            }
+        },
+        {
+            "elementId": "SEND_ANALOG_PROGRESS.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0.ATTEMPT_0.IDX_1",
+            "timestamp": "2023-09-14T10:55:08Z",
+            "legalFactsIds": [],
+            "category": "SEND_ANALOG_PROGRESS",
+            "details": {
+                "recIndex": 0,
+                "notificationDate": "2023-09-14T10:55:08Z",
+                "deliveryDetailCode": "CON080",
+                "sendRequestId": "SEND_ANALOG_DOMICILE.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0.ATTEMPT_0",
+                "registeredLetterCode": "c2fedd028cc2449e90897d6530652c7a",
+                "notRefinedRecipientIndexes": [],
+                "serviceLevel": "REGISTERED_LETTER_890"
+            }
+        },
+        {
+            "elementId": "SEND_ANALOG_PROGRESS.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0.ATTEMPT_0.IDX_2",
+            "timestamp": "2023-09-14T10:55:17Z",
+            "legalFactsIds": [
+                {
+                    "key": "safestorage://PN_EXTERNAL_LEGAL_FACTS-c562b3e8d01048f2a8b051ec194b5a36.pdf",
+                    "category": "ANALOG_DELIVERY"
+                }
+            ],
+            "category": "SEND_ANALOG_PROGRESS",
+            "details": {
+                "recIndex": 0,
+                "notificationDate": "2023-09-14T10:55:17Z",
+                "deliveryDetailCode": "RECRN001B",
+                "attachments": [
+                    {
+                        "id": "0",
+                        "documentType": "AR",
+                        "url": "safestorage://PN_EXTERNAL_LEGAL_FACTS-c562b3e8d01048f2a8b051ec194b5a36.pdf",
+                        "date": "2023-09-14T10:55:18.298191Z"
+                    }
+                ],
+                "sendRequestId": "SEND_ANALOG_DOMICILE.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0.ATTEMPT_0",
+                "registeredLetterCode": "c2fedd028cc2449e90897d6530652c7a",
+                "notRefinedRecipientIndexes": []
+            }
+        },
+        {
+            "elementId": "SEND_ANALOG_FEEDBACK.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0.ATTEMPT_0",
+            "timestamp": "2023-09-14T10:55:24Z",
+            "legalFactsIds": [],
+            "category": "SEND_ANALOG_FEEDBACK",
+            "eventTimestamp": "2023-09-14T10:57:12.366420178Z",
+            "details": {
+                "recIndex": 0,
+                "physicalAddress": {
+                    "at": "Presso",
+                    "address": "VIA@OK_AR",
+                    "addressDetails": "SCALA B",
+                    "zip": "87100",
+                    "municipality": "COSENZA",
+                    "municipalityDetails": "COSENZA",
+                    "province": "CS",
+                    "foreignState": "ITALIA"
+                },
+                "sentAttemptMade": 0,
+                "responseStatus": "OK",
+                "notificationDate": "2023-09-14T10:55:24Z",
+                "deliveryDetailCode": "RECRN001C",
+                "serviceLevel": "REGISTERED_LETTER_890",
+                "sendRequestId": "SEND_ANALOG_DOMICILE.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0.ATTEMPT_0",
+                "registeredLetterCode": "c2fedd028cc2449e90897d6530652c7a",
+                "notRefinedRecipientIndexes": []
+            }
+        },
+        {
+            "elementId": "ANALOG_WORKFLOW_RECIPIENT_DECEASED.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0",
+            "timestamp": "2023-09-14T10:55:32.630866286Z",
+            "legalFactsIds": [],
+            "notificationSentAt": "2023-09-14T10:48:52.338693292Z",
+            "category": "ANALOG_WORKFLOW_RECIPIENT_DECEASED",
+            "details": {
+                "recIndex": 0,
+                "schedulingDate": "2023-09-14T10:59:24Z",
+                "notRefinedRecipientIndexes": []
+            }
+        },
+        {
+            "elementId": "NOTIFICATION_VIEWED.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0",
+            "timestamp": "2023-09-14T10:59:34.466420178Z",
+            "legalFactsIds": [],
+            "category": "NOTIFICATION_VIEWED",
+            "details": {
+                "recIndex": 0,
+                "notificationCost": 0,
+                "eventTimestamp": "2023-09-14T10:59:34.366420178Z"
+            }
+        }
+    ],
+    "physicalCommunicationType": "REGISTERED_LETTER_890",
+    "senderDenomination": "Comune di milano",
+    "senderTaxId": "80016350821",
+    "group": "000",
+    "taxonomyCode": "010202N",
+    "pagoPaIntMode": "NONE"
+}
