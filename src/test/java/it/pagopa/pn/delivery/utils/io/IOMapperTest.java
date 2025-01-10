@@ -262,8 +262,8 @@ class IOMapperTest {
 
     private InternalNotification internalNotification() {
         InternalNotification internalNotification = new InternalNotification();
-        TimelineElementV25 timelineElement = new TimelineElementV25();
-        timelineElement.setCategory(TimelineElementCategoryV23.AAR_CREATION_REQUEST);
+        TimelineElementV26 timelineElement = new TimelineElementV26();
+        timelineElement.setCategory(TimelineElementCategoryV26.AAR_CREATION_REQUEST);
         internalNotification.setTimeline(List.of(timelineElement));
         internalNotification.setSentAt(OffsetDateTime.now());
         internalNotification.setDocuments(List.of(it.pagopa.pn.delivery.models.internal.notification.NotificationDocument.builder()
@@ -272,8 +272,8 @@ class IOMapperTest {
                 .title("TITLE")
                 .build()));
         internalNotification.setNotificationStatusHistory(List.of(
-                it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusHistoryElement.builder()
-                        .status(NotificationStatus.ACCEPTED)
+                it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusHistoryElementV26.builder()
+                        .status(NotificationStatusV26.ACCEPTED)
                         .build()
         ));
         internalNotification.setRecipients(
@@ -294,7 +294,7 @@ class IOMapperTest {
         internalNotification.setSenderPaId("PA_ID");
         internalNotification.setAbstract("ABSTRACT");
         internalNotification.setSenderDenomination("SENDERDENOMINATION");
-        internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()
                         .recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)

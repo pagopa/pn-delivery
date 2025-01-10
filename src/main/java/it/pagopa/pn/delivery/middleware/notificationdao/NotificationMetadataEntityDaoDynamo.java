@@ -4,7 +4,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
@@ -64,7 +64,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
 
         // applico i filtri
         // filtro per stato
-        if (!CollectionUtils.isEmpty(inputSearchNotificationDto.getStatuses()) && !inputSearchNotificationDto.getStatuses().contains(NotificationStatus.fromValue(entity.getNotificationStatus())))
+        if (!CollectionUtils.isEmpty(inputSearchNotificationDto.getStatuses()) && !inputSearchNotificationDto.getStatuses().contains(NotificationStatusV26.fromValue(entity.getNotificationStatus())))
         {
             log.debug("result not satisfy filter status");
             return new PageSearchTrunk<>();
@@ -245,7 +245,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
     }
 
 
-    private void addStatusFilterExpression(List<NotificationStatus> statuses,
+    private void addStatusFilterExpression(List<NotificationStatusV26> statuses,
                                            Expression.Builder filterExpressionBuilder,
                                            StringBuilder expressionBuilder) {
         if (!CollectionUtils.isEmpty(statuses)) {
@@ -256,7 +256,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             }
 
             for (int i = 0;i<statuses.size();i++) {
-                NotificationStatus notificationStatus = statuses.get(i);
+                NotificationStatusV26 notificationStatus = statuses.get(i);
                 expressionBuilder.append("notificationStatus = :notificationStatusValue");
                 expressionBuilder.append(i).append(" ");
                 if (i<statuses.size()-1)

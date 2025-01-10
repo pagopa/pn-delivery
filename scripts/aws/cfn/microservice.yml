@@ -522,6 +522,11 @@ Parameters:
     Default: "3000ms"
     Description: Connection timeout for Lollipop Assertion endpoint in duration format
 
+  EnableDeceasedWorkflow:
+    Type: String
+    Description: 'Enables the workflow for the deceased recipient'
+    Default: false
+
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
 
@@ -598,6 +603,8 @@ Resources:
         ContainerEnvEntry45: !Sub "LOLLIPOP_ASSERTION_REST_CONFIG_CONNECTION_TIMEOUT=${LollipopAssertionRestConfigConnectionTimeout}"
         ContainerEnvEntry46: !Sub "PN_DELIVERY_TAXONOMYCODEDAO_TABLENAME=${TaxonomyCodeDynamoTableName}"
         ContainerEnvEntry47: !Sub "PN_DELIVERY_CHECK_TAXONOMY_CODE_ENABLED=${CheckTaxonomyCodeEnabled}"
+        ContainerEnvEntry48: !Sub "PN_DELIVERY_ENABLE_DECEASED_WORKFLOW=${EnableDeceasedWorkflow}"
+
         ContainerSecret1: !Sub "ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:"
         MicroServiceSecretPrefix: pn-Delivery-Secrets
         JavaToolOptions: "-Dreactor.netty.ioWorkerCount=120 -XX:MaxMetaspaceSize=512M"
@@ -1140,9 +1147,10 @@ Resources:
       Environment:
         Variables:
           REGION: !Sub ${AWS::Region}
-          PN_DELIVERY_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery/v2.5"
+          PN_DELIVERY_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery/v2.6"
           NUM_RETRY: !Ref NumRetry
           ATTEMPT_TIMEOUT_SEC: !Ref AttemptTimeoutSec
+          ENABLE_DECEASED_WORKFLOW: !Ref EnableDeceasedWorkflow
       TracingConfig:
         Mode: Active
       Layers:
