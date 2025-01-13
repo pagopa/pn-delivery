@@ -168,7 +168,7 @@ class NotificationReceiverValidationTest {
                         .build())
                 .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build()));
 
-        when(validateUtils.validate(anyString(), anyBoolean(), anyBoolean())).thenReturn(true);
+        when(validateUtils.validate(anyString(), anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(true);
 
         // When
         Set<ConstraintViolation<NewNotificationRequestV24>> errors;
@@ -193,7 +193,7 @@ class NotificationReceiverValidationTest {
                         .build())
                 .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build()));
 
-        when(validateUtils.validate(anyString(), anyBoolean(), anyBoolean())).thenReturn(true);
+        when(validateUtils.validate(anyString(), anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(true);
 
         when(cfg.isEnableTaxIdExternalValidation()).thenReturn(true);
         CheckTaxIdOK checkTaxIdOK = new CheckTaxIdOK();
@@ -225,7 +225,7 @@ class NotificationReceiverValidationTest {
                         .build())
                 .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build()));
 
-        when(validateUtils.validate(anyString(), anyBoolean(), anyBoolean())).thenReturn(true);
+        when(validateUtils.validate(anyString(), anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(true);
 
         when(cfg.isEnableTaxIdExternalValidation()).thenReturn(true);
         CheckTaxIdOK checkTaxIdOK = new CheckTaxIdOK();
@@ -256,7 +256,7 @@ class NotificationReceiverValidationTest {
                         .build())
                 .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build()));
 
-        when(validateUtils.validate(anyString(), anyBoolean(), anyBoolean())).thenReturn(true);
+        when(validateUtils.validate(anyString(), anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(true);
 
         when(cfg.isEnableTaxIdExternalValidation()).thenReturn(true);
         when(agenziaEntrateApi.checkTaxId(any())).thenThrow(RestClientException.class);
@@ -293,7 +293,7 @@ class NotificationReceiverValidationTest {
                         .build())
                 .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build()));
 
-        when(validateUtils.validate(anyString(), anyBoolean(), anyBoolean())).thenReturn(true);
+        when(validateUtils.validate(anyString(), anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(true);
 
         // When
         Set<ConstraintViolation<NewNotificationRequestV24>> errors;
@@ -319,7 +319,7 @@ class NotificationReceiverValidationTest {
                         .build())
                 .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build()));
 
-        when(validateUtils.validate(anyString(), anyBoolean(), anyBoolean())).thenReturn(true);
+        when(validateUtils.validate(anyString(), anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(true);
 
         when(cfg.isEnableTaxIdExternalValidation()).thenReturn(true);
         CheckTaxIdOK checkTaxIdOK = new CheckTaxIdOK();
@@ -351,7 +351,7 @@ class NotificationReceiverValidationTest {
                         .build())
                 .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build()));
 
-        when(validateUtils.validate(anyString(), anyBoolean(), anyBoolean())).thenReturn(true);
+        when(validateUtils.validate(anyString(), anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(true);
 
         when(cfg.isEnableTaxIdExternalValidation()).thenReturn(true);
         CheckTaxIdOK checkTaxIdOK = new CheckTaxIdOK();
@@ -1873,7 +1873,7 @@ class NotificationReceiverValidationTest {
         String sha256 = "cvZKB4NCsHjo0stdb47gnfx0/Hjiipov0+M9oXcJT2Y=";
         NewNotificationRequestV24 validRequest = getNewNotificationRequestV24(sha256);
 
-        when(validateUtils.validate("26188370808", false, false)).thenReturn(true);
+        when(validateUtils.validate("26188370808", false, false, false)).thenReturn(true);
         when(mvpParameterConsumer.isMvp(validRequest.getSenderTaxId())).thenReturn(false);
 
         assertDoesNotThrow(() -> validator.checkNewNotificationRequestBeforeInsertAndThrow(validRequest));
@@ -1885,7 +1885,7 @@ class NotificationReceiverValidationTest {
         NewNotificationRequestV24 validRequest = getNewNotificationRequestV24(sha256);
         validRequest.setAdditionalLanguages(List.of("EN"));
 
-        when(validateUtils.validate("26188370808", false, false)).thenReturn(true);
+        when(validateUtils.validate("26188370808", false, false, false)).thenReturn(true);
         when(mvpParameterConsumer.isMvp(validRequest.getSenderTaxId())).thenReturn(false);
 
         Assertions.assertThrows(PnBadRequestException.class, () -> validator.checkNewNotificationRequestBeforeInsertAndThrow(validRequest),
@@ -1897,7 +1897,7 @@ class NotificationReceiverValidationTest {
         String sha256 = "cvZKB4NCsHjo0stdb47gnfx0/Hjiipov0+M9oXcJT2Y=";
         NewNotificationRequestV24 validRequest = getNewNotificationRequestV24(sha256);
         validRequest.setAdditionalLanguages(List.of("DE", "SL"));
-        when(validateUtils.validate("26188370808", false, false)).thenReturn(true);
+        when(validateUtils.validate("26188370808", false, false, false)).thenReturn(true);
         when(mvpParameterConsumer.isMvp(validRequest.getSenderTaxId())).thenReturn(false);
 
         Assertions.assertThrows(PnBadRequestException.class, () -> validator.checkNewNotificationRequestBeforeInsertAndThrow(validRequest),
@@ -1909,7 +1909,7 @@ class NotificationReceiverValidationTest {
         String sha256 = "cvZKB4NCsHjo0stdb47gnfx0/Hjiipov0+M9oXcJT2Y=";
         NewNotificationRequestV24 validRequest = getNewNotificationRequestV24(sha256);
         validRequest.setAdditionalLanguages(List.of("DE"));
-        when(validateUtils.validate("26188370808", false, false)).thenReturn(true);
+        when(validateUtils.validate("26188370808", false, false, false)).thenReturn(true);
         when(mvpParameterConsumer.isMvp(validRequest.getSenderTaxId())).thenReturn(false);
 
         assertDoesNotThrow(() -> validator.checkNewNotificationRequestBeforeInsertAndThrow(validRequest));

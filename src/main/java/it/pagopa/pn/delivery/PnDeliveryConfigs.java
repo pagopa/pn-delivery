@@ -87,6 +87,8 @@ public class PnDeliveryConfigs {
 
     private boolean enableTaxIdExternalValidation;
 
+    private boolean skipCheckTaxIdInBlackList;
+
     @PostConstruct
     public void init(){
         log.info("CONFIGURATION {}",this);
