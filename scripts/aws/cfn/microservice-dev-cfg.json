@@ -35,7 +35,7 @@
     "AttemptTimeoutSec": "7",
     "NumRetry": "3",
     "CheckTaxonomyCodeEnabled": "true",
-    "EnableNumericalTaxIdValidation": "false",
+    "EnableTaxIdExternalValidation": "false",
     "SkipCheckTaxIdInBlackList": "false"
   }
 }
