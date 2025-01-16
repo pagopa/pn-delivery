@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.utils.io;
 
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.*;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementCategoryV23;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementCategoryV26;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.F24Payment;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
@@ -63,7 +63,7 @@ public class IOMapper {
             // NB: la timeline è GIA' FILTRATA per recipientIndex
             ioReceivedNotification.setCompletedPayments(internalNotification.getTimeline()
                     .stream()
-                    .filter(x -> x.getCategory().equals(TimelineElementCategoryV23.PAYMENT))
+                    .filter(x -> x.getCategory().equals(TimelineElementCategoryV26.PAYMENT))
                     .map(x -> x.getDetails().getNoticeCode())
                     .toList());
         }
@@ -71,7 +71,7 @@ public class IOMapper {
         return ioReceivedNotification;
     }
 
-    private List<NotificationStatusHistoryElement> convertNotificationStatusHistory(List<it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusHistoryElement> notificationStatusHistory) {
+    private List<NotificationStatusHistoryElement> convertNotificationStatusHistory(List<it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusHistoryElementV26> notificationStatusHistory) {
         return notificationStatusHistory.stream()
                 .map(notificationStatusHistoryElement -> NotificationStatusHistoryElement.builder()
                         .status(notificationStatusHistoryElement.getStatus().getValue())

@@ -5,4 +5,11 @@ class ValidationException extends Error{
     }
 }
 
-module.exports = {ValidationException};
+class DeceasedWorkflowException extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "DeceasedWorkflowException";
+    }
+}
+
+module.exports = {ValidationException, DeceasedWorkflowException};

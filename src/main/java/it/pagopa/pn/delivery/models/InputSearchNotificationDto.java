@@ -1,6 +1,6 @@
 package it.pagopa.pn.delivery.models;
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
 import lombok.*;
 
 import javax.validation.constraints.NotEmpty;
@@ -36,7 +36,7 @@ public class InputSearchNotificationDto {
 
     private String opaqueFilterIdPG;
     
-    private  List<NotificationStatus> statuses;
+    private  List<NotificationStatusV26> statuses;
 
     private List<String> groups;
     
