@@ -30,7 +30,7 @@
     "DenominationValidationTypeValue": "ISO_LATIN_1",
     "DenominationValidationExcludedCharacter": "NONE",
     "MountEfs": "false",
-    "PnCronAnalyzer": "* */1 * * * *",
+    "PnCronAnalyzer": "-",
     "WireTapLogActivation": "false",
     "AttemptTimeoutSec": "7",
     "NumRetry": "3",
