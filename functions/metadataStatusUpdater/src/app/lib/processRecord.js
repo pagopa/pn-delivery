@@ -1,4 +1,5 @@
 const utils = require('./utils');
+const { unmarshall } = require("@aws-sdk/util-dynamodb");
 const putNotificationMetadata = require('./putNotificationMetadata');
 const dynamo = require('./dynamo.js');
 const { ItemNotFoundException } = require("./exceptions.js");
@@ -10,7 +11,7 @@ const processRecord = async (record) => {
     return;
   }
 
-  const timelineElement = utils.parseKinesisObjToJsonObj(kinesisData.dynamodb.NewImage);
+  const timelineElement = unmarshall(kinesisData.dynamodb.NewImage);
   const iun = timelineElement.iun;
 
   const notification = await dynamo.getItem('pn-Notifications', { iun });

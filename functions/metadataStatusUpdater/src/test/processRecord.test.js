@@ -14,7 +14,6 @@ describe('processRecord tests', () => {
   };
   let shouldSkipEvaluationStub;
   let decodePayloadStub;
-  let parseKinesisObjToJsonObjStub;
   let getItemStub;
   let deleteItemStub;
   let putNotificationMetadataStub;
@@ -42,14 +41,21 @@ describe('processRecord tests', () => {
   }
 
   beforeEach(() => {
-
     decodePayloadStub = sinon.stub(utils, 'decodePayload').returns({
       dynamodb: {
-        NewImage: 'mockedNewImage',
+        NewImage: {
+          iun: { S: 'mockedIun' },
+          statusInfo: {
+            M: {
+              actual: { S: 'ACCEPTED' },
+              statusChangeTimestamp: { S: '2025-01-01T00:00:00Z' }
+            }
+          },
+          timelineElementId: { S: 'mockedTimelineId' }
+        },
       },
     });
     shouldSkipEvaluationStub = sinon.stub(utils, 'shouldSkipEvaluation');
-    parseKinesisObjToJsonObjStub = sinon.stub(utils, 'parseKinesisObjToJsonObj').returns(timelineElementMock);
     getItemStub = sinon.stub(dynamo, 'getItem').resolves(notificationMock);
     deleteItemStub  = sinon.stub(dynamo, 'deleteItem').resolves();
     putNotificationMetadataStub = sinon.stub(putNotificationMetadata, 'putNotificationMetadata');
@@ -72,7 +78,6 @@ describe('processRecord tests', () => {
   it('should process an ACCEPTED record', async () => {
     await processRecord(record);
     expect(decodePayloadStub.firstCall.args[0]).to.be.equal('mockedEncodedData');
-    expect(parseKinesisObjToJsonObjStub.firstCall.args[0]).to.be.equal('mockedNewImage');
     expect(getItemStub.firstCall.args[0]).to.be.equal('pn-Notifications');
     expect(getItemStub.firstCall.args[1]).to.deep.equal({ iun: 'mockedIun' });
 
@@ -82,10 +87,14 @@ describe('processRecord tests', () => {
   });
 
   it('should process a REFUSED record and delete payments', async () => {
-    parseKinesisObjToJsonObjStub.returns({
-      iun: 'mockedIun',
-      statusInfo: { actual: 'REFUSED' },
-      timelineElementId: 'mockedTimelineId',
+    decodePayloadStub.returns({
+      dynamodb: {
+        NewImage: {
+          iun: { S: 'mockedIun' },
+          statusInfo: { M: { actual: { S: 'REFUSED' } } },
+          timelineElementId: { S: 'mockedTimelineId' }
+        },
+      },
     });
 
     await processRecord(record);
@@ -94,10 +103,14 @@ describe('processRecord tests', () => {
   });
 
   it('should handle missing metadata for non-ACCEPTED statuses', async () => {
-    parseKinesisObjToJsonObjStub.returns({
-      iun: 'mockedIun',
-      statusInfo: { actual: 'DELIVERED' },
-      timelineElementId: 'mockedTimelineId',
+    decodePayloadStub.returns({
+      dynamodb: {
+        NewImage: {
+          iun: { S: 'mockedIun' },
+          statusInfo: { M: { actual: { S: 'DELIVERED' } } },
+          timelineElementId: { S: 'mockedTimelineId' }
+        },
+      },
     });
 
     getItemStub.callsFake((param1, param2) => {
@@ -117,10 +130,14 @@ describe('processRecord tests', () => {
   });
 
   it('should process metadata for non-ACCEPTED statuses', async () => {
-    parseKinesisObjToJsonObjStub.returns({
-      iun: 'mockedIun',
-      statusInfo: { actual: 'DELIVERED' },
-      timelineElementId: 'mockedTimelineId',
+    decodePayloadStub.returns({
+      dynamodb: {
+        NewImage: {
+          iun: { S: 'mockedIun' },
+          statusInfo: { M: { actual: { S: 'DELIVERED' } } },
+          timelineElementId: { S: 'mockedTimelineId' }
+        },
+      },
     });
 
     getItemStub.callsFake((param1, param2) => {

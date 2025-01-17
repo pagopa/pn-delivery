@@ -5,42 +5,6 @@ function myGunzip(buffer) {
   return gunzipSync(buffer);
 }
 
-function parseKinesisObjToJsonObj(elToParse) {
-  const keysToBypass = [
-    "N",
-    "M",
-    "S",
-    "BOOL",
-    "SS",
-    "NS",
-    "BS",
-    "L",
-    "NULL",
-    "B",
-  ];
-  if (elToParse === null || elToParse === undefined) {
-    return elToParse;
-  } else if (Array.isArray(elToParse)) {
-    const elParsed = [];
-    for (const el of elToParse) {
-      elParsed.push(parseKinesisObjToJsonObj(el));
-    }
-    return elParsed;
-  } else if (typeof elToParse === "object") {
-    let elParsed = {};
-    for (const [key, value] of Object.entries(elToParse)) {
-      if (keysToBypass.includes(key)) {
-        elParsed = parseKinesisObjToJsonObj(value);
-        continue;
-      }
-      elParsed[key] = parseKinesisObjToJsonObj(value);
-    }
-    return elParsed;
-  }
-  // neither object or array (string, number or boolean)
-  return elToParse;
-};
-
 function decodePayload(b64Str) {
   const payloadBuf = Buffer.from(b64Str, "base64");
 
@@ -69,4 +33,4 @@ function arrayToString(array) {
   return `[${array.join(",")}]`;
 }
 
-module.exports = { decodePayload, parseKinesisObjToJsonObj, shouldSkipEvaluation, extractYearMonth, arrayToString };
+module.exports = { decodePayload, shouldSkipEvaluation, extractYearMonth, arrayToString };
