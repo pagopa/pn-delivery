@@ -104,7 +104,7 @@ class NotificationReceiverTest {
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
 		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator(), mvpParameterConsumer, validateUtils, pnDeliveryConfigs, agenziaEntrateApi);
 
-		Mockito.when( validateUtils.validate( Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean() ) ).thenReturn( true );
+		Mockito.when( validateUtils.validate( Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean() ) ).thenReturn( true );
 		Mockito.when( sendActiveParameterConsumer.isSendActive( Mockito.anyString() ) ).thenReturn( true );
 
 		deliveryService = new NotificationReceiverService(
