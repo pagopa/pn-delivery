@@ -35,6 +35,7 @@
     "AttemptTimeoutSec": "7",
     "NumRetry": "3",
     "CheckTaxonomyCodeEnabled": "true",
+    "EnableDeceasedWorkflow": "true",
     "EnableTaxIdExternalValidation": "false",
     "SkipCheckTaxIdInBlackList": "false"
   }

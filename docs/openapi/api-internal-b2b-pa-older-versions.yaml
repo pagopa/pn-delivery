@@ -612,6 +612,55 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
 
+  "/delivery/v2.5/notifications/sent/{iun}":
+    get:
+      summary: 'Mittente: lettura dettagli notifica versione 2'
+      description: |-
+        Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
+        
+        <details no-external>
+        <summary><b> Attributi progettazione di alto livello </b></summary>
+        | Proprietà                | Valore             |
+        | -----------------------: | :----------------- |
+        | __Intended usage__       | B2B, WEB           |
+        | __Modalità interazione__ | Sincrona           |
+        | __TPS (stimato)__        |                    |
+        | __Idempotenza__          | Si                 |
+        | __Read/Write intensive__ | Read               |
+        | __Cachable__             | No                 |
+        </details>
+      tags:
+        - SenderReadB2B
+      operationId: getSentNotificationV25                                      # NO EXTERNAL
+      #      operationId: retrieveSentNotificationV25                                # ONLY EXTERNAL
+      x-pagopa-lambda-name: 'pn-delivery-versioning-v1v2-getnotification-lambda:live'
+      x-pagopa-lambda-account: core
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'           # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'       # NO EXTERNAL
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
+      responses:
+        '200':
+          description: OK
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/FullSentNotificationV25"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
   '/delivery/price/{paTaxId}/{noticeCode}':
     get:
       deprecated: true
@@ -1395,6 +1444,40 @@ components:
               type: string                                                              # NO EXTERNAL
               description: Dettagli del canale sorgente della richiesta di notifica     # NO EXTERNAL
 
+    FullSentNotificationV25:
+      description: >-
+        Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
+        processo di inoltro della notifica verso il cittadino.
+      allOf:
+        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotificationV24'
+        - type: object
+          required:
+            - notificationStatus
+            - notificationStatusHistory
+            - timeline
+          properties:
+            notificationStatus:
+              $ref: '#/components/schemas/NotificationStatus'
+            notificationStatusHistory:
+              $ref: '#/components/schemas/NotificationStatusHistory'
+            timeline:
+              description: >-
+                elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
+              type: array
+              items:
+                $ref: '#/components/schemas/TimelineElementV25'
+            recipientIds:                                                               # NO EXTERNAL
+              description: Lista degli identificativi anonimizzati dei destinatari      # NO EXTERNAL
+              type: array                                                               # NO EXTERNAL
+              items:                                                                    # NO EXTERNAL
+                type: string                                                            # NO EXTERNAL
+            sourceChannel:                                                              # NO EXTERNAL
+              type: string                                                              # NO EXTERNAL
+              description: Canale sorgente della richiesta di notifica                  # NO EXTERNAL
+            sourceChannelDetails:                                                       # NO EXTERNAL
+              type: string                                                              # NO EXTERNAL
+              description: Dettagli del canale sorgente della richiesta di notifica     # NO EXTERNAL
+
     PaFeeV21:
       type: integer
       description: >-
@@ -1590,6 +1673,8 @@ components:
       $ref: './remote-refs.yaml#/components/schemas/TimelineElementV23'
     TimelineElementV24:
       $ref: './remote-refs.yaml#/components/schemas/TimelineElementV24'
+    TimelineElementV25:
+      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV25'
     NotificationStatus:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:

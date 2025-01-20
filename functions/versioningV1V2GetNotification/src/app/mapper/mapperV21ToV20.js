@@ -21,9 +21,10 @@ exports.transformFromV21ToV20 = function (responseV21) {
   responseV20.notificationFeePolicy = transformNotificationFeePolicy(responseV20.notificationFeePolicy);
   responseV20.physicalCommunicationType = transformPhysicalCommunicationType(responseV20.physicalCommunicationType);
   responseV20.pagoPaIntMode = transformPagoPaIntMode(responseV20.pagoPaIntMode);        
-  
+  responseV20.notificationStatus = adjustedTimelineAndHistory.history[adjustedTimelineAndHistory.history.length -1].status;
+
   //responseV21.timeline = adjustTimeline( responseV21.timeline, CATEGORY_TO_EXCLUDE, null);
-  
+
   return responseV20;
 }
 

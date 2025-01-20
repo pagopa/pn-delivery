@@ -12,6 +12,8 @@ exports.transformFromV25ToV24 = function (responseV25) {
     responseV24.additionalLanguages = undefined;
 
     responseV24.timeline = adjustedTimelineAndHistory.timeline;
+    responseV24.notificationStatus = adjustedTimelineAndHistory.history[adjustedTimelineAndHistory.history.length -1].status;
+
     return responseV24;
 }
 

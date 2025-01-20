@@ -132,7 +132,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     @Override
     public  ResponseEntity<NotificationSearchResponse> searchNotificationsPrivate(OffsetDateTime startDate, OffsetDateTime endDate,
                                                                                   String recipientId, Boolean recipientIdOpaque,
-                                                                                  String senderId, List<NotificationStatus> status,
+                                                                                  String senderId, List<NotificationStatusV26> status,
                                                                                   String mandateId, String cxType, Integer size, String nextPagesKey) {
 
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
