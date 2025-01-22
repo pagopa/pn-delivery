@@ -22,15 +22,24 @@ function decodePayload(b64Str) {
 function shouldSkipEvaluation(rec) {
   const allowedEventSources = ["aws:dynamodb"];
   const allowedTables = ["pn-Timelines"];
-  return allowedTables.indexOf(rec.tableName) == -1 || allowedEventSources.indexOf(rec.eventSource) == -1 || rec.eventName != "INSERT";
+  return (
+    allowedTables.indexOf(rec.tableName) == -1 ||
+    allowedEventSources.indexOf(rec.eventSource) == -1 ||
+    rec.eventName != "INSERT"
+  );
 }
 
 function extractYearMonth(date) {
-  return date.substring(0,7).replace(/-/g, "");
+  return date.substring(0, 7).replace(/-/g, "");
 }
 
 function arrayToString(array) {
   return `[${array.join(",")}]`;
 }
 
-module.exports = { decodePayload, shouldSkipEvaluation, extractYearMonth, arrayToString };
+module.exports = {
+  decodePayload,
+  shouldSkipEvaluation,
+  extractYearMonth,
+  arrayToString,
+};

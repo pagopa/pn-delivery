@@ -1,4 +1,4 @@
-const { processRecord } = require('./lib/processRecord');
+const { processRecord } = require("./lib/processRecord");
 
 const eventHandler = async (event) => {
   const batchItemFailures = [];
