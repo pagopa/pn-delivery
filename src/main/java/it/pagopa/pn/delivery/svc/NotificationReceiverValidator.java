@@ -2,11 +2,16 @@ package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.ExceptionHelper;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.dto.ProblemError;
 import it.pagopa.pn.commons.utils.ValidateUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
+import it.pagopa.pn.delivery.generated.openapi.msclient.nationalregistries.v1.api.AgenziaEntrateApi;
+import it.pagopa.pn.delivery.generated.openapi.msclient.nationalregistries.v1.model.CheckTaxIdOK;
+import it.pagopa.pn.delivery.generated.openapi.msclient.nationalregistries.v1.model.CheckTaxIdRequestBody;
+import it.pagopa.pn.delivery.generated.openapi.msclient.nationalregistries.v1.model.CheckTaxIdRequestBodyFilter;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
@@ -24,8 +29,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_INVALID_ADDITIONAL_LANG;
-import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_REQUIRED_ADDITIONAL_LANG;
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.*;
 import static it.pagopa.pn.delivery.utils.DenominationValidationUtils.ValidationTypeAllowedValues.NONE;
 import static it.pagopa.pn.delivery.utils.DenominationValidationUtils.ValidationTypeAllowedValues.REGEX;
 
@@ -37,13 +41,15 @@ public class NotificationReceiverValidator {
     private final MVPParameterConsumer mvpParameterConsumer;
     private final ValidateUtils validateUtils;
     private final PnDeliveryConfigs pnDeliveryConfigs;
+    private final AgenziaEntrateApi agenziaEntrateApi;
     public static final String REQUIRED_ADDITIONAL_LANG_SIZE = "È obbligatorio fornire una sola lingua aggiuntiva.";
 
-    public NotificationReceiverValidator(Validator validator, MVPParameterConsumer mvpParameterConsumer, ValidateUtils validateUtils, PnDeliveryConfigs pnDeliveryConfigs) {
+    public NotificationReceiverValidator(Validator validator, MVPParameterConsumer mvpParameterConsumer, ValidateUtils validateUtils, PnDeliveryConfigs pnDeliveryConfigs, AgenziaEntrateApi agenziaEntrateApi) {
         this.validator = validator;
         this.mvpParameterConsumer = mvpParameterConsumer;
         this.validateUtils = validateUtils;
         this.pnDeliveryConfigs = pnDeliveryConfigs;
+        this.agenziaEntrateApi = agenziaEntrateApi;
 
         log.info("Validation enabled={}", pnDeliveryConfigs.isPhysicalAddressValidation());
         log.info("Validation pattern={}", pnDeliveryConfigs.getPhysicalAddressValidationPattern());
@@ -125,11 +131,19 @@ public class NotificationReceiverValidator {
             // limitazione temporanea: destinatari PG possono avere solo TaxId numerico
             onlyNumericalTaxIdForPGV2(errors, recIdx, recipient);
             boolean isPF = NotificationRecipientV23.RecipientTypeEnum.PF.getValue().equals(recipient.getRecipientType().getValue());
+            boolean skipCheckTaxIdInBlackList = pnDeliveryConfigs.isSkipCheckTaxIdInBlackList();
 
-            if( !validateUtils.validate(recipient.getTaxId(), isPF, false)) {
+            if( !validateUtils.validate(recipient.getTaxId(), isPF, false, skipCheckTaxIdInBlackList)) {
                 ConstraintViolationImpl<NewNotificationRequestV24> constraintViolation = new ConstraintViolationImpl<>( "Invalid taxId for recipient " + recIdx );
                 errors.add(constraintViolation);
+            }else{
+                if(pnDeliveryConfigs.isEnableTaxIdExternalValidation() && !callAdeCheckTaxId(recipient.getTaxId(), recIdx)){
+                    ConstraintViolationImpl<NewNotificationRequestV24> constraintViolation = new ConstraintViolationImpl<>("Invalid taxId for recipient " + recIdx);
+                    errors.add(constraintViolation);
+                }
             }
+
+
             if ( !distinctTaxIds.add( recipient.getTaxId() )){
                 ConstraintViolationImpl<NewNotificationRequestV24> constraintViolation = new ConstraintViolationImpl<>( "Duplicated recipient taxId" );
                 errors.add(constraintViolation);
@@ -417,6 +431,27 @@ public class NotificationReceiverValidator {
                 (!recipient.getTaxId().matches("^\\d+$"))) {
             ConstraintViolationImpl<NewNotificationRequestV24> constraintViolation = new ConstraintViolationImpl<>("SEND accepts only numerical taxId for PG recipient " + recIdx);
             errors.add(constraintViolation);
+        }
+    }
+
+    private boolean callAdeCheckTaxId(String taxId, int recIdx) {
+        boolean isValid = false;
+        try {
+            CheckTaxIdRequestBodyFilter filter = new CheckTaxIdRequestBodyFilter();
+            filter.setTaxId(taxId);
+            CheckTaxIdRequestBody requestBody = new CheckTaxIdRequestBody();
+            requestBody.setFilter(filter);
+            CheckTaxIdOK response = agenziaEntrateApi.checkTaxId(requestBody);
+            if (Objects.nonNull(response)) {
+                isValid = Boolean.TRUE.equals(response.getIsValid());
+                if (!isValid) {
+                    log.warn("AdE - invalid taxId for recipient {}, error: {}", recIdx, response.getErrorCode());
+                }
+            }
+            return isValid;
+        } catch (Exception e) {
+            log.error("Error calling check taxId on AdE", e);
+            throw new PnInternalException("Error calling check taxId on AdE", 503, ERROR_CODE_DELIVERY_ADECHECKCF);
         }
     }
 
