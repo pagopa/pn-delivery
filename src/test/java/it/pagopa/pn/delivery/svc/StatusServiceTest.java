@@ -144,13 +144,13 @@ class StatusServiceTest {
         String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
 
         // WHEN
-        Optional<InternalNotification> notification = Optional.of(newInternalNotification(iun, NotificationStatus.IN_VALIDATION));
+        Optional<InternalNotification> notification = Optional.of(newInternalNotification(iun, NotificationStatusV26.IN_VALIDATION));
 
         when(notificationDao.getNotificationByIun(iun, false)).thenReturn(notification);
 
         RequestUpdateStatusDto dto = RequestUpdateStatusDto.builder()
                 .iun(iun)
-                .nextStatus(NotificationStatus.REFUSED)
+                .nextStatus(NotificationStatusV26.REFUSED)
                 .timestamp( OffsetDateTime.now() )
                 .build();
         assertDoesNotThrow(() -> statusService.updateStatus(dto));
@@ -186,7 +186,7 @@ class StatusServiceTest {
     @Test
     void updateStatusDefaultWithAnOldStatus() {
         String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
-        Optional<InternalNotification> Internalnotification = Optional.of(newInternalNotification(iun, NotificationStatus.IN_VALIDATION));
+        Optional<InternalNotification> Internalnotification = Optional.of(newInternalNotification(iun, NotificationStatusV26.IN_VALIDATION));
         when(notificationDao.getNotificationByIun(iun, false)).thenReturn(Internalnotification);
 
         Instant now = OffsetDateTime.now().toInstant();
@@ -201,7 +201,7 @@ class StatusServiceTest {
 
         RequestUpdateStatusDto dto = RequestUpdateStatusDto.builder()
                 .iun(iun)
-                .nextStatus(NotificationStatus.DELIVERED)
+                .nextStatus(NotificationStatusV26.DELIVERED)
                 .timestamp( dayBefore )
                 .build();
         assertDoesNotThrow(() -> statusService.updateStatus(dto));

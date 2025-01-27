@@ -61,7 +61,7 @@ public class StatusService {
         InternalNotification notification = notificationOptional.get();
         log.debug("Notification with protocolNumber={} and iun={} is present", notification.getPaProtocolNumber(), dto.getIun());
 
-        NotificationStatus nextStatus = dto.getNextStatus();
+        NotificationStatusV26 nextStatus = dto.getNextStatus();
         OffsetDateTime acceptedAt;
         switch (nextStatus) {
             case ACCEPTED -> {
@@ -137,7 +137,7 @@ public class StatusService {
             String rootSenderId
     ) {
         int recipientIndex = recipientsIds.indexOf( recipientId );
-        NotificationStatus lastStatus = dto.getNextStatus();
+        NotificationStatusV26 lastStatus = dto.getNextStatus();
         OffsetDateTime notificationStatusTimestamp = dto.getTimestamp();
 
         Map<String,String> tableRowMap = createTableRowMap(notification, recipientsIds, acceptedAt);
