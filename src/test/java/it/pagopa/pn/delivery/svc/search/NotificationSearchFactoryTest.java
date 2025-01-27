@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.svc.search;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.EntityToDtoNotificationMetadataMapper;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
@@ -26,7 +26,7 @@ class NotificationSearchFactoryTest {
 
     private static final String START_DATE = "2021-09-17T00:00:00.000Z";
     private static final String END_DATE = "2021-09-18T00:00:00.000Z";
-    private static final NotificationStatus STATUS = NotificationStatus.IN_VALIDATION;
+    private static final NotificationStatusV26 STATUS = NotificationStatusV26.IN_VALIDATION;
     private static final String RECIPIENT_ID = "CGNNMO80A01H501M";
 
     public static final List<String> GROUPS = List.of("Group1", "Group2");

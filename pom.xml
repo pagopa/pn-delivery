@@ -8,7 +8,7 @@
         <relativePath>../pn-parent</relativePath>
     </parent>
     <artifactId>pn-delivery</artifactId>
-    <version>2.12.0-SNAPSHOT</version>
+    <version>2.14.0-SNAPSHOT</version>
     <name>pn-delivery</name>
     <description>Receive new notifications and show internalNotification history</description>
     <scm>
@@ -40,7 +40,7 @@
         <dependency>
             <groupId>it.pagopa.pn</groupId>
             <artifactId>pn-commons</artifactId>
-            <version>2.6.0</version>
+            <version>2.7.0</version>
         </dependency>
         <dependency>
             <groupId>it.pagopa.pn</groupId>
@@ -498,7 +498,7 @@
                         </goals>
                         <phase>process-resources</phase>
                         <configuration>
-                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery-push/9970e5e80ae1fa305d4e06fe0379e5ff05d29447/docs/openapi/api-private.yaml</inputSpec>
+                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery-push/898b155966acda508abd4149e0efb5ce66c6e9b0/docs/openapi/api-private.yaml</inputSpec>
                             <generatorName>java</generatorName>
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>

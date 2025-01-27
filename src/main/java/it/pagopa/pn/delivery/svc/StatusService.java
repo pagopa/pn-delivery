@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestUpdateStatusDto;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationCostEntityDao;

@@ -98,11 +98,11 @@ class PnReceivedIONotificationsControllerTest {
     }
 
     private InternalNotification newNotification() {
-        TimelineElementV25 timelineElement = new TimelineElementV25();
-        timelineElement.setCategory(TimelineElementCategoryV23.AAR_CREATION_REQUEST);
+        TimelineElementV26 timelineElement = new TimelineElementV26();
+        timelineElement.setCategory(TimelineElementCategoryV26.AAR_CREATION_REQUEST);
         InternalNotification internalNotification = new InternalNotification();
-        internalNotification.setNotificationStatusHistory(List.of(NotificationStatusHistoryElement.builder()
-                .status(NotificationStatus.ACCEPTED).build()));
+        internalNotification.setNotificationStatusHistory(List.of(NotificationStatusHistoryElementV26.builder()
+                .status(NotificationStatusV26.ACCEPTED).build()));
         internalNotification.setPagoPaIntMode(NewNotificationRequestV24.PagoPaIntModeEnum.NONE);
         internalNotification.setTimeline(List.of(timelineElement));
         internalNotification.setIun("iun");
@@ -111,7 +111,7 @@ class PnReceivedIONotificationsControllerTest {
         internalNotification.setCancelledIun("IUN_05");
         internalNotification.setCancelledIun("IUN_00");
         internalNotification.setSenderPaId(PA_ID);
-        internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
         internalNotification.setSourceChannel(X_PAGOPA_PN_SRC_CH);
         internalNotification.setDocuments(List.of(NotificationDocument.builder()
                 .title("title")

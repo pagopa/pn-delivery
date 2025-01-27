@@ -2,7 +2,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import org.springframework.stereotype.Component;
@@ -38,7 +38,7 @@ public class EntityToDtoNotificationMetadataMapper {
                 .paProtocolNumber( tableRow.get(TABLE_ROW_PA_PROTOCOL_NUMBER) )
                 .requestAcceptedAt( requestAcceptedAt )
                 .group( entity.getNotificationGroup() )
-                .notificationStatus( NotificationStatus.valueOf( entity.getNotificationStatus() ))
+                .notificationStatus( NotificationStatusV26.valueOf( entity.getNotificationStatus() ))
                 .build();
     }
 
@@ -58,7 +58,7 @@ public class EntityToDtoNotificationMetadataMapper {
                 .subject(tableRow.get(TABLE_ROW_SUBJECT))
                 .paProtocolNumber(tableRow.get(TABLE_ROW_PA_PROTOCOL_NUMBER))
                 .requestAcceptedAt(requestAcceptedAt)
-                .notificationStatus(NotificationStatus.valueOf(entity.getNotificationStatus()))
+                .notificationStatus(NotificationStatusV26.valueOf(entity.getNotificationStatus()))
                 .mandateId(entity.getMandateId())
                 .build();
     }

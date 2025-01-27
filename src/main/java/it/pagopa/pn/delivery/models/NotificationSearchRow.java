@@ -1,6 +1,6 @@
 package it.pagopa.pn.delivery.models;
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
 import lombok.*;
 
 import java.time.Instant;
@@ -28,7 +28,7 @@ public class NotificationSearchRow {
     private String subject;
 
     //@Schema(name = "notificationStatus", description = "Stato del workflow della notifica")
-    private NotificationStatus notificationStatus;
+    private NotificationStatusV26 notificationStatus;
 
     //@Schema(name = "recipientId", description = "Identificativo opaco del destinatario")
     private String recipientId;

@@ -165,7 +165,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
 
-  "/delivery/v2.4/notifications/received/{iun}":
+  "/delivery/v2.5/notifications/received/{iun}":
     get:
       summary: Dettaglio di una notifica ricevuta.
       description: >-
@@ -180,7 +180,7 @@ paths:
                   - eventuali documenti di pagamento (campo payments reperibile nel dettaglio del destinatario)
       tags:
         - RecipientReadB2B
-      operationId: getReceivedNotificationV24
+      operationId: getReceivedNotificationV25
       #      security:                                      # ONLY EXTERNAL
       #        - bearerAuth: [ ]                            # ONLY EXTERNAL
       x-api-permissions:
@@ -194,7 +194,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/FullReceivedNotificationV24"
+                $ref: "#/components/schemas/FullReceivedNotificationV25"
         '400':
           description: Bad request
           content:
@@ -350,7 +350,7 @@ components:
     UnauthorizedError:
       description: Access token is missing or invalid
   schemas:
-    FullReceivedNotificationV24:
+    FullReceivedNotificationV25:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata e il processo di 
         inoltro della notifica verso i destinatari (Persone Fisiche o Giuridiche).
@@ -363,25 +363,25 @@ components:
             - timeline
           properties:
             notificationStatus:
-              $ref: '#/components/schemas/NotificationStatus'
+              $ref: '#/components/schemas/NotificationStatusV26'
             notificationStatusHistory:
-              $ref: '#/components/schemas/NotificationStatusHistory'
+              $ref: '#/components/schemas/NotificationStatusHistoryV26'
             timeline:
               description: >-
                 elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV25'
+                $ref: '#/components/schemas/TimelineElementV26'
 
     Problem:
       $ref: './remote-refs.yaml#/components/schemas/Problem'
     
-    TimelineElementV25:
-      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV25'
-    NotificationStatus:
-      $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
-    NotificationStatusHistory:
-      $ref: "./remote-refs.yaml#/components/schemas/NotificationStatusHistory"
+    TimelineElementV26:
+      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV26'
+    NotificationStatusV26:
+      $ref: './remote-refs.yaml#/components/schemas/NotificationStatusV26'
+    NotificationStatusHistoryV26:
+      $ref: "./remote-refs.yaml#/components/schemas/NotificationStatusHistoryV26"
 
   securitySchemes:                                      # ONLY EXTERNAL
     bearerAuth:                                         # ONLY EXTERNAL
