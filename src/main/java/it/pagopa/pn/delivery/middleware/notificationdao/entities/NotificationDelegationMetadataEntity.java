@@ -18,6 +18,7 @@ public class NotificationDelegationMetadataEntity {
 
     public static final String FIELD_IUN_RECIPIENT_ID_DELEGATE_ID_GROUP_ID = "iun_recipientId_delegateId_groupId";
     public static final String FIELD_SENT_AT = "sentAt";
+    public static final String FIELD_NOTIFICATION_STATUS_TIMESTAMP = "notificationStatusTimestamp";
     public static final String FIELD_DELEGATE_ID_CREATION_MONTH = "delegateId_creationMonth";
     public static final String FIELD_DELEGATE_ID_GROUP_ID_CREATION_MONTH = "delegateId_groupId_creationMonth";
     public static final String FIELD_MANDATE_ID = "mandateId";
@@ -47,6 +48,11 @@ public class NotificationDelegationMetadataEntity {
             @DynamoDbAttribute(value = FIELD_SENT_AT)
     }))
     private Instant sentAt;
+
+    @Getter(onMethod = @__({
+            @DynamoDbAttribute(value = FIELD_NOTIFICATION_STATUS_TIMESTAMP)
+    }))
+    private Instant notificationStatusTimestamp;
 
     @Getter(onMethod = @__({
             @DynamoDbSecondaryPartitionKey(indexNames = {INDEX_DELEGATE_ID}),

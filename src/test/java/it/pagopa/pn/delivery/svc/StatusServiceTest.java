@@ -26,6 +26,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
@@ -35,8 +36,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.*;
 
 class StatusServiceTest {
-
-    private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
 
     @Mock
     private NotificationDao notificationDao;
@@ -104,7 +103,7 @@ class StatusServiceTest {
 
     @ExtendWith(MockitoExtension.class)
     @Test
-    void updateStatus_Notification_REFUSED() {
+    void updateStatus_Notification_REFUSED_With_Payments() {
 
         String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
         NotificationPaymentInfo notificationPaymentInfo = NotificationPaymentInfo.builder()
@@ -132,11 +131,36 @@ class StatusServiceTest {
                 .timestamp( OffsetDateTime.now() )
                 .build();
         assertDoesNotThrow(() -> statusService.updateStatus(dto));
-        //Mockito.verify(notificationCostEntityDao, times(0)).deleteItem(notificationCostEntity);
+        Mockito.verify(notificationCostEntityDao, times(1)).deleteItem(Mockito.any());
         Mockito.verify(notificationMetadataEntityDao, times(0)).get(Mockito.any());
         Mockito.verify(notificationDelegatedService, times(0)).computeDelegationMetadataEntries(Mockito.any(NotificationMetadataEntity.class));
         Mockito.verify(notificationMetadataEntityDao, times(0)).put(Mockito.any(NotificationMetadataEntity.class));
     }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void updateStatus_Notification_REFUSED_Without_Payments() {
+
+        String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
+
+        // WHEN
+        Optional<InternalNotification> notification = Optional.of(newInternalNotification(iun, NotificationStatusV26.IN_VALIDATION));
+
+        when(notificationDao.getNotificationByIun(iun, false)).thenReturn(notification);
+
+        RequestUpdateStatusDto dto = RequestUpdateStatusDto.builder()
+                .iun(iun)
+                .nextStatus(NotificationStatusV26.REFUSED)
+                .timestamp( OffsetDateTime.now() )
+                .build();
+        assertDoesNotThrow(() -> statusService.updateStatus(dto));
+        Mockito.verify(notificationCostEntityDao, times(0)).deleteItem(Mockito.any());
+        Mockito.verify(notificationMetadataEntityDao, times(0)).get(Mockito.any());
+        Mockito.verify(notificationDelegatedService, times(0)).computeDelegationMetadataEntries(Mockito.any(NotificationMetadataEntity.class));
+        Mockito.verify(notificationMetadataEntityDao, times(0)).put(Mockito.any(NotificationMetadataEntity.class));
+    }
+
+
     @ExtendWith(MockitoExtension.class)
     @Test
     void updateStatusDefault() {
@@ -157,6 +181,35 @@ class StatusServiceTest {
                 .build();
         assertDoesNotThrow(() -> statusService.updateStatus(dto));
     }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void updateStatusDefaultWithAnOldStatus() {
+        String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
+        Optional<InternalNotification> Internalnotification = Optional.of(newInternalNotification(iun, NotificationStatusV26.IN_VALIDATION));
+        when(notificationDao.getNotificationByIun(iun, false)).thenReturn(Internalnotification);
+
+        Instant now = OffsetDateTime.now().toInstant();
+        OffsetDateTime dayBefore = OffsetDateTime.now().minusDays(1);
+
+        // WHEN
+        Optional<NotificationMetadataEntity> notificationMetadata = Optional.of(NotificationMetadataEntity.builder()
+                .tableRow(Map.of("acceptedAt", "2021-09-16T16:00Z"))
+                .notificationStatusTimestamp(now)
+                .build());
+        when(notificationMetadataEntityDao.get(any(Key.class))).thenReturn(notificationMetadata);
+
+        RequestUpdateStatusDto dto = RequestUpdateStatusDto.builder()
+                .iun(iun)
+                .nextStatus(NotificationStatusV26.DELIVERED)
+                .timestamp( dayBefore )
+                .build();
+        assertDoesNotThrow(() -> statusService.updateStatus(dto));
+
+        // Non avvengono inserimenti in tabella
+        verify(notificationMetadataEntityDao, times(0)).put(Mockito.any());
+    }
+
     @ExtendWith(MockitoExtension.class)
     @Test
     void updateStatusOptionalEmpty() {
