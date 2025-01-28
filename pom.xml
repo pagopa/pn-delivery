@@ -40,7 +40,7 @@
         <dependency>
             <groupId>it.pagopa.pn</groupId>
             <artifactId>pn-commons</artifactId>
-            <version>2.7.0</version>
+            <version>2.8.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>it.pagopa.pn</groupId>
@@ -561,6 +561,32 @@
                                 <annotationLibrary>none</annotationLibrary>
                                 <documentationProvider>source</documentationProvider>
                                 <openApiNullable>false</openApiNullable>
+                                <useAbstractionForFiles>true</useAbstractionForFiles>
+                                <useBeanValidation>false</useBeanValidation>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-client-pn-national-registries</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-national-registries/a8826fa39a9a6708f5e9e371ca6b751695950510/docs/openapi/PNT2Y-OpenAPI3_PN-NationalRegistries.yaml</inputSpec>
+                            <generatorName>java</generatorName>
+                            <library>resttemplate</library>
+                            <generateApiTests>false</generateApiTests>
+                            <generateModelTests>false</generateModelTests>
+                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
+                            <configOptions>
+                                <apiPackage>${project.groupId}.delivery.generated.openapi.msclient.nationalregistries.v1.api</apiPackage>
+                                <modelPackage>${project.groupId}.delivery.generated.openapi.msclient.nationalregistries.v1.model</modelPackage>
+                                <dateLibrary>java8</dateLibrary>
+                                <annotationLibrary>none</annotationLibrary>
+                                <documentationProvider>source</documentationProvider>
+                                <openApiNullable>false</openApiNullable>
+                                <reactive>false</reactive>
                                 <useAbstractionForFiles>true</useAbstractionForFiles>
                                 <useBeanValidation>false</useBeanValidation>
                             </configOptions>
