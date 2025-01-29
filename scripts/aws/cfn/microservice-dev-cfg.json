@@ -36,7 +36,7 @@
     "NumRetry": "3",
     "CheckTaxonomyCodeEnabled": "true",
     "EnableDeceasedWorkflow": "true",
-    "EnableTaxIdExternalValidation": "false",
+    "EnableTaxIdExternalValidation": "true",
     "SkipCheckTaxIdInBlackList": "false"
   }
 }
