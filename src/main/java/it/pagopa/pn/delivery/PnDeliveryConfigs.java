@@ -29,6 +29,8 @@ public class PnDeliveryConfigs {
 
     private String safeStorageBaseUrl;
 
+    private String nationalRegistriesBaseUrl;
+
     private String f24BaseUrl;
 
     private String safeStorageCxId;
@@ -82,6 +84,10 @@ public class PnDeliveryConfigs {
     private String denominationValidationExcludedCharacter;
 
     private boolean checkTaxonomyCodeEnabled;
+
+    private boolean enableTaxIdExternalValidation;
+
+    private boolean skipCheckTaxIdInBlackList;
 
     @PostConstruct
     public void init(){

@@ -233,6 +233,7 @@ public class NotificationDelegatedService {
         return NotificationDelegationMetadataEntity.builder()
                 .iunRecipientIdDelegateIdGroupId(pk)
                 .sentAt(metadata.getSentAt())
+                .notificationStatusTimestamp(metadata.getNotificationStatusTimestamp())
                 .delegateIdCreationMonth(DataUtils.createConcatenation(mandate.getDelegate(), creationMonth))
                 .delegateIdGroupIdCreationMonth(delegateIdGroupIdCreationMonth)
                 .mandateId(mandate.getMandateId())

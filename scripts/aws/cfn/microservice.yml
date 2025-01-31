@@ -366,6 +366,22 @@ Parameters:
     Description: memory amount reserved to the task pod.
     AllowedValues: [2GB, 4GB, 6GB, 8GB]
 
+  EnableTaxIdExternalValidation:
+    Type: String
+    Default: false
+    Description: "Boolean that enables the external validation on AdE of tax id"
+    AllowedValues:
+      - true
+      - false
+
+  SkipCheckTaxIdInBlackList:
+    Type: String
+    Default: true
+    Description: "Boolean that enables the blacklist check of tax id"
+    AllowedValues:
+      - true
+      - false
+
   # Autoscaling parameters
   AutoscalingCheckPeriod:
     Default: 60
@@ -631,7 +647,10 @@ Resources:
         ContainerEnvEntry45: !Sub "LOLLIPOP_ASSERTION_REST_CONFIG_CONNECTION_TIMEOUT=${LollipopAssertionRestConfigConnectionTimeout}"
         ContainerEnvEntry46: !Sub "PN_DELIVERY_TAXONOMYCODEDAO_TABLENAME=${TaxonomyCodeDynamoTableName}"
         ContainerEnvEntry47: !Sub "PN_DELIVERY_CHECK_TAXONOMY_CODE_ENABLED=${CheckTaxonomyCodeEnabled}"
-        ContainerEnvEntry48: !Sub "PN_DELIVERY_ENABLE_DECEASED_WORKFLOW=${EnableDeceasedWorkflow}"
+        ContainerEnvEntry48: !Sub "PN_DELIVERY_ENABLETAXIDEXTERNALVALIDATION=${EnableTaxIdExternalValidation}"
+        ContainerEnvEntry49: !Sub "PN_DELIVERY_NATIONALREGISTRIESBASEURL=http://${ApplicationLoadBalancerDomain}:8080"
+        ContainerEnvEntry50: !Sub "PN_DELIVERY_SKIPCHECKTAXIDINBLACKLIST=${SkipCheckTaxIdInBlackList}"
+        ContainerEnvEntry51: !Sub "PN_DELIVERY_ENABLE_DECEASED_WORKFLOW=${EnableDeceasedWorkflow}"
 
         ContainerSecret1: !Sub "ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:"
         MicroServiceSecretPrefix: pn-Delivery-Secrets
@@ -703,6 +722,7 @@ Resources:
             Resource:
               - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapPaMVP"
               - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapTaxIdWhiteList"
+              - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapTaxIdBlackList"
               - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapPaSendActive"
 
   # Expose PN-Delivery microservice public API with API-GW for B2B usage
