@@ -1667,7 +1667,7 @@ Resources:
       FunctionName: !Ref MetadataStatusUpdaterLambda
       FunctionResponseTypes:
         - ReportBatchItemFailures
-      MaximumBatchingWindowInSeconds: !Sub ${MetadataStatusUpdaterLambdaMaximumBatchingWindowInSeconds}
+      MaximumBatchingWindowInSeconds: !Sub ${PnDeliveryMetadataStatusUpdaterLambdaMaximumBatchingWindowInSeconds}
       StartingPosition: TRIM_HORIZON
       DestinationConfig:
         OnFailure:
