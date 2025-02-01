@@ -8,7 +8,7 @@ const eventHandler = async (event) => {
     try {
       await processRecord(record);
     } catch (error) {
-      console.error(`Error processing record: ${error.message}`);
+      console.error(`Error ${error.message} processing record with sequenceNumber: ${record.kinesis.sequenceNumber}`);
       batchItemFailures.push({ itemIdentifier: record.kinesis.sequenceNumber });
     }
   }

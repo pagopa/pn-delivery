@@ -66,7 +66,7 @@ describe('putNotificationMetadata', () => {
 
     await putNotificationMetadata(statusInfo, notification, acceptedAt);
 
-    expect(consoleLogStub.firstCall.args[0]).to.equal('No mandates found for recipient recipientId1');
+    expect(consoleLogStub.secondCall.args[0]).to.equal('No mandates found for recipient recipientId1');
     expect(putMetadataStub.callCount).to.equal(1);
   });
 

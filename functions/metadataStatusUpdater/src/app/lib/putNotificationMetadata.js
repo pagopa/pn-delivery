@@ -11,6 +11,8 @@ const putNotificationMetadata = async (
     notification.senderPaId
   );
 
+  console.log("Found root sender id: ", rootSenderId);
+
   for (const recipient of notification.recipients) {
     const notificationMetadata = buildNotificationMetadata(
       statusInfo,
@@ -30,6 +32,8 @@ const putNotificationMetadata = async (
       console.log(`No mandates found for recipient ${recipient.recipientId}`);
       continue;
     }
+    
+    console.log(`Found ${mandates.length} mandates for recipient ${recipient.recipientId}`);
     await computeDelegationMetadataEntries(notificationMetadata, mandates);
   }
 };

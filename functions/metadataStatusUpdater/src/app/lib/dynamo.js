@@ -59,6 +59,7 @@ const putMetadata = async (tablename, item, partitionKeyName) => {
         `update not necessary for item with key: ${item[partitionKeyName]} in table: ${tablename}`
       );
     } else {
+      console.log(`Error ${error.message} during putMetadata with key: ${item[partitionKeyName]} in table: ${tablename}`);
       throw error;
     }
   }

@@ -6,7 +6,15 @@ const { ItemNotFoundException } = require("./exceptions.js");
 
 const processRecord = async (record) => {
   const kinesisData = utils.decodePayload(record.kinesis.data);
-  if (utils.shouldSkipEvaluation(kinesisData)) return;
+  if (utils.shouldSkipEvaluation(kinesisData)) {
+    console.log(`Skipping evaluation for record with 
+      eventSource: ${kinesisData.eventSource}, 
+      eventName: ${kinesisData.eventName}, 
+      tableName: ${kinesisData.tableName}, 
+      NewImage: ${kinesisData.NewImage}
+    `);
+    return;
+  } 
 
   const timelineElement = unmarshall(kinesisData.dynamodb.NewImage);
   const { iun, statusInfo, timelineElementId } = timelineElement;
@@ -40,13 +48,15 @@ const processRecord = async (record) => {
 const deletePayments = async (notification) => {
   for (const recipient of notification.recipients) {
     for (const payment of recipient.payments) {
-      const creditorTaxId_noticeCode = `${payment.creditorTaxId}##${payment.noticeCode}`;
-      console.log(
-        `Deleting payment ${creditorTaxId_noticeCode} for recipient with id: ${recipient.recipientId}`
-      );
-      await dynamo.deleteItem("pn-NotificationsCost", {
-        creditorTaxId_noticeCode,
-      });
+      if(payment.creditorTaxId && payment.noticeCode) {
+        const creditorTaxId_noticeCode = `${payment.creditorTaxId}##${payment.noticeCode}`;
+        console.log(
+          `Deleting payment ${creditorTaxId_noticeCode} for recipient with id: ${recipient.recipientId}`
+        );
+        await dynamo.deleteItem("pn-NotificationsCost", {
+          creditorTaxId_noticeCode,
+        });
+      }
     }
   }
 };
