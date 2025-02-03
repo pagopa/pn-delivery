@@ -1554,6 +1554,11 @@ Resources:
   #########################################################
   ###              MetadataStatusUpdaterLambda            ###
   #########################################################
+  MetadataStatusUpdaterSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub "${MetadataStatusUpdaterLambdaName}-sec-group"
+      VpcId: !Ref VpcId
 
   # Lambda function
   MetadataStatusUpdaterLambda:
@@ -1566,6 +1571,10 @@ Resources:
         S3Bucket: !Ref MicroserviceBucketName
         S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/metadataStatusUpdater.zip"
       Role: !GetAtt MetadataStatusUpdaterLambdaRole.Arn
+      VpcConfig:
+        SecurityGroupIds:
+          - !GetAtt MetadataStatusUpdaterSecGroup.GroupId
+        SubnetIds: !Ref SubnetsIds
       Environment:
         Variables:
           REGION: !Sub ${AWS::Region}
@@ -1575,7 +1584,7 @@ Resources:
         Mode: Active
     #  Layers:
        # - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
-      Timeout: 10
+      Timeout: 30
 
   MetadataStatusUpdaterLambdaAlarms:
     Type: AWS::CloudFormation::Stack
@@ -1602,6 +1611,7 @@ Resources:
               - sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
 
   # Lambda function IAM policy
   MetadataStatusUpdaterLambdaPolicy:
