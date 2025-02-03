@@ -76,7 +76,6 @@ const handleDefaultStatus = async (notification, statusInfo) => {
       console.warn(
         `Unable to retrieve accepted date - iun=${notification.iun} recipientId=${notification.recipients[0].recipientId}`
       );
-      return;
     }
     throw error;
   }

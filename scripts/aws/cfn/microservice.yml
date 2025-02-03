@@ -496,6 +496,11 @@ Parameters:
     Type: String
     Description: "BatchSize metadata status updater"
 
+  PnDeliveryMetadataStatusLambdaMaxRetryAttempts:
+    Type: Number
+    Description: "MaxRetryAttempts for metadata status updater Lambda"
+    Default: 3
+
   PnDeliveryMetadataStatusUpdaterLambdaMaximumBatchingWindowInSeconds:
     Type: String
     Description: "MaximumBatchingWindow metadata status updater"
@@ -1673,11 +1678,12 @@ Resources:
       EventSourceArn: !Ref CdcKinesisSourceStreamArn
       FilterCriteria:
         Filters:
-          - Pattern: '{ "data" : { "dynamodb" : { "NewImage" : { "statusInfo": { "M": { "statusChanged": { "BOOL": [ true ]}}}}}}}'
+          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "dynamodb" : { "NewImage" : { "statusInfo": { "M": { "statusChanged": { "BOOL": [ true ]}}}}}}}'
       FunctionName: !Ref MetadataStatusUpdaterLambda
       FunctionResponseTypes:
         - ReportBatchItemFailures
       MaximumBatchingWindowInSeconds: !Sub ${PnDeliveryMetadataStatusUpdaterLambdaMaximumBatchingWindowInSeconds}
+      MaximumRetryAttempts: !Sub ${PnDeliveryMetadataStatusLambdaMaxRetryAttempts}
       StartingPosition: TRIM_HORIZON
       DestinationConfig:
         OnFailure:

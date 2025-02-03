@@ -113,17 +113,22 @@ describe('processRecord tests', () => {
       },
     });
 
+    const itemNotFoundException = new ItemNotFoundException("mockedIun", "pn-NotificationsMetadata");
     getItemStub.callsFake((param1, param2) => {
       if (param1 === 'pn-Notifications') {
         return Promise.resolve(notificationMock);
       }
       if (param1 === 'pn-NotificationsMetadata') {
-        return Promise.reject(new ItemNotFoundException("mockedIun", "pn-NotificationsMetadata"));
+        return Promise.reject(itemNotFoundException);
       }
       return Promise.resolve(null);
     });
 
-    await processRecord(record);
+    try {
+      await processRecord(record);
+    } catch (error) {
+      expect(error).to.be.equal(itemNotFoundException);
+    }
 
     expect(warnLogStub.firstCall.args[0]).to.be.equal('Unable to retrieve accepted date - iun=mockedIun recipientId=mockedRecipientId');
     expect(putNotificationMetadataStub.notCalled).to.be.true;

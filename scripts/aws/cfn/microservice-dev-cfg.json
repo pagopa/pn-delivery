@@ -39,6 +39,7 @@
     "EnableTaxIdExternalValidation": "true",
     "SkipCheckTaxIdInBlackList": "false",
     "PnDeliveryMetadataStatusLambdaBatchSize": "60",
-    "PnDeliveryMetadataStatusUpdaterLambdaMaximumBatchingWindowInSeconds": "20"
+    "PnDeliveryMetadataStatusUpdaterLambdaMaximumBatchingWindowInSeconds": "20",
+    "PnDeliveryMetadataStatusLambdaMaxRetryAttempts": "2"
   }
 }

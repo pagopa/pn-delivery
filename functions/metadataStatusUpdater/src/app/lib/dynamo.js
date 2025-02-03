@@ -52,7 +52,7 @@ const putMetadata = async (tablename, item, partitionKeyName) => {
   try {
     const command = new PutCommand(params);
     const result = await docClient.send(command);
-    console.log("Elemento inserito con successo:", item[partitionKeyName]);
+    console.log(`putItem successfully executed with pk: ${item[partitionKeyName]} and status: ${item.notificationStatus} on table ${tablename}`);
   } catch (error) {
     if (error.name === "ConditionalCheckFailedException") {
       console.log(
