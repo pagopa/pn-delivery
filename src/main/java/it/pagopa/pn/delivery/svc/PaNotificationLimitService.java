@@ -19,7 +19,10 @@ public class PaNotificationLimitService {
     }
 
     public void decrementLimitIncrementDailyCounter(InternalNotification internalNotification) throws ConditionalCheckFailedException {
-        paNotificationLimitDao.decrementLimitIncrementDailyCounter(createPrimaryKey(internalNotification), createDailyCounter(internalNotification));
+        boolean updated = paNotificationLimitDao.decrementLimitIncrementDailyCounter(createPrimaryKey(internalNotification), createDailyCounter(internalNotification));
+        if(! updated){
+            throw Exception for 429;
+        }
     }
 
     public void incrementLimitDecrementDailyCounter(InternalNotification internalNotification) {

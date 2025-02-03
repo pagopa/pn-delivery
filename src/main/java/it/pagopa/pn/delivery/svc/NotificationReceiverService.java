@@ -158,10 +158,7 @@ public class NotificationReceiverService {
 			f24Client.saveMetadata(this.cfg.getF24CxId(), internalNotification.getIun(), saveF24Request);
 		}
 
-		//TODO nuovo sviluppo
-		checkAndUpdatePaNotificationLimit(internalNotification);
-
-		doSaveWithRethrow(internalNotification);
+		checkCounterAndSaveNotification(internalNotification);
 
 		NewNotificationResponse response = generateResponse(internalNotification, iun);
 
@@ -169,15 +166,23 @@ public class NotificationReceiverService {
 		return response;
 	}
 
+	private void checkCounterAndSaveNotification(InternalNotification internalNotification) {
+		boolean toUpdate = checkAndUpdatePaNotificationLimit(internalNotification);
+
+		try {
+			doSaveWithRethrow(internalNotification);
+		} catch (PnIdConflictException ex){
+			if(toUpdate){
+				paNotificationLimitService.incrementLimitDecrementDailyCounter(internalNotification);
+			}
+			throw ex;
+		}
+	}
+
 	private void checkAndUpdatePaNotificationLimit(InternalNotification internalNotification) {
 		log.info("Check and update paNotificationLimit for iun={}", internalNotification.getIun());
 		if(paNotificationLimitService.checkIfPaNotificationLimitExists(internalNotification)) {
-			try {
 				paNotificationLimitService.decrementLimitIncrementDailyCounter(internalNotification);
-			} catch(ConditionalCheckFailedException ex) {
-				log.error("Conditional check failed: {}", ex.getMessage(), ex);
-				throw ex;
-			}
 		}
 	}
 
@@ -276,13 +281,7 @@ public class NotificationReceiverService {
 
 	private void doSave(InternalNotification internalNotification) throws PnIdConflictException {
 		log.info("Store the notification metadata for iun={}", internalNotification.getIun());
-		try {
-			notificationDao.addNotification(internalNotification);
-		} catch (PnIdConflictException ex){
-			//todo incrementare limite e decr counter
-			paNotificationLimitService.incrementLimitDecrementDailyCounter(internalNotification);
-			throw ex;
-		}
+		notificationDao.addNotification(internalNotification);
 	}
 
 }

@@ -23,7 +23,7 @@ public class PaNotificationLimitDaoDynamo implements PaNotificationLimitDao {
     }
 
     @Override
-    public void decrementLimitIncrementDailyCounter(String pk, String dailyCounter) {
+    public boolean decrementLimitIncrementDailyCounter(String pk, String dailyCounter) {
         log.debug("Decrementing limit and incrementing dailyCounter {} for pk: {}", dailyCounter, pk);
         try {
             UpdateItemRequest updateRequest = UpdateItemRequest.builder()
@@ -31,7 +31,7 @@ public class PaNotificationLimitDaoDynamo implements PaNotificationLimitDao {
                     .key(getKey(pk))
                     .updateExpression("SET " + PaNotificationLimitEntity.FIELD_RESIDUAL_LIMIT + " = " +
                             PaNotificationLimitEntity.FIELD_RESIDUAL_LIMIT + " - :decrement, " + dailyCounter + " = " + dailyCounter + " + :increment")
-                    .conditionExpression(PaNotificationLimitEntity.FIELD_RESIDUAL_LIMIT + " > :zero")
+                    .conditionExpression(PaNotificationLimitEntity.FIELD_RESIDUAL_LIMIT + " > :zero") //TODO Valutare se insereire la condition sull'esistenza
                     .expressionAttributeValues(Map.of(
                             ":decrement", AttributeValue.builder().n("1").build(),
                             ":increment", AttributeValue.builder().n("1").build(),
@@ -40,10 +40,11 @@ public class PaNotificationLimitDaoDynamo implements PaNotificationLimitDao {
                     .build();
 
             dynamoDbClient.updateItem(updateRequest);
+            return true;
 
         } catch (ConditionalCheckFailedException ex) {
             log.error("Conditional check failed: {}", ex.getMessage(), ex);
-            throw ex;
+            return false;
         } catch (DynamoDbException e) {
             log.error("Unable to update item in DynamoDB: {}", e.getMessage(), e);
             throw new RuntimeException("Update failed: " + e.getMessage(), e);
@@ -77,7 +78,7 @@ public class PaNotificationLimitDaoDynamo implements PaNotificationLimitDao {
     }
 
     @Override
-    public boolean checkIfPaNotificationLimitExists(String pk) { //todo applicare consistent read?
+    public boolean checkIfPaNotificationLimitExists(String pk) { //todo applicare consistent read -> il limite viene scritto sulla tabella diverso tempo prima, dunque non dovrebbe essere necessaria una consistent read
         log.debug("Checking if PaNotificationLimit exists for pk: {}", pk);
         GetItemRequest getItemRequest = GetItemRequest.builder()
                 .tableName(tableName)
@@ -86,7 +87,7 @@ public class PaNotificationLimitDaoDynamo implements PaNotificationLimitDao {
 
         try {
             GetItemResponse getItemResponse = dynamoDbClient.getItem(getItemRequest);
-            return getItemResponse.hasItem();
+            return getItemResponse.hasItem(); //Todo valutare se vale la pena ritornare l'item corrispondente e dunque effettuar eil check sul limite pirma di effettuare l'update (ci risparmia un pò di update)
         } catch (DynamoDbException e) {
             log.error("Unable to get item from DynamoDB: {}", e.getMessage(), e);
             throw new RuntimeException("GetItem failed: " + e.getMessage(), e);
