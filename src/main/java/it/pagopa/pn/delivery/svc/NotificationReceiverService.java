@@ -24,6 +24,7 @@ import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
+import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
@@ -58,16 +59,19 @@ public class NotificationReceiverService {
 
 	private final PnDeliveryConfigs cfg;
 
+	private final PaNotificationLimitService paNotificationLimitService;
+
 	@Autowired
 	public NotificationReceiverService(
-			Clock clock,
-			NotificationDao notificationDao,
-			NotificationReceiverValidator validator,
-			ModelMapper modelMapper,
-			SendActiveParameterConsumer parameterConsumer,
-			PnExternalRegistriesClientImpl pnExternalRegistriesClient,
-			PnF24ClientImpl f24Client,
-			PnDeliveryConfigs cfg) {
+            Clock clock,
+            NotificationDao notificationDao,
+            NotificationReceiverValidator validator,
+            ModelMapper modelMapper,
+            SendActiveParameterConsumer parameterConsumer,
+            PnExternalRegistriesClientImpl pnExternalRegistriesClient,
+            PnF24ClientImpl f24Client,
+            PnDeliveryConfigs cfg,
+			PaNotificationLimitService paNotificationLimitService) {
 		this.clock = clock;
 		this.notificationDao = notificationDao;
 		this.validator = validator;
@@ -76,7 +80,8 @@ public class NotificationReceiverService {
 		this.pnExternalRegistriesClient = pnExternalRegistriesClient;
 		this.f24Client = f24Client;
 		this.cfg = cfg;
-	}
+        this.paNotificationLimitService = paNotificationLimitService;
+    }
 
 	/**
 	 * Store metadata and documents about a new notification request
@@ -153,12 +158,27 @@ public class NotificationReceiverService {
 			f24Client.saveMetadata(this.cfg.getF24CxId(), internalNotification.getIun(), saveF24Request);
 		}
 
+		//TODO nuovo sviluppo
+		checkAndUpdatePaNotificationLimit(internalNotification);
+
 		doSaveWithRethrow(internalNotification);
 
 		NewNotificationResponse response = generateResponse(internalNotification, iun);
 
 		log.info("New notification storing END {}", response);
 		return response;
+	}
+
+	private void checkAndUpdatePaNotificationLimit(InternalNotification internalNotification) {
+		log.info("Check and update paNotificationLimit for iun={}", internalNotification.getIun());
+		if(paNotificationLimitService.checkIfPaNotificationLimitExists(internalNotification)) {
+			try {
+				paNotificationLimitService.decrementLimitIncrementDailyCounter(internalNotification);
+			} catch(ConditionalCheckFailedException ex) {
+				log.error("Conditional check failed: {}", ex.getMessage(), ex);
+				throw ex;
+			}
+		}
 	}
 
 	private void setDefaultValueForNotification(NewNotificationRequestV24 newNotificationRequest) {
@@ -256,7 +276,13 @@ public class NotificationReceiverService {
 
 	private void doSave(InternalNotification internalNotification) throws PnIdConflictException {
 		log.info("Store the notification metadata for iun={}", internalNotification.getIun());
-		notificationDao.addNotification(internalNotification);
+		try {
+			notificationDao.addNotification(internalNotification);
+		} catch (PnIdConflictException ex){
+			//todo incrementare limite e decr counter
+			paNotificationLimitService.incrementLimitDecrementDailyCounter(internalNotification);
+			throw ex;
+		}
 	}
 
 }
