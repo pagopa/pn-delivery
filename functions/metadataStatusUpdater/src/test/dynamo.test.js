@@ -65,10 +65,10 @@ describe('dynamo.js tests', () => {
       error.name = 'ConditionalCheckFailedException';
       docClientStub.rejects(error);
 
-      const item = { testKey: 'key' };
+      const item = { testKey: 'key', notificationStatus: "DELIVERING" };
       await putMetadata('testTable', item, 'testKey');
 
-      expect(logStub.firstCall.args[0]).to.be.equal('update not necessary for item with key: key in table: testTable');
+      expect(logStub.firstCall.args[0]).to.be.equal('update not necessary for item with pk: key and status: DELIVERING on table: testTable');
     });
 
     it('should throw error if other exception occurs', async () => {

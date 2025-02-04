@@ -21,7 +21,7 @@ const getItem = async (TableName, Key) => {
   const result = await docClient.send(command);
 
   if (!result.Item) {
-    throw new ItemNotFoundException(Key, TableName);
+    throw new ItemNotFoundException(JSON.stringify(Key), TableName);
   }
   return result.Item;
 };
@@ -52,14 +52,14 @@ const putMetadata = async (tablename, item, partitionKeyName) => {
   try {
     const command = new PutCommand(params);
     const result = await docClient.send(command);
-    console.log(`putItem successfully executed with pk: ${item[partitionKeyName]} and status: ${item.notificationStatus} on table ${tablename}`);
+    console.log(`putItem successfully executed with pk: ${item[partitionKeyName]} and status: ${item.notificationStatus} on table: ${tablename}`);
   } catch (error) {
     if (error.name === "ConditionalCheckFailedException") {
       console.log(
-        `update not necessary for item with key: ${item[partitionKeyName]} in table: ${tablename}`
+        `update not necessary for item with pk: ${item[partitionKeyName]} and status: ${item.notificationStatus} on table: ${tablename}`
       );
     } else {
-      console.log(`Error ${error.message} during putMetadata with key: ${item[partitionKeyName]} in table: ${tablename}`);
+      console.log(`Error ${error.message} during putMetadata with pk: ${item[partitionKeyName]} and status: ${item.notificationStatus} on table: ${tablename}`);
       throw error;
     }
   }
