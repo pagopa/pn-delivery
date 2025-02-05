@@ -4,8 +4,7 @@ const dynamo = require("./dynamo");
 
 const putNotificationMetadata = async (
   statusInfo,
-  notification,
-  acceptedAt
+  notification
 ) => {
   const rootSenderId = await RestClient.getRootSenderId(
     notification.senderPaId
@@ -17,7 +16,6 @@ const putNotificationMetadata = async (
     const notificationMetadata = buildNotificationMetadata(
       statusInfo,
       notification,
-      acceptedAt,
       rootSenderId,
       recipient
     );
@@ -41,7 +39,6 @@ const putNotificationMetadata = async (
 const buildNotificationMetadata = (
   statusInfo,
   notification,
-  acceptedAt,
   rootSenderId,
   recipient
 ) => {
@@ -64,7 +61,7 @@ const buildNotificationMetadata = (
       paProtocolNumber: notification.paNotificationId,
       subject: notification.subject,
       senderDenomination: notification.senderDenomination,
-      acceptedAt,
+      acceptedAt: notification.sentAt,
     },
     senderId_recipientId: `${notification.senderPaId}##${recipientId}`,
     senderId_creationMonth: `${notification.senderPaId}##${sentAtMonth}`,

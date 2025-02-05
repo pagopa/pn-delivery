@@ -20,40 +20,6 @@ describe('utils tests', () => {
     });
   });
 
-  describe('shouldSkipEvaluation', () => {
-    it('should return true for non-allowed table', () => {
-      const rec = { tableName: 'non-allowed-table', eventSource: 'aws:dynamodb', eventName: 'INSERT' };
-
-      const result = shouldSkipEvaluation(rec);
-
-      expect(result).to.be.true;
-    });
-
-    it('should return true for non-allowed event source', () => {
-      const rec = { tableName: 'pn-Timelines', eventSource: 'non-allowed-source', eventName: 'INSERT' };
-
-      const result = shouldSkipEvaluation(rec);
-
-      expect(result).to.be.true;
-    });
-
-    it('should return true for non-INSERT event', () => {
-      const rec = { tableName: 'pn-Timelines', eventSource: 'aws:dynamodb', eventName: 'MODIFY' };
-
-      const result = shouldSkipEvaluation(rec);
-
-      expect(result).to.be.true;
-    });
-
-    it('should return false for allowed table, event source, and INSERT event', () => {
-      const rec = { tableName: 'pn-Timelines', eventSource: 'aws:dynamodb', eventName: 'INSERT' };
-
-      const result = shouldSkipEvaluation(rec);
-
-      expect(result).to.be.false;
-    });
-  });
-
   describe('extractYearMonth', () => {
     it('should extract year and month from date string', () => {
       const date = '2023-10-05T12:34:56Z';

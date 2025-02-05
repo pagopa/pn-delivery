@@ -2,19 +2,9 @@ const utils = require("./utils");
 const { unmarshall } = require("@aws-sdk/util-dynamodb");
 const putNotificationMetadata = require("./putNotificationMetadata");
 const dynamo = require("./dynamo.js");
-const { ItemNotFoundException } = require("./exceptions.js");
 
 const processRecord = async (record) => {
   const kinesisData = utils.decodePayload(record.kinesis.data);
-  if (utils.shouldSkipEvaluation(kinesisData)) {
-    console.log(`Skipping evaluation for record with 
-      eventSource: ${kinesisData.eventSource}, 
-      eventName: ${kinesisData.eventName}, 
-      tableName: ${kinesisData.tableName}, 
-      NewImage: ${kinesisData.NewImage}
-    `);
-    return;
-  } 
 
   const timelineElement = unmarshall(kinesisData.dynamodb.NewImage);
   const { iun, statusInfo, timelineElementId } = timelineElement;
@@ -27,20 +17,15 @@ const processRecord = async (record) => {
     `Processing record for notification ${iun} with status ${actualStatus} and timelineId ${timelineElementId}`
   );
 
-  let acceptedAt = statusInfo.statusChangeTimestamp;
   switch (actualStatus) {
-    case "ACCEPTED":
-      await putNotificationMetadata.putNotificationMetadata(
-        statusInfo,
-        notification,
-        acceptedAt
-      );
-      break;
     case "REFUSED":
       await deletePayments(notification);
       break;
     default:
-      await handleDefaultStatus(notification, statusInfo);
+      await putNotificationMetadata.putNotificationMetadata(
+        statusInfo,
+        notification
+      );
       break;
   }
 };
@@ -58,38 +43,6 @@ const deletePayments = async (notification) => {
         });
       }
     }
-  }
-};
-
-const handleDefaultStatus = async (notification, statusInfo) => {
-  let acceptedAt = await retrieveAcceptedAtFromPersistedMetadata(
-    notification
-  );
-
-  await putNotificationMetadata.putNotificationMetadata(
-    statusInfo,
-    notification,
-    acceptedAt
-  );
-};
-
-const retrieveAcceptedAtFromPersistedMetadata = async (notification) => {
-  const iun_recipientId = `${notification.iun}##${notification.recipients[0].recipientId}`;
-  const sentAt = notification.sentAt;
-  try {
-    const notificationMetadata = await dynamo.getItem(
-      "pn-NotificationsMetadata",
-      {
-        iun_recipientId,
-        sentAt,
-      }
-    );
-    return notificationMetadata.tableRow.acceptedAt;
-  } catch (error) {
-    console.warn(
-      `Unable to retrieve accepted date - iun=${notification.iun} recipientId=${notification.recipients[0].recipientId} notification.sentAt will be used instead`
-    );
-    return sentAt;
   }
 };
 

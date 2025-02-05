@@ -4,7 +4,6 @@ const utils = require('../app/lib/utils');
 const dynamo = require('../app/lib/dynamo');
 const putNotificationMetadata = require('../app/lib/putNotificationMetadata');
 const { processRecord } = require('../app/lib/processRecord');
-const { ItemNotFoundException } = require('../app/lib/exceptions');
 
 describe('processRecord tests', () => {
   let record = {
@@ -12,12 +11,10 @@ describe('processRecord tests', () => {
       data: 'mockedEncodedData',
     },
   };
-  let shouldSkipEvaluationStub;
   let decodePayloadStub;
   let getItemStub;
   let deleteItemStub;
   let putNotificationMetadataStub;
-  let warnLogStub;
 
   const timelineElementMock = {
     iun: 'mockedIun',
@@ -41,6 +38,18 @@ describe('processRecord tests', () => {
     sentAt: '2025-01-01T00:00:00Z',
   }
 
+  const notificationMockNoPayments = {
+    iun: 'mockedIun',
+    recipients: [
+      {
+        payments: [{f24: {}}],
+        recipientId: 'mockedRecipientId',
+      },
+    ],
+    sentAt: '2025-01-01T00:00:00Z',
+  }
+
+
   beforeEach(() => {
     decodePayloadStub = sinon.stub(utils, 'decodePayload').returns({
       dynamodb: {
@@ -56,7 +65,6 @@ describe('processRecord tests', () => {
         },
       },
     });
-    shouldSkipEvaluationStub = sinon.stub(utils, 'shouldSkipEvaluation');
     getItemStub = sinon.stub(dynamo, 'getItem').resolves(notificationMock);
     deleteItemStub  = sinon.stub(dynamo, 'deleteItem').resolves();
     putNotificationMetadataStub = sinon.stub(putNotificationMetadata, 'putNotificationMetadata');
@@ -67,15 +75,6 @@ describe('processRecord tests', () => {
     sinon.restore();
   });
 
-  it('should skip processing if shouldSkipEvaluation returns true', async () => {
-    shouldSkipEvaluationStub.returns(true);
-
-    await processRecord(record);
-    expect(decodePayloadStub.firstCall.args[0]).to.be.equal('mockedEncodedData');
-    expect(getItemStub.notCalled).to.be.true;
-    expect(putNotificationMetadataStub.notCalled).to.be.true;
-  });
-
   it('should process an ACCEPTED record', async () => {
     await processRecord(record);
     expect(decodePayloadStub.firstCall.args[0]).to.be.equal('mockedEncodedData');
@@ -84,10 +83,9 @@ describe('processRecord tests', () => {
 
     expect(putNotificationMetadataStub.firstCall.args[0]).to.be.deep.equal(timelineElementMock.statusInfo);
     expect(putNotificationMetadataStub.firstCall.args[1]).to.be.deep.equal(notificationMock);
-    expect(putNotificationMetadataStub.firstCall.args[2]).to.be.equal('2025-01-01T00:00:00Z');
   });
 
-  it('should process a REFUSED record and delete payments', async () => {
+  it('should process a REFUSED record and delete payments when present', async () => {
     decodePayloadStub.returns({
       dynamodb: {
         NewImage: {
@@ -103,62 +101,22 @@ describe('processRecord tests', () => {
     expect(deleteItemStub.firstCall.args[1]).to.be.deep.equal({creditorTaxId_noticeCode: 'mockedTaxId##mockedNoticeCode'});
   });
 
-  it('should handle missing metadata for non-ACCEPTED statuses', async () => {
+  it('should process a REFUSED record and do nothing if notification has not payments', async () => {
     decodePayloadStub.returns({
       dynamodb: {
         NewImage: {
           iun: { S: 'mockedIun' },
-          statusInfo: { M: { actual: { S: 'DELIVERED' } } },
+          statusInfo: { M: { actual: { S: 'REFUSED' } } },
           timelineElementId: { S: 'mockedTimelineId' }
         },
       },
     });
 
-    const itemNotFoundException = new ItemNotFoundException("mockedIun", "pn-NotificationsMetadata");
-    getItemStub.callsFake((param1, param2) => {
-      if (param1 === 'pn-Notifications') {
-        return Promise.resolve(notificationMock);
-      }
-      if (param1 === 'pn-NotificationsMetadata') {
-        return Promise.reject(itemNotFoundException);
-      }
-      return Promise.resolve(null);
-    });
+    getItemStub.resolves(notificationMockNoPayments);
 
     await processRecord(record);
-
-    expect(warnLogStub.firstCall.args[0]).to.be.equal('Unable to retrieve accepted date - iun=mockedIun recipientId=mockedRecipientId notification.sentAt will be used instead');
-    expect(putNotificationMetadataStub.firstCall.args[0]).to.be.deep.equal({ actual: 'DELIVERED' });
-    expect(putNotificationMetadataStub.firstCall.args[1]).to.be.deep.equal(notificationMock);
-    expect(putNotificationMetadataStub.firstCall.args[2]).to.be.equal(notificationMock.sentAt);
-  });
-
-  it('should process metadata for non-ACCEPTED statuses', async () => {
-    decodePayloadStub.returns({
-      dynamodb: {
-        NewImage: {
-          iun: { S: 'mockedIun' },
-          statusInfo: { M: { actual: { S: 'DELIVERED' } } },
-          timelineElementId: { S: 'mockedTimelineId' }
-        },
-      },
-    });
-
-    let oldAcceptedAt = '2025-01-01T00:00:00Z';
-    getItemStub.callsFake((param1, param2) => {
-      if (param1 === 'pn-Notifications') {
-        return Promise.resolve(notificationMock);
-      }
-      if (param1 === 'pn-NotificationsMetadata') {
-        return Promise.resolve({ tableRow: { acceptedAt: oldAcceptedAt } });
-      }
-      return Promise.resolve(null);
-    });
-
-    await processRecord(record);
-    expect(putNotificationMetadataStub.firstCall.args[0]).to.be.deep.equal({ actual: 'DELIVERED' });
-    expect(putNotificationMetadataStub.firstCall.args[1]).to.be.deep.equal(notificationMock);
-    expect(putNotificationMetadataStub.firstCall.args[2]).to.be.equal(oldAcceptedAt);
+    expect(deleteItemStub.notCalled).to.be.true;
+    expect(putNotificationMetadataStub.notCalled).to.be.true;
   });
 
   it('should throw an error for unexpected exceptions', async () => {

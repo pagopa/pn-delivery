@@ -33,7 +33,7 @@ const deleteItem = async (TableName, Key) => {
   };
   const command = new DeleteCommand(params);
   const result = await docClient.send(command);
-  console.log("Elemento eliminato con successo:", Key);
+  console.log("deletedItem successfully with key:", JSON.stringify(Key));
 };
 
 const putMetadata = async (tablename, item, partitionKeyName) => {

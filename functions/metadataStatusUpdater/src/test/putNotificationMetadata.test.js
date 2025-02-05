@@ -26,8 +26,6 @@ describe('putNotificationMetadata', () => {
       senderDenomination: 'senderDenomination1',
     };
 
-    acceptedAt = '2025-01-01T00:00:00Z';
-
     getRootSenderStub = sinon.stub(RestClient, 'getRootSenderId').resolves('rootSenderId');
     getMandatesStub = sinon.stub(RestClient, 'getMandates').resolves([{ mandateId: 'mandate1', delegate: 'delegate1' }]);
     putMetadataStub = sinon.stub(dynamo, "putMetadata").resolves();
@@ -39,7 +37,7 @@ describe('putNotificationMetadata', () => {
   });
 
   it('should put notification metadata and compute delegation metadata entries', async () => {
-    await putNotificationMetadata(statusInfo, notification, acceptedAt);
+    await putNotificationMetadata(statusInfo, notification);
 
     expect(getRootSenderStub.firstCall.args[0]).to.be.deep.equal('senderPaId');
     expect(putMetadataStub.callCount).to.equal(2); // 2 (1 metadata + 1 delegationMetadata) * recipients.length
@@ -53,7 +51,7 @@ describe('putNotificationMetadata', () => {
       { mandateId: 'mandate2', delegate: 'delegate2', visibilityIds: ['rootSenderId'] },
       { mandateId: 'mandate3', delegate: 'delegate3', visibilityIds: ['otherSenderId'] } // should not be persisted
     ]);
-    await putNotificationMetadata(statusInfo, notification, acceptedAt);
+    await putNotificationMetadata(statusInfo, notification);
 
     expect(getRootSenderStub.firstCall.args[0]).to.be.deep.equal('senderPaId');
     expect(putMetadataStub.callCount).to.equal(3); // 2 (1 metadata + 2 delegationMetadata) * recipients.length
@@ -64,7 +62,7 @@ describe('putNotificationMetadata', () => {
   it('should log and return if no mandates are found', async () => {
     RestClient.getMandates.resolves([]);
 
-    await putNotificationMetadata(statusInfo, notification, acceptedAt);
+    await putNotificationMetadata(statusInfo, notification);
 
     expect(consoleLogStub.secondCall.args[0]).to.equal('No mandates found for recipient recipientId1');
     expect(putMetadataStub.callCount).to.equal(1);
@@ -75,7 +73,7 @@ describe('putNotificationMetadata', () => {
     RestClient.getRootSenderId.rejects(error);
 
     try {
-      await putNotificationMetadata(statusInfo, notification, acceptedAt);
+      await putNotificationMetadata(statusInfo, notification);
     } catch (error) {
       expect(error.message).to.equal('Test error');
     }

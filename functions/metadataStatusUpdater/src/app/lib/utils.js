@@ -19,16 +19,6 @@ function decodePayload(b64Str) {
   return parsedJson;
 }
 
-function shouldSkipEvaluation(rec) {
-  const allowedEventSources = ["aws:dynamodb"];
-  const allowedTables = ["pn-Timelines"];
-  return (
-    allowedTables.indexOf(rec.tableName) == -1 ||
-    allowedEventSources.indexOf(rec.eventSource) == -1 ||
-    rec.eventName != "INSERT"
-  );
-}
-
 function extractYearMonth(date) {
   return date.substring(0, 7).replace(/-/g, "");
 }
@@ -39,7 +29,6 @@ function arrayToString(array) {
 
 module.exports = {
   decodePayload,
-  shouldSkipEvaluation,
   extractYearMonth,
   arrayToString,
 };
