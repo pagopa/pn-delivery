@@ -103,6 +103,14 @@ Parameters:
     Type: String
     Description: "ARN of dynamodb table containing taxonomy codes"
 
+  PaNotificationLimitDynamoTableName:
+    Type: String
+    Description: "PaNotificationLimit Dynamo table name"
+
+  PaNotificationLimitDynamoTableArn:
+    Type: String
+    Description: "ARN of dynamodb table containing pa notification limits"
+
   CheckTaxonomyCodeEnabled:
     Type: String
     Description: "Flag to enable taxonomy code validation"
@@ -623,6 +631,7 @@ Resources:
         ContainerEnvEntry49: !Sub "PN_DELIVERY_NATIONALREGISTRIESBASEURL=http://${ApplicationLoadBalancerDomain}:8080"
         ContainerEnvEntry50: !Sub "PN_DELIVERY_SKIPCHECKTAXIDINBLACKLIST=${SkipCheckTaxIdInBlackList}"
         ContainerEnvEntry51: !Sub "PN_DELIVERY_ENABLE_DECEASED_WORKFLOW=${EnableDeceasedWorkflow}"
+        ContainerEnvEntry52: !Sub "PN_DELIVERY_PANOTIFICATIONLIMITDAO_TABLENAME=${PaNotificationLimitDynamoTableName}"
 
         ContainerSecret1: !Sub "ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:"
         MicroServiceSecretPrefix: pn-Delivery-Secrets
@@ -674,6 +683,7 @@ Resources:
               - !Sub "${NotificationsQRDynamoTableArn}"
               - !Sub "${NotificationsQRDynamoTableArn}/*"
               - !Sub "${TaxonomyCodeDynamoTableArn}"
+              - !Sub "${PaNotificationLimitDynamoTableArn}"
           - Effect: Allow
             Action:
               - "dynamodb:BatchWriteItem"
@@ -828,6 +838,7 @@ Resources:
             - !Ref NotificationDelegationMetadataDynamoTableName
             - !Ref NotificationsQRDynamoTableName
             - !Ref TaxonomyCodeDynamoTableName
+            - !Ref PaNotificationLimitDynamoTableName
         LambdaArns: !Join
           - ","
           - - !GetAtt PnDeliveryInsertTriggerLambdaStack.Outputs.FunctionArn
