@@ -221,6 +221,25 @@ Resources:
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
 
+  NotificationRefusedVerificationTable:
+    Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TableName: !Sub '${ProjectName}-NotificationRefusedVerification'
+      AttributeDefinitions:
+        - AttributeName: "PK"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "PK"
+          KeyType: "HASH"
+      BillingMode: "PAY_PER_REQUEST"
+      TimeToLiveSpecification:
+        AttributeName: "ttl"
+        Enabled: true
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
   ### DLQ used by lambda for communication between PN-DELIVERY and PN-DELIVERY-PUSH ###
   # NB: la coda stessa è di DLQ, quindi va allarmata. Non è necessario invece che sia allarmata la sua DLQ
   PnDeliveryInsertTriggerDLQ:
@@ -236,6 +255,34 @@ Resources:
         HasDLQ:  "false"
         OncallDLQLimit: '1'
         QueueHasAlarm:  "true"
+
+  PnDeliveryPushToDelivery:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
+      Parameters:
+        QueueName: !Sub '${ProjectName}-delivery_push_to_delivery'
+        DelaySeconds: 1
+        VisibilityTimeout: 60
+        MaxReceiveCount: 10
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName
+        HasDLQ: "true"
+
+  PnNotificationRefusedDispatcherDLQ:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
+      Parameters:
+        QueueName: !Sub '${ProjectName}-notification_refused_dispatcher-DLQ'
+        DelaySeconds: 1
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName
+        HasDLQ: "false"
+        OncallDLQLimit: '1'
+        QueueHasAlarm: "true"
 
   # Coda per inviare eventi di asseverazione, consumata da lambda per salvataggio su bucket s3
   # NB: usati i valori di default per: DelaySeconds, DeadLetterQueueName, MessageRetentionPeriod, MaxReceiveCount, DeadLetterMessageRetentionPeriod,
@@ -371,6 +418,13 @@ Outputs:
     Description: ARN of dynamodb table containing notifications metadata
     Value: !Sub '${NotificationsMetadataTable.Arn}'
 
+  NotificationRefusedVerificationDynamoTableName:
+    Description: Name of dynamodb table containing notification refused
+    Value: !Ref NotificationRefusedVerificationTable
+  NotificationRefusedVerificationDynamoTableArn:
+    Description: ARN of dynamodb table containing notification refused
+    Value: !Sub '${NotificationRefusedVerificationTable.Arn}'
+
   NotificationDelegationMetadataDynamoTableName:
     Description: Name of dynamodb table containing delegated notifications metadata
     Value: !Ref NotificationDelegationMetadataTable
@@ -414,7 +468,34 @@ Outputs:
   PnDeliveryAsseverationAgeAlarmARN:
     Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.SqsAgeAlarmArn  
     Description: notificationCostServiceCalls-DLQ age alarm ARN
-  
+
+  PnDeliveryPushToDeliveryName:
+    Value: !GetAtt PnDeliveryPushToDelivery.Outputs.QueueName
+    Description: delivery_push_to_delivery queue name
+  PnDeliveryPushToDeliveryURL:
+    Value: !GetAtt PnDeliveryPushToDelivery.Outputs.QueueURL
+    Description: delivery_push_to_delivery queue URL
+  PnDeliveryPushToDeliveryARN:
+    Value: !GetAtt PnDeliveryPushToDelivery.Outputs.QueueARN
+    Description: delivery_push_to_delivery queue ARN
+  PnDeliveryPushToDeliveryAlarmARN:
+    Value: !GetAtt PnDeliveryPushToDelivery.Outputs.SqsDLQAlarmArn
+    Description: delivery_push_to_delivery alarm ARN
+
+  PnNotificationRefusedDispatcherDLQName:
+    Value: !GetAtt PnNotificationRefusedDispatcherDLQ.Outputs.QueueName
+    Description: notification_refused_dispatcher-DLQ queue name
+  PnNotificationRefusedDispatcherDLQURL:
+    Value: !GetAtt PnNotificationRefusedDispatcherDLQ.Outputs.QueueURL
+    Description: notification_refused_dispatcher-DLQ queue URL
+  PnNotificationRefusedDispatcherDLQARN:
+    Value: !GetAtt PnNotificationRefusedDispatcherDLQ.Outputs.QueueARN
+    Description: notification_refused_dispatcher-DLQ queue ARN
+  PnNotificationRefusedDispatcherDLQAlarmARN:
+    Value: !GetAtt PnNotificationRefusedDispatcherDLQ.Outputs.SqsDLQAlarmArn
+    Description: notification_refused_dispatcher-DLQ alarm ARN
+
+
   # Log group exports
   EcsLogGroup:
     Value: !GetAtt PnDeliveryLogGroup.Outputs.LogGroupName
