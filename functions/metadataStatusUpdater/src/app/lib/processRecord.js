@@ -62,36 +62,35 @@ const deletePayments = async (notification) => {
 };
 
 const handleDefaultStatus = async (notification, statusInfo) => {
-  try {
-    const acceptedAt = await retrieveAcceptedAtFromPersistedMetadata(
-      notification
-    );
-    await putNotificationMetadata.putNotificationMetadata(
-      statusInfo,
-      notification,
-      acceptedAt
-    );
-  } catch (error) {
-    if (error instanceof ItemNotFoundException) {
-      console.warn(
-        `Unable to retrieve accepted date - iun=${notification.iun} recipientId=${notification.recipients[0].recipientId}`
-      );
-    }
-    throw error;
-  }
+  let acceptedAt = await retrieveAcceptedAtFromPersistedMetadata(
+    notification
+  );
+
+  await putNotificationMetadata.putNotificationMetadata(
+    statusInfo,
+    notification,
+    acceptedAt
+  );
 };
 
 const retrieveAcceptedAtFromPersistedMetadata = async (notification) => {
   const iun_recipientId = `${notification.iun}##${notification.recipients[0].recipientId}`;
   const sentAt = notification.sentAt;
-  const notificationMetadata = await dynamo.getItem(
-    "pn-NotificationsMetadata",
-    {
-      iun_recipientId,
-      sentAt,
-    }
-  );
-  return notificationMetadata.tableRow.acceptedAt;
+  try {
+    const notificationMetadata = await dynamo.getItem(
+      "pn-NotificationsMetadata",
+      {
+        iun_recipientId,
+        sentAt,
+      }
+    );
+    return notificationMetadata.tableRow.acceptedAt;
+  } catch (error) {
+    console.warn(
+      `Unable to retrieve accepted date - iun=${notification.iun} recipientId=${notification.recipients[0].recipientId} notification.sentAt will be used instead`
+    );
+    return sentAt;
+  }
 };
 
 module.exports = { processRecord };

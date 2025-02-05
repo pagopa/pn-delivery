@@ -38,6 +38,7 @@ describe('processRecord tests', () => {
         recipientId: 'mockedRecipientId',
       },
     ],
+    sentAt: '2025-01-01T00:00:00Z',
   }
 
   beforeEach(() => {
@@ -124,14 +125,12 @@ describe('processRecord tests', () => {
       return Promise.resolve(null);
     });
 
-    try {
-      await processRecord(record);
-    } catch (error) {
-      expect(error).to.be.equal(itemNotFoundException);
-    }
+    await processRecord(record);
 
-    expect(warnLogStub.firstCall.args[0]).to.be.equal('Unable to retrieve accepted date - iun=mockedIun recipientId=mockedRecipientId');
-    expect(putNotificationMetadataStub.notCalled).to.be.true;
+    expect(warnLogStub.firstCall.args[0]).to.be.equal('Unable to retrieve accepted date - iun=mockedIun recipientId=mockedRecipientId notification.sentAt will be used instead');
+    expect(putNotificationMetadataStub.firstCall.args[0]).to.be.deep.equal({ actual: 'DELIVERED' });
+    expect(putNotificationMetadataStub.firstCall.args[1]).to.be.deep.equal(notificationMock);
+    expect(putNotificationMetadataStub.firstCall.args[2]).to.be.equal(notificationMock.sentAt);
   });
 
   it('should process metadata for non-ACCEPTED statuses', async () => {
@@ -145,12 +144,13 @@ describe('processRecord tests', () => {
       },
     });
 
+    let oldAcceptedAt = '2025-01-01T00:00:00Z';
     getItemStub.callsFake((param1, param2) => {
       if (param1 === 'pn-Notifications') {
         return Promise.resolve(notificationMock);
       }
       if (param1 === 'pn-NotificationsMetadata') {
-        return Promise.resolve({ tableRow: { acceptedAt: '2025-01-02T00:00:00Z' } });
+        return Promise.resolve({ tableRow: { acceptedAt: oldAcceptedAt } });
       }
       return Promise.resolve(null);
     });
@@ -158,7 +158,7 @@ describe('processRecord tests', () => {
     await processRecord(record);
     expect(putNotificationMetadataStub.firstCall.args[0]).to.be.deep.equal({ actual: 'DELIVERED' });
     expect(putNotificationMetadataStub.firstCall.args[1]).to.be.deep.equal(notificationMock);
-    expect(putNotificationMetadataStub.firstCall.args[2]).to.be.equal('2025-01-02T00:00:00Z');
+    expect(putNotificationMetadataStub.firstCall.args[2]).to.be.equal(oldAcceptedAt);
   });
 
   it('should throw an error for unexpected exceptions', async () => {
