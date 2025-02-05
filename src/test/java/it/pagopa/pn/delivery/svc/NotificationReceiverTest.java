@@ -83,6 +83,7 @@ class NotificationReceiverTest {
 	private PnF24ClientImpl pnF24Client;
 	private PnDeliveryConfigs cfg;
 	private AgenziaEntrateApi agenziaEntrateApi;
+	private PaNotificationLimitService paNotificationLimitService;
 
 	@BeforeEach
 	public void setup() {
@@ -99,6 +100,7 @@ class NotificationReceiverTest {
 		pnF24Client = Mockito.mock(PnF24ClientImpl.class);
 		cfg = Mockito.mock(PnDeliveryConfigs.class);
 		agenziaEntrateApi = Mockito.mock(AgenziaEntrateApi.class);
+		paNotificationLimitService = Mockito.mock(PaNotificationLimitService.class);
 
 		// - Separate Tests
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -115,7 +117,8 @@ class NotificationReceiverTest {
 				sendActiveParameterConsumer,
 				pnExternalRegistriesClient,
 				pnF24Client,
-				cfg);
+				cfg,
+				paNotificationLimitService);
 	}
 
 	@Test
