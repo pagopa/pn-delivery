@@ -172,17 +172,6 @@ public class NotificationDelegatedService {
         deleteNotificationDelegatedByMandateIdAndGroups(mandateId, Collections.emptySet());
     }
 
-    /**
-     * Effettua la duplicazione della notifica recuperando le informazioni sulle deleghe.
-     *
-     * @param metadata  notifica da duplicare
-     * @return          notifiche duplicate
-     */
-    public List<NotificationDelegationMetadataEntity> computeDelegationMetadataEntries(NotificationMetadataEntity metadata) {
-        List<InternalMandateDto> mandates = getMandatesByDelegator(metadata.getRecipientId(), null);
-        return computeDelegationMetadataEntries(metadata, null, mandates).toList();
-    }
-
     private void deleteNotificationDelegatedByMandateIdAndGroups(String mandateId, Set<String> group) {
         PnLastEvaluatedKey startEvaluatedKey = new PnLastEvaluatedKey();
         PageSearchTrunk<NotificationDelegationMetadataEntity> oneQueryResult;
