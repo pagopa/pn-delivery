@@ -639,6 +639,7 @@ components:
           description: Data accettazione notifica
           type: string
           format: date-time
+          deprecated: true
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
