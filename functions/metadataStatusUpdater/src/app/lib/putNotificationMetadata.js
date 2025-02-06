@@ -60,8 +60,7 @@ const buildNotificationMetadata = (
       recipientsIds: utils.arrayToString(recipientIds),
       paProtocolNumber: notification.paNotificationId,
       subject: notification.subject,
-      senderDenomination: notification.senderDenomination,
-      acceptedAt: notification.sentAt,
+      senderDenomination: notification.senderDenomination
     },
     senderId_recipientId: `${notification.senderPaId}##${recipientId}`,
     senderId_creationMonth: `${notification.senderPaId}##${sentAtMonth}`,
