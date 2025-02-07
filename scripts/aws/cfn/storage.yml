@@ -256,14 +256,14 @@ Resources:
         OncallDLQLimit: '1'
         QueueHasAlarm:  "true"
 
-  PnDeliveryPushToDelivery:
+  PnNotificationRefusedQueue:
     Type: AWS::CloudFormation::Stack
     UpdateReplacePolicy: Retain
     DeletionPolicy: Retain
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
       Parameters:
-        QueueName: !Sub '${ProjectName}-delivery_push_to_delivery'
+        QueueName: !Sub '${ProjectName}-notification_refused'
         DelaySeconds: 1
         VisibilityTimeout: 60
         MaxReceiveCount: 10
@@ -469,17 +469,17 @@ Outputs:
     Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.SqsAgeAlarmArn  
     Description: notificationCostServiceCalls-DLQ age alarm ARN
 
-  PnDeliveryPushToDeliveryName:
-    Value: !GetAtt PnDeliveryPushToDelivery.Outputs.QueueName
+  PnNotificationRefusedQueueName:
+    Value: !GetAtt PnNotificationRefusedQueue.Outputs.QueueName
     Description: delivery_push_to_delivery queue name
-  PnDeliveryPushToDeliveryURL:
-    Value: !GetAtt PnDeliveryPushToDelivery.Outputs.QueueURL
+  PnNotificationRefusedQueueURL:
+    Value: !GetAtt PnNotificationRefusedQueue.Outputs.QueueURL
     Description: delivery_push_to_delivery queue URL
-  PnDeliveryPushToDeliveryARN:
-    Value: !GetAtt PnDeliveryPushToDelivery.Outputs.QueueARN
+  PnNotificationRefusedQueueARN:
+    Value: !GetAtt PnNotificationRefusedQueue.Outputs.QueueARN
     Description: delivery_push_to_delivery queue ARN
-  PnDeliveryPushToDeliveryAlarmARN:
-    Value: !GetAtt PnDeliveryPushToDelivery.Outputs.SqsDLQAlarmArn
+  PnNotificationRefusedQueueAlarmARN:
+    Value: !GetAtt PnNotificationRefusedQueue.Outputs.SqsDLQAlarmArn
     Description: delivery_push_to_delivery alarm ARN
 
   PnNotificationRefusedDispatcherDLQName:
