@@ -26,17 +26,16 @@ public class PaNotificationLimitDaoDynamo implements PaNotificationLimitDao {
 
     @Override
     public boolean decrementLimitIncrementDailyCounter(String paId, OffsetDateTime sentAt) {
-        log.debug("Decrementing limit and incrementing dailyCounter for paId: {} sentAt: {}", paId, sentAt);
+        log.info("Decrementing limit and incrementing dailyCounter for paId: {} sentAt: {}", paId, sentAt);
         String dailyCounter = createDailyCounter(sentAt);
         try {
             UpdateItemRequest updateRequest = UpdateItemRequest.builder()
                     .tableName(tableName)
                     .key(createPrimaryKey(paId, sentAt))
-                    .updateExpression("ADD " + PaNotificationLimitEntity.FIELD_RESIDUAL_LIMIT + " = " +
-                            PaNotificationLimitEntity.FIELD_RESIDUAL_LIMIT + " - :decrement, " + dailyCounter + " = " + dailyCounter + " + :increment")
+                    .updateExpression("ADD " + PaNotificationLimitEntity.FIELD_RESIDUAL_LIMIT + " :decrement, " + dailyCounter + " :increment")
                     .conditionExpression(PaNotificationLimitEntity.FIELD_RESIDUAL_LIMIT + " > :zero and attribute_exists(" + PaNotificationLimitEntity.FIELD_PK + ")")
                     .expressionAttributeValues(Map.of(
-                            ":decrement", AttributeValue.builder().n("1").build(),
+                            ":decrement", AttributeValue.builder().n("-1").build(),
                             ":increment", AttributeValue.builder().n("1").build(),
                             ":zero", AttributeValue.builder().n("0").build()
                     ))
@@ -56,18 +55,17 @@ public class PaNotificationLimitDaoDynamo implements PaNotificationLimitDao {
 
     @Override
     public void incrementLimitDecrementDailyCounter(String paId, OffsetDateTime sentAt) {
-        log.debug("Incrementing limit and decrementing dailyCounter for paId: {} sentAt: {}", paId, sentAt);
+        log.info("Incrementing limit and decrementing dailyCounter for paId: {} sentAt: {}", paId, sentAt);
         String dailyCounter = createDailyCounter(sentAt);
         try {
             UpdateItemRequest updateRequest = UpdateItemRequest.builder()
                     .tableName(tableName)
                     .key(createPrimaryKey(paId, sentAt))
-                    .updateExpression("ADD " + PaNotificationLimitEntity.FIELD_RESIDUAL_LIMIT + " = " +
-                            PaNotificationLimitEntity.FIELD_RESIDUAL_LIMIT + " + :increment, " + dailyCounter + " = " + dailyCounter + " - :decrement")
+                    .updateExpression("ADD " + PaNotificationLimitEntity.FIELD_RESIDUAL_LIMIT + " :increment, " + dailyCounter + " :decrement")
                     .conditionExpression("attribute_exists(" + PaNotificationLimitEntity.FIELD_PK + ")")
                     .expressionAttributeValues(Map.of(
                             ":increment", AttributeValue.builder().n("1").build(),
-                            ":decrement", AttributeValue.builder().n("1").build()
+                            ":decrement", AttributeValue.builder().n("-1").build()
                     ))
                     .build();
 
@@ -98,12 +96,15 @@ public class PaNotificationLimitDaoDynamo implements PaNotificationLimitDao {
     }
 
     private Map<String, AttributeValue> createPrimaryKey(String paId, OffsetDateTime sentAt) {
-        String pk = paId + "##" + sentAt.getYear() + "##" + sentAt.getMonthValue();
+        String pk = paId + "##" + sentAt.getYear() + "##" + String.format("%02d", sentAt.getMonthValue());
+        log.info("Creating primary key: {}", pk);
         return Map.of(PaNotificationLimitEntity.FIELD_PK, AttributeValue.builder().s(pk).build());
     }
 
     private String createDailyCounter(OffsetDateTime sentAt) {
-        return DAILY_COUNTER + String.format("%02d", sentAt.getDayOfMonth());
+        String dailyCounter = DAILY_COUNTER + String.format("%02d", sentAt.getDayOfMonth());
+        log.info("Creating daily counter: {}", dailyCounter);
+        return dailyCounter;
     }
 
 }

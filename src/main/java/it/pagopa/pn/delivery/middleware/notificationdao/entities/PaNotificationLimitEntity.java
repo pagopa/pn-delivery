@@ -4,6 +4,7 @@ import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecondaryPartitionKey;
 
 @Builder
 @NoArgsConstructor
@@ -14,6 +15,8 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbParti
 @DynamoDbBean
 public class PaNotificationLimitEntity {
     public static final String FIELD_PK = "pk";
+    public static final String FIELD_PAID = "paId";
+    public static final String FIELD_YEAR_MONTH = "yearMonth";
     public static final String FIELD_REQUESTED_LIMIT = "requestedLimit";
     public static final String FIELD_RESIDUAL_LIMIT = "residualLimit";
     public static final String FIELD_DAILY_COUNTER_01 = "dailyCounter01";
@@ -48,7 +51,11 @@ public class PaNotificationLimitEntity {
     public static final String FIELD_DAILY_COUNTER_30 = "dailyCounter30";
     public static final String FIELD_DAILY_COUNTER_31 = "dailyCounter31";
 
+    public static final String INDEX_YEAR_MONTH = "yearMonth-index";
+
     @Getter(onMethod=@__({@DynamoDbPartitionKey, @DynamoDbAttribute(FIELD_PK)})) private String pk;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PAID)})) private String paId;
+    @Getter(onMethod=@__({@DynamoDbSecondaryPartitionKey(indexNames = {INDEX_YEAR_MONTH}), @DynamoDbAttribute(FIELD_YEAR_MONTH)})) private String yearMonth;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_REQUESTED_LIMIT)})) private Integer requestedLimit;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_RESIDUAL_LIMIT)})) private Integer residualLimit;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_DAILY_COUNTER_01)})) private Integer dailyCounter01;
