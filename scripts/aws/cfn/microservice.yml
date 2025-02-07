@@ -472,6 +472,39 @@ Parameters:
     Description: "VersioningV1V23GetNotificationPriceProvisionedConcurrency"
     Default: 1
 
+  MetadataStatusUpdaterLambdaName:
+    Type: String
+    Description: "MetadataStatusUpdaterLambdaName"
+
+  CdcKinesisSourceStreamArn:
+    Type: String
+    Description: 'Where to send CDC'
+
+  CdcKinesisSourceStreamKeyArn:
+    Description: "Kinesis source CDC stream crypto key ARN"
+    Type: String
+
+  PnDeliveryMetadataStatusDLQARN:
+   Type: String
+   Description: "DLQ ARN for metadata status updater"
+
+  PnDeliveryMetadataStatusDLQAlarmARN:
+    Type: String
+    Description: "DLQ Alarm ARN for metadata status updater"
+
+  PnDeliveryMetadataStatusLambdaBatchSize:
+    Type: String
+    Description: "BatchSize metadata status updater"
+
+  PnDeliveryMetadataStatusLambdaMaxRetryAttempts:
+    Type: Number
+    Description: "MaxRetryAttempts for metadata status updater Lambda"
+    Default: 3
+
+  PnDeliveryMetadataStatusUpdaterLambdaMaximumBatchingWindowInSeconds:
+    Type: String
+    Description: "MaximumBatchingWindow metadata status updater"
+
   B2bWafLimit:
     Default: 600000
     Type: Number
@@ -867,6 +900,8 @@ Resources:
             - !GetAtt VersioningV1V21SendNewNotificationLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !GetAtt VersioningV1V21GetNotificationRequestStatusLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !GetAtt VersioningV1V23GetNotificationPriceLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
+            - !GetAtt MetadataStatusUpdaterLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
+            - !Ref PnDeliveryMetadataStatusDLQAlarmARN
         QueueArns: !Join
           - ","
           - - !Ref Mandate2DeliveryQueueARN
@@ -880,7 +915,7 @@ Resources:
             - !Sub "/aws/lambda/${VersioningV1V21SendNewNotificationLambdaName}"
             - !Sub "/aws/lambda/${VersioningV1V21GetNotificationRequestStatusLambdaName}"
             - !Sub "/aws/lambda/${VersioningV1V23GetNotificationPriceLambdaName}"
-
+            - !Sub "/aws/lambda/${MetadataStatusUpdaterLambdaName}"
   # Lambda function role
   
   PnDeliveryInsertTriggerLambdaRole:
@@ -1520,3 +1555,136 @@ Resources:
       Action: lambda:InvokeFunction
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*"
+
+  #########################################################
+  ###              MetadataStatusUpdaterLambda            ###
+  #########################################################
+  MetadataStatusUpdaterSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub "${MetadataStatusUpdaterLambdaName}-sec-group"
+      VpcId: !Ref VpcId
+
+  # Lambda function
+  MetadataStatusUpdaterLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref MetadataStatusUpdaterLambdaName
+      Runtime: nodejs18.x
+      Handler: "index.handler"
+      Code:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/metadataStatusUpdater.zip"
+      Role: !GetAtt MetadataStatusUpdaterLambdaRole.Arn
+      VpcConfig:
+        SecurityGroupIds:
+          - !GetAtt MetadataStatusUpdaterSecGroup.GroupId
+        SubnetIds: !Ref SubnetsIds
+      Environment:
+        Variables:
+          REGION: !Sub ${AWS::Region}
+          PN_EXTERNAL_REGISTRIES_BASE_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080"
+          PN_MANDATE_BASE_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080"
+      TracingConfig:
+        Mode: Active
+    #  Layers:
+       # - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
+      Timeout: 30
+
+  MetadataStatusUpdaterLambdaAlarms:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
+      Parameters:
+        FunctionName: !Ref MetadataStatusUpdaterLambda
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        FilterPattern: "FATAL"
+
+  # Lambda function role
+  MetadataStatusUpdaterLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-metadataStatusUpdaterLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+
+  # Lambda function IAM policy
+  MetadataStatusUpdaterLambdaPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub ${ProjectName}-MetadataStatusUpdaterLambdaPolicy
+      Roles:
+        - !Ref MetadataStatusUpdaterLambdaRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - "dynamodb:GetItem"
+            Resource: !Sub "${NotificationsDynamoTableArn}"
+          - Effect: Allow
+            Action:
+              - "dynamodb:GetItem"
+              - "dynamodb:PutItem"
+            Resource:
+              - !Sub "${NotificationsMetadataDynamoTableArn}"
+              - !Sub "${NotificationsMetadataDynamoTableArn}/*"
+              - !Sub "${NotificationDelegationMetadataDynamoTableArn}"
+              - !Sub "${NotificationDelegationMetadataDynamoTableArn}/*"
+          - Effect: Allow
+            Action:
+              - "dynamodb:DeleteItem"
+            Resource:
+              - !Sub "${NotificationsCostDynamoTableArn}"
+              - !Sub "${NotificationsCostDynamoTableArn}/*"
+          - Effect: Allow
+            Action:
+              - kinesis:DescribeStream
+              - kinesis:DescribeStreamSummary
+              - kinesis:GetShardIterator
+              - kinesis:GetRecords
+              - kinesis:ListShards
+              - kinesis:ListStreams
+              - kinesis:SubscribeToShard
+            Resource: !Ref CdcKinesisSourceStreamArn
+          - Action: kms:Decrypt
+            Effect: Allow
+            Resource: !Ref CdcKinesisSourceStreamKeyArn
+          - Effect: Allow
+            Action:
+              - sqs:ChangeMessageVisibility
+              - sqs:GetQueueAttributes
+              - sqs:GetQueueUrl
+              - sqs:SendMessage
+            Resource:
+              !Ref PnDeliveryMetadataStatusDLQARN
+
+  # CDC to Webhook Event Manager
+  MetadataStatusUpdaterLambdaKinesisSource:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: !Sub ${PnDeliveryMetadataStatusLambdaBatchSize}
+      BisectBatchOnFunctionError: true
+      EventSourceArn: !Ref CdcKinesisSourceStreamArn
+      FilterCriteria:
+        Filters:
+          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "dynamodb" : { "NewImage" : { "statusInfo": { "M": { "statusChanged": { "BOOL": [ true ]}}}}}}}'
+      FunctionName: !Ref MetadataStatusUpdaterLambda
+      FunctionResponseTypes:
+        - ReportBatchItemFailures
+      MaximumBatchingWindowInSeconds: !Sub ${PnDeliveryMetadataStatusUpdaterLambdaMaximumBatchingWindowInSeconds}
+      MaximumRetryAttempts: !Sub ${PnDeliveryMetadataStatusLambdaMaxRetryAttempts}
+      StartingPosition: TRIM_HORIZON
+      DestinationConfig:
+        OnFailure:
+          Destination: !Ref PnDeliveryMetadataStatusDLQARN
