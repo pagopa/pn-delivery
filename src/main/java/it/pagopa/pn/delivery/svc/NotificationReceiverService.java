@@ -178,12 +178,13 @@ public class NotificationReceiverService {
 	}
 
 	private boolean checkAndUpdatePaNotificationLimit(InternalNotification internalNotification) {
-		log.info("Check and update paNotificationLimit for iun={}", internalNotification.getIun());
-		boolean limitExists = paNotificationLimitService.checkIfPaNotificationLimitExists(internalNotification);
-		if (limitExists) {
+		log.info("Check and update paNotificationLimit for paId={}", internalNotification.getSenderPaId());
+		if (paNotificationLimitService.checkIfPaNotificationLimitExists(internalNotification)) {
 			paNotificationLimitService.decrementLimitIncrementDailyCounter(internalNotification);
+			return true;
 		}
-		return limitExists;
+		log.info("No limit found for paId={}", internalNotification.getSenderPaId());
+		return false;
 	}
 
 	private void setDefaultValueForNotification(NewNotificationRequestV24 newNotificationRequest) {
