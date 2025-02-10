@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.PaNotificationLimitEntity;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +11,8 @@ import software.amazon.awssdk.services.dynamodb.model.*;
 
 import java.time.OffsetDateTime;
 import java.util.Map;
+
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_DYNAMO_EXCEPTION;
 
 @Component
 @Slf4j
@@ -49,7 +52,7 @@ public class PaNotificationLimitDaoDynamo implements PaNotificationLimitDao {
             return false;
         } catch (DynamoDbException e) {
             log.error("Unable to update item in DynamoDB: {}", e.getMessage(), e);
-            throw new RuntimeException("Update failed: " + e.getMessage(), e);
+            throw new PnInternalException("Update failed: " + e.getMessage(), ERROR_CODE_DELIVERY_DYNAMO_EXCEPTION);
         }
     }
 
@@ -75,7 +78,7 @@ public class PaNotificationLimitDaoDynamo implements PaNotificationLimitDao {
             log.error("Conditional check failed: {}", ex.getMessage(), ex);
         } catch (DynamoDbException e) {
             log.error("Unable to update item in DynamoDB: {}", e.getMessage(), e);
-            throw new RuntimeException("Update failed: " + e.getMessage(), e);
+            throw new PnInternalException("Update failed: " + e.getMessage(), ERROR_CODE_DELIVERY_DYNAMO_EXCEPTION);
         }
     }
 
@@ -91,7 +94,7 @@ public class PaNotificationLimitDaoDynamo implements PaNotificationLimitDao {
             return getItemResponse.hasItem();
         } catch (DynamoDbException e) {
             log.error("Unable to get item from DynamoDB: {}", e.getMessage(), e);
-            throw new RuntimeException("GetItem failed: " + e.getMessage(), e);
+            throw new PnInternalException("GetItem failed: " + e.getMessage(), ERROR_CODE_DELIVERY_DYNAMO_EXCEPTION);
         }
     }
 
