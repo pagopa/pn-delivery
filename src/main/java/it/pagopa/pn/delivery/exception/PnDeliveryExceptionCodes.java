@@ -33,5 +33,6 @@ public class PnDeliveryExceptionCodes extends PnExceptionsCodes {
 
     public static final String ERROR_CODE_DELIVERY_ADECHECKCF = "PN_DELIVERY_ADECHECKCF";
     public static final String ERROR_CODE_DELIVERY_NOTIFICATION_LIMIT_EXCEEDED = "PN_DELIVERY_NOTIFICATION_LIMIT_EXCEEDED";
+    public static final String ERROR_CODE_DELIVERY_DYNAMO_EXCEPTION = "PN_DELIVERY_DYNAMO_EXCEPTION";
 
 }
