@@ -11,6 +11,8 @@ describe("event mapper tests", function () {
         let body = JSON.parse(res.MessageBody);
         expect(body.iun).equal("abcd");
         expect(body.paId).equal("026e8c72-7944-4dcd-8668-f596447fec6d");
+        expect(body.sentAt).equal("2023-01-20T14:48:00.000Z");
+        expect(body.timelineId).equal("notification_viewed_creation_request;IUN_XLDW-MQYJ-WUKA-202302-A-1;RECINDEX_1");
 
         expect(res.MessageAttributes.publisher.StringValue).equal("delivery");
         expect(res.MessageAttributes.iun.StringValue).equal("abcd");

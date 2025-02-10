@@ -7,7 +7,8 @@ exports.mapEvent = async (record) => {
   let body = {
     iun: record.iun,
     paId: record.paId,
-    notificationSentAt: record.notificationSentAt
+    sentAt: record.notificationSentAt,
+    timelineId: record.timelineElementId,
   };
 
   let messageAttributes = {
