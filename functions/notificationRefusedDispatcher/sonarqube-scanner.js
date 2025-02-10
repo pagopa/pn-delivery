@@ -1,6 +1,6 @@
 let options = {
     "sonar.organization": "pagopa",
-    "sonar.projectKey": "pagopa_pn-delivery-notificationRefusedDispatcher",
+    "sonar.projectKey": "pagopa_pn-delivery-notificationRefusedDispatcher2",
 }
 
 if (process.env.PR_NUM) {
