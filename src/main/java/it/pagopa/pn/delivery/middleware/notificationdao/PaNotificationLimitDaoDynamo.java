@@ -13,13 +13,14 @@ import java.time.OffsetDateTime;
 import java.util.Map;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_DYNAMO_EXCEPTION;
+import static it.pagopa.pn.delivery.middleware.notificationdao.utils.NotificationLimitUtils.createDailyCounter;
+import static it.pagopa.pn.delivery.middleware.notificationdao.utils.NotificationLimitUtils.createPrimaryKey;
 
 @Component
 @Slf4j
 public class PaNotificationLimitDaoDynamo implements PaNotificationLimitDao {
     private final DynamoDbClient dynamoDbClient;
     private final String tableName;
-    private final String DAILY_COUNTER = "dailyCounter";
 
     @Autowired
     public PaNotificationLimitDaoDynamo(DynamoDbClient dynamoDbClient, PnDeliveryConfigs pnDeliveryConfigs) {
@@ -96,18 +97,6 @@ public class PaNotificationLimitDaoDynamo implements PaNotificationLimitDao {
             log.error("Unable to get item from DynamoDB: {}", e.getMessage(), e);
             throw new PnInternalException("GetItem failed: " + e.getMessage(), ERROR_CODE_DELIVERY_DYNAMO_EXCEPTION);
         }
-    }
-
-    private Map<String, AttributeValue> createPrimaryKey(String paId, OffsetDateTime sentAt) {
-        String pk = paId + "##" + sentAt.getYear() + "##" + String.format("%02d", sentAt.getMonthValue());
-        log.info("Creating primary key: {}", pk);
-        return Map.of(PaNotificationLimitEntity.FIELD_PK, AttributeValue.builder().s(pk).build());
-    }
-
-    private String createDailyCounter(OffsetDateTime sentAt) {
-        String dailyCounter = DAILY_COUNTER + String.format("%02d", sentAt.getDayOfMonth());
-        log.info("Creating daily counter: {}", dailyCounter);
-        return dailyCounter;
     }
 
 }
