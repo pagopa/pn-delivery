@@ -40,6 +40,9 @@
     "SkipCheckTaxIdInBlackList": "false",
     "PnDeliveryMetadataStatusLambdaBatchSize": "60",
     "PnDeliveryMetadataStatusUpdaterLambdaMaximumBatchingWindowInSeconds": "20",
-    "PnDeliveryMetadataStatusLambdaMaxRetryAttempts": "2"
+    "PnDeliveryMetadataStatusLambdaMaxRetryAttempts": "2",
+    "PnDeliveryPaLimitCorrectionLambdaCron": "0 12 * * ? *",
+    "PaLimitCorrectionLambdaTimeout": "600",
+    "PaLimitCorrectionLambdaMaximumRetryAttempts": "1"
   }
 }

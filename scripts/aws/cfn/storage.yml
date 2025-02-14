@@ -338,6 +338,19 @@ Resources:
         HasDLQ: "false"
         QueueHasAlarm: "true"
 
+  PnDeliveryPaLimitCorrectionDLQ:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
+      Parameters:
+        QueueName: !Sub '${ProjectName}-delivery_pa_limit_correction_DLQ'
+        DelaySeconds: 1
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName
+        HasDLQ: "false"
+        QueueHasAlarm: "true"
+
   PnDeliveryLogGroup:
     Type: AWS::CloudFormation::Stack
     UpdateReplacePolicy: Retain
@@ -423,6 +436,17 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
       Parameters:
         LogGroupName: !Sub "${ProjectName}-delivery-metadata-status-updater-lambda"
+        LogGroupRetention: !Ref LogRetention
+        LogGroupPrefix: '/aws/lambda'
+
+  PaLimitCorrectionLambdaLogGroup:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub "${ProjectName}-delivery-pa-limit-correction-lambda"
         LogGroupRetention: !Ref LogRetention
         LogGroupPrefix: '/aws/lambda'
 
@@ -536,6 +560,18 @@ Outputs:
   PnDeliveryMetadataStatusDLQAlarmARN:
     Value: !GetAtt PnDeliveryMetadataStatusDLQ.Outputs.SqsDLQAlarmArn
     Description: pn-delivery_metadata_status_DLQ alarm ARN
+  PnDeliveryPaLimitCorrectionDLQName:
+    Value: !GetAtt PnDeliveryPaLimitCorrectionDLQ.Outputs.QueueName
+    Description: pn-delivery_pa_limit_correction_DLQ queue name
+  PnDeliveryPaLimitCorrectionDLQURL:
+    Value: !GetAtt PnDeliveryPaLimitCorrectionDLQ.Outputs.QueueURL
+    Description: pn-delivery_pa_limit_correction_DLQ queue URL
+  PnDeliveryPaLimitCorrectionDLQARN:
+    Value: !GetAtt PnDeliveryPaLimitCorrectionDLQ.Outputs.QueueARN
+    Description: pn-delivery_pa_limit_correction_DLQ queue ARN
+  PnDeliveryPaLimitCorrectionDLQAlarmARN:
+    Value: !GetAtt PnDeliveryPaLimitCorrectionDLQ.Outputs.SqsDLQAlarmArn
+    Description: pn-delivery_pa_limit_correction_DLQ alarm ARN
 
   PnNotificationRefusedQueueName:
     Value: !GetAtt PnNotificationRefusedQueue.Outputs.QueueName
@@ -585,3 +621,6 @@ Outputs:
 
   MetadataStatusUpdaterLambdaName:
     Value: !Sub "${ProjectName}-delivery-metadata-status-updater-lambda"
+
+  PaLimitCorrectionLambdaName:
+    Value: !Sub "${ProjectName}-delivery-pa-limit-correction-lambda"
