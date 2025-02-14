@@ -27,9 +27,7 @@ public class PnReceivedIONotificationsController implements AppIoPnNotificationA
     private final IOMapper ioMapper;
 
     @Override
-    public ResponseEntity<ThirdPartyMessage> getReceivedNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType,
-                                                                     String xPagopaPnCxId, String iun, String xPagopaPnSrcCh,
-                                                                     List<String> xPagopaPnCxGroups, String xPagopaPnSrcChDetails) {
+    public ResponseEntity<ThirdPartyMessage> getReceivedNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String xPagopaPnSrcCh, String iun, List<String> xPagopaPnCxGroups, String xPagopaPnSrcChDetails)  {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         ThirdPartyMessage result;
         PnAuditLogEvent logEvent = auditLogBuilder

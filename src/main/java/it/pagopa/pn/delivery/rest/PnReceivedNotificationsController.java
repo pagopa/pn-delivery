@@ -134,7 +134,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
     }
 
     @Override
-    public ResponseEntity<FullReceivedNotificationV25> getReceivedNotificationV25(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, String xPagopaPnSrcCh, List<String> xPagopaPnCxGroups, String mandateId, String xPagopaPnSrcChDetails) {
+    public ResponseEntity<FullReceivedNotificationV25> getReceivedNotificationV25(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String xPagopaPnSrcCh, String iun, List<String> xPagopaPnCxGroups, String xPagopaPnSrcChDetails, String mandateId) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         FullReceivedNotificationV25 result = null;
         PnAuditLogEventType eventType = PnAuditLogEventType.AUD_NT_VIEW_RCP;
