@@ -198,6 +198,8 @@ paths:
         - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
         - $ref: '#/components/parameters/cxIdAuthFleet'           # NO EXTERNAL
         - $ref: '#/components/parameters/cxGroupsAuthFleet'       # NO EXTERNAL
+        - $ref: '#/components/parameters/headerSourceChannel'         # NO EXTERNAL
+        - $ref: '#/components/parameters/headerSourceChannelDetails'  # NO EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchMandateId'
       responses:
@@ -327,6 +329,16 @@ components:
       $ref: './remote-refs.yaml#/components/parameters/cxGroupsAuthFleet'          # NO EXTERNAL
     uidAuthFleet:                                                                  # NO EXTERNAL
       $ref: './remote-refs.yaml#/components/parameters/uidAuthFleet'               # NO EXTERNAL
+
+    ############################################################################################
+    ###                     PARAMETRO SORGENTE CREAZIONE NOTIFICA                            ###
+    ############################################################################################
+    headerSourceChannel: # NO EXTERNAL
+      $ref: './remote-refs.yaml#/components/parameters/headerSourceChannel'         # NO EXTERNAL
+
+    headerSourceChannelDetails: # NO EXTERNAL
+      $ref: './remote-refs.yaml#/components/parameters/headerSourceChannelDetails'  # NO EXTERNAL
+
 
     ############################################################################################
     ###                             PARAMETRI DOWNLOAD DOCUMENTI                             ###

@@ -54,6 +54,7 @@ class PnSentReceivedNotificationControllerTest {
 	private static final String UID = "UID";
 	private static final String PA_ID = "PA_ID";
 	private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
+	private static final String X_PAGOPA_PN_SRC_CH_DET = "sourceChannelDetails";
 	private static final int DOCUMENT_INDEX = 0;
 	private static final String REDIRECT_URL = "http://redirectUrl?token=fakeToken";
 	public static final String ATTACHMENT_BODY_STR = "Body";
@@ -623,7 +624,7 @@ class PnSentReceivedNotificationControllerTest {
 		InternalAuthHeader internalAuthHeader = new InternalAuthHeader(CX_TYPE_PF, CX_ID, UID, List.of("asdasd"));
 
 		// When
-		Mockito.when(svc.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(null)))
+		Mockito.when(svc.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(null), Mockito.anyString(), Mockito.anyString()))
 				.thenReturn( notification );
 
 		// Then
@@ -635,19 +636,21 @@ class PnSentReceivedNotificationControllerTest {
 				.header(PnDeliveryRestConstants.UID_HEADER, UID)
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
 				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
+				.header(PnDeliveryRestConstants.SOURCE_CHANNEL_DETAILS_HEADER, X_PAGOPA_PN_SRC_CH_DET)
 				.exchange()
 				.expectStatus()
 				.isOk()
 				.expectBody(FullReceivedNotificationV25.class);
 
-		Mockito.verify(svc).getNotificationAndNotifyViewedEvent(IUN, internalAuthHeader, null);
+		Mockito.verify(svc).getNotificationAndNotifyViewedEvent(IUN, internalAuthHeader, null, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_SRC_CH_DET);
 	}
 
 	@Test
 	void getReceivedNotificationFailure() {
 
 		// When
-		Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.any( InternalAuthHeader.class ), eq( null )) )
+		Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.any( InternalAuthHeader.class ), eq( null ), Mockito.anyString(), Mockito.anyString()) )
 				.thenThrow(new PnNotificationNotFoundException("test"));
 
 		// Then
@@ -671,7 +674,7 @@ class PnSentReceivedNotificationControllerTest {
 		InternalAuthHeader internalAuthHeader = new InternalAuthHeader(CX_TYPE_PF, CX_ID, UID, List.of("asdasd"));
 
 		// When
-		Mockito.when(svc.getNotificationAndNotifyViewedEvent(anyString(), any(InternalAuthHeader.class), anyString()))
+		Mockito.when(svc.getNotificationAndNotifyViewedEvent(anyString(), any(InternalAuthHeader.class), anyString(), Mockito.anyString(), Mockito.anyString()))
 				.thenReturn(notification);
 
 		// Then
@@ -687,12 +690,14 @@ class PnSentReceivedNotificationControllerTest {
 				.header(PnDeliveryRestConstants.UID_HEADER, UID)
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
 				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
+				.header(PnDeliveryRestConstants.SOURCE_CHANNEL_DETAILS_HEADER, X_PAGOPA_PN_SRC_CH_DET)
 				.exchange()
 				.expectStatus()
 				.isOk()
 				.expectBody(FullReceivedNotificationV25.class);
 
-		Mockito.verify(svc).getNotificationAndNotifyViewedEvent(IUN, internalAuthHeader, MANDATE_ID);
+		Mockito.verify(svc).getNotificationAndNotifyViewedEvent(IUN, internalAuthHeader, MANDATE_ID, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_SRC_CH_DET);
 	}
 
 	@Test

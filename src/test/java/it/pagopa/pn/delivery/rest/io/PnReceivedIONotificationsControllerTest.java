@@ -35,6 +35,7 @@ class PnReceivedIONotificationsControllerTest {
     private static final String USER_ID = "USER_ID";
     private static final String PA_ID = "PA_ID";
     private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
+    private static final String X_PAGOPA_PN_SRC_CH_DET = "sourceChannelDetails";
 
     @Autowired
     WebTestClient webTestClient;
@@ -59,7 +60,7 @@ class PnReceivedIONotificationsControllerTest {
         System.out.println(expectedValueJson);
 
         // When
-        Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.any( InternalAuthHeader.class ), eq( null )) )
+        Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.any( InternalAuthHeader.class ), eq( null), Mockito.anyString(), Mockito.anyString()) )
                 .thenReturn( notification );
 
         // Then
@@ -69,20 +70,22 @@ class PnReceivedIONotificationsControllerTest {
                 .header("x-pagopa-pn-cx-id", "IO-" +USER_ID )
                 .header("x-pagopa-pn-cx-type", "PF" )
                 .header("x-pagopa-pn-uid", USER_ID )
+                .header("x-pagopa-pn-src-ch", X_PAGOPA_PN_SRC_CH)
+                .header("x-pagopa-pn-src-ch-details", X_PAGOPA_PN_SRC_CH_DET)
                 .exchange()
                 .expectStatus()
                 .isOk()
                 .expectBody()
                 .json(expectedValueJson);
 
-        Mockito.verify(svc).getNotificationAndNotifyViewedEvent(IUN, new InternalAuthHeader("PF", "IO-" + USER_ID, USER_ID, null), null);
+        Mockito.verify(svc).getNotificationAndNotifyViewedEvent(IUN, new InternalAuthHeader("PF", "IO-" + USER_ID, USER_ID, null), null, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_SRC_CH_DET);
     }
 
     @Test
     void getReceivedNotificationFailure() {
 
         // When
-        Mockito.when(svc.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(null)))
+        Mockito.when(svc.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(null), Mockito.anyString(), Mockito.anyString()))
                 .thenThrow(new PnNotificationNotFoundException("test"));
 
         // Then
@@ -92,6 +95,8 @@ class PnReceivedIONotificationsControllerTest {
                 .header("x-pagopa-pn-cx-id", "IO-" +USER_ID )
                 .header("x-pagopa-pn-cx-type", "PF" )
                 .header("x-pagopa-pn-uid", USER_ID )
+                .header("x-pagopa-pn-src-ch", X_PAGOPA_PN_SRC_CH)
+                .header("x-pagopa-pn-src-ch-details", X_PAGOPA_PN_SRC_CH_DET)
                 .exchange()
                 .expectStatus()
                 .isNotFound();

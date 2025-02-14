@@ -28,7 +28,8 @@ public class PnReceivedIONotificationsController implements AppIoPnNotificationA
 
     @Override
     public ResponseEntity<ThirdPartyMessage> getReceivedNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType,
-                                                                     String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
+                                                                     String xPagopaPnCxId, String iun, String xPagopaPnSrcCh,
+                                                                     List<String> xPagopaPnCxGroups, String xPagopaPnSrcChDetails) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         ThirdPartyMessage result;
         PnAuditLogEvent logEvent = auditLogBuilder
@@ -38,7 +39,7 @@ public class PnReceivedIONotificationsController implements AppIoPnNotificationA
         logEvent.log();
         try {
             InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
-            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, null);
+            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, null, xPagopaPnSrcCh, xPagopaPnSrcChDetails);
             boolean isNotificationCancelled = retrieveSvc.isNotificationCancelled(internalNotification);
             result = ioMapper.mapToThirdPartMessage(internalNotification, isNotificationCancelled);
             logEvent.generateSuccess().log();

@@ -265,7 +265,7 @@ public class NotificationAttachmentService {
                             .operatorUuid(uid)
                             .build();
                 }
-                notificationViewedProducer.sendNotificationViewed(iun, Instant.now(), authorizationOutcome.getEffectiveRecipientIdx(), delegateInfo);
+                notificationViewedProducer.sendNotificationViewed(iun, Instant.now(), authorizationOutcome.getEffectiveRecipientIdx(), delegateInfo, null, null);
             }
 
             return InternalAttachmentWithFileKey.of(NotificationAttachmentDownloadMetadataResponse.builder()

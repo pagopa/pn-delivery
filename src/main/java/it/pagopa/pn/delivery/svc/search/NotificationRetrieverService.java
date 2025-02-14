@@ -487,11 +487,17 @@ public class NotificationRetrieverService {
 	 * @param iun                	unique identifier of a Notification
 	 * @param internalAuthHeader	header cx-*
 	 * @param mandateId 	 		id delega (opzionale)
+	 * @param sourceChannel         canale di provenienza
+	 * @param sourceChannelDetails  dettagli del canale di provenienza
 	 * @return Notification
 	 */
-	public InternalNotification getNotificationAndNotifyViewedEvent(String iun,
-																	InternalAuthHeader internalAuthHeader,
-																	String mandateId) {
+	public InternalNotification getNotificationAndNotifyViewedEvent(
+			String iun,
+			InternalAuthHeader internalAuthHeader,
+			String mandateId,
+			String sourceChannel,
+			String sourceChannelDetails
+	) {
 		log.debug("Start getNotificationAndSetViewed for {}", iun);
 
 		String delegatorId = null;
@@ -517,7 +523,7 @@ public class NotificationRetrieverService {
 		int recipientIndex = getRecipientIndexFromRecipientId(notification, recipientId);
 		filterTimelinesByRecipient(notification, internalAuthHeader, recipientIndex);
 		filterRecipients(notification, internalAuthHeader, recipientIndex);
-		notifyNotificationViewedEvent(notification, recipientIndex, delegateInfo);
+		notifyNotificationViewedEvent(notification, recipientIndex, delegateInfo, sourceChannel, sourceChannelDetails);
 		return notification;
 	}
 
@@ -685,11 +691,11 @@ public class NotificationRetrieverService {
 	}
 
 
-	private void notifyNotificationViewedEvent(InternalNotification notification, int recipientIndex, NotificationViewDelegateInfo delegateInfo) {
+	private void notifyNotificationViewedEvent(InternalNotification notification, int recipientIndex, NotificationViewDelegateInfo delegateInfo, String sourceChannel, String sourceChannelDetails) {
 		String iun = notification.getIun();
 		log.info("Send \"notification acknowlwdgement\" event for iun={}", iun);
 		Instant createdAt = clock.instant();
-		notificationAcknowledgementProducer.sendNotificationViewed( iun, createdAt, recipientIndex, delegateInfo );
+		notificationAcknowledgementProducer.sendNotificationViewed( iun, createdAt, recipientIndex, delegateInfo, sourceChannel, sourceChannelDetails );
 	}
 
 	private void labelizeGroup(InternalNotification notification, String senderId) {
