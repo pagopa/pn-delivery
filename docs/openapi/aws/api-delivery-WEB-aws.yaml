@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: x0MyXr0qCuRF2JZcBwLg/jARMKYhDyJUcnRVu6Rxr/Y=
+  version: IKqYrFAMzn8oC7UjjL2P9eVUZ/d2wLwaG/5LjNyFq18=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -4356,6 +4356,7 @@ components:
           description: Data accettazione notifica
           type: string
           format: date-time
+          deprecated: true
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica

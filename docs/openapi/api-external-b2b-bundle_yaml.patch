@@ -1,8 +1,7 @@
 diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-external-b2b-pa-bundle.yaml
-index c14ebf8f..eb89d7cc 100644
---- a/docs/openapi/api-external-b2b-pa-bundle.yaml
-+++ b/docs/openapi/api-external-b2b-pa-bundle.yaml
-@@ -997,8 +997,6 @@ paths:
+--- a/docs/openapi/api-external-b2b-pa-bundle.yaml	(revision 9687ae77e5b5812d67c569a367f2d6418f4a06bb)
++++ b/docs/openapi/api-external-b2b-pa-bundle.yaml	(date 1738851299273)
+@@ -997,8 +997,6 @@
        tags:
          - NewNotification
        operationId: sendNewNotification
@@ -11,7 +10,7 @@ index c14ebf8f..eb89d7cc 100644
        requestBody:
          content:
            application/json:
-@@ -1033,8 +1031,6 @@ paths:
+@@ -1033,8 +1031,6 @@
      get:
        deprecated: true
        operationId: retrieveNotificationRequestStatus
@@ -20,7 +19,7 @@ index c14ebf8f..eb89d7cc 100644
        tags:
          - SenderReadB2B
        summary: Verifica accettazione richiesta notifica
-@@ -1094,8 +1090,6 @@ paths:
+@@ -1094,8 +1090,6 @@
        tags:
          - NewNotification
        operationId: sendNewNotificationV21
@@ -29,7 +28,7 @@ index c14ebf8f..eb89d7cc 100644
        requestBody:
          content:
            application/json:
-@@ -1130,8 +1124,6 @@ paths:
+@@ -1130,8 +1124,6 @@
      get:
        deprecated: true
        operationId: retrieveNotificationRequestStatusV21
@@ -38,7 +37,7 @@ index c14ebf8f..eb89d7cc 100644
        tags:
          - SenderReadB2B
        summary: Verifica accettazione richiesta notifica
-@@ -1190,8 +1182,6 @@ paths:
+@@ -1190,8 +1182,6 @@
        tags:
          - NewNotification
        operationId: sendNewNotificationV23
@@ -47,7 +46,7 @@ index c14ebf8f..eb89d7cc 100644
        requestBody:
          content:
            application/json:
-@@ -1225,8 +1215,6 @@ paths:
+@@ -1225,8 +1215,6 @@
                  $ref: '#/components/schemas/Problem'
      get:
        operationId: retrieveNotificationRequestStatusV23
@@ -56,7 +55,7 @@ index c14ebf8f..eb89d7cc 100644
        tags:
          - SenderReadB2B
        summary: Verifica accettazione richiesta notifica
-@@ -1274,8 +1262,6 @@ paths:
+@@ -1274,8 +1262,6 @@
        tags:
          - SenderReadB2B
        operationId: retrieveSentNotification
@@ -65,7 +64,7 @@ index c14ebf8f..eb89d7cc 100644
        parameters:
          - $ref: '#/components/parameters/pathIun'
        responses:
-@@ -1307,8 +1293,6 @@ paths:
+@@ -1307,8 +1293,6 @@
        tags:
          - SenderReadB2B
        operationId: retrieveSentNotificationV20
@@ -74,7 +73,7 @@ index c14ebf8f..eb89d7cc 100644
        parameters:
          - $ref: '#/components/parameters/pathIun'
        responses:
-@@ -1340,8 +1324,6 @@ paths:
+@@ -1340,8 +1324,6 @@
        tags:
          - SenderReadB2B
        operationId: retrieveSentNotificationV21
@@ -83,7 +82,7 @@ index c14ebf8f..eb89d7cc 100644
        parameters:
          - $ref: '#/components/parameters/pathIun'
        responses:
-@@ -1373,8 +1355,6 @@ paths:
+@@ -1373,8 +1355,6 @@
        tags:
          - SenderReadB2B
        operationId: retrieveSentNotificationV23
@@ -92,7 +91,7 @@ index c14ebf8f..eb89d7cc 100644
        parameters:
          - $ref: '#/components/parameters/pathIun'
        responses:
-@@ -1405,8 +1385,6 @@ paths:
+@@ -1405,8 +1385,6 @@
        tags:
          - SenderReadB2B
        operationId: retrieveSentNotificationV24
@@ -101,7 +100,16 @@ index c14ebf8f..eb89d7cc 100644
        parameters:
          - $ref: '#/components/parameters/pathIun'
        responses:
-@@ -1432,8 +1410,6 @@ paths:
+@@ -1437,8 +1415,6 @@
+       tags:
+         - SenderReadB2B
+       operationId: retrieveSentNotificationV25
+-      x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda:live
+-      x-pagopa-lambda-account: core
+       parameters:
+         - $ref: '#/components/parameters/pathIun'
+       responses:
+@@ -1464,8 +1440,6 @@
      get:
        deprecated: true
        operationId: retrieveNotificationPrice
@@ -110,7 +118,7 @@ index c14ebf8f..eb89d7cc 100644
        summary: Retrieve notification price and effective date
        description: |-
          Usata dalla PA per recuperare il costo di notificazione tramite
-@@ -1527,7 +1503,6 @@ paths:
+@@ -1559,7 +1533,6 @@
        operationId: retrieveNotificationLegalFactsV20
        parameters:
          - $ref: '#/components/parameters/pathIun'
@@ -118,7 +126,7 @@ index c14ebf8f..eb89d7cc 100644
        responses:
          '200':
            description: OK
-@@ -1565,7 +1540,6 @@ paths:
+@@ -1597,7 +1570,6 @@
          - $ref: '#/components/parameters/pathIun'
          - $ref: '#/components/parameters/pathLegalFactType'
          - $ref: '#/components/parameters/pathLegalFactId'
@@ -126,7 +134,7 @@ index c14ebf8f..eb89d7cc 100644
        responses:
          '200':
            description: OK
-@@ -1601,7 +1575,6 @@ paths:
+@@ -1633,7 +1605,6 @@
        parameters:
          - $ref: '#/components/parameters/pathIun'
          - $ref: '#/components/parameters/pathLegalFactId'
@@ -134,10 +142,28 @@ index c14ebf8f..eb89d7cc 100644
        responses:
          '200':
            description: OK
-@@ -1627,43 +1600,6 @@ paths:
-             application/problem+json:
+@@ -1641,43 +1612,6 @@
+             application/json:
                schema:
-                 $ref: '#/components/schemas/Problem'
+                 $ref: '#/components/schemas/LegalFactDownloadMetadataResponse'
+-        '400':
+-          description: Invalid input
+-          content:
+-            application/problem+json:
+-              schema:
+-                $ref: '#/components/schemas/Problem'
+-        '404':
+-          description: Not found
+-          content:
+-            application/problem+json:
+-              schema:
+-                $ref: '#/components/schemas/Problem'
+-        '500':
+-          description: Internal Server Error
+-          content:
+-            application/problem+json:
+-              schema:
+-                $ref: '#/components/schemas/Problem'
 -  /delivery-push/{iun}/document/{documentType}:
 -    get:
 -      summary: Restituisce il singolo documento identificato dalla documentKey
@@ -157,28 +183,10 @@ index c14ebf8f..eb89d7cc 100644
 -            application/json:
 -              schema:
 -                $ref: '#/components/schemas/DocumentDownloadMetadataResponse'
--        '400':
--          description: Invalid input
--          content:
--            application/problem+json:
--              schema:
--                $ref: '#/components/schemas/Problem'
--        '404':
--          description: Not found
--          content:
--            application/problem+json:
--              schema:
--                $ref: '#/components/schemas/Problem'
--        '500':
--          description: Internal Server Error
--          content:
--            application/problem+json:
--              schema:
--                $ref: '#/components/schemas/Problem'
-   /delivery-push/{iun}/legal-facts:
-     get:
-       deprecated: true
-@@ -1674,11 +1610,8 @@ paths:
+         '400':
+           description: Invalid input
+           content:
+@@ -1706,11 +1640,8 @@
        tags:
          - LegalFacts
        operationId: retrieveNotificationLegalFacts
@@ -190,7 +198,7 @@ index c14ebf8f..eb89d7cc 100644
        responses:
          '200':
            description: OK
-@@ -2036,8 +1969,6 @@ paths:
+@@ -2068,8 +1999,6 @@
        tags:
          - Streams
        operationId: createEventStream
@@ -199,7 +207,7 @@ index c14ebf8f..eb89d7cc 100644
        requestBody:
          required: true
          content:
-@@ -2070,8 +2001,6 @@ paths:
+@@ -2102,8 +2031,6 @@
        tags:
          - Streams
        operationId: listEventStreams
@@ -208,7 +216,7 @@ index c14ebf8f..eb89d7cc 100644
        responses:
          '200':
            description: OK
-@@ -2101,8 +2030,6 @@ paths:
+@@ -2133,8 +2060,6 @@
        tags:
          - Streams
        operationId: retrieveEventStream
@@ -217,7 +225,7 @@ index c14ebf8f..eb89d7cc 100644
        responses:
          '200':
            description: OK
-@@ -2131,8 +2058,6 @@ paths:
+@@ -2163,8 +2088,6 @@
        tags:
          - Streams
        operationId: updateEventStream
@@ -226,7 +234,7 @@ index c14ebf8f..eb89d7cc 100644
        requestBody:
          required: true
          content:
-@@ -2167,8 +2092,6 @@ paths:
+@@ -2199,8 +2122,6 @@
        tags:
          - Streams
        operationId: removeEventStream
@@ -235,7 +243,7 @@ index c14ebf8f..eb89d7cc 100644
        responses:
          '204':
            description: OK
-@@ -2196,8 +2119,6 @@ paths:
+@@ -2228,8 +2149,6 @@
        tags:
          - Events
        operationId: consumeEventStream
@@ -244,7 +252,7 @@ index c14ebf8f..eb89d7cc 100644
        parameters:
          - $ref: '#/components/parameters/pathStreamId'
          - $ref: '#/components/parameters/queryLastEventId'
-@@ -2256,8 +2177,6 @@ paths:
+@@ -2288,8 +2207,6 @@
        tags:
          - Streams
        operationId: createEventStreamV23
@@ -253,7 +261,7 @@ index c14ebf8f..eb89d7cc 100644
        requestBody:
          required: true
          content:
-@@ -2302,8 +2221,6 @@ paths:
+@@ -2334,8 +2251,6 @@
        tags:
          - Streams
        operationId: listEventStreamsV23
@@ -262,7 +270,7 @@ index c14ebf8f..eb89d7cc 100644
        responses:
          '200':
            description: OK
-@@ -2333,8 +2250,6 @@ paths:
+@@ -2365,8 +2280,6 @@
        tags:
          - Streams
        operationId: retrieveEventStreamV23
@@ -271,7 +279,7 @@ index c14ebf8f..eb89d7cc 100644
        responses:
          '200':
            description: OK
-@@ -2375,8 +2290,6 @@ paths:
+@@ -2407,8 +2320,6 @@
        tags:
          - Streams
        operationId: updateEventStreamV23
@@ -280,7 +288,7 @@ index c14ebf8f..eb89d7cc 100644
        requestBody:
          required: true
          content:
-@@ -2423,8 +2336,6 @@ paths:
+@@ -2455,8 +2366,6 @@
        tags:
          - Streams
        operationId: removeEventStreamV23
@@ -289,7 +297,7 @@ index c14ebf8f..eb89d7cc 100644
        responses:
          '204':
            description: OK
-@@ -2474,8 +2385,6 @@ paths:
+@@ -2506,8 +2415,6 @@
        tags:
          - Streams
        operationId: disableEventStreamV23
@@ -298,7 +306,7 @@ index c14ebf8f..eb89d7cc 100644
        parameters:
          - $ref: '#/components/parameters/pathStreamId'
        responses:
-@@ -2521,8 +2430,6 @@ paths:
+@@ -2553,8 +2460,6 @@
        tags:
          - Events
        operationId: consumeEventStreamV23
@@ -307,7 +315,7 @@ index c14ebf8f..eb89d7cc 100644
        parameters:
          - $ref: '#/components/parameters/pathStreamId'
          - $ref: '#/components/parameters/queryLastEventId'
-@@ -2596,8 +2503,6 @@ paths:
+@@ -2628,8 +2533,6 @@
        tags:
          - Streams
        operationId: createEventStreamV24
@@ -316,7 +324,7 @@ index c14ebf8f..eb89d7cc 100644
        requestBody:
          required: true
          content:
-@@ -2642,8 +2547,6 @@ paths:
+@@ -2674,8 +2577,6 @@
        tags:
          - Streams
        operationId: listEventStreamsV24
@@ -325,7 +333,7 @@ index c14ebf8f..eb89d7cc 100644
        responses:
          '200':
            description: OK
-@@ -2673,8 +2576,6 @@ paths:
+@@ -2705,8 +2606,6 @@
        tags:
          - Streams
        operationId: retrieveEventStreamV24
@@ -334,7 +342,7 @@ index c14ebf8f..eb89d7cc 100644
        responses:
          '200':
            description: OK
-@@ -2715,8 +2616,6 @@ paths:
+@@ -2747,8 +2646,6 @@
        tags:
          - Streams
        operationId: updateEventStreamV24
@@ -343,7 +351,7 @@ index c14ebf8f..eb89d7cc 100644
        requestBody:
          required: true
          content:
-@@ -2763,8 +2662,6 @@ paths:
+@@ -2795,8 +2692,6 @@
        tags:
          - Streams
        operationId: removeEventStreamV24
@@ -352,7 +360,7 @@ index c14ebf8f..eb89d7cc 100644
        responses:
          '204':
            description: OK
-@@ -2814,8 +2711,6 @@ paths:
+@@ -2846,8 +2741,6 @@
        tags:
          - Streams
        operationId: disableEventStreamV24
@@ -361,7 +369,7 @@ index c14ebf8f..eb89d7cc 100644
        parameters:
          - $ref: '#/components/parameters/pathStreamId'
        responses:
-@@ -2861,8 +2756,6 @@ paths:
+@@ -2893,8 +2786,6 @@
        tags:
          - Events
        operationId: consumeEventStreamV24

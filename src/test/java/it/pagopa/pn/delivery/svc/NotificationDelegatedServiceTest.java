@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,22 +53,6 @@ class NotificationDelegatedServiceTest {
 
     @MockBean
     private PnMandateClientImpl pnMandateClientImpl;
-
-    @Test
-    void computeDelegationMetadataEntries() {
-        InternalMandateDto mandate = new InternalMandateDto();
-        mandate.setDelegate(DELEGATE_ID);
-        mandate.setDelegator(DELEGATOR_ID);
-        mandate.setDateto(OffsetDateTime.now().plus(1, ChronoUnit.DAYS).toString());
-        mandate.setDatefrom(OffsetDateTime.now().minus(1, ChronoUnit.DAYS).toString());
-        mandate.setMandateId(MANDATE_ID);
-        when(pnMandateClientImpl.listMandatesByDelegator(any(), any(), any(), any(), any(), any()))
-                .thenReturn(List.of(new InternalMandateDto()));
-        NotificationMetadataEntity entity = new NotificationMetadataEntity();
-        entity.setSentAt(Instant.now());
-        entity.setRecipientId(DELEGATOR_ID);
-        Assertions.assertEquals(1, notificationDelegatedService.computeDelegationMetadataEntries(entity).size());
-    }
 
     /**
      * Method under test: {@link NotificationDelegatedService#handleAcceptedMandate(PnMandateEvent.Payload, EventType)}
@@ -283,19 +266,5 @@ class NotificationDelegatedServiceTest {
         assertDoesNotThrow(() -> notificationDelegatedService.handleUpdatedMandate(payload, EventType.MANDATE_ACCEPTED));
 
         verify(pnMandateClientImpl).listMandatesByDelegator(any(), any(), any(), any(), any(), any());
-    }
-
-    @Test
-    void computeDelegationMetadataEntriesTest(){
-        InternalMandateDto internalMandateDto = new InternalMandateDto();
-        internalMandateDto.setVisibilityIds(Collections.singletonList("senderId"));
-        when(pnMandateClientImpl.listMandatesByDelegator(any(), any(), any(), any(), any(), any()))
-                .thenReturn(Collections.singletonList(internalMandateDto));
-        NotificationMetadataEntity metadata = new NotificationMetadataEntity();
-        metadata.setSenderId("senderId");
-        metadata.setSentAt(Instant.now());
-        List<NotificationDelegationMetadataEntity> result = notificationDelegatedService.computeDelegationMetadataEntries(metadata);
-        Assertions.assertEquals(1, result.size());
-
     }
 }
