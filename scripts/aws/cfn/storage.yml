@@ -488,6 +488,13 @@ Outputs:
     Description: ARN of dynamodb table containing PA notification limits
     Value: !Sub '${PaNotificationLimitTable.Arn}'
 
+  NotificationRefusedVerificationDynamoTableName:
+    Description: Name of dynamodb table containing refused notifications
+    Value: !Ref NotificationRefusedVerificationTable
+  NotificationRefusedVerificationDynamoTableArn:
+    Description: ARN of dynamodb table containing refused notifications
+    Value: !Sub '${NotificationRefusedVerificationTable.Arn}'
+
   # Delivery Insert Trigger DLQ
   PnDeliveryInsertTriggerDLQName:
     Value: !GetAtt PnDeliveryInsertTriggerDLQ.Outputs.QueueName

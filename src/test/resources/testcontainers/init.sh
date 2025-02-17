@@ -237,4 +237,19 @@ aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
         }
     ]"
 
+aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
+    dynamodb create-table \
+    --table-name NotificationRefusedVerification \
+    --attribute-definitions \
+        AttributeName=pk,AttributeType=S \
+    --key-schema \
+        AttributeName=pk,KeyType=HASH \
+    --provisioned-throughput \
+        ReadCapacityUnits=10,WriteCapacityUnits=5
+
+aws --profile default --region us-east-1 --endpoint-url http://localstack:4566 \
+    sqs create-queue \
+    --attributes '{"DelaySeconds":"2"}' \
+    --queue-name "pn-notification_refused"
+
 echo "Initialization terminated"

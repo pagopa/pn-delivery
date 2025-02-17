@@ -1,8 +1,10 @@
 package it.pagopa.pn.delivery.svc;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.middleware.notificationdao.PaNotificationLimitDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.NotificationRefusedPayload;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,6 +25,9 @@ class PaNotificationLimitServiceTest {
 
     @InjectMocks
     private PaNotificationLimitService paNotificationLimitService;
+
+    @Mock
+    private NotificationRefusedVerificationService notificationRefusedVerificationService;
 
     @Test
     void decrementLimitIncrementDailyCounter_success() {
@@ -60,6 +65,56 @@ class PaNotificationLimitServiceTest {
 
         assertTrue(result);
         verify(paNotificationLimitDao).checkIfPaNotificationLimitExists(notification.getSenderPaId(), notification.getSentAt());
+    }
+
+    @Test
+    void handleNotificationRefused_paNotificationLimitExistsAndVerificationSuccess() {
+        NotificationRefusedPayload payload = getNotificationRefusedPayload();
+        when(paNotificationLimitDao.checkIfPaNotificationLimitExists(payload.getPaId(), OffsetDateTime.parse(payload.getSentAt()))).thenReturn(true);
+        when(notificationRefusedVerificationService.putNotificationRefusedVerification(payload.getTimeLineId())).thenReturn(true);
+
+        paNotificationLimitService.handleNotificationRefused(payload);
+
+        verify(paNotificationLimitDao).incrementLimitDecrementDailyCounter(payload.getPaId(), OffsetDateTime.parse(payload.getSentAt()));
+    }
+
+    @Test
+    void handleNotificationRefused_paNotificationLimitExistsAndVerificationFails() {
+        NotificationRefusedPayload payload = getNotificationRefusedPayload();
+        when(paNotificationLimitDao.checkIfPaNotificationLimitExists(payload.getPaId(), OffsetDateTime.parse(payload.getSentAt()))).thenReturn(true);
+        when(notificationRefusedVerificationService.putNotificationRefusedVerification(payload.getTimeLineId())).thenReturn(false);
+
+        paNotificationLimitService.handleNotificationRefused(payload);
+
+        verify(paNotificationLimitDao, never()).incrementLimitDecrementDailyCounter(payload.getPaId(), OffsetDateTime.parse(payload.getSentAt()));
+    }
+
+    @Test
+    void handleNotificationRefused_paNotificationLimitDoesNotExist() {
+        NotificationRefusedPayload payload = getNotificationRefusedPayload();
+        when(paNotificationLimitDao.checkIfPaNotificationLimitExists(payload.getPaId(), OffsetDateTime.parse(payload.getSentAt()))).thenReturn(false);
+
+        paNotificationLimitService.handleNotificationRefused(payload);
+
+        verify(notificationRefusedVerificationService, never()).putNotificationRefusedVerification(payload.getTimeLineId());
+        verify(paNotificationLimitDao, never()).incrementLimitDecrementDailyCounter(payload.getPaId(), OffsetDateTime.parse(payload.getSentAt()));
+    }
+
+    @Test
+    void handleNotificationRefused_exceptionThrown() {
+        NotificationRefusedPayload payload = getNotificationRefusedPayload();
+        when(paNotificationLimitDao.checkIfPaNotificationLimitExists(payload.getPaId(), OffsetDateTime.parse(payload.getSentAt()))).thenThrow(new RuntimeException("Database error"));
+
+        assertThrows(PnInternalException.class, () -> paNotificationLimitService.handleNotificationRefused(payload));
+    }
+
+    private NotificationRefusedPayload getNotificationRefusedPayload() {
+        NotificationRefusedPayload notificationRefusedPayload = new NotificationRefusedPayload();
+        notificationRefusedPayload.setIun("testIun");
+        notificationRefusedPayload.setPaId("testPaId");
+        notificationRefusedPayload.setSentAt(OffsetDateTime.now().toString());
+        notificationRefusedPayload.setTimeLineId("testTimeLineId");
+        return notificationRefusedPayload;
     }
 
     private InternalNotification getInternalNotification() {
