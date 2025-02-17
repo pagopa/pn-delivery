@@ -622,5 +622,8 @@ Outputs:
   MetadataStatusUpdaterLambdaName:
     Value: !Sub "${ProjectName}-delivery-metadata-status-updater-lambda"
 
+  NotificationRefusedDispatcherLambdaName:
+    Value: !Sub "${ProjectName}-delivery-notification-refused-dispatcher-lambda"
+
   PaLimitCorrectionLambdaName:
     Value: !Sub "${ProjectName}-delivery-pa-limit-correction-lambda"
