@@ -1,0 +1,54 @@
+{
+  "Records": [
+    {
+      "kinesis": {
+        "sequenceNumber": "test",
+        "data": {
+          "awsRegion": "eu-central-1",
+          "eventID": "2c19ee21-4cb5-4fcf-aadb-7aac6555b46f",
+          "eventName": "INSERT",
+          "userIdentity": null,
+          "recordFormat": "application/json",
+          "tableName": "pn-Timelines",
+          "dynamodb": {
+            "NewImage": {
+            "iun": {
+                "S": "abcd"
+            },
+            "timelineElementId": {
+                "S": "notification_viewed_creation_request;IUN_XLDW-MQYJ-WUKA-202302-A-1;RECINDEX_1"
+            },
+            "notificationSentAt": {
+                "S": "2025-01-20T14:48:00.000Z"
+            },
+            "timestamp": {
+                "S": "2025-01-20T14:48:00.000Z"
+            },
+            "paId": {
+                "S": "026e8c72-7944-4dcd-8668-f596447fec6d"
+            },
+            "details": {
+                "M": {
+                    "notificationCost": {
+                        "N": 100
+                    },
+                    "notRefinedRecipientIndexes": {
+                        "L": [ {"N": "1"}, {"N": "2"}, {"N": "3"} ]
+                    }
+                }
+              }
+            }
+          },
+          "eventSource": "aws:dynamodb"
+        }
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000004:49651151769547260642845689623061309776858789665900068930",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::830192246553:role/PocWrite-PocActionEnqueuerLambdaRole-u7ogpX8zivgF",
+      "awsRegion": "eu-central-1",
+      "eventSourceARN": "arn:aws:kinesis:eu-central-1:830192246553:stream/pn-deleted-actions"
+    }
+  ]
+}

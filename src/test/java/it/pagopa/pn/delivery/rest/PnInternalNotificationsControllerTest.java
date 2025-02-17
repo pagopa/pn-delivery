@@ -1,6 +1,5 @@
 package it.pagopa.pn.delivery.rest;
 
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnForbiddenException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
@@ -35,7 +34,6 @@ import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
 
 @WebFluxTest(controllers = {PnInternalNotificationsController.class})
 class PnInternalNotificationsControllerTest {
@@ -66,9 +64,6 @@ class PnInternalNotificationsControllerTest {
     WebTestClient webTestClient;
 
     @MockBean
-    private StatusService svc;
-
-    @MockBean
     private NotificationRetrieverService retrieveSvc;
 
     @MockBean
@@ -89,39 +84,6 @@ class PnInternalNotificationsControllerTest {
     @SpyBean
     private ModelMapper modelMapper;
 
-
-
-    @Test
-    void updateStatus() {
-        RequestUpdateStatusDto dto = RequestUpdateStatusDto.builder()
-                .iun(IUN)
-                .build();
-
-        webTestClient.post()
-                .uri("/delivery-private/notifications/update-status" )
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .body(Mono.just(dto), RequestUpdateStatusDto.class)
-                .exchange()
-                .expectStatus().isOk();
-    }
-
-    @Test
-    void updateStatusKo() {
-        doThrow(new PnInternalException("exception")).when(svc).updateStatus(Mockito.any());
-
-        RequestUpdateStatusDto dto = RequestUpdateStatusDto.builder()
-                .iun(IUN)
-                .build();
-
-        webTestClient.post()
-                .uri("/delivery-private/notifications/update-status")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .body(Mono.just(dto), RequestUpdateStatusDto.class)
-                .exchange()
-                .expectStatus().is5xxServerError();
-    }
 
     @Test
     void searchNotificationsPrivateBySender() {

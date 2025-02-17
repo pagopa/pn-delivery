@@ -1414,6 +1414,7 @@ paths:
         accettata. <br/>
       tags:
         - SenderReadB2B
+      operationId: retrieveSentNotificationV25
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:

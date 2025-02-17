@@ -36,50 +36,6 @@ paths:
           description: Ok
         '500':
           description: Internal Server Error
-  "/delivery-private/notifications/update-status":
-    post:
-      description: |-
-        Servizio per l'aggiornamento dello stato di invio della notifica
-        
-        <details no-external>
-        <summary><b> Attributi progettazione di alto livello </b></summary>
-        | Proprietà                | Valore             |
-        | -----------------------: | :----------------- |
-        | __Intended usage__       | Altri ms           |
-        | __Modalità interazione__ | Sincrona           |
-        | __TPS (stimato)__        |                    |
-        | __Idempotenza__          | Si                 |
-        | __Read/Write intensive__ | Write              |
-        | __Cachable__             | No                 |
-        </details>
-      summary: servizio per l'aggiornamento dello stato di invio della notifica
-      tags:
-      - internal-only
-      operationId: updateStatus
-      requestBody:
-        content:
-          application/json:
-            schema:
-              "$ref": "#/components/schemas/RequestUpdateStatusDto"
-        required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json: { }
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '500':
-          description: Internal error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-  
   "/delivery-private/notifications/{iun}":
     get:
       summary: servizio per cercare una notifica dato <iun>
@@ -494,19 +450,6 @@ components:
       properties:
         iun:
           $ref: 'schemas-pn-notification.yaml#/components/schemas/IUN'
-
-
-    RequestUpdateStatusDto:
-      type: object
-      properties:
-        iun:
-          $ref: 'schemas-pn-notification.yaml#/components/schemas/IUN'
-        nextStatus:
-          $ref: "remote-refs.yaml#/components/schemas/NotificationStatusV26"
-        timestamp:
-          type: string
-          description: timestamp del passaggio di stato
-          format: date-time
 
     NotificationCostResponse:
       type: object

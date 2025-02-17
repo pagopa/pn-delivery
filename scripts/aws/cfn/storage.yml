@@ -281,6 +281,34 @@ Resources:
         OncallDLQLimit: '1'
         QueueHasAlarm:  "true"
 
+  PnNotificationRefusedQueue:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
+      Parameters:
+        QueueName: !Sub '${ProjectName}-notification_refused'
+        DelaySeconds: 1
+        VisibilityTimeout: 60
+        MaxReceiveCount: 10
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName
+        HasDLQ: "true"
+
+  PnNotificationRefusedDispatcherDLQ:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
+      Parameters:
+        QueueName: !Sub '${ProjectName}-notification_refused_dispatcher-DLQ'
+        DelaySeconds: 1
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName
+        HasDLQ: "false"
+        OncallDLQLimit: '1'
+        QueueHasAlarm: "true"
+
   # Coda per inviare eventi di asseverazione, consumata da lambda per salvataggio su bucket s3
   # NB: usati i valori di default per: DelaySeconds, DeadLetterQueueName, MessageRetentionPeriod, MaxReceiveCount, DeadLetterMessageRetentionPeriod,
   # QueueOldestAgeLimit
@@ -296,6 +324,19 @@ Resources:
         AlarmSNSTopicName: !Ref AlarmSNSTopicName
         VisibilityTimeout: 900 # the maximum lambda timeout
         QueueHasAlarm: "false"
+
+  PnDeliveryMetadataStatusDLQ:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
+      Parameters:
+        QueueName: !Sub '${ProjectName}-delivery_metadata_status_DLQ'
+        DelaySeconds: 1
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName
+        HasDLQ: "false"
+        QueueHasAlarm: "true"
 
   PnDeliveryLogGroup:
     Type: AWS::CloudFormation::Stack
@@ -374,6 +415,17 @@ Resources:
         LogGroupRetention: !Ref LogRetention
         LogGroupPrefix: '/aws/lambda'
 
+  MetadataStatusUpdaterLambdaLogGroup:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub "${ProjectName}-delivery-metadata-status-updater-lambda"
+        LogGroupRetention: !Ref LogRetention
+        LogGroupPrefix: '/aws/lambda'
+
 Outputs:
 
   # Dynamo table
@@ -414,6 +466,13 @@ Outputs:
   NotificationsMetadataDynamoTableArn:
     Description: ARN of dynamodb table containing notifications metadata
     Value: !Sub '${NotificationsMetadataTable.Arn}'
+
+  NotificationRefusedVerificationDynamoTableName:
+    Description: Name of dynamodb table containing notification refused
+    Value: !Ref NotificationRefusedVerificationTable
+  NotificationRefusedVerificationDynamoTableArn:
+    Description: ARN of dynamodb table containing notification refused
+    Value: !Sub '${NotificationRefusedVerificationTable.Arn}'
 
   NotificationDelegationMetadataDynamoTableName:
     Description: Name of dynamodb table containing delegated notifications metadata
@@ -472,7 +531,45 @@ Outputs:
   PnDeliveryAsseverationAgeAlarmARN:
     Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.SqsAgeAlarmArn  
     Description: notificationCostServiceCalls-DLQ age alarm ARN
-  
+  PnDeliveryMetadataStatusDLQName:
+    Value: !GetAtt PnDeliveryMetadataStatusDLQ.Outputs.QueueName
+    Description: pn-delivery_metadata_status_DLQ queue name
+  PnDeliveryMetadataStatusDLQURL:
+    Value: !GetAtt PnDeliveryMetadataStatusDLQ.Outputs.QueueURL
+    Description: pn-delivery_metadata_status_DLQ queue URL
+  PnDeliveryMetadataStatusDLQARN:
+    Value: !GetAtt PnDeliveryMetadataStatusDLQ.Outputs.QueueARN
+    Description: pn-delivery_metadata_status_DLQ queue ARN
+  PnDeliveryMetadataStatusDLQAlarmARN:
+    Value: !GetAtt PnDeliveryMetadataStatusDLQ.Outputs.SqsDLQAlarmArn
+    Description: pn-delivery_metadata_status_DLQ alarm ARN
+
+  PnNotificationRefusedQueueName:
+    Value: !GetAtt PnNotificationRefusedQueue.Outputs.QueueName
+    Description: delivery_push_to_delivery queue name
+  PnNotificationRefusedQueueURL:
+    Value: !GetAtt PnNotificationRefusedQueue.Outputs.QueueURL
+    Description: delivery_push_to_delivery queue URL
+  PnNotificationRefusedQueueARN:
+    Value: !GetAtt PnNotificationRefusedQueue.Outputs.QueueARN
+    Description: delivery_push_to_delivery queue ARN
+  PnNotificationRefusedQueueAlarmARN:
+    Value: !GetAtt PnNotificationRefusedQueue.Outputs.SqsDLQAlarmArn
+    Description: delivery_push_to_delivery alarm ARN
+
+  PnNotificationRefusedDispatcherDLQName:
+    Value: !GetAtt PnNotificationRefusedDispatcherDLQ.Outputs.QueueName
+    Description: notification_refused_dispatcher-DLQ queue name
+  PnNotificationRefusedDispatcherDLQURL:
+    Value: !GetAtt PnNotificationRefusedDispatcherDLQ.Outputs.QueueURL
+    Description: notification_refused_dispatcher-DLQ queue URL
+  PnNotificationRefusedDispatcherDLQARN:
+    Value: !GetAtt PnNotificationRefusedDispatcherDLQ.Outputs.QueueARN
+    Description: notification_refused_dispatcher-DLQ queue ARN
+  PnNotificationRefusedDispatcherDLQAlarmARN:
+    Value: !GetAtt PnNotificationRefusedDispatcherDLQ.Outputs.SqsDLQAlarmArn
+    Description: notification_refused_dispatcher-DLQ alarm ARN
+
   # Log group exports
   EcsLogGroup:
     Value: !GetAtt PnDeliveryLogGroup.Outputs.LogGroupName
@@ -493,3 +590,8 @@ Outputs:
   VersioningV1V23GetNotificationPriceLambdaName:
     Value: !Sub "${ProjectName}-delivery-versioning-v1v23-getnotificationprice-lambda"
 
+  MetadataStatusUpdaterLambdaName:
+    Value: !Sub "${ProjectName}-delivery-metadata-status-updater-lambda"
+
+  NotificationRefusedDispatcherLambdaName:
+    Value: !Sub "${ProjectName}-delivery-notification-refused-dispatcher-lambda"

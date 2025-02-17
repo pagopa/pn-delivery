@@ -31,16 +31,14 @@ import static it.pagopa.pn.commons.utils.MDCUtils.MDC_PN_IUN_KEY;
 public class PnInternalNotificationsController implements InternalOnlyApi {
 
     private final NotificationRetrieverService retrieveSvc;
-    private final StatusService statusService;
     private final NotificationPriceService priceService;
     private final NotificationQRService qrService;
     private final NotificationAttachmentService notificationAttachmentService;
     private final ModelMapper modelMapper;
 
 
-    public PnInternalNotificationsController(NotificationRetrieverService retrieveSvc, StatusService statusService, NotificationPriceService priceService, NotificationQRService qrService, NotificationAttachmentService notificationAttachmentService, ModelMapper modelMapper) {
+    public PnInternalNotificationsController(NotificationRetrieverService retrieveSvc, NotificationPriceService priceService, NotificationQRService qrService, NotificationAttachmentService notificationAttachmentService, ModelMapper modelMapper) {
         this.retrieveSvc = retrieveSvc;
-        this.statusService = statusService;
         this.priceService = priceService;
         this.qrService = qrService;
         this.notificationAttachmentService = notificationAttachmentService;
@@ -106,27 +104,6 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         }
 
         return ResponseEntity.ok(sentNotification);
-    }
-
-    @Override
-    public ResponseEntity<Void> updateStatus(RequestUpdateStatusDto requestUpdateStatusDto) {
-        String logMessage = String.format(
-                "Update status for iun=%s nextStatus=%s", requestUpdateStatusDto.getIun(), requestUpdateStatusDto.getNextStatus()
-        );
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_STATUS, logMessage)
-                .iun(requestUpdateStatusDto.getIun())
-                .build();
-        logEvent.log();
-        try {
-            statusService.updateStatus(requestUpdateStatusDto);
-            logEvent.generateSuccess().log();
-        } catch (PnRuntimeException exc) {
-            logEvent.generateFailure("" + exc.getProblem()).log();
-            throw exc;
-        }
-        return ResponseEntity.ok().build();
     }
 
     @Override
