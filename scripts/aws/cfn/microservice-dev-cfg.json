@@ -40,6 +40,8 @@
     "SkipCheckTaxIdInBlackList": "false",
     "PnDeliveryMetadataStatusLambdaBatchSize": "60",
     "PnDeliveryMetadataStatusUpdaterLambdaMaximumBatchingWindowInSeconds": "20",
-    "PnDeliveryMetadataStatusLambdaMaxRetryAttempts": "2"
+    "PnDeliveryMetadataStatusLambdaMaxRetryAttempts": "2",
+    "NotificationRefusedDispatcherLambdaBatchSize": "60",
+    "NotificationRefusedDispatcherLambdaMaximumBatchingWindowInSeconds": "20"
   }
 }

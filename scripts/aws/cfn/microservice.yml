@@ -584,6 +584,31 @@ Parameters:
     Description: 'Enables the workflow for the deceased recipient'
     Default: false
 
+  # NotificationRefusedDispatcherLambda parameters
+  NotificationRefusedDispatcherLambdaName:
+    Type: String
+    Description: "Lambda name for NotificationRefusedDispatcher"
+
+  PnNotificationRefusedQueueURL:
+    Type: String
+    Description: "Queue URL for NotificationRefusedDispatcher"
+
+  PnNotificationRefusedQueueARN:
+    Type: String
+    Description: "Queue ARN for NotificationRefusedDispatcher"
+
+  PnNotificationRefusedDispatcherDLQARN:
+    Type: String
+    Description: "DLQ ARN for NotificationRefusedDispatcher"
+
+  NotificationRefusedDispatcherLambdaBatchSize:
+    Type: String
+    Description: "BatchSize for NotificationRefusedDispatcher"
+
+  NotificationRefusedDispatcherLambdaMaximumBatchingWindowInSeconds:
+    Type: String
+    Description: "MaximumBatchingWindow for NotificationRefusedDispatcher"
+
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
 
@@ -1699,3 +1724,112 @@ Resources:
       DestinationConfig:
         OnFailure:
           Destination: !Ref PnDeliveryMetadataStatusDLQARN
+
+  #########################################################
+  ###        NotificationRefusedDispatcherLambda        ###
+  #########################################################
+
+  # Lambda function
+  NotificationRefusedDispatcherLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref NotificationRefusedDispatcherLambdaName
+      Runtime: nodejs18.x
+      Handler: "index.handler"
+      Code:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/notificationRefusedDispatcher.zip"
+      Role: !GetAtt NotificationRefusedDispatcherLambdaRole.Arn
+      Environment:
+        Variables:
+          REGION: !Sub ${AWS::Region}
+          QUEUE_URL: !Ref PnNotificationRefusedQueueURL
+      TracingConfig:
+        Mode: Active
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
+      Timeout: 10
+
+  # Lambda function role
+  NotificationRefusedDispatcherLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-notificationRefusedDispatcherLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  # Lambda function IAM policy
+  NotificationRefusedDispatcherLambdaPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub ${ProjectName}-NotificationRefusedDispatcherLambdaPolicy
+      Roles:
+        - !Ref NotificationRefusedDispatcherLambdaRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - kinesis:DescribeStream
+              - kinesis:DescribeStreamSummary
+              - kinesis:GetShardIterator
+              - kinesis:GetRecords
+              - kinesis:ListShards
+              - kinesis:ListStreams
+              - kinesis:SubscribeToShard
+            Resource: !Ref CdcKinesisSourceStreamArn
+          - Action: kms:Decrypt
+            Effect: Allow
+            Resource: !Ref CdcKinesisSourceStreamKeyArn
+          - Effect: Allow
+            Action:
+              - sqs:ChangeMessageVisibility
+              - sqs:GetQueueAttributes
+              - sqs:GetQueueUrl
+              - sqs:SendMessage
+            Resource:
+              !Ref PnNotificationRefusedQueueARN
+          - Effect: Allow
+            Action:
+              - sqs:ChangeMessageVisibility
+              - sqs:GetQueueAttributes
+              - sqs:GetQueueUrl
+              - sqs:SendMessage
+            Resource:
+              !Ref PnNotificationRefusedDispatcherDLQARN
+
+  # CDC to Notification Refused Dispatcher
+  NotificationRefusedDispatcherLambdaKinesisSource:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: !Sub ${NotificationRefusedDispatcherLambdaBatchSize}
+      BisectBatchOnFunctionError: true
+      EventSourceArn: !Ref CdcKinesisSourceStreamArn
+      FunctionName: !Ref NotificationRefusedDispatcherLambda
+      FunctionResponseTypes:
+        - ReportBatchItemFailures
+      FilterCriteria:
+        Filters:
+          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName": [ "INSERT" ], "dynamodb" : { "NewImage" : { "category" : { "S" : [ "REQUEST_REFUSED" ] } }}}}'
+      MaximumBatchingWindowInSeconds: !Sub ${NotificationRefusedDispatcherLambdaMaximumBatchingWindowInSeconds}
+      StartingPosition: TRIM_HORIZON
+      DestinationConfig:
+        OnFailure:
+          Destination: !Ref PnNotificationRefusedDispatcherDLQARN
+
+  NotificationRefusedDispatcherLambdaAlarms:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
+      Parameters:
+        FunctionName: !Ref NotificationRefusedDispatcherLambda
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
