@@ -767,22 +767,10 @@ components:
     ###                     PARAMETRO SORGENTE CREAZIONE NOTIFICA                            ###
     ############################################################################################
     headerSourceChannel:                                                            # NO EXTERNAL
-      name: x-pagopa-pn-src-ch                                                      # NO EXTERNAL
-      in: header                                                                    # NO EXTERNAL
-      description: Notification creation source channel                             # NO EXTERNAL
-      required: true                                                                # NO EXTERNAL
-      schema:                                                                       # NO EXTERNAL
-        type: string                                                                # NO EXTERNAL
-        maxLength: 3                                                                # NO EXTERNAL
-        pattern: "B2B|WEB"                                                          # NO EXTERNAL
+      $ref: './remote-refs.yaml#/components/parameters/headerSourceChannel'         # NO EXTERNAL
 
     headerSourceChannelDetails:                                                     # NO EXTERNAL
-      name: x-pagopa-pn-src-ch-details                                              # NO EXTERNAL
-      in: header                                                                    # NO EXTERNAL
-      description: Notification creation source channel details                     # NO EXTERNAL
-      required: false                                                               # NO EXTERNAL
-      schema:                                                                       # NO EXTERNAL
-        type: string                                                                # NO EXTERNAL
+      $ref: './remote-refs.yaml#/components/parameters/headerSourceChannelDetails'  # NO EXTERNAL
 
     ############################################################################################
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###

@@ -489,9 +489,11 @@ public class NotificationRetrieverService {
 	 * @param mandateId 	 		id delega (opzionale)
 	 * @return Notification
 	 */
-	public InternalNotification getNotificationAndNotifyViewedEvent(String iun,
-																	InternalAuthHeader internalAuthHeader,
-																	String mandateId) {
+	public InternalNotification getNotificationAndNotifyViewedEvent(
+			String iun,
+			InternalAuthHeader internalAuthHeader,
+			String mandateId
+	) {
 		log.debug("Start getNotificationAndSetViewed for {}", iun);
 
 		String delegatorId = null;
@@ -517,7 +519,7 @@ public class NotificationRetrieverService {
 		int recipientIndex = getRecipientIndexFromRecipientId(notification, recipientId);
 		filterTimelinesByRecipient(notification, internalAuthHeader, recipientIndex);
 		filterRecipients(notification, internalAuthHeader, recipientIndex);
-		notifyNotificationViewedEvent(notification, recipientIndex, delegateInfo);
+		notifyNotificationViewedEvent(notification, recipientIndex, delegateInfo, internalAuthHeader);
 		return notification;
 	}
 
@@ -685,11 +687,11 @@ public class NotificationRetrieverService {
 	}
 
 
-	private void notifyNotificationViewedEvent(InternalNotification notification, int recipientIndex, NotificationViewDelegateInfo delegateInfo) {
+	private void notifyNotificationViewedEvent(InternalNotification notification, int recipientIndex, NotificationViewDelegateInfo delegateInfo, InternalAuthHeader internalAuthHeader) {
 		String iun = notification.getIun();
 		log.info("Send \"notification acknowlwdgement\" event for iun={}", iun);
 		Instant createdAt = clock.instant();
-		notificationAcknowledgementProducer.sendNotificationViewed( iun, createdAt, recipientIndex, delegateInfo );
+		notificationAcknowledgementProducer.sendNotificationViewed( iun, createdAt, recipientIndex, delegateInfo, internalAuthHeader.xPagopaPnSrcCh(), internalAuthHeader.xPagopaPnSrcChDetails() );
 	}
 
 	private void labelizeGroup(InternalNotification notification, String senderId) {

@@ -17,12 +17,13 @@ import software.amazon.awssdk.services.sqs.model.GetQueueUrlResponse;
 
 import java.time.Instant;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class NotificationViewedProducerTest {
 
     private NotificationViewedProducer notificationViewedProducer;
+    private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
+    private static final String X_PAGOPA_PN_SRC_CH_DET = "sourceChannelDetails";
 
     @Mock
     private SqsClient sqsClient;
@@ -58,7 +59,7 @@ class NotificationViewedProducerTest {
                 .mandateId( "mandateId" )
                 .build();
 
-        assertThrows(NullPointerException.class,() -> notificationViewedProducer.sendNotificationViewed( iun, when, recipientIndex, delegateInfo ));
+        assertThrows(NullPointerException.class,() -> notificationViewedProducer.sendNotificationViewed( iun, when, recipientIndex, delegateInfo, X_PAGOPA_PN_SRC_CH,X_PAGOPA_PN_SRC_CH_DET ));
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -77,7 +78,7 @@ class NotificationViewedProducerTest {
                 .build();
 
         // When
-        PnDeliveryNotificationViewedEvent result = notificationViewedProducer.buildNotificationViewed( iun, when, recipientIndex, delegateInfo );
+        PnDeliveryNotificationViewedEvent result = notificationViewedProducer.buildNotificationViewed( iun, when, recipientIndex, delegateInfo, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_SRC_CH_DET );
 
         // Then
         Assertions.assertNotNull( result );

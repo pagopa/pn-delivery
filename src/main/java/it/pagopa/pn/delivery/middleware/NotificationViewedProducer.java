@@ -6,12 +6,12 @@ import it.pagopa.pn.api.dto.events.*;
 
 public interface NotificationViewedProducer extends MomProducer<PnDeliveryNotificationViewedEvent> {
 
-    default void sendNotificationViewed( String iun, Instant when, int recipientIndex, NotificationViewDelegateInfo delegateInfo ) {
-    	PnDeliveryNotificationViewedEvent event = buildNotificationViewed( iun, when, recipientIndex, delegateInfo );
+    default void sendNotificationViewed( String iun, Instant when, int recipientIndex, NotificationViewDelegateInfo delegateInfo, String sourceChannel, String sourceChannelDetails) {
+    	PnDeliveryNotificationViewedEvent event = buildNotificationViewed( iun, when, recipientIndex, delegateInfo, sourceChannel,sourceChannelDetails );
         this.push( event );
     }
 
-    default PnDeliveryNotificationViewedEvent buildNotificationViewed( String iun, Instant when, int recipientIndex, NotificationViewDelegateInfo delegateInfo ) {
+    default PnDeliveryNotificationViewedEvent buildNotificationViewed( String iun, Instant when, int recipientIndex, NotificationViewDelegateInfo delegateInfo, String sourceChannel, String sourceChannelDetails) {
         String eventId = iun + "_notification_viewed_rec" + recipientIndex;
         return PnDeliveryNotificationViewedEvent.builder()
                 .messageDeduplicationId(eventId)
@@ -28,6 +28,8 @@ public interface NotificationViewedProducer extends MomProducer<PnDeliveryNotifi
                         .iun( iun )
                         .recipientIndex( recipientIndex )
                         .delegateInfo( delegateInfo )
+                        .sourceChannel( sourceChannel )
+                        .sourceChannelDetails( sourceChannelDetails )
                         .build()
                 )
                 .build();
