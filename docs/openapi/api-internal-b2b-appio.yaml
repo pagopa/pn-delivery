@@ -38,10 +38,12 @@ paths:
         - AppIO-PN-Payments
       operationId: getReceivedNotificationAttachment
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'             # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
+        - $ref: '#/components/parameters/uidAuthFleet'                        # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'                     # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'                       # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'                   # NO EXTERNAL
+        - $ref: '#/components/parameters/headerSourceChannel'                 # NO EXTERNAL
+        - $ref: '#/components/parameters/headerSourceChannelDetails'          # NO EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathAttachmentName'
         - $ref: '#/components/parameters/attachmentIdx'
@@ -127,6 +129,8 @@ paths:
         - $ref: '#/components/parameters/cxTypeAuthFleet'                                      # NO EXTERNAL
         - $ref: '#/components/parameters/cxIdAuthFleet'                                        # NO EXTERNAL
         - $ref: '#/components/parameters/cxGroupsAuthFleet'                                    # NO EXTERNAL
+        - $ref: '#/components/parameters/headerSourceChannel'                                  # NO EXTERNAL
+        - $ref: '#/components/parameters/headerSourceChannelDetails'                           # NO EXTERNAL
         - $ref: 'parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: 'api-internal-b2b-pa.yaml#/components/parameters/pathDocumentIdx'
         - $ref: '#/components/parameters/cxTaxIdAuthFleet'                                     # ONLY EXTERNAL

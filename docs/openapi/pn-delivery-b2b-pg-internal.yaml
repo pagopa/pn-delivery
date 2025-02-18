@@ -243,10 +243,12 @@ paths:
       x-api-permissions:
         - 'REFINEMENT'
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'           # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'        # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'          # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'      # NO EXTERNAL
+        - $ref: '#/components/parameters/uidAuthFleet'                    # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'                 # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'                   # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'               # NO EXTERNAL
+        - $ref: '#/components/parameters/headerSourceChannel'             # NO EXTERNAL
+        - $ref: '#/components/parameters/headerSourceChannelDetails'      # NO EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathDocumentIdx'
         - $ref: '#/components/parameters/queryMandateId'
@@ -285,10 +287,12 @@ paths:
       x-api-permissions:
         - 'REFINEMENT'
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'             # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
+        - $ref: '#/components/parameters/uidAuthFleet'                    # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'                 # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'                   # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'               # NO EXTERNAL
+        - $ref: '#/components/parameters/headerSourceChannel'             # NO EXTERNAL
+        - $ref: '#/components/parameters/headerSourceChannelDetails'      # NO EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathAttachmentName'
         - $ref: '#/components/parameters/queryMandateId'

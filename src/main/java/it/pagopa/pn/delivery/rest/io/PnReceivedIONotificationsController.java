@@ -36,8 +36,8 @@ public class PnReceivedIONotificationsController implements AppIoPnNotificationA
                 .build();
         logEvent.log();
         try {
-            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
-            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, null, xPagopaPnSrcCh, xPagopaPnSrcChDetails);
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups, xPagopaPnSrcCh, xPagopaPnSrcChDetails);
+            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, null);
             boolean isNotificationCancelled = retrieveSvc.isNotificationCancelled(internalNotification);
             result = ioMapper.mapToThirdPartMessage(internalNotification, isNotificationCancelled);
             logEvent.generateSuccess().log();

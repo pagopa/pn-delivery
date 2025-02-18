@@ -149,8 +149,8 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .build();
         logEvent.log();
         try {
-            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
-            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, mandateId, xPagopaPnSrcCh, xPagopaPnSrcChDetails);
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups, xPagopaPnSrcCh, xPagopaPnSrcChDetails);
+            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, mandateId);
             InternalFieldsCleaner.cleanInternalFields( internalNotification );
             result = modelMapper.map(internalNotification, FullReceivedNotificationV25.class);
             logEvent.generateSuccess().log();
@@ -162,7 +162,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
     }
 
     @Override
-    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer docIdx, List<String> xPagopaPnCxGroups, UUID mandateId) {
+    public  ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String xPagopaPnSrcCh, String iun, Integer docIdx, List<String> xPagopaPnCxGroups, String xPagopaPnSrcChDetails, UUID mandateId) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEventType eventType = PnAuditLogEventType.AUD_NT_DOCOPEN_RCP;
         String logMsg = "getReceivedNotificationDocument from documents array with index={}";
@@ -178,7 +178,14 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         logEvent.log();
         try {
             retrieveSvc.checkIfNotificationIsNotCancelled(iun);
-            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(
+                    xPagopaPnCxType.getValue(),
+                    xPagopaPnCxId,
+                    xPagopaPnUid,
+                    xPagopaPnCxGroups,
+                    xPagopaPnSrcCh,
+                    xPagopaPnSrcChDetails
+            );
             response = notificationAttachmentService.downloadDocumentWithRedirect(
                     iun,
                     internalAuthHeader,
@@ -200,7 +207,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
 
 
     @Override
-    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, String attachmentName, List<String> xPagopaPnCxGroups, UUID mandateId, Integer attachmentIdx) {
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String xPagopaPnSrcCh, String iun, String attachmentName, List<String> xPagopaPnCxGroups, String xPagopaPnSrcChDetails, UUID mandateId, Integer attachmentIdx) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEventType eventType = PnAuditLogEventType.AUD_NT_ATCHOPEN_RCP;
         String logMsg = "getReceivedNotificationAttachment attachment name={}, attachment index={}";
@@ -215,7 +222,14 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         logEvent.log();
         try {
             retrieveSvc.checkIfNotificationIsNotCancelled(iun);
-            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(
+                    xPagopaPnCxType.getValue(),
+                    xPagopaPnCxId,
+                    xPagopaPnUid,
+                    xPagopaPnCxGroups,
+                    xPagopaPnSrcCh,
+                    xPagopaPnSrcChDetails
+            );
             response = notificationAttachmentService.downloadAttachmentWithRedirect(
                     iun,
                     internalAuthHeader,

@@ -60,7 +60,7 @@ class PnReceivedIONotificationsControllerTest {
         System.out.println(expectedValueJson);
 
         // When
-        Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.any( InternalAuthHeader.class ), eq( null), Mockito.anyString(), Mockito.anyString()) )
+        Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.any( InternalAuthHeader.class ), eq( null)) )
                 .thenReturn( notification );
 
         // Then
@@ -78,14 +78,14 @@ class PnReceivedIONotificationsControllerTest {
                 .expectBody()
                 .json(expectedValueJson);
 
-        Mockito.verify(svc).getNotificationAndNotifyViewedEvent(IUN, new InternalAuthHeader("PF", "IO-" + USER_ID, USER_ID, null), null, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_SRC_CH_DET);
+        Mockito.verify(svc).getNotificationAndNotifyViewedEvent(IUN, new InternalAuthHeader("PF", "IO-" + USER_ID, USER_ID, null, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_SRC_CH_DET), null);
     }
 
     @Test
     void getReceivedNotificationFailure() {
 
         // When
-        Mockito.when(svc.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(null), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(svc.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(null)))
                 .thenThrow(new PnNotificationNotFoundException("test"));
 
         // Then
