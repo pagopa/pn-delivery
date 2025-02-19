@@ -293,7 +293,7 @@ Resources:
         VisibilityTimeout: 60
         MaxReceiveCount: 10
         AlarmSNSTopicName: !Ref AlarmSNSTopicName
-        HasDLQ: "true"
+        HasDLQ: "false"
 
   PnNotificationRefusedDispatcherDLQ:
     Type: AWS::CloudFormation::Stack

@@ -601,10 +601,6 @@ Parameters:
     Type: String
     Description: "Queue URL for NotificationRefusedDispatcher"
 
-  PnNotificationRefusedQueueARN:
-    Type: String
-    Description: "Queue ARN for NotificationRefusedDispatcher"
-
   PnNotificationRefusedDispatcherDLQARN:
     Type: String
     Description: "DLQ ARN for NotificationRefusedDispatcher"
