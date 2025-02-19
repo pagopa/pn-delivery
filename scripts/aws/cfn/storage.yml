@@ -426,6 +426,17 @@ Resources:
         LogGroupRetention: !Ref LogRetention
         LogGroupPrefix: '/aws/lambda'
 
+  NotificationRefusedDispatcherLambdaLogGroup:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub "${ProjectName}-delivery-notification-refused-dispatcher-lambda"
+        LogGroupRetention: !Ref LogRetention
+        LogGroupPrefix: '/aws/lambda'
+
 Outputs:
 
   # Dynamo table
@@ -487,13 +498,6 @@ Outputs:
   PaNotificationLimitDynamoTableArn:
     Description: ARN of dynamodb table containing PA notification limits
     Value: !Sub '${PaNotificationLimitTable.Arn}'
-
-  NotificationRefusedVerificationDynamoTableName:
-    Description: Name of dynamodb table containing refused notifications
-    Value: !Ref NotificationRefusedVerificationTable
-  NotificationRefusedVerificationDynamoTableArn:
-    Description: ARN of dynamodb table containing refused notifications
-    Value: !Sub '${NotificationRefusedVerificationTable.Arn}'
 
   # Delivery Insert Trigger DLQ
   PnDeliveryInsertTriggerDLQName:
