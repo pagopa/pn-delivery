@@ -576,6 +576,11 @@ Parameters:
     Description: 'Enables the workflow for the deceased recipient'
     Default: false
 
+  LambdaMemorySize:
+    Default: 512
+    Type: Number
+    Description: MemorySize Lambda Versioning
+
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
 
@@ -1211,7 +1216,7 @@ Resources:
       Layers:
         - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
       Timeout: 30
-      MemorySize: 512
+      MemorySize: !Ref LambdaMemorySize
       Tags:
         - Key: "pn-eni-related"
           Value: "true"
@@ -1306,7 +1311,7 @@ Resources:
       Layers:
         - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
       Timeout: 30
-      MemorySize: 512
+      MemorySize: !Ref LambdaMemorySize
       Tags:
         - Key: "pn-eni-related"
           Value: "true"
@@ -1401,7 +1406,7 @@ Resources:
       Layers:
         - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
       Timeout: 30
-      MemorySize: 512
+      MemorySize: !Ref LambdaMemorySize
       Tags:
         - Key: "pn-eni-related"
           Value: "true"
@@ -1496,7 +1501,7 @@ Resources:
       Layers:
         - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
       Timeout: 30
-      MemorySize: 512
+      MemorySize: !Ref LambdaMemorySize
       Tags:
         - Key: "pn-eni-related"
           Value: "true"
