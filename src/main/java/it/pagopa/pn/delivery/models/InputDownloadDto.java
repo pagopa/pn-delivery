@@ -16,6 +16,8 @@ public class InputDownloadDto {
     private String cxType;
     private String cxId;
     private String uid;
+    private String cxSourceChannel;
+    private String cxSourceChannelDetails;
     private String mandateId;
 
     private List<String> cxGroups;
