@@ -238,6 +238,14 @@ Parameters:
     Type: String
     Description: "Queue ARN to pull for refused notifications"
 
+  NotificationRefusedVerificationDynamoTableName:
+    Type: String
+    Description: "NotificationRefusedVerification Dynamo table name"
+
+  NotificationRefusedVerificationDynamoTableArn:
+    Type: String
+    Description: "ARN of dynamodb table containing notification refused verification"
+
   DeliveryPushInputsQueueARN:
     Type: String
     Description: "Target queue ARN for insert trigger"
@@ -699,7 +707,8 @@ Resources:
         ContainerEnvEntry50: !Sub "PN_DELIVERY_SKIPCHECKTAXIDINBLACKLIST=${SkipCheckTaxIdInBlackList}"
         ContainerEnvEntry51: !Sub "PN_DELIVERY_ENABLE_DECEASED_WORKFLOW=${EnableDeceasedWorkflow}"
         ContainerEnvEntry52: !Sub "PN_DELIVERY_PANOTIFICATIONLIMITDAO_TABLENAME=${PaNotificationLimitDynamoTableName}"
-        ContainerEnvEntry53: !Sub "SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${Mandate2DeliveryQueueName},${PnNotificationRefusedQueueName}"
+        ContainerEnvEntry53: !Sub "PN_DELIVERY_NOTIFICATIONREFUSEDVERIFICATIONDAO_TABLENAME=${NotificationRefusedVerificationDynamoTableName}"
+        ContainerEnvEntry54: !Sub "SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${Mandate2DeliveryQueueName},${PnNotificationRefusedQueueName}"
 
         ContainerSecret1: !Sub "ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:"
         MicroServiceSecretPrefix: pn-Delivery-Secrets
@@ -753,6 +762,9 @@ Resources:
               - !Sub "${NotificationsQRDynamoTableArn}/*"
               - !Sub "${TaxonomyCodeDynamoTableArn}"
               - !Sub "${PaNotificationLimitDynamoTableArn}"
+              - !Sub "${PaNotificationLimitDynamoTableArn}/*"
+              - !Sub "${NotificationRefusedVerificationDynamoTableArn}"
+              - !Sub "${NotificationRefusedVerificationDynamoTableArn}/*"
           - Effect: Allow
             Action:
               - "dynamodb:BatchWriteItem"
@@ -908,6 +920,7 @@ Resources:
             - !Ref NotificationsQRDynamoTableName
             - !Ref TaxonomyCodeDynamoTableName
             - !Ref PaNotificationLimitDynamoTableName
+            - !Ref NotificationRefusedVerificationDynamoTableName
         LambdaArns: !Join
           - ","
           - - !GetAtt PnDeliveryInsertTriggerLambdaStack.Outputs.FunctionArn
