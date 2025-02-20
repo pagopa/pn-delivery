@@ -640,10 +640,6 @@ Parameters:
     Default: '0 12 * * ? *'
     Description: Cron to schedule the Lambda PaLimitCorrection (UTC). Default is every day at 12:00
 
-  SearchSLAViolationsLambdaARN:
-    Type: String
-    Description: "SearchSLAViolationsLambdaARN"
-
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
 
@@ -1948,8 +1944,9 @@ Resources:
           - Effect: Allow
             Action:
               - lambda:InvokeFunction
+              - lambda:InvokeAsync
             Resource:
-              !Ref SearchSLAViolationsLambdaARN
+              !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-searchSLAViolationsLambda"
           - Effect: Allow
             Action:
               - "dynamodb:Query"
