@@ -41,6 +41,7 @@
     "PnDeliveryMetadataStatusLambdaBatchSize": "60",
     "PnDeliveryMetadataStatusUpdaterLambdaMaximumBatchingWindowInSeconds": "20",
     "PnDeliveryMetadataStatusLambdaMaxRetryAttempts": "2",
+    "LambdaMemorySize": "1024",
     "NotificationRefusedDispatcherLambdaBatchSize": "60",
     "NotificationRefusedDispatcherLambdaMaximumBatchingWindowInSeconds": "20",
     "PnDeliveryPaLimitCorrectionLambdaCron": "0 12 * * ? *",

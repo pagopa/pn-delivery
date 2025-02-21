@@ -293,7 +293,7 @@ Resources:
         VisibilityTimeout: 60
         MaxReceiveCount: 10
         AlarmSNSTopicName: !Ref AlarmSNSTopicName
-        HasDLQ: "true"
+        HasDLQ: "false"
 
   PnNotificationRefusedDispatcherDLQ:
     Type: AWS::CloudFormation::Stack
@@ -436,6 +436,17 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
       Parameters:
         LogGroupName: !Sub "${ProjectName}-delivery-metadata-status-updater-lambda"
+        LogGroupRetention: !Ref LogRetention
+        LogGroupPrefix: '/aws/lambda'
+
+  NotificationRefusedDispatcherLambdaLogGroup:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub "${ProjectName}-delivery-notification-refused-dispatcher-lambda"
         LogGroupRetention: !Ref LogRetention
         LogGroupPrefix: '/aws/lambda'
 
