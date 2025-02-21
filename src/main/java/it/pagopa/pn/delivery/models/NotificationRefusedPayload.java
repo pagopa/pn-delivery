@@ -7,5 +7,5 @@ public class NotificationRefusedPayload {
     private String iun;
     private String paId;
     private String sentAt;
-    private String timeLineId;
+    private String timelineId;
 }
