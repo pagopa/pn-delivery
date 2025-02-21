@@ -761,8 +761,6 @@ Resources:
               - !Sub "${NotificationsQRDynamoTableArn}"
               - !Sub "${NotificationsQRDynamoTableArn}/*"
               - !Sub "${TaxonomyCodeDynamoTableArn}"
-              - !Sub "${PaNotificationLimitDynamoTableArn}"
-              - !Sub "${PaNotificationLimitDynamoTableArn}/*"
               - !Sub "${NotificationRefusedVerificationDynamoTableArn}"
               - !Sub "${NotificationRefusedVerificationDynamoTableArn}/*"
           - Effect: Allow
@@ -778,6 +776,13 @@ Resources:
             Resource:
               - !Sub "${NotificationsCostDynamoTableArn}"
               - !Sub "${NotificationsCostDynamoTableArn}/*"
+          - Effect: Allow
+            Action:
+              - "dynamodb:GetItem"
+              - "dynamodb:UpdateItem"
+            Resource:
+              - !Sub "${PaNotificationLimitDynamoTableArn}"
+              - !Sub "${PaNotificationLimitDynamoTableArn}/*"
           - Effect: Allow
             Action:
               - ssm:GetParameter
