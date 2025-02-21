@@ -71,7 +71,7 @@ class PaNotificationLimitServiceTest {
     void handleNotificationRefused_paNotificationLimitExistsAndVerificationSuccess() {
         NotificationRefusedPayload payload = getNotificationRefusedPayload();
         when(paNotificationLimitDao.checkIfPaNotificationLimitExists(payload.getPaId(), OffsetDateTime.parse(payload.getSentAt()))).thenReturn(true);
-        when(notificationRefusedVerificationService.putNotificationRefusedVerification(payload.getTimeLineId())).thenReturn(true);
+        when(notificationRefusedVerificationService.putNotificationRefusedVerification(payload.getTimelineId())).thenReturn(true);
 
         paNotificationLimitService.handleNotificationRefused(payload);
 
@@ -82,7 +82,7 @@ class PaNotificationLimitServiceTest {
     void handleNotificationRefused_paNotificationLimitExistsAndVerificationFails() {
         NotificationRefusedPayload payload = getNotificationRefusedPayload();
         when(paNotificationLimitDao.checkIfPaNotificationLimitExists(payload.getPaId(), OffsetDateTime.parse(payload.getSentAt()))).thenReturn(true);
-        when(notificationRefusedVerificationService.putNotificationRefusedVerification(payload.getTimeLineId())).thenReturn(false);
+        when(notificationRefusedVerificationService.putNotificationRefusedVerification(payload.getTimelineId())).thenReturn(false);
 
         paNotificationLimitService.handleNotificationRefused(payload);
 
@@ -96,7 +96,7 @@ class PaNotificationLimitServiceTest {
 
         paNotificationLimitService.handleNotificationRefused(payload);
 
-        verify(notificationRefusedVerificationService, never()).putNotificationRefusedVerification(payload.getTimeLineId());
+        verify(notificationRefusedVerificationService, never()).putNotificationRefusedVerification(payload.getTimelineId());
         verify(paNotificationLimitDao, never()).incrementLimitDecrementDailyCounter(payload.getPaId(), OffsetDateTime.parse(payload.getSentAt()));
     }
 
@@ -113,7 +113,7 @@ class PaNotificationLimitServiceTest {
         notificationRefusedPayload.setIun("testIun");
         notificationRefusedPayload.setPaId("testPaId");
         notificationRefusedPayload.setSentAt(OffsetDateTime.now().toString());
-        notificationRefusedPayload.setTimeLineId("testTimeLineId");
+        notificationRefusedPayload.setTimelineId("testTimelineId");
         return notificationRefusedPayload;
     }
 
