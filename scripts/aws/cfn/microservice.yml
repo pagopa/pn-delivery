@@ -626,6 +626,33 @@ Parameters:
     Type: String
     Description: "MaximumBatchingWindow for NotificationRefusedDispatcher"
 
+  PaLimitCorrectionLambdaName:
+    Type: String
+    Description: "PaLimitCorrectionLambdaName"
+
+  PaLimitCorrectionLambdaTimeout:
+    Type: Number
+    Description: "Timeout in seconds of the pa limit correction lambda"
+    Default: 300
+
+  PaLimitCorrectionLambdaMaximumRetryAttempts:
+    Type: Number
+    Description: "MaximumRetryAttempts for pa limit correction Lambda"
+    Default: 1
+
+  PnDeliveryPaLimitCorrectionDLQARN:
+    Type: String
+    Description: "DLQ ARN for pa limit correction"
+
+  PnDeliveryPaLimitCorrectionDLQAlarmARN:
+    Type: String
+    Description: "DLQ Alarm ARN for pa limit correction"
+
+  PnDeliveryPaLimitCorrectionLambdaCron:
+    Type: String
+    Default: '0 12 * * ? *'
+    Description: Cron to schedule the Lambda PaLimitCorrection (UTC). Default is every day at 12:00
+
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
 
@@ -966,7 +993,9 @@ Resources:
             - !GetAtt VersioningV1V21GetNotificationRequestStatusLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !GetAtt VersioningV1V23GetNotificationPriceLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !GetAtt MetadataStatusUpdaterLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
+            - !GetAtt PaLimitCorrectionLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !Ref PnDeliveryMetadataStatusDLQAlarmARN
+            - !Ref PnDeliveryPaLimitCorrectionDLQAlarmARN
         QueueArns: !Join
           - ","
           - - !Ref Mandate2DeliveryQueueARN
@@ -1863,3 +1892,122 @@ Resources:
       Parameters:
         FunctionName: !Ref NotificationRefusedDispatcherLambda
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+
+  #########################################################
+  ###                 PaLimitCorrection                 ###
+  #########################################################
+
+  # Lambda function
+  PaLimitCorrectionLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref PaLimitCorrectionLambdaName
+      Runtime: nodejs20.x
+      Handler: "index.handler"
+      Code:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/paLimitCorrectionLambda.zip"
+      Role: !GetAtt PaLimitCorrectionLambdaRole.Arn
+      Environment:
+        Variables:
+          REGION: !Sub ${AWS::Region}
+      TracingConfig:
+        Mode: Active
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
+      Timeout: !Ref PaLimitCorrectionLambdaTimeout
+
+  PaLimitCorrectionLambdaInvokeConfig:
+    Type: AWS::Lambda::EventInvokeConfig
+    Properties:
+      FunctionName: !Ref PaLimitCorrectionLambda
+      Qualifier: "$LATEST"
+      MaximumRetryAttempts: !Ref PaLimitCorrectionLambdaMaximumRetryAttempts
+      DestinationConfig:
+        OnFailure:
+          Destination: !Ref PnDeliveryPaLimitCorrectionDLQARN
+
+  PaLimitCorrectionLambdaAlarms:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
+      Parameters:
+        FunctionName: !Ref PaLimitCorrectionLambda
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        FilterPattern: "FATAL"
+
+  # Lambda function role
+  PaLimitCorrectionLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-paLimitCorrectionLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+
+  # Lambda function IAM policy
+  PaLimitCorrectionLambdaPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub ${ProjectName}-PaLimitCorrectionLambdaPolicy
+      Roles:
+        - !Ref PaLimitCorrectionLambdaRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - lambda:InvokeFunction
+              - lambda:InvokeAsync
+            Resource:
+              !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-searchSLAViolationsLambda"
+          - Effect: Allow
+            Action:
+              - "dynamodb:Query"
+            Resource:
+              - !Sub "${NotificationsMetadataDynamoTableArn}"
+              - !Sub "${NotificationsMetadataDynamoTableArn}/*"
+          - Effect: Allow
+            Action:
+              - "dynamodb:UpdateItem"
+              - "dynamodb:Query"
+            Resource:
+              - !Sub "${PaNotificationLimitDynamoTableArn}"
+              - !Sub "${PaNotificationLimitDynamoTableArn}/*"
+          - Effect: Allow
+            Action:
+              - sqs:ChangeMessageVisibility
+              - sqs:GetQueueAttributes
+              - sqs:GetQueueUrl
+              - sqs:SendMessage
+            Resource:
+              !Ref PnDeliveryPaLimitCorrectionDLQARN
+
+  #Scheduled Event Bridge Rule that send event to target lambda
+  PaLimitCorrectionScheduledRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub '${ProjectName}-delivery-paLimitCorrectionScheduleRule'
+      ScheduleExpression: !Sub cron(${PnDeliveryPaLimitCorrectionLambdaCron})
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt PaLimitCorrectionLambda.Arn
+          Id: PaLimitCorrectionLambdaTarget
+          Input: '{ "dateToVerifyLimit": null }'
+
+  PermissionForEventsToInvokeLambda:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt PaLimitCorrectionLambda.Arn
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt PaLimitCorrectionScheduledRule.Arn
