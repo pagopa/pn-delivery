@@ -1906,11 +1906,12 @@ Resources:
       Handler: "index.handler"
       Code:
         S3Bucket: !Ref MicroserviceBucketName
-        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/paLimitCorrectionLambda.zip"
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/paLimitCorrection.zip"
       Role: !GetAtt PaLimitCorrectionLambdaRole.Arn
       Environment:
         Variables:
           REGION: !Sub ${AWS::Region}
+          SEARCH_SLA_LAMBDA_ARN: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-searchSLAViolationsLambda"
       TracingConfig:
         Mode: Active
       Layers:
