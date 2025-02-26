@@ -30,12 +30,13 @@ public class PaNotificationLimitDaoDynamo implements PaNotificationLimitDao {
 
     @Override
     public boolean decrementLimitIncrementDailyCounter(String paId, OffsetDateTime sentAt) {
-        log.info("Decrementing limit and incrementing dailyCounter for paId: {} sentAt: {}", paId, sentAt);
+        String pk = createPrimaryKey(paId, sentAt);
+        log.info("Decrementing limit and incrementing dailyCounter for pk: {}", pk);
         String dailyCounter = createDailyCounter(sentAt);
         try {
             UpdateItemRequest updateRequest = UpdateItemRequest.builder()
                     .tableName(tableName)
-                    .key(createPrimaryKey(paId, sentAt))
+                    .key(getFieldPk(pk))
                     .updateExpression("ADD " + PaNotificationLimitEntity.FIELD_RESIDUAL_LIMIT + " :decrement, " + dailyCounter + " :increment")
                     .conditionExpression(PaNotificationLimitEntity.FIELD_RESIDUAL_LIMIT + " > :zero and attribute_exists(" + PaNotificationLimitEntity.FIELD_PK + ")")
                     .expressionAttributeValues(Map.of(
@@ -59,12 +60,13 @@ public class PaNotificationLimitDaoDynamo implements PaNotificationLimitDao {
 
     @Override
     public void incrementLimitDecrementDailyCounter(String paId, OffsetDateTime sentAt) {
-        log.info("Incrementing limit and decrementing dailyCounter for paId: {} sentAt: {}", paId, sentAt);
+        String pk = createPrimaryKey(paId, sentAt);
+        log.info("Incrementing limit and decrementing dailyCounter for pk: {}", pk);
         String dailyCounter = createDailyCounter(sentAt);
         try {
             UpdateItemRequest updateRequest = UpdateItemRequest.builder()
                     .tableName(tableName)
-                    .key(createPrimaryKey(paId, sentAt))
+                    .key(getFieldPk(pk))
                     .updateExpression("ADD " + PaNotificationLimitEntity.FIELD_RESIDUAL_LIMIT + " :increment, " + dailyCounter + " :decrement")
                     .conditionExpression("attribute_exists(" + PaNotificationLimitEntity.FIELD_PK + ")")
                     .expressionAttributeValues(Map.of(
@@ -85,9 +87,11 @@ public class PaNotificationLimitDaoDynamo implements PaNotificationLimitDao {
 
     @Override
     public boolean checkIfPaNotificationLimitExists(String paId, OffsetDateTime sentAt) {
+        String pk = createPrimaryKey(paId, sentAt);
+        log.info("Checking if paNotificationLimit exists for pk: {}", pk);
         GetItemRequest getItemRequest = GetItemRequest.builder()
                 .tableName(tableName)
-                .key(createPrimaryKey(paId, sentAt))
+                .key(getFieldPk(pk))
                 .build();
 
         try {
@@ -97,6 +101,10 @@ public class PaNotificationLimitDaoDynamo implements PaNotificationLimitDao {
             log.error("Unable to get item from DynamoDB: {}", e.getMessage(), e);
             throw new PnInternalException("GetItem failed: " + e.getMessage(), ERROR_CODE_DELIVERY_DYNAMO_EXCEPTION);
         }
+    }
+
+    private Map<String, AttributeValue> getFieldPk(String pk) {
+        return Map.of(PaNotificationLimitEntity.FIELD_PK, AttributeValue.builder().s(pk).build());
     }
 
 }

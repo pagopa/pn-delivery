@@ -1,13 +1,10 @@
 package it.pagopa.pn.delivery.middleware.notificationdao.utils;
 
-import it.pagopa.pn.delivery.middleware.notificationdao.entities.PaNotificationLimitEntity;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.time.OffsetDateTime;
-import java.util.Map;
 
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -15,10 +12,9 @@ public class NotificationLimitUtils {
 
     private static final String DAILY_COUNTER = "dailyCounter";
 
-    public static Map<String, AttributeValue> createPrimaryKey(String paId, OffsetDateTime sentAt) {
-        String pk = paId + "##" + sentAt.getYear() + "##" + String.format("%02d", sentAt.getMonthValue());
-        log.info("Creating primary key: {}", pk);
-        return Map.of(PaNotificationLimitEntity.FIELD_PK, AttributeValue.builder().s(pk).build());
+    public static String createPrimaryKey(String paId, OffsetDateTime sentAt) {
+        log.info("Creating primary key for paId: {} and sentAt: {}", paId, sentAt);
+        return paId + "##" + sentAt.getYear() + "##" + String.format("%02d", sentAt.getMonthValue());
     }
 
     public static String createDailyCounter(OffsetDateTime sentAt) {

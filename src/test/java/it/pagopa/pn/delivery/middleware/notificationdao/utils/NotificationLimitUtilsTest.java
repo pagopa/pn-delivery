@@ -2,10 +2,8 @@ package it.pagopa.pn.delivery.middleware.notificationdao.utils;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.time.OffsetDateTime;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -18,9 +16,9 @@ class NotificationLimitUtilsTest {
     })
     void createPrimaryKey_validInput(String paId, String sentAtStr, String expectedPk) {
         OffsetDateTime sentAt = OffsetDateTime.parse(sentAtStr);
-        Map<String, AttributeValue> result = NotificationLimitUtils.createPrimaryKey(paId, sentAt);
+        String result = NotificationLimitUtils.createPrimaryKey(paId, sentAt);
 
-        assertEquals(expectedPk, result.get("pk").s());
+        assertEquals(expectedPk, result);
     }
 
     @ParameterizedTest
