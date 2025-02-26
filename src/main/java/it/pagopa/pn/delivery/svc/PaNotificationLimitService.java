@@ -46,7 +46,7 @@ public class PaNotificationLimitService {
         log.info("Handling notification refused for {}", notificationRefusedPayload);
         try {
             if (!paNotificationLimitDao.checkIfPaNotificationLimitExists(notificationRefusedPayload.getPaId(), OffsetDateTime.parse(notificationRefusedPayload.getSentAt()))) {
-                log.info("Notification refused for iun={} not handled because paId={} not found", notificationRefusedPayload.getIun(), notificationRefusedPayload.getPaId());
+                log.info("Notification refused for iun={} not handled. No limit found for paId={} on PaNotificationLimit: nothing to update", notificationRefusedPayload.getIun(), notificationRefusedPayload.getPaId());
                 return;
             }
             if (notificationRefusedVerificationService.putNotificationRefusedVerification(notificationRefusedPayload.getTimelineId())) {

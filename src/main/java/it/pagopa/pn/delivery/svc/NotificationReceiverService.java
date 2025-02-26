@@ -171,6 +171,7 @@ public class NotificationReceiverService {
 			doSaveWithRethrow(internalNotification);
 		} catch (PnIdConflictException ex) {
 			if (toUpdate) {
+				log.info("Error during notification saving: IdConflictException incrementing limit for paId={}", internalNotification.getSenderPaId());
 				paNotificationLimitService.incrementLimitDecrementDailyCounter(internalNotification);
 			}
 			throw ex;
@@ -180,6 +181,7 @@ public class NotificationReceiverService {
 	private boolean checkAndUpdatePaNotificationLimit(InternalNotification internalNotification) {
 		log.info("Check and update paNotificationLimit for paId={}", internalNotification.getSenderPaId());
 		if (paNotificationLimitService.checkIfPaNotificationLimitExists(internalNotification)) {
+			log.info("Limit found for paId={}", internalNotification.getSenderPaId());
 			paNotificationLimitService.decrementLimitIncrementDailyCounter(internalNotification);
 			return true;
 		}

@@ -38,7 +38,7 @@ public class NotificationRefusedVerificationDaoDynamo implements NotificationRef
 
     @Override
     public boolean putNotificationRefusedVerification(String pk) {
-        log.info("Updating NotificationRefusedVerification for pk: {}", pk);
+        log.info("Put NotificationRefusedVerification for pk: {}", pk);
         try {
             Expression condition = Expression.builder()
                     .expression("attribute_not_exists(" + NotificationRefusedVerificationEntity.FIELD_PK + ")")
