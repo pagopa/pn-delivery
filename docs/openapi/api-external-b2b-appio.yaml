@@ -153,6 +153,12 @@ components:
     ############################################################################################
     cxTaxIdAuthFleet:
       $ref: 'remote-refs.yaml#/components/parameters/cxTaxIdAuthFleet'
+
+    ############################################################################################
+    ###                     PARAMETRO SORGENTE CREAZIONE NOTIFICA                            ###
+    ############################################################################################
+
+
     pathAttachmentName:
       name: attachmentName
       in: path
