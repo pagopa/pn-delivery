@@ -103,6 +103,14 @@ Parameters:
     Type: String
     Description: "ARN of dynamodb table containing taxonomy codes"
 
+  PaNotificationLimitDynamoTableName:
+    Type: String
+    Description: "PaNotificationLimit Dynamo table name"
+
+  PaNotificationLimitDynamoTableArn:
+    Type: String
+    Description: "ARN of dynamodb table containing pa notification limits"
+
   CheckTaxonomyCodeEnabled:
     Type: String
     Description: "Flag to enable taxonomy code validation"
@@ -221,6 +229,22 @@ Parameters:
   LogsKinesisSourceStreamArn:
     Type: String
     Description: "Kinesis stream that receive logs"
+
+  PnNotificationRefusedQueueName:
+    Type: String
+    Description: "Queue to pull for refused notifications"
+
+  PnNotificationRefusedQueueARN:
+    Type: String
+    Description: "Queue ARN to pull for refused notifications"
+
+  NotificationRefusedVerificationDynamoTableName:
+    Type: String
+    Description: "NotificationRefusedVerification Dynamo table name"
+
+  NotificationRefusedVerificationDynamoTableArn:
+    Type: String
+    Description: "ARN of dynamodb table containing notification refused verification"
 
   DeliveryPushInputsQueueARN:
     Type: String
@@ -581,6 +605,54 @@ Parameters:
     Type: Number
     Description: MemorySize Lambda Versioning
 
+  # NotificationRefusedDispatcherLambda parameters
+  NotificationRefusedDispatcherLambdaName:
+    Type: String
+    Description: "Lambda name for NotificationRefusedDispatcher"
+
+  PnNotificationRefusedQueueURL:
+    Type: String
+    Description: "Queue URL for NotificationRefusedDispatcher"
+
+  PnNotificationRefusedDispatcherDLQARN:
+    Type: String
+    Description: "DLQ ARN for NotificationRefusedDispatcher"
+
+  NotificationRefusedDispatcherLambdaBatchSize:
+    Type: String
+    Description: "BatchSize for NotificationRefusedDispatcher"
+
+  NotificationRefusedDispatcherLambdaMaximumBatchingWindowInSeconds:
+    Type: String
+    Description: "MaximumBatchingWindow for NotificationRefusedDispatcher"
+
+  PaLimitCorrectionLambdaName:
+    Type: String
+    Description: "PaLimitCorrectionLambdaName"
+
+  PaLimitCorrectionLambdaTimeout:
+    Type: Number
+    Description: "Timeout in seconds of the pa limit correction lambda"
+    Default: 300
+
+  PaLimitCorrectionLambdaMaximumRetryAttempts:
+    Type: Number
+    Description: "MaximumRetryAttempts for pa limit correction Lambda"
+    Default: 1
+
+  PnDeliveryPaLimitCorrectionDLQARN:
+    Type: String
+    Description: "DLQ ARN for pa limit correction"
+
+  PnDeliveryPaLimitCorrectionDLQAlarmARN:
+    Type: String
+    Description: "DLQ Alarm ARN for pa limit correction"
+
+  PnDeliveryPaLimitCorrectionLambdaCron:
+    Type: String
+    Default: '0 12 * * ? *'
+    Description: Cron to schedule the Lambda PaLimitCorrection (UTC). Default is every day at 12:00
+
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
 
@@ -661,6 +733,9 @@ Resources:
         ContainerEnvEntry49: !Sub "PN_DELIVERY_NATIONALREGISTRIESBASEURL=http://${ApplicationLoadBalancerDomain}:8080"
         ContainerEnvEntry50: !Sub "PN_DELIVERY_SKIPCHECKTAXIDINBLACKLIST=${SkipCheckTaxIdInBlackList}"
         ContainerEnvEntry51: !Sub "PN_DELIVERY_ENABLE_DECEASED_WORKFLOW=${EnableDeceasedWorkflow}"
+        ContainerEnvEntry52: !Sub "PN_DELIVERY_PANOTIFICATIONLIMITDAO_TABLENAME=${PaNotificationLimitDynamoTableName}"
+        ContainerEnvEntry53: !Sub "PN_DELIVERY_NOTIFICATIONREFUSEDVERIFICATIONDAO_TABLENAME=${NotificationRefusedVerificationDynamoTableName}"
+        ContainerEnvEntry54: !Sub "SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${Mandate2DeliveryQueueName},${PnNotificationRefusedQueueName}"
 
         ContainerSecret1: !Sub "ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:"
         MicroServiceSecretPrefix: pn-Delivery-Secrets
@@ -696,6 +771,7 @@ Resources:
               - !Ref DeliveryPushInputsQueueARN
               - !Ref Mandate2DeliveryQueueARN
               - !Ref PnDeliveryAsseverationQueueARN
+              - !Ref PnNotificationRefusedQueueARN
           - Effect: Allow
             Action:
               - "dynamodb:GetItem"
@@ -712,6 +788,8 @@ Resources:
               - !Sub "${NotificationsQRDynamoTableArn}"
               - !Sub "${NotificationsQRDynamoTableArn}/*"
               - !Sub "${TaxonomyCodeDynamoTableArn}"
+              - !Sub "${NotificationRefusedVerificationDynamoTableArn}"
+              - !Sub "${NotificationRefusedVerificationDynamoTableArn}/*"
           - Effect: Allow
             Action:
               - "dynamodb:BatchWriteItem"
@@ -725,6 +803,13 @@ Resources:
             Resource:
               - !Sub "${NotificationsCostDynamoTableArn}"
               - !Sub "${NotificationsCostDynamoTableArn}/*"
+          - Effect: Allow
+            Action:
+              - "dynamodb:GetItem"
+              - "dynamodb:UpdateItem"
+            Resource:
+              - !Sub "${PaNotificationLimitDynamoTableArn}"
+              - !Sub "${PaNotificationLimitDynamoTableArn}/*"
           - Effect: Allow
             Action:
               - ssm:GetParameter
@@ -866,6 +951,8 @@ Resources:
             - !Ref NotificationDelegationMetadataDynamoTableName
             - !Ref NotificationsQRDynamoTableName
             - !Ref TaxonomyCodeDynamoTableName
+            - !Ref PaNotificationLimitDynamoTableName
+            - !Ref NotificationRefusedVerificationDynamoTableName
         LambdaArns: !Join
           - ","
           - - !GetAtt PnDeliveryInsertTriggerLambdaStack.Outputs.FunctionArn
@@ -906,11 +993,14 @@ Resources:
             - !GetAtt VersioningV1V21GetNotificationRequestStatusLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !GetAtt VersioningV1V23GetNotificationPriceLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !GetAtt MetadataStatusUpdaterLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
+            - !GetAtt PaLimitCorrectionLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !Ref PnDeliveryMetadataStatusDLQAlarmARN
+            - !Ref PnDeliveryPaLimitCorrectionDLQAlarmARN
         QueueArns: !Join
           - ","
           - - !Ref Mandate2DeliveryQueueARN
             - !Ref PnDeliveryAsseverationQueueARN
+            - !Ref PnNotificationRefusedQueueARN
         LogGroupsNames: !Join
           - ","
           - - !Sub "/aws/ecs/${ProjectName}-delivery"
@@ -1693,3 +1783,232 @@ Resources:
       DestinationConfig:
         OnFailure:
           Destination: !Ref PnDeliveryMetadataStatusDLQARN
+
+  #########################################################
+  ###        NotificationRefusedDispatcherLambda        ###
+  #########################################################
+
+  # Lambda function
+  NotificationRefusedDispatcherLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref NotificationRefusedDispatcherLambdaName
+      Runtime: nodejs18.x
+      Handler: "index.handler"
+      Code:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/notificationRefusedDispatcher.zip"
+      Role: !GetAtt NotificationRefusedDispatcherLambdaRole.Arn
+      Environment:
+        Variables:
+          REGION: !Sub ${AWS::Region}
+          QUEUE_URL: !Ref PnNotificationRefusedQueueURL
+      TracingConfig:
+        Mode: Active
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
+      Timeout: 10
+
+  # Lambda function role
+  NotificationRefusedDispatcherLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-notificationRefusedDispatcherLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  # Lambda function IAM policy
+  NotificationRefusedDispatcherLambdaPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub ${ProjectName}-NotificationRefusedDispatcherLambdaPolicy
+      Roles:
+        - !Ref NotificationRefusedDispatcherLambdaRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - kinesis:DescribeStream
+              - kinesis:DescribeStreamSummary
+              - kinesis:GetShardIterator
+              - kinesis:GetRecords
+              - kinesis:ListShards
+              - kinesis:ListStreams
+              - kinesis:SubscribeToShard
+            Resource: !Ref CdcKinesisSourceStreamArn
+          - Action: kms:Decrypt
+            Effect: Allow
+            Resource: !Ref CdcKinesisSourceStreamKeyArn
+          - Effect: Allow
+            Action:
+              - sqs:ChangeMessageVisibility
+              - sqs:GetQueueAttributes
+              - sqs:GetQueueUrl
+              - sqs:SendMessage
+            Resource:
+              !Ref PnNotificationRefusedQueueARN
+          - Effect: Allow
+            Action:
+              - sqs:ChangeMessageVisibility
+              - sqs:GetQueueAttributes
+              - sqs:GetQueueUrl
+              - sqs:SendMessage
+            Resource:
+              !Ref PnNotificationRefusedDispatcherDLQARN
+
+  # CDC to Notification Refused Dispatcher
+  NotificationRefusedDispatcherLambdaKinesisSource:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: !Sub ${NotificationRefusedDispatcherLambdaBatchSize}
+      BisectBatchOnFunctionError: true
+      EventSourceArn: !Ref CdcKinesisSourceStreamArn
+      FunctionName: !Ref NotificationRefusedDispatcherLambda
+      FunctionResponseTypes:
+        - ReportBatchItemFailures
+      FilterCriteria:
+        Filters:
+          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName": [ "INSERT" ], "dynamodb" : { "NewImage" : { "category" : { "S" : [ "REQUEST_REFUSED" ] } }}}}'
+      MaximumBatchingWindowInSeconds: !Sub ${NotificationRefusedDispatcherLambdaMaximumBatchingWindowInSeconds}
+      StartingPosition: TRIM_HORIZON
+      DestinationConfig:
+        OnFailure:
+          Destination: !Ref PnNotificationRefusedDispatcherDLQARN
+
+  NotificationRefusedDispatcherLambdaAlarms:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
+      Parameters:
+        FunctionName: !Ref NotificationRefusedDispatcherLambda
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+
+  #########################################################
+  ###                 PaLimitCorrection                 ###
+  #########################################################
+
+  # Lambda function
+  PaLimitCorrectionLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref PaLimitCorrectionLambdaName
+      Runtime: nodejs20.x
+      Handler: "index.handler"
+      Code:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/paLimitCorrection.zip"
+      Role: !GetAtt PaLimitCorrectionLambdaRole.Arn
+      Environment:
+        Variables:
+          REGION: !Sub ${AWS::Region}
+          SEARCH_SLA_LAMBDA_ARN: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-searchSLAViolationsLambda"
+      TracingConfig:
+        Mode: Active
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
+      Timeout: !Ref PaLimitCorrectionLambdaTimeout
+
+  PaLimitCorrectionLambdaInvokeConfig:
+    Type: AWS::Lambda::EventInvokeConfig
+    Properties:
+      FunctionName: !Ref PaLimitCorrectionLambda
+      Qualifier: "$LATEST"
+      MaximumRetryAttempts: !Ref PaLimitCorrectionLambdaMaximumRetryAttempts
+      DestinationConfig:
+        OnFailure:
+          Destination: !Ref PnDeliveryPaLimitCorrectionDLQARN
+
+  PaLimitCorrectionLambdaAlarms:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
+      Parameters:
+        FunctionName: !Ref PaLimitCorrectionLambda
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        FilterPattern: "FATAL"
+
+  # Lambda function role
+  PaLimitCorrectionLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-paLimitCorrectionLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+
+  # Lambda function IAM policy
+  PaLimitCorrectionLambdaPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub ${ProjectName}-PaLimitCorrectionLambdaPolicy
+      Roles:
+        - !Ref PaLimitCorrectionLambdaRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - lambda:InvokeFunction
+              - lambda:InvokeAsync
+            Resource:
+              !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-searchSLAViolationsLambda"
+          - Effect: Allow
+            Action:
+              - "dynamodb:Query"
+            Resource:
+              - !Sub "${NotificationsMetadataDynamoTableArn}"
+              - !Sub "${NotificationsMetadataDynamoTableArn}/*"
+          - Effect: Allow
+            Action:
+              - "dynamodb:UpdateItem"
+              - "dynamodb:Query"
+            Resource:
+              - !Sub "${PaNotificationLimitDynamoTableArn}"
+              - !Sub "${PaNotificationLimitDynamoTableArn}/*"
+          - Effect: Allow
+            Action:
+              - sqs:ChangeMessageVisibility
+              - sqs:GetQueueAttributes
+              - sqs:GetQueueUrl
+              - sqs:SendMessage
+            Resource:
+              !Ref PnDeliveryPaLimitCorrectionDLQARN
+
+  #Scheduled Event Bridge Rule that send event to target lambda
+  PaLimitCorrectionScheduledRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub '${ProjectName}-delivery-paLimitCorrectionScheduleRule'
+      ScheduleExpression: !Sub cron(${PnDeliveryPaLimitCorrectionLambdaCron})
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt PaLimitCorrectionLambda.Arn
+          Id: PaLimitCorrectionLambdaTarget
+          Input: '{ "dateToVerifyLimit": null }'
+
+  PermissionForEventsToInvokeLambda:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt PaLimitCorrectionLambda.Arn
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt PaLimitCorrectionScheduledRule.Arn
