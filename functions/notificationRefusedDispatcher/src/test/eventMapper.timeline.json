@@ -1,0 +1,12 @@
+{
+    "iun": "abcd",
+    "timelineElementId": "notification_viewed_creation_request;IUN_XLDW-MQYJ-WUKA-202302-A-1;RECINDEX_1",
+    "notificationSentAt": "2023-01-20T14:48:00.000Z",
+    "timestamp": "2023-01-20T14:48:00.000Z",
+    "paId": "026e8c72-7944-4dcd-8668-f596447fec6d",
+    "category": "REQUEST_REFUSED",
+    "details": {
+        "notificationCost": 100,
+        "notRefinedRecipientIndexes": [1, 2, 3]
+    }
+}

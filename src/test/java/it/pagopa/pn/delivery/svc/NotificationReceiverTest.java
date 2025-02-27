@@ -42,6 +42,9 @@ import java.util.*;
 import static it.pagopa.pn.delivery.svc.NotificationReceiverService.PA_FEE_DEFAULT_VALUE;
 import static it.pagopa.pn.delivery.svc.NotificationReceiverService.VAT_DEFAULT_VALUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 class NotificationReceiverTest {
 
@@ -83,6 +86,7 @@ class NotificationReceiverTest {
 	private PnF24ClientImpl pnF24Client;
 	private PnDeliveryConfigs cfg;
 	private AgenziaEntrateApi agenziaEntrateApi;
+	private PaNotificationLimitService paNotificationLimitService;
 
 	@BeforeEach
 	public void setup() {
@@ -99,6 +103,7 @@ class NotificationReceiverTest {
 		pnF24Client = Mockito.mock(PnF24ClientImpl.class);
 		cfg = Mockito.mock(PnDeliveryConfigs.class);
 		agenziaEntrateApi = Mockito.mock(AgenziaEntrateApi.class);
+		paNotificationLimitService = Mockito.mock(PaNotificationLimitService.class);
 
 		// - Separate Tests
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -115,7 +120,8 @@ class NotificationReceiverTest {
 				sendActiveParameterConsumer,
 				pnExternalRegistriesClient,
 				pnF24Client,
-				cfg);
+				cfg,
+				paNotificationLimitService);
 	}
 
 	@Test
@@ -601,7 +607,7 @@ class NotificationReceiverTest {
 		// Given
 		Map<String,String> keyValueConflict = new HashMap<>();
 		keyValueConflict.put( "iun", IUN );
-		Mockito.doThrow( new PnIdConflictException(keyValueConflict) )
+		doThrow( new PnIdConflictException(keyValueConflict) )
 				.when( notificationDao )
 				.addNotification( Mockito.any( InternalNotification.class) );
 
@@ -630,7 +636,7 @@ class NotificationReceiverTest {
 	@Test
 	void successfullyInsertAfterPartialFailure() throws PnIdConflictException {
 		// Given
-		Mockito.doThrow( new PnInternalException("Simulated Error") )
+		doThrow( new PnInternalException("Simulated Error") )
 				.doNothing()
 				.when( notificationDao )
 				.addNotification( Mockito.any( InternalNotification.class) );
@@ -712,6 +718,36 @@ class NotificationReceiverTest {
 
 		// Then
 		Assertions.assertThrows( PnInvalidInputException.class, todo );
+	}
+
+	@Test
+	void receiveNotification_checkIfPaNotificationLimitExistsTrue() {
+		NewNotificationRequestV24 newNotificationRequest = newNotificationRequest();
+		when(pnExternalRegistriesClient.getGroups(Mockito.anyString(), Mockito.eq(true)))
+				.thenReturn(List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
+		when(paNotificationLimitService.checkIfPaNotificationLimitExists(any(InternalNotification.class))).thenReturn(true);
+
+		NewNotificationResponse response = deliveryService.receiveNotification(PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS, null);
+
+		assertNotNull(response);
+		verify(paNotificationLimitService).checkIfPaNotificationLimitExists(any(InternalNotification.class));
+		verify(paNotificationLimitService).decrementLimitIncrementDailyCounter(any(InternalNotification.class));
+	}
+
+	@Test
+	void receiveNotification_checkIfPaNotificationLimitExistsTrueAndPnIdConflictException() {
+		NewNotificationRequestV24 newNotificationRequest = newNotificationRequest();
+		when(pnExternalRegistriesClient.getGroups(Mockito.anyString(), Mockito.eq(true)))
+				.thenReturn(List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
+		when(paNotificationLimitService.checkIfPaNotificationLimitExists(any(InternalNotification.class))).thenReturn(true);
+		doThrow(new PnIdConflictException(new HashMap<>())).when(notificationDao).addNotification(any(InternalNotification.class));
+
+		Executable todo = () -> deliveryService.receiveNotification(PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS, null);
+
+		Assertions.assertThrows(PnIdConflictException.class, todo);
+		verify(paNotificationLimitService).checkIfPaNotificationLimitExists(any(InternalNotification.class));
+		verify(paNotificationLimitService).decrementLimitIncrementDailyCounter(any(InternalNotification.class));
+		verify(paNotificationLimitService).incrementLimitDecrementDailyCounter(any(InternalNotification.class));
 	}
 
 	private NewNotificationRequestV24 newNotificationRequest() {

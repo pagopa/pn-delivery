@@ -58,16 +58,19 @@ public class NotificationReceiverService {
 
 	private final PnDeliveryConfigs cfg;
 
+	private final PaNotificationLimitService paNotificationLimitService;
+
 	@Autowired
 	public NotificationReceiverService(
-			Clock clock,
-			NotificationDao notificationDao,
-			NotificationReceiverValidator validator,
-			ModelMapper modelMapper,
-			SendActiveParameterConsumer parameterConsumer,
-			PnExternalRegistriesClientImpl pnExternalRegistriesClient,
-			PnF24ClientImpl f24Client,
-			PnDeliveryConfigs cfg) {
+            Clock clock,
+            NotificationDao notificationDao,
+            NotificationReceiverValidator validator,
+            ModelMapper modelMapper,
+            SendActiveParameterConsumer parameterConsumer,
+            PnExternalRegistriesClientImpl pnExternalRegistriesClient,
+            PnF24ClientImpl f24Client,
+            PnDeliveryConfigs cfg,
+			PaNotificationLimitService paNotificationLimitService) {
 		this.clock = clock;
 		this.notificationDao = notificationDao;
 		this.validator = validator;
@@ -76,7 +79,8 @@ public class NotificationReceiverService {
 		this.pnExternalRegistriesClient = pnExternalRegistriesClient;
 		this.f24Client = f24Client;
 		this.cfg = cfg;
-	}
+        this.paNotificationLimitService = paNotificationLimitService;
+    }
 
 	/**
 	 * Store metadata and documents about a new notification request
@@ -153,12 +157,36 @@ public class NotificationReceiverService {
 			f24Client.saveMetadata(this.cfg.getF24CxId(), internalNotification.getIun(), saveF24Request);
 		}
 
-		doSaveWithRethrow(internalNotification);
+		checkCounterAndSaveNotification(internalNotification);
 
 		NewNotificationResponse response = generateResponse(internalNotification, iun);
 
 		log.info("New notification storing END {}", response);
 		return response;
+	}
+
+	private void checkCounterAndSaveNotification(InternalNotification internalNotification) {
+		boolean toUpdate = checkAndUpdatePaNotificationLimit(internalNotification);
+		try {
+			doSaveWithRethrow(internalNotification);
+		} catch (PnIdConflictException ex) {
+			if (toUpdate) {
+				log.info("Error during notification saving: IdConflictException incrementing limit for paId={}", internalNotification.getSenderPaId());
+				paNotificationLimitService.incrementLimitDecrementDailyCounter(internalNotification);
+			}
+			throw ex;
+		}
+	}
+
+	private boolean checkAndUpdatePaNotificationLimit(InternalNotification internalNotification) {
+		log.info("Check and update paNotificationLimit for paId={}", internalNotification.getSenderPaId());
+		if (paNotificationLimitService.checkIfPaNotificationLimitExists(internalNotification)) {
+			log.info("Limit found for paId={}", internalNotification.getSenderPaId());
+			paNotificationLimitService.decrementLimitIncrementDailyCounter(internalNotification);
+			return true;
+		}
+		log.info("No limit found for paId={}", internalNotification.getSenderPaId());
+		return false;
 	}
 
 	private void setDefaultValueForNotification(NewNotificationRequestV24 newNotificationRequest) {
