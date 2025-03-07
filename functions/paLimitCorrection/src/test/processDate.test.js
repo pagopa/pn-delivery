@@ -19,6 +19,7 @@ describe('processDate.js tests', () => {
   });
 
   it('should process date and update notification limit when deltaDailyCounter is positive', async () => {
+    process.env.DEBUG_MODE = 'false'
     const dateToVerifyLimit = new Date('2023-10-10');
     const yearMonth = '2023##10';
     const notificationLimit = [{ paId: 'pa1', dailyCounter10: 5 }];
@@ -69,6 +70,25 @@ describe('processDate.js tests', () => {
     expect(getNotificationLimitStub.firstCall.args[0]).to.equal(yearMonth);
     expect(searchSLAViolationsStub.callCount).to.equal(0);
     expect(getNotificationMetadataStub.callCount).to.equal(0);
+    expect(updateNotificationLimitStub.callCount).to.equal(0);
+  });
+
+  it('should not update notification limit when SKIP_UPDATE is true', async () => {
+    process.env.DEBUG_MODE = 'true'
+    const dateToVerifyLimit = new Date('2023-10-10');
+    const yearMonth = '2023##10';
+    const notificationLimit = [{ paId: 'pa1', dailyCounter10: 5 }];
+    const results = [{startTimestamp: '2023-10-10T18:45:15.000Z'}, {startTimestamp: '2025-12-05T10:30:00.000Z'}];
+    const notificationMetadata = [{}, {}];
+
+    getNotificationLimitStub.resolves(notificationLimit);
+    searchSLAViolationsStub.resolves(results);
+    getNotificationMetadataStub.resolves(notificationMetadata);
+
+    await processDate(dateToVerifyLimit);
+
+    expect(getNotificationLimitStub.firstCall.args[0]).to.equal(yearMonth);
+    expect(getNotificationMetadataStub.firstCall.args[0]).to.equal('pa1##202310');
     expect(updateNotificationLimitStub.callCount).to.equal(0);
   });
 

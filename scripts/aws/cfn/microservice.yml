@@ -640,6 +640,14 @@ Parameters:
     Description: "MaximumRetryAttempts for pa limit correction Lambda"
     Default: 1
 
+  PaLimitCorrectionLambdaDebugMode:
+    Type: String
+    Description: "Debug mode for pa limit correction Lambda: when false, the lambda will update the pa limit, when true, the lambda will only log the pa limit that would be updated"
+    Default: "false"
+    AllowedValues:
+      - "true"
+      - "false"
+
   PnDeliveryPaLimitCorrectionDLQARN:
     Type: String
     Description: "DLQ ARN for pa limit correction"
@@ -1912,6 +1920,7 @@ Resources:
         Variables:
           REGION: !Sub ${AWS::Region}
           SEARCH_SLA_LAMBDA_ARN: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-searchSLAViolationsLambda"
+          DEBUG_MODE: !Ref PaLimitCorrectionLambdaDebugMode
       TracingConfig:
         Mode: Active
       Layers:

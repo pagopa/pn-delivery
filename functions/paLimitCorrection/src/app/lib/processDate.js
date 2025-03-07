@@ -41,7 +41,7 @@ const processDate = async (dateToVerifyLimit) => {
     if (deltaDailyCounter > 0) {
       //update notificationLimit
       const keyLimit = `${limit.paId}##${year}##${month}`;
-      await dynamo.updateNotificationLimit(keyLimit, attributeName, dailyCounterValue, deltaDailyCounter);
+      await updateNotificationLimit(keyLimit, attributeName, dailyCounterValue, deltaDailyCounter);
     } else {
       console.log('Nothing to update: deltaDailyCounter <= 0');
     }
@@ -55,6 +55,15 @@ function filterResultsByDate(results, dateToVerifyLimit) {
       const verifyDate = dateToVerifyLimit.toISOString().substring(0, 10);
       return resultDate === verifyDate;
   });
+}
+
+async function updateNotificationLimit(keyLimit, attributeName, dailyCounterValue, deltaDailyCounter) {
+  console.log("DEBUG_MODE:", process.env.DEBUG_MODE);
+  if (process.env.DEBUG_MODE === 'false') {
+    await dynamo.updateNotificationLimit(keyLimit, attributeName, dailyCounterValue, deltaDailyCounter);
+  } else {
+    console.log(`UpdateNotificationLimit skipped for key ${keyLimit}: ${deltaDailyCounter} slot not returned`);
+  }
 }
 
 module.exports = { processDate };
