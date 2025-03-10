@@ -46,6 +46,7 @@
     "NotificationRefusedDispatcherLambdaMaximumBatchingWindowInSeconds": "20",
     "PnDeliveryPaLimitCorrectionLambdaCron": "0 12 * * ? *",
     "PaLimitCorrectionLambdaTimeout": "600",
-    "PaLimitCorrectionLambdaMaximumRetryAttempts": "1"
+    "PaLimitCorrectionLambdaMaximumRetryAttempts": "1",
+    "PaLimitCorrectionLambdaDebugMode": "false"
   }
 }
