@@ -1,18 +1,23 @@
 const { LambdaClient, InvokeCommand } = require("@aws-sdk/client-lambda");
 const { Buffer } = require('node:buffer')
 
-async function searchSLAViolations() {
+async function searchSLAViolations(dateToVerifyLimit) {
   console.log('Calling searchSLAViolations');
   const client = new LambdaClient();
   let allResults = [];
+  let response = null;
+  let parsedResponse = null;
+  let resultsFiltered = null;
+  
+  const payload = {
+    type: "VALIDATION",
+    active: true
+  };
 
   async function recursiveSearch(lastScannedKey = null) {
-    const payload = {
-      type: "VALIDATION",
-      active: true
-    };
+    console.log('Start recursiveSearch for ', lastScannedKey);
+
     if (lastScannedKey) {
-      console.log('lastScannedKey:', lastScannedKey);
       payload.lastScannedKey = lastScannedKey;
     }
 
@@ -23,9 +28,12 @@ async function searchSLAViolations() {
     const command = new InvokeCommand(input);
 
     try {
-      const response = await client.send(command);
-      const parsedResponse = JSON.parse(Buffer.from(response.Payload));
-      allResults = allResults.concat(parsedResponse.results);
+      response = await client.send(command);
+      parsedResponse = JSON.parse(Buffer.from(response.Payload));
+      resultsFiltered = filterResultsByDate(parsedResponse.results, dateToVerifyLimit);
+      console.log('resultsFiltered', JSON.stringify(resultsFiltered));
+
+      allResults = allResults.concat(resultsFiltered);
 
       if (parsedResponse.lastScannedKey) {
         await recursiveSearch(parsedResponse.lastScannedKey);
@@ -40,6 +48,14 @@ async function searchSLAViolations() {
 
   console.log('Total SLA violations found:', allResults.length);
   return allResults;
+}
+
+function filterResultsByDate(results, dateToVerifyLimit) {
+  return results.filter(result => {
+      const resultDate = result.startTimestamp.substring(0, 10);
+      const verifyDate = dateToVerifyLimit.toISOString().substring(0, 10);
+      return resultDate === verifyDate;
+  });
 }
 
 module.exports = { searchSLAViolations };

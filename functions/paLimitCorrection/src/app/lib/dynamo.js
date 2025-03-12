@@ -53,19 +53,28 @@ const getNotificationMetadata = async (key, sortKey) => {
   return allItems;
 };
 
-const fetchData = async (params, exclusiveStartKey = null, allItems = []) => {
-  if (exclusiveStartKey) {
-    console.log('Fetching more data with exclusiveStartKey:', exclusiveStartKey);
-    params.ExclusiveStartKey = exclusiveStartKey;
-  }
+const fetchData = async (params) => {
+  let allItems = [];
+  let exclusiveStartKey = null;
 
-  const result = await docClient.send(new QueryCommand(params));
-  console.log('Fetched', result.Count, 'items');
-  allItems = allItems.concat(result.Items);
+  do {
+    if (exclusiveStartKey) {
+      console.log('Fetching more data with exclusiveStartKey:', exclusiveStartKey);
+      params.ExclusiveStartKey = exclusiveStartKey;
+    }
 
-  if (result.LastEvaluatedKey) {
-    return fetchData(params, result.LastEvaluatedKey, allItems);
-  }
+    const result = await docClient.send(new QueryCommand(params));
+    console.log('Fetched', result.Count, 'items');
+    allItems = allItems.concat(result.Items);
+
+    exclusiveStartKey = result.LastEvaluatedKey;
+
+    // Log memory usage
+    const memoryUsage = process.memoryUsage();
+    console.log('Memory usage:', memoryUsage);
+
+  } while (exclusiveStartKey);
+
   return allItems;
 };
 

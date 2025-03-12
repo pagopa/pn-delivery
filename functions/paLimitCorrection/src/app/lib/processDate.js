@@ -18,10 +18,9 @@ const processDate = async (dateToVerifyLimit) => {
   }
 
   //chiamata lambda
-  const results = await slaLambda.searchSLAViolations();
-  const resultsFiltered = filterResultsByDate(results, dateToVerifyLimit);
-  console.log('SLA Violations filtered:', JSON.stringify(resultsFiltered));
-  const numNotificationBlocked = resultsFiltered.length;
+  const results = await slaLambda.searchSLAViolations(dateToVerifyLimit);
+  console.log('SLA Violations filtered:', JSON.stringify(results));
+  const numNotificationBlocked = results.length;
   console.log('numNotificationBlocked:', numNotificationBlocked);
 
   for (const limit of notificationLimit) {
@@ -48,14 +47,6 @@ const processDate = async (dateToVerifyLimit) => {
   }
 
 };
-
-function filterResultsByDate(results, dateToVerifyLimit) {
-  return results.filter(result => {
-      const resultDate = result.startTimestamp.substring(0, 10);
-      const verifyDate = dateToVerifyLimit.toISOString().substring(0, 10);
-      return resultDate === verifyDate;
-  });
-}
 
 async function updateNotificationLimit(keyLimit, attributeName, dailyCounterValue, deltaDailyCounter) {
   console.log("DEBUG_MODE:", process.env.DEBUG_MODE);
