@@ -69,10 +69,6 @@ const fetchData = async (params) => {
 
     exclusiveStartKey = result.LastEvaluatedKey;
 
-    // Log memory usage
-    const memoryUsage = process.memoryUsage();
-    console.log('Memory usage:', memoryUsage);
-
   } while (exclusiveStartKey);
 
   return allItems;
