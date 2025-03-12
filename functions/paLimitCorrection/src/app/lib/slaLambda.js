@@ -2,7 +2,7 @@ const { LambdaClient, InvokeCommand } = require("@aws-sdk/client-lambda");
 const { Buffer } = require('node:buffer')
 
 async function searchSLAViolations(dateToVerifyLimit) {
-  console.log('Calling searchSLAViolations');
+  console.log('Calling searchSLAViolations ' + dateToVerifyLimit);
   const client = new LambdaClient();
   let allResults = [];
   let response = null;
