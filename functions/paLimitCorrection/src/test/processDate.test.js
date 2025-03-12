@@ -23,7 +23,7 @@ describe('processDate.js tests', () => {
     const dateToVerifyLimit = new Date('2023-10-10');
     const yearMonth = '2023##10';
     const notificationLimit = [{ paId: 'pa1', dailyCounter10: 5 }];
-    const results = [{startTimestamp: '2023-10-10T18:45:15.000Z'}, {startTimestamp: '2025-12-05T10:30:00.000Z'}];
+    const results = [{startTimestamp: '2023-10-10T18:45:15.000Z'}];
     const notificationMetadata = [{}, {}];
 
     getNotificationLimitStub.resolves(notificationLimit);
