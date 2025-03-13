@@ -661,6 +661,12 @@ Parameters:
     Default: '0 12 * * ? *'
     Description: Cron to schedule the Lambda PaLimitCorrection (UTC). Default is every day at 12:00
 
+  PnDeliveryLimitConfigurerQueueARN:
+    Type: String
+
+  PnDeliveryLimitConfigurerQueueURL:
+    Type: String
+
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
 
@@ -2013,6 +2019,63 @@ Resources:
         - Arn: !GetAtt PaLimitCorrectionLambda.Arn
           Id: PaLimitCorrectionLambdaTarget
           Input: '{ "dateToVerifyLimit": null }'
+  
+  PnDeliveryLimitConfigurerQueueRule:
+    Type: AWS::Events::Rule
+    Properties: 
+      Description: Route SafeStorage Events to pn-delivery LimitConfigurer
+      RoleArn: !GetAtt "EventBusEnqueueRole.Arn" #DEFINE ROLE IN ORDER TO PUT MESSAGE
+      EventBusName: !Sub '${ProjectName}-CoreEventBus'
+      EventPattern:
+        detail-type: [ "SafeStorageOutcomeEvent" ]
+        detail:
+          documentType: [ 'SEND_SERVICE_ORDER' ]
+      Targets: 
+        - Arn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:PnCoreEventBusMatchedEventLogger
+          Id: !Sub ${ProjectName}-Logger-SafeStore2LimitConfigurer
+          InputTransformer:
+            InputPathsMap:
+              "timestamp": "$.time"
+            InputTemplate: |
+              {
+                  "timestamp": <timestamp>,
+                  "ruleArn": <aws.events.rule-arn>,
+                  "ruleName": <aws.events.rule-name>,
+                  "ingestionTime": <aws.events.event.ingestion-time>,
+                  "originalEvent": <aws.events.event.json>
+              }       
+        - Id: !Sub '${ProjectName}-SafeStore2DeliveryLimitConfigurer'
+          Arn: !Ref PnDeliveryLimitConfigurerQueueARN
+          InputPath: $.detail
+          DeadLetterConfig:
+            Arn: !Sub arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:pn-CoreEventBus-DLQ
+
+    # Allow event bus rules to write to queues
+  EventBusEnqueueRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+        Version: "2012-10-17"
+      Policies:
+        - PolicyName: !Sub ${ProjectName}-deliveryPutEventIntoQueues
+          PolicyDocument:
+            Statement:
+              - Sid: putEvents
+                Action:
+                  - sqs:ChangeMessageVisibility
+                  - sqs:ChangeMessageVisibilityBatch
+                  - sqs:GetQueueAttributes
+                  - sqs:GetQueueUrl
+                  - sqs:SendMessage
+                  - sqs:SendMessageBatch
+                Effect: Allow
+                Resource: 
+                  - !Ref PnDeliveryLimitConfigurerQueueARN
 
   PermissionForEventsToInvokeLambda:
     Type: AWS::Lambda::Permission
