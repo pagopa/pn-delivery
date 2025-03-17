@@ -661,6 +661,10 @@ Parameters:
     Default: '0 12 * * ? *'
     Description: Cron to schedule the Lambda PaLimitCorrection (UTC). Default is every day at 12:00
 
+  PhysicalAddressLookupStart:
+    Type: String
+    Description: "Activation date time for physical address lookup feature"
+
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
 
@@ -744,7 +748,7 @@ Resources:
         ContainerEnvEntry52: !Sub "PN_DELIVERY_PANOTIFICATIONLIMITDAO_TABLENAME=${PaNotificationLimitDynamoTableName}"
         ContainerEnvEntry53: !Sub "PN_DELIVERY_NOTIFICATIONREFUSEDVERIFICATIONDAO_TABLENAME=${NotificationRefusedVerificationDynamoTableName}"
         ContainerEnvEntry54: !Sub "SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${Mandate2DeliveryQueueName},${PnNotificationRefusedQueueName}"
-
+        ContainerEnvEntry55: !Sub "PN_DELIVERY_PHYSICALADDRESSLOOKUPSTARTDATE=${PhysicalAddressLookupStartDate}"
         ContainerSecret1: !Sub "ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:"
         MicroServiceSecretPrefix: pn-Delivery-Secrets
         JavaToolOptions: "-Dreactor.netty.ioWorkerCount=120 -XX:MaxMetaspaceSize=512M"
@@ -827,6 +831,7 @@ Resources:
               - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapTaxIdWhiteList"
               - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapTaxIdBlackList"
               - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapPaSendActive"
+              - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/PaActiveForPhysicalAddressLookup"
 
   # Expose PN-Delivery microservice public API with API-GW for B2B usage
   DeliveryMicroservicePublicAPI:
