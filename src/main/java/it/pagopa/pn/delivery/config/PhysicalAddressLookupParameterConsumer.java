@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.config;
 
 import it.pagopa.pn.commons.abstractions.ParameterConsumer;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,15 +12,12 @@ import java.util.Optional;
 
 @Slf4j
 @Configuration
+@AllArgsConstructor
 public class PhysicalAddressLookupParameterConsumer {
 
     private final ParameterConsumer parameterConsumer;
 
     private static final String PARAMETER_NAME = "PAsActiveForPhysicalAddressLookup";
-
-    public PhysicalAddressLookupParameterConsumer(ParameterConsumer parameterConsumer) {
-        this.parameterConsumer = parameterConsumer;
-    }
 
     public List<String> getActivePAsForPhysicalAddressLookup() {
         log.debug("Start getActivePAsForPhysicalAddressLookup");
