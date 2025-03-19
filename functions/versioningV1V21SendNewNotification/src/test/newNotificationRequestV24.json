@@ -1,0 +1,63 @@
+{
+    "paProtocolNumber": "202503170000000",
+    "subject": "invio notifica con cucumber",
+    "abstract": "Abstract della notifica",
+    "recipients": [
+        {
+            "recipientType": "PF",
+            "taxId": "LVLDAA85T50G702B",
+            "denomination": "Ada Lovelace",
+            "digitalDomicile": {
+                "type": "PEC",
+                "address": "notifichedigitali-dev@pec.pagopa.it"
+            },
+            "physicalAddress": {
+                "at": "Presso",
+                "address": "Via senza nome",
+                "addressDetails": "scala b",
+                "zip": "87100",
+                "municipality": "Cosenza",
+                "municipalityDetails": "Cosenza",
+                "province": "CS",
+                "foreignState": "ITALIA"
+            },
+            "payments": [
+                {
+                    "pagoPa": {
+                        "noticeCode": "302011696924313011",
+                        "creditorTaxId": "77777777777",
+                        "applyCost": false,
+                        "attachment": {
+                            "digests": {
+                                "sha256": "1QKD/Ks6BohyQ+bgMxHf9NrpNhVmGUPxRYE1aerU4JQ="
+                            },
+                            "contentType": "application/pdf",
+                            "ref": {
+                                "key": "PN_NOTIFICATION_ATTACHMENTS-f50cb2139d5a414ab617af53182c001b.pdf",
+                                "versionToken": "v1"
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "documents": [
+        {
+            "digests": {
+                "sha256": "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE="
+            },
+            "contentType": "application/pdf",
+            "ref": {
+                "key": "PN_NOTIFICATION_ATTACHMENTS-b853941c510d4089b311f42c2151dd07.pdf",
+                "versionToken": "v1"
+            }
+        }
+    ],
+    "notificationFeePolicy": "DELIVERY_MODE",
+    "physicalCommunicationType": "REGISTERED_LETTER_890",
+    "senderDenomination": "Comune di milano",
+    "senderTaxId": "00215150236",
+    "taxonomyCode": "010202N",
+    "pagoPaIntMode": "SYNC"
+  }
