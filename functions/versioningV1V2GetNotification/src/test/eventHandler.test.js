@@ -403,6 +403,46 @@ describe("eventHandler tests", function () {
     expect(resJson.timeline.some((tl) => tl.elementId == "NOTIFICATION_VIEWED.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0")).to.be.true;
   });
 
+  it("statusCode 200 v2.6", async () => {
+    const notificationJSON = fs.readFileSync("./src/test/notification_lookup_address.json");
+    let notification = JSON.parse(notificationJSON);
+
+    process.env = Object.assign(process.env, {
+      PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
+      ENABLE_DECEASED_WORKFLOW: true,
+    });
+
+    const iunValue = "12345";
+
+    let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
+
+    mock.onGet(url).reply(200, notification, { "Content-Type": "application/json" });
+
+    const event = {
+      pathParameters: { iun: iunValue },
+      headers: {},
+      requestContext: {
+        authorizer: {},
+      },
+      resource: "v2.6/notifications/sent/{iun}",
+      path: "/delivery/v2.6/notifications/sent/MOCK_IUN",
+      httpMethod: "GET",
+    };
+    const context = {};
+
+    const response = await versioning(event, context);
+
+    expect(response.statusCode).to.equal(200);
+
+    // check che NON siano presenti le categorie PUBLIC_REGISTRY_VALIDATION_CALL e PUBLIC_REGISTRY_VALIDATION_RESPONSE
+    let resJson = JSON.parse(response.body);
+    expect(resJson.timeline.some(
+      (tl) => tl.category == "PUBLIC_REGISTRY_VALIDATION_CALL" || tl.category === "PUBLIC_REGISTRY_VALIDATION_RESPONSE")
+    ).to.be.false;
+    // check che NON sia presente un oggetto usedServices
+    expect(resJson.usedServices).to.be.undefined;
+  });
+
   it("statusCode 200 v1", async () => {
     const notificationJSON = fs.readFileSync("./src/test/notification.json");
     let notification = JSON.parse(notificationJSON);
