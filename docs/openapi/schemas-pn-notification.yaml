@@ -252,6 +252,8 @@ components:
             type: string
             maxItems: 1
     UsedServices:
+      description: >-
+        Servizi utilizzati per la creazione della notifica
       type: object
       properties:
         physicalAddressLookup:

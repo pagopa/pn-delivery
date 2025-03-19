@@ -414,7 +414,7 @@ paths:
     ###########################################################################################
     get:
       operationId: getNotificationRequestStatusV25                       # NO EXTERNAL
-#      operationId: retrieveNotificationRequestStatusV24                 # ONLY EXTERNAL
+#      operationId: retrieveNotificationRequestStatusV25                 # ONLY EXTERNAL
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -482,7 +482,7 @@ paths:
       tags:
         - SenderReadB2B
       operationId: getSentNotificationV27                                    # NO EXTERNAL
-#      operationId: retrieveSentNotificationV26                                # ONLY EXTERNAL
+#      operationId: retrieveSentNotificationV27                                # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
