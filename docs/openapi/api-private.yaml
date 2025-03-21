@@ -50,7 +50,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "schemas-pn-notification.yaml#/components/schemas/SentNotificationV24"
+                $ref: "schemas-pn-notification.yaml#/components/schemas/SentNotificationV25"
         '400':
           description: Bad request
           content:

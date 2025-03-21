@@ -1,9 +1,9 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV24;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV25;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV23;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV24;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.NotificationLang;
@@ -60,7 +60,7 @@ public class EntityToDtoNotificationMapper {
                 .paFee(entity.getPaFee())
                 .vat(entity.getVat())
                 .sourceChannelDetails(entity.getSourceChannelDetails())
-                .pagoPaIntMode(entity.getPagoPaIntMode() != null ? NewNotificationRequestV24.PagoPaIntModeEnum.fromValue(entity.getPagoPaIntMode()) : null)
+                .pagoPaIntMode(entity.getPagoPaIntMode() != null ? NewNotificationRequestV25.PagoPaIntModeEnum.fromValue(entity.getPagoPaIntMode()) : null)
                 .version(entity.getVersion())
                 .additionalLanguages(removeITLanguageFromDto(entity.getLanguages()));
 
@@ -86,7 +86,7 @@ public class EntityToDtoNotificationMapper {
     private NotificationRecipient entity2Recipient(NotificationRecipientEntity entity) {
         return NotificationRecipient.builder()
                 .internalId(entity.getRecipientId())
-                .recipientType(NotificationRecipientV23.RecipientTypeEnum.valueOf(entity.getRecipientType().getValue()))
+                .recipientType(NotificationRecipientV24.RecipientTypeEnum.valueOf(entity.getRecipientType().getValue()))
                 .payments(entity2PaymentInfo(entity.getPayments()))
                 .build();
     }
