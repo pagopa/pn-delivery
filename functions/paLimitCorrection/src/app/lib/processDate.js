@@ -1,5 +1,6 @@
 const dynamo = require("./dynamo.js");
 const slaLambda = require('./slaLambda.js');
+const cloudWatch = require('./cloudWatch.js');
 
 const processDate = async (dateToVerifyLimit) => {
   console.log('Processing record for dateToVerifyLimit:', dateToVerifyLimit);
@@ -16,6 +17,9 @@ const processDate = async (dateToVerifyLimit) => {
     console.log('Notification limit NOT found for yearMonth:', yearMonth);
     return;
   }
+
+  //check sulla metrica IteratorAge delle lambda pn-activityStepManagerLambda e pn-slaViolationCheckerLambda
+  await checkIteratorAge();
 
   //chiamata lambda
   const results = await slaLambda.searchSLAViolations(dateToVerifyLimit);
@@ -54,6 +58,35 @@ async function updateNotificationLimit(keyLimit, attributeName, dailyCounterValu
     await dynamo.updateNotificationLimit(keyLimit, attributeName, dailyCounterValue, deltaDailyCounter);
   } else {
     console.log(`UpdateNotificationLimit skipped for key ${keyLimit}: ${deltaDailyCounter} slot not returned`);
+  }
+}
+
+async function checkIteratorAge() {
+  try {
+    const lambdaNames = ['pn-activityStepManagerLambda', 'pn-slaViolationCheckerLambda'];
+    let totalMaxIteratorAge = 0;
+
+    for (const lambdaName of lambdaNames) {
+      const datapoints = await cloudWatch.getIteratorAgeMetrics(lambdaName);
+      if (datapoints.length > 0) {
+        const maxIteratorAge = Math.max(...datapoints.map(dp => dp.Maximum));
+        console.log(`Max iteratorAge for ${lambdaName}: ${maxIteratorAge}`);
+        totalMaxIteratorAge += maxIteratorAge;
+      }
+    }
+
+    console.log('Total maxIteratorAge:', totalMaxIteratorAge);
+    console.log('MAXIMUM_ITERATOR_AGE:', process.env.MAXIMUM_ITERATOR_AGE);
+    
+    if (totalMaxIteratorAge < process.env.MAXIMUM_ITERATOR_AGE) {
+      console.log('Total maxIteratorAge is less than MAXIMUM_ITERATOR_AGE defined. Proceeding with SLA violation search.');
+    } else {
+      console.error('Total maxIteratorAge exceeds MAXIMUM_ITERATOR_AGE defined. Cannot proceed with SLA violation search.');
+      throw new Error('Total maxIteratorAge exceeds MAXIMUM_ITERATOR_AGE defined.');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    throw error;
   }
 }
 
