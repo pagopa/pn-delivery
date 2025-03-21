@@ -125,8 +125,8 @@ components:
             version:                                                    # NO EXTERNAL
               type: string                                              # NO EXTERNAL
               description: Indica la versione della notifica            # NO EXTERNAL
-            usedServices:                                               # NO EXTERNAL
-                $ref: '#/components/schemas/UsedServices'               # NO EXTERNAL
+            usedServices:
+                $ref: '#/components/schemas/UsedServices'
 
     NewNotificationRequestV25:
       description: I campi utilizzati per la creazione di una nuova Notifica.
