@@ -351,7 +351,6 @@ Resources:
         HasDLQ: "false"
         QueueHasAlarm: "true"
 
-  ### Communication FROM pn-delayer TO pn-paper-channel ###
   PnDeliveryLimitConfigurerQueue:
     Type: AWS::CloudFormation::Stack
     UpdateReplacePolicy: Retain
@@ -628,19 +627,19 @@ Outputs:
 
   PnDeliveryLimitConfigurerQueueName:
     Value: !GetAtt PnDeliveryLimitConfigurerQueue.Outputs.QueueName
-    Description: SafeStorageToDeliveryLimitConfigurer queue name
+    Description: PnDeliveryLimitConfigurerQueue queue name
   PnDeliveryLimitConfigurerQueueURL:
     Value: !GetAtt PnDeliveryLimitConfigurerQueue.Outputs.QueueURL
-    Description: SafeStorageToDeliveryLimitConfigurer queue URL
+    Description: PnDeliveryLimitConfigurerQueue queue URL
   PnDeliveryLimitConfigurerQueueARN:
     Value: !GetAtt PnDeliveryLimitConfigurerQueue.Outputs.QueueARN
-    Description: SafeStorageToDeliveryLimitConfigurer queue ARN
+    Description: PnDeliveryLimitConfigurerQueue queue ARN
   PnDeliveryLimitConfigurerQueueAlarmARN:
     Value: !GetAtt PnDeliveryLimitConfigurerQueue.Outputs.SqsDLQAlarmArn
-    Description: SafeStorageToDeliveryLimitConfigurer queue alarm ARN
+    Description: PnDeliveryLimitConfigurerQueue queue alarm ARN
   PnDeliveryLimitConfigurerQueueAgeAlarmARN:
     Value: !GetAtt PnDeliveryLimitConfigurerQueue.Outputs.SqsAgeAlarmArn
-    Description: SafeStorageToDeliveryLimitConfigurer queue age alarm ARN
+    Description: PnDeliveryLimitConfigurerQueue queue age alarm ARN
 
   # Log group exports
   EcsLogGroup:

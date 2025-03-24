@@ -2024,7 +2024,7 @@ Resources:
     Type: AWS::Events::Rule
     Properties: 
       Description: Route SafeStorage Events to pn-delivery LimitConfigurer
-      RoleArn: !GetAtt "EventBusEnqueueRole.Arn" #DEFINE ROLE IN ORDER TO PUT MESSAGE
+      RoleArn: !GetAtt "EventBusEnqueueRole.Arn" 
       EventBusName: !Sub '${ProjectName}-CoreEventBus'
       EventPattern:
         detail-type: [ "SafeStorageOutcomeEvent" ]
@@ -2062,20 +2062,35 @@ Resources:
               Service: events.amazonaws.com
         Version: "2012-10-17"
       Policies:
-        - PolicyName: !Sub ${ProjectName}-deliveryPutEventIntoQueues
+        - PolicyName: !Sub ${ProjectName}-delivery-eventBusRuleQueuePolicy
           PolicyDocument:
             Statement:
               - Sid: putEvents
                 Action:
                   - sqs:ChangeMessageVisibility
-                  - sqs:ChangeMessageVisibilityBatch
                   - sqs:GetQueueAttributes
                   - sqs:GetQueueUrl
                   - sqs:SendMessage
-                  - sqs:SendMessageBatch
                 Effect: Allow
                 Resource: 
                   - !Ref PnDeliveryLimitConfigurerQueueARN
+
+  PnDeliveryQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref PnDeliveryLimitConfigurerQueueURL
+      PolicyDocument:
+        Statement:
+          - Sid: "SendEventsToDLQ"
+            Effect: "Allow"
+            Principal: 
+              Service: 
+                - "events.amazonaws.com"
+            Action: 
+              - "SQS:SendMessage"
+            Resource:
+              - !Ref "PnDeliveryLimitConfigurerQueueARN"
 
   PermissionForEventsToInvokeLambda:
     Type: AWS::Lambda::Permission
