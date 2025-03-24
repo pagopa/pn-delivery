@@ -311,10 +311,11 @@ paths:
     ###########################################################################################
     ###                        VERIFICA STATO RICHIESTE DI NOTIFICA                         ###
     ###########################################################################################
+
     get:
       deprecated: true
       operationId: getNotificationRequestStatusV23                       # NO EXTERNAL
-      #      operationId: retrieveNotificationRequestStatusV23                 # ONLY EXTERNAL
+#      operationId: retrieveNotificationRequestStatusV23                 # ONLY EXTERNAL
       x-pagopa-lambda-name: 'pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live'
       x-pagopa-lambda-account: core
       tags:
@@ -436,7 +437,7 @@ paths:
     get:
       deprecated: true
       operationId: getNotificationRequestStatusV24                       # NO EXTERNAL
-      #      operationId: retrieveNotificationRequestStatusV24                 # ONLY EXTERNAL
+#      operationId: retrieveNotificationRequestStatusV24                 # ONLY EXTERNAL
       x-pagopa-lambda-name: 'pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live'
       x-pagopa-lambda-account: core
       tags:
@@ -809,7 +810,7 @@ paths:
       tags:
         - SenderReadB2B
       operationId: getSentNotificationV26                                      # NO EXTERNAL
-      #      operationId: retrieveSentNotificationV26                                # ONLY EXTERNAL
+#      operationId: retrieveSentNotificationV26                                # ONLY EXTERNAL
       x-pagopa-lambda-name: 'pn-delivery-versioning-v1v2-getnotification-lambda:live'
       x-pagopa-lambda-account: core
       parameters:
@@ -920,12 +921,12 @@ components:
     ############################################################################################
     ###                     PARAMETRO VERSIONE CREAZIONE NOTIFICA                            ###
     ############################################################################################
-    headerNotificationVersion: # NO EXTERNAL
+    headerNotificationVersion:                                                      # NO EXTERNAL
       name: x-pagopa-pn-notification-version                                        # NO EXTERNAL
       in: header                                                                    # NO EXTERNAL
       description: Notification creation version                                    # NO EXTERNAL
       required: false                                                               # NO EXTERNAL
-      schema: # NO EXTERNAL
+      schema:                                                                       # NO EXTERNAL
         type: string                                                                # NO EXTERNAL
 
     ############################################################################################
