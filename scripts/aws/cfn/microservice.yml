@@ -1235,53 +1235,57 @@ Resources:
         ZipFile: |
           const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
           const crypto = require('node:crypto');
-
-          const BUCKET_NAME = process.env.BUCKET_NAME
+          
+          const BUCKET_NAME = process.env.BUCKET_NAME;
           const client = new S3Client();
-
-          async function putObjectToS3(bucket, key, data){
-              const params = {
-                  Bucket : bucket,
-                  Key : key,
-                  Body : data
-              }
-              const command = new PutObjectCommand(params);
-              await client.send(command);             
+          
+          async function putObjectToS3(bucket, key, data) {
+            // Calcola l'hash MD5 del contenuto
+            const contentMD5 = crypto.createHash('md5').update(data).digest('base64');
+          
+            const params = {
+              Bucket: bucket,
+              Key: key,
+              Body: data,
+              ContentMD5: contentMD5 // Aggiungi l'header Content-MD5
+            };
+            
+            const command = new PutObjectCommand(params);
+            await client.send(command);
           }
-
+            
           function uuidv4(crypto) {
-              return crypto.randomUUID()
+            return crypto.randomUUID();
           }
-
-          function s3KeyName( d, namePrefix ) {
-              const ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(d);
-              const mo = new Intl.DateTimeFormat('en', { month: '2-digit' }).format(d);
-              const da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(d);
-              
-              const h = new Intl.DateTimeFormat('it', { hour: '2-digit' }).format(d);
-              const m = new Intl.DateTimeFormat('en', { minute: '2-digit' }).format(d);
-              const s = new Intl.DateTimeFormat('en', { second: '2-digit' }).format(d);
-              
-              return ye + '/' + mo + '/' + da + '/' + h + '/' + namePrefix 
-                    + '_' + ye + '' + mo + '' + da + '-' + h + '' + m + '' + s 
-                    + '_' + uuidv4( crypto );
+            
+          function s3KeyName(d, namePrefix) {
+            const ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(d);
+            const mo = new Intl.DateTimeFormat('en', { month: '2-digit' }).format(d);
+            const da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(d);
+            
+            const h = new Intl.DateTimeFormat('it', { hour: '2-digit' }).format(d);
+            const m = new Intl.DateTimeFormat('en', { minute: '2-digit' }).format(d);
+            const s = new Intl.DateTimeFormat('en', { second: '2-digit' }).format(d);
+            
+            return ye + '/' + mo + '/' + da + '/' + h + '/' + namePrefix
+            + '_' + ye + '' + mo + '' + da + '-' + h + '' + m + '' + s
+            + '_' + uuidv4(crypto);
           }
-
-          module.exports.handler = async(event) => {
-              console.log( "Numero elementi: " + event.Records.length ) ;
+            
+          module.exports.handler = async (event) => {
+            console.log("Numero elementi: " + event.Records.length);
               
-              const messages = event.Records.map( el => el.body )
-                  .map( el => ''+ el).map( el => el.replace(/(\r\n|\n|\r)/gm, '') );
-              const response = messages.join('\n');
-              console.log( response );
-              
-              const now = new Date();
-              const fullPath = 'flussi/pad26_asseverazione/' 
-                            + s3KeyName( now, 'pad26' ) + '.json';
-              
-              
-              await putObjectToS3(BUCKET_NAME, fullPath, response);
-              return response;
+            const messages = event.Records.map(el => el.body)
+                .map(el => '' + el).map(el => el.replace(/(\r\n|\n|\r)/gm, ''));
+            const response = messages.join('\n');
+            console.log(response);
+            
+            const now = new Date();
+            const fullPath = 'flussi/pad26_asseverazione/' 
+                            + s3KeyName(now, 'pad26') + '.json';
+            
+            await putObjectToS3(BUCKET_NAME, fullPath, response);
+            return response;
           };
 
   #########################################################
