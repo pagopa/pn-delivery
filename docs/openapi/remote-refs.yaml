@@ -48,8 +48,8 @@ components:
     ############################################################################################
     ###                          STRUTTURE DATI DI PN-DELIVERY_PUSH                          ###
     ############################################################################################
-    TimelineElementV26:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/898b155966acda508abd4149e0efb5ce66c6e9b0/docs/openapi/api-external-b2b-webhook-bundle.yaml#/components/schemas/TimelineElementV26'
+    TimelineElementV27:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/7c808542dfbfc2e1838c95e3da3861ae0299549b/docs/openapi/api-external-b2b-webhook-bundle.yaml#/components/schemas/TimelineElementV27'
     NotificationStatusV26:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/898b155966acda508abd4149e0efb5ce66c6e9b0/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatusV26'
     NotificationStatusHistoryV26:
@@ -91,14 +91,18 @@ components:
     TimelineElementV23:
       # DO NOT CHANGE: this is timeline V2.3 commit id.
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/0dcbba2aa85532c925f444cf3ff53b2b138ad898/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElementV23'
-      
-      # DO NOT CHANGE: this is timeline V2.4 commit id.
+
     TimelineElementV24:
+      # DO NOT CHANGE: this is timeline V2.4 commit id.
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/e737a389c18b9e1b728699e74d7b1b42fb4add60/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElementV24'
 
-      # DO NOT CHANGE: this is timeline V2.5 commit id.
     TimelineElementV25:
+      # DO NOT CHANGE: this is timeline V2.5 commit id.
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/d551b3605f9607686eccef0299a3e678ad7457ef/docs/openapi/api-external-b2b-webhook-bundle.yaml#/components/schemas/TimelineElementV25'
+
+    TimelineElementV26:
+      # DO NOT CHANGE: this is timeline V2.6 commit id.
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/898b155966acda508abd4149e0efb5ce66c6e9b0/docs/openapi/api-external-b2b-webhook-bundle.yaml#/components/schemas/TimelineElementV26'
 
     NotificationStatus:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/d551b3605f9607686eccef0299a3e678ad7457ef/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatus'

@@ -145,7 +145,7 @@ class DtoToEntityNotificationMapperTest {
         actualInternalNotification.setSentAt(sentAt);
         actualInternalNotification.setSubject("Hello from the Dreaming Spires");
         actualInternalNotification.setTaxonomyCode("Taxonomy Code");
-        ArrayList<TimelineElementV26> timeline = new ArrayList<>();
+        ArrayList<TimelineElementV27> timeline = new ArrayList<>();
         actualInternalNotification.setTimeline(timeline);
         actualInternalNotification.sourceChannel("Source Channel");
         actualInternalNotification.subject("Hello from the Dreaming Spires");
@@ -154,13 +154,13 @@ class DtoToEntityNotificationMapperTest {
     }
 
     private void testingInternalNotification(InternalNotification actualInternalNotification){
-        ArrayList<TimelineElementV26> timeline2 = new ArrayList<>();
+        ArrayList<TimelineElementV27> timeline2 = new ArrayList<>();
         actualInternalNotification.timeline(timeline2);
         assertEquals(" abstract", actualInternalNotification.getAbstract());
         assertEquals(10, actualInternalNotification.getAmount().intValue());
         assertEquals("Cancelled By Iun", actualInternalNotification.getCancelledByIun());
         assertEquals("Cancelled Iun", actualInternalNotification.getCancelledIun());
-        List<TimelineElementV26> timeline3 = actualInternalNotification.getTimeline();
+        List<TimelineElementV27> timeline3 = actualInternalNotification.getTimeline();
         assertTrue(actualInternalNotification.getDocumentsAvailable());
         assertEquals("Group", actualInternalNotification.getGroup());
         assertEquals("ABC123", actualInternalNotification.getIdempotenceToken());
