@@ -315,7 +315,7 @@ paths:
     get:
       deprecated: true
       operationId: getNotificationRequestStatusV23                       # NO EXTERNAL
-      #      operationId: retrieveNotificationRequestStatusV23                 # ONLY EXTERNAL
+#      operationId: retrieveNotificationRequestStatusV23                 # ONLY EXTERNAL
       x-pagopa-lambda-name: 'pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live'
       x-pagopa-lambda-account: core
       tags:
