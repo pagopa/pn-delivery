@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: nXdgyEf+B9T2OA+RBmU4W4eJOsSadKOmHmZmTAZqM8Q=
+  version: HrklNaIraPoFBiJNUL2FAeOrirF2uJ+wnnVxNy0QDzw=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -957,6 +957,7 @@ paths:
         type: aws_proxy
   /v2.3/requests:
     post:
+      deprecated: true
       summary: Richiesta invio notifica
       description: >-
         Operazione utilizzata dalla Pubblica Amministrazione per richiedere
@@ -1031,6 +1032,7 @@ paths:
         type: aws_proxy
       parameters: []
     get:
+      deprecated: true
       operationId: retrieveNotificationRequestStatusV23
       x-pagopa-lambda-name: pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live
       x-pagopa-lambda-account: core
@@ -1309,6 +1311,7 @@ paths:
         type: aws_proxy
   /v2.4/notifications/sent/{iun}:
     get:
+      deprecated: true
       summary: 'Mittente: lettura dettagli notifica versione 2'
       description: >-
         Questa operazione permette di leggere tutti i dettagli di una notifica
@@ -1362,6 +1365,7 @@ paths:
         type: aws_proxy
   /v2.5/notifications/sent/{iun}:
     get:
+      deprecated: true
       summary: 'Mittente: lettura dettagli notifica versione 2'
       description: >-
         Questa operazione permette di leggere tutti i dettagli di una notifica
@@ -5458,7 +5462,7 @@ components:
         category:
           $ref: '#/components/schemas/TimelineElementCategoryV23'
         details:
-          $ref: '#/components/schemas/TimelineElementDetailsV25'
+          $ref: '#/components/schemas/TimelineElementDetailsV23'
     NotificationStatus:
       type: string
       description: |
@@ -6312,50 +6316,6 @@ components:
         - $ref: '#/components/schemas/BaseAnalogDetails'
         - $ref: '#/components/schemas/SendAnalogDetails'
         - $ref: '#/components/schemas/SendAnalogFeedbackDetails'
-        - $ref: '#/components/schemas/BaseRegisteredLetterDetails'
-        - $ref: '#/components/schemas/SimpleRegisteredLetterDetails'
-        - $ref: '#/components/schemas/AarCreationRequestDetails'
-        - $ref: '#/components/schemas/AarGenerationDetails'
-        - $ref: '#/components/schemas/NotHandledDetails'
-        - $ref: '#/components/schemas/NotificationPaidDetailsV23'
-        - $ref: '#/components/schemas/SendAnalogProgressDetailsV23'
-        - $ref: '#/components/schemas/SimpleRegisteredLetterProgressDetails'
-        - $ref: '#/components/schemas/ProbableDateAnalogWorkflowDetails'
-        - $ref: '#/components/schemas/NotificationCancellationRequestDetails'
-        - $ref: '#/components/schemas/NotificationCancelledDetails'
-        - $ref: '#/components/schemas/PrepareAnalogDomicileFailureDetails'
-    TimelineElementDetailsV25:
-      description: The raw event payload that will be different based on the event.
-      oneOf:
-        - $ref: '#/components/schemas/SenderAckCreationRequestDetails'
-        - $ref: '#/components/schemas/NormalizedAddressDetails'
-        - $ref: '#/components/schemas/NotificationRequestAcceptedDetails'
-        - $ref: '#/components/schemas/AnalogFailureWorkflowDetails'
-        - $ref: '#/components/schemas/AnalogSuccessWorkflowDetails'
-        - $ref: '#/components/schemas/CompletelyUnreachableCreationRequestDetails'
-        - $ref: '#/components/schemas/CompletelyUnreachableDetails'
-        - $ref: '#/components/schemas/DigitalDeliveryCreationRequestDetails'
-        - $ref: '#/components/schemas/DigitalFailureWorkflowDetails'
-        - $ref: '#/components/schemas/DigitalSuccessWorkflowDetails'
-        - $ref: '#/components/schemas/GetAddressInfoDetails'
-        - $ref: '#/components/schemas/NotificationViewedCreationRequestDetailsV23'
-        - $ref: '#/components/schemas/NotificationViewedDetailsV23'
-        - $ref: '#/components/schemas/NotificationRADDRetrievedDetails'
-        - $ref: '#/components/schemas/PublicRegistryCallDetails'
-        - $ref: '#/components/schemas/PublicRegistryResponseDetails'
-        - $ref: '#/components/schemas/RefinementDetailsV23'
-        - $ref: '#/components/schemas/RequestRefusedDetailsV25'
-        - $ref: '#/components/schemas/ScheduleAnalogWorkflowDetailsV23'
-        - $ref: '#/components/schemas/ScheduleDigitalWorkflowDetailsV23'
-        - $ref: '#/components/schemas/ScheduleRefinementDetails'
-        - $ref: '#/components/schemas/SendCourtesyMessageDetails'
-        - $ref: '#/components/schemas/PrepareDigitalDetails'
-        - $ref: '#/components/schemas/SendDigitalDetails'
-        - $ref: '#/components/schemas/SendDigitalFeedbackDetails'
-        - $ref: '#/components/schemas/SendDigitalProgressDetailsV23'
-        - $ref: '#/components/schemas/BaseAnalogDetails'
-        - $ref: '#/components/schemas/SendAnalogDetails'
-        - $ref: '#/components/schemas/SendAnalogFeedbackDetailsV25'
         - $ref: '#/components/schemas/BaseRegisteredLetterDetails'
         - $ref: '#/components/schemas/SimpleRegisteredLetterDetails'
         - $ref: '#/components/schemas/AarCreationRequestDetails'
