@@ -668,9 +668,15 @@ Parameters:
 
   PnDeliveryLimitConfigurerQueueARN:
     Type: String
+    Description: 'PnDeliveryLimitConfigurer queue ARN'
 
   PnDeliveryLimitConfigurerQueueURL:
     Type: String
+    Description: 'PnDeliveryLimitConfigurer queue URL'
+
+  PnDeliveryLimitConfigurerQueueDLQURL:
+    Type: String
+    Description: 'PnDeliveryLimitConfigurer DLQ ARN'
 
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
@@ -2104,7 +2110,7 @@ Resources:
             Action: 
               - "SQS:SendMessage"
             Resource:
-              - !Ref "PnDeliveryLimitConfigurerQueueARN"
+              - !Ref "PnDeliveryLimitConfigurerQueueDLQURL"
 
   PermissionForEventsToInvokeLambda:
     Type: AWS::Lambda::Permission
