@@ -631,12 +631,6 @@ Outputs:
   PnDeliveryLimitConfigurerQueueURL:
     Value: !GetAtt PnDeliveryLimitConfigurerQueue.Outputs.QueueURL
     Description: PnDeliveryLimitConfigurerQueue queue URL
-  PnDeliveryLimitConfigurerQueueDLQName:
-    Value: !GetAtt PnDeliveryLimitConfigurerQueue.Outputs.DeadLetterQueueName
-    Description: PnDeliveryLimitConfigurerQueue DLQ name
-  PnDeliveryLimitConfigurerQueueDLQURL:
-    Value: !GetAtt PnDeliveryLimitConfigurerQueue.Outputs.DeadLetterQueueURL
-    Description: PnDeliveryLimitConfigurerQueue DLQ url
   PnDeliveryLimitConfigurerQueueARN:
     Value: !GetAtt PnDeliveryLimitConfigurerQueue.Outputs.QueueARN
     Description: PnDeliveryLimitConfigurerQueue queue ARN
