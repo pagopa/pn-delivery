@@ -957,24 +957,20 @@ Resources:
           - ","
           - - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiStageArn
             - !GetAtt DeliveryMicroserviceB2BPGAPI.Outputs.RestApiStageArn
-            - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiStageArn
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiStageArn
         RestApiNames: !Join
           - ","
           - - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiName
             - !GetAtt DeliveryMicroserviceB2BPGAPI.Outputs.RestApiName
-            - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiName
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiName
         AlarmArns: !Join
           - ","
           - - !GetAtt DeliveryMicroservice.Outputs.FatalLogsMetricAlarmArn
             - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiErrorAlarmArn
             - !GetAtt DeliveryMicroserviceB2BPGAPI.Outputs.RestApiErrorAlarmArn
-            - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiErrorAlarmArn
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiErrorAlarmArn
             - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiLatencyAlarmArn
             - !GetAtt DeliveryMicroserviceB2BPGAPI.Outputs.RestApiLatencyAlarmArn
-            - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiLatencyAlarmArn
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiLatencyAlarmArn
             - !Ref PnDeliveryInsertTriggerDLQAlarmARN
             - !Ref PnDeliveryAsseverationDLQAlarmARN
