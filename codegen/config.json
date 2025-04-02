@@ -27,15 +27,6 @@
             "mergeBeforeBundleGeneration": true
         },
         {
-            "intendedUsage": "WEB",
-            "openapiFiles": [
-                "api-internal-b2b-pa.yaml",
-                "api-internal-web-pa.yaml",
-                "api-internal-web-recipient.yaml"
-            ],
-            "servicePath": "delivery"
-        },
-        {
             "intendedUsage": "B2BPG",
             "commonFiles": [
                 "schemas-pn-notification.yaml",
