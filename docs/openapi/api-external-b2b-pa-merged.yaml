@@ -1476,7 +1476,7 @@ components:
                 processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV26'
+                $ref: '#/components/schemas/TimelineElementV27'
     PaymentEventsRequestPagoPa:
       title: Invio eventi di pagamento da PA a PN
       description: >-
@@ -1567,8 +1567,8 @@ components:
         amount:
           type: integer
           format: int32
-    TimelineElementV26:
-      $ref: ./remote-refs.yaml#/components/schemas/TimelineElementV26
+    TimelineElementV27:
+      $ref: ./remote-refs.yaml#/components/schemas/TimelineElementV27
     NotificationStatusV26:
       $ref: ./remote-refs.yaml#/components/schemas/NotificationStatusV26
     NotificationStatusHistoryV26:
