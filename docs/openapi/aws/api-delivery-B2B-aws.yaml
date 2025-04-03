@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: nXdgyEf+B9T2OA+RBmU4W4eJOsSadKOmHmZmTAZqM8Q=
+  version: sZsHqN0uIQEDOQYwHx4UrAcWPmirydnCnFSyxc+oqFA=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1896,7 +1896,7 @@ components:
                 processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV26'
+                $ref: '#/components/schemas/TimelineElementV27'
     PaymentEventsRequestPagoPa:
       title: Invio eventi di pagamento da PA a PN
       description: >-
@@ -1985,7 +1985,7 @@ components:
           pattern: PF|PG
         amount:
           type: number
-    TimelineElementV26:
+    TimelineElementV27:
       type: object
       additionalProperties: false
       properties:
@@ -2026,9 +2026,9 @@ components:
             Chiavi dei documenti che provano l'effettivo accadimento dell'evento
             descritto in timeline. Questo elemento
         category:
-          $ref: '#/components/schemas/TimelineElementCategoryV26'
+          $ref: '#/components/schemas/TimelineElementCategoryV27'
         details:
-          $ref: '#/components/schemas/TimelineElementDetailsV26'
+          $ref: '#/components/schemas/TimelineElementDetailsV27'
     NotificationStatusV26:
       type: string
       description: |
@@ -2631,7 +2631,7 @@ components:
           maxLength: 512
         category:
           $ref: '#/components/schemas/LegalFactCategoryV20'
-    TimelineElementCategoryV26:
+    TimelineElementCategoryV27:
       type: string
       description: |
         stato di avanzamento del processo di notifica:`
@@ -2678,6 +2678,8 @@ components:
           * `PREPARE_ANALOG_DOMICILE_FAILURE` - Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel
           * `NOTIFICATION_RADD_RETRIEVED` - Accesso alla notifica tramite la rete RADD. Non perfeziona la notifica.
           * `ANALOG_WORKFLOW_RECIPIENT_DECEASED` - Destinatario deceduto
+          * `PUBLIC_REGISTRY_VALIDATION_CALL` - Ricerca dell'indirizzo di spedizione in fase di validazione notifica
+          * `PUBLIC_REGISTRY_VALIDATION_RESPONSE` - Recupero dell'indirizzo di spedizione dai registri nazionali
       enum:
         - SENDER_ACK_CREATION_REQUEST
         - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
@@ -2722,6 +2724,8 @@ components:
         - PREPARE_ANALOG_DOMICILE_FAILURE
         - NOTIFICATION_RADD_RETRIEVED
         - ANALOG_WORKFLOW_RECIPIENT_DECEASED
+        - PUBLIC_REGISTRY_VALIDATION_CALL
+        - PUBLIC_REGISTRY_VALIDATION_RESPONSE
     SenderAckCreationRequestDetails:
       type: object
       properties:
@@ -3807,7 +3811,48 @@ components:
             stata precedentemente visualizzata
           example: 1220
           type: number
-    TimelineElementDetailsV26:
+    PublicRegistryValidationCallDetails:
+      type: object
+      required:
+        - recIndexes
+        - deliveryMode
+        - sendDate
+      properties:
+        recIndexes:
+          description: Lista destinatari notifica
+          type: array
+          items:
+            type: number
+        deliveryMode:
+          $ref: '#/components/schemas/DeliveryMode'
+        sendDate:
+          type: string
+          description: Data invio richiesta ai public registry
+          format: date-time
+    PublicRegistryValidationResponseDetails:
+      allOf:
+        - $ref: '#/components/schemas/PublicRegistryResponseDetails'
+        - type: object
+          properties:
+            registry:
+              type: string
+              description: Nome del registro pubblico da cui è stato recuperato l'indirizzo
+              maxLength: 128
+            addressResolutionStart:
+              type: string
+              format: date-time
+              description: >-
+                Data/ora di inizio elaborazione richiesta ricerca indirizzi,
+                espressa in formato RFC3339.
+              example: '2022-06-21T11:44:28Z'
+            addressResolutionEnd:
+              type: string
+              format: date-time
+              description: >-
+                Data/ora di fine elaborazione richiesta ricerca indirizzi,
+                espressa in formato RFC3339.
+              example: '2022-06-21T11:44:28Z'
+    TimelineElementDetailsV27:
       description: The raw event payload that will be different based on the event.
       oneOf:
         - $ref: '#/components/schemas/SenderAckCreationRequestDetails'
@@ -3852,6 +3897,8 @@ components:
         - $ref: '#/components/schemas/NotificationCancelledDetails'
         - $ref: '#/components/schemas/PrepareAnalogDomicileFailureDetails'
         - $ref: '#/components/schemas/AnalogWorkflowRecipientDeceasedDetailsV26'
+        - $ref: '#/components/schemas/PublicRegistryValidationCallDetails'
+        - $ref: '#/components/schemas/PublicRegistryValidationResponseDetails'
     NotificationAttachmentDownloadMetadataResponse:
       title: Url e metadati per il download di un allegato di una notifica
       description: |-
