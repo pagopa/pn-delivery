@@ -648,6 +648,11 @@ Parameters:
       - "true"
       - "false"
 
+  PaLimitCorrectionLambdaMaximumIteratorAge:
+    Type: Number
+    Description: "Maximum IteratorAge for pa limit correction Lambda. Default is 12 hours"
+    Default: 43200000
+
   PnDeliveryPaLimitCorrectionDLQARN:
     Type: String
     Description: "DLQ ARN for pa limit correction"
@@ -660,6 +665,14 @@ Parameters:
     Type: String
     Default: '0 12 * * ? *'
     Description: Cron to schedule the Lambda PaLimitCorrection (UTC). Default is every day at 12:00
+
+  PnDeliveryLimitConfigurerQueueARN:
+    Type: String
+    Description: 'PnDeliveryLimitConfigurer queue ARN'
+
+  PnDeliveryLimitConfigurerQueueURL:
+    Type: String
+    Description: 'PnDeliveryLimitConfigurer queue URL'
 
   PhysicalAddressLookupStart:
     Type: String
@@ -749,6 +762,7 @@ Resources:
         ContainerEnvEntry53: !Sub "PN_DELIVERY_NOTIFICATIONREFUSEDVERIFICATIONDAO_TABLENAME=${NotificationRefusedVerificationDynamoTableName}"
         ContainerEnvEntry54: !Sub "SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${Mandate2DeliveryQueueName},${PnNotificationRefusedQueueName}"
         ContainerEnvEntry55: !Sub "PN_DELIVERY_PHYSICALADDRESSLOOKUPSTARTDATE=${PhysicalAddressLookupStartDate}"
+
         ContainerSecret1: !Sub "ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:"
         MicroServiceSecretPrefix: pn-Delivery-Secrets
         JavaToolOptions: "-Dreactor.netty.ioWorkerCount=120 -XX:MaxMetaspaceSize=512M"
@@ -1014,6 +1028,7 @@ Resources:
           - - !Ref Mandate2DeliveryQueueARN
             - !Ref PnDeliveryAsseverationQueueARN
             - !Ref PnNotificationRefusedQueueARN
+            - !Ref PnDeliveryLimitConfigurerQueueARN
         LogGroupsNames: !Join
           - ","
           - - !Sub "/aws/ecs/${ProjectName}-delivery"
@@ -1234,53 +1249,57 @@ Resources:
         ZipFile: |
           const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
           const crypto = require('node:crypto');
-
-          const BUCKET_NAME = process.env.BUCKET_NAME
+          
+          const BUCKET_NAME = process.env.BUCKET_NAME;
           const client = new S3Client();
-
-          async function putObjectToS3(bucket, key, data){
-              const params = {
-                  Bucket : bucket,
-                  Key : key,
-                  Body : data
-              }
-              const command = new PutObjectCommand(params);
-              await client.send(command);             
+          
+          async function putObjectToS3(bucket, key, data) {
+            // Calcola l'hash MD5 del contenuto
+            const contentMD5 = crypto.createHash('md5').update(data).digest('base64');
+          
+            const params = {
+              Bucket: bucket,
+              Key: key,
+              Body: data,
+              ContentMD5: contentMD5 // Aggiungi l'header Content-MD5
+            };
+            
+            const command = new PutObjectCommand(params);
+            await client.send(command);
           }
-
+            
           function uuidv4(crypto) {
-              return crypto.randomUUID()
+            return crypto.randomUUID();
           }
-
-          function s3KeyName( d, namePrefix ) {
-              const ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(d);
-              const mo = new Intl.DateTimeFormat('en', { month: '2-digit' }).format(d);
-              const da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(d);
-              
-              const h = new Intl.DateTimeFormat('it', { hour: '2-digit' }).format(d);
-              const m = new Intl.DateTimeFormat('en', { minute: '2-digit' }).format(d);
-              const s = new Intl.DateTimeFormat('en', { second: '2-digit' }).format(d);
-              
-              return ye + '/' + mo + '/' + da + '/' + h + '/' + namePrefix 
-                    + '_' + ye + '' + mo + '' + da + '-' + h + '' + m + '' + s 
-                    + '_' + uuidv4( crypto );
+            
+          function s3KeyName(d, namePrefix) {
+            const ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(d);
+            const mo = new Intl.DateTimeFormat('en', { month: '2-digit' }).format(d);
+            const da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(d);
+            
+            const h = new Intl.DateTimeFormat('it', { hour: '2-digit' }).format(d);
+            const m = new Intl.DateTimeFormat('en', { minute: '2-digit' }).format(d);
+            const s = new Intl.DateTimeFormat('en', { second: '2-digit' }).format(d);
+            
+            return ye + '/' + mo + '/' + da + '/' + h + '/' + namePrefix
+            + '_' + ye + '' + mo + '' + da + '-' + h + '' + m + '' + s
+            + '_' + uuidv4(crypto);
           }
-
-          module.exports.handler = async(event) => {
-              console.log( "Numero elementi: " + event.Records.length ) ;
+            
+          module.exports.handler = async (event) => {
+            console.log("Numero elementi: " + event.Records.length);
               
-              const messages = event.Records.map( el => el.body )
-                  .map( el => ''+ el).map( el => el.replace(/(\r\n|\n|\r)/gm, '') );
-              const response = messages.join('\n');
-              console.log( response );
-              
-              const now = new Date();
-              const fullPath = 'flussi/pad26_asseverazione/' 
-                            + s3KeyName( now, 'pad26' ) + '.json';
-              
-              
-              await putObjectToS3(BUCKET_NAME, fullPath, response);
-              return response;
+            const messages = event.Records.map(el => el.body)
+                .map(el => '' + el).map(el => el.replace(/(\r\n|\n|\r)/gm, ''));
+            const response = messages.join('\n');
+            console.log(response);
+            
+            const now = new Date();
+            const fullPath = 'flussi/pad26_asseverazione/' 
+                            + s3KeyName(now, 'pad26') + '.json';
+            
+            await putObjectToS3(BUCKET_NAME, fullPath, response);
+            return response;
           };
 
   #########################################################
@@ -1926,6 +1945,7 @@ Resources:
           REGION: !Sub ${AWS::Region}
           SEARCH_SLA_LAMBDA_ARN: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-searchSLAViolationsLambda"
           DEBUG_MODE: !Ref PaLimitCorrectionLambdaDebugMode
+          MAXIMUM_ITERATOR_AGE: !Ref PaLimitCorrectionLambdaMaximumIteratorAge
       TracingConfig:
         Mode: Active
       Layers:
@@ -2006,6 +2026,10 @@ Resources:
               - sqs:SendMessage
             Resource:
               !Ref PnDeliveryPaLimitCorrectionDLQARN
+          - Effect: Allow
+            Action:
+              - cloudwatch:GetMetricStatistics
+            Resource: "*"
 
   #Scheduled Event Bridge Rule that send event to target lambda
   PaLimitCorrectionScheduledRule:
@@ -2018,6 +2042,78 @@ Resources:
         - Arn: !GetAtt PaLimitCorrectionLambda.Arn
           Id: PaLimitCorrectionLambdaTarget
           Input: '{ "dateToVerifyLimit": null }'
+
+  PnDeliveryLimitConfigurerQueueRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Route SafeStorage Events to pn-delivery LimitConfigurer
+      RoleArn: !GetAtt "EventBusEnqueueRole.Arn"
+      EventBusName: !Sub '${ProjectName}-CoreEventBus'
+      EventPattern:
+        detail-type: [ "SafeStorageOutcomeEvent" ]
+        detail:
+          documentType: [ 'SEND_SERVICE_ORDER' ]
+      Targets:
+        - Arn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:PnCoreEventBusMatchedEventLogger
+          Id: !Sub ${ProjectName}-Logger-SafeStore2LimitConfigurer
+          InputTransformer:
+            InputPathsMap:
+              "timestamp": "$.time"
+            InputTemplate: |
+              {
+                  "timestamp": <timestamp>,
+                  "ruleArn": <aws.events.rule-arn>,
+                  "ruleName": <aws.events.rule-name>,
+                  "ingestionTime": <aws.events.event.ingestion-time>,
+                  "originalEvent": <aws.events.event.json>
+              }
+        - Id: !Sub '${ProjectName}-SafeStore2DeliveryLimitConfigurer'
+          Arn: !Ref PnDeliveryLimitConfigurerQueueARN
+          InputPath: $.detail
+          DeadLetterConfig:
+            Arn: !Sub arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:pn-CoreEventBus-DLQ
+
+    # Allow event bus rules to write to queues
+  EventBusEnqueueRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+        Version: "2012-10-17"
+      Policies:
+        - PolicyName: !Sub ${ProjectName}-delivery-eventBusRuleQueuePolicy
+          PolicyDocument:
+            Statement:
+              - Sid: putEvents
+                Action:
+                  - sqs:ChangeMessageVisibility
+                  - sqs:GetQueueAttributes
+                  - sqs:GetQueueUrl
+                  - sqs:SendMessage
+                Effect: Allow
+                Resource:
+                  - !Ref PnDeliveryLimitConfigurerQueueARN
+
+  PnDeliveryQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref PnDeliveryLimitConfigurerQueueURL
+      PolicyDocument:
+        Statement:
+          - Sid: "SendEventsToDLQ"
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "events.amazonaws.com"
+            Action:
+              - "SQS:SendMessage"
+            Resource:
+              - !Ref "PnDeliveryLimitConfigurerQueueARN"
 
   PermissionForEventsToInvokeLambda:
     Type: AWS::Lambda::Permission
