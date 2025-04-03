@@ -648,6 +648,11 @@ Parameters:
       - "true"
       - "false"
 
+  PaLimitCorrectionLambdaMaximumIteratorAge:
+    Type: Number
+    Description: "Maximum IteratorAge for pa limit correction Lambda. Default is 12 hours"
+    Default: 43200000
+
   PnDeliveryPaLimitCorrectionDLQARN:
     Type: String
     Description: "DLQ ARN for pa limit correction"
@@ -660,6 +665,14 @@ Parameters:
     Type: String
     Default: '0 12 * * ? *'
     Description: Cron to schedule the Lambda PaLimitCorrection (UTC). Default is every day at 12:00
+
+  PnDeliveryLimitConfigurerQueueARN:
+    Type: String
+    Description: 'PnDeliveryLimitConfigurer queue ARN'
+
+  PnDeliveryLimitConfigurerQueueURL:
+    Type: String
+    Description: 'PnDeliveryLimitConfigurer queue URL'
 
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
@@ -1009,6 +1022,7 @@ Resources:
           - - !Ref Mandate2DeliveryQueueARN
             - !Ref PnDeliveryAsseverationQueueARN
             - !Ref PnNotificationRefusedQueueARN
+            - !Ref PnDeliveryLimitConfigurerQueueARN
         LogGroupsNames: !Join
           - ","
           - - !Sub "/aws/ecs/${ProjectName}-delivery"
@@ -1925,6 +1939,7 @@ Resources:
           REGION: !Sub ${AWS::Region}
           SEARCH_SLA_LAMBDA_ARN: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-searchSLAViolationsLambda"
           DEBUG_MODE: !Ref PaLimitCorrectionLambdaDebugMode
+          MAXIMUM_ITERATOR_AGE: !Ref PaLimitCorrectionLambdaMaximumIteratorAge
       TracingConfig:
         Mode: Active
       Layers:
@@ -2005,6 +2020,10 @@ Resources:
               - sqs:SendMessage
             Resource:
               !Ref PnDeliveryPaLimitCorrectionDLQARN
+          - Effect: Allow
+            Action:
+              - cloudwatch:GetMetricStatistics
+            Resource: "*"
 
   #Scheduled Event Bridge Rule that send event to target lambda
   PaLimitCorrectionScheduledRule:
@@ -2017,6 +2036,78 @@ Resources:
         - Arn: !GetAtt PaLimitCorrectionLambda.Arn
           Id: PaLimitCorrectionLambdaTarget
           Input: '{ "dateToVerifyLimit": null }'
+  
+  PnDeliveryLimitConfigurerQueueRule:
+    Type: AWS::Events::Rule
+    Properties: 
+      Description: Route SafeStorage Events to pn-delivery LimitConfigurer
+      RoleArn: !GetAtt "EventBusEnqueueRole.Arn" 
+      EventBusName: !Sub '${ProjectName}-CoreEventBus'
+      EventPattern:
+        detail-type: [ "SafeStorageOutcomeEvent" ]
+        detail:
+          documentType: [ 'SEND_SERVICE_ORDER' ]
+      Targets: 
+        - Arn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:PnCoreEventBusMatchedEventLogger
+          Id: !Sub ${ProjectName}-Logger-SafeStore2LimitConfigurer
+          InputTransformer:
+            InputPathsMap:
+              "timestamp": "$.time"
+            InputTemplate: |
+              {
+                  "timestamp": <timestamp>,
+                  "ruleArn": <aws.events.rule-arn>,
+                  "ruleName": <aws.events.rule-name>,
+                  "ingestionTime": <aws.events.event.ingestion-time>,
+                  "originalEvent": <aws.events.event.json>
+              }       
+        - Id: !Sub '${ProjectName}-SafeStore2DeliveryLimitConfigurer'
+          Arn: !Ref PnDeliveryLimitConfigurerQueueARN
+          InputPath: $.detail
+          DeadLetterConfig:
+            Arn: !Sub arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:pn-CoreEventBus-DLQ
+
+    # Allow event bus rules to write to queues
+  EventBusEnqueueRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+        Version: "2012-10-17"
+      Policies:
+        - PolicyName: !Sub ${ProjectName}-delivery-eventBusRuleQueuePolicy
+          PolicyDocument:
+            Statement:
+              - Sid: putEvents
+                Action:
+                  - sqs:ChangeMessageVisibility
+                  - sqs:GetQueueAttributes
+                  - sqs:GetQueueUrl
+                  - sqs:SendMessage
+                Effect: Allow
+                Resource: 
+                  - !Ref PnDeliveryLimitConfigurerQueueARN
+
+  PnDeliveryQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref PnDeliveryLimitConfigurerQueueURL
+      PolicyDocument:
+        Statement:
+          - Sid: "SendEventsToDLQ"
+            Effect: "Allow"
+            Principal: 
+              Service: 
+                - "events.amazonaws.com"
+            Action: 
+              - "SQS:SendMessage"
+            Resource:
+              - !Ref "PnDeliveryLimitConfigurerQueueARN"
 
   PermissionForEventsToInvokeLambda:
     Type: AWS::Lambda::Permission
