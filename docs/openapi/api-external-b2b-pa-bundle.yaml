@@ -6894,7 +6894,7 @@ components:
           type: string
           description: Data evento refinement
           format: date-time
-    NotificationRefusedErrorV25:
+    NotificationRefusedErrorV27:
       type: object
       properties:
         errorCode:
@@ -6913,18 +6913,19 @@ components:
               - NOT_VALID_ADDRESS - L'indirizzo di invio cartaceo inserito per il destinatario non ha superato i controlli di correttezza.
               - PAYMENT_NOT_VALID - I dati del pagamento non sono sono registrati sulla piattaforma GPD (modalità asincrona di integrazione pagoPA)
               - SERVICE_UNAVAILABLE - Il sistema non è attualmente disponibile.
+              - ADDRESS_NOT_FOUND - La ricerca dell’indirizzo effettuata con il servizio di LookupAddress non ha prodotto risultati.
               ...
         detail:
           type: string
           maxLength: 2048
-    RequestRefusedDetailsV25:
+    RequestRefusedDetailsV27:
       type: object
       properties:
         refusalReasons:
           type: array
           description: Motivazioni che hanno portato al rifiuto della notifica
           items:
-            $ref: '#/components/schemas/NotificationRefusedErrorV25'
+            $ref: '#/components/schemas/NotificationRefusedErrorV27'
     ScheduleAnalogWorkflowDetailsV23:
       type: object
       required:
@@ -7699,7 +7700,7 @@ components:
         - $ref: '#/components/schemas/PublicRegistryCallDetails'
         - $ref: '#/components/schemas/PublicRegistryResponseDetails'
         - $ref: '#/components/schemas/RefinementDetailsV23'
-        - $ref: '#/components/schemas/RequestRefusedDetailsV25'
+        - $ref: '#/components/schemas/RequestRefusedDetailsV27'
         - $ref: '#/components/schemas/ScheduleAnalogWorkflowDetailsV23'
         - $ref: '#/components/schemas/ScheduleDigitalWorkflowDetailsV23'
         - $ref: '#/components/schemas/ScheduleRefinementDetails'
@@ -8645,6 +8646,37 @@ components:
         - $ref: '#/components/schemas/NotificationCancellationRequestDetails'
         - $ref: '#/components/schemas/NotificationCancelledDetails'
         - $ref: '#/components/schemas/PrepareAnalogDomicileFailureDetails'
+    NotificationRefusedErrorV25:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          maxLength: 128
+          description: |-
+            Errori di rifiuto della notifica.
+              - FILE_NOTFOUND - I riferimenti dei documenti nella notifica non sono corretti o i documenti non sono stati caricati con successo.
+              - FILE_GONE - Allegato non disponibile: superati i termini di conservazione
+              - FILE_SHA_ERROR - Il digest calcolato con algoritmi sha256 dei documenti inseriti non è corrispondete a quello del file referenziato.
+              - FILE_PDF_INVALID_ERROR - Il file inserito non è in formato pdf.
+              - FILE_PDF_TOOBIG_ERROR - Il file pdf ha una dimensione eccedente il limite di 200MB.
+              - F24_METADATA_NOT_VALID - I dati contenuti del file dei metadati F24 non rispettano lo schema di validazione.
+              - TAXID_NOT_VALID - Codice fiscale del destinatario non corretto (non ancora implementato).
+              - RECIPIENT_ID_NOT_VALID - Destinatario non Valido (utilizzato solo per funzionalità non ancora implementate)
+              - NOT_VALID_ADDRESS - L'indirizzo di invio cartaceo inserito per il destinatario non ha superato i controlli di correttezza.
+              - PAYMENT_NOT_VALID - I dati del pagamento non sono sono registrati sulla piattaforma GPD (modalità asincrona di integrazione pagoPA)
+              - SERVICE_UNAVAILABLE - Il sistema non è attualmente disponibile.
+              ...
+        detail:
+          type: string
+          maxLength: 2048
+    RequestRefusedDetailsV25:
+      type: object
+      properties:
+        refusalReasons:
+          type: array
+          description: Motivazioni che hanno portato al rifiuto della notifica
+          items:
+            $ref: '#/components/schemas/NotificationRefusedErrorV25'
     TimelineElementDetailsV25:
       description: The raw event payload that will be different based on the event.
       oneOf:
@@ -8689,6 +8721,186 @@ components:
         - $ref: '#/components/schemas/NotificationCancellationRequestDetails'
         - $ref: '#/components/schemas/NotificationCancelledDetails'
         - $ref: '#/components/schemas/PrepareAnalogDomicileFailureDetails'
+    TimelineElementCategoryV26:
+      type: string
+      description: |
+        stato di avanzamento del processo di notifica:`
+          * `SENDER_ACK_CREATION_REQUEST` - Invio della richiesta di creazione, firma e marca dell'atto opponibile a terzi di presa in carico per il mittente a safe storage
+          * `VALIDATE_NORMALIZE_ADDRESSES_REQUEST` - Invio della richiesta di validazione e normalizzazione indirizzi fisici presenti nella richiesta di notifica
+          * `NORMALIZED_ADDRESS` - Salvataggio indirizzi normalizzati
+          * `REQUEST_ACCEPTED` - Richiesta di notifica accettata a seguito dei controlli di validazione
+          * `REQUEST_REFUSED` - Richiesta di notifica rifiutata per fallimento di validazione
+          * `SEND_COURTESY_MESSAGE` - Invio di un messaggio di cortesia
+          * `GET_ADDRESS` - Disponibilità dell’indirizzo specifico (domicilio digitale di piattaforma, domicilio digitale speciale, domicilio digitale generale, indirizzo fisico sulla notifica o sui registri nazionali)
+          * `PUBLIC_REGISTRY_CALL` - Richiesta ai registri pubblici per ottenere domicilio digitale generale o per ottenere indirizzo fisico da ANPR, da registro della imprese, da anagrafe tributaria.
+          * `PUBLIC_REGISTRY_RESPONSE` - Ricevuta la risposta dei registri pubblici
+          * `SCHEDULE_ANALOG_WORKFLOW` - Pianificazione del workflow per invio cartaceo
+          * `SCHEDULE_DIGITAL_WORKFLOW` -Pianificazione del workflow per invio digitale (PEC) del secondo tentativo in caso di fallimento del primo.
+          * `PREPARE_DIGITAL_DOMICILE` - Preparazione per l’invio dell’avviso digitale.Va a valutare la timeline per capire quale sarà il prossimo indirizzo da usare.
+          * `SEND_DIGITAL_DOMICILE` - Invio digitale dell’avviso di notifica
+          * `SEND_DIGITAL_PROGRESS` - Tentativo di Invio PEC ad un determinato indirizzo.
+          * `SEND_DIGITAL_FEEDBACK` - Ottenuto esito ad un invio digitale
+          * `SCHEDULE_REFINEMENT` - Pianificato il perfezionamento per decorrenza termini
+          * `REFINEMENT` - Perfezionamento per decorrenza termini
+          * `DIGITAL_DELIVERY_CREATION_REQUEST` - Invio della richiesta di creazione, firma e marca dell'atto opponibile a terzi di chiusura del workflow digitale a safe storage
+          * `DIGITAL_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio digitale
+          * `DIGITAL_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio digitale: tutti i tentativi di invio ai domicili digitali sono falliti.
+          * `ANALOG_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio cartaceo
+          * `ANALOG_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio cartaceo NOTA: se per tutti i destinatari si conclude il workflow con fallimento verrà scatenato l’evento COMPLETELY_UNREACHABLE
+          * `PREPARE_SIMPLE_REGISTERED_LETTER` - Invio richiesta di prepare (preparazione ad invio) raccomandata semplice a paperChannel
+          * `SEND_SIMPLE_REGISTERED_LETTER` - Invio di raccomandata semplice
+          * `SEND_SIMPLE_REGISTERED_LETTER_PROGRESS` - Ricezione informazioni intermedia relative ad una notificazione cartacea semplice
+          * `NOTIFICATION_VIEWED_CREATION_REQUEST` - Invio della richiesta di creazione, firma e marca dell'atto opponibile a terzi di presa visione a safe storage
+          * `NOTIFICATION_VIEWED` - Visualizzazione della notifica (perfeziona la notifica se non già perfezionata per decorrenza termini o da altro destinatario)
+          * `PREPARE_ANALOG_DOMICILE` - Invio richiesta di prepare (preparazione ad invio) cartaceo a paperChannel
+          * `SEND_ANALOG_DOMICILE` - Invio cartaceo dell’avviso di notifica
+          * `SEND_ANALOG_PROGRESS` - Ricezione informazioni intermedia relative ad una notificazione cartacea
+          * `SEND_ANALOG_FEEDBACK` - Ricezione esito dell'invio cartaceo
+          * `COMPLETELY_UNREACHABLE_CREATION_REQUEST` - Invio della richiesta di creazione, firma e marca dell'atto (simile a opponibile a terzi) di completamento con fallimento del workflow di invio cartaceo
+          * `COMPLETELY_UNREACHABLE` - Tutti i destinatari risultano irraggiungibili
+          * `AAR_CREATION_REQUEST` - Invio della richiesta di creazione, firma e marca dell'AAR (Avviso di Avvenuta Ricezione) a safe storage
+          * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
+          * `PAYMENT` - Evento di ricezione __dal mittente__ dell'informazione di chiusura di uno o più pagamenti di tipo pagoPA (vedi #/components/schemas/PagoPaPayment). La presenza di questo evento inibisce l'invio di eventuali comunicazioni analogiche future ma non perfeziona la notifica.
+          * `NOT_HANDLED` - [DEPRECATO] Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
+          * `PROBABLE_SCHEDULING_ANALOG_DATE` - Data probabile di inizio del flusso analogico
+          * `NOTIFICATION_CANCELLATION_REQUEST` - Richiesta di annullamento di una notifica
+          * `NOTIFICATION_CANCELLED` - Notifica annullata
+          * `PREPARE_ANALOG_DOMICILE_FAILURE` - Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel
+          * `NOTIFICATION_RADD_RETRIEVED` - Accesso alla notifica tramite la rete RADD. Non perfeziona la notifica.
+          * `ANALOG_WORKFLOW_RECIPIENT_DECEASED` - Destinatario deceduto
+      enum:
+        - SENDER_ACK_CREATION_REQUEST
+        - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
+        - NORMALIZED_ADDRESS
+        - REQUEST_ACCEPTED
+        - SEND_COURTESY_MESSAGE
+        - GET_ADDRESS
+        - PUBLIC_REGISTRY_CALL
+        - PUBLIC_REGISTRY_RESPONSE
+        - SCHEDULE_ANALOG_WORKFLOW
+        - SCHEDULE_DIGITAL_WORKFLOW
+        - PREPARE_DIGITAL_DOMICILE
+        - SEND_DIGITAL_DOMICILE
+        - SEND_DIGITAL_PROGRESS
+        - SEND_DIGITAL_FEEDBACK
+        - REFINEMENT
+        - SCHEDULE_REFINEMENT
+        - DIGITAL_DELIVERY_CREATION_REQUEST
+        - DIGITAL_SUCCESS_WORKFLOW
+        - DIGITAL_FAILURE_WORKFLOW
+        - ANALOG_SUCCESS_WORKFLOW
+        - ANALOG_FAILURE_WORKFLOW
+        - PREPARE_SIMPLE_REGISTERED_LETTER
+        - SEND_SIMPLE_REGISTERED_LETTER
+        - SEND_SIMPLE_REGISTERED_LETTER_PROGRESS
+        - NOTIFICATION_VIEWED_CREATION_REQUEST
+        - NOTIFICATION_VIEWED
+        - PREPARE_ANALOG_DOMICILE
+        - SEND_ANALOG_DOMICILE
+        - SEND_ANALOG_PROGRESS
+        - SEND_ANALOG_FEEDBACK
+        - PAYMENT
+        - COMPLETELY_UNREACHABLE
+        - COMPLETELY_UNREACHABLE_CREATION_REQUEST
+        - REQUEST_REFUSED
+        - AAR_CREATION_REQUEST
+        - AAR_GENERATION
+        - NOT_HANDLED
+        - PROBABLE_SCHEDULING_ANALOG_DATE
+        - NOTIFICATION_CANCELLATION_REQUEST
+        - NOTIFICATION_CANCELLED
+        - PREPARE_ANALOG_DOMICILE_FAILURE
+        - NOTIFICATION_RADD_RETRIEVED
+        - ANALOG_WORKFLOW_RECIPIENT_DECEASED
+    TimelineElementDetailsV26:
+      description: The raw event payload that will be different based on the event.
+      oneOf:
+        - $ref: '#/components/schemas/SenderAckCreationRequestDetails'
+        - $ref: '#/components/schemas/NormalizedAddressDetails'
+        - $ref: '#/components/schemas/NotificationRequestAcceptedDetails'
+        - $ref: '#/components/schemas/AnalogFailureWorkflowDetails'
+        - $ref: '#/components/schemas/AnalogSuccessWorkflowDetails'
+        - $ref: '#/components/schemas/CompletelyUnreachableCreationRequestDetails'
+        - $ref: '#/components/schemas/CompletelyUnreachableDetails'
+        - $ref: '#/components/schemas/DigitalDeliveryCreationRequestDetails'
+        - $ref: '#/components/schemas/DigitalFailureWorkflowDetails'
+        - $ref: '#/components/schemas/DigitalSuccessWorkflowDetails'
+        - $ref: '#/components/schemas/GetAddressInfoDetails'
+        - $ref: '#/components/schemas/NotificationViewedCreationRequestDetailsV23'
+        - $ref: '#/components/schemas/NotificationViewedDetailsV23'
+        - $ref: '#/components/schemas/NotificationRADDRetrievedDetails'
+        - $ref: '#/components/schemas/PublicRegistryCallDetails'
+        - $ref: '#/components/schemas/PublicRegistryResponseDetails'
+        - $ref: '#/components/schemas/RefinementDetailsV23'
+        - $ref: '#/components/schemas/RequestRefusedDetailsV25'
+        - $ref: '#/components/schemas/ScheduleAnalogWorkflowDetailsV23'
+        - $ref: '#/components/schemas/ScheduleDigitalWorkflowDetailsV23'
+        - $ref: '#/components/schemas/ScheduleRefinementDetails'
+        - $ref: '#/components/schemas/SendCourtesyMessageDetails'
+        - $ref: '#/components/schemas/PrepareDigitalDetails'
+        - $ref: '#/components/schemas/SendDigitalDetails'
+        - $ref: '#/components/schemas/SendDigitalFeedbackDetails'
+        - $ref: '#/components/schemas/SendDigitalProgressDetailsV23'
+        - $ref: '#/components/schemas/BaseAnalogDetails'
+        - $ref: '#/components/schemas/SendAnalogDetails'
+        - $ref: '#/components/schemas/SendAnalogFeedbackDetailsV25'
+        - $ref: '#/components/schemas/BaseRegisteredLetterDetails'
+        - $ref: '#/components/schemas/SimpleRegisteredLetterDetails'
+        - $ref: '#/components/schemas/AarCreationRequestDetails'
+        - $ref: '#/components/schemas/AarGenerationDetails'
+        - $ref: '#/components/schemas/NotHandledDetails'
+        - $ref: '#/components/schemas/NotificationPaidDetailsV23'
+        - $ref: '#/components/schemas/SendAnalogProgressDetailsV23'
+        - $ref: '#/components/schemas/SimpleRegisteredLetterProgressDetails'
+        - $ref: '#/components/schemas/ProbableDateAnalogWorkflowDetails'
+        - $ref: '#/components/schemas/NotificationCancellationRequestDetails'
+        - $ref: '#/components/schemas/NotificationCancelledDetails'
+        - $ref: '#/components/schemas/PrepareAnalogDomicileFailureDetails'
+        - $ref: '#/components/schemas/AnalogWorkflowRecipientDeceasedDetailsV26'
+    TimelineElementV26:
+      type: object
+      additionalProperties: false
+      properties:
+        elementId:
+          type: string
+          maxLength: 512
+          description: >-
+            Identificativo dell'elemento di timeline: insieme allo IUN della
+            notifica definisce in maniera univoca l'elemento di timeline
+        timestamp:
+          type: string
+          deprecated: true
+          description: >-
+            Istante in cui avviene l'evento descritto in questo elemento di
+            timeline (deprecato, fare riferimento al campo eventTimestamp)
+          format: date-time
+        ingestionTimestamp:
+          type: string
+          description: >-
+            Istante in cui l'evento descritto in questo elemento di timeline è
+            gestito da SEND
+          format: date-time
+        eventTimestamp:
+          type: string
+          description: >-
+            Istante in cui avviene l'evento descritto in questo elemento di
+            timeline
+          format: date-time
+        notificationSentAt:
+          type: string
+          description: Momento di ricezione della richiesta di notifica da parte di SEND
+          format: date-time
+        legalFactsIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/LegalFactsIdV20'
+          description: >-
+            Chiavi dei documenti che provano l'effettivo accadimento dell'evento
+            descritto in timeline. Questo elemento
+        category:
+          $ref: '#/components/schemas/TimelineElementCategoryV26'
+        details:
+          $ref: '#/components/schemas/TimelineElementDetailsV26'
     PersonalData:
       type: object
       properties:
@@ -10412,186 +10624,6 @@ components:
             minLength: 4
             maxLength: 256
             pattern: ^[A-Z_]+$
-    TimelineElementCategoryV26:
-      type: string
-      description: |
-        stato di avanzamento del processo di notifica:`
-          * `SENDER_ACK_CREATION_REQUEST` - Invio della richiesta di creazione, firma e marca dell'atto opponibile a terzi di presa in carico per il mittente a safe storage
-          * `VALIDATE_NORMALIZE_ADDRESSES_REQUEST` - Invio della richiesta di validazione e normalizzazione indirizzi fisici presenti nella richiesta di notifica
-          * `NORMALIZED_ADDRESS` - Salvataggio indirizzi normalizzati
-          * `REQUEST_ACCEPTED` - Richiesta di notifica accettata a seguito dei controlli di validazione
-          * `REQUEST_REFUSED` - Richiesta di notifica rifiutata per fallimento di validazione
-          * `SEND_COURTESY_MESSAGE` - Invio di un messaggio di cortesia
-          * `GET_ADDRESS` - Disponibilità dell’indirizzo specifico (domicilio digitale di piattaforma, domicilio digitale speciale, domicilio digitale generale, indirizzo fisico sulla notifica o sui registri nazionali)
-          * `PUBLIC_REGISTRY_CALL` - Richiesta ai registri pubblici per ottenere domicilio digitale generale o per ottenere indirizzo fisico da ANPR, da registro della imprese, da anagrafe tributaria.
-          * `PUBLIC_REGISTRY_RESPONSE` - Ricevuta la risposta dei registri pubblici
-          * `SCHEDULE_ANALOG_WORKFLOW` - Pianificazione del workflow per invio cartaceo
-          * `SCHEDULE_DIGITAL_WORKFLOW` -Pianificazione del workflow per invio digitale (PEC) del secondo tentativo in caso di fallimento del primo.
-          * `PREPARE_DIGITAL_DOMICILE` - Preparazione per l’invio dell’avviso digitale.Va a valutare la timeline per capire quale sarà il prossimo indirizzo da usare.
-          * `SEND_DIGITAL_DOMICILE` - Invio digitale dell’avviso di notifica
-          * `SEND_DIGITAL_PROGRESS` - Tentativo di Invio PEC ad un determinato indirizzo.
-          * `SEND_DIGITAL_FEEDBACK` - Ottenuto esito ad un invio digitale
-          * `SCHEDULE_REFINEMENT` - Pianificato il perfezionamento per decorrenza termini
-          * `REFINEMENT` - Perfezionamento per decorrenza termini
-          * `DIGITAL_DELIVERY_CREATION_REQUEST` - Invio della richiesta di creazione, firma e marca dell'atto opponibile a terzi di chiusura del workflow digitale a safe storage
-          * `DIGITAL_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio digitale
-          * `DIGITAL_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio digitale: tutti i tentativi di invio ai domicili digitali sono falliti.
-          * `ANALOG_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio cartaceo
-          * `ANALOG_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio cartaceo NOTA: se per tutti i destinatari si conclude il workflow con fallimento verrà scatenato l’evento COMPLETELY_UNREACHABLE
-          * `PREPARE_SIMPLE_REGISTERED_LETTER` - Invio richiesta di prepare (preparazione ad invio) raccomandata semplice a paperChannel
-          * `SEND_SIMPLE_REGISTERED_LETTER` - Invio di raccomandata semplice
-          * `SEND_SIMPLE_REGISTERED_LETTER_PROGRESS` - Ricezione informazioni intermedia relative ad una notificazione cartacea semplice
-          * `NOTIFICATION_VIEWED_CREATION_REQUEST` - Invio della richiesta di creazione, firma e marca dell'atto opponibile a terzi di presa visione a safe storage
-          * `NOTIFICATION_VIEWED` - Visualizzazione della notifica (perfeziona la notifica se non già perfezionata per decorrenza termini o da altro destinatario)
-          * `PREPARE_ANALOG_DOMICILE` - Invio richiesta di prepare (preparazione ad invio) cartaceo a paperChannel
-          * `SEND_ANALOG_DOMICILE` - Invio cartaceo dell’avviso di notifica
-          * `SEND_ANALOG_PROGRESS` - Ricezione informazioni intermedia relative ad una notificazione cartacea
-          * `SEND_ANALOG_FEEDBACK` - Ricezione esito dell'invio cartaceo
-          * `COMPLETELY_UNREACHABLE_CREATION_REQUEST` - Invio della richiesta di creazione, firma e marca dell'atto (simile a opponibile a terzi) di completamento con fallimento del workflow di invio cartaceo
-          * `COMPLETELY_UNREACHABLE` - Tutti i destinatari risultano irraggiungibili
-          * `AAR_CREATION_REQUEST` - Invio della richiesta di creazione, firma e marca dell'AAR (Avviso di Avvenuta Ricezione) a safe storage
-          * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
-          * `PAYMENT` - Evento di ricezione __dal mittente__ dell'informazione di chiusura di uno o più pagamenti di tipo pagoPA (vedi #/components/schemas/PagoPaPayment). La presenza di questo evento inibisce l'invio di eventuali comunicazioni analogiche future ma non perfeziona la notifica.
-          * `NOT_HANDLED` - [DEPRECATO] Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
-          * `PROBABLE_SCHEDULING_ANALOG_DATE` - Data probabile di inizio del flusso analogico
-          * `NOTIFICATION_CANCELLATION_REQUEST` - Richiesta di annullamento di una notifica
-          * `NOTIFICATION_CANCELLED` - Notifica annullata
-          * `PREPARE_ANALOG_DOMICILE_FAILURE` - Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel
-          * `NOTIFICATION_RADD_RETRIEVED` - Accesso alla notifica tramite la rete RADD. Non perfeziona la notifica.
-          * `ANALOG_WORKFLOW_RECIPIENT_DECEASED` - Destinatario deceduto
-      enum:
-        - SENDER_ACK_CREATION_REQUEST
-        - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
-        - NORMALIZED_ADDRESS
-        - REQUEST_ACCEPTED
-        - SEND_COURTESY_MESSAGE
-        - GET_ADDRESS
-        - PUBLIC_REGISTRY_CALL
-        - PUBLIC_REGISTRY_RESPONSE
-        - SCHEDULE_ANALOG_WORKFLOW
-        - SCHEDULE_DIGITAL_WORKFLOW
-        - PREPARE_DIGITAL_DOMICILE
-        - SEND_DIGITAL_DOMICILE
-        - SEND_DIGITAL_PROGRESS
-        - SEND_DIGITAL_FEEDBACK
-        - REFINEMENT
-        - SCHEDULE_REFINEMENT
-        - DIGITAL_DELIVERY_CREATION_REQUEST
-        - DIGITAL_SUCCESS_WORKFLOW
-        - DIGITAL_FAILURE_WORKFLOW
-        - ANALOG_SUCCESS_WORKFLOW
-        - ANALOG_FAILURE_WORKFLOW
-        - PREPARE_SIMPLE_REGISTERED_LETTER
-        - SEND_SIMPLE_REGISTERED_LETTER
-        - SEND_SIMPLE_REGISTERED_LETTER_PROGRESS
-        - NOTIFICATION_VIEWED_CREATION_REQUEST
-        - NOTIFICATION_VIEWED
-        - PREPARE_ANALOG_DOMICILE
-        - SEND_ANALOG_DOMICILE
-        - SEND_ANALOG_PROGRESS
-        - SEND_ANALOG_FEEDBACK
-        - PAYMENT
-        - COMPLETELY_UNREACHABLE
-        - COMPLETELY_UNREACHABLE_CREATION_REQUEST
-        - REQUEST_REFUSED
-        - AAR_CREATION_REQUEST
-        - AAR_GENERATION
-        - NOT_HANDLED
-        - PROBABLE_SCHEDULING_ANALOG_DATE
-        - NOTIFICATION_CANCELLATION_REQUEST
-        - NOTIFICATION_CANCELLED
-        - PREPARE_ANALOG_DOMICILE_FAILURE
-        - NOTIFICATION_RADD_RETRIEVED
-        - ANALOG_WORKFLOW_RECIPIENT_DECEASED
-    TimelineElementDetailsV26:
-      description: The raw event payload that will be different based on the event.
-      oneOf:
-        - $ref: '#/components/schemas/SenderAckCreationRequestDetails'
-        - $ref: '#/components/schemas/NormalizedAddressDetails'
-        - $ref: '#/components/schemas/NotificationRequestAcceptedDetails'
-        - $ref: '#/components/schemas/AnalogFailureWorkflowDetails'
-        - $ref: '#/components/schemas/AnalogSuccessWorkflowDetails'
-        - $ref: '#/components/schemas/CompletelyUnreachableCreationRequestDetails'
-        - $ref: '#/components/schemas/CompletelyUnreachableDetails'
-        - $ref: '#/components/schemas/DigitalDeliveryCreationRequestDetails'
-        - $ref: '#/components/schemas/DigitalFailureWorkflowDetails'
-        - $ref: '#/components/schemas/DigitalSuccessWorkflowDetails'
-        - $ref: '#/components/schemas/GetAddressInfoDetails'
-        - $ref: '#/components/schemas/NotificationViewedCreationRequestDetailsV23'
-        - $ref: '#/components/schemas/NotificationViewedDetailsV23'
-        - $ref: '#/components/schemas/NotificationRADDRetrievedDetails'
-        - $ref: '#/components/schemas/PublicRegistryCallDetails'
-        - $ref: '#/components/schemas/PublicRegistryResponseDetails'
-        - $ref: '#/components/schemas/RefinementDetailsV23'
-        - $ref: '#/components/schemas/RequestRefusedDetailsV25'
-        - $ref: '#/components/schemas/ScheduleAnalogWorkflowDetailsV23'
-        - $ref: '#/components/schemas/ScheduleDigitalWorkflowDetailsV23'
-        - $ref: '#/components/schemas/ScheduleRefinementDetails'
-        - $ref: '#/components/schemas/SendCourtesyMessageDetails'
-        - $ref: '#/components/schemas/PrepareDigitalDetails'
-        - $ref: '#/components/schemas/SendDigitalDetails'
-        - $ref: '#/components/schemas/SendDigitalFeedbackDetails'
-        - $ref: '#/components/schemas/SendDigitalProgressDetailsV23'
-        - $ref: '#/components/schemas/BaseAnalogDetails'
-        - $ref: '#/components/schemas/SendAnalogDetails'
-        - $ref: '#/components/schemas/SendAnalogFeedbackDetailsV25'
-        - $ref: '#/components/schemas/BaseRegisteredLetterDetails'
-        - $ref: '#/components/schemas/SimpleRegisteredLetterDetails'
-        - $ref: '#/components/schemas/AarCreationRequestDetails'
-        - $ref: '#/components/schemas/AarGenerationDetails'
-        - $ref: '#/components/schemas/NotHandledDetails'
-        - $ref: '#/components/schemas/NotificationPaidDetailsV23'
-        - $ref: '#/components/schemas/SendAnalogProgressDetailsV23'
-        - $ref: '#/components/schemas/SimpleRegisteredLetterProgressDetails'
-        - $ref: '#/components/schemas/ProbableDateAnalogWorkflowDetails'
-        - $ref: '#/components/schemas/NotificationCancellationRequestDetails'
-        - $ref: '#/components/schemas/NotificationCancelledDetails'
-        - $ref: '#/components/schemas/PrepareAnalogDomicileFailureDetails'
-        - $ref: '#/components/schemas/AnalogWorkflowRecipientDeceasedDetailsV26'
-    TimelineElementV26:
-      type: object
-      additionalProperties: false
-      properties:
-        elementId:
-          type: string
-          maxLength: 512
-          description: >-
-            Identificativo dell'elemento di timeline: insieme allo IUN della
-            notifica definisce in maniera univoca l'elemento di timeline
-        timestamp:
-          type: string
-          deprecated: true
-          description: >-
-            Istante in cui avviene l'evento descritto in questo elemento di
-            timeline (deprecato, fare riferimento al campo eventTimestamp)
-          format: date-time
-        ingestionTimestamp:
-          type: string
-          description: >-
-            Istante in cui l'evento descritto in questo elemento di timeline è
-            gestito da SEND
-          format: date-time
-        eventTimestamp:
-          type: string
-          description: >-
-            Istante in cui avviene l'evento descritto in questo elemento di
-            timeline
-          format: date-time
-        notificationSentAt:
-          type: string
-          description: Momento di ricezione della richiesta di notifica da parte di SEND
-          format: date-time
-        legalFactsIds:
-          type: array
-          items:
-            $ref: '#/components/schemas/LegalFactsIdV20'
-          description: >-
-            Chiavi dei documenti che provano l'effettivo accadimento dell'evento
-            descritto in timeline. Questo elemento
-        category:
-          $ref: '#/components/schemas/TimelineElementCategoryV26'
-        details:
-          $ref: '#/components/schemas/TimelineElementDetailsV26'
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
