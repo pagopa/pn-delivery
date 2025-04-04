@@ -674,6 +674,10 @@ Parameters:
     Type: String
     Description: 'PnDeliveryLimitConfigurer queue URL'
 
+  PhysicalAddressLookupStart:
+    Type: String
+    Description: "Activation date time for physical address lookup feature"
+
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
 
@@ -757,6 +761,7 @@ Resources:
         ContainerEnvEntry52: !Sub "PN_DELIVERY_PANOTIFICATIONLIMITDAO_TABLENAME=${PaNotificationLimitDynamoTableName}"
         ContainerEnvEntry53: !Sub "PN_DELIVERY_NOTIFICATIONREFUSEDVERIFICATIONDAO_TABLENAME=${NotificationRefusedVerificationDynamoTableName}"
         ContainerEnvEntry54: !Sub "SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${Mandate2DeliveryQueueName},${PnNotificationRefusedQueueName}"
+        ContainerEnvEntry55: !Sub "PN_DELIVERY_PHYSICALADDRESSLOOKUPSTARTDATE=${PhysicalAddressLookupStartDate}"
 
         ContainerSecret1: !Sub "ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:"
         MicroServiceSecretPrefix: pn-Delivery-Secrets
@@ -840,6 +845,7 @@ Resources:
               - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapTaxIdWhiteList"
               - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapTaxIdBlackList"
               - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapPaSendActive"
+              - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/PaActiveForPhysicalAddressLookup"
 
   # Expose PN-Delivery microservice public API with API-GW for B2B usage
   DeliveryMicroservicePublicAPI:
@@ -1419,7 +1425,7 @@ Resources:
       Environment:
         Variables:
           REGION: !Sub ${AWS::Region}
-          PN_DELIVERY_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery/v2.4"
+          PN_DELIVERY_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery/v2.5"
           NUM_RETRY: !Ref NumRetry
           ATTEMPT_TIMEOUT_SEC: !Ref AttemptTimeoutSec
       TracingConfig:
@@ -2036,18 +2042,18 @@ Resources:
         - Arn: !GetAtt PaLimitCorrectionLambda.Arn
           Id: PaLimitCorrectionLambdaTarget
           Input: '{ "dateToVerifyLimit": null }'
-  
+
   PnDeliveryLimitConfigurerQueueRule:
     Type: AWS::Events::Rule
-    Properties: 
+    Properties:
       Description: Route SafeStorage Events to pn-delivery LimitConfigurer
-      RoleArn: !GetAtt "EventBusEnqueueRole.Arn" 
+      RoleArn: !GetAtt "EventBusEnqueueRole.Arn"
       EventBusName: !Sub '${ProjectName}-CoreEventBus'
       EventPattern:
         detail-type: [ "SafeStorageOutcomeEvent" ]
         detail:
           documentType: [ 'SEND_SERVICE_ORDER' ]
-      Targets: 
+      Targets:
         - Arn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:PnCoreEventBusMatchedEventLogger
           Id: !Sub ${ProjectName}-Logger-SafeStore2LimitConfigurer
           InputTransformer:
@@ -2060,7 +2066,7 @@ Resources:
                   "ruleName": <aws.events.rule-name>,
                   "ingestionTime": <aws.events.event.ingestion-time>,
                   "originalEvent": <aws.events.event.json>
-              }       
+              }
         - Id: !Sub '${ProjectName}-SafeStore2DeliveryLimitConfigurer'
           Arn: !Ref PnDeliveryLimitConfigurerQueueARN
           InputPath: $.detail
@@ -2089,7 +2095,7 @@ Resources:
                   - sqs:GetQueueUrl
                   - sqs:SendMessage
                 Effect: Allow
-                Resource: 
+                Resource:
                   - !Ref PnDeliveryLimitConfigurerQueueARN
 
   PnDeliveryQueuePolicy:
@@ -2101,10 +2107,10 @@ Resources:
         Statement:
           - Sid: "SendEventsToDLQ"
             Effect: "Allow"
-            Principal: 
-              Service: 
+            Principal:
+              Service:
                 - "events.amazonaws.com"
-            Action: 
+            Action:
               - "SQS:SendMessage"
             Resource:
               - !Ref "PnDeliveryLimitConfigurerQueueARN"

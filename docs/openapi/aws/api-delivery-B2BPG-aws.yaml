@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: RW4TIfVXE4LnxHlKGSfZsYlJHRUU62hokqyBKVtcfF0=
+  version: 5K9tVlFoSiiRJ+GF1rm4PGVh9uEXTiampUvXnYnNxNo=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -157,7 +157,7 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
-  /v2.5/notifications/received/{iun}:
+  /v2.6/notifications/received/{iun}:
     get:
       summary: Dettaglio di una notifica ricevuta.
       description: >-
@@ -171,7 +171,7 @@ paths:
                   - eventuali documenti di pagamento (campo payments reperibile nel dettaglio del destinatario)
       tags:
         - RecipientReadB2B
-      operationId: getReceivedNotificationV25
+      operationId: getReceivedNotificationV26
       x-api-permissions:
         - REFINEMENT
       parameters:
@@ -183,7 +183,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FullReceivedNotificationV25'
+                $ref: '#/components/schemas/FullReceivedNotificationV26'
         '400':
           description: Bad request
           content:
@@ -202,7 +202,7 @@ paths:
         - pn-auth-fleet_b2bAuthorizer_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.5/notifications/received/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.6/notifications/received/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -220,10 +220,10 @@ paths:
         timeoutInMillis: 29000
         type: http_proxy
     options:
-      operationId: Options for /v2.5/notifications/received/{iun} API CORS
+      operationId: Options for /v2.6/notifications/received/{iun} API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.5/notifications/received/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.6/notifications/received/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -527,13 +527,13 @@ components:
         maxLength: 25
         pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
   schemas:
-    FullReceivedNotificationV25:
+    FullReceivedNotificationV26:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata e il
         processo di  inoltro della notifica verso i destinatari (Persone Fisiche
         o Giuridiche).
       allOf:
-        - $ref: '#/components/schemas/SentNotificationV24'
+        - $ref: '#/components/schemas/SentNotificationV25'
         - type: object
           required:
             - notificationStatus
@@ -1008,13 +1008,12 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/NotificationPaymentItem'
-    NotificationRecipientV23:
+    NotificationRecipientV24:
       description: Informazioni sui destinatari
       required:
         - denomination
         - recipientType
         - taxId
-        - physicalAddress
       type: object
       additionalProperties: false
       properties:
@@ -1088,7 +1087,7 @@ components:
         <br/> Esempio vat al 22% -> 22 <br/>
       minimum: 0
       maximum: 100
-    NewNotificationRequestV24:
+    NewNotificationRequestV25:
       description: I campi utilizzati per la creazione di una nuova Notifica.
       type: object
       required:
@@ -1131,7 +1130,7 @@ components:
           type: array
           description: Informazioni sui destinatari
           items:
-            $ref: '#/components/schemas/NotificationRecipientV23'
+            $ref: '#/components/schemas/NotificationRecipientV24'
           minItems: 1
         documents:
           type: array
@@ -1208,10 +1207,16 @@ components:
           items:
             type: string
             maxItems: 1
-    SentNotificationV24:
+    UsedServices:
+      description: Servizi utilizzati per la creazione della notifica
+      type: object
+      properties:
+        physicalAddressLookup:
+          type: boolean
+    SentNotificationV25:
       description: Le informazioni riguardanti una richiesta di notifica accettata
       allOf:
-        - $ref: '#/components/schemas/NewNotificationRequestV24'
+        - $ref: '#/components/schemas/NewNotificationRequestV25'
         - type: object
           required:
             - iun
@@ -1235,6 +1240,8 @@ components:
             documentsAvailable:
               type: boolean
               description: Indica se i documenti notificati sono ancora disponibili.
+            usedServices:
+              $ref: '#/components/schemas/UsedServices'
     TimelineElementId:
       type: string
     NotificationStatusHistoryElementV26:

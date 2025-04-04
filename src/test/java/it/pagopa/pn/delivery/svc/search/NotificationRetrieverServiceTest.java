@@ -1503,7 +1503,7 @@ class NotificationRetrieverServiceTest {
     private void enrichInternalNotificationWithAnotherRecipient(InternalNotification internalNotification, String recipient) {
         ArrayList<NotificationRecipient> notificationRecipients = new ArrayList<>(internalNotification.getRecipients());
         notificationRecipients.add(NotificationRecipient.builder()
-                .recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
+                .recipientType(NotificationRecipientV24.RecipientTypeEnum.PF)
                 .payments(List.of(NotificationPaymentInfo.builder().build()))
                 .taxId("88888888")
                 .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder().address("recipient1@pec.it").build())

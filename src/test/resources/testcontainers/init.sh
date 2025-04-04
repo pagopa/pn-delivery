@@ -252,4 +252,13 @@ aws --profile default --region us-east-1 --endpoint-url http://localstack:4566 \
     --attributes '{"DelaySeconds":"2"}' \
     --queue-name "pn-notification_refused"
 
+aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
+    ssm put-parameter \
+    --name "PAsActiveForPhysicalAddressLookup" \
+    --type String \
+    --value "[
+                 \"5b994d4a-0fa8-47ac-9c7b-354f1d44a1ce\"
+             ]"
+
+
 echo "Initialization terminated"

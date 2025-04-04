@@ -1,6 +1,6 @@
 diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-external-b2b-pa-bundle.yaml
---- a/docs/openapi/api-external-b2b-pa-bundle.yaml	(revision 9687ae77e5b5812d67c569a367f2d6418f4a06bb)
-+++ b/docs/openapi/api-external-b2b-pa-bundle.yaml	(date 1738851299273)
+--- a/docs/openapi/api-external-b2b-pa-bundle.yaml	(revision 840e52e52389f907eb7452d6b2530f74a0b5ab12)
++++ b/docs/openapi/api-external-b2b-pa-bundle.yaml	(date 1742814354683)
 @@ -997,8 +997,6 @@
        tags:
          - NewNotification
@@ -37,7 +37,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        tags:
          - SenderReadB2B
        summary: Verifica accettazione richiesta notifica
-@@ -1190,8 +1182,6 @@
+@@ -1191,8 +1183,6 @@
        tags:
          - NewNotification
        operationId: sendNewNotificationV23
@@ -46,16 +46,16 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        requestBody:
          content:
            application/json:
-@@ -1225,8 +1215,6 @@
-                 $ref: '#/components/schemas/Problem'
+@@ -1227,8 +1217,6 @@
      get:
+       deprecated: true
        operationId: retrieveNotificationRequestStatusV23
 -      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live
 -      x-pagopa-lambda-account: core
        tags:
          - SenderReadB2B
        summary: Verifica accettazione richiesta notifica
-@@ -1274,8 +1262,6 @@
+@@ -1373,8 +1361,6 @@
        tags:
          - SenderReadB2B
        operationId: retrieveSentNotification
@@ -64,7 +64,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        parameters:
          - $ref: '#/components/parameters/pathIun'
        responses:
-@@ -1307,8 +1293,6 @@
+@@ -1406,8 +1392,6 @@
        tags:
          - SenderReadB2B
        operationId: retrieveSentNotificationV20
@@ -73,7 +73,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        parameters:
          - $ref: '#/components/parameters/pathIun'
        responses:
-@@ -1340,8 +1324,6 @@
+@@ -1439,8 +1423,6 @@
        tags:
          - SenderReadB2B
        operationId: retrieveSentNotificationV21
@@ -82,7 +82,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        parameters:
          - $ref: '#/components/parameters/pathIun'
        responses:
-@@ -1373,8 +1355,6 @@
+@@ -1472,8 +1454,6 @@
        tags:
          - SenderReadB2B
        operationId: retrieveSentNotificationV23
@@ -91,7 +91,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        parameters:
          - $ref: '#/components/parameters/pathIun'
        responses:
-@@ -1405,8 +1385,6 @@
+@@ -1505,8 +1485,6 @@
        tags:
          - SenderReadB2B
        operationId: retrieveSentNotificationV24
@@ -100,7 +100,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        parameters:
          - $ref: '#/components/parameters/pathIun'
        responses:
-@@ -1437,8 +1415,6 @@
+@@ -1538,8 +1516,6 @@
        tags:
          - SenderReadB2B
        operationId: retrieveSentNotificationV25
@@ -109,7 +109,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        parameters:
          - $ref: '#/components/parameters/pathIun'
        responses:
-@@ -1464,8 +1440,6 @@
+@@ -1598,8 +1574,6 @@
      get:
        deprecated: true
        operationId: retrieveNotificationPrice
@@ -118,7 +118,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        summary: Retrieve notification price and effective date
        description: |-
          Usata dalla PA per recuperare il costo di notificazione tramite
-@@ -1559,7 +1533,6 @@
+@@ -1693,7 +1667,6 @@
        operationId: retrieveNotificationLegalFactsV20
        parameters:
          - $ref: '#/components/parameters/pathIun'
@@ -126,7 +126,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        responses:
          '200':
            description: OK
-@@ -1597,7 +1570,6 @@
+@@ -1731,7 +1704,6 @@
          - $ref: '#/components/parameters/pathIun'
          - $ref: '#/components/parameters/pathLegalFactType'
          - $ref: '#/components/parameters/pathLegalFactId'
@@ -134,7 +134,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        responses:
          '200':
            description: OK
-@@ -1633,7 +1605,6 @@
+@@ -1767,7 +1739,6 @@
        parameters:
          - $ref: '#/components/parameters/pathIun'
          - $ref: '#/components/parameters/pathLegalFactId'
@@ -142,7 +142,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        responses:
          '200':
            description: OK
-@@ -1641,43 +1612,6 @@
+@@ -1775,43 +1746,6 @@
              application/json:
                schema:
                  $ref: '#/components/schemas/LegalFactDownloadMetadataResponse'
@@ -186,7 +186,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
          '400':
            description: Invalid input
            content:
-@@ -1706,11 +1640,8 @@
+@@ -1840,11 +1774,8 @@
        tags:
          - LegalFacts
        operationId: retrieveNotificationLegalFacts
@@ -198,7 +198,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        responses:
          '200':
            description: OK
-@@ -2068,8 +1999,6 @@
+@@ -2202,8 +2133,6 @@
        tags:
          - Streams
        operationId: createEventStream
@@ -207,7 +207,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        requestBody:
          required: true
          content:
-@@ -2102,8 +2031,6 @@
+@@ -2236,8 +2165,6 @@
        tags:
          - Streams
        operationId: listEventStreams
@@ -216,7 +216,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        responses:
          '200':
            description: OK
-@@ -2133,8 +2060,6 @@
+@@ -2267,8 +2194,6 @@
        tags:
          - Streams
        operationId: retrieveEventStream
@@ -225,7 +225,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        responses:
          '200':
            description: OK
-@@ -2163,8 +2088,6 @@
+@@ -2297,8 +2222,6 @@
        tags:
          - Streams
        operationId: updateEventStream
@@ -234,7 +234,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        requestBody:
          required: true
          content:
-@@ -2199,8 +2122,6 @@
+@@ -2333,8 +2256,6 @@
        tags:
          - Streams
        operationId: removeEventStream
@@ -243,7 +243,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        responses:
          '204':
            description: OK
-@@ -2228,8 +2149,6 @@
+@@ -2362,8 +2283,6 @@
        tags:
          - Events
        operationId: consumeEventStream
@@ -252,7 +252,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        parameters:
          - $ref: '#/components/parameters/pathStreamId'
          - $ref: '#/components/parameters/queryLastEventId'
-@@ -2288,8 +2207,6 @@
+@@ -2422,8 +2341,6 @@
        tags:
          - Streams
        operationId: createEventStreamV23
@@ -261,7 +261,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        requestBody:
          required: true
          content:
-@@ -2334,8 +2251,6 @@
+@@ -2468,8 +2385,6 @@
        tags:
          - Streams
        operationId: listEventStreamsV23
@@ -270,7 +270,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        responses:
          '200':
            description: OK
-@@ -2365,8 +2280,6 @@
+@@ -2499,8 +2414,6 @@
        tags:
          - Streams
        operationId: retrieveEventStreamV23
@@ -279,7 +279,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        responses:
          '200':
            description: OK
-@@ -2407,8 +2320,6 @@
+@@ -2541,8 +2454,6 @@
        tags:
          - Streams
        operationId: updateEventStreamV23
@@ -288,7 +288,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        requestBody:
          required: true
          content:
-@@ -2455,8 +2366,6 @@
+@@ -2589,8 +2500,6 @@
        tags:
          - Streams
        operationId: removeEventStreamV23
@@ -297,7 +297,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        responses:
          '204':
            description: OK
-@@ -2506,8 +2415,6 @@
+@@ -2640,8 +2549,6 @@
        tags:
          - Streams
        operationId: disableEventStreamV23
@@ -306,7 +306,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        parameters:
          - $ref: '#/components/parameters/pathStreamId'
        responses:
-@@ -2553,8 +2460,6 @@
+@@ -2687,8 +2594,6 @@
        tags:
          - Events
        operationId: consumeEventStreamV23
@@ -315,7 +315,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        parameters:
          - $ref: '#/components/parameters/pathStreamId'
          - $ref: '#/components/parameters/queryLastEventId'
-@@ -2628,8 +2533,6 @@
+@@ -2762,8 +2667,6 @@
        tags:
          - Streams
        operationId: createEventStreamV24
@@ -324,7 +324,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        requestBody:
          required: true
          content:
-@@ -2674,8 +2577,6 @@
+@@ -2808,8 +2711,6 @@
        tags:
          - Streams
        operationId: listEventStreamsV24
@@ -333,7 +333,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        responses:
          '200':
            description: OK
-@@ -2705,8 +2606,6 @@
+@@ -2839,8 +2740,6 @@
        tags:
          - Streams
        operationId: retrieveEventStreamV24
@@ -342,7 +342,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        responses:
          '200':
            description: OK
-@@ -2747,8 +2646,6 @@
+@@ -2881,8 +2780,6 @@
        tags:
          - Streams
        operationId: updateEventStreamV24
@@ -351,7 +351,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        requestBody:
          required: true
          content:
-@@ -2795,8 +2692,6 @@
+@@ -2929,8 +2826,6 @@
        tags:
          - Streams
        operationId: removeEventStreamV24
@@ -360,7 +360,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        responses:
          '204':
            description: OK
-@@ -2846,8 +2741,6 @@
+@@ -2980,8 +2875,6 @@
        tags:
          - Streams
        operationId: disableEventStreamV24
@@ -369,7 +369,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        parameters:
          - $ref: '#/components/parameters/pathStreamId'
        responses:
-@@ -2893,8 +2786,6 @@
+@@ -3027,8 +2920,6 @@
        tags:
          - Events
        operationId: consumeEventStreamV24

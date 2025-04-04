@@ -51,7 +51,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     }
 
     @Override
-    public ResponseEntity<FullSentNotificationV26> getSentNotificationV26(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
+    public ResponseEntity<FullSentNotificationV27> getSentNotificationV27(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
         InternalNotification internalNotification = retrieveSvc.getNotificationInformationWithSenderIdCheck( iun, xPagopaPnCxId, xPagopaPnCxGroups );
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
@@ -65,7 +65,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             throw new PnNotificationNotFoundException( "Unable to find notification with iun="+ internalNotification.getIun() );
         }
         InternalFieldsCleaner.cleanInternalFields( internalNotification );
-        FullSentNotificationV26 result = modelMapper.map( internalNotification, FullSentNotificationV26.class );
+        FullSentNotificationV27 result = modelMapper.map( internalNotification, FullSentNotificationV27.class );
         logEvent.generateSuccess().log();
         return ResponseEntity.ok( result );
     }
@@ -113,7 +113,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     }
 
     @Override
-    public ResponseEntity<NewNotificationRequestStatusResponseV24> getNotificationRequestStatusV24(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String notificationRequestId, String paProtocolNumber, String idempotenceToken) {
+    public ResponseEntity<NewNotificationRequestStatusResponseV25> getNotificationRequestStatusV25(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String notificationRequestId, String paProtocolNumber, String idempotenceToken) {
         InternalNotification internalNotification;
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
@@ -141,9 +141,9 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             internalNotification = retrieveSvc.getNotificationInformation( xPagopaPnCxId, paProtocolNumber, idempotenceToken, xPagopaPnCxGroups);
         }
         InternalFieldsCleaner.cleanInternalFields( internalNotification );
-        NewNotificationRequestStatusResponseV24 response = modelMapper.map(
+        NewNotificationRequestStatusResponseV25 response = modelMapper.map(
                 internalNotification,
-                NewNotificationRequestStatusResponseV24.class
+                NewNotificationRequestStatusResponseV25.class
         );
         response.setNotificationRequestId( Base64Utils.encodeToString( internalNotification.getIun().getBytes(StandardCharsets.UTF_8) ));
 
@@ -176,7 +176,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         return ResponseEntity.ok( response );
     }
 
-    private void setRefusedErrors(NewNotificationRequestStatusResponseV24 response, TimelineElementV27 timelineElement) {
+    private void setRefusedErrors(NewNotificationRequestStatusResponseV25 response, TimelineElementV27 timelineElement) {
         List<NotificationRefusedErrorV25> refusalReasons = timelineElement.getDetails().getRefusalReasons();
         List<ProblemError> problemErrorList = refusalReasons.stream().map(
                 reason -> ProblemError.builder()

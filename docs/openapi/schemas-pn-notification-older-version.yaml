@@ -6,11 +6,11 @@ components:
     ############################################################################################
     ###                                 DTO DELLE NOTIFICHE                                  ###
     ############################################################################################
-    SentNotificationV23:
+    SentNotificationV24:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata
       allOf:
-        - $ref: '#/components/schemas/NewNotificationRequestV23'
+        - $ref: '#/components/schemas/NewNotificationRequestV24'
         - type: object
           required:
             - iun
@@ -40,7 +40,7 @@ components:
               type: string                                              # NO EXTERNAL
               description: Indica la versione della notifica            # NO EXTERNAL
     
-    NewNotificationRequestV23:
+    NewNotificationRequestV24:
       description: I campi utilizzati per la creazione di una nuova Notifica.
       type: object
       required:
@@ -88,7 +88,7 @@ components:
           type: array
           description: Informazioni sui destinatari
           items:
-            $ref: "./schemas-pn-notification.yaml#/components/schemas/NotificationRecipientV23"
+            $ref: "#/components/schemas/NotificationRecipientV23"
           minItems: 1
         documents:
           type: array
@@ -149,3 +149,131 @@ components:
             - NONE
             - SYNC
             - ASYNC
+        additionalLanguages:
+          description: >-
+            In questo campo è possibile definire la lingua addizionale (oltre a quella italiana) da utilizzare per la generazione documenti, atti opponibili a terzi ecc.<br/>
+            Le lingue accettate e dunque i valori possibili degli item dell'array sono: <br/>
+            - DE <br/>
+            - SI <br/>
+            - FR <br/>
+            DE (tedesco), SI (sloveno), FR (francese)
+            Attualmente è possibile indicare un solo item e dunque una sola lingua aggiuntiva. Se non vengono indicate lingue aggiuntive la lingua utilizzata per generare <br/>
+            documenti, atti opponibili a terzi ecc. sarà quella italiana.
+          type: array
+          items:
+            type: string
+            maxItems: 1
+
+    NotificationRecipientV23:
+      description: Informazioni sui destinatari
+      required:
+        - denomination
+        - recipientType
+        - taxId
+        - physicalAddress
+      type: object
+      additionalProperties: false
+      properties:
+        recipientType:
+          type: string
+          description: 'Tipologia di destinatario: Persona Fisica (PF) o Persona Giuridica
+            (PG)'
+          enum:
+            - PF
+            - PG
+        taxId:
+          $ref: './schemas-pn-notification.yaml#/components/schemas/TaxId'
+        internalId: # NO EXTERNAL
+          type: string # NO EXTERNAL
+          description: id interno anonimizzato # NO EXTERNAL
+        denomination:
+          $ref: './schemas-pn-notification.yaml#/components/schemas/Denomination'
+        digitalDomicile:
+          $ref: "./schemas-pn-notification.yaml#/components/schemas/NotificationDigitalAddress"
+        physicalAddress:
+          $ref: "./schemas-pn-notification.yaml#/components/schemas/NotificationPhysicalAddress"
+        payments:
+          $ref: "./schemas-pn-notification.yaml#/components/schemas/NotificationPayments"
+
+    NewNotificationRequestStatusResponseV24:
+      allOf:
+        - $ref: "#/components/schemas/NewNotificationRequestV24"
+        - type: object
+          required:
+            - notificationRequestId
+            - notificationRequestStatus
+          properties:
+            notificationRequestId:
+              description: >-
+                identificativo univoco di una richiesta di invio notifica, non è lo IUN
+              type: string
+            notificationRequestStatus:
+              description: >-
+                - __WAITING__: in attesa di essere valutata
+                - __ACCEPTED__: richiesta di notifica accettata, lo IUN è valorizzato
+                - __REFUSED__: richiesta di notifica rifiutata, è valorizzato il campo _errors_
+              type: string
+            retryAfter:
+              type: integer
+              format: int32
+              description: >-
+                Numero di secondi da attendere prima di effettuare una nuova richiesta per 
+                la stessa entità; valorizzato quando lo status è __WAITING__.
+            iun:
+              $ref: "./schemas-pn-notification.yaml#/components/schemas/IUN"
+            errors:
+              description: >-
+                Elenco degli errori che hanno causato il rifiuto della richiesta di notifica
+              type: array
+              items:
+                $ref: '#/components/schemas/ProblemError'
+    ProblemError:
+      $ref: './remote-refs.yaml#/components/schemas/ProblemError'
+
+    ############################################################################################
+    ###                          STRUTTURE DATI DI PN-DELIVERY_PUSH                          ###
+    ############################################################################################
+    TimelineElementV26:
+      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV26'
+    NotificationStatusV26:
+      $ref: './remote-refs.yaml#/components/schemas/NotificationStatusV26'
+    NotificationStatusHistoryV26:
+      $ref: './remote-refs.yaml#/components/schemas/NotificationStatusHistoryV26'
+
+    ###########################################################################################
+    ###                              DTO NOTIFICA CON DETTAGLI                              ###
+    ###########################################################################################
+
+    FullSentNotificationV26:
+      description: >-
+        Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
+        processo di inoltro della notifica verso il cittadino.
+      allOf:
+        - $ref: '#/components/schemas/SentNotificationV24'
+        - type: object
+          required:
+            - notificationStatus
+            - notificationStatusHistory
+            - timeline
+          properties:
+            notificationStatus:
+              $ref: '#/components/schemas/NotificationStatusV26'
+            notificationStatusHistory:
+              $ref: '#/components/schemas/NotificationStatusHistoryV26'
+            timeline:
+              description: >-
+                elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
+              type: array
+              items:
+                $ref: '#/components/schemas/TimelineElementV26'
+            recipientIds: # NO EXTERNAL
+              description: Lista degli identificativi anonimizzati dei destinatari      # NO EXTERNAL
+              type: array                                                               # NO EXTERNAL
+              items: # NO EXTERNAL
+                type: string                                                            # NO EXTERNAL
+            sourceChannel: # NO EXTERNAL
+              type: string                                                              # NO EXTERNAL
+              description: Canale sorgente della richiesta di notifica                  # NO EXTERNAL
+            sourceChannelDetails: # NO EXTERNAL
+              type: string                                                              # NO EXTERNAL
+              description: Dettagli del canale sorgente della richiesta di notifica     # NO EXTERNAL

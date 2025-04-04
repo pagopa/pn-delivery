@@ -195,6 +195,7 @@ paths:
 
   "/delivery/v2.3/requests":
     post:
+      deprecated: true
       summary: Richiesta invio notifica
       description: |-
         Operazione utilizzata dalla Pubblica Amministrazione per richiedere l'invio di una notifica.
@@ -241,11 +242,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
 
-
     ###########################################################################################
     ###                        VERIFICA STATO RICHIESTE DI NOTIFICA                         ###
     ###########################################################################################
+
     get:
+      deprecated: true
       operationId: retrieveNotificationRequestStatusV23                 # ONLY EXTERNAL
       x-pagopa-lambda-name: 'pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live'
       x-pagopa-lambda-account: core
@@ -286,6 +288,106 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+
+
+  "/delivery/v2.4/requests":
+    post:
+      deprecated: true
+      summary: Richiesta invio notifica
+      description: |-
+        Operazione utilizzata dalla Pubblica Amministrazione per richiedere l'invio di una notifica.
+
+        La restituzione di uno stato HTTP 202 significa solo che la richiesta è sintatticamente
+        valida, non che la richiesta sia stata validata ed accettata. <br/>
+        Per conoscere lo stato di accettazione della richiesta di notifica bisogna utilizzare l'operazione
+        _getNotificationRequestStatus_ oppure utilizzare la modalità push prevista dai webhook. <br/>
+
+      tags:
+        - NewNotification
+      operationId: sendNewNotificationV24
+      x-pagopa-lambda-name: 'pn-delivery-versioning-v1v21-sendnewnotification-lambda:live'
+      x-pagopa-lambda-account: core
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewNotificationRequestV24"
+        required: true
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewNotificationResponse"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+
+    ###########################################################################################
+    ###                        VERIFICA STATO RICHIESTE DI NOTIFICA                         ###
+    ###########################################################################################
+
+    get:
+      deprecated: true
+      operationId: retrieveNotificationRequestStatusV24                 # ONLY EXTERNAL
+      x-pagopa-lambda-name: 'pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live'
+      x-pagopa-lambda-account: core
+      tags:
+        - SenderReadB2B
+      summary: Verifica accettazione richiesta notifica
+      description: >-
+        Questa operazione serve per verificare se la richiesta di notifica è stata accettata e ottenere
+        lo IUN associato a tale richiesta. <br/>
+        Bisogna specificare il parametro _requestId_ oppure la coppia costituita dai parametri 
+        _paProtocolNumber_ e _idempotenceToken_. <br/>
+      parameters:
+        - $ref: '#/components/parameters/notificationRequestId'
+        - $ref: '#/components/parameters/paProtocolNumber'
+        - $ref: '#/components/parameters/idempotenceToken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewNotificationRequestStatusResponseV24"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+
 
 
     ###########################################################################################
@@ -430,6 +532,7 @@ paths:
   
   "/delivery/v2.4/notifications/sent/{iun}":
     get:
+      deprecated: true
       summary: 'Mittente: lettura dettagli notifica versione 2'
       description: |-
         Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
@@ -463,6 +566,7 @@ paths:
 
   "/delivery/v2.5/notifications/sent/{iun}":
     get:
+      deprecated: true
       summary: 'Mittente: lettura dettagli notifica versione 2'
       description: |-
         Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
@@ -481,6 +585,40 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/FullSentNotificationV25"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  "/delivery/v2.6/notifications/sent/{iun}":
+    get:
+      deprecated: true
+      summary: 'Mittente: lettura dettagli notifica versione 2'
+      description: |-
+        Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
+        
+      tags:
+        - SenderReadB2B
+      operationId: retrieveSentNotificationV26                                # ONLY EXTERNAL
+      x-pagopa-lambda-name: 'pn-delivery-versioning-v1v2-getnotification-lambda:live'
+      x-pagopa-lambda-account: core
+      parameters:
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
+      responses:
+        '200':
+          description: OK
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/FullSentNotificationV26"
         '400':
           description: Bad request
           content:
@@ -555,6 +693,10 @@ components:
     ###                     PARAMETRO SORGENTE CREAZIONE NOTIFICA                            ###
     ############################################################################################
 
+
+    ############################################################################################
+    ###                     PARAMETRO VERSIONE CREAZIONE NOTIFICA                            ###
+    ############################################################################################
 
     ############################################################################################
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
@@ -793,7 +935,7 @@ components:
               pattern: ^.*$
               maxLength: 256
             iun:
-              $ref: '#/components/schemas/IUN'
+              $ref: './schemas-pn-notification.yaml#/components/schemas/IUN'
             sentAt:
               type: string
               description: Momento di ricezione della notifica da parte di PN
@@ -860,9 +1002,9 @@ components:
             $ref: "./schemas-pn-notification.yaml#/components/schemas/NotificationDocument"
           minItems: 1
         notificationFeePolicy:
-          $ref: "#/components/schemas/NotificationFeePolicy"
+          $ref: "./schemas-pn-notification.yaml#/components/schemas/NotificationFeePolicy"
         cancelledIun:
-          $ref: '#/components/schemas/IUN'
+          $ref: './schemas-pn-notification.yaml#/components/schemas/IUN'
         physicalCommunicationType:
           type: string
           description: Tipologia comunicazione fisica
@@ -870,7 +1012,7 @@ components:
             - AR_REGISTERED_LETTER
             - REGISTERED_LETTER_890
         senderDenomination:
-          $ref: '#/components/schemas/Denomination'
+          $ref: './schemas-pn-notification.yaml#/components/schemas/Denomination'
         senderTaxId:
           $ref: './schemas-pn-notification.yaml#/components/schemas/paTaxId'
         group:
@@ -912,9 +1054,119 @@ components:
             - NONE
             - SYNC
             - ASYNC
-    
+
     NewNotificationRequestV23:
-      $ref: './schemas-pn-notification-older-version.yaml#/components/schemas/NewNotificationRequestV23'
+      description: I campi utilizzati per la creazione di una nuova Notifica.
+      type: object
+      required:
+        - paProtocolNumber
+        - subject
+        - recipients
+        - documents
+        - physicalCommunicationType
+        - notificationFeePolicy
+        - senderDenomination
+        - senderTaxId
+        - taxonomyCode
+      properties:
+        idempotenceToken:
+          description: >-
+            Identificativo utilizzabile dal chiamante per disambiguare differenti 
+            "richieste di notificazione" effettuate con lo stesso numero di protocollo 
+            (campo _paProtocolNumber_). Questo può essere necessario in caso di 
+            "richiesta di notifica" rifiutata per errori nei codici di verifica degli
+            allegati.
+          type: string
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 256
+        paProtocolNumber:
+          description: >-
+            Numero di protocollo che la PA mittente assegna alla notifica stessa
+          type: string
+          # wide range of characters
+          pattern: ^.*$
+          maxLength: 256
+        subject:
+          type: string
+          description: titolo della notifica
+          maxLength: 134
+          # wide range of characters
+          pattern: ^.*$
+        abstract:
+          type: string
+          description: descrizione sintetica della notifica
+          # wide range of characters
+          pattern: ^.*$
+          maxLength: 1024
+        recipients:
+          type: array
+          description: Informazioni sui destinatari
+          items:
+            $ref: "./schemas-pn-notification-older-version.yaml#/components/schemas/NotificationRecipientV23"
+          minItems: 1
+        documents:
+          type: array
+          description: Documenti notificati
+          items:
+            $ref: "./schemas-pn-notification.yaml#/components/schemas/NotificationDocument"
+          minItems: 1
+        notificationFeePolicy:
+          $ref: "./schemas-pn-notification.yaml#/components/schemas/NotificationFeePolicy"
+        cancelledIun:
+          $ref: './schemas-pn-notification.yaml#/components/schemas/IUN'
+        physicalCommunicationType:
+          type: string
+          description: Tipologia comunicazione fisica
+          enum:
+            - AR_REGISTERED_LETTER
+            - REGISTERED_LETTER_890
+        senderDenomination:
+          $ref: './schemas-pn-notification.yaml#/components/schemas/Denomination'
+        senderTaxId:
+          $ref: './schemas-pn-notification.yaml#/components/schemas/paTaxId'
+        group:
+          type: string
+          description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 1024
+        amount:
+          type: integer
+          format: int32
+          description: Importo della notifica in eurocent
+        paymentExpirationDate:
+          type: string
+          minLength: 10
+          maxLength: 10
+          pattern: "^([0-9]{4})-(1[0-2]|0[1-9])-(3[01]|[12][0-9]|0[1-9])$"
+          description: Data di scadenza del pagamento nel formato YYYY-MM-DD riferito all'Italia
+          # gestito come stringa e pattern perché con format: date open-api-generator non lo gestiva correttamente
+        taxonomyCode:
+          type: string
+          minLength: 7
+          maxLength: 7
+          pattern: "^([0-9]{6}[A-Z]{1})$"
+          description: >-
+            Codice tassonomico della notifica basato sulla definizione presente nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5 PIATTAFORMA NOTIFICHE DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)
+        paFee:
+          $ref: './schemas-pn-notification.yaml#/components/schemas/PaFeeV23'
+        vat:
+          $ref: './schemas-pn-notification.yaml#/components/schemas/VatV23'
+        pagoPaIntMode:
+          type: string
+          description: >-
+            Modalitá di integrazione pagoPA per l'attualizazione del costo della notifica. <br/>
+            - _NONE_: nessuna attualizzazione. <br/>
+            - _SYNC_: modalitá sincrona. <br/>
+            - _ASYNC_: modalitá asincrona. <br/>
+          enum:
+            - NONE
+            - SYNC
+            - ASYNC
+    
+    NewNotificationRequestV24:
+      $ref: './schemas-pn-notification-older-version.yaml#/components/schemas/NewNotificationRequestV24'
 
     SentNotificationV21:
       description: >-
@@ -933,19 +1185,47 @@ components:
               pattern: ^.*$
               maxLength: 256
             iun:
-              $ref: '#/components/schemas/IUN'
+              $ref: './schemas-pn-notification.yaml#/components/schemas/IUN'
             sentAt:
               type: string
               description: Momento di ricezione della notifica da parte di PN
               format: date-time
             cancelledByIun:
-              $ref: '#/components/schemas/IUN'
+              $ref: './schemas-pn-notification.yaml#/components/schemas/IUN'
             documentsAvailable:
               type: boolean
               description: Indica se i documenti notificati sono ancora disponibili.
               
     SentNotificationV23:
-      $ref: './schemas-pn-notification-older-version.yaml#/components/schemas/SentNotificationV23'
+      description: >-
+        Le informazioni riguardanti una richiesta di notifica accettata
+      allOf:
+        - $ref: '#/components/schemas/NewNotificationRequestV23'
+        - type: object
+          required:
+            - iun
+            - sentAt
+          properties:
+            senderPaId:
+              type: string
+              description: >-
+                Identificativo (non IPA) della PA mittente che ha eseguito
+                l'onboarding su SelfCare. La risoluzione di questo è ottenibile da
+                /ext-registry/pa/v1/activated-on-pn
+              # wide range of characters
+              pattern: ^.*$
+              maxLength: 256
+            iun:
+              $ref: './schemas-pn-notification.yaml#/components/schemas/IUN'
+            sentAt:
+              type: string
+              description: Momento di ricezione della notifica da parte di PN
+              format: date-time
+            cancelledByIun:
+              $ref: './schemas-pn-notification.yaml#/components/schemas/IUN'
+            documentsAvailable:
+              type: boolean
+              description: Indica se i documenti notificati sono ancora disponibili.
 
 
     NewNotificationResponse:
@@ -1071,6 +1351,9 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/ProblemError'
+
+    NewNotificationRequestStatusResponseV24:
+      $ref: './schemas-pn-notification-older-version.yaml#/components/schemas/NewNotificationRequestStatusResponseV24'
                 
     Problem:
       $ref: './remote-refs.yaml#/components/schemas/Problem'
@@ -1202,7 +1485,7 @@ components:
         Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
         processo di inoltro della notifica verso il cittadino.
       allOf:
-        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotificationV24'
+        - $ref: '#/components/schemas/SentNotificationV24'
         - type: object
           required:
             - notificationStatus
@@ -1219,6 +1502,11 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/TimelineElementV25'
+
+    SentNotificationV24:
+      $ref: './schemas-pn-notification-older-version.yaml#/components/schemas/SentNotificationV24'
+    FullSentNotificationV26:
+      $ref: './schemas-pn-notification-older-version.yaml#/components/schemas/FullSentNotificationV26'
 
     PaFeeV21:
       type: integer
@@ -1290,11 +1578,11 @@ components:
         taxId:
           $ref: './schemas-pn-notification.yaml#/components/schemas/TaxId'
         denomination:
-          $ref: '#/components/schemas/Denomination'
+          $ref: './schemas-pn-notification.yaml#/components/schemas/Denomination'
         digitalDomicile:
-          $ref: "#/components/schemas/NotificationDigitalAddress"
+          $ref: "./schemas-pn-notification.yaml#/components/schemas/NotificationDigitalAddress"
         physicalAddress:
-          $ref: "#/components/schemas/NotificationPhysicalAddress"
+          $ref: "./schemas-pn-notification.yaml#/components/schemas/NotificationPhysicalAddress"
         payments:
           $ref: "./schemas-pn-notification.yaml#/components/schemas/NotificationPayments"
 
