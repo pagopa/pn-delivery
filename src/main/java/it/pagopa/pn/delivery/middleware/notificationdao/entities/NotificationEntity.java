@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao.entities;
 
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV27;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.UsedServices;
 import it.pagopa.pn.delivery.models.NotificationLang;
 import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
@@ -48,6 +49,8 @@ public class NotificationEntity {
     public static final String FIELD_PA_FEE = "paFee";
     public static final String FIELD_VAT = "vat";
     public static final String FIELD_LANG = "languages";
+    public static final String USED_SERVICES = "usedServices";
+
 
     @Getter(onMethod=@__({@DynamoDbPartitionKey, @DynamoDbAttribute(FIELD_IUN)})) private String iun;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_ABSTRACT)})) private String notificationAbstract;
@@ -77,4 +80,5 @@ public class NotificationEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PA_FEE)})) private Integer paFee;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_VAT)})) private Integer vat;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_LANG)})) private List<NotificationLang> languages;
+    @Getter(onMethod=@__({@DynamoDbAttribute(USED_SERVICES)})) private UsedServices usedServices;
 }

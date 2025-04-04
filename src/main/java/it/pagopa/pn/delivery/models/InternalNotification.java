@@ -50,6 +50,7 @@ public class InternalNotification {
     private NewNotificationRequestV25.PagoPaIntModeEnum pagoPaIntMode;
     private String version;
     private List<String> additionalLanguages;
+    private UsedServices usedServices;
 
     public InternalNotification idempotenceToken(String idempotenceToken) {
         this.idempotenceToken = idempotenceToken;
