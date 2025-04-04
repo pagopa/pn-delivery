@@ -64,12 +64,12 @@ public class EntityToDtoNotificationMapper {
                 .pagoPaIntMode(entity.getPagoPaIntMode() != null ? NewNotificationRequestV25.PagoPaIntModeEnum.fromValue(entity.getPagoPaIntMode()) : null)
                 .version(entity.getVersion())
                 .additionalLanguages(removeITLanguageFromDto(entity.getLanguages()))
-                .usedServices(entity.getUsedServices() != null ? getUsedServices(entity.getUsedServices()) : null);
+                .usedServices(entity.getUsedServices() != null ? getUsedServicesDto(entity.getUsedServices()) : null);
 
         return builder.build();
     }
 
-    private InternalUsedService getUsedServices(UsedServicesEntity usedServices) {
+    private InternalUsedService getUsedServicesDto(UsedServicesEntity usedServices) {
         return InternalUsedService.builder()
                 .physicalAddressLookup(usedServices.getPhysicalAddressLookup())
                 .build();

@@ -46,19 +46,15 @@ public class DtoToEntityNotificationMapper {
                 .vat(dto.getVat())
                 .version( dto.getVersion() )
                 .languages( addITLanguageToEntity(dto.getAdditionalLanguages()) )
-                .usedServices(addUsedServices(dto.getUsedServices()));
+                .usedServices(dto.getUsedServices() != null ? getUsedServicesEntity(dto.getUsedServices()) : null);
 
         return builder.build();
     }
 
 
-    private UsedServicesEntity addUsedServices(InternalUsedService usedServices) {
-        boolean physicalAddressLookupValue = !Objects.isNull(usedServices) &&
-                        !Objects.isNull(usedServices.getPhysicalAddressLookup())
-                        && usedServices.getPhysicalAddressLookup();
-
+    private UsedServicesEntity getUsedServicesEntity(InternalUsedService usedServices) {
         return UsedServicesEntity.builder()
-                .physicalAddressLookup(physicalAddressLookupValue)
+                .physicalAddressLookup(usedServices.getPhysicalAddressLookup())
                 .build();
     }
 
