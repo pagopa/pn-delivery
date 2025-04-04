@@ -69,8 +69,8 @@ public class EntityToDtoNotificationMapper {
         return builder.build();
     }
 
-    private UsedServices getUsedServices(UsedServices usedServices) {
-        return UsedServices.builder()
+    private InternalUsedService getUsedServices(UsedServicesEntity usedServices) {
+        return InternalUsedService.builder()
                 .physicalAddressLookup(usedServices.getPhysicalAddressLookup())
                 .build();
     }

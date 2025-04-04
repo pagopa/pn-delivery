@@ -80,5 +80,5 @@ public class NotificationEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PA_FEE)})) private Integer paFee;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_VAT)})) private Integer vat;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_LANG)})) private List<NotificationLang> languages;
-    @Getter(onMethod=@__({@DynamoDbAttribute(USED_SERVICES)})) private UsedServices usedServices;
+    @Getter(onMethod=@__({@DynamoDbAttribute(USED_SERVICES)})) private UsedServicesEntity usedServices;
 }
