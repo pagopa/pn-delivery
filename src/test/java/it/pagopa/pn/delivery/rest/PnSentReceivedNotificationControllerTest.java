@@ -76,9 +76,9 @@ class PnSentReceivedNotificationControllerTest {
 	private static final NotificationStatusV26 STATUS = NotificationStatusV26.IN_VALIDATION;
 	private static final String RECIPIENT_ID = "CGNNMO80A01H501M";
 	public static final List<String> GROUPS = List.of("Group1", "Group2");
-	public static final String DELIVERY_REQUESTS_PATH = "/delivery/v2.4/requests";
-	public static final String DELIVERY_RECEIVED_PATH = "/delivery/v2.5/notifications/received/";
-	public static final String DELIVERY_SENT_PATH = "/delivery/v2.6/notifications/sent/";
+	public static final String DELIVERY_REQUESTS_PATH = "/delivery/v2.5/requests";
+	public static final String DELIVERY_RECEIVED_PATH = "/delivery/v2.6/notifications/received/";
+	public static final String DELIVERY_SENT_PATH = "/delivery/v2.7/notifications/sent/";
 
 	@Autowired
     WebTestClient webTestClient;
@@ -119,7 +119,7 @@ class PnSentReceivedNotificationControllerTest {
 			.exchange()
 			.expectStatus()
 			.isOk()
-			.expectBody(FullSentNotificationV26.class);
+			.expectBody(FullSentNotificationV27.class);
 		
 		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck(IUN, PA_ID, GROUPS);
 	}
@@ -200,7 +200,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody( NewNotificationRequestStatusResponseV24.class );
+				.expectBody( NewNotificationRequestStatusResponseV25.class );
 
 		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS );
 	}
@@ -526,7 +526,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody( NewNotificationRequestStatusResponseV24.class );
+				.expectBody( NewNotificationRequestStatusResponseV25.class );
 
 		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS );
 	}
@@ -552,7 +552,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody( NewNotificationRequestStatusResponseV24.class );
+				.expectBody( NewNotificationRequestStatusResponseV25.class );
 
 		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS );
 	}
@@ -612,7 +612,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody( NewNotificationRequestStatusResponseV24.class );
+				.expectBody( NewNotificationRequestStatusResponseV25.class );
 
 		Mockito.verify( svc ).getNotificationInformation( PA_ID, PA_PROTOCOL_NUMBER, IDEMPOTENCE_TOKEN, GROUPS );
 	}
@@ -640,7 +640,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody(FullReceivedNotificationV25.class);
+				.expectBody(FullReceivedNotificationV26.class);
 
 		Mockito.verify(svc).getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
 	}
@@ -692,7 +692,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody(FullReceivedNotificationV25.class);
+				.expectBody(FullReceivedNotificationV26.class);
 
 		Mockito.verify(svc).getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, MANDATE_ID);
 	}
@@ -1322,7 +1322,7 @@ class PnSentReceivedNotificationControllerTest {
 				List.of(
 						NotificationRecipient.builder()
 								.internalId("internalId")
-								.recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
+								.recipientType(NotificationRecipientV24.RecipientTypeEnum.PF)
 								.taxId("taxId")
 								.physicalAddress(it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress.builder().build())
 								.digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder().build())

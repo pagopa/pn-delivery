@@ -32,6 +32,10 @@ exports.findRequestVersion = function(event) {
   if (event["path"].startsWith("/delivery/v2.3/")) {
       version = 23;
   }
+
+  if (event["path"].startsWith("/delivery/v2.4/")) {
+    version = 24;
+}
   return version;
 }
 
@@ -41,6 +45,9 @@ exports.validateNewNotification = function(newNotificationRequest, requestVersio
       return validateNewNotificationV1(newNotificationRequest);
     case 21:
       return validateNewNotificationV21(newNotificationRequest);
+    case 23:
+    case 24:
+      return validateNewNotificationV24(newNotificationRequest);
     default:
       return newNotificationRequest;
   }
@@ -76,7 +83,8 @@ function validateNewNotificationV1(newNotificationRequestV1) {
       return errors
     }
   });
-  
+
+  checkPhysicalAddress(newNotificationRequestV1, errors);
   return errors;
 }
 
@@ -89,6 +97,21 @@ function validateNewNotificationV21(newNotificationRequestV21) {
       errors.push('Vat and paFee fields are required');
     }
   }
+
+  checkPhysicalAddress(newNotificationRequestV21, errors);
+  return errors;
+}
+
+function checkPhysicalAddress(newNotificationRequest, errors) {
+  let missingPhysicalAddress = newNotificationRequest.recipients.some(recipient => !recipient.physicalAddress);
+  if (missingPhysicalAddress) {
+    errors.push("Validation errors: [object has missing required properties ([\"physicalAddress\"])]");
+  }
+}
+
+function validateNewNotificationV24(newNotificationRequestV24) { 
+  const errors = []
+  checkPhysicalAddress(newNotificationRequestV24, errors);
   return errors;
 }
 
