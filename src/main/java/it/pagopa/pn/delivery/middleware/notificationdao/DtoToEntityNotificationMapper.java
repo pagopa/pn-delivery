@@ -50,6 +50,7 @@ public class DtoToEntityNotificationMapper {
 
         return builder.build();
     }
+    
 
     private UsedServices addUsedServices(UsedServices usedServices) {
         boolean physicalAddressLookupValue = !Objects.isNull(usedServices) &&
