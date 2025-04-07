@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: /72FSAYd1pFu+cPBJ4VjY/L6YN/OfYYVG7Ru+eRmd/s=
+  version: Krz+g+ofgqsNk/HGZwx4Phr34yQII9/xwEC7dlUk0Ow=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2865,7 +2865,7 @@ components:
           type: string
           description: Data evento refinement
           format: date-time
-    NotificationRefusedErrorV25:
+    NotificationRefusedErrorV27:
       type: object
       properties:
         errorCode:
@@ -2884,18 +2884,19 @@ components:
               - NOT_VALID_ADDRESS - L'indirizzo di invio cartaceo inserito per il destinatario non ha superato i controlli di correttezza.
               - PAYMENT_NOT_VALID - I dati del pagamento non sono sono registrati sulla piattaforma GPD (modalità asincrona di integrazione pagoPA)
               - SERVICE_UNAVAILABLE - Il sistema non è attualmente disponibile.
+              - ADDRESS_NOT_FOUND - La ricerca dell’indirizzo effettuata con il servizio di LookupAddress non ha prodotto risultati.
               ...
         detail:
           type: string
           maxLength: 2048
-    RequestRefusedDetailsV25:
+    RequestRefusedDetailsV27:
       type: object
       properties:
         refusalReasons:
           type: array
           description: Motivazioni che hanno portato al rifiuto della notifica
           items:
-            $ref: '#/components/schemas/NotificationRefusedErrorV25'
+            $ref: '#/components/schemas/NotificationRefusedErrorV27'
     ScheduleAnalogWorkflowDetailsV23:
       type: object
       required:
@@ -3627,7 +3628,7 @@ components:
         - $ref: '#/components/schemas/PublicRegistryCallDetails'
         - $ref: '#/components/schemas/PublicRegistryResponseDetails'
         - $ref: '#/components/schemas/RefinementDetailsV23'
-        - $ref: '#/components/schemas/RequestRefusedDetailsV25'
+        - $ref: '#/components/schemas/RequestRefusedDetailsV27'
         - $ref: '#/components/schemas/ScheduleAnalogWorkflowDetailsV23'
         - $ref: '#/components/schemas/ScheduleDigitalWorkflowDetailsV23'
         - $ref: '#/components/schemas/ScheduleRefinementDetails'

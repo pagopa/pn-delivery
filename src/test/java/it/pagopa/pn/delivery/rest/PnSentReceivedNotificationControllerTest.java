@@ -278,7 +278,7 @@ class PnSentReceivedNotificationControllerTest {
 		actualTimelineElementDetails.reasonCode("Just cause");
 		actualTimelineElementDetails.recIndex(1);
 		actualTimelineElementDetails.recipientType(RecipientType.PF);
-		ArrayList<NotificationRefusedErrorV25> refusalReasons = new ArrayList<>();
+		ArrayList<NotificationRefusedErrorV27> refusalReasons = new ArrayList<>();
 		actualTimelineElementDetails.refusalReasons(refusalReasons);
 		actualTimelineElementDetails.registeredLetterCode("Registered Letter Code");
 		actualTimelineElementDetails.relatedRequestId("42");
@@ -367,7 +367,7 @@ class PnSentReceivedNotificationControllerTest {
 		actualTimelineElementDetails.setReasonCode("Just cause");
 		actualTimelineElementDetails.setRecIndex(1);
 		actualTimelineElementDetails.setRecipientType(RecipientType.PF);
-		ArrayList<NotificationRefusedErrorV25> refusalReasons2 = new ArrayList<>();
+		ArrayList<NotificationRefusedErrorV27> refusalReasons2 = new ArrayList<>();
 		actualTimelineElementDetails.setRefusalReasons(refusalReasons2);
 		actualTimelineElementDetails.setRegisteredLetterCode("Registered Letter Code");
 		actualTimelineElementDetails.setRelatedRequestId("42");
@@ -503,7 +503,7 @@ class PnSentReceivedNotificationControllerTest {
 		notification.setTimeline( Collections.singletonList( TimelineElementV27.builder()
 						.category( TimelineElementCategoryV27.REQUEST_REFUSED )
 						.details( TimelineElementDetailsV27.builder()
-								.refusalReasons( Collections.singletonList( NotificationRefusedErrorV25.builder()
+								.refusalReasons( Collections.singletonList( NotificationRefusedErrorV27.builder()
 												.errorCode( "FILE_NOTFOUND" )
 												.detail( "Allegato non trovato. fileKey=81dde2a8-9719-4407-b7b3-63e7ea694869" )
 										.build() ) )

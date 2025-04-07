@@ -1,6 +1,6 @@
 diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-external-b2b-pa-bundle.yaml
---- a/docs/openapi/api-external-b2b-pa-bundle.yaml	(revision 840e52e52389f907eb7452d6b2530f74a0b5ab12)
-+++ b/docs/openapi/api-external-b2b-pa-bundle.yaml	(date 1742814354683)
+--- a/docs/openapi/api-external-b2b-pa-bundle.yaml	(revision 4f084016b2151ce54e6c7792b916e11a17f065ab)
++++ b/docs/openapi/api-external-b2b-pa-bundle.yaml	(date 1743781377098)
 @@ -997,8 +997,6 @@
        tags:
          - NewNotification
