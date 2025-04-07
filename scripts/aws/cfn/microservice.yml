@@ -1720,6 +1720,8 @@ Resources:
         FunctionName: !Ref MetadataStatusUpdaterLambda
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
         FilterPattern: "FATAL"
+        IteratorAgeEvaluationPeriods: 30 # 30 minutes
+        IteratorAgeThreshold: 3600000 # 1 hour
 
   # Lambda function role
   MetadataStatusUpdaterLambdaRole:
