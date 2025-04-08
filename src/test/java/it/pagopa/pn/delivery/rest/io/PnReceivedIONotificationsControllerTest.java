@@ -9,6 +9,7 @@ import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.*;
 import it.pagopa.pn.delivery.models.internal.notification.F24Payment;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
 import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
@@ -121,6 +122,9 @@ class PnReceivedIONotificationsControllerTest {
         internalNotification.setDocuments(List.of(NotificationDocument.builder()
                 .title("title")
                 .contentType("application/pdf")
+                .ref(NotificationAttachmentBodyRef.builder()
+                        .key("ssKey")
+                        .versionToken("versionToken").build())
                 .docIdx("docIdx").build()));
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()

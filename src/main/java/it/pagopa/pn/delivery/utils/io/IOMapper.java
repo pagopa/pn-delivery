@@ -190,7 +190,7 @@ public class IOMapper {
         return ThirdPartyAttachment.builder()
                 .contentType(document.getContentType())
                 .id(iun + "_DOC" + indexDocument)
-                .name(document.getTitle())
+                .name(document.getRef().getKey())
                 .category(ThirdPartyAttachment.CategoryEnum.DOCUMENT)
                 .url(URL_ATTACHMENT.replace("{iun}", iun).replace("{indexDocument}", indexDocument + ""))
                 .build();

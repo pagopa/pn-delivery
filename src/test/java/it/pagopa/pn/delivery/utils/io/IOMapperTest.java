@@ -149,7 +149,7 @@ class IOMapperTest {
                 .attachments(List.of(ThirdPartyAttachment.builder()
                         .contentType("application/pdf")
                         .id(iun + "_DOC" + indexDocument)
-                        .name("TITLE")
+                        .name("ssKey")
                         .category(ThirdPartyAttachment.CategoryEnum.DOCUMENT)
                         .url("/delivery/notifications/received/IUN/attachments/documents/0")
                         .build()))
@@ -269,6 +269,10 @@ class IOMapperTest {
         internalNotification.setDocuments(List.of(it.pagopa.pn.delivery.models.internal.notification.NotificationDocument.builder()
                 .docIdx("DOC0")
                 .contentType("application/pdf")
+                .ref(it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef.builder()
+                        .key("ssKey")
+                        .versionToken("versionToken")
+                        .build())
                 .title("TITLE")
                 .build()));
         internalNotification.setNotificationStatusHistory(List.of(
