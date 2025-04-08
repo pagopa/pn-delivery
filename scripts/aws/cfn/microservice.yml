@@ -899,35 +899,6 @@ Resources:
         ExcludedRule0: CrossSiteScripting_BODY,SizeRestrictions_BODY
         Limit: !Ref B2bWafLimit
 
-  # Expose PN-Delivery microservice public API with API-GW for WEB usage
-  DeliveryMicroservicePublicWebAPI:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service-openapi.yaml"
-      Parameters:
-        MicroServiceUniqueName: !Sub "${ProjectName}-delivery"
-        IntendedUsage: WEB
-        DnsName: !Ref WebApiDnsName
-        ProjectName: !Ref ProjectName
-        ServiceApiPath: "delivery"
-        NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
-        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
-        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
-        OpenApiBucketName: !Ref MicroserviceBucketName
-        OpenApiBucketKey: !Sub ${MicroserviceBucketBaseKey}/docs/openapi/aws/api-delivery-WEB-aws.yaml
-
-  DeliveryMicroservicePublicWebApiWaf:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
-      Parameters:
-        WAFName: !Sub "${ProjectName}-delivery-web"
-        IntendedUsage: WEB
-        APIGatewayARNs: !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.APIGatewayARN
-        Limit: !Ref WebWafLimit
-        EnhancedWebSecurityEnabled: !Ref EnhancedWebSecurityEnabled
-
   # Expose PN-Delivery microservice public API with API-GW for IO Backend usage
   DeliveryMicroservicePublicIoAPI:
     Type: AWS::CloudFormation::Stack
@@ -986,24 +957,20 @@ Resources:
           - ","
           - - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiStageArn
             - !GetAtt DeliveryMicroserviceB2BPGAPI.Outputs.RestApiStageArn
-            - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiStageArn
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiStageArn
         RestApiNames: !Join
           - ","
           - - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiName
             - !GetAtt DeliveryMicroserviceB2BPGAPI.Outputs.RestApiName
-            - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiName
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiName
         AlarmArns: !Join
           - ","
           - - !GetAtt DeliveryMicroservice.Outputs.FatalLogsMetricAlarmArn
             - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiErrorAlarmArn
             - !GetAtt DeliveryMicroserviceB2BPGAPI.Outputs.RestApiErrorAlarmArn
-            - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiErrorAlarmArn
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiErrorAlarmArn
             - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiLatencyAlarmArn
             - !GetAtt DeliveryMicroserviceB2BPGAPI.Outputs.RestApiLatencyAlarmArn
-            - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiLatencyAlarmArn
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiLatencyAlarmArn
             - !Ref PnDeliveryInsertTriggerDLQAlarmARN
             - !Ref PnDeliveryAsseverationDLQAlarmARN
