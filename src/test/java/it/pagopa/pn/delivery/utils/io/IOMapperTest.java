@@ -227,7 +227,7 @@ class IOMapperTest {
                                         .f24(it.pagopa.pn.delivery.models.internal.notification.F24Payment.builder()
                                                 .applyCost(false)
                                                 .title("title")
-                                                .metadataAttachment(MetadataAttachment.builder().build()).build()).build()))
+                                                .metadataAttachment(MetadataAttachment.builder().ref(it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef.builder().key("ssKey").build()).build()).build()).build()))
                                 .build()));
 
         assertThat(ioMapper.mapToThirdPartyAttachment(internalNotification)).isNotNull();
