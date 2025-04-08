@@ -171,7 +171,7 @@ public class IOMapper {
         return ThirdPartyAttachment.builder()
                 .contentType(F24_DOCUMENT_TYPE)
                 .id(iun + "_F24_" + indexDocument)
-                .name(f24Payment.getTitle())
+                .name(f24Payment.getMetadataAttachment().getRef().getKey())
                 .category(ThirdPartyAttachment.CategoryEnum.F24)
                 .url(URL_ATTACHMENT_F24.replace("{iun}", iun).replace("{indexDocument}", indexDocument + ""))
                 .build();
