@@ -168,10 +168,12 @@ public class IOMapper {
     public ThirdPartyAttachment mapF24ToThirdPartyAttachment(F24Payment f24Payment, int indexDocument, String iun) {
         if(f24Payment == null) return null;
 
+        String fileName = addFileExtensionIfMissing(f24Payment.getTitle(), f24Payment.getMetadataAttachment().getContentType());
+
         return ThirdPartyAttachment.builder()
                 .contentType(F24_DOCUMENT_TYPE)
                 .id(iun + "_F24_" + indexDocument)
-                .name(f24Payment.getMetadataAttachment().getRef().getKey())
+                .name(fileName)
                 .category(ThirdPartyAttachment.CategoryEnum.F24)
                 .url(URL_ATTACHMENT_F24.replace("{iun}", iun).replace("{indexDocument}", indexDocument + ""))
                 .build();
@@ -187,12 +189,38 @@ public class IOMapper {
     public ThirdPartyAttachment mapToThirdPartyAttachment(NotificationDocument document, int indexDocument, String iun) {
         if(document == null) return null;
 
+        String fileName = addFileExtensionIfMissing(document.getTitle(), document.getContentType());
+
         return ThirdPartyAttachment.builder()
                 .contentType(document.getContentType())
                 .id(iun + "_DOC" + indexDocument)
-                .name(document.getRef().getKey())
+                .name(fileName)
                 .category(ThirdPartyAttachment.CategoryEnum.DOCUMENT)
                 .url(URL_ATTACHMENT.replace("{iun}", iun).replace("{indexDocument}", indexDocument + ""))
                 .build();
+    }
+
+    /**
+     * Estrae l'estensione dal contentType e la aggiunge al filename se mancante
+     */
+    public static String addFileExtensionIfMissing(String fileName, String contentType) {
+        if(fileName == null) fileName = "";
+        if(contentType == null) return fileName;
+
+        String extension = getFileExtensionFromContentType(contentType);
+        if(!extension.isEmpty() && !fileName.toLowerCase().endsWith("." + extension.toLowerCase())) {
+            fileName += "." + extension;
+        }
+        return fileName;
+    }
+
+    /**
+     * Estrae l'estensione dal content type (es. "application/pdf" -> "pdf")
+     */
+    public static String getFileExtensionFromContentType(String contentType) {
+        if(contentType == null || !contentType.contains("/")) {
+            return "";
+        }
+        return contentType.substring(contentType.lastIndexOf('/') + 1);
     }
 }

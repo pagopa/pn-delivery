@@ -149,7 +149,7 @@ class IOMapperTest {
                 .attachments(List.of(ThirdPartyAttachment.builder()
                         .contentType("application/pdf")
                         .id(iun + "_DOC" + indexDocument)
-                        .name("ssKey")
+                        .name("TITLE.pdf")
                         .category(ThirdPartyAttachment.CategoryEnum.DOCUMENT)
                         .url("/delivery/notifications/received/IUN/attachments/documents/0")
                         .build()))
