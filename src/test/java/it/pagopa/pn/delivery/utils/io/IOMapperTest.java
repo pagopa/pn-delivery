@@ -173,6 +173,78 @@ class IOMapperTest {
     }
 
     @Test
+    void mapToThirdPartyMessageNullTitle() {
+        int indexDocument = 0;
+        String iun = "IUN";
+        boolean isCancelled = false;
+        InternalNotification internalNotification = internalNotification(null);
+
+
+        String id = iun + "_DOC" + indexDocument;
+        ThirdPartyMessage expectedValue = ThirdPartyMessage.builder()
+                .attachments(List.of(ThirdPartyAttachment.builder()
+                        .contentType("application/pdf")
+                        .id(id)
+                        .name(id + ".pdf")
+                        .category(ThirdPartyAttachment.CategoryEnum.DOCUMENT)
+                        .url("/delivery/notifications/received/IUN/attachments/documents/0")
+                        .build()))
+                .details(IOReceivedNotification.builder()
+                        .iun("IUN")
+                        .subject("SUBJECT")
+                        ._abstract("ABSTRACT")
+                        .senderDenomination("SENDERDENOMINATION")
+                        .recipients(List.of(it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationRecipient.builder()
+                                .denomination("DENOMINATION")
+                                .taxId("TAXID")
+                                .recipientType("PF")
+                                .build()))
+                        .notificationStatusHistory(List.of(NotificationStatusHistoryElement.builder().status("ACCEPTED").build(), NotificationStatusHistoryElement.builder().status("VIEWED").build()))
+                        .build())
+                .build();
+
+        ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification, isCancelled);
+
+        assertThat(actualValue.getAttachments()).isEqualTo(expectedValue.getAttachments());
+    }
+
+    @Test
+    void mapToThirdPartyMessageEmptyTitle() {
+        int indexDocument = 0;
+        String iun = "IUN";
+        boolean isCancelled = false;
+        InternalNotification internalNotification = internalNotification("   ");
+
+
+        String id = iun + "_DOC" + indexDocument;
+        ThirdPartyMessage expectedValue = ThirdPartyMessage.builder()
+                .attachments(List.of(ThirdPartyAttachment.builder()
+                        .contentType("application/pdf")
+                        .id(id)
+                        .name(id + ".pdf")
+                        .category(ThirdPartyAttachment.CategoryEnum.DOCUMENT)
+                        .url("/delivery/notifications/received/IUN/attachments/documents/0")
+                        .build()))
+                .details(IOReceivedNotification.builder()
+                        .iun("IUN")
+                        .subject("SUBJECT")
+                        ._abstract("ABSTRACT")
+                        .senderDenomination("SENDERDENOMINATION")
+                        .recipients(List.of(it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationRecipient.builder()
+                                .denomination("DENOMINATION")
+                                .taxId("TAXID")
+                                .recipientType("PF")
+                                .build()))
+                        .notificationStatusHistory(List.of(NotificationStatusHistoryElement.builder().status("ACCEPTED").build(), NotificationStatusHistoryElement.builder().status("VIEWED").build()))
+                        .build())
+                .build();
+
+        ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification, isCancelled);
+
+        assertThat(actualValue.getAttachments()).isEqualTo(expectedValue.getAttachments());
+    }
+
+    @Test
     void mapToThirdPartyMessageNotificationNull() {
 
         ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(null, false);
@@ -260,7 +332,7 @@ class IOMapperTest {
                 .build();
     }
 
-    private InternalNotification internalNotification() {
+    private InternalNotification internalNotification(String title) {
         InternalNotification internalNotification = new InternalNotification();
         TimelineElementV26 timelineElement = new TimelineElementV26();
         timelineElement.setCategory(TimelineElementCategoryV26.AAR_CREATION_REQUEST);
@@ -273,7 +345,7 @@ class IOMapperTest {
                         .key("ssKey")
                         .versionToken("versionToken")
                         .build())
-                .title("TITLE")
+                .title(title)
                 .build()));
         internalNotification.setNotificationStatusHistory(List.of(
                 it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusHistoryElementV26.builder()
@@ -312,5 +384,8 @@ class IOMapperTest {
                                 .address("account@dominio.it")
                                 .build()).build()));
         return internalNotification;
+    }
+    private InternalNotification internalNotification() {
+        return this.internalNotification("TITLE");
     }
 }

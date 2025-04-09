@@ -190,11 +190,16 @@ public class IOMapper {
     public ThirdPartyAttachment mapToThirdPartyAttachment(NotificationDocument document, int indexDocument, String iun) {
         if(document == null) return null;
 
-        String fileName = addFileExtensionIfMissing(document.getTitle(), document.getContentType());
+        String id = iun + "_DOC" + indexDocument;
+        String title = document.getTitle();
+        if(title == null || title.isBlank()) {
+            title = id;
+        }
+        String fileName = addFileExtensionIfMissing(title, document.getContentType());
 
         return ThirdPartyAttachment.builder()
                 .contentType(document.getContentType())
-                .id(iun + "_DOC" + indexDocument)
+                .id(id)
                 .name(fileName)
                 .category(ThirdPartyAttachment.CategoryEnum.DOCUMENT)
                 .url(URL_ATTACHMENT.replace("{iun}", iun).replace("{indexDocument}", indexDocument + ""))
