@@ -22,7 +22,8 @@ public class IOMapper {
 
     private static final String URL_ATTACHMENT = "/delivery/notifications/received/{iun}/attachments/documents/{indexDocument}";
     private static final String URL_ATTACHMENT_F24 = "/delivery/notifications/received/{iun}/attachments/payment/F24/?attachmentIdx={indexDocument}";
-    private static final String F24_DOCUMENT_TYPE = "application/pdf";
+    private static final String APPLICATION_PDF_CONTENT_TYPE = "application/pdf";
+    public static final String PDF_EXTENSION = "pdf";
 
     private final ModelMapper modelMapper;
 
@@ -168,10 +169,10 @@ public class IOMapper {
     public ThirdPartyAttachment mapF24ToThirdPartyAttachment(F24Payment f24Payment, int indexDocument, String iun) {
         if(f24Payment == null) return null;
 
-        String fileName = addFileExtensionIfMissing(f24Payment.getTitle(), F24_DOCUMENT_TYPE);
+        String fileName = addFileExtensionIfMissing(f24Payment.getTitle(), APPLICATION_PDF_CONTENT_TYPE);
 
         return ThirdPartyAttachment.builder()
-                .contentType(F24_DOCUMENT_TYPE)
+                .contentType(APPLICATION_PDF_CONTENT_TYPE)
                 .id(iun + "_F24_" + indexDocument)
                 .name(fileName)
                 .category(ThirdPartyAttachment.CategoryEnum.F24)
@@ -215,12 +216,10 @@ public class IOMapper {
     }
 
     /**
-     * Estrae l'estensione dal content type (es. "application/pdf" -> "pdf")
+     * Restituisce l'estensione dal content type  ("application/pdf" -> "pdf")
      */
     public static String getFileExtensionFromContentType(String contentType) {
-        if(contentType == null || !contentType.contains("/")) {
-            return "";
-        }
-        return contentType.substring(contentType.lastIndexOf('/') + 1);
+        if(contentType.equalsIgnoreCase(APPLICATION_PDF_CONTENT_TYPE)) {return PDF_EXTENSION;}
+        return "";
     }
 }
