@@ -9,6 +9,7 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.utils.ValidateUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.config.PhysicalAddressLookupParameterConsumer;
 import it.pagopa.pn.delivery.config.SendActiveParameterConsumer;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
@@ -87,6 +88,7 @@ class NotificationReceiverTest {
 	private PnDeliveryConfigs cfg;
 	private AgenziaEntrateApi agenziaEntrateApi;
 	private PaNotificationLimitService paNotificationLimitService;
+	private PhysicalAddressLookupParameterConsumer physicalAddressLookupParameter;
 
 	@BeforeEach
 	public void setup() {
@@ -104,10 +106,11 @@ class NotificationReceiverTest {
 		cfg = Mockito.mock(PnDeliveryConfigs.class);
 		agenziaEntrateApi = Mockito.mock(AgenziaEntrateApi.class);
 		paNotificationLimitService = Mockito.mock(PaNotificationLimitService.class);
+		physicalAddressLookupParameter = Mockito.mock(PhysicalAddressLookupParameterConsumer.class);
 
 		// - Separate Tests
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator(), mvpParameterConsumer, validateUtils, pnDeliveryConfigs, agenziaEntrateApi);
+		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator(), mvpParameterConsumer, validateUtils, pnDeliveryConfigs, agenziaEntrateApi, physicalAddressLookupParameter);
 
 		Mockito.when( validateUtils.validate( Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean() ) ).thenReturn( true );
 		Mockito.when( sendActiveParameterConsumer.isSendActive( Mockito.anyString() ) ).thenReturn( true );
