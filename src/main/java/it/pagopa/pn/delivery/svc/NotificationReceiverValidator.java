@@ -484,6 +484,10 @@ public class NotificationReceiverValidator {
     }
 
     private boolean checkPhysicalAddressLookupIsEnabled (String paId){
+        if(pnDeliveryConfigs.getPhysicalAddressLookupStartDate() == null){
+            log.error("The parameter PhysicalAddressLookupStartDate is not configured, feature is always deactivated.");
+            return false;
+        }
         return Instant.now().isAfter(pnDeliveryConfigs.getPhysicalAddressLookupStartDate()) &&
                 (physicalAddressLookupParameter.getActivePAsForPhysicalAddressLookup().isEmpty() ||
                         physicalAddressLookupParameter.getActivePAsForPhysicalAddressLookup().contains(paId));
