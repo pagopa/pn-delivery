@@ -168,7 +168,7 @@ public class IOMapper {
     public ThirdPartyAttachment mapF24ToThirdPartyAttachment(F24Payment f24Payment, int indexDocument, String iun) {
         if(f24Payment == null) return null;
 
-        String fileName = addFileExtensionIfMissing(f24Payment.getTitle(), f24Payment.getMetadataAttachment().getContentType());
+        String fileName = addFileExtensionIfMissing(f24Payment.getTitle(), F24_DOCUMENT_TYPE);
 
         return ThirdPartyAttachment.builder()
                 .contentType(F24_DOCUMENT_TYPE)
