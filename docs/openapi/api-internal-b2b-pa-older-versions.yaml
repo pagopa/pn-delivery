@@ -79,7 +79,7 @@ paths:
     get:
       deprecated: true
       operationId: getNotificationRequestStatus                       # NO EXTERNAL
-#      operationId: retrieveNotificationRequestStatus                 # ONLY EXTERNAL
+      #      operationId: retrieveNotificationRequestStatus                 # ONLY EXTERNAL
       x-pagopa-lambda-name: 'pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live'
       x-pagopa-lambda-account: core
       tags:
@@ -195,7 +195,7 @@ paths:
     get:
       deprecated: true
       operationId: getNotificationRequestStatusV21                       # NO EXTERNAL
-#      operationId: retrieveNotificationRequestStatusV21                 # ONLY EXTERNAL
+      #      operationId: retrieveNotificationRequestStatusV21                 # ONLY EXTERNAL
       x-pagopa-lambda-name: 'pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live'
       x-pagopa-lambda-account: core
       tags:
@@ -242,6 +242,7 @@ paths:
 
   "/delivery/v2.3/requests":
     post:
+      deprecated: true
       summary: Richiesta invio notifica
       description: |-
         Operazione utilizzata dalla Pubblica Amministrazione per richiedere l'invio di una notifica.
@@ -312,8 +313,9 @@ paths:
     ###                        VERIFICA STATO RICHIESTE DI NOTIFICA                         ###
     ###########################################################################################
     get:
+      deprecated: true
       operationId: getNotificationRequestStatusV23                       # NO EXTERNAL
-#      operationId: retrieveNotificationRequestStatusV23                 # ONLY EXTERNAL
+      #      operationId: retrieveNotificationRequestStatusV23                 # ONLY EXTERNAL
       x-pagopa-lambda-name: 'pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live'
       x-pagopa-lambda-account: core
       tags:
@@ -384,7 +386,7 @@ paths:
       tags:
         - SenderReadB2B
       operationId: getSentNotification                                      # NO EXTERNAL
-#      operationId: retrieveSentNotification                                # ONLY EXTERNAL
+      #      operationId: retrieveSentNotification                                # ONLY EXTERNAL
       x-pagopa-lambda-name: 'pn-delivery-versioning-v1v2-getnotification-lambda:live'
       x-pagopa-lambda-account: core
       parameters:
@@ -434,7 +436,7 @@ paths:
       tags:
         - SenderReadB2B
       operationId: getSentNotificationV20                                      # NO EXTERNAL
-#      operationId: retrieveSentNotificationV20                                # ONLY EXTERNAL
+      #      operationId: retrieveSentNotificationV20                                # ONLY EXTERNAL
       x-pagopa-lambda-name: 'pn-delivery-versioning-v1v2-getnotification-lambda:live'
       x-pagopa-lambda-account: core
       parameters:
@@ -484,7 +486,7 @@ paths:
       tags:
         - SenderReadB2B
       operationId: getSentNotificationV21                                      # NO EXTERNAL
-#      operationId: retrieveSentNotificationV21                                # ONLY EXTERNAL
+      #      operationId: retrieveSentNotificationV21                                # ONLY EXTERNAL
       x-pagopa-lambda-name: 'pn-delivery-versioning-v1v2-getnotification-lambda:live'
       x-pagopa-lambda-account: core
       parameters:
@@ -534,7 +536,7 @@ paths:
       tags:
         - SenderReadB2B
       operationId: getSentNotificationV23                                      # NO EXTERNAL
-#      operationId: retrieveSentNotificationV23                                # ONLY EXTERNAL
+      #      operationId: retrieveSentNotificationV23                                # ONLY EXTERNAL
       x-pagopa-lambda-name: 'pn-delivery-versioning-v1v2-getnotification-lambda:live'
       x-pagopa-lambda-account: core
       parameters:
@@ -565,6 +567,7 @@ paths:
   
   "/delivery/v2.4/notifications/sent/{iun}":
     get:
+      deprecated: true
       summary: 'Mittente: lettura dettagli notifica versione 2'
       description: |-
         Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
@@ -583,7 +586,7 @@ paths:
       tags:
         - SenderReadB2B
       operationId: getSentNotificationV24                                      # NO EXTERNAL
-#      operationId: retrieveSentNotificationV24                                # ONLY EXTERNAL
+      #      operationId: retrieveSentNotificationV24                                # ONLY EXTERNAL
       x-pagopa-lambda-name: 'pn-delivery-versioning-v1v2-getnotification-lambda:live'
       x-pagopa-lambda-account: core
       parameters:
@@ -614,6 +617,7 @@ paths:
 
   "/delivery/v2.5/notifications/sent/{iun}":
     get:
+      deprecated: true
       summary: 'Mittente: lettura dettagli notifica versione 2'
       description: |-
         Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
@@ -665,55 +669,55 @@ paths:
     get:
       deprecated: true
       operationId: getNotificationPrice                                             # NO EXTERNAL
-#      operationId: retrieveNotificationPrice                                       # ONLY EXTERNAL
+      #      operationId: retrieveNotificationPrice                                       # ONLY EXTERNAL
       x-pagopa-lambda-name: 'pn-delivery-versioning-v1v23-getnotificationprice-lambda:live'
       x-pagopa-lambda-account: core
-      summary: Retrieve notification price and effective date                       
-      description: >-                                                               
+      summary: Retrieve notification price and effective date
+      description: >-
         Usata dalla PA per recuperare il costo di notificazione tramite
          l'identificativo della posizione debitoria paTaxId e noticeCode.
-      tags:                                                                         
-        - NotificationPrice                                                         
-      parameters:                                                                   
-        - name: paTaxId                                                             
-          description: Payment PA fiscal code                                       
-          in: path                                                                  
-          required: true                                                            
-          example: '77777777777'                                                    
-          schema:                                                                    
-            $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxId'        
-        - name: noticeCode                                                          
-          description: Payment notice number  numero avviso                         
-          in: path                                                                  
-          required: true                                                            
-          example: '302000100000019421'                                             
-          schema:                                                                   
-            $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'     
-      responses:                                                                    
-        '200':                                                                      
-          description: OK                                                           
-          content:                                                                  
-            application/json:                                                       
-              schema:                                                               
-                $ref: '#/components/schemas/NotificationPriceResponse'              
-        '400':                                                                      
-          description: Invalid input                                                
-          content:                                                                  
-            application/problem+json:                                               
-              schema:                                                               
-                $ref: '#/components/schemas/Problem'                                
-        '404':                                                                      
-          description: Not Found                                                    
-          content:                                                                  
-            application/problem+json:                                               
-              schema:                                                               
-                $ref: '#/components/schemas/Problem'                                
-        '500':                                                                      
-          description: Internal Server Error                                        
-          content:                                                                  
-            application/problem+json:                                               
-              schema:                                                               
-                $ref: '#/components/schemas/Problem'  
+      tags:
+        - NotificationPrice
+      parameters:
+        - name: paTaxId
+          description: Payment PA fiscal code
+          in: path
+          required: true
+          example: '77777777777'
+          schema:
+            $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxId'
+        - name: noticeCode
+          description: Payment notice number  numero avviso
+          in: path
+          required: true
+          example: '302000100000019421'
+          schema:
+            $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationPriceResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
 
 
 components:
@@ -1135,7 +1139,7 @@ components:
             documentsAvailable:
               type: boolean
               description: Indica se i documenti notificati sono ancora disponibili.
-              
+
     SentNotificationV23:
       $ref: './schemas-pn-notification-older-version.yaml#/components/schemas/SentNotificationV23'
 
@@ -1230,7 +1234,7 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/ProblemError'
-                
+
     NewNotificationRequestStatusResponseV23:
       allOf:
         - $ref: "#/components/schemas/NewNotificationRequestV23"
@@ -1263,7 +1267,7 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/ProblemError'
-                
+
     Problem:
       $ref: './remote-refs.yaml#/components/schemas/Problem'
     ProblemError:
@@ -1409,7 +1413,7 @@ components:
             sourceChannelDetails: # NO EXTERNAL
               type: string                                                              # NO EXTERNAL
               description: Dettagli del canale sorgente della richiesta di notifica     # NO EXTERNAL
-              
+
     FullSentNotificationV24:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
