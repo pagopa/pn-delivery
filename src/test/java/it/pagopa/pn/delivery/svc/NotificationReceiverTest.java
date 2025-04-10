@@ -39,11 +39,11 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAmount;
 import java.util.*;
 
 import static it.pagopa.pn.delivery.svc.NotificationReceiverService.PA_FEE_DEFAULT_VALUE;
 import static it.pagopa.pn.delivery.svc.NotificationReceiverService.VAT_DEFAULT_VALUE;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -809,6 +809,34 @@ class NotificationReceiverTest {
 		verify(paNotificationLimitService).checkIfPaNotificationLimitExists(any(InternalNotification.class));
 		verify(paNotificationLimitService).decrementLimitIncrementDailyCounter(any(InternalNotification.class));
 		verify(paNotificationLimitService).incrementLimitDecrementDailyCounter(any(InternalNotification.class));
+	}
+
+	@Test
+	void receiveNotification_setPhysicalAddressLookup() {
+		NewNotificationRequestV25 newNotificationRequest = newNotificationRequest();
+		newNotificationRequest.getRecipients().get(0).setPhysicalAddress(null);
+
+		when(pnExternalRegistriesClient.getGroups(Mockito.anyString(), Mockito.eq(true)))
+				.thenReturn(List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
+		when(paNotificationLimitService.checkIfPaNotificationLimitExists(any(InternalNotification.class))).thenReturn(false);
+
+		defaultMockConfigAndParameterForVas();
+
+		NewNotificationResponse response = deliveryService.receiveNotification(
+				PAID,
+				newNotificationRequest,
+				X_PAGOPA_PN_SRC_CH,
+				null,
+				X_PAGOPA_PN_CX_GROUPS,
+				null
+		);
+
+		assertNotNull(response);
+		ArgumentCaptor<InternalNotification> captor = ArgumentCaptor.forClass(InternalNotification.class);
+		verify(notificationDao).addNotification(captor.capture());
+		InternalNotification capturedNotification = captor.getValue();
+		assertNotNull(capturedNotification.getUsedServices());
+		assertTrue(capturedNotification.getUsedServices().getPhysicalAddressLookup());
 	}
 
 	private NewNotificationRequestV25 newNotificationRequest() {

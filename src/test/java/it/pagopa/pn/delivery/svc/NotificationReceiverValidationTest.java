@@ -1878,6 +1878,20 @@ class NotificationReceiverValidationTest {
     }
 
     @Test
+    void checkNewNotificationRequestBeforeInsertAndThrow_withPhysicalAddressLookupStartNull() {
+        String sha256 = "cvZKB4NCsHjo0stdb47gnfx0/Hjiipov0+M9oXcJT2Y=";
+        NewNotificationRequestV25 validRequest = getNewNotificationRequestV24(sha256);
+        when(cfg.getPhysicalAddressLookupStartDate()).thenReturn(null);
+
+        when(validateUtils.validate("26188370808", false, false, false)).thenReturn(true);
+        when(mvpParameterConsumer.isMvp(validRequest.getSenderTaxId())).thenReturn(false);
+
+        defaultMockConfigAndParameterForVas();
+
+        assertDoesNotThrow(() -> validator.checkNewNotificationRequestBeforeInsertAndThrow(validRequest));
+    }
+
+    @Test
     void checkNewNotificationRequestBeforeInsertAndThrow_WithInvalidAdditionalLang() {
         String sha256 = "cvZKB4NCsHjo0stdb47gnfx0/Hjiipov0+M9oXcJT2Y=";
         NewNotificationRequestV25 validRequest = getNewNotificationRequestV24(sha256);
