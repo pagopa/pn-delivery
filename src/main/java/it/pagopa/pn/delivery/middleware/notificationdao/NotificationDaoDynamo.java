@@ -59,17 +59,23 @@ public class NotificationDaoDynamo implements NotificationDao {
 
 		List<NotificationRecipientAddressesDto> recipientAddressesDtoList = new ArrayList<>();
 		List<NotificationRecipient> cleanedRecipientList = new ArrayList<>();
+		Integer recIndex = 0;
 		for ( NotificationRecipient recipient  : internalNotification.getRecipients()) {
 			String opaqueTaxId = pnDataVaultClient.ensureRecipientByExternalId( RecipientType.fromValue( recipient.getRecipientType().getValue() ), recipient.getTaxId() );
 			recipient.setTaxId( opaqueTaxId );
-			NotificationRecipientAddressesDto recipientAddressesDto = new NotificationRecipientAddressesDto()
-					.denomination( recipient.getDenomination() )
-					.digitalAddress( createDigitalDomicile( recipient.getDigitalDomicile() ) )
-					.physicalAddress( createAnalogDomicile( recipient.getPhysicalAddress() ) );
-			recipientAddressesDtoList.add( recipientAddressesDto );
-			cleanedRecipientList.add( removeConfidantialInfo( recipient ) );
-		}
+			boolean shouldAnonymizeAddresses = recipient.getPhysicalAddress() != null || recipient.getDigitalDomicile() != null;
+			if(shouldAnonymizeAddresses) {
+				NotificationRecipientAddressesDto recipientAddressesDto = new NotificationRecipientAddressesDto()
+						.denomination( recipient.getDenomination() )
+						.digitalAddress( createDigitalDomicile( recipient.getDigitalDomicile() ) )
+						.physicalAddress( createAnalogDomicile( recipient.getPhysicalAddress() ) )
+						.recIndex(recIndex);
 
+				recipientAddressesDtoList.add( recipientAddressesDto );
+			}
+			cleanedRecipientList.add( removeConfidantialInfo( recipient ) );
+			recIndex++;
+		}
 		pnDataVaultClient.updateNotificationAddressesByIun( internalNotification.getIun(), recipientAddressesDtoList );
 		internalNotification.setRecipients( cleanedRecipientList );
 
@@ -143,6 +149,9 @@ public class NotificationDaoDynamo implements NotificationDao {
 				pnDataVaultClient.getNotificationAddressesByIun( daoResult.getIun() );
 
 		int recipientIndex = 0;
+		boolean isAddressHandledByPosition = notificationRecipientAddressesDtoList.stream()
+				.anyMatch( el -> el.getRecIndex() == null );
+
 		for ( NotificationRecipient recipient : daoNotificationRecipientList ) {
 			String opaqueTaxId = recipient.getInternalId();
 
@@ -151,9 +160,10 @@ public class NotificationDaoDynamo implements NotificationDao {
 					.findAny()
 					.orElse( null );
 
-			NotificationRecipientAddressesDto clearDataAddresses =
-					recipientIndex < notificationRecipientAddressesDtoList.size()
-							? notificationRecipientAddressesDtoList.get( recipientIndex ) : null;
+			//getPositionalNotificationRecipientAddressesDto TO BE REMOVED ONLY FOR THE FIRST PHASE OF VAS DEPLOYMENT
+			NotificationRecipientAddressesDto clearDataAddresses = isAddressHandledByPosition
+					? getPositionalNotificationRecipientAddressesDto( recipientIndex, notificationRecipientAddressesDtoList )
+					: getNotificationRecipientAddressesDtoByRecIndex( recipientIndex, notificationRecipientAddressesDtoList );
 
 
 			if ( baseRec != null) {
@@ -172,6 +182,18 @@ public class NotificationDaoDynamo implements NotificationDao {
 			}
 			recipientIndex += 1;
 		}
+	}
+
+	private NotificationRecipientAddressesDto getPositionalNotificationRecipientAddressesDto(int recipientIndex, List<NotificationRecipientAddressesDto> notificationRecipientAddressesDtoList) {
+		return recipientIndex < notificationRecipientAddressesDtoList.size()
+				? notificationRecipientAddressesDtoList.get( recipientIndex ) : null;
+	}
+
+	private NotificationRecipientAddressesDto getNotificationRecipientAddressesDtoByRecIndex(int recipientIndex, List<NotificationRecipientAddressesDto> notificationRecipientAddressesDtoList) {
+		return notificationRecipientAddressesDtoList.stream()
+				.filter( el -> Objects.equals(el.getRecIndex(), recipientIndex) )
+				.findFirst()
+				.orElse(null);
 	}
 
 	private void handleDocuments(InternalNotification daoResult) {
