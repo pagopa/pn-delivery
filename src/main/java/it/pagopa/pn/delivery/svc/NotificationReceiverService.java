@@ -117,7 +117,7 @@ public class NotificationReceiverService {
 		log.debug("New notification storing START paProtocolNumber={} idempotenceToken={}",
 				newNotificationRequest.getPaProtocolNumber(), newNotificationRequest.getIdempotenceToken());
 		log.logChecking("New notification request validation process");
-		validator.checkNewNotificationRequestBeforeInsertAndThrow(newNotificationRequest);
+		validator.checkNewNotificationRequestBeforeInsertAndThrow(newNotificationRequest, xPagopaPnCxId);
 		log.debug("Validation OK for paProtocolNumber={}", newNotificationRequest.getPaProtocolNumber() );
 		log.logCheckingOutcome("New notification request validation process", true, "");
 		String notificationGroup = newNotificationRequest.getGroup();

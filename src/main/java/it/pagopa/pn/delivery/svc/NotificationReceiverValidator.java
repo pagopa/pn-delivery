@@ -18,6 +18,7 @@ import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
 import it.pagopa.pn.delivery.svc.search.AllowedAdditionalLanguages;
 import it.pagopa.pn.delivery.utils.DenominationValidationUtils;
+import it.pagopa.pn.delivery.utils.FeatureFlagUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
@@ -45,16 +46,19 @@ public class NotificationReceiverValidator {
     private final PnDeliveryConfigs pnDeliveryConfigs;
     private final AgenziaEntrateApi agenziaEntrateApi;
     private final PhysicalAddressLookupParameterConsumer physicalAddressLookupParameter;
+
+    private final FeatureFlagUtils featureFlagUtils;
     public static final String REQUIRED_ADDITIONAL_LANG_SIZE = "È obbligatorio fornire una sola lingua aggiuntiva.";
 
     public NotificationReceiverValidator(Validator validator, MVPParameterConsumer mvpParameterConsumer, ValidateUtils validateUtils, PnDeliveryConfigs pnDeliveryConfigs,
-                                         AgenziaEntrateApi agenziaEntrateApi, PhysicalAddressLookupParameterConsumer physicalAddressLookupParameter) {
+                                         AgenziaEntrateApi agenziaEntrateApi, PhysicalAddressLookupParameterConsumer physicalAddressLookupParameter, FeatureFlagUtils featureFlagUtils) {
         this.validator = validator;
         this.mvpParameterConsumer = mvpParameterConsumer;
         this.validateUtils = validateUtils;
         this.pnDeliveryConfigs = pnDeliveryConfigs;
         this.agenziaEntrateApi = agenziaEntrateApi;
         this.physicalAddressLookupParameter = physicalAddressLookupParameter;
+        this.featureFlagUtils = featureFlagUtils;
 
         log.info("Validation enabled={}", pnDeliveryConfigs.isPhysicalAddressValidation());
         log.info("Validation pattern={}", pnDeliveryConfigs.getPhysicalAddressValidationPattern());
@@ -74,8 +78,8 @@ public class NotificationReceiverValidator {
     }
 
 
-    public void checkNewNotificationRequestBeforeInsertAndThrow(NewNotificationRequestV25 newNotificationRequestV2) {
-        Set<ConstraintViolation<NewNotificationRequestV25>> errors = checkNewNotificationRequestBeforeInsert(newNotificationRequestV2);
+    public void checkNewNotificationRequestBeforeInsertAndThrow(NewNotificationRequestV25 newNotificationRequestV2, String paId) {
+        Set<ConstraintViolation<NewNotificationRequestV25>> errors = checkNewNotificationRequestBeforeInsert(newNotificationRequestV2, paId);
         if (Boolean.TRUE.equals(mvpParameterConsumer.isMvp(newNotificationRequestV2.getSenderTaxId())) && errors.isEmpty()) {
             errors = checkNewNotificationRequestForMVP(newNotificationRequestV2);
         }
@@ -103,10 +107,10 @@ public class NotificationReceiverValidator {
                 .anyMatch(lang::equals);
     }
 
-    protected Set<ConstraintViolation<NewNotificationRequestV25>> checkNewNotificationRequestBeforeInsert(NewNotificationRequestV25 newNotificationRequestV25) {
+    protected Set<ConstraintViolation<NewNotificationRequestV25>> checkNewNotificationRequestBeforeInsert(NewNotificationRequestV25 newNotificationRequestV25, String paId) {
         Set<ConstraintViolation<NewNotificationRequestV25>> errors = new HashSet<>();
 
-        boolean physicalAddressLookup = checkPhysicalAddressLookupIsEnabled(newNotificationRequestV25.getSenderTaxId());
+        boolean physicalAddressLookup = checkPhysicalAddressLookupIsEnabled(paId);
 
         // check del numero massimo di documenti allegati
         if (pnDeliveryConfigs.getMaxAttachmentsCount() > 0 && newNotificationRequestV25.getDocuments().size() > pnDeliveryConfigs.getMaxAttachmentsCount()) {
@@ -484,13 +488,11 @@ public class NotificationReceiverValidator {
     }
 
     private boolean checkPhysicalAddressLookupIsEnabled (String paId){
-        if(pnDeliveryConfigs.getPhysicalAddressLookupStartDate() == null){
-            log.error("The parameter PhysicalAddressLookupStartDate is not configured, feature is always deactivated.");
-            return false;
-        }
-        return Instant.now().isAfter(pnDeliveryConfigs.getPhysicalAddressLookupStartDate()) &&
-                (physicalAddressLookupParameter.getActivePAsForPhysicalAddressLookup().isEmpty() ||
-                        physicalAddressLookupParameter.getActivePAsForPhysicalAddressLookup().contains(paId));
+        List<String> activePAsForPhysicalAddressLookup = physicalAddressLookupParameter.getActivePAsForPhysicalAddressLookup();
+
+        return featureFlagUtils.isPhysicalAddressLookupEnabled() &&
+                (activePAsForPhysicalAddressLookup.isEmpty() ||
+                        activePAsForPhysicalAddressLookup.contains(paId));
     }
 
     public Set<ConstraintViolation<NewNotificationRequestV25>> checkNewNotificationRequestForMVP(NewNotificationRequestV25 newNotificationRequestV2) {

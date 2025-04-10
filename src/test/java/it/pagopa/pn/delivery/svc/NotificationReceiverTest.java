@@ -21,6 +21,7 @@ import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.pnclient.pnf24.PnF24ClientImpl;
+import it.pagopa.pn.delivery.utils.FeatureFlagUtils;
 import it.pagopa.pn.delivery.utils.NotificationDaoMock;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -92,6 +93,8 @@ class NotificationReceiverTest {
 	private PaNotificationLimitService paNotificationLimitService;
 	private PhysicalAddressLookupParameterConsumer physicalAddressLookupParameter;
 
+	private FeatureFlagUtils featureFlagUtils;
+
 	@BeforeEach
 	public void setup() {
 		Clock clock = Clock.fixed( Instant.EPOCH, ZoneId.of("UTC"));
@@ -109,10 +112,10 @@ class NotificationReceiverTest {
 		agenziaEntrateApi = Mockito.mock(AgenziaEntrateApi.class);
 		paNotificationLimitService = Mockito.mock(PaNotificationLimitService.class);
 		physicalAddressLookupParameter = Mockito.mock(PhysicalAddressLookupParameterConsumer.class);
-
+		featureFlagUtils = Mockito.mock(FeatureFlagUtils.class);
 		// - Separate Tests
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator(), mvpParameterConsumer, validateUtils, pnDeliveryConfigs, agenziaEntrateApi, physicalAddressLookupParameter);
+		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator(), mvpParameterConsumer, validateUtils, pnDeliveryConfigs, agenziaEntrateApi, physicalAddressLookupParameter, featureFlagUtils);
 
 		Mockito.when( validateUtils.validate( Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean() ) ).thenReturn( true );
 		Mockito.when( sendActiveParameterConsumer.isSendActive( Mockito.anyString() ) ).thenReturn( true );
@@ -130,8 +133,8 @@ class NotificationReceiverTest {
 	}
 
 	private void defaultMockConfigAndParameterForVas(){
-		Mockito.when(physicalAddressLookupParameter.getActivePAsForPhysicalAddressLookup()).thenReturn(List.of("01199250158"));
-		Mockito.when(pnDeliveryConfigs.getPhysicalAddressLookupStartDate()).thenReturn(Instant.now().minus(5, ChronoUnit.MINUTES));
+		Mockito.when(physicalAddressLookupParameter.getActivePAsForPhysicalAddressLookup()).thenReturn(List.of("01199250158", PAID));
+		Mockito.when(featureFlagUtils.isPhysicalAddressLookupEnabled()).thenReturn(true);
 	}
 
 	@Test

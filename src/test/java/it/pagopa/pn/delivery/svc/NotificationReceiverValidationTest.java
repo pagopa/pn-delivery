@@ -12,6 +12,7 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.nationalregistries.v1.mo
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
+import it.pagopa.pn.delivery.utils.FeatureFlagUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.hamcrest.Matchers;
 import org.jetbrains.annotations.NotNull;
@@ -62,6 +63,7 @@ class NotificationReceiverValidationTest {
 
     private NotificationReceiverValidator validator;
     private MVPParameterConsumer mvpParameterConsumer;
+    private FeatureFlagUtils featureFlagUtils;
 
     @BeforeEach
     void initializeValidator() {
@@ -71,12 +73,13 @@ class NotificationReceiverValidationTest {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         mvpParameterConsumer = mock(MVPParameterConsumer.class);
         physicalAddressLookupParameter = Mockito.mock(PhysicalAddressLookupParameterConsumer.class);
-        validator = new NotificationReceiverValidator(factory.getValidator(), mvpParameterConsumer, validateUtils, cfg, agenziaEntrateApi,physicalAddressLookupParameter);
+        featureFlagUtils = Mockito.mock(FeatureFlagUtils.class);
+        validator = new NotificationReceiverValidator(factory.getValidator(), mvpParameterConsumer, validateUtils, cfg, agenziaEntrateApi,physicalAddressLookupParameter, featureFlagUtils);
     }
 
     private void defaultMockConfigAndParameterForVas(){
         Mockito.when(physicalAddressLookupParameter.getActivePAsForPhysicalAddressLookup()).thenReturn(List.of("paId"));
-        Mockito.when(cfg.getPhysicalAddressLookupStartDate()).thenReturn(Instant.now().minus(5, ChronoUnit.MINUTES));
+        Mockito.when(featureFlagUtils.isPhysicalAddressLookupEnabled()).thenReturn(true);
     }
     @Test
     void invalidNotificationDeliveryModeNoPaFee() {
@@ -87,7 +90,7 @@ class NotificationReceiverValidationTest {
 
         defaultMockConfigAndParameterForVas();
 
-        errors = validator.checkNewNotificationRequestBeforeInsert(newNotificationRequest);
+        errors = validator.checkNewNotificationRequestBeforeInsert(newNotificationRequest, newNotificationRequest.getSenderTaxId());
 
         assertThat(errors, hasItems(
                 hasProperty("message", Matchers.containsString("paFee"))
@@ -102,7 +105,7 @@ class NotificationReceiverValidationTest {
         Set<ConstraintViolation<NewNotificationRequestV25>> errors;
         defaultMockConfigAndParameterForVas();
 
-        errors = validator.checkNewNotificationRequestBeforeInsert(newNotificationRequest);
+        errors = validator.checkNewNotificationRequestBeforeInsert(newNotificationRequest, newNotificationRequest.getSenderTaxId());
 
         assertThat(errors, hasItems(
                 hasProperty("message", Matchers.containsString("vat"))
@@ -163,7 +166,7 @@ class NotificationReceiverValidationTest {
         Set<ConstraintViolation<NewNotificationRequestV25>> errors;
         defaultMockConfigAndParameterForVas();
 
-        errors = validator.checkNewNotificationRequestBeforeInsert(n);
+        errors = validator.checkNewNotificationRequestBeforeInsert(n, n.getSenderTaxId());
 
         // Then
         assertConstraintViolationPresentByMessage(errors, "SEND accepts only numerical taxId for PG recipient 0");
@@ -191,7 +194,7 @@ class NotificationReceiverValidationTest {
 
         // When
         Set<ConstraintViolation<NewNotificationRequestV25>> errors;
-        errors = validator.checkNewNotificationRequestBeforeInsert(n);
+        errors = validator.checkNewNotificationRequestBeforeInsert(n, n.getSenderTaxId());
         // Then
         Assertions.assertTrue(errors.isEmpty());
         verifyNoInteractions(agenziaEntrateApi);
@@ -222,7 +225,7 @@ class NotificationReceiverValidationTest {
 
         // When
         Set<ConstraintViolation<NewNotificationRequestV25>> errors;
-        errors = validator.checkNewNotificationRequestBeforeInsert(n);
+        errors = validator.checkNewNotificationRequestBeforeInsert(n, n.getSenderTaxId());
 
         // Then
         assertConstraintViolationPresentByMessage(errors, "Invalid taxId for recipient 0");
@@ -257,7 +260,7 @@ class NotificationReceiverValidationTest {
 
         // When
         Set<ConstraintViolation<NewNotificationRequestV25>> errors;
-        errors = validator.checkNewNotificationRequestBeforeInsert(n);
+        errors = validator.checkNewNotificationRequestBeforeInsert(n, n.getSenderTaxId());
 
         Assertions.assertTrue(errors.isEmpty());
         verify(agenziaEntrateApi, times(1)).checkTaxId(any());
@@ -285,7 +288,7 @@ class NotificationReceiverValidationTest {
         when(agenziaEntrateApi.checkTaxId(any())).thenThrow(RestClientException.class);
         defaultMockConfigAndParameterForVas();
 
-        Assertions.assertThrows(PnInternalException.class, () -> validator.checkNewNotificationRequestBeforeInsertAndThrow(n), "Error calling check taxId on AdE");
+        Assertions.assertThrows(PnInternalException.class, () -> validator.checkNewNotificationRequestBeforeInsertAndThrow(n, n.getSenderTaxId()), "Error calling check taxId on AdE");
         verify(agenziaEntrateApi, times(1)).checkTaxId(any());
     }
 
@@ -296,7 +299,7 @@ class NotificationReceiverValidationTest {
         defaultMockConfigAndParameterForVas();
         // When
         Set<ConstraintViolation<NewNotificationRequestV25>> errors;
-        errors = validator.checkNewNotificationRequestBeforeInsert(n);
+        errors = validator.checkNewNotificationRequestBeforeInsert(n, n.getSenderTaxId());
 
         // Then
         assertConstraintViolationPresentByMessage(errors, "Invalid taxId for recipient 0");
@@ -323,7 +326,7 @@ class NotificationReceiverValidationTest {
 
         // When
         Set<ConstraintViolation<NewNotificationRequestV25>> errors;
-        errors = validator.checkNewNotificationRequestBeforeInsert(n);
+        errors = validator.checkNewNotificationRequestBeforeInsert(n, n.getSenderTaxId());
         // Then
         Assertions.assertTrue(errors.isEmpty());
         verifyNoInteractions(agenziaEntrateApi);
@@ -354,7 +357,7 @@ class NotificationReceiverValidationTest {
         defaultMockConfigAndParameterForVas();
         // When
         Set<ConstraintViolation<NewNotificationRequestV25>> errors;
-        errors = validator.checkNewNotificationRequestBeforeInsert(n);
+        errors = validator.checkNewNotificationRequestBeforeInsert(n, n.getSenderTaxId());
 
         // Then
         assertConstraintViolationPresentByMessage(errors, "Invalid taxId for recipient 0");
@@ -388,7 +391,7 @@ class NotificationReceiverValidationTest {
 
         // When
         Set<ConstraintViolation<NewNotificationRequestV25>> errors;
-        errors = validator.checkNewNotificationRequestBeforeInsert(n);
+        errors = validator.checkNewNotificationRequestBeforeInsert(n, n.getSenderTaxId());
 
         Assertions.assertTrue(errors.isEmpty());
         verify(agenziaEntrateApi, times(1)).checkTaxId(any());
@@ -569,7 +572,7 @@ class NotificationReceiverValidationTest {
 
         // When
         Set<ConstraintViolation<NewNotificationRequestV25>> errors;
-        errors = validator.checkNewNotificationRequestBeforeInsert(n);
+        errors = validator.checkNewNotificationRequestBeforeInsert(n, n.getSenderTaxId());
 
         // Then
         assertConstraintViolationPresentByMessage(errors, "Duplicated recipient taxId");
@@ -583,7 +586,7 @@ class NotificationReceiverValidationTest {
 
         // When
         Set<ConstraintViolation<NewNotificationRequestV25>> errors;
-        errors = validator.checkNewNotificationRequestBeforeInsert(n);
+        errors = validator.checkNewNotificationRequestBeforeInsert(n, n.getSenderTaxId());
 
         // Then
         assertConstraintViolationPresentByMessage(errors, "PagoPA applyCostFlg must be valorized for at least one payment");
@@ -599,7 +602,7 @@ class NotificationReceiverValidationTest {
 
         // When
         Set<ConstraintViolation<NewNotificationRequestV25>> errors;
-        errors = validator.checkNewNotificationRequestBeforeInsert(n);
+        errors = validator.checkNewNotificationRequestBeforeInsert(n, n.getSenderTaxId());
 
         // Then
         assertConstraintViolationPresentByMessage(errors, "PagoPA applyCostFlg must not be valorized for any payment");
@@ -615,7 +618,7 @@ class NotificationReceiverValidationTest {
 
         // When
         Set<ConstraintViolation<NewNotificationRequestV25>> errors;
-        errors = validator.checkNewNotificationRequestBeforeInsert(notification);
+        errors = validator.checkNewNotificationRequestBeforeInsert(notification, notification.getSenderTaxId());
 
         String error = createExpectedIuvDuplicatedErrorMessage(notification, 0, 1);
         // Then
@@ -1095,7 +1098,7 @@ class NotificationReceiverValidationTest {
 
         // WHEN
         Set<ConstraintViolation<NewNotificationRequestV25>> errors;
-        errors = validator.checkNewNotificationRequestBeforeInsert(n);
+        errors = validator.checkNewNotificationRequestBeforeInsert(n, n.getSenderTaxId());
 
         // THEN
         assertConstraintViolationPresentByMessage(errors, "No province provided in physical address");
@@ -1116,7 +1119,7 @@ class NotificationReceiverValidationTest {
 
         // WHEN
         Set<ConstraintViolation<NewNotificationRequestV25>> errors;
-        errors = validator.checkNewNotificationRequestBeforeInsert(n);
+        errors = validator.checkNewNotificationRequestBeforeInsert(n, n.getSenderTaxId());
 
         // THEN
         assertConstraintViolationPresentByMessage(errors, "No province provided in physical address");
@@ -1133,7 +1136,7 @@ class NotificationReceiverValidationTest {
 
         // WHEN
         Set<ConstraintViolation<NewNotificationRequestV25>> errors;
-        errors = validator.checkNewNotificationRequestBeforeInsert(n);
+        errors = validator.checkNewNotificationRequestBeforeInsert(n, n.getSenderTaxId());
 
         // THEN
         Assertions.assertEquals(0, errors.size());
@@ -1776,7 +1779,7 @@ class NotificationReceiverValidationTest {
 
         // When
         Set<ConstraintViolation<NewNotificationRequestV25>> errors;
-        errors = validator.checkNewNotificationRequestBeforeInsert(n);
+        errors = validator.checkNewNotificationRequestBeforeInsert(n, n.getSenderTaxId());
 
         // Then
         assertConstraintViolationPresentByMessage(errors, "Same attachment compares more then once in the same request");
@@ -1857,7 +1860,7 @@ class NotificationReceiverValidationTest {
 
         // When
         Set<ConstraintViolation<NewNotificationRequestV25>> errors;
-        errors = validator.checkNewNotificationRequestBeforeInsert(n);
+        errors = validator.checkNewNotificationRequestBeforeInsert(n, n.getSenderTaxId());
 
         // Then
         long actual = errors.stream().filter(cv -> cv.getMessage().equals("Same attachment compares more then once in the same request")).count();
@@ -1874,7 +1877,7 @@ class NotificationReceiverValidationTest {
 
         defaultMockConfigAndParameterForVas();
 
-        assertDoesNotThrow(() -> validator.checkNewNotificationRequestBeforeInsertAndThrow(validRequest));
+        assertDoesNotThrow(() -> validator.checkNewNotificationRequestBeforeInsertAndThrow(validRequest, validRequest.getSenderTaxId()));
     }
 
     @Test
@@ -1888,7 +1891,7 @@ class NotificationReceiverValidationTest {
 
         defaultMockConfigAndParameterForVas();
 
-        assertDoesNotThrow(() -> validator.checkNewNotificationRequestBeforeInsertAndThrow(validRequest));
+        assertDoesNotThrow(() -> validator.checkNewNotificationRequestBeforeInsertAndThrow(validRequest, validRequest.getSenderTaxId()));
     }
 
     @Test
@@ -1902,7 +1905,7 @@ class NotificationReceiverValidationTest {
 
         defaultMockConfigAndParameterForVas();
 
-        Assertions.assertThrows(PnBadRequestException.class, () -> validator.checkNewNotificationRequestBeforeInsertAndThrow(validRequest),
+        Assertions.assertThrows(PnBadRequestException.class, () -> validator.checkNewNotificationRequestBeforeInsertAndThrow(validRequest, validRequest.getSenderTaxId()),
                 "Lingua aggiuntiva non valida, i valori accettati sono DE,FR,SL");
     }
 
@@ -1916,7 +1919,7 @@ class NotificationReceiverValidationTest {
 
         defaultMockConfigAndParameterForVas();
 
-        Assertions.assertThrows(PnBadRequestException.class, () -> validator.checkNewNotificationRequestBeforeInsertAndThrow(validRequest),
+        Assertions.assertThrows(PnBadRequestException.class, () -> validator.checkNewNotificationRequestBeforeInsertAndThrow(validRequest, validRequest.getSenderTaxId()),
                 "È obbligatorio fornire una sola lingua aggiuntiva.");
     }
 
@@ -1929,7 +1932,7 @@ class NotificationReceiverValidationTest {
         when(mvpParameterConsumer.isMvp(validRequest.getSenderTaxId())).thenReturn(false);
         defaultMockConfigAndParameterForVas();
 
-        assertDoesNotThrow(() -> validator.checkNewNotificationRequestBeforeInsertAndThrow(validRequest));
+        assertDoesNotThrow(() -> validator.checkNewNotificationRequestBeforeInsertAndThrow(validRequest, validRequest.getSenderTaxId()));
     }
 
     @NotNull
