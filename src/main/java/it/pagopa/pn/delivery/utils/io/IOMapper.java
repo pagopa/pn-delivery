@@ -22,7 +22,8 @@ public class IOMapper {
 
     private static final String URL_ATTACHMENT = "/delivery/notifications/received/{iun}/attachments/documents/{indexDocument}";
     private static final String URL_ATTACHMENT_F24 = "/delivery/notifications/received/{iun}/attachments/payment/F24/?attachmentIdx={indexDocument}";
-    private static final String F24_DOCUMENT_TYPE = "application/pdf";
+    private static final String APPLICATION_PDF_CONTENT_TYPE = "application/pdf";
+    public static final String PDF_EXTENSION = "pdf";
 
     private final ModelMapper modelMapper;
 
@@ -168,10 +169,12 @@ public class IOMapper {
     public ThirdPartyAttachment mapF24ToThirdPartyAttachment(F24Payment f24Payment, int indexDocument, String iun) {
         if(f24Payment == null) return null;
 
+        String fileName = addFileExtensionIfMissing(f24Payment.getTitle(), APPLICATION_PDF_CONTENT_TYPE);
+
         return ThirdPartyAttachment.builder()
-                .contentType(F24_DOCUMENT_TYPE)
+                .contentType(APPLICATION_PDF_CONTENT_TYPE)
                 .id(iun + "_F24_" + indexDocument)
-                .name(f24Payment.getTitle())
+                .name(fileName)
                 .category(ThirdPartyAttachment.CategoryEnum.F24)
                 .url(URL_ATTACHMENT_F24.replace("{iun}", iun).replace("{indexDocument}", indexDocument + ""))
                 .build();
@@ -187,12 +190,41 @@ public class IOMapper {
     public ThirdPartyAttachment mapToThirdPartyAttachment(NotificationDocument document, int indexDocument, String iun) {
         if(document == null) return null;
 
+        String id = iun + "_DOC" + indexDocument;
+        String title = document.getTitle();
+        if(title == null || title.isBlank()) {
+            title = id;
+        }
+        String fileName = addFileExtensionIfMissing(title, document.getContentType());
+
         return ThirdPartyAttachment.builder()
                 .contentType(document.getContentType())
-                .id(iun + "_DOC" + indexDocument)
-                .name(document.getTitle())
+                .id(id)
+                .name(fileName)
                 .category(ThirdPartyAttachment.CategoryEnum.DOCUMENT)
                 .url(URL_ATTACHMENT.replace("{iun}", iun).replace("{indexDocument}", indexDocument + ""))
                 .build();
+    }
+
+    /**
+     * Estrae l'estensione dal contentType e la aggiunge al filename se mancante
+     */
+    public static String addFileExtensionIfMissing(String fileName, String contentType) {
+        if(fileName == null) fileName = "";
+        if(contentType == null) return fileName;
+
+        String extension = getFileExtensionFromContentType(contentType);
+        if(!extension.isEmpty() && !fileName.toLowerCase().endsWith("." + extension.toLowerCase())) {
+            fileName += "." + extension;
+        }
+        return fileName;
+    }
+
+    /**
+     * Restituisce l'estensione dal content type  ("application/pdf" -> "pdf")
+     */
+    public static String getFileExtensionFromContentType(String contentType) {
+        if(contentType.equalsIgnoreCase(APPLICATION_PDF_CONTENT_TYPE)) {return PDF_EXTENSION;}
+        return "";
     }
 }
