@@ -22,6 +22,10 @@ function headerMapper(event) {
         }
     });
 
+    if (process.env._X_AMZN_TRACE_ID) {
+        headers['X-Amzn-Trace-Id'] = process.env._X_AMZN_TRACE_ID;
+    }
+
     return headers;
 };
   

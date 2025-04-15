@@ -59,6 +59,9 @@ exports.handleEvent = async (event) => {
     if (event.requestContext.authorizer["uid"]) {
         headers["x-pagopa-pn-uid"] = event.requestContext.authorizer["uid"];
     }
+    if (process.env._X_AMZN_TRACE_ID) {
+        headers['X-Amzn-Trace-Id'] = process.env._X_AMZN_TRACE_ID;
+    }
 
     // notificationRequestId
     const notificationRequestId = event.queryStringParameters['notificationRequestId'];
