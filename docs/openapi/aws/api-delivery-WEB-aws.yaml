@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: Krz+g+ofgqsNk/HGZwx4Phr34yQII9/xwEC7dlUk0Ow=
+  version: +gcOaVggmNad8BCT/1oOQFEkppKWctIkpdtXMNc/wPk=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2885,10 +2885,16 @@ components:
               - PAYMENT_NOT_VALID - I dati del pagamento non sono sono registrati sulla piattaforma GPD (modalità asincrona di integrazione pagoPA)
               - SERVICE_UNAVAILABLE - Il sistema non è attualmente disponibile.
               - ADDRESS_NOT_FOUND - La ricerca dell’indirizzo effettuata con il servizio di LookupAddress non ha prodotto risultati.
+              - ADDRESS_SEARCH_FAILED - C'è stato un problema con la ricerca dell'indirizzo effettuata con il servizio di LookupAddess.
               ...
         detail:
           type: string
           maxLength: 2048
+        recIndex:
+          type: number
+          description: >-
+            Index destinatario notifica digitale con errore che ha portato al
+            rifiuto della notifica
     RequestRefusedDetailsV27:
       type: object
       properties:
@@ -3594,20 +3600,6 @@ components:
               type: string
               description: Nome del registro pubblico da cui è stato recuperato l'indirizzo
               maxLength: 128
-            addressResolutionStart:
-              type: string
-              format: date-time
-              description: >-
-                Data/ora di inizio elaborazione richiesta ricerca indirizzi,
-                espressa in formato RFC3339.
-              example: '2022-06-21T11:44:28Z'
-            addressResolutionEnd:
-              type: string
-              format: date-time
-              description: >-
-                Data/ora di fine elaborazione richiesta ricerca indirizzi,
-                espressa in formato RFC3339.
-              example: '2022-06-21T11:44:28Z'
     TimelineElementDetailsV27:
       description: The raw event payload that will be different based on the event.
       oneOf:
