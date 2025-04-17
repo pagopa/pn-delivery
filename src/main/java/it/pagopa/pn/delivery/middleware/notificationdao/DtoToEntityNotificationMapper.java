@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.UsedServices;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.NotificationLang;
@@ -10,6 +11,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 public class DtoToEntityNotificationMapper {
@@ -43,9 +45,17 @@ public class DtoToEntityNotificationMapper {
                 .paFee(dto.getPaFee())
                 .vat(dto.getVat())
                 .version( dto.getVersion() )
-                .languages( addITLanguageToEntity(dto.getAdditionalLanguages()) );
+                .languages( addITLanguageToEntity(dto.getAdditionalLanguages()) )
+                .usedServices(dto.getUsedServices() != null ? getUsedServicesEntity(dto.getUsedServices()) : null);
 
         return builder.build();
+    }
+
+
+    private UsedServicesEntity getUsedServicesEntity(InternalUsedService usedServices) {
+        return UsedServicesEntity.builder()
+                .physicalAddressLookup(usedServices.getPhysicalAddressLookup())
+                .build();
     }
 
     private List<NotificationLang> addITLanguageToEntity(List<String> additionalLanguages) {

@@ -80,6 +80,10 @@ class EntityToDtoNotificationMapperTest {
                 (NotificationLang.builder().lang("FR").build(),
                         NotificationLang.builder().lang("IT").build()));
 
+        UsedServicesEntity usedServices = UsedServicesEntity.builder()
+                .physicalAddressLookup(true)
+                .build();
+
         F24PaymentEntity f24PaymentEntity = new F24PaymentEntity();
         f24PaymentEntity.setTitle("title");
         f24PaymentEntity.setApplyCost(false);
@@ -192,6 +196,7 @@ class EntityToDtoNotificationMapperTest {
                 .version("1")
                 .vat(VAT)
                 .languages(additionalLangs)
+                .usedServices(usedServices)
                 .build();
     }
 

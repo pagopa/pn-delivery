@@ -183,6 +183,9 @@ class DtoToEntityNotificationMapperTest {
     private InternalNotification newInternalNotification() {
         List<String> languages = new ArrayList<>();
         languages.add("DE");
+        InternalUsedService usedServices = InternalUsedService.builder()
+                .physicalAddressLookup(true)
+                .build();
         InternalNotification internalNotification = new InternalNotification();
         internalNotification.setPagoPaIntMode(NewNotificationRequestV25.PagoPaIntModeEnum.NONE);
         internalNotification.setSentAt(OffsetDateTime.now());
@@ -197,6 +200,7 @@ class DtoToEntityNotificationMapperTest {
         internalNotification.setVat(VAT);
         internalNotification.setNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
         internalNotification.setAdditionalLanguages(languages);
+        internalNotification.setUsedServices(usedServices);
         internalNotification.setDocuments(List.of(NotificationDocument
                 .builder()
                 .digests(NotificationAttachmentDigests.builder()
