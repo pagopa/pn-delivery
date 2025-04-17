@@ -37,7 +37,7 @@ class NotificationReceiverValidationTestIT {
 
         NewNotificationRequestV25 notificationRequest = newNotification( INVALID_TAX_ID_NOT_IN_WHITE_LIST );
 
-        Set<ConstraintViolation<NewNotificationRequestV25>> constraintViolations = validator.checkNewNotificationRequestBeforeInsert(notificationRequest);
+        Set<ConstraintViolation<NewNotificationRequestV25>> constraintViolations = validator.checkNewNotificationRequestBeforeInsert(notificationRequest, notificationRequest.getSenderTaxId());
 
         assertConstraintViolationPresentByMessage(constraintViolations, "Invalid taxId for recipient 0", 1);
     }
@@ -47,7 +47,7 @@ class NotificationReceiverValidationTestIT {
 
         NewNotificationRequestV25 notificationRequest = newNotification( INVALID_TAX_ID_IN_WHITE_LIST );
 
-        Set<ConstraintViolation<NewNotificationRequestV25>> constraintViolations = validator.checkNewNotificationRequestBeforeInsert(notificationRequest);
+        Set<ConstraintViolation<NewNotificationRequestV25>> constraintViolations = validator.checkNewNotificationRequestBeforeInsert(notificationRequest, notificationRequest.getSenderTaxId());
 
         assertConstraintViolationPresentByMessage(constraintViolations, "Invalid taxId for recipient 0", 0);
 
@@ -63,7 +63,7 @@ class NotificationReceiverValidationTestIT {
                         .physicalAddress(NotificationPhysicalAddress.builder().build())
                 .build() );
 
-        Set<ConstraintViolation<NewNotificationRequestV25>> constraintViolations = validator.checkNewNotificationRequestBeforeInsert(notificationRequest);
+        Set<ConstraintViolation<NewNotificationRequestV25>> constraintViolations = validator.checkNewNotificationRequestBeforeInsert(notificationRequest, notificationRequest.getSenderTaxId());
 
         assertConstraintViolationPresentByMessage(constraintViolations, "Invalid taxId for recipient 1", 1);
     }

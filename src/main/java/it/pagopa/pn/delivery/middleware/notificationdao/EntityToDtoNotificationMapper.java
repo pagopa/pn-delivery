@@ -4,6 +4,7 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV25;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV24;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.UsedServices;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.NotificationLang;
@@ -62,9 +63,16 @@ public class EntityToDtoNotificationMapper {
                 .sourceChannelDetails(entity.getSourceChannelDetails())
                 .pagoPaIntMode(entity.getPagoPaIntMode() != null ? NewNotificationRequestV25.PagoPaIntModeEnum.fromValue(entity.getPagoPaIntMode()) : null)
                 .version(entity.getVersion())
-                .additionalLanguages(removeITLanguageFromDto(entity.getLanguages()));
+                .additionalLanguages(removeITLanguageFromDto(entity.getLanguages()))
+                .usedServices(entity.getUsedServices() != null ? getUsedServicesDto(entity.getUsedServices()) : null);
 
         return builder.build();
+    }
+
+    private InternalUsedService getUsedServicesDto(UsedServicesEntity usedServices) {
+        return InternalUsedService.builder()
+                .physicalAddressLookup(usedServices.getPhysicalAddressLookup())
+                .build();
     }
 
     private List<String> removeITLanguageFromDto(List<NotificationLang> languages) {
