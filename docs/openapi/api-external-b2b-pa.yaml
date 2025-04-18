@@ -955,7 +955,19 @@ components:
                 Elenco degli errori che hanno causato il rifiuto della richiesta di notifica
               type: array
               items:
-                $ref: '#/components/schemas/ProblemError'
+                $ref: '#/components/schemas/NotificationRequestRefusedProblemError'
+
+    NotificationRequestRefusedProblemError:
+      allOf:
+        - $ref: '#/components/schemas/ProblemError'
+        - type: object
+          required:
+            - code
+          properties:
+            recIndex:
+              description: Index destinatario notifica digitale
+              type: integer
+              format: int32
 
     Problem:
       $ref: './remote-refs.yaml#/components/schemas/Problem'

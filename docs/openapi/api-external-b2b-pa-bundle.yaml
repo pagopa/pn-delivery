@@ -4382,7 +4382,18 @@ components:
                 di notifica
               type: array
               items:
-                $ref: '#/components/schemas/ProblemError'
+                $ref: '#/components/schemas/NotificationRequestRefusedProblemError'
+    NotificationRequestRefusedProblemError:
+      allOf:
+        - $ref: '#/components/schemas/ProblemError'
+        - type: object
+          required:
+            - code
+          properties:
+            recIndex:
+              description: Index destinatario notifica digitale
+              type: integer
+              format: int32
     Problem:
       properties:
         type:
@@ -6560,13 +6571,32 @@ components:
           $ref: '#/components/schemas/PhysicalAddress'
         normalizedAddress:
           $ref: '#/components/schemas/PhysicalAddress'
-    NotificationRequestAcceptedDetails:
+    NotificationRequestAcceptedDetailsV27:
       type: object
       properties:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
+        notificationRequestId:
+          type: string
+          description: >-
+            identificativo univoco di una richiesta di invio notifica, non è lo
+            IUN
+        paProtocolNumber:
+          type: string
+          description: >-
+            Numero di protocollo associato alla notifica, può essere
+            riutilizzato per rettifiche.
+          pattern: ^.*$
+          maxLength: 256
+        idempotenceToken:
+          type: string
+          description: >-
+            token usato per disambiguare "richieste di notificazione" effettuate
+            con lo stesso  numero di protocollo.
+          pattern: ^[ -~]*$
+          maxLength: 256
     AnalogFailureWorkflowDetails:
       type: object
       required:
@@ -6937,6 +6967,25 @@ components:
           description: Motivazioni che hanno portato al rifiuto della notifica
           items:
             $ref: '#/components/schemas/NotificationRefusedErrorV27'
+        notificationRequestId:
+          type: string
+          description: >-
+            identificativo univoco di una richiesta di invio notifica, non è lo
+            IUN
+        paProtocolNumber:
+          type: string
+          description: >-
+            Numero di protocollo associato alla notifica, può essere
+            riutilizzato per rettifiche.
+          pattern: ^.*$
+          maxLength: 256
+        idempotenceToken:
+          type: string
+          description: >-
+            token usato per disambiguare "richieste di notificazione" effettuate
+            con lo stesso  numero di protocollo.
+          pattern: ^[ -~]*$
+          maxLength: 256
     ScheduleAnalogWorkflowDetailsV23:
       type: object
       required:
@@ -7675,14 +7724,18 @@ components:
           properties:
             registry:
               type: string
-              description: Nome del registro pubblico da cui è stato recuperato l'indirizzo
+              description: >
+                Rappresenta il registro consultato per ottenere l'indirizzo. Può
+                assumere i seguenti valori:
+                  - ANPR
+                  - REGISTRO_IMPRESE
               maxLength: 128
     TimelineElementDetailsV27:
       description: The raw event payload that will be different based on the event.
       oneOf:
         - $ref: '#/components/schemas/SenderAckCreationRequestDetails'
         - $ref: '#/components/schemas/NormalizedAddressDetails'
-        - $ref: '#/components/schemas/NotificationRequestAcceptedDetails'
+        - $ref: '#/components/schemas/NotificationRequestAcceptedDetailsV27'
         - $ref: '#/components/schemas/AnalogFailureWorkflowDetails'
         - $ref: '#/components/schemas/AnalogSuccessWorkflowDetails'
         - $ref: '#/components/schemas/CompletelyUnreachableCreationRequestDetails'
@@ -7944,6 +7997,13 @@ components:
         - AAR_GENERATION
         - NOT_HANDLED
         - PROBABLE_SCHEDULING_ANALOG_DATE
+    NotificationRequestAcceptedDetails:
+      type: object
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
     RaddType:
       type: string
       description: |
