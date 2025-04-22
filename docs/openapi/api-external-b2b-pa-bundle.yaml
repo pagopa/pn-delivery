@@ -1256,7 +1256,6 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery/v2.4/requests:
     post:
-      deprecated: true
       summary: Richiesta invio notifica
       description: >-
         Operazione utilizzata dalla Pubblica Amministrazione per richiedere
@@ -1310,7 +1309,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     get:
-      deprecated: true
       operationId: retrieveNotificationRequestStatusV24
       x-pagopa-lambda-name: pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live
       x-pagopa-lambda-account: core
@@ -3660,7 +3658,6 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery-progresses/v2.7/streams:
     post:
-      deprecated: true
       summary: Crea nuovo stream di eventi
       description: >-
         Creazione di un flusso di eventi specificando se gli eventi saranno
@@ -3711,7 +3708,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     get:
-      deprecated: true
       summary: Elenca stream di eventi
       description: Elenca gli stream di eventi
       tags:
@@ -3742,7 +3738,6 @@ paths:
     parameters:
       - $ref: '#/components/parameters/pathStreamId'
     get:
-      deprecated: true
       summary: Leggi metadata dello stream
       description: Lettura delle configurazioni di uno stream di eventi.
       tags:
@@ -3782,7 +3777,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     put:
-      deprecated: true
       summary: Update Stream metadata
       description: >-
         Modifica delle configurazioni dei filtri associati a uno stream di
@@ -3830,7 +3824,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     delete:
-      deprecated: true
       summary: Remove Event Stream
       description: >-
         Cancellazione dello steam di eventi: elimina sia le configurazioni sia
@@ -3869,7 +3862,6 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery-progresses/v2.7/streams/{streamId}/action/disable:
     post:
-      deprecated: true
       summary: Disabilita uno stream
       description: >-
         Disabilita uno stream. Da uno stream disabilitato è possibile leggere
@@ -3919,7 +3911,6 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery-progresses/v2.7/streams/{streamId}/events:
     get:
-      deprecated: true
       summary: Leggi progressi notifiche
       description: >-
         Lettura degli eventi presenti nello stream di aggiornamenti con

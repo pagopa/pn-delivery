@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: ckVIhMKU7eqbm/mRBx9GiznnW7FHWhN/T0Rs7teYWxg=
+  version: qDxpC4NjYkU0CJZmFfxiJUmOs8NH4EcSXwP08XYgNn0=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1095,7 +1095,6 @@ paths:
         type: aws_proxy
   /v2.4/requests:
     post:
-      deprecated: true
       summary: Richiesta invio notifica
       description: >-
         Operazione utilizzata dalla Pubblica Amministrazione per richiedere
@@ -1170,7 +1169,6 @@ paths:
         type: aws_proxy
       parameters: []
     get:
-      deprecated: true
       operationId: retrieveNotificationRequestStatusV24
       x-pagopa-lambda-name: pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live
       x-pagopa-lambda-account: core
