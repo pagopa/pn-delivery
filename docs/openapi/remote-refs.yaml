@@ -49,13 +49,13 @@ components:
     ###                          STRUTTURE DATI DI PN-DELIVERY_PUSH                          ###
     ############################################################################################
     TimelineElementV27:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/1562f67f659cb5c1a11bf6d533a57991335db506/docs/openapi/api-external-b2b-webhook-bundle.yaml#/components/schemas/TimelineElementV27'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/83e637f012f6f8a4ac66a643482c64bc4e15f844/docs/openapi/api-external-b2b-webhook-bundle.yaml#/components/schemas/TimelineElementV27'
     NotificationStatusV26:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/1562f67f659cb5c1a11bf6d533a57991335db506/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatusV26'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/83e637f012f6f8a4ac66a643482c64bc4e15f844/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatusV26'
     NotificationStatusHistoryV26:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/1562f67f659cb5c1a11bf6d533a57991335db506/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatusHistoryV26'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/83e637f012f6f8a4ac66a643482c64bc4e15f844/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatusHistoryV26'
     RequestStatus:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/1562f67f659cb5c1a11bf6d533a57991335db506/docs/openapi/api-internal-pn-delivery-push.yaml#/components/schemas/RequestStatus'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/83e637f012f6f8a4ac66a643482c64bc4e15f844/docs/openapi/api-internal-pn-delivery-push.yaml#/components/schemas/RequestStatus'
     ############################################################################################
     ###                          STRUTTURE DATI DI PN-COMMONS                                ###
     ############################################################################################

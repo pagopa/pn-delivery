@@ -19,8 +19,8 @@
             "openapiFiles": [
                 "api-internal-b2b-pa.yaml",
                 "api-internal-b2b-pa-older-versions.yaml",
-                { "url": "https://raw.githubusercontent.com/pagopa/pn-delivery-push/1562f67f659cb5c1a11bf6d533a57991335db506/docs/openapi/api-external-pn-delivery-push-bundle.yaml", "mergeDescription": false },
-                { "url": "https://raw.githubusercontent.com/pagopa/pn-delivery-push/1562f67f659cb5c1a11bf6d533a57991335db506/docs/openapi/api-external-b2b-webhook-bundle.yaml", "mergeDescription": true }
+                { "url": "https://raw.githubusercontent.com/pagopa/pn-delivery-push/83e637f012f6f8a4ac66a643482c64bc4e15f844/docs/openapi/api-external-pn-delivery-push-bundle.yaml", "mergeDescription": false },
+                { "url": "https://raw.githubusercontent.com/pagopa/pn-delivery-push/83e637f012f6f8a4ac66a643482c64bc4e15f844/docs/openapi/api-external-b2b-webhook-bundle.yaml", "mergeDescription": true }
             ],
             "servicePath": "delivery",
             "generateBundle": true,
@@ -43,7 +43,7 @@
             ],
             "openapiFiles": [
                 "pn-delivery-b2b-pg-internal.yaml",
-                { "url": "https://raw.githubusercontent.com/pagopa/pn-delivery-push/1562f67f659cb5c1a11bf6d533a57991335db506/docs/openapi/api-external-pn-delivery-push-b2b-pg-bundle.yaml", "mergeDescription": false }
+                { "url": "https://raw.githubusercontent.com/pagopa/pn-delivery-push/83e637f012f6f8a4ac66a643482c64bc4e15f844/docs/openapi/api-external-pn-delivery-push-b2b-pg-bundle.yaml", "mergeDescription": false }
             ],
             "servicePath": "delivery",
             "generateBundle": true,
