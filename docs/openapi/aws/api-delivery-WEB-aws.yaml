@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: hcqgm4FpQvzLYxeI/FII4pcc2dRU3zS7zjLGhVn9ogU=
+  version: bleR/8y65UcVdNSCkT8k8YZrzhDSI5J90v91cp6GRzI=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -87,7 +87,7 @@ paths:
         type: http_proxy
   /v2.5/requests:
     post:
-      summary: EXPERIMENTAL - do not use - Richiesta invio notifica
+      summary: EXPERIMENTAL - Richiesta invio notifica
       description: >-
         (EXPERIMENTAL)
 
@@ -164,7 +164,7 @@ paths:
       operationId: retrieveNotificationRequestStatusV25
       tags:
         - SenderReadB2B
-      summary: EXPERIMENTAL - do not use - Verifica accettazione richiesta notifica
+      summary: EXPERIMENTAL - Verifica accettazione richiesta notifica
       description: >-
         (EXPERIMENTAL) Questa operazione serve per verificare se la richiesta di
         notifica è stata accettata e ottenere lo IUN associato a tale richiesta.
@@ -233,9 +233,7 @@ paths:
         type: http_proxy
   /v2.7/notifications/sent/{iun}:
     get:
-      summary: >-
-        EXPERIMENTAL - do not use - Mittente: lettura dettagli notifica versione
-        2
+      summary: 'EXPERIMENTAL - Mittente: lettura dettagli notifica versione 2'
       description: >-
         (EXPERIMENTAL)
 

@@ -318,7 +318,7 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery/v2.5/requests:
     post:
-      summary: EXPERIMENTAL - do not use - Richiesta invio notifica
+      summary: EXPERIMENTAL - Richiesta invio notifica
       description: >-
         (EXPERIMENTAL)
 
@@ -375,7 +375,7 @@ paths:
       operationId: retrieveNotificationRequestStatusV25
       tags:
         - SenderReadB2B
-      summary: EXPERIMENTAL - do not use - Verifica accettazione richiesta notifica
+      summary: EXPERIMENTAL - Verifica accettazione richiesta notifica
       description: >-
         (EXPERIMENTAL) Questa operazione serve per verificare se la richiesta di
         notifica è stata accettata e ottenere lo IUN associato a tale richiesta.
@@ -412,9 +412,7 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery/v2.7/notifications/sent/{iun}:
     get:
-      summary: >-
-        EXPERIMENTAL - do not use - Mittente: lettura dettagli notifica versione
-        2
+      summary: 'EXPERIMENTAL - Mittente: lettura dettagli notifica versione 2'
       description: >-
         (EXPERIMENTAL)
 
