@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: NKczLnm8TLYgJBaU8YGtI+qyPXErBd1r1xhNuqU9JUM=
+  version: qzi5kVf2xFqiNaKNy7AJGJgq2L9K+UwPJgoAc/o+Hx4=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1561,7 +1561,6 @@ paths:
         type: aws_proxy
   /v2.6/notifications/sent/{iun}:
     get:
-      deprecated: true
       summary: 'Mittente: lettura dettagli notifica versione 2'
       description: >-
         Questa operazione permette di leggere tutti i dettagli di una notifica
