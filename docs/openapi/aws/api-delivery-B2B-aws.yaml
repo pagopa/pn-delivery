@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: qDxpC4NjYkU0CJZmFfxiJUmOs8NH4EcSXwP08XYgNn0=
+  version: NKczLnm8TLYgJBaU8YGtI+qyPXErBd1r1xhNuqU9JUM=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -88,8 +88,10 @@ paths:
         type: http_proxy
   /v2.5/requests:
     post:
-      summary: Richiesta invio notifica
+      summary: EXPERIMENTAL - do not use - Richiesta invio notifica
       description: >-
+        (EXPERIMENTAL)
+
         Operazione utilizzata dalla Pubblica Amministrazione per richiedere
         l'invio di una notifica.
 
@@ -164,12 +166,12 @@ paths:
       operationId: retrieveNotificationRequestStatusV25
       tags:
         - SenderReadB2B
-      summary: Verifica accettazione richiesta notifica
+      summary: EXPERIMENTAL - do not use - Verifica accettazione richiesta notifica
       description: >-
-        Questa operazione serve per verificare se la richiesta di notifica è
-        stata accettata e ottenere lo IUN associato a tale richiesta. <br/>
-        Bisogna specificare il parametro _requestId_ oppure la coppia costituita
-        dai parametri  _paProtocolNumber_ e _idempotenceToken_. <br/>
+        (EXPERIMENTAL) Questa operazione serve per verificare se la richiesta di
+        notifica è stata accettata e ottenere lo IUN associato a tale richiesta.
+        <br/> Bisogna specificare il parametro _requestId_ oppure la coppia
+        costituita dai parametri  _paProtocolNumber_ e _idempotenceToken_. <br/>
       parameters:
         - $ref: '#/components/parameters/notificationRequestId'
         - $ref: '#/components/parameters/paProtocolNumber'
@@ -234,8 +236,12 @@ paths:
         type: http_proxy
   /v2.7/notifications/sent/{iun}:
     get:
-      summary: 'Mittente: lettura dettagli notifica versione 2'
+      summary: >-
+        EXPERIMENTAL - do not use - Mittente: lettura dettagli notifica versione
+        2
       description: >-
+        (EXPERIMENTAL)
+
         Questa operazione permette di leggere tutti i dettagli di una notifica
         accettata. <br/>
       tags:

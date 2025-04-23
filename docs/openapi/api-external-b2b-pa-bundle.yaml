@@ -660,8 +660,10 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery/v2.5/requests:
     post:
-      summary: Richiesta invio notifica
+      summary: EXPERIMENTAL - do not use - Richiesta invio notifica
       description: >-
+        (EXPERIMENTAL)
+
         Operazione utilizzata dalla Pubblica Amministrazione per richiedere
         l'invio di una notifica.
 
@@ -714,12 +716,12 @@ paths:
       operationId: retrieveNotificationRequestStatusV25
       tags:
         - SenderReadB2B
-      summary: Verifica accettazione richiesta notifica
+      summary: EXPERIMENTAL - do not use - Verifica accettazione richiesta notifica
       description: >-
-        Questa operazione serve per verificare se la richiesta di notifica è
-        stata accettata e ottenere lo IUN associato a tale richiesta. <br/>
-        Bisogna specificare il parametro _requestId_ oppure la coppia costituita
-        dai parametri  _paProtocolNumber_ e _idempotenceToken_. <br/>
+        (EXPERIMENTAL) Questa operazione serve per verificare se la richiesta di
+        notifica è stata accettata e ottenere lo IUN associato a tale richiesta.
+        <br/> Bisogna specificare il parametro _requestId_ oppure la coppia
+        costituita dai parametri  _paProtocolNumber_ e _idempotenceToken_. <br/>
       parameters:
         - $ref: '#/components/parameters/notificationRequestId'
         - $ref: '#/components/parameters/paProtocolNumber'
@@ -751,8 +753,12 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery/v2.7/notifications/sent/{iun}:
     get:
-      summary: 'Mittente: lettura dettagli notifica versione 2'
+      summary: >-
+        EXPERIMENTAL - do not use - Mittente: lettura dettagli notifica versione
+        2
       description: >-
+        (EXPERIMENTAL)
+
         Questa operazione permette di leggere tutti i dettagli di una notifica
         accettata. <br/>
       tags:
@@ -1801,10 +1807,10 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery-progresses/v2.8/streams:
     post:
-      summary: Crea nuovo stream di eventi
+      summary: EXPERIMENTAL - do not use - Crea nuovo stream di eventi
       description: >-
-        Creazione di un flusso di eventi specificando se gli eventi saranno
-        relativi ai cambi di stato o agli eventi di timeline.
+        (EXPERIMENTAL) Creazione di un flusso di eventi specificando se gli
+        eventi saranno relativi ai cambi di stato o agli eventi di timeline.
 
 
         In risposta, Piattaforma Notifiche, comunicherà un identificativo dello
@@ -1851,8 +1857,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     get:
-      summary: Elenca stream di eventi
-      description: Elenca gli stream di eventi
+      summary: EXPERIMENTAL - do not use - Elenca stream di eventi
+      description: (EXPERIMENTAL) Elenca gli stream di eventi
       tags:
         - Streams
       operationId: listEventStreamsV28
@@ -1879,8 +1885,8 @@ paths:
     parameters:
       - $ref: '#/components/parameters/pathStreamId'
     get:
-      summary: Leggi metadata dello stream
-      description: Lettura delle configurazioni di uno stream di eventi.
+      summary: EXPERIMENTAL - do not use - Leggi metadata dello stream
+      description: (EXPERIMENTAL) Lettura delle configurazioni di uno stream di eventi.
       tags:
         - Streams
       operationId: retrieveEventStreamV28
@@ -1916,10 +1922,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     put:
-      summary: Update Stream metadata
+      summary: EXPERIMENTAL - do not use - Update Stream metadata
       description: >-
-        Modifica delle configurazioni dei filtri associati a uno stream di
-        eventi
+        (EXPERIMENTAL) Modifica delle configurazioni dei filtri associati a uno
+        stream di eventi
       tags:
         - Streams
       operationId: updateEventStreamV28
@@ -1961,10 +1967,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     delete:
-      summary: Remove Event Stream
+      summary: EXPERIMENTAL - do not use - Remove Event Stream
       description: >-
-        Cancellazione dello steam di eventi: elimina sia le configurazioni sia
-        tutti gli eventi associati allo stream e non ancora consumati.
+        (EXPERIMENTAL) Cancellazione dello steam di eventi: elimina sia le
+        configurazioni sia tutti gli eventi associati allo stream e non ancora
+        consumati.
       tags:
         - Streams
       operationId: removeEventStreamV28
@@ -1997,9 +2004,9 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery-progresses/v2.8/streams/{streamId}/action/disable:
     post:
-      summary: Disabilita uno stream
+      summary: EXPERIMENTAL - do not use - Disabilita uno stream
       description: >-
-        Disabilita uno stream.
+        (EXPERIMENTAL) Disabilita uno stream.
 
 
         Da uno stream disabilitato è possibile leggere gli eventi presenti nello
@@ -2051,12 +2058,12 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery-progresses/v2.8/streams/{streamId}/events:
     get:
-      summary: Leggi progressi notifiche
+      summary: EXPERIMENTAL - do not use - Leggi progressi notifiche
       description: >-
-        Lettura degli eventi presenti nello stream di aggiornamenti con
-        indicazione che il mittente ha ricevuto e memorizzato l'evento
-        identificato dal parametro _lastEventId_ e tutti gli eventi precedenti.
-        Tali eventi potranno essere cancellati dallo stream.
+        (EXPERIMENTAL) Lettura degli eventi presenti nello stream di
+        aggiornamenti con indicazione che il mittente ha ricevuto e memorizzato
+        l'evento identificato dal parametro _lastEventId_ e tutti gli eventi
+        precedenti. Tali eventi potranno essere cancellati dallo stream.
       tags:
         - Events
       operationId: consumeEventStreamV28
