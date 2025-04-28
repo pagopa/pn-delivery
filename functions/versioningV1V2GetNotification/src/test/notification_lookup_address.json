@@ -216,7 +216,11 @@
 				}
 			],
 			"category": "REQUEST_ACCEPTED",
-			"details": {}
+			"details": {
+				"notificationRequestId": "IUN_DVMZ-NPQM-UPRL-202503-M-1",
+				"paProtocolNumber": "20250312112346",
+				"idempotenceToken ": "sNP2YBogBBD2CXXe2dxx0DbOJO0AzyH"
+			}
 		},
 		{
 			"elementId": "AAR_CREATION_REQUEST.IUN_DVMZ-NPQM-UPRL-202503-M-1.RECINDEX_0",
