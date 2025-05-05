@@ -501,7 +501,7 @@ components:
                 processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV26'
+                $ref: '#/components/schemas/TimelineElementV27'
     Problem:
       properties:
         type:
@@ -548,7 +548,7 @@ components:
       required:
         - status
         - errors
-    TimelineElementV26:
+    TimelineElementV27:
       type: object
       additionalProperties: false
       properties:
@@ -589,9 +589,9 @@ components:
             Chiavi dei documenti che provano l'effettivo accadimento dell'evento
             descritto in timeline. Questo elemento
         category:
-          $ref: '#/components/schemas/TimelineElementCategoryV26'
+          $ref: '#/components/schemas/TimelineElementCategoryV27'
         details:
-          $ref: '#/components/schemas/TimelineElementDetailsV26'
+          $ref: '#/components/schemas/TimelineElementDetailsV27'
     NotificationStatusV26:
       type: string
       description: |
@@ -1247,7 +1247,7 @@ components:
           maxLength: 512
         category:
           $ref: '#/components/schemas/LegalFactCategoryV20'
-    TimelineElementCategoryV26:
+    TimelineElementCategoryV27:
       type: string
       description: |
         stato di avanzamento del processo di notifica:`
@@ -1294,6 +1294,8 @@ components:
           * `PREPARE_ANALOG_DOMICILE_FAILURE` - Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel
           * `NOTIFICATION_RADD_RETRIEVED` - Accesso alla notifica tramite la rete RADD. Non perfeziona la notifica.
           * `ANALOG_WORKFLOW_RECIPIENT_DECEASED` - Destinatario deceduto
+          * `PUBLIC_REGISTRY_VALIDATION_CALL` - Ricerca dell'indirizzo di spedizione in fase di validazione notifica
+          * `PUBLIC_REGISTRY_VALIDATION_RESPONSE` - Recupero dell'indirizzo di spedizione dai registri nazionali
       enum:
         - SENDER_ACK_CREATION_REQUEST
         - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
@@ -1338,6 +1340,8 @@ components:
         - PREPARE_ANALOG_DOMICILE_FAILURE
         - NOTIFICATION_RADD_RETRIEVED
         - ANALOG_WORKFLOW_RECIPIENT_DECEASED
+        - PUBLIC_REGISTRY_VALIDATION_CALL
+        - PUBLIC_REGISTRY_VALIDATION_RESPONSE
     SenderAckCreationRequestDetails:
       type: object
       properties:
@@ -1403,13 +1407,32 @@ components:
           $ref: '#/components/schemas/PhysicalAddress'
         normalizedAddress:
           $ref: '#/components/schemas/PhysicalAddress'
-    NotificationRequestAcceptedDetails:
+    NotificationRequestAcceptedDetailsV27:
       type: object
       properties:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
+        notificationRequestId:
+          type: string
+          description: >-
+            identificativo univoco di una richiesta di invio notifica, non è lo
+            IUN
+        paProtocolNumber:
+          type: string
+          description: >-
+            Numero di protocollo associato alla notifica, può essere
+            riutilizzato per rettifiche.
+          pattern: ^.*$
+          maxLength: 256
+        idempotenceToken:
+          type: string
+          description: >-
+            token usato per disambiguare "richieste di notificazione" effettuate
+            con lo stesso  numero di protocollo.
+          pattern: ^[ -~]*$
+          maxLength: 256
     AnalogFailureWorkflowDetails:
       type: object
       required:
@@ -1741,7 +1764,7 @@ components:
           type: string
           description: Data evento refinement
           format: date-time
-    NotificationRefusedErrorV25:
+    NotificationRefusedErrorV27:
       type: object
       properties:
         errorCode:
@@ -1760,18 +1783,45 @@ components:
               - NOT_VALID_ADDRESS - L'indirizzo di invio cartaceo inserito per il destinatario non ha superato i controlli di correttezza.
               - PAYMENT_NOT_VALID - I dati del pagamento non sono sono registrati sulla piattaforma GPD (modalità asincrona di integrazione pagoPA)
               - SERVICE_UNAVAILABLE - Il sistema non è attualmente disponibile.
+              - ADDRESS_NOT_FOUND - La ricerca dell’indirizzo effettuata con il servizio di LookupAddress non ha prodotto risultati.
+              - ADDRESS_SEARCH_FAILED - C'è stato un problema con la ricerca dell'indirizzo effettuata con il servizio di LookupAddess.
               ...
         detail:
           type: string
           maxLength: 2048
-    RequestRefusedDetailsV25:
+        recIndex:
+          type: integer
+          description: >-
+            Index destinatario notifica digitale con errore che ha portato al
+            rifiuto della notifica
+          format: int32
+    RequestRefusedDetailsV27:
       type: object
       properties:
         refusalReasons:
           type: array
           description: Motivazioni che hanno portato al rifiuto della notifica
           items:
-            $ref: '#/components/schemas/NotificationRefusedErrorV25'
+            $ref: '#/components/schemas/NotificationRefusedErrorV27'
+        notificationRequestId:
+          type: string
+          description: >-
+            identificativo univoco di una richiesta di invio notifica, non è lo
+            IUN
+        paProtocolNumber:
+          type: string
+          description: >-
+            Numero di protocollo associato alla notifica, può essere
+            riutilizzato per rettifiche.
+          pattern: ^.*$
+          maxLength: 256
+        idempotenceToken:
+          type: string
+          description: >-
+            token usato per disambiguare "richieste di notificazione" effettuate
+            con lo stesso  numero di protocollo.
+          pattern: ^[ -~]*$
+          maxLength: 256
     ScheduleAnalogWorkflowDetailsV23:
       type: object
       required:
@@ -2484,12 +2534,44 @@ components:
           example: 1220
           type: integer
           format: int64
-    TimelineElementDetailsV26:
+    PublicRegistryValidationCallDetails:
+      type: object
+      required:
+        - recIndexes
+        - deliveryMode
+        - sendDate
+      properties:
+        recIndexes:
+          description: Lista destinatari notifica
+          type: array
+          items:
+            type: integer
+            format: int32
+        deliveryMode:
+          $ref: '#/components/schemas/DeliveryMode'
+        sendDate:
+          type: string
+          description: Data invio richiesta ai public registry
+          format: date-time
+    PublicRegistryValidationResponseDetails:
+      allOf:
+        - $ref: '#/components/schemas/PublicRegistryResponseDetails'
+        - type: object
+          properties:
+            registry:
+              type: string
+              description: >
+                Rappresenta il registro consultato per ottenere l'indirizzo. Può
+                assumere i seguenti valori:
+                  - ANPR
+                  - REGISTRO_IMPRESE
+              maxLength: 128
+    TimelineElementDetailsV27:
       description: The raw event payload that will be different based on the event.
       oneOf:
         - $ref: '#/components/schemas/SenderAckCreationRequestDetails'
         - $ref: '#/components/schemas/NormalizedAddressDetails'
-        - $ref: '#/components/schemas/NotificationRequestAcceptedDetails'
+        - $ref: '#/components/schemas/NotificationRequestAcceptedDetailsV27'
         - $ref: '#/components/schemas/AnalogFailureWorkflowDetails'
         - $ref: '#/components/schemas/AnalogSuccessWorkflowDetails'
         - $ref: '#/components/schemas/CompletelyUnreachableCreationRequestDetails'
@@ -2504,7 +2586,7 @@ components:
         - $ref: '#/components/schemas/PublicRegistryCallDetails'
         - $ref: '#/components/schemas/PublicRegistryResponseDetails'
         - $ref: '#/components/schemas/RefinementDetailsV23'
-        - $ref: '#/components/schemas/RequestRefusedDetailsV25'
+        - $ref: '#/components/schemas/RequestRefusedDetailsV27'
         - $ref: '#/components/schemas/ScheduleAnalogWorkflowDetailsV23'
         - $ref: '#/components/schemas/ScheduleDigitalWorkflowDetailsV23'
         - $ref: '#/components/schemas/ScheduleRefinementDetails'
@@ -2529,6 +2611,8 @@ components:
         - $ref: '#/components/schemas/NotificationCancelledDetails'
         - $ref: '#/components/schemas/PrepareAnalogDomicileFailureDetails'
         - $ref: '#/components/schemas/AnalogWorkflowRecipientDeceasedDetailsV26'
+        - $ref: '#/components/schemas/PublicRegistryValidationCallDetails'
+        - $ref: '#/components/schemas/PublicRegistryValidationResponseDetails'
     NotificationAttachmentDownloadMetadataResponse:
       title: Url e metadati per il download di un allegato di una notifica
       description: |-

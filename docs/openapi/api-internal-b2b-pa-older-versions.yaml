@@ -363,7 +363,6 @@ paths:
 
   "/delivery/v2.4/requests":
     post:
-      deprecated: true
       summary: Richiesta invio notifica
       description: |-
         Operazione utilizzata dalla Pubblica Amministrazione per richiedere l'invio di una notifica.
@@ -435,7 +434,6 @@ paths:
     ###########################################################################################
 
     get:
-      deprecated: true
       operationId: getNotificationRequestStatusV24                       # NO EXTERNAL
 #      operationId: retrieveNotificationRequestStatusV24                 # ONLY EXTERNAL
       x-pagopa-lambda-name: 'pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live'
@@ -791,7 +789,6 @@ paths:
 
   "/delivery/v2.6/notifications/sent/{iun}":
     get:
-      deprecated: true
       summary: 'Mittente: lettura dettagli notifica versione 2'
       description: |-
         Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>

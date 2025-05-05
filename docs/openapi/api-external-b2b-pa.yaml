@@ -329,8 +329,9 @@ paths:
 
   "/delivery/v2.5/requests":
     post:
-      summary: Richiesta invio notifica
+      summary: EXPERIMENTAL - Richiesta invio notifica
       description: |-
+        (EXPERIMENTAL)
         Operazione utilizzata dalla Pubblica Amministrazione per richiedere l'invio di una notifica.
 
         La restituzione di uno stato HTTP 202 significa solo che la richiesta è sintatticamente
@@ -381,8 +382,9 @@ paths:
       operationId: retrieveNotificationRequestStatusV25                 # ONLY EXTERNAL
       tags:
         - SenderReadB2B
-      summary: Verifica accettazione richiesta notifica
+      summary: EXPERIMENTAL - Verifica accettazione richiesta notifica
       description: >-
+        (EXPERIMENTAL)
         Questa operazione serve per verificare se la richiesta di notifica è stata accettata e ottenere
         lo IUN associato a tale richiesta. <br/>
         Bisogna specificare il parametro _requestId_ oppure la coppia costituita dai parametri 
@@ -424,8 +426,9 @@ paths:
 
   "/delivery/v2.7/notifications/sent/{iun}":
     get:
-      summary: 'Mittente: lettura dettagli notifica versione 2'
+      summary: 'EXPERIMENTAL - Mittente: lettura dettagli notifica versione 2'
       description: |-
+        (EXPERIMENTAL)
         Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
 
       tags:
@@ -955,7 +958,19 @@ components:
                 Elenco degli errori che hanno causato il rifiuto della richiesta di notifica
               type: array
               items:
-                $ref: '#/components/schemas/ProblemError'
+                $ref: '#/components/schemas/NotificationRequestRefusedProblemError'
+
+    NotificationRequestRefusedProblemError:
+      allOf:
+        - $ref: '#/components/schemas/ProblemError'
+        - type: object
+          required:
+            - code
+          properties:
+            recIndex:
+              description: Index destinatario notifica digitale
+              type: integer
+              format: int32
 
     Problem:
       $ref: './remote-refs.yaml#/components/schemas/Problem'
@@ -988,7 +1003,7 @@ components:
                 elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV26'
+                $ref: '#/components/schemas/TimelineElementV27'
 
     ###########################################################################################
     ###                              DTO EVENTO DI PAGAMENTO                                ###
@@ -1093,8 +1108,8 @@ components:
           type: integer
           format: int32
 
-    TimelineElementV26:
-      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV26'
+    TimelineElementV27:
+      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV27'
     NotificationStatusV26:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatusV26'
     NotificationStatusHistoryV26:

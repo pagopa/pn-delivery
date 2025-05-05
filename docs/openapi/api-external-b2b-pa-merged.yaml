@@ -318,8 +318,10 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery/v2.5/requests:
     post:
-      summary: Richiesta invio notifica
+      summary: EXPERIMENTAL - Richiesta invio notifica
       description: >-
+        (EXPERIMENTAL)
+
         Operazione utilizzata dalla Pubblica Amministrazione per richiedere
         l'invio di una notifica.
 
@@ -373,12 +375,12 @@ paths:
       operationId: retrieveNotificationRequestStatusV25
       tags:
         - SenderReadB2B
-      summary: Verifica accettazione richiesta notifica
+      summary: EXPERIMENTAL - Verifica accettazione richiesta notifica
       description: >-
-        Questa operazione serve per verificare se la richiesta di notifica è
-        stata accettata e ottenere lo IUN associato a tale richiesta. <br/>
-        Bisogna specificare il parametro _requestId_ oppure la coppia costituita
-        dai parametri  _paProtocolNumber_ e _idempotenceToken_. <br/>
+        (EXPERIMENTAL) Questa operazione serve per verificare se la richiesta di
+        notifica è stata accettata e ottenere lo IUN associato a tale richiesta.
+        <br/> Bisogna specificare il parametro _requestId_ oppure la coppia
+        costituita dai parametri  _paProtocolNumber_ e _idempotenceToken_. <br/>
       parameters:
         - $ref: '#/components/parameters/notificationRequestId'
         - $ref: '#/components/parameters/paProtocolNumber'
@@ -410,8 +412,10 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery/v2.7/notifications/sent/{iun}:
     get:
-      summary: 'Mittente: lettura dettagli notifica versione 2'
+      summary: 'EXPERIMENTAL - Mittente: lettura dettagli notifica versione 2'
       description: >-
+        (EXPERIMENTAL)
+
         Questa operazione permette di leggere tutti i dettagli di una notifica
         accettata. <br/>
       tags:
@@ -927,7 +931,6 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery/v2.4/requests:
     post:
-      deprecated: true
       summary: Richiesta invio notifica
       description: >-
         Operazione utilizzata dalla Pubblica Amministrazione per richiedere
@@ -981,7 +984,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     get:
-      deprecated: true
       operationId: retrieveNotificationRequestStatusV24
       x-pagopa-lambda-name: pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live
       x-pagopa-lambda-account: core
@@ -1222,7 +1224,6 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery/v2.6/notifications/sent/{iun}:
     get:
-      deprecated: true
       summary: 'Mittente: lettura dettagli notifica versione 2'
       description: >-
         Questa operazione permette di leggere tutti i dettagli di una notifica
@@ -1582,7 +1583,18 @@ components:
                 di notifica
               type: array
               items:
-                $ref: '#/components/schemas/ProblemError'
+                $ref: '#/components/schemas/NotificationRequestRefusedProblemError'
+    NotificationRequestRefusedProblemError:
+      allOf:
+        - $ref: '#/components/schemas/ProblemError'
+        - type: object
+          required:
+            - code
+          properties:
+            recIndex:
+              description: Index destinatario notifica digitale
+              type: integer
+              format: int32
     Problem:
       $ref: ./remote-refs.yaml#/components/schemas/Problem
     ProblemError:
@@ -1610,7 +1622,7 @@ components:
                 processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV26'
+                $ref: '#/components/schemas/TimelineElementV27'
     PaymentEventsRequestPagoPa:
       title: Invio eventi di pagamento da PA a PN
       description: >-
@@ -1701,8 +1713,8 @@ components:
         amount:
           type: integer
           format: int32
-    TimelineElementV26:
-      $ref: ./remote-refs.yaml#/components/schemas/TimelineElementV26
+    TimelineElementV27:
+      $ref: ./remote-refs.yaml#/components/schemas/TimelineElementV27
     NotificationStatusV26:
       $ref: ./remote-refs.yaml#/components/schemas/NotificationStatusV26
     NotificationStatusHistoryV26:

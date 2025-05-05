@@ -1232,6 +1232,30 @@ class NotificationReceiverValidationTest {
     }
 
 
+    @Test
+        //negative check with all invalid fields from two different recipients.
+    void PhysicalAddressMoreRecipientsValidationKo() {
+        //WHEN
+        when(cfg.isPhysicalAddressValidation()).thenReturn(true);
+        when(cfg.getPhysicalAddressValidationPattern()).thenReturn(PHYSICAL_ADDRESS_VALIDATION_PATTERN);
+        when(cfg.getPhysicalAddressValidationLength()).thenReturn(PHYSICAL_ADDRESS_VALIDATION_LENGTH);
+        var errors = validator.checkPhysicalAddress(moreBadRecipientsNewNotification());
+
+        //THEN
+        assertThat(errors, hasSize(9));
+        assertThat(errors, hasItems(
+                hasProperty("message", allOf(Matchers.containsString("address"), Matchers.containsString("recipient 0"))),
+                hasProperty("message", allOf(Matchers.containsString("province"), Matchers.containsString("recipient 0"))),
+                hasProperty("message", allOf(Matchers.containsString("zip"), Matchers.containsString("recipient 0"))),
+                hasProperty("message", allOf(Matchers.containsString("exceed"), Matchers.containsString("recipient 0"))),
+                hasProperty("message", allOf(Matchers.containsString("foreignState"), Matchers.containsString("recipient 1"))),
+                hasProperty("message", allOf(Matchers.containsString("addressDetails"), Matchers.containsString("recipient 1"))),
+                hasProperty("message", allOf(Matchers.containsString("municipality"), Matchers.containsString("recipient 1"))),
+                hasProperty("message", allOf(Matchers.containsString("at"), Matchers.containsString("recipient 1"))),
+                hasProperty("message", allOf(Matchers.containsString("municipalityDetails"), Matchers.containsString("recipient 1")))
+        ));
+    }
+
     private <T> void assertConstraintViolationPresentByMessage(Set<ConstraintViolation<T>> set,
                                                                String message) {
         long actual = set.stream().filter(cv -> cv.getMessage().equals(message)).count();
