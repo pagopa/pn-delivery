@@ -82,7 +82,7 @@ class PnDataVaultClientImplTestIT extends MockAWSObjectsTest {
         NotificationRecipientAddressesDto recipientAddressesDto = new NotificationRecipientAddressesDto();
         recipientAddressesDto.setDenomination("denominazione");
         recipientAddressesDto.setDigitalAddress(new AddressDto().value("address"));
-        recipientAddressesDto.setRecIndex(0); //TODO verificare assenza
+        recipientAddressesDto.setRecIndex(0);
         recipientAddressesDto.setPhysicalAddress(new AnalogDomicile()
                 .at("at")
                 .address("address")
