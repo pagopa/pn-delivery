@@ -2,7 +2,12 @@ const { headerMapper } = require('../app/utils');
 const { expect } = require("chai");
 
 describe('headerMapper', () => {
-  it('should correctly create headers with all authorizer fields', () => {
+  it('should correctly create headers with all authorizer fields and traceId', () => {
+
+    process.env = Object.assign(process.env, {
+      _X_AMZN_TRACE_ID: "traceIdValue",
+    });
+
     const event = {
       headers: {
         "existing-header": "value1",
@@ -30,9 +35,11 @@ describe('headerMapper', () => {
       "x-pagopa-pn-jti": "jtiToken",
       "x-pagopa-pn-src-ch-details": "channelDetails",
       "x-pagopa-pn-uid": "user123",
+      "X-Amzn-Trace-Id": "traceIdValue"
     };
 
     expect(headerMapper(event)).to.deep.equal(expectedHeaders);
+    delete process.env._X_AMZN_TRACE_ID;
   });
 
   it('should handle missing authorizer fields gracefully', () => {
