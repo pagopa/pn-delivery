@@ -26,14 +26,29 @@ const getItem = async (TableName, Key) => {
   return result.Item;
 };
 
-const deleteItem = async (TableName, Key) => {
+const deleteItem = async (TableName, Key, Iun) => {
   const params = {
     TableName,
     Key,
+    ConditionExpression: "attribute_exists(iun) AND iun = :Iun",
+    ExpressionAttributeValues: {
+      ":Iun": Iun,
+    },
   };
-  const command = new DeleteCommand(params);
-  const result = await docClient.send(command);
-  console.log("deletedItem successfully with key:", JSON.stringify(Key));
+  try {
+    const command = new DeleteCommand(params);
+    const result = await docClient.send(command);
+    console.log("Item deleted successfully with key:", JSON.stringify(Key));
+    return result;
+  } catch (error) {
+    if (error.name === "ConditionalCheckFailedException") {
+      console.log("Delete failed: iun does not match");
+      throw error;
+    } else {
+      console.log("Error deleting item:", error.message);
+      throw error;
+    }
+  }
 };
 
 const putMetadata = async (tablename, item, partitionKeyName) => {

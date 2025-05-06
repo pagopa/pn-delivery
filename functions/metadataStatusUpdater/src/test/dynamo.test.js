@@ -44,9 +44,21 @@ describe('dynamo.js tests', () => {
     it('should delete an item successfully', async () => {
       docClientStub.resolves({});
 
-      await deleteItem('testTable', { id: 'testId' });
+      await deleteItem('testTable', { id: 'testId' }, 'iun');
 
       expect(docClientStub.firstCall.args[0]).to.be.an.instanceof(DeleteCommand);
+    });
+
+    it('should log and throw error if ConditionalCheckFailedException occurs', async () => {
+      const error = new Error('Test error');
+      error.name = 'ConditionalCheckFailedException';
+      docClientStub.rejects(error);
+
+      try {
+        await deleteItem('testTable', { id: 'testId' }, 'iun');
+      } catch (error) {
+        expect(error.message).to.equal('Test error');
+      }
     });
   });
 
