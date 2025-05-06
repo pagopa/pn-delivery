@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.models;
 
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.models.internal.notification.InternalUsedService;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import lombok.*;
@@ -50,6 +51,7 @@ public class InternalNotification {
     private NewNotificationRequestV25.PagoPaIntModeEnum pagoPaIntMode;
     private String version;
     private List<String> additionalLanguages;
+    private InternalUsedService usedServices;
 
     public InternalNotification idempotenceToken(String idempotenceToken) {
         this.idempotenceToken = idempotenceToken;
