@@ -34,7 +34,7 @@ import java.util.function.Predicate;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class NotificationDaoDynamoTest {
 
@@ -256,6 +256,52 @@ class NotificationDaoDynamoTest {
         Optional<InternalNotification> saved = this.dao.getNotificationByIun( notification.getIun(), true );
         Assertions.assertTrue( saved.isPresent() );
         //Assertions.assertEquals( notification, saved.get() );
+    }
+
+    @Test
+    void testAddNotificationWithRecIndex() throws PnIdConflictException {
+        InternalNotification notification = newNotification( );
+
+        when( pnDataVaultClient.ensureRecipientByExternalId( any(RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
+        this.dao.addNotification( notification );
+
+        NotificationRecipientAddressesDto notificationRecipientAddressesDto = new NotificationRecipientAddressesDto();
+        notificationRecipientAddressesDto.setDenomination( "recipientDenomination" );
+        notificationRecipientAddressesDto.setDigitalAddress( new AddressDto().value( "digitalAddress" ) );
+        notificationRecipientAddressesDto.setPhysicalAddress( new AnalogDomicile()
+                .address( "physicalAddress" )
+                .addressDetails( "addressDetail" )
+                .at( "at" )
+                .municipality( "municipality" )
+                .province( "province" )
+                .cap( "cap" )
+                .state( "state" ));
+        notificationRecipientAddressesDto.setRecIndex(0);
+
+
+        NotificationRecipientAddressesDto notificationRecipientAddressesDto1 = new NotificationRecipientAddressesDto();
+        notificationRecipientAddressesDto1.setDenomination( "recipientDenomination1" );
+        notificationRecipientAddressesDto1.setDigitalAddress( new AddressDto().value( "digitalAddress1" ) );
+        notificationRecipientAddressesDto1.setPhysicalAddress( new AnalogDomicile()
+                .address( "physicalAddress1" )
+                .addressDetails( "addressDetail1" )
+                .at( "at1" )
+                .municipality( "municipality1" )
+                .province( "province1" )
+                .cap( "cap1" )
+                .state( "state1" ));
+        notificationRecipientAddressesDto1.setRecIndex(1);
+
+        when( pnDataVaultClient.getNotificationAddressesByIun( "IUN_01" ) ).thenReturn( List.of( notificationRecipientAddressesDto ,notificationRecipientAddressesDto1 ) );
+
+        List<NotificationRecipientAddressesDto> recipientAddressesDtoList = new ArrayList<>();
+        recipientAddressesDtoList.add(notificationRecipientAddressesDto);
+        recipientAddressesDtoList.add(notificationRecipientAddressesDto1);
+
+        when( pnDataVaultClient.getNotificationAddressesByIun( "IUN_01" ) ).thenReturn( recipientAddressesDtoList );
+        pnDataVaultClient.updateNotificationAddressesByIun("Iun", recipientAddressesDtoList);
+        Optional<InternalNotification> saved = this.dao.getNotificationByIun( notification.getIun(), true );
+        Assertions.assertTrue( saved.isPresent() );
     }
 
     @Test
