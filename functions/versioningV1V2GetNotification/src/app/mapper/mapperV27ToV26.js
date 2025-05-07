@@ -15,3 +15,13 @@ exports.transformFromV27ToV26 = function (responseV27) {
     delete responseV26.usedServices;
     return responseV26;
 }
+
+function transformTimeline(tl){
+// nella versione 2.7 sono stati aggiunti i seguenti campi per la category REQUEST_ACCEPTED: notificationRequestId, paProtocolNumber, idempotenceToken
+    if (tl.category === 'REQUEST_ACCEPTED' && tl.details != null) {
+        delete tl.details.notificationRequestId;
+        delete tl.details.paProtocolNumber;
+        delete tl.details.idempotenceToken;
+    }
+    return tl;
+}

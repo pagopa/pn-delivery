@@ -439,6 +439,15 @@ describe("eventHandler tests", function () {
     expect(resJson.timeline.some(
       (tl) => tl.category == "PUBLIC_REGISTRY_VALIDATION_CALL" || tl.category === "PUBLIC_REGISTRY_VALIDATION_RESPONSE")
     ).to.be.false;
+
+    // Check the REQUEST_ACCEPTED condition
+    const REQUEST_ACCEPTED_IDX = 6;
+    const requestAcceptedElement = resJson.timeline[REQUEST_ACCEPTED_IDX];
+    expect(requestAcceptedElement.details.notificationRequestId).to.be.undefined;
+    expect(requestAcceptedElement.details.paProtocolNumber).to.be.undefined;
+    expect(requestAcceptedElement.details.idempotenceToken).to.be.undefined;
+
+
     // check che NON sia presente un oggetto usedServices
     expect(resJson.usedServices).to.be.undefined;
   });
