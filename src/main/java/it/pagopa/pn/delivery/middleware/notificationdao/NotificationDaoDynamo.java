@@ -76,7 +76,10 @@ public class NotificationDaoDynamo implements NotificationDao {
 			cleanedRecipientList.add( removeConfidantialInfo( recipient ) );
 			recIndex++;
 		}
-		pnDataVaultClient.updateNotificationAddressesByIun( internalNotification.getIun(), recipientAddressesDtoList );
+		if(!recipientAddressesDtoList.isEmpty()) {
+			pnDataVaultClient.updateNotificationAddressesByIun( internalNotification.getIun(), recipientAddressesDtoList );
+		}
+
 		internalNotification.setRecipients( cleanedRecipientList );
 
 		NotificationEntity entity = dto2entityMapper.dto2Entity( internalNotification );

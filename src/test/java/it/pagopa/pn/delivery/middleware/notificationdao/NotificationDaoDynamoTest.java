@@ -305,6 +305,21 @@ class NotificationDaoDynamoTest {
     }
 
     @Test
+    void testAddNotificationWithoutAddresses() throws PnIdConflictException {
+        InternalNotification notification = newNotification( );
+        //Rimuovo gli indirizzi dal recipient precostruito
+        notification.getRecipients().get(0).setPhysicalAddress(null);
+        notification.getRecipients().get(0).setDigitalDomicile(null);
+
+        when( pnDataVaultClient.ensureRecipientByExternalId( any(RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
+        this.dao.addNotification( notification );
+
+        verify( pnDataVaultClient, times(0)).updateNotificationAddressesByIun(Mockito.any(), Mockito.any());
+        Optional<InternalNotification> saved = this.dao.getNotificationByIun( notification.getIun(), false );
+        Assertions.assertTrue( saved.isPresent() );
+    }
+
+    @Test
     void testWrongRecipientJson() {
         // GIVEN
         NotificationEntity entity = NotificationEntity.builder()
