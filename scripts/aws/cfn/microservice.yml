@@ -674,7 +674,7 @@ Parameters:
     Type: String
     Description: 'PnDeliveryLimitConfigurer queue URL'
 
-  PhysicalAddressLookupStart:
+  PhysicalAddressLookupStartDate:
     Type: String
     Description: "Activation date time for physical address lookup feature"
 
