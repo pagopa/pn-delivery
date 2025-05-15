@@ -17,7 +17,7 @@ public class PhysicalAddressLookupParameterConsumer {
 
     private final ParameterConsumer parameterConsumer;
 
-    private static final String PARAMETER_NAME = "PAsActiveForPhysicalAddressLookup";
+    private static final String PARAMETER_NAME = "PaActiveForPhysicalAddressLookup";
 
     public List<String> getActivePAsForPhysicalAddressLookup() {
         log.debug("Start getActivePAsForPhysicalAddressLookup");

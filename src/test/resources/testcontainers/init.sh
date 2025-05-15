@@ -254,7 +254,7 @@ aws --profile default --region us-east-1 --endpoint-url http://localstack:4566 \
 
 aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
     ssm put-parameter \
-    --name "PAsActiveForPhysicalAddressLookup" \
+    --name "PaActiveForPhysicalAddressLookup" \
     --type String \
     --value "[
                  \"5b994d4a-0fa8-47ac-9c7b-354f1d44a1ce\"
