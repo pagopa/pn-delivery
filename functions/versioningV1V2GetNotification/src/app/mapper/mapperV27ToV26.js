@@ -7,7 +7,7 @@ exports.transformFromV27ToV26 = function (responseV27) {
 
     let responseV26 = responseV27;
 
-    const adjustedTimelineAndHistory = adjustTimelineAndHistory(responseV26.timeline, responseV26.notificationStatusHistory, CATEGORY_TO_EXCLUDE)
+    const adjustedTimelineAndHistory = adjustTimelineAndHistory(responseV26.timeline, responseV26.notificationStatusHistory, CATEGORY_TO_EXCLUDE, transformTimeline);
     
     responseV26.timeline = adjustedTimelineAndHistory.timeline;
     responseV26.notificationStatusHistory = adjustedTimelineAndHistory.history;

@@ -441,8 +441,8 @@ describe("eventHandler tests", function () {
     ).to.be.false;
 
     // Check the REQUEST_ACCEPTED condition
-    const REQUEST_ACCEPTED_IDX = 6;
-    const requestAcceptedElement = resJson.timeline[REQUEST_ACCEPTED_IDX];
+    const requestAcceptedElement = resJson.timeline.filter((tl) => tl.category == "REQUEST_ACCEPTED")[0];
+    expect(requestAcceptedElement).to.be.not.undefined;
     expect(requestAcceptedElement.details.notificationRequestId).to.be.undefined;
     expect(requestAcceptedElement.details.paProtocolNumber).to.be.undefined;
     expect(requestAcceptedElement.details.idempotenceToken).to.be.undefined;
