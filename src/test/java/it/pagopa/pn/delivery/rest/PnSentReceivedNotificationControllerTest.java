@@ -76,9 +76,9 @@ class PnSentReceivedNotificationControllerTest {
 	private static final NotificationStatusV26 STATUS = NotificationStatusV26.IN_VALIDATION;
 	private static final String RECIPIENT_ID = "CGNNMO80A01H501M";
 	public static final List<String> GROUPS = List.of("Group1", "Group2");
-	public static final String DELIVERY_REQUESTS_PATH = "/delivery/v2.4/requests";
-	public static final String DELIVERY_RECEIVED_PATH = "/delivery/v2.5/notifications/received/";
-	public static final String DELIVERY_SENT_PATH = "/delivery/v2.6/notifications/sent/";
+	public static final String DELIVERY_REQUESTS_PATH = "/delivery/v2.5/requests";
+	public static final String DELIVERY_RECEIVED_PATH = "/delivery/v2.6/notifications/received/";
+	public static final String DELIVERY_SENT_PATH = "/delivery/v2.7/notifications/sent/";
 
 	@Autowired
     WebTestClient webTestClient;
@@ -119,7 +119,7 @@ class PnSentReceivedNotificationControllerTest {
 			.exchange()
 			.expectStatus()
 			.isOk()
-			.expectBody(FullSentNotificationV26.class);
+			.expectBody(FullSentNotificationV27.class);
 		
 		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck(IUN, PA_ID, GROUPS);
 	}
@@ -200,14 +200,14 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody( NewNotificationRequestStatusResponseV24.class );
+				.expectBody( NewNotificationRequestStatusResponseV25.class );
 
 		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS );
 	}
 
 	@Test
 	void testTimeLine(){
-		TimelineElementDetailsV26 actualTimelineElementDetails = new TimelineElementDetailsV26();
+		TimelineElementDetailsV27 actualTimelineElementDetails = new TimelineElementDetailsV27();
 		actualTimelineElementDetails.aarKey("Aar Key");
 		actualTimelineElementDetails.amount(10);
 		actualTimelineElementDetails.analogCost(1);
@@ -278,7 +278,7 @@ class PnSentReceivedNotificationControllerTest {
 		actualTimelineElementDetails.reasonCode("Just cause");
 		actualTimelineElementDetails.recIndex(1);
 		actualTimelineElementDetails.recipientType(RecipientType.PF);
-		ArrayList<NotificationRefusedErrorV25> refusalReasons = new ArrayList<>();
+		ArrayList<NotificationRefusedErrorV27> refusalReasons = new ArrayList<>();
 		actualTimelineElementDetails.refusalReasons(refusalReasons);
 		actualTimelineElementDetails.registeredLetterCode("Registered Letter Code");
 		actualTimelineElementDetails.relatedRequestId("42");
@@ -367,7 +367,7 @@ class PnSentReceivedNotificationControllerTest {
 		actualTimelineElementDetails.setReasonCode("Just cause");
 		actualTimelineElementDetails.setRecIndex(1);
 		actualTimelineElementDetails.setRecipientType(RecipientType.PF);
-		ArrayList<NotificationRefusedErrorV25> refusalReasons2 = new ArrayList<>();
+		ArrayList<NotificationRefusedErrorV27> refusalReasons2 = new ArrayList<>();
 		actualTimelineElementDetails.setRefusalReasons(refusalReasons2);
 		actualTimelineElementDetails.setRegisteredLetterCode("Registered Letter Code");
 		actualTimelineElementDetails.setRelatedRequestId("42");
@@ -394,7 +394,7 @@ class PnSentReceivedNotificationControllerTest {
 		testingTimeLine3(actualTimelineElementDetails);
 	}
 
-	void testingTimeLine3(TimelineElementDetailsV26 actualTimelineElementDetails){
+	void testingTimeLine3(TimelineElementDetailsV27 actualTimelineElementDetails){
 		assertNotNull(actualTimelineElementDetails.getLegalFactGenerationDate());
 		assertEquals("42", actualTimelineElementDetails.getLegalFactId());
 		assertEquals("42", actualTimelineElementDetails.getLegalfactId());
@@ -426,7 +426,7 @@ class PnSentReceivedNotificationControllerTest {
 		assertEquals(RecipientType.PF, actualTimelineElementDetails.getRecipientType());
 	}
 
-	void testingTimeLine2(TimelineElementDetailsV26 actualTimelineElementDetails){
+	void testingTimeLine2(TimelineElementDetailsV27 actualTimelineElementDetails){
 		assertEquals("Aar Key", actualTimelineElementDetails.getAarKey());
 		assertEquals(10, actualTimelineElementDetails.getAmount().intValue());
 		assertEquals(1, actualTimelineElementDetails.getAnalogCost().intValue());
@@ -450,12 +450,12 @@ class PnSentReceivedNotificationControllerTest {
 		assertNotNull(actualTimelineElementDetails.getLastAttemptDate());
 		assertEquals("Registered Letter Code", actualTimelineElementDetails.getRegisteredLetterCode());
 		assertEquals("42", actualTimelineElementDetails.getRelatedRequestId());
-		TimelineElementDetailsV26 actualIsAvailableResult = actualTimelineElementDetails.isAvailable(true);
+		TimelineElementDetailsV27 actualIsAvailableResult = actualTimelineElementDetails.isAvailable(true);
 		assertSame(actualTimelineElementDetails, actualIsAvailableResult);
 		assertEquals("Notice Code", actualTimelineElementDetails.getNoticeCode());
 	}
 
-	void testingTimeLine1(TimelineElementDetailsV26 timelineElementDetails){
+	void testingTimeLine1(TimelineElementDetailsV27 timelineElementDetails){
 		Assertions.assertNotNull(timelineElementDetails.getLegalFactId());
 		Assertions.assertNotNull(timelineElementDetails.getNormalizedAddress());
 		Assertions.assertNotNull(timelineElementDetails.getGeneratedAarUrl());
@@ -473,7 +473,7 @@ class PnSentReceivedNotificationControllerTest {
 		Assertions.assertNotNull(timelineElementDetails.getRaddTransactionId());
 	}
 
-	void testingTimeLine(TimelineElementDetailsV26 timelineElementDetails){
+	void testingTimeLine(TimelineElementDetailsV27 timelineElementDetails){
 		Assertions.assertNotNull(timelineElementDetails.getResponseStatus());
 		Assertions.assertNotNull(timelineElementDetails.getNextLastAttemptMadeForSource());
 		Assertions.assertNotNull(timelineElementDetails.getNextSourceAttemptsMade());
@@ -500,10 +500,10 @@ class PnSentReceivedNotificationControllerTest {
 		notification.setNotificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElementV26.builder()
 						.status( NotificationStatusV26.REFUSED )
 				.build() ) );
-		notification.setTimeline( Collections.singletonList( TimelineElementV26.builder()
-						.category( TimelineElementCategoryV26.REQUEST_REFUSED )
-						.details( TimelineElementDetailsV26.builder()
-								.refusalReasons( Collections.singletonList( NotificationRefusedErrorV25.builder()
+		notification.setTimeline( Collections.singletonList( TimelineElementV27.builder()
+						.category( TimelineElementCategoryV27.REQUEST_REFUSED )
+						.details( TimelineElementDetailsV27.builder()
+								.refusalReasons( Collections.singletonList( NotificationRefusedErrorV27.builder()
 												.errorCode( "FILE_NOTFOUND" )
 												.detail( "Allegato non trovato. fileKey=81dde2a8-9719-4407-b7b3-63e7ea694869" )
 										.build() ) )
@@ -526,7 +526,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody( NewNotificationRequestStatusResponseV24.class );
+				.expectBody( NewNotificationRequestStatusResponseV25.class );
 
 		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS );
 	}
@@ -552,7 +552,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody( NewNotificationRequestStatusResponseV24.class );
+				.expectBody( NewNotificationRequestStatusResponseV25.class );
 
 		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS );
 	}
@@ -612,7 +612,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody( NewNotificationRequestStatusResponseV24.class );
+				.expectBody( NewNotificationRequestStatusResponseV25.class );
 
 		Mockito.verify( svc ).getNotificationInformation( PA_ID, PA_PROTOCOL_NUMBER, IDEMPOTENCE_TOKEN, GROUPS );
 	}
@@ -640,7 +640,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody(FullReceivedNotificationV25.class);
+				.expectBody(FullReceivedNotificationV26.class);
 
 		Mockito.verify(svc).getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
 	}
@@ -692,7 +692,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody(FullReceivedNotificationV25.class);
+				.expectBody(FullReceivedNotificationV26.class);
 
 		Mockito.verify(svc).getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, MANDATE_ID);
 	}
@@ -1322,7 +1322,7 @@ class PnSentReceivedNotificationControllerTest {
 				List.of(
 						NotificationRecipient.builder()
 								.internalId("internalId")
-								.recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
+								.recipientType(NotificationRecipientV24.RecipientTypeEnum.PF)
 								.taxId("taxId")
 								.physicalAddress(it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress.builder().build())
 								.digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder().build())

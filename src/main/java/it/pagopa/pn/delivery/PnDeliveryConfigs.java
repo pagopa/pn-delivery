@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.annotation.PostConstruct;
 import java.time.Duration;
+import java.time.Instant;
 
 @Configuration
 @ConfigurationProperties( prefix = "pn.delivery")
@@ -92,6 +93,8 @@ public class PnDeliveryConfigs {
     private boolean enableTaxIdExternalValidation;
 
     private boolean skipCheckTaxIdInBlackList;
+
+    private Instant physicalAddressLookupStartDate;
 
     @PostConstruct
     public void init(){

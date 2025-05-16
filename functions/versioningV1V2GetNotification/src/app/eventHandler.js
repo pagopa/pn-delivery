@@ -1,4 +1,5 @@
 // converte la risposta V2.x a V1
+const { transformFromV27ToV26 } = require('./mapper/mapperV27ToV26.js');
 const { transformFromV26ToV25 } = require('./mapper/mapperV26ToV25.js');
 const { transformFromV25ToV24 } = require('./mapper/mapperV25ToV24.js');
 const { transformFromV24ToV23 } = require('./mapper/mapperV24ToV23.js');
@@ -80,6 +81,10 @@ exports.versioning = async (event, context) => {
 
   if (event["path"].startsWith("/delivery/v2.5/")) {
     version = 25;
+  }
+
+  if (event["path"].startsWith("/delivery/v2.6/")) {
+    version = 26;
   }
 
   const headers = JSON.parse(JSON.stringify(event["headers"]));
@@ -209,7 +214,10 @@ function applyMappings(version, response) {
       transformedObject = transformFromV25ToV24(applyMappings(25, response));
       break;
     case 25:
-      transformedObject = transformFromV26ToV25(response.data);
+      transformedObject = transformFromV26ToV25(applyMappings(26, response));
+      break;
+    case 26:
+      transformedObject = transformFromV27ToV26(response.data);
       break;
   }
   return transformedObject;

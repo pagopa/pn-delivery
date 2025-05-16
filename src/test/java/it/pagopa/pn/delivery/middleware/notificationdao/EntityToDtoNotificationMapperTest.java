@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV26;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV27;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -79,6 +79,10 @@ class EntityToDtoNotificationMapperTest {
         List<NotificationLang> additionalLangs = new ArrayList<>(Arrays.asList
                 (NotificationLang.builder().lang("FR").build(),
                         NotificationLang.builder().lang("IT").build()));
+
+        UsedServicesEntity usedServices = UsedServicesEntity.builder()
+                .physicalAddressLookup(true)
+                .build();
 
         F24PaymentEntity f24PaymentEntity = new F24PaymentEntity();
         f24PaymentEntity.setTitle("title");
@@ -181,7 +185,7 @@ class EntityToDtoNotificationMapperTest {
                 .idempotenceToken("idempotenceToken")
                 .paNotificationId("protocol_01")
                 .subject("Subject 01")
-                .physicalCommunicationType(FullSentNotificationV26.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
+                .physicalCommunicationType(FullSentNotificationV27.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
                 .cancelledByIun("IUN_05")
                 .cancelledIun("IUN_00")
                 .senderPaId("pa_02")
@@ -192,6 +196,7 @@ class EntityToDtoNotificationMapperTest {
                 .version("1")
                 .vat(VAT)
                 .languages(additionalLangs)
+                .usedServices(usedServices)
                 .build();
     }
 

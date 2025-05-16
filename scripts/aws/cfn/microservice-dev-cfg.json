@@ -47,6 +47,7 @@
     "PnDeliveryPaLimitCorrectionLambdaCron": "0 12 * * ? *",
     "PaLimitCorrectionLambdaTimeout": "600",
     "PaLimitCorrectionLambdaMaximumRetryAttempts": "1",
-    "PaLimitCorrectionLambdaDebugMode": "false"
+    "PaLimitCorrectionLambdaDebugMode": "false",
+    "PhysicalAddressLookupStartDate": "2025-03-01T00:00:00.000Z"
   }
 }
