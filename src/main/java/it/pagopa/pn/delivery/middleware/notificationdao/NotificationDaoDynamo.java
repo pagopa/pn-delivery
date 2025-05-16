@@ -63,22 +63,18 @@ public class NotificationDaoDynamo implements NotificationDao {
 		for ( NotificationRecipient recipient  : internalNotification.getRecipients()) {
 			String opaqueTaxId = pnDataVaultClient.ensureRecipientByExternalId( RecipientType.fromValue( recipient.getRecipientType().getValue() ), recipient.getTaxId() );
 			recipient.setTaxId( opaqueTaxId );
-			boolean shouldAnonymizeAddresses = recipient.getPhysicalAddress() != null || recipient.getDigitalDomicile() != null;
-			if(shouldAnonymizeAddresses) {
-				NotificationRecipientAddressesDto recipientAddressesDto = new NotificationRecipientAddressesDto()
-						.denomination( recipient.getDenomination() )
-						.digitalAddress( createDigitalDomicile( recipient.getDigitalDomicile() ) )
-						.physicalAddress( createAnalogDomicile( recipient.getPhysicalAddress() ) )
-						.recIndex(recIndex);
+			NotificationRecipientAddressesDto recipientAddressesDto = new NotificationRecipientAddressesDto()
+					.denomination( recipient.getDenomination() )
+					.digitalAddress( createDigitalDomicile( recipient.getDigitalDomicile() ) )
+					.physicalAddress( createAnalogDomicile( recipient.getPhysicalAddress() ) )
+					.recIndex(recIndex);
 
-				recipientAddressesDtoList.add( recipientAddressesDto );
-			}
+			recipientAddressesDtoList.add( recipientAddressesDto );
 			cleanedRecipientList.add( removeConfidantialInfo( recipient ) );
 			recIndex++;
 		}
-		if(!recipientAddressesDtoList.isEmpty()) {
-			pnDataVaultClient.updateNotificationAddressesByIun( internalNotification.getIun(), recipientAddressesDtoList );
-		}
+
+		pnDataVaultClient.updateNotificationAddressesByIun( internalNotification.getIun(), recipientAddressesDtoList );
 
 		internalNotification.setRecipients( cleanedRecipientList );
 
