@@ -183,7 +183,7 @@ public class NotificationReceiverValidator {
                 checkContentType(metadataAttachment.getContentType(), metadataAttachment.getRef().getKey(), violations);
             }
             // Verifica per pagamenti PagoPA
-            else if (paymentItem.getPagoPa() != null) {
+            else if (paymentItem.getPagoPa() != null && paymentItem.getPagoPa().getAttachment() != null) {
                 NotificationPaymentAttachment attachment = paymentItem.getPagoPa().getAttachment();
                 checkContentType(attachment.getContentType(), attachment.getRef().getKey(), violations);
             }
@@ -193,11 +193,11 @@ public class NotificationReceiverValidator {
 
     private void checkContentType(String contentType, String key, Set<ConstraintViolation<NewNotificationRequestV24>> violations) {
         if (APPLICATION_PDF_CONTENT_TYPE.equalsIgnoreCase(contentType) && key.endsWith(".json")) {
-            ConstraintViolationImpl<NewNotificationRequestV24> violation = new ConstraintViolationImpl<>(String.format("Key extension %s does not conform to expected content type %s", key, contentType));
+            ConstraintViolationImpl<NewNotificationRequestV24> violation = new ConstraintViolationImpl<>(String.format("Key: %s has an extension that does not conform to the expected content type: %s", key, contentType));
             violations.add(violation);
         }
-        if (APPLICATION_JSON_CONTENT_TYPE.equalsIgnoreCase(contentType) && key.endsWith(".pfd")) {
-            ConstraintViolationImpl<NewNotificationRequestV24> violation = new ConstraintViolationImpl<>(String.format("Key extension %s does not conform to expected content type %s", key, contentType));
+        if (APPLICATION_JSON_CONTENT_TYPE.equalsIgnoreCase(contentType) && key.endsWith(".pdf")) {
+            ConstraintViolationImpl<NewNotificationRequestV24> violation = new ConstraintViolationImpl<>(String.format("Key: %s has an extension that does not conform to the expected content type: %s", key, contentType));
             violations.add(violation);
         }
     }
