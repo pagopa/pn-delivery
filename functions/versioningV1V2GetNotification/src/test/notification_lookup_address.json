@@ -1,0 +1,427 @@
+{
+	"abstract": "Abstract della notifica",
+	"paProtocolNumber": "20250312112346",
+	"subject": "Test notifica 20250312112346",
+	"recipients": [
+		{
+			"recipientType": "PF",
+			"taxId": "CLMCST42R12D969Z",
+			"denomination": "Ettore Fieramosca",
+			"digitalDomicile": {
+				"type": "PEC",
+				"address": "test@pec.it"
+			},
+			"physicalAddress": {
+				"at": "Presso",
+				"address": "VIA POSEIDONE 82",
+				"addressDetails": "SCALA B",
+				"zip": "87100",
+				"municipality": "COSENZA",
+				"municipalityDetails": "COSENZA",
+				"province": "CS",
+				"foreignState": "ITALIA"
+			},
+			"payments": [
+				{
+					"pagoPa": {
+						"noticeCode": "302010321228832000",
+						"creditorTaxId": "77777777777",
+						"applyCost": false,
+						"attachment": {
+							"digests": {
+								"sha256": "BuIdviesjkElGiz6cAPWl8BK6nWRyjWMEhgHHJzrOHU="
+							},
+							"contentType": "application/pdf",
+							"ref": {
+								"key": "PN_NOTIFICATION_ATTACHMENTS-95dcf4b2647f465eb7e508aa7bbe9c24.pdf",
+								"versionToken": "sNP2YBogBBD2CXXe2dxx0DbOJO0AzyH."
+							}
+						}
+					}
+				}
+			]
+		}
+	],
+	"documents": [
+		{
+			"digests": {
+				"sha256": "/V39hY8qs3l9qIBeWhjJFp4JeQA1r9kAjmP6fTYdR4k="
+			},
+			"contentType": "application/pdf",
+			"ref": {
+				"key": "PN_NOTIFICATION_ATTACHMENTS-83d138deec554429b7746ff86be446aa.pdf",
+				"versionToken": "sNP2YBogBBD2CXXe2dxx0DbOJO0AzyH."
+			},
+			"docIdx": "0"
+		}
+	],
+	"notificationFeePolicy": "FLAT_RATE",
+	"physicalCommunicationType": "REGISTERED_LETTER_890",
+	"senderDenomination": "Comune di palermo",
+	"senderTaxId": "80016350821",
+	"taxonomyCode": "010202N",
+	"paFee": 0,
+	"vat": 0,
+	"pagoPaIntMode": "NONE",
+	"additionalLanguages": [],
+	"senderPaId": "5b994d4a-0fa8-47ac-9c7b-354f1d44a1ce",
+	"iun": "DVMZ-NPQM-UPRL-202503-M-1",
+	"sentAt": "2025-03-12T10:23:46.455876905Z",
+	"documentsAvailable": true,
+    "usedServices": {
+        "physicalAddressLookup": true
+    },
+	"notificationStatus": "EFFECTIVE_DATE",
+	"notificationStatusHistory": [
+		{
+			"status": "ACCEPTED",
+			"activeFrom": "2025-03-12T10:23:46.455876905Z",
+			"relatedTimelineElements": [
+				"REQUEST_ACCEPTED.IUN_DVMZ-NPQM-UPRL-202503-M-1",
+				"AAR_CREATION_REQUEST.IUN_DVMZ-NPQM-UPRL-202503-M-1.RECINDEX_0",
+				"AAR_GEN.IUN_DVMZ-NPQM-UPRL-202503-M-1.RECINDEX_0",
+				"GET_ADDRESS.IUN_DVMZ-NPQM-UPRL-202503-M-1.RECINDEX_0.SOURCE_PLATFORM.ATTEMPT_0",
+				"GET_ADDRESS.IUN_DVMZ-NPQM-UPRL-202503-M-1.RECINDEX_0.SOURCE_SPECIAL.ATTEMPT_0"
+			]
+		},
+		{
+			"status": "DELIVERING",
+			"activeFrom": "2025-03-12T10:26:55.31396364Z",
+			"relatedTimelineElements": [
+				"SEND_DIGITAL.IUN_DVMZ-NPQM-UPRL-202503-M-1.RECINDEX_0.SOURCE_SPECIAL.REPEAT_false.ATTEMPT_0",
+				"DIGITAL_PROG.IUN_DVMZ-NPQM-UPRL-202503-M-1.RECINDEX_0.SOURCE_SPECIAL.REPEAT_false.ATTEMPT_0.IDX_1",
+				"SEND_DIGITAL_FEEDBACK.IUN_DVMZ-NPQM-UPRL-202503-M-1.RECINDEX_0.SOURCE_SPECIAL.REPEAT_false.ATTEMPT_0"
+			]
+		},
+		{
+			"status": "DELIVERED",
+			"activeFrom": "2025-03-12T10:27:18.279125389Z",
+			"relatedTimelineElements": [
+				"DIGITAL_DELIVERY_CREATION_REQUEST.IUN_DVMZ-NPQM-UPRL-202503-M-1.RECINDEX_0",
+				"SCHEDULE_REFINEMENT_WORKFLOW.IUN_DVMZ-NPQM-UPRL-202503-M-1.RECINDEX_0",
+				"DIGITAL_SUCCESS_WORKFLOW.IUN_DVMZ-NPQM-UPRL-202503-M-1.RECINDEX_0"
+			]
+		},
+		{
+			"status": "EFFECTIVE_DATE",
+			"activeFrom": "2025-03-12T10:28:15.599864747Z",
+			"relatedTimelineElements": [
+				"REFINEMENT.IUN_DVMZ-NPQM-UPRL-202503-M-1.RECINDEX_0"
+			]
+		}
+	],
+	"timeline": [
+        {
+			"elementId": "NATIONAL_REGISTRY_VALIDATION_CALL.IUN_DVMZ-NPQM-UPRL-202503-M-1.DELIVERYMODE_PHYSICAL",
+			"timestamp": "2025-03-12T10:22:21.067534541Z",
+			"ingestionTimestamp": "2025-03-12T10:22:21.067534541Z",
+			"eventTimestamp": "2025-03-12T10:22:21.067534541Z",
+			"notificationSentAt": "2025-03-12T10:23:46.455876905Z",
+			"legalFactsIds": [],
+			"category": "PUBLIC_REGISTRY_VALIDATION_CALL",
+			"details": {
+                "recIndexes": [0],
+                "deliveryMode": "PHYSICAL",
+                "sendDate": "2025-03-12T10:22:21.022687114Z"
+            }
+		},
+        {
+			"elementId": "NATIONAL_REGISTRY_VALIDATION_RESPONSE.RECINDEX_0_CORRELATIONID_NATIONAL_REGISTRY_VALIDATION_CALL.IUN_DVMZ-NPQM-UPRL-202503-M-1.DELIVERYMODE_PHYSICAL",
+			"timestamp": "2025-03-12T10:23:42.002578234Z",
+			"ingestionTimestamp": "2025-03-12T10:23:42.002578234Z",
+			"eventTimestamp": "2025-03-12T10:23:42.002578234Z",
+			"notificationSentAt": "2025-03-12T10:23:46.455876905Z",
+			"legalFactsIds": [],
+			"category": "PUBLIC_REGISTRY_VALIDATION_RESPONSE",
+			"details": {
+                "recIndex": 0,
+                "digitalAddress": null,
+                "physicalAddress": {
+                    "at": "Presso",
+					"address": "via del corso 100",
+					"addressDetails": "scala b",
+					"zip": "87100",
+					"municipality": "Cosenza",
+					"municipalityDetails": "Cosenza",
+					"province": "CS",
+					"foreignState": "ITALIA"
+                },
+                "registry": "ANPR"
+            }
+		},
+		{
+			"elementId": "VALIDATE_NORMALIZE_ADDRESSES_REQUEST.IUN_DVMZ-NPQM-UPRL-202503-M-1",
+			"timestamp": "2025-03-12T10:24:09.026934949Z",
+			"ingestionTimestamp": "2025-03-12T10:24:09.026934949Z",
+			"eventTimestamp": "2025-03-12T10:24:09.026934949Z",
+			"notificationSentAt": "2025-03-12T10:23:46.455876905Z",
+			"legalFactsIds": [],
+			"category": "VALIDATE_NORMALIZE_ADDRESSES_REQUEST",
+			"details": {}
+		},
+		{
+			"elementId": "NORMALIZED_ADDRESS.IUN_DVMZ-NPQM-UPRL-202503-M-1.RECINDEX_0",
+			"timestamp": "2025-03-12T10:25:50.174891742Z",
+			"ingestionTimestamp": "2025-03-12T10:25:50.174891742Z",
+			"eventTimestamp": "2025-03-12T10:25:50.174891742Z",
+			"notificationSentAt": "2025-03-12T10:23:46.455876905Z",
+			"legalFactsIds": [],
+			"category": "NORMALIZED_ADDRESS",
+			"details": {
+				"recIndex": 0,
+				"oldAddress": {
+					"at": "Presso",
+					"address": "via del corso 100",
+					"addressDetails": "scala b",
+					"zip": "87100",
+					"municipality": "Cosenza",
+					"municipalityDetails": "Cosenza",
+					"province": "CS",
+					"foreignState": "ITALIA"
+				},
+				"normalizedAddress": {
+					"at": "Presso",
+					"address": "VIA DEL CORSO 100",
+					"addressDetails": "SCALA B",
+					"zip": "87100",
+					"municipality": "COSENZA",
+					"municipalityDetails": "COSENZA",
+					"province": "CS",
+					"foreignState": "ITALIA"
+				}
+			}
+		},
+		{
+			"elementId": "SENDERACK_LEGALFACT_CREATION_REQUEST.IUN_DVMZ-NPQM-UPRL-202503-M-1",
+			"timestamp": "2025-03-12T10:25:52.222715612Z",
+			"ingestionTimestamp": "2025-03-12T10:25:52.222715612Z",
+			"eventTimestamp": "2025-03-12T10:25:52.222715612Z",
+			"notificationSentAt": "2025-03-12T10:23:46.455876905Z",
+			"legalFactsIds": [],
+			"category": "SENDER_ACK_CREATION_REQUEST",
+			"details": {
+				"legalFactId": "safestorage://PN_LEGAL_FACTS-41ec5b1c4cd347969fb4c34e0f64d1e4.pdf"
+			}
+		},
+		{
+			"elementId": "REQUEST_ACCEPTED.IUN_DVMZ-NPQM-UPRL-202503-M-1",
+			"timestamp": "2025-03-12T10:26:33.964564323Z",
+			"ingestionTimestamp": "2025-03-12T10:26:33.964564323Z",
+			"eventTimestamp": "2025-03-12T10:26:33.964564323Z",
+			"notificationSentAt": "2025-03-12T10:23:46.455876905Z",
+			"legalFactsIds": [
+				{
+					"key": "safestorage://PN_LEGAL_FACTS-41ec5b1c4cd347969fb4c34e0f64d1e4.pdf",
+					"category": "SENDER_ACK"
+				}
+			],
+			"category": "REQUEST_ACCEPTED",
+			"details": {
+				"notificationRequestId": "IUN_DVMZ-NPQM-UPRL-202503-M-1",
+				"paProtocolNumber": "20250312112346",
+				"idempotenceToken": "sNP2YBogBBD2CXXe2dxx0DbOJO0AzyH"
+			}
+		},
+		{
+			"elementId": "AAR_CREATION_REQUEST.IUN_DVMZ-NPQM-UPRL-202503-M-1.RECINDEX_0",
+			"timestamp": "2025-03-12T10:26:37.295313831Z",
+			"ingestionTimestamp": "2025-03-12T10:26:37.295313831Z",
+			"eventTimestamp": "2025-03-12T10:26:37.295313831Z",
+			"notificationSentAt": "2025-03-12T10:23:46.455876905Z",
+			"legalFactsIds": [],
+			"category": "AAR_CREATION_REQUEST",
+			"details": {
+				"recIndex": 0,
+				"numberOfPages": 2,
+				"aarKey": "safestorage://PN_AAR-9fea3f370b91458688877c95d98071c2.pdf"
+			}
+		},
+		{
+			"elementId": "AAR_GEN.IUN_DVMZ-NPQM-UPRL-202503-M-1.RECINDEX_0",
+			"timestamp": "2025-03-12T10:26:52.967583445Z",
+			"ingestionTimestamp": "2025-03-12T10:26:52.967583445Z",
+			"eventTimestamp": "2025-03-12T10:26:52.967583445Z",
+			"notificationSentAt": "2025-03-12T10:23:46.455876905Z",
+			"legalFactsIds": [],
+			"category": "AAR_GENERATION",
+			"details": {
+				"recIndex": 0,
+				"generatedAarUrl": "safestorage://PN_AAR-9fea3f370b91458688877c95d98071c2.pdf",
+				"numberOfPages": 2
+			}
+		},
+		{
+			"elementId": "GET_ADDRESS.IUN_DVMZ-NPQM-UPRL-202503-M-1.RECINDEX_0.SOURCE_PLATFORM.ATTEMPT_0",
+			"timestamp": "2025-03-12T10:26:55.036121303Z",
+			"ingestionTimestamp": "2025-03-12T10:26:55.036121303Z",
+			"eventTimestamp": "2025-03-12T10:26:55.036121303Z",
+			"notificationSentAt": "2025-03-12T10:23:46.455876905Z",
+			"legalFactsIds": [],
+			"category": "GET_ADDRESS",
+			"details": {
+				"recIndex": 0,
+				"digitalAddressSource": "PLATFORM",
+				"isAvailable": false,
+				"attemptDate": "2025-03-12T10:26:55.036120464Z"
+			}
+		},
+		{
+			"elementId": "GET_ADDRESS.IUN_DVMZ-NPQM-UPRL-202503-M-1.RECINDEX_0.SOURCE_SPECIAL.ATTEMPT_0",
+			"timestamp": "2025-03-12T10:26:55.053454244Z",
+			"ingestionTimestamp": "2025-03-12T10:26:55.053454244Z",
+			"eventTimestamp": "2025-03-12T10:26:55.053454244Z",
+			"notificationSentAt": "2025-03-12T10:23:46.455876905Z",
+			"legalFactsIds": [],
+			"category": "GET_ADDRESS",
+			"details": {
+				"recIndex": 0,
+				"digitalAddressSource": "SPECIAL",
+				"isAvailable": true,
+				"attemptDate": "2025-03-12T10:26:55.053453854Z"
+			}
+		},
+		{
+			"elementId": "SEND_DIGITAL.IUN_DVMZ-NPQM-UPRL-202503-M-1.RECINDEX_0.SOURCE_SPECIAL.REPEAT_false.ATTEMPT_0",
+			"timestamp": "2025-03-12T10:26:55.31396364Z",
+			"ingestionTimestamp": "2025-03-12T10:26:55.31396364Z",
+			"eventTimestamp": "2025-03-12T10:26:55.31396364Z",
+			"notificationSentAt": "2025-03-12T10:23:46.455876905Z",
+			"legalFactsIds": [],
+			"category": "SEND_DIGITAL_DOMICILE",
+			"details": {
+				"recIndex": 0,
+				"digitalAddress": {
+					"type": "PEC",
+					"address": "test@pec.it"
+				},
+				"digitalAddressSource": "SPECIAL",
+				"retryNumber": 0
+			}
+		},
+		{
+			"elementId": "DIGITAL_PROG.IUN_DVMZ-NPQM-UPRL-202503-M-1.RECINDEX_0.SOURCE_SPECIAL.REPEAT_false.ATTEMPT_0.IDX_1",
+			"timestamp": "2025-03-12T10:27:05.420920841Z",
+			"ingestionTimestamp": "2025-03-12T10:27:06.587427618Z",
+			"eventTimestamp": "2025-03-12T10:27:05.420920841Z",
+			"notificationSentAt": "2025-03-12T10:23:46.455876905Z",
+			"legalFactsIds": [
+				{
+					"key": "safestorage://PN_EXTERNAL_LEGAL_FACTS-1584649565b24cd78c93b77fab865af0.xml",
+					"category": "PEC_RECEIPT"
+				}
+			],
+			"category": "SEND_DIGITAL_PROGRESS",
+			"details": {
+				"recIndex": 0,
+				"digitalAddress": {
+					"type": "PEC",
+					"address": "test@pec.it"
+				},
+				"digitalAddressSource": "SPECIAL",
+				"eventTimestamp": "2025-03-12T10:27:05.420920841Z",
+				"retryNumber": 0,
+				"notificationDate": "2025-03-12T10:27:06.587427253Z",
+				"deliveryDetailCode": "C001",
+				"sendingReceipts": [
+					{}
+				],
+				"shouldRetry": false
+			}
+		},
+		{
+			"elementId": "SEND_DIGITAL_FEEDBACK.IUN_DVMZ-NPQM-UPRL-202503-M-1.RECINDEX_0.SOURCE_SPECIAL.REPEAT_false.ATTEMPT_0",
+			"timestamp": "2025-03-12T10:27:15.599864747Z",
+			"ingestionTimestamp": "2025-03-12T10:27:16.804100219Z",
+			"eventTimestamp": "2025-03-12T10:27:15.599864747Z",
+			"notificationSentAt": "2025-03-12T10:23:46.455876905Z",
+			"legalFactsIds": [
+				{
+					"key": "safestorage://PN_EXTERNAL_LEGAL_FACTS-94dee768748c4ab5b0786ae4a7f3fbe1.xml",
+					"category": "PEC_RECEIPT"
+				}
+			],
+			"category": "SEND_DIGITAL_FEEDBACK",
+			"details": {
+				"recIndex": 0,
+				"digitalAddress": {
+					"type": "PEC",
+					"address": "test@pec.it"
+				},
+				"digitalAddressSource": "SPECIAL",
+				"responseStatus": "OK",
+				"notificationDate": "2025-03-12T10:27:15.599864747Z",
+				"deliveryDetailCode": "C003",
+				"sendingReceipts": [
+					{}
+				]
+			}
+		},
+		{
+			"elementId": "DIGITAL_DELIVERY_CREATION_REQUEST.IUN_DVMZ-NPQM-UPRL-202503-M-1.RECINDEX_0",
+			"timestamp": "2025-03-12T10:27:18.279125389Z",
+			"ingestionTimestamp": "2025-03-12T10:27:18.279125389Z",
+			"eventTimestamp": "2025-03-12T10:27:18.279125389Z",
+			"notificationSentAt": "2025-03-12T10:23:46.455876905Z",
+			"legalFactsIds": [],
+			"category": "DIGITAL_DELIVERY_CREATION_REQUEST",
+			"details": {
+				"legalFactId": "safestorage://PN_LEGAL_FACTS-6b1ed4ba435d42fd9627a6e32ed9608a.pdf",
+				"recIndex": 0,
+				"endWorkflowStatus": "SUCCESS",
+				"completionWorkflowDate": "2025-03-12T10:27:15.599864747Z",
+				"digitalAddress": {
+					"type": "PEC",
+					"address": "test@pec.it"
+				}
+			}
+		},
+		{
+			"elementId": "SCHEDULE_REFINEMENT_WORKFLOW.IUN_DVMZ-NPQM-UPRL-202503-M-1.RECINDEX_0",
+			"timestamp": "2025-03-12T10:27:18.313257297Z",
+			"ingestionTimestamp": "2025-03-12T10:27:18.313257297Z",
+			"eventTimestamp": "2025-03-12T10:27:18.313257297Z",
+			"notificationSentAt": "2025-03-12T10:23:46.455876905Z",
+			"legalFactsIds": [],
+			"category": "SCHEDULE_REFINEMENT",
+			"details": {
+				"recIndex": 0,
+				"schedulingDate": "2025-03-12T10:28:15.599864747Z"
+			}
+		},
+		{
+			"elementId": "DIGITAL_SUCCESS_WORKFLOW.IUN_DVMZ-NPQM-UPRL-202503-M-1.RECINDEX_0",
+			"timestamp": "2025-03-12T10:27:52.996040693Z",
+			"ingestionTimestamp": "2025-03-12T10:27:52.996040693Z",
+			"eventTimestamp": "2025-03-12T10:27:52.996040693Z",
+			"notificationSentAt": "2025-03-12T10:23:46.455876905Z",
+			"legalFactsIds": [
+				{
+					"key": "safestorage://PN_LEGAL_FACTS-6b1ed4ba435d42fd9627a6e32ed9608a.pdf",
+					"category": "DIGITAL_DELIVERY"
+				}
+			],
+			"category": "DIGITAL_SUCCESS_WORKFLOW",
+			"details": {
+				"recIndex": 0,
+				"digitalAddress": {
+					"type": "PEC",
+					"address": "test@pec.it"
+				}
+			}
+		},
+		{
+			"elementId": "REFINEMENT.IUN_DVMZ-NPQM-UPRL-202503-M-1.RECINDEX_0",
+			"timestamp": "2025-03-12T10:28:15.599864747Z",
+			"ingestionTimestamp": "2025-03-12T10:30:14.087161285Z",
+			"eventTimestamp": "2025-03-12T10:28:15.599864747Z",
+			"notificationSentAt": "2025-03-12T10:23:46.455876905Z",
+			"legalFactsIds": [],
+			"category": "REFINEMENT",
+			"details": {
+				"recIndex": 0,
+				"eventTimestamp": "2025-03-12T10:28:15.599864747Z",
+				"notificationCost": 100
+			}
+		}
+	]
+}

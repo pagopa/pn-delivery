@@ -35,7 +35,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV23.RecipientTypeEnum.PF;
+import static it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV24.RecipientTypeEnum.PF;
 import static it.pagopa.pn.delivery.svc.NotificationPriceService.ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED;
 import static it.pagopa.pn.delivery.svc.NotificationPriceService.ERROR_CODE_DELIVERY_PUSH_NOTIFICATION_NOT_ACCEPTED;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
