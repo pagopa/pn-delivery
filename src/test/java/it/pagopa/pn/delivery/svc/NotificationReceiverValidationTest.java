@@ -1120,7 +1120,7 @@ class NotificationReceiverValidationTest {
                         .metadataAttachment(NotificationMetadataAttachment.builder()
                                 .contentType(APPLICATION_JSON)
                                 .ref(NotificationAttachmentBodyRef.builder()
-                                        .key("invalid-key.pdf")
+                                        .key("PN_F24_META_invalid-key.pdf")
                                         .build())
                                 .build())
                         .build())
@@ -1131,7 +1131,7 @@ class NotificationReceiverValidationTest {
         errors = validator.checkNewNotificationRequestBeforeInsert(n);
 
         // THEN
-        assertConstraintViolationPresentByMessage(errors, "Key: invalid-key.pdf has an extension that does not conform to the expected content type: application/json");
+        assertConstraintViolationPresentByMessage(errors, "Key: PN_F24_META_invalid-key.pdf has an extension that does not conform to the expected content type: application/json");
     }
 
     @Test
