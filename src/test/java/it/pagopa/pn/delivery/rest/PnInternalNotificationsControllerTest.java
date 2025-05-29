@@ -645,7 +645,7 @@ class PnInternalNotificationsControllerTest {
                 List.of(
                         NotificationRecipient.builder()
                                 .internalId("internalId")
-                                .recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
+                                .recipientType(NotificationRecipientV24.RecipientTypeEnum.PF)
                                 .taxId("taxId")
                                 .physicalAddress(it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress.builder().build())
                                 .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder().build())

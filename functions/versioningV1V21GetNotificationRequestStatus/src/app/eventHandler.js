@@ -93,13 +93,16 @@ exports.handleEvent = async (event) => {
         let finalVersionObject = response.data;
         switch(version) {
             case 10:
-                finalVersionObject = transformFromV21ToV1(transformFromV23ToV21(transformFromV24ToV23(response.data)));
+                finalVersionObject = transformFromV21ToV1(transformFromV23ToV21(transformFromV24ToV23(transformFromV25ToV24(response.data))));
                 break;
             case 21:
-                finalVersionObject = transformFromV23ToV21(transformFromV24ToV23(response.data));
+                finalVersionObject = transformFromV23ToV21(transformFromV24ToV23(transformFromV25ToV24(response.data)));
                 break;
             case 23:
-                finalVersionObject = transformFromV24ToV23(response.data);
+                finalVersionObject = transformFromV24ToV23(transformFromV25ToV24(response.data));
+                break;
+            case 24:
+                finalVersionObject = transformFromV25ToV24(response.data);
                 break;
         }
 
@@ -141,6 +144,20 @@ exports.handleEvent = async (event) => {
                 }
             ]
         }
+    }
+
+    function transformFromV25ToV24(responseV25) {
+        console.log("transformFromV25ToV24");
+        const responseV24 = { ...responseV25 };
+
+        if (responseV25.errors && responseV25.errors.length > 0) {
+            responseV24.errors = responseV25.errors.map(error => {
+                const { recIndex, ...rest } = error;
+                return rest;
+            });
+        }
+
+        return responseV24;
     }
 
     function transformFromV24ToV23(responseV24) {

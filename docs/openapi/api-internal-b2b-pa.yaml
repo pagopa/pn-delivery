@@ -343,10 +343,11 @@ paths:
     ###                          CREAZIONE RICHIESTE DI NOTIFICA                           ###
     ###########################################################################################
 
-  "/delivery/v2.4/requests":
+  "/delivery/v2.5/requests":
     post:
-      summary: Richiesta invio notifica
+      summary: EXPERIMENTAL - Richiesta invio notifica
       description: |-
+        (EXPERIMENTAL)
         Operazione utilizzata dalla Pubblica Amministrazione per richiedere l'invio di una notifica.
 
         La restituzione di uno stato HTTP 202 significa solo che la richiesta è sintatticamente
@@ -367,7 +368,7 @@ paths:
         </details>
       tags:
         - NewNotification
-      operationId: sendNewNotificationV24
+      operationId: sendNewNotificationV25
       parameters:                                                     # NO EXTERNAL
         - $ref: '#/components/parameters/uidAuthFleet'                # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'             # NO EXTERNAL
@@ -380,7 +381,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV24"
+              $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV25"
         required: true
       responses:
         '202':
@@ -413,12 +414,13 @@ paths:
     ###                        VERIFICA STATO RICHIESTE DI NOTIFICA                         ###
     ###########################################################################################
     get:
-      operationId: getNotificationRequestStatusV24                       # NO EXTERNAL
-#      operationId: retrieveNotificationRequestStatusV24                 # ONLY EXTERNAL
+      operationId: getNotificationRequestStatusV25                       # NO EXTERNAL
+#      operationId: retrieveNotificationRequestStatusV25                 # ONLY EXTERNAL
       tags:
         - SenderReadB2B
-      summary: Verifica accettazione richiesta notifica
+      summary: EXPERIMENTAL - Verifica accettazione richiesta notifica
       description: >-
+        (EXPERIMENTAL)
         Questa operazione serve per verificare se la richiesta di notifica è stata accettata e ottenere
         lo IUN associato a tale richiesta. <br/>
         Bisogna specificare il parametro _requestId_ oppure la coppia costituita dai parametri 
@@ -437,7 +439,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/NewNotificationRequestStatusResponseV24"
+                $ref: "#/components/schemas/NewNotificationRequestStatusResponseV25"
         '400':
           description: Bad request
           content:
@@ -462,10 +464,11 @@ paths:
     ###                             RICERCA NOTIFICHE ACCETTATE                             ###
     ###########################################################################################
 
-  "/delivery/v2.6/notifications/sent/{iun}":
+  "/delivery/v2.7/notifications/sent/{iun}":
     get:
-      summary: 'Mittente: lettura dettagli notifica versione 2'
+      summary: 'EXPERIMENTAL - Mittente: lettura dettagli notifica versione 2'
       description: |-
+        (EXPERIMENTAL)
         Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
 
         <details no-external>
@@ -481,8 +484,8 @@ paths:
         </details>
       tags:
         - SenderReadB2B
-      operationId: getSentNotificationV26                                      # NO EXTERNAL
-#      operationId: retrieveSentNotificationV26                                # ONLY EXTERNAL
+      operationId: getSentNotificationV27                                    # NO EXTERNAL
+#      operationId: retrieveSentNotificationV27                                # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
@@ -495,7 +498,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/FullSentNotificationV26"
+                $ref: "#/components/schemas/FullSentNotificationV27"
         '400':
           description: Bad request
           content:
@@ -1031,9 +1034,9 @@ components:
             effettuate con lo stesso numero di protocollo (campo _paProtocolNumber_).
           type: string
 
-    NewNotificationRequestStatusResponseV24:
+    NewNotificationRequestStatusResponseV25:
       allOf:
-        - $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV24"
+        - $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV25"
         - type: object
           required:
             - notificationRequestId
@@ -1062,7 +1065,19 @@ components:
                 Elenco degli errori che hanno causato il rifiuto della richiesta di notifica
               type: array
               items:
-                $ref: '#/components/schemas/ProblemError'
+                $ref: '#/components/schemas/NotificationRequestRefusedProblemError'
+
+    NotificationRequestRefusedProblemError:
+      allOf:
+        - $ref: '#/components/schemas/ProblemError'
+        - type: object
+          required:
+            - code
+          properties:
+            recIndex:
+              description: Index destinatario notifica digitale
+              type: integer
+              format: int32
 
     Problem:
       $ref: './remote-refs.yaml#/components/schemas/Problem'
@@ -1074,12 +1089,12 @@ components:
     ###                              DTO NOTIFICA CON DETTAGLI                              ###
     ###########################################################################################
 
-    FullSentNotificationV26:
+    FullSentNotificationV27:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
         processo di inoltro della notifica verso il cittadino.
       allOf:
-        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotificationV24'
+        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotificationV25'
         - type: object
           required:
             - notificationStatus
@@ -1095,7 +1110,7 @@ components:
                 elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV26'
+                $ref: '#/components/schemas/TimelineElementV27'
             recipientIds:                                                               # NO EXTERNAL
               description: Lista degli identificativi anonimizzati dei destinatari      # NO EXTERNAL
               type: array                                                               # NO EXTERNAL
@@ -1211,8 +1226,8 @@ components:
           type: integer
           format: int32
 
-    TimelineElementV26:
-      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV26'
+    TimelineElementV27:
+      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV27'
     NotificationStatusV26:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatusV26'
     NotificationStatusHistoryV26:
