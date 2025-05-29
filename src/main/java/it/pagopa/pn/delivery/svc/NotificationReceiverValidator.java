@@ -177,8 +177,8 @@ public class NotificationReceiverValidator {
         return errors;
     }
 
-    private Set <ConstraintViolation<NewNotificationRequestV24>> checkPaymentAttachmentExtension(List<NotificationPaymentItem> payments) {
-        Set<ConstraintViolation<NewNotificationRequestV24>> violations = new HashSet<>();
+    private Set <ConstraintViolation<NewNotificationRequestV25>> checkPaymentAttachmentExtension(List<NotificationPaymentItem> payments) {
+        Set<ConstraintViolation<NewNotificationRequestV25>> violations = new HashSet<>();
         for (NotificationPaymentItem paymentItem : payments) {
             // Verifica per pagamenti F24
             if (paymentItem.getF24() != null) {
@@ -194,13 +194,13 @@ public class NotificationReceiverValidator {
         return violations;
     }
 
-    private void checkContentType(String contentType, String key, Set<ConstraintViolation<NewNotificationRequestV24>> violations) {
+    private void checkContentType(String contentType, String key, Set<ConstraintViolation<NewNotificationRequestV25>> violations) {
         if (APPLICATION_PDF_CONTENT_TYPE.equalsIgnoreCase(contentType) && (!key.contains(PN_NOTIFICATION_ATTACHMENTS) || key.endsWith(EXTENSION_JSON) )) {
-            ConstraintViolationImpl<NewNotificationRequestV24> violation = new ConstraintViolationImpl<>(String.format("Key: %s has an extension that does not conform to the expected content type: %s", key, contentType));
+            ConstraintViolationImpl<NewNotificationRequestV25> violation = new ConstraintViolationImpl<>(String.format("Key: %s has an extension that does not conform to the expected content type: %s", key, contentType));
             violations.add(violation);
         }
         if (APPLICATION_JSON_CONTENT_TYPE.equalsIgnoreCase(contentType) && (!key.contains(PN_F24_META) || key.endsWith(EXTENSION_PDF))) {
-            ConstraintViolationImpl<NewNotificationRequestV24> violation = new ConstraintViolationImpl<>(String.format("Key: %s has an extension that does not conform to the expected content type: %s", key, contentType));
+            ConstraintViolationImpl<NewNotificationRequestV25> violation = new ConstraintViolationImpl<>(String.format("Key: %s has an extension that does not conform to the expected content type: %s", key, contentType));
             violations.add(violation);
         }
     }
