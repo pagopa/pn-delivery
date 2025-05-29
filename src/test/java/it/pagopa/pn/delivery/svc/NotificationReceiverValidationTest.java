@@ -1124,7 +1124,7 @@ class NotificationReceiverValidationTest {
     @Test
     void newNotificationRequestWhitInvalidAttachmentContentType() {
         // GIVEN
-        NewNotificationRequestV24 n = newNotificationWithoutPayments();
+        NewNotificationRequestV25 n = newNotificationWithoutPayments();
         n.getRecipients().get(0).setPayments(List.of(NotificationPaymentItem.builder()
                         .pagoPa(PagoPaPayment.builder()
                                 .noticeCode("000000000000000000")
@@ -1139,8 +1139,8 @@ class NotificationReceiverValidationTest {
                 .build()));
 
         // WHEN
-        Set<ConstraintViolation<NewNotificationRequestV24>> errors;
-        errors = validator.checkNewNotificationRequestBeforeInsert(n);
+        Set<ConstraintViolation<NewNotificationRequestV25>> errors;
+        errors = validator.checkNewNotificationRequestBeforeInsert(n,"paId");
 
         // THEN
         assertConstraintViolationPresentByMessage(errors, "Key: invalid-key-extension.json has an extension that does not conform to the expected content type: application/pdf");
@@ -1149,7 +1149,7 @@ class NotificationReceiverValidationTest {
     @Test
     void newNotificationRequestWhitInvalidF24AttachmentContentType() {
         // GIVEN
-        NewNotificationRequestV24 n = newNotificationWithoutPayments();
+        NewNotificationRequestV25 n = newNotificationWithoutPayments();
         n.getRecipients().get(0).setPayments(List.of(NotificationPaymentItem.builder()
                 .f24(F24Payment.builder()
                         .applyCost(true)
@@ -1164,8 +1164,8 @@ class NotificationReceiverValidationTest {
                 .build()));
 
         // WHEN
-        Set<ConstraintViolation<NewNotificationRequestV24>> errors;
-        errors = validator.checkNewNotificationRequestBeforeInsert(n);
+        Set<ConstraintViolation<NewNotificationRequestV25>> errors;
+        errors = validator.checkNewNotificationRequestBeforeInsert(n, "paId");
 
         // THEN
         assertConstraintViolationPresentByMessage(errors, "Key: PN_F24_META_invalid-key.pdf has an extension that does not conform to the expected content type: application/json");
