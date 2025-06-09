@@ -459,14 +459,6 @@ class NotificationReceiverValidationTest {
         Assertions.assertEquals(0, errors.size());
     }
 
-    private static NotificationPhysicalAddress createPhysicalAddress() {
-        return NotificationPhysicalAddress.builder()
-                .address("address")
-                .zip("83100")
-                .municipality("municipality")
-                .build();
-    }
-
     @Test
     @Disabled
     void invalidRecipientTaxId() {
@@ -1104,7 +1096,7 @@ class NotificationReceiverValidationTest {
     @Test
     void newNotificationRequestWhitInvalidAttachmentContentType() {
         // GIVEN
-        NewNotificationRequestV24 n = newNotificationWithoutPayments();
+        NewNotificationRequestV25 n = newNotificationWithoutPayments();
         n.getRecipients().get(0).setPayments(List.of(NotificationPaymentItem.builder()
                 .pagoPa(PagoPaPayment.builder()
                         .noticeCode("000000000000000000")
@@ -1119,8 +1111,8 @@ class NotificationReceiverValidationTest {
                 .build()));
 
         // WHEN
-        Set<ConstraintViolation<NewNotificationRequestV24>> errors;
-        errors = validator.checkNewNotificationRequestBeforeInsert(n);
+        Set<ConstraintViolation<NewNotificationRequestV25>> errors;
+        errors = validator.checkNewNotificationRequestBeforeInsert(n, "paId");
 
         // THEN
         assertConstraintViolationPresentByMessage(errors, "Key: invalid-key-extension.json does not conform to the expected content type: application/pdf");
@@ -1129,7 +1121,7 @@ class NotificationReceiverValidationTest {
     @Test
     void newNotificationRequestWhitInvalidF24AttachmentContentType() {
         // GIVEN
-        NewNotificationRequestV24 n = newNotificationWithoutPayments();
+        NewNotificationRequestV25 n = newNotificationWithoutPayments();
         n.getRecipients().get(0).setPayments(List.of(NotificationPaymentItem.builder()
                 .f24(F24Payment.builder()
                         .applyCost(true)
@@ -1144,8 +1136,8 @@ class NotificationReceiverValidationTest {
                 .build()));
 
         // WHEN
-        Set<ConstraintViolation<NewNotificationRequestV24>> errors;
-        errors = validator.checkNewNotificationRequestBeforeInsert(n);
+        Set<ConstraintViolation<NewNotificationRequestV25>> errors;
+        errors = validator.checkNewNotificationRequestBeforeInsert(n, "paId");
 
         // THEN
         assertConstraintViolationPresentByMessage(errors, "Key: PN_F24_META_invalid-key.pdf does not conform to the expected content type: application/json");
@@ -1302,14 +1294,6 @@ class NotificationReceiverValidationTest {
         long actual = set.stream()
                 .filter(cv -> propertyPathToString(cv.getPropertyPath()).equals(propertyPath)).count();
         Assertions.assertEquals(expected, actual, "expected validation errors on " + propertyPath);
-    }
-
-
-    private void assertProblemErrorConstraintViolationPresentByField(List<ProblemError> set,
-                                                                     String propertyPath) {
-        long actual = set.stream()
-                .filter(cv -> cv.getElement() != null && cv.getElement().equals(propertyPath)).count();
-        Assertions.assertEquals(1, actual, "expected validation errors on " + propertyPath);
     }
 
     private static String propertyPathToString(Path propertyPath) {
@@ -1510,34 +1494,6 @@ class NotificationReceiverValidationTest {
                         .build())
                 .build();
     }
-
-  private FullSentNotificationV26 newFullSentNotification() {
-    return FullSentNotificationV26.builder().sentAt(OffsetDateTime.now()).iun(IUN)
-        .paProtocolNumber("protocol1").group("group_1").idempotenceToken("idempotenceToken")
-        .timeline(Collections.singletonList(TimelineElementV26.builder().build()))
-        .notificationStatus(NotificationStatusV26.ACCEPTED)
-        .documents(Collections.singletonList(NotificationDocument.builder()
-            .contentType(APPLICATION_PDF)
-            .ref(NotificationAttachmentBodyRef.builder().key(ATTACHMENT_KEY).versionToken(VERSION_TOKEN)
-                .build())
-            .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build()))
-        .recipients(Collections.singletonList(NotificationRecipientV23.builder()
-            .taxId("LVLDAA85T50G702B").recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
-            .denomination("Ada Lovelace")
-            .digitalDomicile(NotificationDigitalAddress.builder().address("indirizzo@pec.it")
-                .type(NotificationDigitalAddress.TypeEnum.PEC).build())
-                .physicalAddress( createPhysicalAddress() )
-                .build())
-        )
-        .notificationStatusHistory(Collections.singletonList(NotificationStatusHistoryElementV26
-            .builder().activeFrom(OffsetDateTime.now()).status(NotificationStatusV26.ACCEPTED)
-            .relatedTimelineElements(Collections.emptyList()).build()))
-        .senderDenomination("Comune di Milano").senderTaxId("01199250158").subject("subject_length")
-        .sourceChannel(X_PAGOPA_PN_SRC_CH)
-        .physicalCommunicationType(
-                FullSentNotificationV26.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
-        .build();
-  }
 
     private NotificationRecipientV24 badRecipientsNewNotification2() {
         return NotificationRecipientV24.builder().recipientType(NotificationRecipientV24.RecipientTypeEnum.PF)
