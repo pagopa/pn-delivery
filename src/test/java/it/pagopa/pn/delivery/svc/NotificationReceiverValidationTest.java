@@ -49,7 +49,10 @@ class NotificationReceiverValidationTest {
 
     public static final String SHA256_BODY = "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=";
     public static final String VERSION_TOKEN = "version_token";
-    public static final String KEY = "safestorage://PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG"; // or also PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG
+    public static final String APPLICATION_JSON = "application/json";
+    public static final String APPLICATION_PDF = "application/pdf";
+    public static final String ATTACHMENT_KEY = "PN_NOTIFICATION_ATTACHMENTS-af041e27d83d4c34bc36aae3b2451be8.pdf";
+    public static final String F24_METADATA_KEY= "PN_F24_META-f165ba5540fb40aa89a9ac393b52aea0.json";
     public static final String PHYSICAL_ADDRESS_VALIDATION_PATTERN = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ./ '-";
     public static final Integer PHYSICAL_ADDRESS_VALIDATION_LENGTH = 44;
 
@@ -177,8 +180,8 @@ class NotificationReceiverValidationTest {
         n.senderTaxId("12345678901");
         n.physicalCommunicationType(NewNotificationRequestV25.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
         n.documents(Collections.singletonList(NotificationDocument.builder()
-                .contentType("application/pdf")
-                .ref(NotificationAttachmentBodyRef.builder().key(KEY).versionToken(VERSION_TOKEN)
+                .contentType(APPLICATION_PDF)
+                .ref(NotificationAttachmentBodyRef.builder().key(ATTACHMENT_KEY).versionToken(VERSION_TOKEN)
                         .build())
                 .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build()));
 
@@ -204,8 +207,8 @@ class NotificationReceiverValidationTest {
         n.senderTaxId("12345678901");
         n.physicalCommunicationType(NewNotificationRequestV25.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
         n.documents(Collections.singletonList(NotificationDocument.builder()
-                .contentType("application/pdf")
-                .ref(NotificationAttachmentBodyRef.builder().key(KEY).versionToken(VERSION_TOKEN)
+                .contentType(APPLICATION_PDF)
+                .ref(NotificationAttachmentBodyRef.builder().key(ATTACHMENT_KEY).versionToken(VERSION_TOKEN)
                         .build())
                 .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build()));
 
@@ -238,8 +241,8 @@ class NotificationReceiverValidationTest {
         n.senderTaxId("12345678901");
         n.physicalCommunicationType(NewNotificationRequestV25.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
         n.documents(Collections.singletonList(NotificationDocument.builder()
-                .contentType("application/pdf")
-                .ref(NotificationAttachmentBodyRef.builder().key(KEY).versionToken(VERSION_TOKEN)
+                .contentType(APPLICATION_PDF)
+                .ref(NotificationAttachmentBodyRef.builder().key(ATTACHMENT_KEY).versionToken(VERSION_TOKEN)
                         .build())
                 .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build()));
 
@@ -271,8 +274,8 @@ class NotificationReceiverValidationTest {
         n.senderTaxId("12345678901");
         n.physicalCommunicationType(NewNotificationRequestV25.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
         n.documents(Collections.singletonList(NotificationDocument.builder()
-                .contentType("application/pdf")
-                .ref(NotificationAttachmentBodyRef.builder().key(KEY).versionToken(VERSION_TOKEN)
+                .contentType(APPLICATION_PDF)
+                .ref(NotificationAttachmentBodyRef.builder().key(ATTACHMENT_KEY).versionToken(VERSION_TOKEN)
                         .build())
                 .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build()));
 
@@ -310,8 +313,8 @@ class NotificationReceiverValidationTest {
         n.senderTaxId("12345678901");
         n.physicalCommunicationType(NewNotificationRequestV25.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
         n.documents(Collections.singletonList(NotificationDocument.builder()
-                .contentType("application/pdf")
-                .ref(NotificationAttachmentBodyRef.builder().key(KEY).versionToken(VERSION_TOKEN)
+                .contentType(APPLICATION_PDF)
+                .ref(NotificationAttachmentBodyRef.builder().key(ATTACHMENT_KEY).versionToken(VERSION_TOKEN)
                         .build())
                 .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build()));
 
@@ -337,8 +340,8 @@ class NotificationReceiverValidationTest {
         n.senderTaxId("12345678901");
         n.physicalCommunicationType(NewNotificationRequestV25.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
         n.documents(Collections.singletonList(NotificationDocument.builder()
-                .contentType("application/pdf")
-                .ref(NotificationAttachmentBodyRef.builder().key(KEY).versionToken(VERSION_TOKEN)
+                .contentType(APPLICATION_PDF)
+                .ref(NotificationAttachmentBodyRef.builder().key(ATTACHMENT_KEY).versionToken(VERSION_TOKEN)
                         .build())
                 .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build()));
 
@@ -370,8 +373,8 @@ class NotificationReceiverValidationTest {
         n.senderTaxId("12345678901");
         n.physicalCommunicationType(NewNotificationRequestV25.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
         n.documents(Collections.singletonList(NotificationDocument.builder()
-                .contentType("application/pdf")
-                .ref(NotificationAttachmentBodyRef.builder().key(KEY).versionToken(VERSION_TOKEN)
+                .contentType(APPLICATION_PDF)
+                .ref(NotificationAttachmentBodyRef.builder().key(ATTACHMENT_KEY).versionToken(VERSION_TOKEN)
                         .build())
                 .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build()));
 
@@ -979,9 +982,9 @@ class NotificationReceiverValidationTest {
     internalNotification.documents(List.of(it.pagopa.pn.delivery.models.internal.notification.NotificationDocument.builder()
             .ref( it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef.builder()
                     .versionToken( VERSION_TOKEN )
-                    .key( KEY )
+                    .key( ATTACHMENT_KEY )
                     .build() )
-            .contentType( "application/json" )
+            .contentType( APPLICATION_JSON )
             .build()));
     internalNotification.setRecipients(Collections.singletonList(
             NotificationRecipient.builder()
@@ -1096,6 +1099,56 @@ class NotificationReceiverValidationTest {
 
         // THEN
         assertConstraintViolationPresentByMessage(errors, "No province provided in physical address");
+    }
+
+    @Test
+    void newNotificationRequestWhitInvalidAttachmentContentType() {
+        // GIVEN
+        NewNotificationRequestV24 n = newNotificationWithoutPayments();
+        n.getRecipients().get(0).setPayments(List.of(NotificationPaymentItem.builder()
+                .pagoPa(PagoPaPayment.builder()
+                        .noticeCode("000000000000000000")
+                        .creditorTaxId("12345678901")
+                        .attachment(NotificationPaymentAttachment.builder()
+                                .ref(NotificationAttachmentBodyRef.builder()
+                                        .key("invalid-key-extension.json")
+                                        .build())
+                                .contentType(APPLICATION_PDF)
+                                .build())
+                        .build())
+                .build()));
+
+        // WHEN
+        Set<ConstraintViolation<NewNotificationRequestV24>> errors;
+        errors = validator.checkNewNotificationRequestBeforeInsert(n);
+
+        // THEN
+        assertConstraintViolationPresentByMessage(errors, "Key: invalid-key-extension.json does not conform to the expected content type: application/pdf");
+    }
+
+    @Test
+    void newNotificationRequestWhitInvalidF24AttachmentContentType() {
+        // GIVEN
+        NewNotificationRequestV24 n = newNotificationWithoutPayments();
+        n.getRecipients().get(0).setPayments(List.of(NotificationPaymentItem.builder()
+                .f24(F24Payment.builder()
+                        .applyCost(true)
+                        .title("test f24")
+                        .metadataAttachment(NotificationMetadataAttachment.builder()
+                                .contentType(APPLICATION_JSON)
+                                .ref(NotificationAttachmentBodyRef.builder()
+                                        .key("PN_F24_META_invalid-key.pdf")
+                                        .build())
+                                .build())
+                        .build())
+                .build()));
+
+        // WHEN
+        Set<ConstraintViolation<NewNotificationRequestV24>> errors;
+        errors = validator.checkNewNotificationRequestBeforeInsert(n);
+
+        // THEN
+        assertConstraintViolationPresentByMessage(errors, "Key: PN_F24_META_invalid-key.pdf does not conform to the expected content type: application/json");
     }
 
     @Test
@@ -1302,9 +1355,9 @@ class NotificationReceiverValidationTest {
                                 .title("title")
                                 .applyCost(false)
                                 .metadataAttachment(NotificationMetadataAttachment.builder()
-                                        .ref(NotificationAttachmentBodyRef.builder().versionToken(VERSION_TOKEN).key(KEY).build())
+                                        .ref(NotificationAttachmentBodyRef.builder().versionToken(VERSION_TOKEN).key(F24_METADATA_KEY).build())
                                         .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
-                                        .contentType("application/json")
+                                        .contentType(APPLICATION_JSON)
                                         .build())
                                 .build())
                         .build()))
@@ -1344,9 +1397,9 @@ class NotificationReceiverValidationTest {
                                 .title("title")
                                 .applyCost(false)
                                 .metadataAttachment(NotificationMetadataAttachment.builder()
-                                        .ref(NotificationAttachmentBodyRef.builder().versionToken(VERSION_TOKEN).key(KEY).build())
+                                        .ref(NotificationAttachmentBodyRef.builder().versionToken(VERSION_TOKEN).key(F24_METADATA_KEY).build())
                                         .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
-                                        .contentType("application/json")
+                                        .contentType(APPLICATION_JSON)
                                         .build())
                                 .build())
                         .build()))
@@ -1386,9 +1439,9 @@ class NotificationReceiverValidationTest {
                                 .title("title")
                                 .applyCost(false)
                                 .metadataAttachment(NotificationMetadataAttachment.builder()
-                                        .ref(NotificationAttachmentBodyRef.builder().versionToken(VERSION_TOKEN).key(KEY).build())
+                                        .ref(NotificationAttachmentBodyRef.builder().versionToken(VERSION_TOKEN).key(F24_METADATA_KEY).build())
                                         .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
-                                        .contentType("application/json")
+                                        .contentType(APPLICATION_JSON)
                                         .build())
                                 .build())
                         .build()))
@@ -1457,6 +1510,34 @@ class NotificationReceiverValidationTest {
                         .build())
                 .build();
     }
+
+  private FullSentNotificationV26 newFullSentNotification() {
+    return FullSentNotificationV26.builder().sentAt(OffsetDateTime.now()).iun(IUN)
+        .paProtocolNumber("protocol1").group("group_1").idempotenceToken("idempotenceToken")
+        .timeline(Collections.singletonList(TimelineElementV26.builder().build()))
+        .notificationStatus(NotificationStatusV26.ACCEPTED)
+        .documents(Collections.singletonList(NotificationDocument.builder()
+            .contentType(APPLICATION_PDF)
+            .ref(NotificationAttachmentBodyRef.builder().key(ATTACHMENT_KEY).versionToken(VERSION_TOKEN)
+                .build())
+            .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build()))
+        .recipients(Collections.singletonList(NotificationRecipientV23.builder()
+            .taxId("LVLDAA85T50G702B").recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
+            .denomination("Ada Lovelace")
+            .digitalDomicile(NotificationDigitalAddress.builder().address("indirizzo@pec.it")
+                .type(NotificationDigitalAddress.TypeEnum.PEC).build())
+                .physicalAddress( createPhysicalAddress() )
+                .build())
+        )
+        .notificationStatusHistory(Collections.singletonList(NotificationStatusHistoryElementV26
+            .builder().activeFrom(OffsetDateTime.now()).status(NotificationStatusV26.ACCEPTED)
+            .relatedTimelineElements(Collections.emptyList()).build()))
+        .senderDenomination("Comune di Milano").senderTaxId("01199250158").subject("subject_length")
+        .sourceChannel(X_PAGOPA_PN_SRC_CH)
+        .physicalCommunicationType(
+                FullSentNotificationV26.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
+        .build();
+  }
 
     private NotificationRecipientV24 badRecipientsNewNotification2() {
         return NotificationRecipientV24.builder().recipientType(NotificationRecipientV24.RecipientTypeEnum.PF)
@@ -1550,9 +1631,9 @@ class NotificationReceiverValidationTest {
                                 .title("title")
                                 .applyCost(false)
                                 .metadataAttachment(NotificationMetadataAttachment.builder()
-                                        .ref(NotificationAttachmentBodyRef.builder().versionToken(VERSION_TOKEN).key(KEY).build())
+                                        .ref(NotificationAttachmentBodyRef.builder().versionToken(VERSION_TOKEN).key(F24_METADATA_KEY).build())
                                         .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
-                                        .contentType("application/json")
+                                        .contentType(APPLICATION_JSON)
                                         .build())
                                 .build())
                         .build()))
@@ -1592,9 +1673,9 @@ class NotificationReceiverValidationTest {
                         .title("title")
                         .applyCost(true)
                         .metadataAttachment(NotificationMetadataAttachment.builder()
-                                .ref(NotificationAttachmentBodyRef.builder().versionToken(VERSION_TOKEN).key(KEY).build())
+                                .ref(NotificationAttachmentBodyRef.builder().versionToken(VERSION_TOKEN).key(F24_METADATA_KEY).build())
                                 .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
-                                .contentType("application/json")
+                                .contentType(APPLICATION_JSON)
                                 .build())
                         .build())
                 .build());
@@ -1848,7 +1929,7 @@ class NotificationReceiverValidationTest {
         NotificationDocument document = NotificationDocument.builder()
                 .ref(NotificationAttachmentBodyRef.builder().key("key1").versionToken("token").build())
                 .digests(NotificationAttachmentDigests.builder().sha256(sha256).build())
-                .contentType("application/pdf")
+                .contentType(APPLICATION_PDF)
                 .build();
         validRequest.addDocumentsItem(document);
 

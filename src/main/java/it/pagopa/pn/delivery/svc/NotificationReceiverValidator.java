@@ -49,6 +49,12 @@ public class NotificationReceiverValidator {
 
     private final FeatureFlagUtils featureFlagUtils;
     public static final String REQUIRED_ADDITIONAL_LANG_SIZE = "È obbligatorio fornire una sola lingua aggiuntiva.";
+    private static final String APPLICATION_PDF_CONTENT_TYPE = "application/pdf";
+    private static final String APPLICATION_JSON_CONTENT_TYPE = "application/json";
+    public static final String EXTENSION_PDF = ".pdf";
+    public static final String EXTENSION_JSON = ".json";
+    public static final String PN_NOTIFICATION_ATTACHMENTS = "PN_NOTIFICATION_ATTACHMENTS";
+    public static final String PN_F24_META = "PN_F24_META";
 
     public NotificationReceiverValidator(Validator validator, MVPParameterConsumer mvpParameterConsumer, ValidateUtils validateUtils, PnDeliveryConfigs pnDeliveryConfigs,
                                          AgenziaEntrateApi agenziaEntrateApi, PhysicalAddressLookupParameterConsumer physicalAddressLookupParameter, FeatureFlagUtils featureFlagUtils) {
@@ -148,6 +154,7 @@ public class NotificationReceiverValidator {
             if(recipient.getPayments() != null) {
                 errors.addAll(checkApplyCost(isNotificationFeePolicyDeliveryMode, recipient.getPayments()));
                 errors.addAll(checkIuvs(recipient.getPayments(), distinctIuvs, recIdx));
+                errors.addAll(checkPaymentAttachmentExtension(recipient.getPayments()));
             }
 
             if(!physicalAddressLookup || recipient.getPhysicalAddress() != null) {
@@ -168,6 +175,34 @@ public class NotificationReceiverValidator {
 
         errors.addAll(validator.validate( newNotificationRequestV25 ));
         return errors;
+    }
+
+    private Set <ConstraintViolation<NewNotificationRequestV24>> checkPaymentAttachmentExtension(List<NotificationPaymentItem> payments) {
+        Set<ConstraintViolation<NewNotificationRequestV24>> violations = new HashSet<>();
+        for (NotificationPaymentItem paymentItem : payments) {
+            // Verifica per pagamenti F24
+            if (paymentItem.getF24() != null) {
+                NotificationMetadataAttachment metadataAttachment = paymentItem.getF24().getMetadataAttachment();
+                checkContentType(metadataAttachment.getContentType(), metadataAttachment.getRef().getKey(), violations);
+            }
+            // Verifica per pagamenti PagoPA
+            else if (paymentItem.getPagoPa() != null && paymentItem.getPagoPa().getAttachment() != null) {
+                NotificationPaymentAttachment attachment = paymentItem.getPagoPa().getAttachment();
+                checkContentType(attachment.getContentType(), attachment.getRef().getKey(), violations);
+            }
+        }
+        return violations;
+    }
+
+    private void checkContentType(String contentType, String key, Set<ConstraintViolation<NewNotificationRequestV24>> violations) {
+        if (APPLICATION_PDF_CONTENT_TYPE.equalsIgnoreCase(contentType) && (!key.contains(PN_NOTIFICATION_ATTACHMENTS) || key.endsWith(EXTENSION_JSON) )) {
+            ConstraintViolationImpl<NewNotificationRequestV24> violation = new ConstraintViolationImpl<>(String.format("Key: %s does not conform to the expected content type: %s", key, contentType));
+            violations.add(violation);
+        }
+        if (APPLICATION_JSON_CONTENT_TYPE.equalsIgnoreCase(contentType) && (!key.contains(PN_F24_META) || key.endsWith(EXTENSION_PDF))) {
+            ConstraintViolationImpl<NewNotificationRequestV24> violation = new ConstraintViolationImpl<>(String.format("Key: %s does not conform to the expected content type: %s", key, contentType));
+            violations.add(violation);
+        }
     }
 
     /**
