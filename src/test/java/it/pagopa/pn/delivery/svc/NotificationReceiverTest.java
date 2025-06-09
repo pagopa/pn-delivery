@@ -56,14 +56,15 @@ class NotificationReceiverTest {
 	public static final String SHA256_BODY2 = "X8Q//3XIf4MXiE6LsTYQpkqj4xaPNHXhNkW/iqo1UCo=";
 	private static final String VERSION_TOKEN = "VERSION_TOKEN";
 	private static final String CONTENT_TYPE = "application/pdf";
-	private static final String KEY = "KEY";
+	private static final String PN_NOTIFICATION_ATTACHMENT_KEY = "PN_NOTIFICATION_ATTACHMENT-key.pdf";
+	private static final String PN_F24_META_KEY = "PN_F24_META-key.json";
 	private static final String PAID = "PAID";
 	private static final String IUN = "FAKE-FAKE-FAKE-202209-F-1";
 	private static NotificationDocument notificationReferredAttachment() {
 		return NotificationDocument.builder()
 				.ref( NotificationAttachmentBodyRef.builder()
 						.versionToken( VERSION_TOKEN )
-						.key( KEY )
+						.key( PN_NOTIFICATION_ATTACHMENT_KEY )
 						.build() )
 				.digests( NotificationAttachmentDigests.builder()
 						.sha256(SHA256_BODY)
@@ -855,7 +856,7 @@ class NotificationReceiverTest {
 								.build() )
 						.ref( NotificationAttachmentBodyRef.builder()
 								.versionToken( VERSION_TOKEN )
-								.key( KEY )
+								.key( PN_NOTIFICATION_ATTACHMENT_KEY )
 								.build() )
 						.build() ) )
 				.notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
@@ -919,7 +920,7 @@ class NotificationReceiverTest {
 							.title("title")
 							.applyCost(true)
 							.metadataAttachment(NotificationMetadataAttachment.builder()
-									.ref(NotificationAttachmentBodyRef.builder().versionToken(VERSION_TOKEN).key(KEY).build())
+									.ref(NotificationAttachmentBodyRef.builder().versionToken(VERSION_TOKEN).key(PN_F24_META_KEY).build())
 									.digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY2).build())
 									.contentType("application/json")
 									.build())
@@ -941,7 +942,7 @@ class NotificationReceiverTest {
 								.title("title")
 								.applyCost(false)
 								.metadataAttachment(NotificationMetadataAttachment.builder()
-										.ref(NotificationAttachmentBodyRef.builder().versionToken(VERSION_TOKEN).key(KEY).build())
+										.ref(NotificationAttachmentBodyRef.builder().versionToken(VERSION_TOKEN).key(PN_F24_META_KEY).build())
 										.digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY2).build())
 										.contentType("application/json")
 										.build())
