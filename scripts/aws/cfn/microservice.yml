@@ -1063,7 +1063,7 @@ Resources:
     Type: AWS::Lambda::LayerVersion
     Properties:
       CompatibleRuntimes:
-        - nodejs18.x
+        - nodejs22.x
       Content:
         S3Bucket: !Ref MicroserviceBucketName
         S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/insertTrigger_libs.zip"
@@ -1078,7 +1078,7 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda.yaml"
       Parameters:
         FunctionName: !Ref PnDeliveryInsertTriggerLambdaName
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Handler: "index.handler"
         MemorySize: 256
         Timeout: 10
@@ -1201,7 +1201,7 @@ Resources:
     Type: "AWS::Lambda::Function"
     Properties:
       Handler: index.handler
-      Runtime: nodejs20.x
+      Runtime: nodejs22.x
       FunctionName: !Ref PnDeliveryAsseverationLambdaName
       Description: "It triggers the asseveration written of sqs"
       MemorySize: !Ref PnDeliveryAsseverationLambdaMemory
@@ -1283,7 +1283,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Ref VersioningV1V2GetNotificationLambdaName
-      Runtime: nodejs18.x
+      Runtime: nodejs22.x
       Handler: "index.handler"
       Code:
         S3Bucket: !Ref MicroserviceBucketName
@@ -1379,7 +1379,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Ref VersioningV1V21SendNewNotificationLambdaName
-      Runtime: nodejs18.x
+      Runtime: nodejs22.x
       Handler: "index.handler"
       Code:
         S3Bucket: !Ref MicroserviceBucketName
@@ -1474,7 +1474,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Ref VersioningV1V21GetNotificationRequestStatusLambdaName
-      Runtime: nodejs18.x
+      Runtime: nodejs22.x
       Handler: "index.handler"
       Code:
         S3Bucket: !Ref MicroserviceBucketName
@@ -1569,7 +1569,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Ref VersioningV1V23GetNotificationPriceLambdaName
-      Runtime: nodejs18.x
+      Runtime: nodejs22.x
       Handler: "index.handler"
       Code:
         S3Bucket: !Ref MicroserviceBucketName
@@ -1664,7 +1664,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Ref MetadataStatusUpdaterLambdaName
-      Runtime: nodejs18.x
+      Runtime: nodejs22.x
       Handler: "index.handler"
       Code:
         S3Bucket: !Ref MicroserviceBucketName
@@ -1794,7 +1794,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Ref NotificationRefusedDispatcherLambdaName
-      Runtime: nodejs18.x
+      Runtime: nodejs22.x
       Handler: "index.handler"
       Code:
         S3Bucket: !Ref MicroserviceBucketName
@@ -1903,7 +1903,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Ref PaLimitCorrectionLambdaName
-      Runtime: nodejs20.x
+      Runtime: nodejs22.x
       Handler: "index.handler"
       Code:
         S3Bucket: !Ref MicroserviceBucketName
