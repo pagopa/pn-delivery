@@ -729,7 +729,7 @@ components:
         controllo, ovvero la seguente regexp: ^[ -{}~\u00A0-ÿ]*$
       type: string
       minLength: 1
-      maxLength: 44
+      maxLength: 80
       pattern: ^.*$
     NotificationDigitalAddress:
       description: Indirizzo di invio della notifica
