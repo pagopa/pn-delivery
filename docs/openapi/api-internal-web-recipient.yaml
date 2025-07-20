@@ -386,9 +386,9 @@ components:
             - timeline
           properties:
             notificationStatus:
-              $ref: '#/components/schemas/NotificationStatusV26'
+              $ref: '#/components/schemas/NotificationStatusV28'
             notificationStatusHistory:
-              $ref: '#/components/schemas/NotificationStatusHistoryV26'
+              $ref: '#/components/schemas/NotificationStatusHistoryV28'
             timeline:
               description: >-
                 elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica
@@ -401,10 +401,10 @@ components:
     
     TimelineElementV28:
       $ref: './remote-refs.yaml#/components/schemas/TimelineElementV28'
-    NotificationStatusV26:
-      $ref: './remote-refs.yaml#/components/schemas/NotificationStatusV26'
-    NotificationStatusHistoryV26:
-      $ref: './remote-refs.yaml#/components/schemas/NotificationStatusHistoryV26'
+    NotificationStatusV28:
+      $ref: './remote-refs.yaml#/components/schemas/NotificationStatusV28'
+    NotificationStatusHistoryV28:
+      $ref: './remote-refs.yaml#/components/schemas/NotificationStatusHistoryV28'
 
     RequestCheckAarMandateDto:
       description: Le informazioni fornite per verificare l'AAR-QR-CodeValue

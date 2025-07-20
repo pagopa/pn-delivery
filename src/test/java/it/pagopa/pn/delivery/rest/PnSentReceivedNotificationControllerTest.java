@@ -73,7 +73,7 @@ class PnSentReceivedNotificationControllerTest {
 	private static final String SENDER_ID = "CSRGGL44L13H501E";
 	private static final String START_DATE = "2021-09-17T00:00:00.000Z";
 	private static final String END_DATE = "2021-09-18T00:00:00.000Z";
-	private static final NotificationStatusV26 STATUS = NotificationStatusV26.IN_VALIDATION;
+	private static final NotificationStatusV28 STATUS = NotificationStatusV28.IN_VALIDATION;
 	private static final String RECIPIENT_ID = "CGNNMO80A01H501M";
 	public static final List<String> GROUPS = List.of("Group1", "Group2");
 	public static final String DELIVERY_REQUESTS_PATH = "/delivery/v2.5/requests";
@@ -128,7 +128,7 @@ class PnSentReceivedNotificationControllerTest {
 	void getSentNotificationNotFoundCauseIN_VALIDATION() {
 		// Given
 		InternalNotification notification = newNotification();
-		notification.setNotificationStatus( NotificationStatusV26.IN_VALIDATION );
+		notification.setNotificationStatus( NotificationStatusV28.IN_VALIDATION );
 
 		// When
 		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( anyString(), anyString(), anyList() ) ).thenReturn( notification );
@@ -155,7 +155,7 @@ class PnSentReceivedNotificationControllerTest {
 	void getSentNotificationNotFoundCauseREFUSED() {
 		// Given
 		InternalNotification notification = newNotification();
-		notification.setNotificationStatus( NotificationStatusV26.REFUSED );
+		notification.setNotificationStatus( NotificationStatusV28.REFUSED );
 
 		// When
 		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( anyString(), anyString(), anyList() ) ).thenReturn( notification );
@@ -497,8 +497,8 @@ class PnSentReceivedNotificationControllerTest {
 		// Given
 
 		InternalNotification notification = newNotification();
-		notification.setNotificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElementV26.builder()
-						.status( NotificationStatusV26.REFUSED )
+		notification.setNotificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElementV28.builder()
+						.status( NotificationStatusV28.REFUSED )
 				.build() ) );
 		notification.setTimeline( Collections.singletonList( TimelineElementV28.builder()
 						.category( TimelineElementCategoryV28.REQUEST_REFUSED )
@@ -1334,7 +1334,7 @@ class PnSentReceivedNotificationControllerTest {
 		internalNotification.setCancelledIun("IUN_05");
 		internalNotification.setCancelledIun("IUN_00");
 		internalNotification.setSenderPaId("PA_ID");
-		internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
+		internalNotification.setNotificationStatus(NotificationStatusV28.ACCEPTED);
 		internalNotification.setRecipients(Collections.singletonList(
 				NotificationRecipient.builder()
 						.taxId("Codice Fiscale 01")

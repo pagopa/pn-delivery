@@ -670,7 +670,7 @@ public class NotificationRetrieverService {
 
 		log.debug( "Retrieve status history for notification created at={}", createdAt );
 
-		List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusHistoryElementV26> statusHistory = timelineStatusHistoryDto.getNotificationStatusHistory();
+		List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusHistoryElementV28> statusHistory = timelineStatusHistoryDto.getNotificationStatusHistory();
 
 		assert statusHistory != null;
 		assert timelineList != null;
@@ -680,10 +680,10 @@ public class NotificationRetrieverService {
 						.map( timelineElement -> modelMapper.map(timelineElement, TimelineElementV28.class ) )
 						.toList()  )
 				.notificationStatusHistory( statusHistory.stream()
-						.map( el -> modelMapper.map( el, NotificationStatusHistoryElementV26.class ))
+						.map( el -> modelMapper.map( el, NotificationStatusHistoryElementV28.class ))
 						.toList()
 				)
-				.notificationStatus( NotificationStatusV26.fromValue( timelineStatusHistoryDto.getNotificationStatus().getValue() ));
+				.notificationStatus( NotificationStatusV28.fromValue( timelineStatusHistoryDto.getNotificationStatus().getValue() ));
 	}
 
 

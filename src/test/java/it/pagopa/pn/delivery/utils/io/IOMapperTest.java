@@ -348,8 +348,8 @@ class IOMapperTest {
                 .title(title)
                 .build()));
         internalNotification.setNotificationStatusHistory(List.of(
-                it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusHistoryElementV26.builder()
-                        .status(NotificationStatusV26.ACCEPTED)
+                it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusHistoryElementV28.builder()
+                        .status(NotificationStatusV28.ACCEPTED)
                         .build()
         ));
         internalNotification.setRecipients(
@@ -370,7 +370,7 @@ class IOMapperTest {
         internalNotification.setSenderPaId("PA_ID");
         internalNotification.setAbstract("ABSTRACT");
         internalNotification.setSenderDenomination("SENDERDENOMINATION");
-        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
+        internalNotification.setNotificationStatus(NotificationStatusV28.ACCEPTED);
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()
                         .recipientType(NotificationRecipientV24.RecipientTypeEnum.PF)

@@ -101,8 +101,8 @@ class DtoToEntityNotificationMapperTest {
         actualInternalNotification.idempotenceToken("ABC123");
         actualInternalNotification.iun("Iun");
         actualInternalNotification.notificationFeePolicy(NotificationFeePolicy.FLAT_RATE);
-        actualInternalNotification.notificationStatus(NotificationStatusV26.IN_VALIDATION);
-        ArrayList<NotificationStatusHistoryElementV26> notificationStatusHistory = new ArrayList<>();
+        actualInternalNotification.notificationStatus(NotificationStatusV28.IN_VALIDATION);
+        ArrayList<NotificationStatusHistoryElementV28> notificationStatusHistory = new ArrayList<>();
         actualInternalNotification.notificationStatusHistory(notificationStatusHistory);
         actualInternalNotification.paProtocolNumber("42");
         actualInternalNotification.paymentExpirationDate("2020-03-01");
@@ -127,8 +127,8 @@ class DtoToEntityNotificationMapperTest {
         actualInternalNotification.setIdempotenceToken("ABC123");
         actualInternalNotification.setIun("Iun");
         actualInternalNotification.setNotificationFeePolicy(NotificationFeePolicy.FLAT_RATE);
-        actualInternalNotification.setNotificationStatus(NotificationStatusV26.IN_VALIDATION);
-        ArrayList<NotificationStatusHistoryElementV26> notificationStatusHistory2 = new ArrayList<>();
+        actualInternalNotification.setNotificationStatus(NotificationStatusV28.IN_VALIDATION);
+        ArrayList<NotificationStatusHistoryElementV28> notificationStatusHistory2 = new ArrayList<>();
         actualInternalNotification.setNotificationStatusHistory(notificationStatusHistory2);
         actualInternalNotification.setPaProtocolNumber("42");
         actualInternalNotification.setPaymentExpirationDate("2020-03-01");
@@ -166,7 +166,7 @@ class DtoToEntityNotificationMapperTest {
         assertEquals("ABC123", actualInternalNotification.getIdempotenceToken());
         assertEquals("Iun", actualInternalNotification.getIun());
         assertEquals(NotificationFeePolicy.FLAT_RATE, actualInternalNotification.getNotificationFeePolicy());
-        assertEquals(NotificationStatusV26.IN_VALIDATION, actualInternalNotification.getNotificationStatus());
+        assertEquals(NotificationStatusV28.IN_VALIDATION, actualInternalNotification.getNotificationStatus());
         assertEquals("42", actualInternalNotification.getPaProtocolNumber());
         assertEquals("2020-03-01", actualInternalNotification.getPaymentExpirationDate());
         assertEquals(FullSentNotificationV28.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER,
@@ -195,7 +195,7 @@ class DtoToEntityNotificationMapperTest {
         internalNotification.setCancelledIun("IUN_05");
         internalNotification.setCancelledIun("IUN_00");
         internalNotification.setSenderPaId("PA_ID");
-        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
+        internalNotification.setNotificationStatus(NotificationStatusV28.ACCEPTED);
         internalNotification.setPaFee(0);
         internalNotification.setVat(VAT);
         internalNotification.setNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
