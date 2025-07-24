@@ -4,7 +4,7 @@ import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV28;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
@@ -167,7 +167,7 @@ public class NotificationDelegationMetadataEntityDaoDynamo
                 .build());
     }
 
-    private void addStatusFilterExpression(List<NotificationStatusV26> status,
+    private void addStatusFilterExpression(List<NotificationStatusV28> status,
                                            Expression.Builder filterExpressionBuilder,
                                            StringBuilder expressionBuilder) {
         if (CollectionUtils.isEmpty(status)) {

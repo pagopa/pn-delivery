@@ -4,7 +4,7 @@ import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.delivery.LocalStackTestConfig;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.BaseRecipientDto;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV28;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
@@ -149,7 +149,7 @@ class NotificationDelegationMetadataEntityDaoDynamoIT {
                 .delegateId("delegateId")
                 .startDate(Instant.now().minus(1, ChronoUnit.DAYS))
                 .endDate(Instant.now())
-                .statuses(List.of(NotificationStatusV26.ACCEPTED))
+                .statuses(List.of(NotificationStatusV28.ACCEPTED))
                 .senderId("senderId")
                 .receiverId("receiverId")
                 .size(10)

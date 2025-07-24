@@ -28,7 +28,7 @@ public class InternalNotification {
     private List<NotificationDocument> documents;
     private NotificationFeePolicy notificationFeePolicy;
     private String cancelledIun;
-    private FullSentNotificationV27.PhysicalCommunicationTypeEnum physicalCommunicationType;
+    private FullSentNotificationV28.PhysicalCommunicationTypeEnum physicalCommunicationType;
     private String senderDenomination;
     private String senderTaxId;
     private String group;
@@ -42,9 +42,9 @@ public class InternalNotification {
     private OffsetDateTime sentAt;
     private String cancelledByIun;
     private Boolean documentsAvailable;
-    private NotificationStatusV26 notificationStatus;
-    private List<NotificationStatusHistoryElementV26> notificationStatusHistory;
-    private List<TimelineElementV27> timeline;
+    private NotificationStatusV28 notificationStatus;
+    private List<NotificationStatusHistoryElementV28> notificationStatusHistory;
+    private List<TimelineElementV28> timeline;
     private List<String> recipientIds;
     private String sourceChannel;
     private String sourceChannelDetails;
@@ -173,16 +173,16 @@ public class InternalNotification {
         this.cancelledIun = cancelledIun;
     }
 
-    public InternalNotification physicalCommunicationType(FullSentNotificationV27.PhysicalCommunicationTypeEnum physicalCommunicationType) {
+    public InternalNotification physicalCommunicationType(FullSentNotificationV28.PhysicalCommunicationTypeEnum physicalCommunicationType) {
         this.physicalCommunicationType = physicalCommunicationType;
         return this;
     }
 
-    public FullSentNotificationV27.PhysicalCommunicationTypeEnum getPhysicalCommunicationType() {
+    public FullSentNotificationV28.PhysicalCommunicationTypeEnum getPhysicalCommunicationType() {
         return physicalCommunicationType;
     }
 
-    public void setPhysicalCommunicationType(FullSentNotificationV27.PhysicalCommunicationTypeEnum physicalCommunicationType) {
+    public void setPhysicalCommunicationType(FullSentNotificationV28.PhysicalCommunicationTypeEnum physicalCommunicationType) {
         this.physicalCommunicationType = physicalCommunicationType;
     }
 
@@ -341,7 +341,7 @@ public class InternalNotification {
         this.documentsAvailable = documentsAvailable;
     }
 
-    public InternalNotification notificationStatus(NotificationStatusV26 notificationStatus) {
+    public InternalNotification notificationStatus(NotificationStatusV28 notificationStatus) {
         this.notificationStatus = notificationStatus;
         return this;
     }
@@ -351,20 +351,20 @@ public class InternalNotification {
      *
      * @return notificationStatus
      */
-    public NotificationStatusV26 getNotificationStatus() {
+    public NotificationStatusV28 getNotificationStatus() {
         return notificationStatus;
     }
 
-    public void setNotificationStatus(NotificationStatusV26 notificationStatus) {
+    public void setNotificationStatus(NotificationStatusV28 notificationStatus) {
         this.notificationStatus = notificationStatus;
     }
 
-    public InternalNotification notificationStatusHistory(List<NotificationStatusHistoryElementV26> notificationStatusHistory) {
+    public InternalNotification notificationStatusHistory(List<NotificationStatusHistoryElementV28> notificationStatusHistory) {
         this.notificationStatusHistory = notificationStatusHistory;
         return this;
     }
 
-    public InternalNotification addNotificationStatusHistoryItem(NotificationStatusHistoryElementV26 notificationStatusHistoryItem) {
+    public InternalNotification addNotificationStatusHistoryItem(NotificationStatusHistoryElementV28 notificationStatusHistoryItem) {
         if (this.notificationStatusHistory == null) {
             this.notificationStatusHistory = new ArrayList<>();
         }
@@ -377,20 +377,20 @@ public class InternalNotification {
      *
      * @return notificationStatusHistory
      */
-    public List<NotificationStatusHistoryElementV26> getNotificationStatusHistory() {
+    public List<NotificationStatusHistoryElementV28> getNotificationStatusHistory() {
         return notificationStatusHistory;
     }
 
-    public void setNotificationStatusHistory(List<NotificationStatusHistoryElementV26> notificationStatusHistory) {
+    public void setNotificationStatusHistory(List<NotificationStatusHistoryElementV28> notificationStatusHistory) {
         this.notificationStatusHistory = notificationStatusHistory;
     }
 
-    public InternalNotification timeline(List<TimelineElementV27> timeline) {
+    public InternalNotification timeline(List<TimelineElementV28> timeline) {
         this.timeline = timeline;
         return this;
     }
 
-    public InternalNotification addTimelineItem(TimelineElementV27 timelineItem) {
+    public InternalNotification addTimelineItem(TimelineElementV28 timelineItem) {
         if (this.timeline == null) {
             this.timeline = new ArrayList<>();
         }
@@ -398,11 +398,11 @@ public class InternalNotification {
         return this;
     }
 
-    public List<TimelineElementV27> getTimeline() {
+    public List<TimelineElementV28> getTimeline() {
         return timeline;
     }
 
-    public void setTimeline(List<TimelineElementV27> timeline) {
+    public void setTimeline(List<TimelineElementV28> timeline) {
         this.timeline = timeline;
     }
 

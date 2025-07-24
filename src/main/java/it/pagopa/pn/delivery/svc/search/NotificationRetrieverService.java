@@ -432,15 +432,15 @@ public class NotificationRetrieverService {
 		return getNotificationInformation(iun, withTimeline, requestBySender, null);
 	}
 
-	protected OffsetDateTime findRefinementDate(List<TimelineElementV27> timeline, String iun) {
+	protected OffsetDateTime findRefinementDate(List<TimelineElementV28> timeline, String iun) {
 		log.debug( "Find refinement date iun={}", iun );
 		OffsetDateTime refinementDate = null;
 		// cerco elemento timeline con category refinement o notificationView
-		Optional<TimelineElementV27> optionalMin = timeline
+		Optional<TimelineElementV28> optionalMin = timeline
 				.stream()
-				.filter(tle -> TimelineElementCategoryV27.REFINEMENT.equals(tle.getCategory() )
-						|| TimelineElementCategoryV27.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
-				.min( Comparator.comparing(TimelineElementV27::getTimestamp) );
+				.filter(tle -> TimelineElementCategoryV28.REFINEMENT.equals(tle.getCategory() )
+						|| TimelineElementCategoryV28.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
+				.min( Comparator.comparing(TimelineElementV28::getTimestamp) );
 		// se trovo la data di perfezionamento della notifica
 		if (optionalMin.isPresent()) {
 			refinementDate = refinementLocalDateUtils.setLocalRefinementDate(optionalMin.get());
@@ -527,10 +527,10 @@ public class NotificationRetrieverService {
 		if (!CxType.PA.name().equals(internalAuthHeader.cxType())) {
 			//se il servizio è invocato da un destinatario, devo filtrare la timeline solo per lo specifico destinatario (o suo delegato)
 			//filtro (cyType != PA) superfluo poiché attualmente il servizio è invocato solo lato destinatario
-			List<TimelineElementV27> timeline = internalNotification.getTimeline();
+			List<TimelineElementV28> timeline = internalNotification.getTimeline();
 			log.debug("Timelines size before filter: {}", timeline.size());
 
-			List<TimelineElementV27> filteredTimelineElements = timeline.stream().filter(timelineElement -> timelineElement.getDetails() == null ||
+			List<TimelineElementV28> filteredTimelineElements = timeline.stream().filter(timelineElement -> timelineElement.getDetails() == null ||
 							timelineElement.getDetails().getRecIndex() == null ||
 							timelineElement.getDetails().getRecIndex() == recipientIndex)
 					.toList();
@@ -670,20 +670,20 @@ public class NotificationRetrieverService {
 
 		log.debug( "Retrieve status history for notification created at={}", createdAt );
 
-		List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusHistoryElementV26> statusHistory = timelineStatusHistoryDto.getNotificationStatusHistory();
+		List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusHistoryElementV28> statusHistory = timelineStatusHistoryDto.getNotificationStatusHistory();
 
 		assert statusHistory != null;
 		assert timelineList != null;
 		assert timelineStatusHistoryDto.getNotificationStatus() != null;
 		return notification
 				.timeline( timelineList.stream()
-						.map( timelineElement -> modelMapper.map(timelineElement, TimelineElementV27.class ) )
+						.map( timelineElement -> modelMapper.map(timelineElement, TimelineElementV28.class ) )
 						.toList()  )
 				.notificationStatusHistory( statusHistory.stream()
-						.map( el -> modelMapper.map( el, NotificationStatusHistoryElementV26.class ))
+						.map( el -> modelMapper.map( el, NotificationStatusHistoryElementV28.class ))
 						.toList()
 				)
-				.notificationStatus( NotificationStatusV26.fromValue( timelineStatusHistoryDto.getNotificationStatus().getValue() ));
+				.notificationStatus( NotificationStatusV28.fromValue( timelineStatusHistoryDto.getNotificationStatus().getValue() ));
 	}
 
 
@@ -760,8 +760,8 @@ public class NotificationRetrieverService {
 	}
 
 	public boolean isNotificationCancelled(InternalNotification notification) {
-		var cancellationRequestCategory = TimelineElementCategoryV27.NOTIFICATION_CANCELLATION_REQUEST;
-		Optional<TimelineElementV27> cancellationRequestTimeline = notification.getTimeline().stream()
+		var cancellationRequestCategory = TimelineElementCategoryV28.NOTIFICATION_CANCELLATION_REQUEST;
+		Optional<TimelineElementV28> cancellationRequestTimeline = notification.getTimeline().stream()
 				.filter(timelineElement -> cancellationRequestCategory.toString().equals(timelineElement.getCategory().toString()))
 				.findFirst();
 		boolean cancellationTimelineIsPresent = cancellationRequestTimeline.isPresent();

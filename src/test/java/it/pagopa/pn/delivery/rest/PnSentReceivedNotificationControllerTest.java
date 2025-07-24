@@ -73,12 +73,12 @@ class PnSentReceivedNotificationControllerTest {
 	private static final String SENDER_ID = "CSRGGL44L13H501E";
 	private static final String START_DATE = "2021-09-17T00:00:00.000Z";
 	private static final String END_DATE = "2021-09-18T00:00:00.000Z";
-	private static final NotificationStatusV26 STATUS = NotificationStatusV26.IN_VALIDATION;
+	private static final NotificationStatusV28 STATUS = NotificationStatusV28.IN_VALIDATION;
 	private static final String RECIPIENT_ID = "CGNNMO80A01H501M";
 	public static final List<String> GROUPS = List.of("Group1", "Group2");
 	public static final String DELIVERY_REQUESTS_PATH = "/delivery/v2.5/requests";
-	public static final String DELIVERY_RECEIVED_PATH = "/delivery/v2.6/notifications/received/";
-	public static final String DELIVERY_SENT_PATH = "/delivery/v2.7/notifications/sent/";
+	public static final String DELIVERY_RECEIVED_PATH = "/delivery/v2.7/notifications/received/";
+	public static final String DELIVERY_SENT_PATH = "/delivery/v2.8/notifications/sent/";
 
 	@Autowired
     WebTestClient webTestClient;
@@ -119,7 +119,7 @@ class PnSentReceivedNotificationControllerTest {
 			.exchange()
 			.expectStatus()
 			.isOk()
-			.expectBody(FullSentNotificationV27.class);
+			.expectBody(FullSentNotificationV28.class);
 		
 		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck(IUN, PA_ID, GROUPS);
 	}
@@ -128,7 +128,7 @@ class PnSentReceivedNotificationControllerTest {
 	void getSentNotificationNotFoundCauseIN_VALIDATION() {
 		// Given
 		InternalNotification notification = newNotification();
-		notification.setNotificationStatus( NotificationStatusV26.IN_VALIDATION );
+		notification.setNotificationStatus( NotificationStatusV28.IN_VALIDATION );
 
 		// When
 		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( anyString(), anyString(), anyList() ) ).thenReturn( notification );
@@ -155,7 +155,7 @@ class PnSentReceivedNotificationControllerTest {
 	void getSentNotificationNotFoundCauseREFUSED() {
 		// Given
 		InternalNotification notification = newNotification();
-		notification.setNotificationStatus( NotificationStatusV26.REFUSED );
+		notification.setNotificationStatus( NotificationStatusV28.REFUSED );
 
 		// When
 		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( anyString(), anyString(), anyList() ) ).thenReturn( notification );
@@ -207,7 +207,7 @@ class PnSentReceivedNotificationControllerTest {
 
 	@Test
 	void testTimeLine(){
-		TimelineElementDetailsV27 actualTimelineElementDetails = new TimelineElementDetailsV27();
+		TimelineElementDetailsV28 actualTimelineElementDetails = new TimelineElementDetailsV28();
 		actualTimelineElementDetails.aarKey("Aar Key");
 		actualTimelineElementDetails.amount(10);
 		actualTimelineElementDetails.analogCost(1);
@@ -394,7 +394,7 @@ class PnSentReceivedNotificationControllerTest {
 		testingTimeLine3(actualTimelineElementDetails);
 	}
 
-	void testingTimeLine3(TimelineElementDetailsV27 actualTimelineElementDetails){
+	void testingTimeLine3(TimelineElementDetailsV28 actualTimelineElementDetails){
 		assertNotNull(actualTimelineElementDetails.getLegalFactGenerationDate());
 		assertEquals("42", actualTimelineElementDetails.getLegalFactId());
 		assertEquals("42", actualTimelineElementDetails.getLegalfactId());
@@ -426,7 +426,7 @@ class PnSentReceivedNotificationControllerTest {
 		assertEquals(RecipientType.PF, actualTimelineElementDetails.getRecipientType());
 	}
 
-	void testingTimeLine2(TimelineElementDetailsV27 actualTimelineElementDetails){
+	void testingTimeLine2(TimelineElementDetailsV28 actualTimelineElementDetails){
 		assertEquals("Aar Key", actualTimelineElementDetails.getAarKey());
 		assertEquals(10, actualTimelineElementDetails.getAmount().intValue());
 		assertEquals(1, actualTimelineElementDetails.getAnalogCost().intValue());
@@ -450,12 +450,12 @@ class PnSentReceivedNotificationControllerTest {
 		assertNotNull(actualTimelineElementDetails.getLastAttemptDate());
 		assertEquals("Registered Letter Code", actualTimelineElementDetails.getRegisteredLetterCode());
 		assertEquals("42", actualTimelineElementDetails.getRelatedRequestId());
-		TimelineElementDetailsV27 actualIsAvailableResult = actualTimelineElementDetails.isAvailable(true);
+		TimelineElementDetailsV28 actualIsAvailableResult = actualTimelineElementDetails.isAvailable(true);
 		assertSame(actualTimelineElementDetails, actualIsAvailableResult);
 		assertEquals("Notice Code", actualTimelineElementDetails.getNoticeCode());
 	}
 
-	void testingTimeLine1(TimelineElementDetailsV27 timelineElementDetails){
+	void testingTimeLine1(TimelineElementDetailsV28 timelineElementDetails){
 		Assertions.assertNotNull(timelineElementDetails.getLegalFactId());
 		Assertions.assertNotNull(timelineElementDetails.getNormalizedAddress());
 		Assertions.assertNotNull(timelineElementDetails.getGeneratedAarUrl());
@@ -473,7 +473,7 @@ class PnSentReceivedNotificationControllerTest {
 		Assertions.assertNotNull(timelineElementDetails.getRaddTransactionId());
 	}
 
-	void testingTimeLine(TimelineElementDetailsV27 timelineElementDetails){
+	void testingTimeLine(TimelineElementDetailsV28 timelineElementDetails){
 		Assertions.assertNotNull(timelineElementDetails.getResponseStatus());
 		Assertions.assertNotNull(timelineElementDetails.getNextLastAttemptMadeForSource());
 		Assertions.assertNotNull(timelineElementDetails.getNextSourceAttemptsMade());
@@ -497,12 +497,12 @@ class PnSentReceivedNotificationControllerTest {
 		// Given
 
 		InternalNotification notification = newNotification();
-		notification.setNotificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElementV26.builder()
-						.status( NotificationStatusV26.REFUSED )
+		notification.setNotificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElementV28.builder()
+						.status( NotificationStatusV28.REFUSED )
 				.build() ) );
-		notification.setTimeline( Collections.singletonList( TimelineElementV27.builder()
-						.category( TimelineElementCategoryV27.REQUEST_REFUSED )
-						.details( TimelineElementDetailsV27.builder()
+		notification.setTimeline( Collections.singletonList( TimelineElementV28.builder()
+						.category( TimelineElementCategoryV28.REQUEST_REFUSED )
+						.details( TimelineElementDetailsV28.builder()
 								.refusalReasons( Collections.singletonList( NotificationRefusedErrorV27.builder()
 												.errorCode( "FILE_NOTFOUND" )
 												.detail( "Allegato non trovato. fileKey=81dde2a8-9719-4407-b7b3-63e7ea694869" )
@@ -640,7 +640,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody(FullReceivedNotificationV26.class);
+				.expectBody(FullReceivedNotificationV27.class);
 
 		Mockito.verify(svc).getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
 	}
@@ -692,7 +692,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody(FullReceivedNotificationV26.class);
+				.expectBody(FullReceivedNotificationV27.class);
 
 		Mockito.verify(svc).getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, MANDATE_ID);
 	}
@@ -1334,7 +1334,7 @@ class PnSentReceivedNotificationControllerTest {
 		internalNotification.setCancelledIun("IUN_05");
 		internalNotification.setCancelledIun("IUN_00");
 		internalNotification.setSenderPaId("PA_ID");
-		internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
+		internalNotification.setNotificationStatus(NotificationStatusV28.ACCEPTED);
 		internalNotification.setRecipients(Collections.singletonList(
 				NotificationRecipient.builder()
 						.taxId("Codice Fiscale 01")
