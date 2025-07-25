@@ -41,6 +41,7 @@ paths:
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathAttachmentName'
         - $ref: '#/components/parameters/attachmentIdx'
+        - $ref: '#/components/parameters/queryMandateId'
         - $ref: '#/components/parameters/cxTaxIdAuthFleet'                                     # ONLY EXTERNAL
         - $ref: '#/components/parameters/lollipopOriginalUrl'                                     # ONLY EXTERNAL
         - $ref: '#/components/parameters/lollipopOriginalMethod'                                  # ONLY EXTERNAL
@@ -82,6 +83,7 @@ paths:
       operationId: getReceivedNotification
       parameters:
         - $ref: 'parameters-notification-search.yaml#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/queryMandateId'
         - $ref: '#/components/parameters/cxTaxIdAuthFleet'                                        # ONLY EXTERNAL
         - $ref: '#/components/parameters/lollipopOriginalUrl'                                     # ONLY EXTERNAL
         - $ref: '#/components/parameters/lollipopOriginalMethod'                                  # ONLY EXTERNAL
@@ -115,6 +117,7 @@ paths:
       parameters:
         - $ref: 'parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: 'api-internal-b2b-pa.yaml#/components/parameters/pathDocumentIdx'
+        - $ref: '#/components/parameters/queryMandateId'
         - $ref: '#/components/parameters/cxTaxIdAuthFleet'                                     # ONLY EXTERNAL
         - $ref: '#/components/parameters/lollipopOriginalUrl'                                     # ONLY EXTERNAL
         - $ref: '#/components/parameters/lollipopOriginalMethod'                                  # ONLY EXTERNAL
@@ -140,6 +143,57 @@ paths:
                 $ref: '#/components/schemas/Problem'
         '404':
           description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  "/delivery/notifications/received/check-aar-qr-code":
+    post:
+      description: |-
+        Servizio per la verifica accesso rapido
+      summary: servizio per la verifica del aar-qr-code
+      tags:
+        - AppIO-PN-Notification
+      operationId: checkAarQrCodeIO
+      parameters:
+        - $ref: '#/components/parameters/cxTaxIdAuthFleet'                                         # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopOriginalUrl'                                     # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopOriginalMethod'                                  # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopPublicKey'                                       # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopAssertionRef'                                    # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopAssertionType'                                   # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopAuthJwt'                                         # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopUserId'                                          # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopSignatureInput'                                  # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopSignature'                                       # ONLY EXTERNAL
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestCheckAarMandateDto"
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseCheckAarMandateDto"
+        '400':
+          description: QrCode value invalid
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: User not authorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: QrCode reference Not Found
           content:
             application/problem+json:
               schema:
@@ -193,6 +247,15 @@ components:
       schema:
         type: string
 
+    queryMandateId:
+      name: mandateId
+      description: Identificativo della delega
+      in: query
+      required: false
+      schema:
+        type: string
+        format: uuid
+
     ############################################################################################
     ###                     HEADER DI AUTENTICAZIONE LOLLIPOP                               ###
     ############################################################################################
@@ -218,6 +281,48 @@ components:
   schemas:
     ThirdPartyMessage:
       $ref: './schemas-pn-timeline-appio.yaml#/components/schemas/ThirdPartyMessage'
+
+    RequestCheckAarMandateDto:
+      description: Le informazioni fornite per verificare l'AAR-QR-CodeValue
+      type: object
+      required:
+        - aarQrCodeValue
+      properties:
+        aarQrCodeValue:
+          type: string
+          description: valore del token QR-Code presente sull'avviso di avvenuta ricezione
+          pattern: ^[ -~]*$
+          maxLength: 300
+
+    ResponseCheckAarMandateDto:
+      description: >-
+        Le informazioni fornite in risposta alla verifica del AAR-QR-CodeValue con possibile identificativo della delega attiva
+      type: object
+      required:
+        - iun
+        - recipientInfo
+      properties:
+        iun:
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/IUN'
+        mandateId:
+          description: identificativo della delega
+          type: string
+        recipientInfo:
+          description: Informazioni anagrafiche dell'utente destinatario della notifica
+          $ref: '#/components/schemas/UserInfo'
+
+    UserInfo:
+      type: object
+      properties:
+        denomination:
+          type: string
+          description: Nome + cognome __oppure__ ragione sociale
+          example: Nome Cognome
+        taxId:
+          title: Codice Fiscale
+          description: Codice Fiscale
+          type: string
+          example: CGNNMO01T10A944Q
 
     Problem:
       $ref: 'remote-refs.yaml#/components/schemas/Problem'
