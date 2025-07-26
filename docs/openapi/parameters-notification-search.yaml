@@ -53,6 +53,7 @@ components:
       schema:
         type: string
         x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+        format: password # NO EXTERNAL
     notificationSearchRecipientIdIsOpaque:
       name: recipientIdOpaque
       description: >-

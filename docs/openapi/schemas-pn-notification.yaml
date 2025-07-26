@@ -24,6 +24,7 @@ components:
         La codifica prevede i caratteri ISO LATIN 1, senza | e senza i caratteri di controllo, ovvero la seguente regexp: ^[ -{}~\u00A0-ÿ]*$
       type: string
       x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+      format: password # NO EXTERNAL
       minLength: 1
 #      maxLength: 44                     # ONLY EXTERNAL
       pattern: ^.*$
@@ -33,6 +34,7 @@ components:
       description: C.F. persona fisica o persona giuridica
       type: string
       x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+      format: password # NO EXTERNAL
       minLength: 11
       maxLength: 16
       pattern: ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
@@ -511,6 +513,7 @@ components:
         address:
           type: string
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          format: password # NO EXTERNAL
           example: account@domain.it
           description: >-
             Indirizzo PEC o REM che il mittente della notifica intende utilizzare per 
@@ -529,6 +532,7 @@ components:
         at:
           type: string
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          format: password # NO EXTERNAL
           description: Campo "presso" dell'indirizzo
           # wide range of characters
           pattern: ^.*$
@@ -536,6 +540,7 @@ components:
         address:
           type: string
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          format: password # NO EXTERNAL
           description: Indirizzo del domicilio fisico
           # wide range of characters
           pattern: ^.*$
@@ -544,6 +549,7 @@ components:
         addressDetails:
           type: string
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          format: password # NO EXTERNAL
           description: Seconda riga dell'indirizzo fisico
           # wide range of characters
           pattern: ^.*$
@@ -551,6 +557,7 @@ components:
         zip:
           type: string
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          format: password # NO EXTERNAL
           description: Codice di avviamento postale. In caso di invio estero diventa facoltativo
           minLength: 0
           maxLength: 15
@@ -558,6 +565,7 @@ components:
         municipality:
           type: string
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          format: password # NO EXTERNAL
           description: Comune
           # wide range of characters
           pattern: ^.*$
@@ -566,6 +574,7 @@ components:
         municipalityDetails:
           type: string
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          format: password # NO EXTERNAL
           description: Frazione o località
           # wide range of characters
           pattern: ^.*$
@@ -573,6 +582,7 @@ components:
         province:
           type: string
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          format: password # NO EXTERNAL
           description: Provincia
           # wide range of characters
           pattern: ^.*$
@@ -580,6 +590,7 @@ components:
         foreignState:
           type: string
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          format: password # NO EXTERNAL
           description: Denominazione paese estero
           # wide range of characters
           pattern: ^.*$
@@ -643,6 +654,7 @@ components:
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           items:
             type: string
+            format: password # NO EXTERNAL
         requestAcceptedAt:
           description: Data accettazione notifica
           type: string
