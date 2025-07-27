@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: ubGXitnUmjnukP8NAdLi1cHxdSOcAHL+UCcyM39xdhs=
+  version: mXInEuMVWNiaLnulxHj/Vi0c7HLYG6cFqwarwfsImVM=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -241,9 +241,220 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
-  /notifications/received/check-aar-qr-code:
+  /qr/notifications/received/{iun}/attachments/payment/{attachmentName}:
+    get:
+      summary: Download allegato per pagamento
+      tags:
+        - AppIO-PN-Payments
+      operationId: getReceivedNotificationAttachment
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathAttachmentName'
+        - $ref: '#/components/parameters/attachmentIdx'
+        - $ref: '#/components/parameters/queryMandateId'
+        - $ref: '#/components/parameters/cxTaxIdAuthFleet'
+        - $ref: '#/components/parameters/lollipopOriginalUrl'
+        - $ref: '#/components/parameters/lollipopOriginalMethod'
+        - $ref: '#/components/parameters/lollipopPublicKey'
+        - $ref: '#/components/parameters/lollipopAssertionRef'
+        - $ref: '#/components/parameters/lollipopAssertionType'
+        - $ref: '#/components/parameters/lollipopAuthJwt'
+        - $ref: '#/components/parameters/lollipopUserId'
+        - $ref: '#/components/parameters/lollipopSignatureInput'
+        - $ref: '#/components/parameters/lollipopSignature'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: >-
+                  #/components/schemas/NotificationAttachmentDownloadMetadataResponse
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_IoAuthorizer_openapi: []
+        - api_key_openapi: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/qr/notifications/received/{iun}/attachments/payment/{attachmentName}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''IO'''
+          integration.request.path.iun: method.request.path.iun
+          integration.request.path.attachmentName: method.request.path.attachmentName
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+    options:
+      operationId: >-
+        Options for
+        /qr/notifications/received/{iun}/attachments/payment/{attachmentName}
+        API CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/qr/notifications/received/{iun}/attachments/payment/{attachmentName}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.path.iun: method.request.path.iun
+          integration.request.path.attachmentName: method.request.path.attachmentName
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+  /qr/notifications/received/{iun}:
+    get:
+      summary: Accesso notifiche ricevute
+      description: >-
+        Utilizzato da Persone Fisiche e Persone Giuridiche per accedere ai
+        dettagli delle  notifiche ricevute.
+      tags:
+        - AppIO-PN-Notification
+      operationId: getReceivedNotification
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/queryMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/io+json:
+              schema:
+                $ref: '#/components/schemas/ThirdPartyMessage'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_IoAuthorizer_openapi: []
+        - api_key_openapi: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/qr/notifications/received/{iun}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''IO'''
+          integration.request.path.iun: method.request.path.iun
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+    options:
+      operationId: Options for /qr/notifications/received/{iun} API CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/qr/notifications/received/{iun}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.path.iun: method.request.path.iun
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+  /qr/notifications/received/{iun}/attachments/documents/{docIdx}:
+    get:
+      summary: Download documento notificato
+      tags:
+        - AppIO-PN-Documents
+      operationId: getReceivedNotificationDocument
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathDocumentIdx'
+        - $ref: '#/components/parameters/queryMandateId'
+        - $ref: '#/components/parameters/cxTaxIdAuthFleet'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: >-
+                  #/components/schemas/NotificationAttachmentDownloadMetadataResponse
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_IoAuthorizer_openapi: []
+        - api_key_openapi: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/qr/notifications/received/{iun}/attachments/documents/{docIdx}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''IO'''
+          integration.request.path.iun: method.request.path.iun
+          integration.request.path.docIdx: method.request.path.docIdx
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+    options:
+      operationId: >-
+        Options for
+        /qr/notifications/received/{iun}/attachments/documents/{docIdx} API CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/qr/notifications/received/{iun}/attachments/documents/{docIdx}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.path.iun: method.request.path.iun
+          integration.request.path.docIdx: method.request.path.docIdx
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+  /qr/notifications/received/check-aar-qr-code:
     post:
-      description: Servizio per la verifica accesso rapido
+      description: Servizio per la verifica accesso tramite aar qr code
       summary: servizio per la verifica del aar-qr-code
       tags:
         - AppIO-PN-Notification
@@ -281,9 +492,9 @@ paths:
         '403':
           description: User not authorized
           content:
-            application/problem+json:
+            application/json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: '#/components/schemas/UserInfo'
         '404':
           description: QrCode reference Not Found
           content:
@@ -295,7 +506,7 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/check-aar-qr-code
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/qr/notifications/received/check-aar-qr-code
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -312,10 +523,10 @@ paths:
         timeoutInMillis: 29000
         type: http_proxy
     options:
-      operationId: Options for /notifications/received/check-aar-qr-code API CORS
+      operationId: Options for /qr/notifications/received/check-aar-qr-code API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/check-aar-qr-code
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/qr/notifications/received/check-aar-qr-code
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters: {}
