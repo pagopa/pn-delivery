@@ -25,7 +25,7 @@ components:
       type: string
       x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
       minLength: 1
-#      maxLength: 44                     # ONLY EXTERNAL
+#      maxLength: 88                     # ONLY EXTERNAL
       pattern: ^.*$
 
 

@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: ZaMFHf2CHk7aHhPQMBLaszkYU+/J/ro8SSXN3sGDE4I=
+  version: T4mY5Yp/JIROJf7nATPqHwXkh1i8c8Wcoh1HnAL8KUY=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -779,7 +779,7 @@ components:
         controllo, ovvero la seguente regexp: ^[ -{}~\u00A0-ÿ]*$
       type: string
       minLength: 1
-      maxLength: 44
+      maxLength: 88
       pattern: ^.*$
     NotificationDigitalAddress:
       description: Indirizzo di invio della notifica
