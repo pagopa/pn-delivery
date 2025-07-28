@@ -214,7 +214,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserInfo'
+                $ref: '#/components/schemas/ResponseCheckAarMandateDto'
         '404':
           description: QrCode reference Not Found
           content:
@@ -344,7 +344,7 @@ components:
           type: string
         recipientInfo:
           description: Informazioni anagrafiche dell'utente destinatario della notifica
-          $ref: '#/components/schemas/UserInfo'
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/Denomination'
 
 
     UserInfo:
