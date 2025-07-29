@@ -147,6 +147,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+
   "/delivery/notifications/received/check-aar-qr-code":
     post:
       description: |-
@@ -308,7 +309,7 @@ components:
           type: string
         recipientInfo:
           description: Informazioni anagrafiche dell'utente destinatario della notifica
-          $ref: 'schemas-pn-notification.yaml#/components/schemas/Denomination'
+          $ref: '#/components/schemas/UserInfo'
 
 
     UserInfo:

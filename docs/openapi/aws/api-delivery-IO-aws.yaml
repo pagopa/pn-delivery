@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: YcYfP1uMy9mBEEbWyUJQmDc2A7Q7BQoXDwhJN5/y2z4=
+  version: k8uqNrpcPIpjaCn9qsLXGo7GJdw3nGwQNlmL9026Dzo=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -491,7 +491,7 @@ components:
           type: string
         recipientInfo:
           description: Informazioni anagrafiche dell'utente destinatario della notifica
-          $ref: '#/components/schemas/Denomination'
+          $ref: '#/components/schemas/UserInfo'
     UserInfo:
       type: object
       properties:
