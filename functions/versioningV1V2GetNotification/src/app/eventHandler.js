@@ -1,4 +1,5 @@
 // converte la risposta V2.x a V1
+const { transformFromV28ToV27 } = require('./mapper/mapperV28ToV27.js');
 const { transformFromV27ToV26 } = require('./mapper/mapperV27ToV26.js');
 const { transformFromV26ToV25 } = require('./mapper/mapperV26ToV25.js');
 const { transformFromV25ToV24 } = require('./mapper/mapperV25ToV24.js');
@@ -87,6 +88,10 @@ exports.versioning = async (event, context) => {
     version = 26;
   }
 
+  if (event["path"].startsWith("/delivery/v2.7/")) {
+    version = 27;
+  }
+
   const headers = JSON.parse(JSON.stringify(event["headers"]));
   headers["x-pagopa-pn-src-ch"] = "B2B";
 
@@ -132,7 +137,8 @@ exports.versioning = async (event, context) => {
       "PAID",
       "UNREACHABLE",
       "CANCELLED",
-      "RETURNED_TO_SENDER"
+      "RETURNED_TO_SENDER",
+      "DELIVERY_TIMEOUT"
     ];
 
     if (!notificationStatus_ENUM.includes(response.data.notificationStatus)) {
@@ -217,7 +223,10 @@ function applyMappings(version, response) {
       transformedObject = transformFromV26ToV25(applyMappings(26, response));
       break;
     case 26:
-      transformedObject = transformFromV27ToV26(response.data);
+      transformedObject = transformFromV27ToV26(applyMappings(27, response));
+      break;
+    case 27:
+      transformedObject = transformFromV28ToV27(response.data);
       break;
   }
   return transformedObject;
