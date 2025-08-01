@@ -3,7 +3,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV28;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
@@ -96,7 +96,7 @@ class NotificationMetadataEntityDaoDynamoTest {
         //Given
         NotificationMetadataEntity entityToInsert = NotificationMetadataEntity.builder()
                 .notificationGroup("Notification_Group")
-                .notificationStatus(NotificationStatusV26.ACCEPTED.toString())
+                .notificationStatus(NotificationStatusV28.ACCEPTED.toString())
                 .iunRecipientId("IUN##RecipientId")
                 .recipientIdCreationMonth("RecipientId##creationMonth")
                 .recipientIds(Collections.singletonList("RecipientId"))
