@@ -7,7 +7,9 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestCheckAarDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestCheckAarMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ResponseCheckAarDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ResponseCheckAarMandateDto;
+import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationQREntityDao;
+import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.InternalNotificationQR;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -27,10 +29,12 @@ import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_COD
 @Slf4j
 public class NotificationQRService {
     private final NotificationQREntityDao notificationQREntityDao;
+    private final NotificationDao notificationDao;
     private final PnMandateClientImpl mandateClient;
 
-    public NotificationQRService(NotificationQREntityDao notificationQREntityDao, PnMandateClientImpl mandateClient) {
+    public NotificationQRService(NotificationQREntityDao notificationQREntityDao, NotificationDao notificationDao, PnMandateClientImpl mandateClient) {
         this.notificationQREntityDao = notificationQREntityDao;
+        this.notificationDao = notificationDao;
         this.mandateClient = mandateClient;
     }
 
@@ -71,9 +75,16 @@ public class NotificationQRService {
         String aarQrCodeValue = request.getAarQrCodeValue();
         log.info( "Get notification QR with mandate for aarQrCodeValue={} recipientType={} userId={}", aarQrCodeValue, recipientType, userId);
         InternalNotificationQR internalNotificationQR = getInternalNotificationQR( aarQrCodeValue );
+        Optional<InternalNotification> optInternalNotification = notificationDao.getNotificationByIun(internalNotificationQR.getIun(), false);
+        if(optInternalNotification.isEmpty()) {
+            log.info( "No notification found for iun={}", internalNotificationQR.getIun() );
+            throw new PnNotificationNotFoundException( String.format( "No notification found for iun=%s", internalNotificationQR.getIun() ) );
+        }
+
+        InternalNotification internalNotification = optInternalNotification.get();
         boolean isRecipient = isRecipientInNotification( internalNotificationQR, userId );
         if (!isRecipient || (CxTypeAuthFleet.valueOf(recipientType).equals(CxTypeAuthFleet.PG) && !CollectionUtils.isEmpty(cxGroups))) {
-            String mandateId = getMandateId( internalNotificationQR, userId, CxTypeAuthFleet.valueOf(recipientType), cxGroups );
+            String mandateId = getMandateId( internalNotification.getSenderPaId(), internalNotificationQR, userId, CxTypeAuthFleet.valueOf(recipientType), cxGroups );
             if ( StringUtils.hasText( mandateId ) ) {
                 return ResponseCheckAarMandateDto.builder()
                         .iun( internalNotificationQR.getIun() )
@@ -116,18 +127,25 @@ public class NotificationQRService {
         return internalNotificationQR.getRecipientInternalId().equals( recipientInternalId );
     }
 
-    private String getMandateId(InternalNotificationQR internalNotificationQR, String userId, CxTypeAuthFleet cxType, List<String> cxGroups) {
+    private String getMandateId(String senderPaId, InternalNotificationQR internalNotificationQR, String userId, CxTypeAuthFleet cxType, List<String> cxGroups) {
         String mandateId = null;
         List<InternalMandateDto> mandateDtoList = mandateClient.listMandatesByDelegate(userId, null, cxType, cxGroups);
         if (!CollectionUtils.isEmpty(mandateDtoList)) {
             Optional<InternalMandateDto> optMandate = mandateDtoList.stream()
                     .filter(mandate -> userId.equals(mandate.getDelegate()) &&
-                            internalNotificationQR.getRecipientInternalId().equals( mandate.getDelegator() ))
+                            internalNotificationQR.getRecipientInternalId().equals( mandate.getDelegator() ) &&
+                            checkVisibilityId(mandate.getVisibilityIds(), senderPaId)
+                    )
                     .findFirst();
             if ( optMandate.isPresent() ) {
                 mandateId = optMandate.get().getMandateId();
             }
         }
         return mandateId;
+    }
+
+    // If visibilityIds is null or empty, the mandate is visible to all. When is present, it must contain the senderPaId to be visible to the user
+    private boolean checkVisibilityId(List<String> visibilityIds, String senderPaId) {
+        return CollectionUtils.isEmpty(visibilityIds) || visibilityIds.contains(senderPaId);
     }
 }
