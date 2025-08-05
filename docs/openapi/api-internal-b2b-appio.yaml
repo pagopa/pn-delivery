@@ -199,7 +199,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/RequestCheckAarMandateDto"
+              $ref: "#/components/schemas/RequestCheckQrMandateDto"
         required: true
       responses:
         '200':
@@ -207,7 +207,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ResponseCheckAarMandateDto"
+                $ref: "#/components/schemas/ResponseCheckQrMandateDto"
         '400':
           description: QrCode value invalid
           content:
@@ -219,7 +219,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResponseCheckAarMandateDto'
+                $ref: '#/components/schemas/ResponseCheckQrMandateDto'
         '404':
           description: QrCode reference Not Found
           content:
@@ -330,7 +330,7 @@ components:
     ThirdPartyMessage:
       $ref: './schemas-pn-timeline-appio.yaml#/components/schemas/ThirdPartyMessage'
 
-    RequestCheckAarMandateDto:
+    RequestCheckQrMandateDto:
       description: Le informazioni fornite per verificare l'AAR-QR-CodeValue
       type: object
       required:
@@ -342,7 +342,7 @@ components:
           pattern: ^[ -~]*$
           maxLength: 300
 
-    ResponseCheckAarMandateDto:
+    ResponseCheckQrMandateDto:
       description: >-
         Le informazioni fornite in risposta alla verifica del AAR-QR-CodeValue con possibile identificativo della delega attiva
       type: object
