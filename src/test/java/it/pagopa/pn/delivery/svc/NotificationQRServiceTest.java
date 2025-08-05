@@ -5,7 +5,9 @@ import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationQREntityDao;
+import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.InternalNotificationQR;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import org.junit.jupiter.api.Assertions;
@@ -30,12 +32,14 @@ class NotificationQRServiceTest {
     @Mock
     private NotificationQREntityDao notificationQREntityDao;
     @Mock
+    private NotificationDao notificationDao;
+    @Mock
     private PnMandateClientImpl mandateClient;
     private NotificationQRService svc;
 
     @BeforeEach
     void setup() {
-        svc = new NotificationQRService( notificationQREntityDao, mandateClient);
+        svc = new NotificationQRService( notificationQREntityDao, notificationDao, mandateClient);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -195,12 +199,41 @@ class NotificationQRServiceTest {
 
         Mockito.when( notificationQREntityDao.getNotificationByQR( Mockito.anyString() ) ).thenReturn( Optional.of( internalNotificationQR ) );
 
+        InternalNotification internalNotification = InternalNotification.builder()
+                .iun( "iun" )
+                .senderPaId( "senderPaId" )
+                .build();
+
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean())).thenReturn( Optional.of( internalNotification ));
+
         // When
         ResponseCheckAarMandateDto result = svc.getNotificationByQRWithMandate( request, RECIPIENT_TYPE, userId, null );
 
         // Then
         Assertions.assertNotNull( result );
         Assertions.assertEquals( "iun", result.getIun() );
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void getNotificationByQRWithMandateFailsWhenThereIsNoNotification() {
+        // Given
+        String userId = "recipientInternalId";
+        RequestCheckAarMandateDto request = new RequestCheckAarMandateDto( AAR_QR_CODE_VALUE );
+
+        InternalNotificationQR internalNotificationQR = InternalNotificationQR.builder()
+                .aarQRCodeValue(AAR_QR_CODE_VALUE)
+                .iun( "iun" )
+                .recipientType( NotificationRecipientV24.RecipientTypeEnum.PF )
+                .recipientInternalId( "recipientInternalId" )
+                .build();
+
+        Mockito.when( notificationQREntityDao.getNotificationByQR( Mockito.anyString() ) ).thenReturn( Optional.of( internalNotificationQR ) );
+
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean())).thenReturn( Optional.empty() );
+
+        // When
+        Assertions.assertThrows(PnNotificationNotFoundException.class, () -> svc.getNotificationByQRWithMandate( request, RECIPIENT_TYPE, userId, null ));
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -228,6 +261,14 @@ class NotificationQRServiceTest {
                 .delegate( userId );
 
         Mockito.when( notificationQREntityDao.getNotificationByQR( Mockito.anyString() ) ).thenReturn( Optional.of( internalNotificationQR ) );
+
+        InternalNotification internalNotification = InternalNotification.builder()
+                .iun( "iun" )
+                .senderPaId( "senderPaId" )
+                .build();
+
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean())).thenReturn( Optional.of( internalNotification ));
+
         Mockito.when( mandateClient.listMandatesByDelegate( userId, null, CxTypeAuthFleet.PF , null ) )
                 .thenReturn( List.of( internalMandateDto, internalMandateDto1 ) );
 
@@ -261,6 +302,14 @@ class NotificationQRServiceTest {
                 .delegate( "wrongDelegateInternalId" );
 
         Mockito.when( notificationQREntityDao.getNotificationByQR( Mockito.anyString() ) ).thenReturn( Optional.of( internalNotificationQR ) );
+
+        InternalNotification internalNotification = InternalNotification.builder()
+                .iun( "iun" )
+                .senderPaId( "senderPaId" )
+                .build();
+
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean())).thenReturn( Optional.of( internalNotification ));
+
         Mockito.when( mandateClient.listMandatesByDelegate( userId, null, CxTypeAuthFleet.PF, null ) )
                 .thenReturn( List.of( internalMandateDto ) );
 
@@ -286,6 +335,14 @@ class NotificationQRServiceTest {
                 .build();
 
         Mockito.when( notificationQREntityDao.getNotificationByQR( Mockito.anyString() ) ).thenReturn( Optional.of( internalNotificationQR ) );
+
+        InternalNotification internalNotification = InternalNotification.builder()
+                .iun( "iun" )
+                .senderPaId( "senderPaId" )
+                .build();
+
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean())).thenReturn( Optional.of( internalNotification ));
+
         Mockito.when( mandateClient.listMandatesByDelegate( userId, null, CxTypeAuthFleet.PF, null ) )
                 .thenReturn( Collections.emptyList() );
 
@@ -316,6 +373,54 @@ class NotificationQRServiceTest {
                 .delegate( userId );
 
         Mockito.when( notificationQREntityDao.getNotificationByQR( Mockito.anyString() ) ).thenReturn( Optional.of( internalNotificationQR ) );
+
+        InternalNotification internalNotification = InternalNotification.builder()
+                .iun( "iun" )
+                .senderPaId( "senderPaId" )
+                .build();
+
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean())).thenReturn( Optional.of( internalNotification ));
+
+
+        Mockito.when( mandateClient.listMandatesByDelegate( userId, null, CxTypeAuthFleet.PF, null ) )
+                .thenReturn( List.of( internalMandateDto ) );
+
+        // When
+        Executable todo = () -> svc.getNotificationByQRWithMandate( request, RECIPIENT_TYPE, userId, null );
+
+        // Then
+        Assertions.assertThrows(PnNotificationNotFoundException.class, todo);
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void getNotificationByQRWithMandateByDelegateFailureForVisibilityIds() {
+        // Given
+        String userId = "delegateInternalId";
+        RequestCheckAarMandateDto request = new RequestCheckAarMandateDto( AAR_QR_CODE_VALUE );
+
+        InternalNotificationQR internalNotificationQR = InternalNotificationQR.builder()
+                .aarQRCodeValue(AAR_QR_CODE_VALUE)
+                .iun( "iun" )
+                .recipientType( NotificationRecipientV24.RecipientTypeEnum.PF )
+                .recipientInternalId( "recipientInternalId" )
+                .build();
+
+        InternalMandateDto internalMandateDto = new InternalMandateDto()
+                .mandateId( "mandateId" )
+                .delegator( "recipientInternalId" )
+                .delegate( userId )
+                .visibilityIds(List.of("notPresentVisibilityId"));
+
+        Mockito.when( notificationQREntityDao.getNotificationByQR( Mockito.anyString() ) ).thenReturn( Optional.of( internalNotificationQR ) );
+
+        InternalNotification internalNotification = InternalNotification.builder()
+                .iun( "iun" )
+                .senderPaId( "senderPaId" )
+                .build();
+
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean())).thenReturn( Optional.of( internalNotification ));
+
         Mockito.when( mandateClient.listMandatesByDelegate( userId, null, CxTypeAuthFleet.PF, null ) )
                 .thenReturn( List.of( internalMandateDto ) );
 
