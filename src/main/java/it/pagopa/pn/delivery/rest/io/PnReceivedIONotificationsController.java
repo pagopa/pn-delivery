@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -27,7 +28,7 @@ public class PnReceivedIONotificationsController implements AppIoPnNotificationA
     private final IOMapper ioMapper;
 
     @Override
-    public ResponseEntity<ThirdPartyMessage> getReceivedNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String xPagopaPnSrcCh, String iun, List<String> xPagopaPnCxGroups, String xPagopaPnSrcChDetails)  {
+    public ResponseEntity<ThirdPartyMessage> getReceivedNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String xPagopaPnSrcCh, String iun, List<String> xPagopaPnCxGroups, String xPagopaPnSrcChDetails, UUID mandateId) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         ThirdPartyMessage result;
         PnAuditLogEvent logEvent = auditLogBuilder
