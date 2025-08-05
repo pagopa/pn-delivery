@@ -1001,6 +1001,8 @@ paths:
       tags:
         - NewNotification
       operationId: sendNewNotification
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-sendnewnotification-lambda:live
+      x-pagopa-lambda-account: core
       requestBody:
         content:
           application/json:
@@ -1035,6 +1037,8 @@ paths:
     get:
       deprecated: true
       operationId: retrieveNotificationRequestStatus
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live
+      x-pagopa-lambda-account: core
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -1094,6 +1098,8 @@ paths:
       tags:
         - NewNotification
       operationId: sendNewNotificationV21
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-sendnewnotification-lambda:live
+      x-pagopa-lambda-account: core
       requestBody:
         content:
           application/json:
@@ -1128,6 +1134,8 @@ paths:
     get:
       deprecated: true
       operationId: retrieveNotificationRequestStatusV21
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live
+      x-pagopa-lambda-account: core
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -1187,6 +1195,8 @@ paths:
       tags:
         - NewNotification
       operationId: sendNewNotificationV23
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-sendnewnotification-lambda:live
+      x-pagopa-lambda-account: core
       requestBody:
         content:
           application/json:
@@ -1221,6 +1231,8 @@ paths:
     get:
       deprecated: true
       operationId: retrieveNotificationRequestStatusV23
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live
+      x-pagopa-lambda-account: core
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -1363,6 +1375,8 @@ paths:
       tags:
         - SenderReadB2B
       operationId: retrieveSentNotification
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda:live
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:
@@ -1394,6 +1408,8 @@ paths:
       tags:
         - SenderReadB2B
       operationId: retrieveSentNotificationV20
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda:live
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:
@@ -1425,6 +1441,8 @@ paths:
       tags:
         - SenderReadB2B
       operationId: retrieveSentNotificationV21
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda:live
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:
@@ -1456,6 +1474,8 @@ paths:
       tags:
         - SenderReadB2B
       operationId: retrieveSentNotificationV23
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda:live
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:
@@ -1487,6 +1507,8 @@ paths:
       tags:
         - SenderReadB2B
       operationId: retrieveSentNotificationV24
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda:live
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:
@@ -1518,6 +1540,8 @@ paths:
       tags:
         - SenderReadB2B
       operationId: retrieveSentNotificationV25
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda:live
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:
@@ -1575,6 +1599,8 @@ paths:
     get:
       deprecated: true
       operationId: retrieveNotificationPrice
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v23-getnotificationprice-lambda:live
+      x-pagopa-lambda-account: core
       summary: Retrieve notification price and effective date
       description: |-
         Usata dalla PA per recuperare il costo di notificazione tramite
@@ -1668,6 +1694,7 @@ paths:
       operationId: retrieveNotificationLegalFactsV20
       parameters:
         - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
       responses:
         '200':
           description: OK
@@ -1705,6 +1732,7 @@ paths:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactType'
         - $ref: '#/components/parameters/pathLegalFactId'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
       responses:
         '200':
           description: OK
@@ -1740,6 +1768,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactId'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
       responses:
         '200':
           description: OK
@@ -1747,6 +1776,43 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LegalFactDownloadMetadataResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /delivery-push/{iun}/document/{documentType}:
+    get:
+      summary: Restituisce il singolo documento identificato dalla documentKey
+      description: Permette di scaricare un documento correlato alla notificazione
+      tags:
+        - DocumentsWeb
+      operationId: getDocumentsWeb
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
+        - $ref: '#/components/parameters/pathDocumentType'
+        - $ref: '#/components/parameters/queryDocumentId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentDownloadMetadataResponse'
         '400':
           description: Invalid input
           content:
@@ -1775,8 +1841,11 @@ paths:
       tags:
         - LegalFacts
       operationId: retrieveNotificationLegalFacts
+      x-pagopa-lambda-name: pn-versioningGetNotificationLegalFactsLambda:live
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
       responses:
         '200':
           description: OK
@@ -2135,6 +2204,8 @@ paths:
       tags:
         - Streams
       operationId: createEventStream
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
       requestBody:
         required: true
         content:
@@ -2167,6 +2238,8 @@ paths:
       tags:
         - Streams
       operationId: listEventStreams
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
       responses:
         '200':
           description: OK
@@ -2196,6 +2269,8 @@ paths:
       tags:
         - Streams
       operationId: retrieveEventStream
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
       responses:
         '200':
           description: OK
@@ -2224,6 +2299,8 @@ paths:
       tags:
         - Streams
       operationId: updateEventStream
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
       requestBody:
         required: true
         content:
@@ -2258,6 +2335,8 @@ paths:
       tags:
         - Streams
       operationId: removeEventStream
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
       responses:
         '204':
           description: OK
@@ -2285,6 +2364,8 @@ paths:
       tags:
         - Events
       operationId: consumeEventStream
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
         - $ref: '#/components/parameters/queryLastEventId'
@@ -2343,6 +2424,8 @@ paths:
       tags:
         - Streams
       operationId: createEventStreamV23
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
       requestBody:
         required: true
         content:
@@ -2387,6 +2470,8 @@ paths:
       tags:
         - Streams
       operationId: listEventStreamsV23
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
       responses:
         '200':
           description: OK
@@ -2416,6 +2501,8 @@ paths:
       tags:
         - Streams
       operationId: retrieveEventStreamV23
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
       responses:
         '200':
           description: OK
@@ -2456,6 +2543,8 @@ paths:
       tags:
         - Streams
       operationId: updateEventStreamV23
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
       requestBody:
         required: true
         content:
@@ -2502,6 +2591,8 @@ paths:
       tags:
         - Streams
       operationId: removeEventStreamV23
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
       responses:
         '204':
           description: OK
@@ -2551,6 +2642,8 @@ paths:
       tags:
         - Streams
       operationId: disableEventStreamV23
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
       responses:
@@ -2596,6 +2689,8 @@ paths:
       tags:
         - Events
       operationId: consumeEventStreamV23
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
         - $ref: '#/components/parameters/queryLastEventId'
@@ -2669,6 +2764,8 @@ paths:
       tags:
         - Streams
       operationId: createEventStreamV24
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
       requestBody:
         required: true
         content:
@@ -2713,6 +2810,8 @@ paths:
       tags:
         - Streams
       operationId: listEventStreamsV24
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
       responses:
         '200':
           description: OK
@@ -2742,6 +2841,8 @@ paths:
       tags:
         - Streams
       operationId: retrieveEventStreamV24
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
       responses:
         '200':
           description: OK
@@ -2782,6 +2883,8 @@ paths:
       tags:
         - Streams
       operationId: updateEventStreamV24
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
       requestBody:
         required: true
         content:
@@ -2828,6 +2931,8 @@ paths:
       tags:
         - Streams
       operationId: removeEventStreamV24
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
       responses:
         '204':
           description: OK
@@ -2877,6 +2982,8 @@ paths:
       tags:
         - Streams
       operationId: disableEventStreamV24
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
       responses:
@@ -2922,6 +3029,8 @@ paths:
       tags:
         - Events
       operationId: consumeEventStreamV24
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
         - $ref: '#/components/parameters/queryLastEventId'
