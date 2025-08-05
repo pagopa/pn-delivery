@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: wDNSlmF/ZLeEo6OdQ1slPgqPApFthi/RUSmrWbqaJkc=
+  version: ZJkYHl0Kl3hLsTossYWRI/CbTOfUC0rRn44T/58hI6I=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -267,7 +267,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RequestCheckAarMandateDto'
+              $ref: '#/components/schemas/RequestCheckQrMandateDto'
         required: true
       responses:
         '200':
@@ -275,7 +275,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResponseCheckAarMandateDto'
+                $ref: '#/components/schemas/ResponseCheckQrMandateDto'
         '400':
           description: QrCode value invalid
           content:
@@ -287,7 +287,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResponseCheckAarMandateDto'
+                $ref: '#/components/schemas/ResponseCheckQrMandateDto'
         '404':
           description: QrCode reference Not Found
           content:
@@ -475,7 +475,7 @@ components:
             $ref: '#/components/schemas/ThirdPartyAttachment'
         details:
           $ref: '#/components/schemas/IOReceivedNotification'
-    RequestCheckAarMandateDto:
+    RequestCheckQrMandateDto:
       description: Le informazioni fornite per verificare l'AAR-QR-CodeValue
       type: object
       required:
@@ -486,7 +486,7 @@ components:
           description: valore del token QR-Code presente sull'avviso di avvenuta ricezione
           pattern: ^[ -~]*$
           maxLength: 300
-    ResponseCheckAarMandateDto:
+    ResponseCheckQrMandateDto:
       description: >-
         Le informazioni fornite in risposta alla verifica del AAR-QR-CodeValue
         con possibile identificativo della delega attiva
