@@ -18,6 +18,7 @@ import it.pagopa.pn.delivery.middleware.notificationdao.NotificationQREntityDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.InternalNotificationQR;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
+import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -39,12 +40,14 @@ public class NotificationQRService {
     private final NotificationDao notificationDao;
     private final PnMandateClientImpl mandateClient;
     private final QrUrlCodecService qrUrlCodecService;
+    private final PnExternalRegistriesClientImpl pnExternalRegistriesClient;
 
-    public NotificationQRService(NotificationQREntityDao notificationQREntityDao, NotificationDao notificationDao, PnMandateClientImpl mandateClient, QrUrlCodecService qrUrlCodecService) {
+    public NotificationQRService(NotificationQREntityDao notificationQREntityDao, NotificationDao notificationDao, PnMandateClientImpl mandateClient, QrUrlCodecService qrUrlCodecService, PnExternalRegistriesClientImpl pnExternalRegistriesClient) {
         this.notificationQREntityDao = notificationQREntityDao;
         this.notificationDao = notificationDao;
         this.mandateClient = mandateClient;
         this.qrUrlCodecService = qrUrlCodecService;
+        this.pnExternalRegistriesClient = pnExternalRegistriesClient;
     }
 
     public ResponseCheckAarDto getNotificationByQR( RequestCheckAarDto request ) {
@@ -138,12 +141,13 @@ public class NotificationQRService {
 
     private String getMandateId(String senderPaId, InternalNotificationQR internalNotificationQR, String userId, CxTypeAuthFleet cxType, List<String> cxGroups) {
         String mandateId = null;
+        String rootSenderId = pnExternalRegistriesClient.getRootSenderId(senderPaId);
         List<InternalMandateDto> mandateDtoList = mandateClient.listMandatesByDelegate(userId, null, cxType, cxGroups);
         if (!CollectionUtils.isEmpty(mandateDtoList)) {
             Optional<InternalMandateDto> optMandate = mandateDtoList.stream()
                     .filter(mandate -> userId.equals(mandate.getDelegate()) &&
                             internalNotificationQR.getRecipientInternalId().equals( mandate.getDelegator() ) &&
-                            checkVisibilityId(mandate.getVisibilityIds(), senderPaId)
+                            checkVisibilityId(mandate.getVisibilityIds(), rootSenderId)
                     )
                     .findFirst();
             if ( optMandate.isPresent() ) {

@@ -15,6 +15,7 @@ import it.pagopa.pn.delivery.middleware.notificationdao.NotificationQREntityDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.InternalNotificationQR;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
+import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,11 +44,13 @@ class NotificationQRServiceTest {
     private PnMandateClientImpl mandateClient;
     @Mock
     private QrUrlCodecService qrUrlCodecService;
+    @Mock
+    private PnExternalRegistriesClientImpl pnExternalRegistriesClient;
     private NotificationQRService svc;
 
     @BeforeEach
     void setup() {
-        svc = new NotificationQRService( notificationQREntityDao, notificationDao, mandateClient, qrUrlCodecService);
+        svc = new NotificationQRService( notificationQREntityDao, notificationDao, mandateClient, qrUrlCodecService, pnExternalRegistriesClient);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -432,6 +435,8 @@ class NotificationQRServiceTest {
         Mockito.when( mandateClient.listMandatesByDelegate( userId, null, CxTypeAuthFleet.PF, null ) )
                 .thenReturn( List.of( internalMandateDto ) );
 
+        Mockito.when(pnExternalRegistriesClient.getRootSenderId(Mockito.anyString())).thenReturn("senderPaId");
+
         // When
         Executable todo = () -> svc.getNotificationByQRWithMandate( request, RECIPIENT_TYPE, userId, null );
 
@@ -538,6 +543,8 @@ class NotificationQRServiceTest {
 
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean())).thenReturn( Optional.of( internalNotification ));
 
+        Mockito.when(pnExternalRegistriesClient.getRootSenderId(Mockito.anyString())).thenReturn("senderPaId");
+
         Mockito.when( mandateClient.listMandatesByDelegate( userId, null, CxTypeAuthFleet.PF , null ) )
                 .thenReturn( List.of( internalMandateDto, internalMandateDto1 ) );
 
@@ -578,6 +585,8 @@ class NotificationQRServiceTest {
 
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean())).thenReturn( Optional.of( internalNotification ));
 
+        Mockito.when(pnExternalRegistriesClient.getRootSenderId(Mockito.anyString())).thenReturn("senderPaId");
+
         Mockito.when( mandateClient.listMandatesByDelegate( userId, null, CxTypeAuthFleet.PF, null ) )
                 .thenReturn( List.of( internalMandateDto ) );
 
@@ -609,6 +618,8 @@ class NotificationQRServiceTest {
         InternalNotification internalNotification = buildNotificationWithRecipient("recipientInternalId");
 
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean())).thenReturn( Optional.of( internalNotification ));
+
+        Mockito.when(pnExternalRegistriesClient.getRootSenderId(Mockito.anyString())).thenReturn("senderPaId");
 
         Mockito.when( mandateClient.listMandatesByDelegate( userId, null, CxTypeAuthFleet.PF, null ) )
                 .thenReturn( Collections.emptyList() );
@@ -651,6 +662,8 @@ class NotificationQRServiceTest {
         Mockito.when( mandateClient.listMandatesByDelegate( userId, null, CxTypeAuthFleet.PF, null ) )
                 .thenReturn( List.of( internalMandateDto ) );
 
+        Mockito.when(pnExternalRegistriesClient.getRootSenderId(Mockito.anyString())).thenReturn("senderPaId");
+
         // When
         Executable todo = () -> svc.getNotificationByQRFromIOWithMandate( request, RECIPIENT_TYPE, userId, null );
 
@@ -685,6 +698,8 @@ class NotificationQRServiceTest {
         InternalNotification internalNotification = buildNotificationWithRecipient("recipientInternalId");
 
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean())).thenReturn( Optional.of( internalNotification ));
+
+        Mockito.when(pnExternalRegistriesClient.getRootSenderId(Mockito.anyString())).thenReturn("senderPaId");
 
         Mockito.when( mandateClient.listMandatesByDelegate( userId, null, CxTypeAuthFleet.PF, null ) )
                 .thenReturn( List.of( internalMandateDto ) );
