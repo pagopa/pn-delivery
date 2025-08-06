@@ -1,7 +1,9 @@
 package it.pagopa.pn.delivery.rest.io;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
+import it.pagopa.pn.delivery.exception.PnRootIdNonFountException;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyMessage;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
@@ -37,6 +39,7 @@ class PnReceivedIONotificationsControllerTest {
     private static final String PA_ID = "PA_ID";
     private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
     private static final String X_PAGOPA_PN_SRC_CH_DET = "sourceChannelDetails";
+    private static final String MANDATE_ID = "3766e7f2-70b2-4264-8ca8-4548fe728b0d";
 
     @Autowired
     WebTestClient webTestClient;
@@ -102,6 +105,56 @@ class PnReceivedIONotificationsControllerTest {
                 .expectStatus()
                 .isNotFound();
     }
+
+    @Test
+    void getReceivedNotificationWithMandateFailsForRootId() {
+
+        // When
+        Mockito.when(svc.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(MANDATE_ID)))
+                .thenThrow(new PnRootIdNonFountException("test"));
+
+        // Then
+        webTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/delivery/notifications/received/" + IUN)
+                        .queryParam("mandateId", MANDATE_ID)
+                        .build())
+                .header(HttpHeaders.ACCEPT, "application/io+json")
+                .header("x-pagopa-pn-cx-id", "IO-" +USER_ID )
+                .header("x-pagopa-pn-cx-type", "PF" )
+                .header("x-pagopa-pn-uid", USER_ID )
+                .header("x-pagopa-pn-src-ch", X_PAGOPA_PN_SRC_CH)
+                .header("x-pagopa-pn-src-ch-details", X_PAGOPA_PN_SRC_CH_DET)
+                .exchange()
+                .expectStatus()
+                .isBadRequest();
+    }
+
+    @Test
+    void getReceivedNotificationWithMandateFailsForMandate() {
+
+        // When
+        Mockito.when(svc.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(MANDATE_ID)))
+                .thenThrow(new PnMandateNotFoundException("test"));
+
+        // Then
+        webTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/delivery/notifications/received/" + IUN)
+                        .queryParam("mandateId", MANDATE_ID)
+                        .build())
+                .header(HttpHeaders.ACCEPT, "application/io+json")
+                .header("x-pagopa-pn-cx-id", "IO-" +USER_ID )
+                .header("x-pagopa-pn-cx-type", "PF" )
+                .header("x-pagopa-pn-uid", USER_ID )
+                .header("x-pagopa-pn-src-ch", X_PAGOPA_PN_SRC_CH)
+                .header("x-pagopa-pn-src-ch-details", X_PAGOPA_PN_SRC_CH_DET)
+                .attribute("mandateId", "MANDATE_ID")
+                .exchange()
+                .expectStatus()
+                .isBadRequest();
+    }
+
 
     private InternalNotification newNotification() {
         TimelineElementV27 timelineElement = new TimelineElementV27();

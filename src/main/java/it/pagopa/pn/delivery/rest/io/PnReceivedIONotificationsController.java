@@ -4,6 +4,10 @@ import it.pagopa.pn.commons.exceptions.PnRuntimeException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.delivery.exception.PnBadRequestException;
+import it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes;
+import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
+import it.pagopa.pn.delivery.exception.PnRootIdNonFountException;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.api.AppIoPnNotificationApi;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyMessage;
@@ -38,10 +42,16 @@ public class PnReceivedIONotificationsController implements AppIoPnNotificationA
         logEvent.log();
         try {
             InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups, xPagopaPnSrcCh, xPagopaPnSrcChDetails);
-            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, null);
+            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, mandateId != null ? mandateId.toString() : null);
             boolean isNotificationCancelled = retrieveSvc.isNotificationCancelled(internalNotification);
             result = ioMapper.mapToThirdPartMessage(internalNotification, isNotificationCancelled);
             logEvent.generateSuccess().log();
+        } catch (PnMandateNotFoundException exc) {
+            logEvent.generateFailure("Mandate not found: " + exc.getProblem().getDetail()).log();
+            throw new PnBadRequestException("Mandate not found", "Mandate not found for iun = " + iun, PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_MANDATENOTFOUND);
+        } catch (PnRootIdNonFountException exc) {
+            logEvent.generateFailure("RootId not found: " + exc.getProblem().getDetail()).log();
+            throw new PnBadRequestException("RootId not found", "RootId not found not found for iun = " + iun, PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_ROOTIDNOTFOUND);
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;
