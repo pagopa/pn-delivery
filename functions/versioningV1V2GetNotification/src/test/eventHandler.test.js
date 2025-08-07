@@ -842,4 +842,78 @@ describe("eventHandler tests", function () {
     expect(res.statusCode).to.equal(400)
   });
 
+  it("statusCode 200 v27 mono recipient", async () => {
+    const notificationJSON = fs.readFileSync("./src/test/notification_timeout_mono.json");
+    let notification = JSON.parse(notificationJSON);
+    process.env = Object.assign(process.env, {
+      PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
+      ATTEMPT_TIMEOUT_SEC: 5,
+      NUM_RETRY: 3
+    });
+
+    const iunValue = "1234";
+    let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
+    mock.onGet(url).reply(200, notification, { "Content-Type": "application/json" });
+    const event = {
+      pathParameters: { iun: iunValue },
+      headers: {},
+      requestContext: {
+        authorizer: {},
+      },
+      resource: "/notifications/sent/{iun}",
+      path: "/delivery/v2.7/notifications/sent/MOCK_IUN",
+      httpMethod: "GET",
+    };
+    const context = {};
+    const response = await versioning(event, context);
+    expect(response.statusCode).to.equal(200);
+    let resJson = JSON.parse(response.body);
+    const notificationStatusHistory = resJson.notificationStatusHistory;
+    const lastTimeoutStatusElement = notificationStatusHistory[notificationStatusHistory.length - 1];
+    expect(lastTimeoutStatusElement.status).to.be.equal("DELIVERING");
+    const notificationStatus = resJson.notificationStatus;
+    expect(notificationStatus).to.be.equal("DELIVERING");
+    let isSendAnalogTimeoutPresent = resJson.timeline.some(element => element.category === 'SEND_ANALOG_TIMEOUT');
+    let isAnalogFailureWorkflowTimeoutPresent = resJson.timeline.some(element => element.category === 'ANALOG_FAILURE_WORKFLOW_TIMEOUT');
+    expect(isSendAnalogTimeoutPresent).to.be.false;
+    expect(isAnalogFailureWorkflowTimeoutPresent).to.be.false;
+  });
+
+  it("statusCode 200 v27 multi recipient", async () => {
+    const notificationJSON = fs.readFileSync("./src/test/notification_timeout_multi.json");
+    let notification = JSON.parse(notificationJSON);
+    process.env = Object.assign(process.env, {
+      PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
+      ATTEMPT_TIMEOUT_SEC: 5,
+      NUM_RETRY: 3
+    });
+
+    const iunValue = "1234";
+    let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
+    mock.onGet(url).reply(200, notification, { "Content-Type": "application/json" });
+    const event = {
+      pathParameters: { iun: iunValue },
+      headers: {},
+      requestContext: {
+        authorizer: {},
+      },
+      resource: "/notifications/sent/{iun}",
+      path: "/delivery/v2.7/notifications/sent/MOCK_IUN",
+      httpMethod: "GET",
+    };
+    const context = {};
+    const response = await versioning(event, context);
+    expect(response.statusCode).to.equal(200);
+    let resJson = JSON.parse(response.body);
+    const notificationStatusHistory = resJson.notificationStatusHistory;
+    const lastTimeoutStatusElement = notificationStatusHistory[notificationStatusHistory.length - 1];
+    expect(lastTimeoutStatusElement.status).to.be.equal("EFFECTIVE_DATE");
+    const notificationStatus = resJson.notificationStatus;
+    expect(notificationStatus).to.be.equal("EFFECTIVE_DATE");
+    let isSendAnalogTimeoutPresent = resJson.timeline.some(element => element.category === 'SEND_ANALOG_TIMEOUT');
+    let isAnalogFailureWorkflowTimeoutPresent = resJson.timeline.some(element => element.category === 'ANALOG_FAILURE_WORKFLOW_TIMEOUT');
+    expect(isSendAnalogTimeoutPresent).to.be.false;
+    expect(isAnalogFailureWorkflowTimeoutPresent).to.be.false;
+  });
+
 });
