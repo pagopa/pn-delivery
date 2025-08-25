@@ -215,11 +215,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
         '403':
-          description: User not authorized
+          description: Mandate not found or TOS not accepted / invalid
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResponseCheckQrMandateDto'
+                $ref: '#/components/schemas/CheckQrForbiddenResponse'
         '404':
           description: QrCode reference Not Found
           content:
@@ -376,6 +376,49 @@ components:
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           format: password # NO EXTERNAL
           example: CGNNMO01T10A944Q
+
+    Consent:
+      $ref: 'remote-refs.yaml#/components/schemas/Consent'
+
+    MandateNotPresentError:
+      type: object
+      required:
+        - errorType
+        - detail
+      properties:
+        errorType:
+          type: string
+          enum:
+            - MANDATE_NOT_PRESENT
+        detail:
+          $ref: '#/components/schemas/ResponseCheckQrMandateDto'
+
+    TosNotAcceptedError:
+      type: object
+      required:
+        - errorType
+        - detail
+      properties:
+        errorType:
+          type: string
+          enum:
+            - TOS_NOT_ACCEPTED
+        detail:
+          $ref: '#/components/schemas/Consent'
+
+    CheckQrForbiddenResponse:
+      type: object
+      required:
+        - errorType
+        - detail
+      oneOf:
+        - $ref: '#/components/schemas/MandateNotPresentError'
+        - $ref: '#/components/schemas/TosNotAcceptedError'
+      discriminator:
+        propertyName: errorType
+        mapping:
+          MANDATE_NOT_PRESENT: '#/components/schemas/MandateNotPresentError'
+          TOS_NOT_ACCEPTED: '#/components/schemas/TosNotAcceptedError'
 
     Problem:
       $ref: 'remote-refs.yaml#/components/schemas/Problem'
