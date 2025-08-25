@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.utils;
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV28;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.EntityToDtoNotificationMetadataMapper;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
@@ -49,7 +49,7 @@ public class NotificationDaoMock implements NotificationDao {
         PageSearchTrunk<NotificationMetadataEntity> result = new PageSearchTrunk<>();
         result.setResults(Collections.singletonList( NotificationMetadataEntity.builder()
                 .iunRecipientId("IUN##internalId1" )
-                .notificationStatus( NotificationStatusV26.VIEWED.getValue() )
+                .notificationStatus( NotificationStatusV28.VIEWED.getValue() )
                 .senderId( "SenderId" )
                 .recipientIds(List.of( "internalId1", "internalId2" ) )
                 .build() ));
@@ -62,7 +62,7 @@ public class NotificationDaoMock implements NotificationDao {
         PageSearchTrunk<NotificationDelegationMetadataEntity> result = new PageSearchTrunk<>();
         result.setResults(Collections.singletonList(NotificationDelegationMetadataEntity.builder()
                 .iunRecipientIdDelegateIdGroupId("IUN##recipientId##delegateId")
-                .notificationStatus(NotificationStatusV26.VIEWED.getValue())
+                .notificationStatus(NotificationStatusV28.VIEWED.getValue())
                         .senderId("senderId")
                         .recipientId("recipientId")
                         .recipientIds(List.of("recipientId"))
@@ -75,7 +75,7 @@ public class NotificationDaoMock implements NotificationDao {
         PageSearchTrunk<NotificationMetadataEntity> result = new PageSearchTrunk<>();
         result.setResults(Collections.singletonList( NotificationMetadataEntity.builder()
                 .iunRecipientId("IUN##internalId1" )
-                .notificationStatus( NotificationStatusV26.VIEWED.getValue() )
+                .notificationStatus( NotificationStatusV28.VIEWED.getValue() )
                 .senderId( "SenderId" )
                 .recipientIds(List.of( "internalId1", "internalId2" ) )
                 .build() ));

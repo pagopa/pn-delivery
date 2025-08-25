@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: +4hxcw7MrZHuAPOTYZv5v5Lmcs8OImk4qBFmPKKta8w=
+  version: ePwlAEOgc+5najL1kSSGiMr/p25rVsVhg9R0GIQLvMI=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -512,7 +512,7 @@ components:
         controllo, ovvero la seguente regexp: ^[ -{}~\u00A0-ÿ]*$
       type: string
       minLength: 1
-      maxLength: 44
+      maxLength: 88
       pattern: ^.*$
     noticeCode:
       description: Payment notice number  numero avviso
@@ -575,9 +575,11 @@ components:
           * `DELIVERED` - notifica ricevuta da tutti i destinatari
           * `VIEWED` - notifica presa visione per almeno un destinatario
           * `EFFECTIVE_DATE` - notifica perfezionata per un destinatario
-          * `PAID` - notifica pagata
           * `UNREACHABLE` - notifica non recapitabile
           * `CANCELLED` - notifica annullata dal mittente       
+          * `PAID` - [DEPRECATO] Uno dei destinatari ha pagato la notifica
+          * `RETURNED_TO_SENDER` - La notifica è stata restituita al mittente
+          * `DELIVERY_TIMEOUT` - La notifica non è stata consegnata entro il termine stabilito
     TimelineElementId:
       type: string
     NotificationStatusHistoryElement:

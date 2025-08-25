@@ -1,6 +1,6 @@
 package it.pagopa.pn.delivery.models;
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV28;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,7 +33,7 @@ public class InputSearchNotificationDelegatedDto {
 
     private String receiverId;
 
-    private List<NotificationStatusV26> statuses;
+    private List<NotificationStatusV28> statuses;
 
     private String iun;
 

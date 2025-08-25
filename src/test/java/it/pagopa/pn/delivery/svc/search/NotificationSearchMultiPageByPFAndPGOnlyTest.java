@@ -3,7 +3,7 @@ package it.pagopa.pn.delivery.svc.search;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.BaseRecipientDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV28;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.EntityToDtoNotificationMetadataMapper;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
@@ -80,7 +80,7 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
             entityResultPF.getResults().add( NotificationMetadataEntity.builder()
                     .senderIdRecipientId( "senderId##internalIdPF"+i )
                     .iunRecipientId("IUN##internalIdPF"+i )
-                    .notificationStatus( NotificationStatusV26.VIEWED.getValue() )
+                    .notificationStatus( NotificationStatusV28.VIEWED.getValue() )
                     .senderId( "senderId" )
                     .sentAt(now.plus(Duration.ofDays( i )))
                     .recipientIds(List.of( "internalIdPF"+i ) )
@@ -92,7 +92,7 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
             entityResultPG.getResults().add( NotificationMetadataEntity.builder()
                     .senderIdRecipientId( "senderId##internalIdPG"+i )
                     .iunRecipientId("IUN##internalIdPG"+i )
-                    .notificationStatus( NotificationStatusV26.VIEWED.getValue() )
+                    .notificationStatus( NotificationStatusV28.VIEWED.getValue() )
                     .senderId( "senderId" )
                     .sentAt(now.plus( Duration.ofDays( i ) ).plusSeconds( i ))
                     .recipientIds(List.of( "internalIdPG"+i ) )
@@ -146,7 +146,7 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
             entityResultPG.getResults().add( NotificationMetadataEntity.builder()
                     .senderIdRecipientId( "senderId##internalIdPG"+i )
                     .iunRecipientId("IUN##internalIdPG"+i )
-                    .notificationStatus( NotificationStatusV26.VIEWED.getValue() )
+                    .notificationStatus( NotificationStatusV28.VIEWED.getValue() )
                     .senderId( "senderId" )
                     .sentAt(now.plus( Duration.ofDays( i ) ))
                     .recipientIds(List.of( "internalIdPG"+i ) )
@@ -157,7 +157,7 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
             entityResultPF.getResults().add( NotificationMetadataEntity.builder()
                     .senderIdRecipientId( "senderId##internalIdPF"+i )
                     .iunRecipientId("IUN##internalIdPF"+i )
-                    .notificationStatus( NotificationStatusV26.VIEWED.getValue() )
+                    .notificationStatus( NotificationStatusV28.VIEWED.getValue() )
                     .senderId( "senderId" )
                     .sentAt(now.plus( Duration.ofDays( i ) ).plusSeconds( i ))
                     .recipientIds(List.of( "internalIdPF"+i ) )
@@ -212,7 +212,7 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
             entityResultPF.getResults().add( NotificationMetadataEntity.builder()
                     .senderIdRecipientId( "senderId##internalIdPF"+i )
                     .iunRecipientId("IUN##internalIdPF"+i )
-                    .notificationStatus( NotificationStatusV26.VIEWED.getValue() )
+                    .notificationStatus( NotificationStatusV28.VIEWED.getValue() )
                     .senderId( "senderId" )
                     .sentAt(now.plus(Duration.ofDays( i )))
                     .recipientIds(List.of( "internalIdPF"+i ) )
@@ -224,7 +224,7 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
             entityResultPG.getResults().add( NotificationMetadataEntity.builder()
                     .senderIdRecipientId( "senderId##internalIdPG"+i )
                     .iunRecipientId("IUN##internalIdPG"+i )
-                    .notificationStatus( NotificationStatusV26.VIEWED.getValue() )
+                    .notificationStatus( NotificationStatusV28.VIEWED.getValue() )
                     .senderId( "senderId" )
                     .sentAt(now.plus( Duration.ofDays( i ) ).plusSeconds( i ))
                     .recipientIds(List.of( "internalIdPG"+i ) )
@@ -280,7 +280,7 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
             entityResultPF.getResults().add( NotificationMetadataEntity.builder()
                     .senderIdRecipientId( "senderId##internalIdPF"+i )
                     .iunRecipientId("IUN##internalIdPF"+i )
-                    .notificationStatus( NotificationStatusV26.VIEWED.getValue() )
+                    .notificationStatus( NotificationStatusV28.VIEWED.getValue() )
                     .senderId( "senderId" )
                     .sentAt(now.plus(Duration.ofDays( -i )))
                     .recipientIds(List.of( "internalIdPF"+i ) )
@@ -342,7 +342,7 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
             entityResultPF.getResults().add( NotificationMetadataEntity.builder()
                     .senderIdRecipientId( "senderId##internalIdPF"+i )
                     .iunRecipientId("IUN##internalIdPF"+i )
-                    .notificationStatus( NotificationStatusV26.VIEWED.getValue() )
+                    .notificationStatus( NotificationStatusV28.VIEWED.getValue() )
                     .senderId( "senderId" )
                     .sentAt(now.plus(Duration.ofDays( -i )))
                     .recipientIds(List.of( "internalIdPF"+i ) )
@@ -354,7 +354,7 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
             entityResultPG.getResults().add( NotificationMetadataEntity.builder()
                     .senderIdRecipientId( "senderId##internalIdPG"+i )
                     .iunRecipientId("IUN##internalIdPG"+i )
-                    .notificationStatus( NotificationStatusV26.VIEWED.getValue() )
+                    .notificationStatus( NotificationStatusV28.VIEWED.getValue() )
                     .senderId( "senderId" )
                     .sentAt(now.plus( Duration.ofDays( -i ) ).plusSeconds( -i ))
                     .recipientIds(List.of( "internalIdPG"+i ) )
