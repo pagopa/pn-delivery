@@ -107,7 +107,7 @@ class DtoToEntityNotificationMapperTest {
         actualInternalNotification.paProtocolNumber("42");
         actualInternalNotification.paymentExpirationDate("2020-03-01");
         actualInternalNotification
-                .physicalCommunicationType(FullSentNotificationV27.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
+                .physicalCommunicationType(FullSentNotificationV28.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
         ArrayList<String> recipientIds = new ArrayList<>();
         actualInternalNotification.recipientIds(recipientIds);
         ArrayList<NotificationRecipient> recipients = new ArrayList<>();
@@ -133,7 +133,7 @@ class DtoToEntityNotificationMapperTest {
         actualInternalNotification.setPaProtocolNumber("42");
         actualInternalNotification.setPaymentExpirationDate("2020-03-01");
         actualInternalNotification
-                .setPhysicalCommunicationType(FullSentNotificationV27.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
+                .setPhysicalCommunicationType(FullSentNotificationV28.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
         ArrayList<String> recipientIds2 = new ArrayList<>();
         actualInternalNotification.setRecipientIds(recipientIds2);
         ArrayList<NotificationRecipient> recipients2 = new ArrayList<>();
@@ -145,7 +145,7 @@ class DtoToEntityNotificationMapperTest {
         actualInternalNotification.setSentAt(sentAt);
         actualInternalNotification.setSubject("Hello from the Dreaming Spires");
         actualInternalNotification.setTaxonomyCode("Taxonomy Code");
-        ArrayList<TimelineElementV27> timeline = new ArrayList<>();
+        ArrayList<TimelineElementV28> timeline = new ArrayList<>();
         actualInternalNotification.setTimeline(timeline);
         actualInternalNotification.sourceChannel("Source Channel");
         actualInternalNotification.subject("Hello from the Dreaming Spires");
@@ -154,13 +154,13 @@ class DtoToEntityNotificationMapperTest {
     }
 
     private void testingInternalNotification(InternalNotification actualInternalNotification){
-        ArrayList<TimelineElementV27> timeline2 = new ArrayList<>();
+        ArrayList<TimelineElementV28> timeline2 = new ArrayList<>();
         actualInternalNotification.timeline(timeline2);
         assertEquals(" abstract", actualInternalNotification.getAbstract());
         assertEquals(10, actualInternalNotification.getAmount().intValue());
         assertEquals("Cancelled By Iun", actualInternalNotification.getCancelledByIun());
         assertEquals("Cancelled Iun", actualInternalNotification.getCancelledIun());
-        List<TimelineElementV27> timeline3 = actualInternalNotification.getTimeline();
+        List<TimelineElementV28> timeline3 = actualInternalNotification.getTimeline();
         assertTrue(actualInternalNotification.getDocumentsAvailable());
         assertEquals("Group", actualInternalNotification.getGroup());
         assertEquals("ABC123", actualInternalNotification.getIdempotenceToken());
@@ -169,7 +169,7 @@ class DtoToEntityNotificationMapperTest {
         assertEquals(NotificationStatusV26.IN_VALIDATION, actualInternalNotification.getNotificationStatus());
         assertEquals("42", actualInternalNotification.getPaProtocolNumber());
         assertEquals("2020-03-01", actualInternalNotification.getPaymentExpirationDate());
-        assertEquals(FullSentNotificationV27.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER,
+        assertEquals(FullSentNotificationV28.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER,
                 actualInternalNotification.getPhysicalCommunicationType());
         assertEquals("Sender Denomination", actualInternalNotification.getSenderDenomination());
         assertEquals("42", actualInternalNotification.getSenderPaId());
