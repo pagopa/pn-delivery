@@ -72,6 +72,11 @@ components:
     PnStatusResponse:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-downtime-logs/6e086075d1b7294e5b0dcbc59a226de321a7a1d3/docs/openapi/schemas-pn-components-v1.yaml#/components/schemas/PnStatusResponse'
 
+    ############################################################################################
+    ###                          STRUTTURE DATI DI PN-USER-ATTRIBUTES                        ###
+    ############################################################################################
+    Consent:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-user-attributes/20e56e6f3c9ba4211d23ce96fb1dd831481df10b/docs/openapi/pn-address-book-b2b-internal-io.yaml#/components/schemas/Consent'
 
     F24Metadata:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-f24/0abcbdf4d949be4d8da4573c255e262ff0e81913/docs/openapi/schemas-f24.yaml#/components/schemas/F24Metadata'
