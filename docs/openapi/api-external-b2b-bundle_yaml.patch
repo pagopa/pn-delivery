@@ -1,7 +1,14 @@
+Subject: [PATCH] generate patch
+---
+Index: docs/openapi/api-external-b2b-pa-bundle.yaml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
 diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-external-b2b-pa-bundle.yaml
---- a/docs/openapi/api-external-b2b-pa-bundle.yaml	(revision 4f084016b2151ce54e6c7792b916e11a17f065ab)
-+++ b/docs/openapi/api-external-b2b-pa-bundle.yaml	(date 1743781377098)
-@@ -997,8 +997,6 @@
+--- a/docs/openapi/api-external-b2b-pa-bundle.yaml	(revision 1d122771170a98b7db5f1d047f3e271f11487997)
++++ b/docs/openapi/api-external-b2b-pa-bundle.yaml	(date 1756204761095)
+@@ -1001,8 +1001,6 @@
        tags:
          - NewNotification
        operationId: sendNewNotification
@@ -10,7 +17,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        requestBody:
          content:
            application/json:
-@@ -1033,8 +1031,6 @@
+@@ -1037,8 +1035,6 @@
      get:
        deprecated: true
        operationId: retrieveNotificationRequestStatus
@@ -19,7 +26,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        tags:
          - SenderReadB2B
        summary: Verifica accettazione richiesta notifica
-@@ -1094,8 +1090,6 @@
+@@ -1098,8 +1094,6 @@
        tags:
          - NewNotification
        operationId: sendNewNotificationV21
@@ -28,7 +35,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        requestBody:
          content:
            application/json:
-@@ -1130,8 +1124,6 @@
+@@ -1134,8 +1128,6 @@
      get:
        deprecated: true
        operationId: retrieveNotificationRequestStatusV21
@@ -37,7 +44,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        tags:
          - SenderReadB2B
        summary: Verifica accettazione richiesta notifica
-@@ -1191,8 +1183,6 @@
+@@ -1195,8 +1187,6 @@
        tags:
          - NewNotification
        operationId: sendNewNotificationV23
@@ -46,7 +53,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        requestBody:
          content:
            application/json:
-@@ -1227,8 +1217,6 @@
+@@ -1231,8 +1221,6 @@
      get:
        deprecated: true
        operationId: retrieveNotificationRequestStatusV23
@@ -55,7 +62,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        tags:
          - SenderReadB2B
        summary: Verifica accettazione richiesta notifica
-@@ -1373,8 +1361,6 @@
+@@ -1375,8 +1363,6 @@
        tags:
          - SenderReadB2B
        operationId: retrieveSentNotification
@@ -64,7 +71,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        parameters:
          - $ref: '#/components/parameters/pathIun'
        responses:
-@@ -1406,8 +1392,6 @@
+@@ -1408,8 +1394,6 @@
        tags:
          - SenderReadB2B
        operationId: retrieveSentNotificationV20
@@ -73,7 +80,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        parameters:
          - $ref: '#/components/parameters/pathIun'
        responses:
-@@ -1439,8 +1423,6 @@
+@@ -1441,8 +1425,6 @@
        tags:
          - SenderReadB2B
        operationId: retrieveSentNotificationV21
@@ -82,7 +89,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        parameters:
          - $ref: '#/components/parameters/pathIun'
        responses:
-@@ -1472,8 +1454,6 @@
+@@ -1474,8 +1456,6 @@
        tags:
          - SenderReadB2B
        operationId: retrieveSentNotificationV23
@@ -91,7 +98,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        parameters:
          - $ref: '#/components/parameters/pathIun'
        responses:
-@@ -1505,8 +1485,6 @@
+@@ -1507,8 +1487,6 @@
        tags:
          - SenderReadB2B
        operationId: retrieveSentNotificationV24
@@ -100,7 +107,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        parameters:
          - $ref: '#/components/parameters/pathIun'
        responses:
-@@ -1538,8 +1516,6 @@
+@@ -1540,8 +1518,6 @@
        tags:
          - SenderReadB2B
        operationId: retrieveSentNotificationV25
@@ -109,7 +116,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        parameters:
          - $ref: '#/components/parameters/pathIun'
        responses:
-@@ -1598,8 +1574,6 @@
+@@ -1599,8 +1575,6 @@
      get:
        deprecated: true
        operationId: retrieveNotificationPrice
@@ -118,7 +125,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        summary: Retrieve notification price and effective date
        description: |-
          Usata dalla PA per recuperare il costo di notificazione tramite
-@@ -1693,7 +1667,6 @@
+@@ -1694,7 +1668,6 @@
        operationId: retrieveNotificationLegalFactsV20
        parameters:
          - $ref: '#/components/parameters/pathIun'
@@ -126,7 +133,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        responses:
          '200':
            description: OK
-@@ -1731,7 +1704,6 @@
+@@ -1732,7 +1705,6 @@
          - $ref: '#/components/parameters/pathIun'
          - $ref: '#/components/parameters/pathLegalFactType'
          - $ref: '#/components/parameters/pathLegalFactId'
@@ -134,7 +141,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        responses:
          '200':
            description: OK
-@@ -1767,7 +1739,6 @@
+@@ -1768,7 +1740,6 @@
        parameters:
          - $ref: '#/components/parameters/pathIun'
          - $ref: '#/components/parameters/pathLegalFactId'
@@ -142,7 +149,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        responses:
          '200':
            description: OK
-@@ -1775,43 +1746,6 @@
+@@ -1776,43 +1747,6 @@
              application/json:
                schema:
                  $ref: '#/components/schemas/LegalFactDownloadMetadataResponse'
@@ -186,7 +193,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
          '400':
            description: Invalid input
            content:
-@@ -1840,11 +1774,8 @@
+@@ -1841,11 +1775,8 @@
        tags:
          - LegalFacts
        operationId: retrieveNotificationLegalFacts
@@ -198,183 +205,3 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        responses:
          '200':
            description: OK
-@@ -2202,8 +2133,6 @@
-       tags:
-         - Streams
-       operationId: createEventStream
--      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
--      x-pagopa-lambda-account: core
-       requestBody:
-         required: true
-         content:
-@@ -2236,8 +2165,6 @@
-       tags:
-         - Streams
-       operationId: listEventStreams
--      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
--      x-pagopa-lambda-account: core
-       responses:
-         '200':
-           description: OK
-@@ -2267,8 +2194,6 @@
-       tags:
-         - Streams
-       operationId: retrieveEventStream
--      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
--      x-pagopa-lambda-account: core
-       responses:
-         '200':
-           description: OK
-@@ -2297,8 +2222,6 @@
-       tags:
-         - Streams
-       operationId: updateEventStream
--      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
--      x-pagopa-lambda-account: core
-       requestBody:
-         required: true
-         content:
-@@ -2333,8 +2256,6 @@
-       tags:
-         - Streams
-       operationId: removeEventStream
--      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
--      x-pagopa-lambda-account: core
-       responses:
-         '204':
-           description: OK
-@@ -2362,8 +2283,6 @@
-       tags:
-         - Events
-       operationId: consumeEventStream
--      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
--      x-pagopa-lambda-account: core
-       parameters:
-         - $ref: '#/components/parameters/pathStreamId'
-         - $ref: '#/components/parameters/queryLastEventId'
-@@ -2422,8 +2341,6 @@
-       tags:
-         - Streams
-       operationId: createEventStreamV23
--      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
--      x-pagopa-lambda-account: core
-       requestBody:
-         required: true
-         content:
-@@ -2468,8 +2385,6 @@
-       tags:
-         - Streams
-       operationId: listEventStreamsV23
--      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
--      x-pagopa-lambda-account: core
-       responses:
-         '200':
-           description: OK
-@@ -2499,8 +2414,6 @@
-       tags:
-         - Streams
-       operationId: retrieveEventStreamV23
--      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
--      x-pagopa-lambda-account: core
-       responses:
-         '200':
-           description: OK
-@@ -2541,8 +2454,6 @@
-       tags:
-         - Streams
-       operationId: updateEventStreamV23
--      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
--      x-pagopa-lambda-account: core
-       requestBody:
-         required: true
-         content:
-@@ -2589,8 +2500,6 @@
-       tags:
-         - Streams
-       operationId: removeEventStreamV23
--      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
--      x-pagopa-lambda-account: core
-       responses:
-         '204':
-           description: OK
-@@ -2640,8 +2549,6 @@
-       tags:
-         - Streams
-       operationId: disableEventStreamV23
--      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
--      x-pagopa-lambda-account: core
-       parameters:
-         - $ref: '#/components/parameters/pathStreamId'
-       responses:
-@@ -2687,8 +2594,6 @@
-       tags:
-         - Events
-       operationId: consumeEventStreamV23
--      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
--      x-pagopa-lambda-account: core
-       parameters:
-         - $ref: '#/components/parameters/pathStreamId'
-         - $ref: '#/components/parameters/queryLastEventId'
-@@ -2762,8 +2667,6 @@
-       tags:
-         - Streams
-       operationId: createEventStreamV24
--      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
--      x-pagopa-lambda-account: core
-       requestBody:
-         required: true
-         content:
-@@ -2808,8 +2711,6 @@
-       tags:
-         - Streams
-       operationId: listEventStreamsV24
--      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
--      x-pagopa-lambda-account: core
-       responses:
-         '200':
-           description: OK
-@@ -2839,8 +2740,6 @@
-       tags:
-         - Streams
-       operationId: retrieveEventStreamV24
--      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
--      x-pagopa-lambda-account: core
-       responses:
-         '200':
-           description: OK
-@@ -2881,8 +2780,6 @@
-       tags:
-         - Streams
-       operationId: updateEventStreamV24
--      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
--      x-pagopa-lambda-account: core
-       requestBody:
-         required: true
-         content:
-@@ -2929,8 +2826,6 @@
-       tags:
-         - Streams
-       operationId: removeEventStreamV24
--      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
--      x-pagopa-lambda-account: core
-       responses:
-         '204':
-           description: OK
-@@ -2980,8 +2875,6 @@
-       tags:
-         - Streams
-       operationId: disableEventStreamV24
--      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
--      x-pagopa-lambda-account: core
-       parameters:
-         - $ref: '#/components/parameters/pathStreamId'
-       responses:
-@@ -3027,8 +2920,6 @@
-       tags:
-         - Events
-       operationId: consumeEventStreamV24
--      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
--      x-pagopa-lambda-account: core
-       parameters:
-         - $ref: '#/components/parameters/pathStreamId'
-         - $ref: '#/components/parameters/queryLastEventId'

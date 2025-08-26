@@ -1886,7 +1886,6 @@ paths:
       description: (EXPERIMENTAL) Lettura delle configurazioni di uno stream di eventi.
       tags:
         - Streams
-      operationId: retrieveEventStreamV28
       responses:
         '200':
           description: OK
@@ -1922,7 +1921,8 @@ paths:
       summary: EXPERIMENTAL - Update Stream metadata
       description: >-
         (EXPERIMENTAL) Modifica delle configurazioni dei filtri associati a uno
-        stream di eventi
+        stream di eventi, non è possibile cambiare il valore del flag
+        waitForAccepted.
       tags:
         - Streams
       operationId: updateEventStreamV28
@@ -1971,7 +1971,6 @@ paths:
         consumati.
       tags:
         - Streams
-      operationId: removeEventStreamV28
       responses:
         '204':
           description: OK
@@ -2135,6 +2134,8 @@ paths:
       tags:
         - Streams
       operationId: createEventStream
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+      x-pagopa-lambda-account: core
       requestBody:
         required: true
         content:
@@ -2167,6 +2168,8 @@ paths:
       tags:
         - Streams
       operationId: listEventStreams
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+      x-pagopa-lambda-account: core
       responses:
         '200':
           description: OK
@@ -2196,6 +2199,8 @@ paths:
       tags:
         - Streams
       operationId: retrieveEventStream
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+      x-pagopa-lambda-account: core
       responses:
         '200':
           description: OK
@@ -2224,6 +2229,8 @@ paths:
       tags:
         - Streams
       operationId: updateEventStream
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+      x-pagopa-lambda-account: core
       requestBody:
         required: true
         content:
@@ -2258,6 +2265,8 @@ paths:
       tags:
         - Streams
       operationId: removeEventStream
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+      x-pagopa-lambda-account: core
       responses:
         '204':
           description: OK
@@ -2285,6 +2294,8 @@ paths:
       tags:
         - Events
       operationId: consumeEventStream
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
         - $ref: '#/components/parameters/queryLastEventId'
@@ -2343,6 +2354,8 @@ paths:
       tags:
         - Streams
       operationId: createEventStreamV23
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+      x-pagopa-lambda-account: core
       requestBody:
         required: true
         content:
@@ -2387,6 +2400,8 @@ paths:
       tags:
         - Streams
       operationId: listEventStreamsV23
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+      x-pagopa-lambda-account: core
       responses:
         '200':
           description: OK
@@ -2416,6 +2431,8 @@ paths:
       tags:
         - Streams
       operationId: retrieveEventStreamV23
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+      x-pagopa-lambda-account: core
       responses:
         '200':
           description: OK
@@ -2456,6 +2473,8 @@ paths:
       tags:
         - Streams
       operationId: updateEventStreamV23
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+      x-pagopa-lambda-account: core
       requestBody:
         required: true
         content:
@@ -2502,6 +2521,8 @@ paths:
       tags:
         - Streams
       operationId: removeEventStreamV23
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+      x-pagopa-lambda-account: core
       responses:
         '204':
           description: OK
@@ -2551,6 +2572,8 @@ paths:
       tags:
         - Streams
       operationId: disableEventStreamV23
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
       responses:
@@ -2596,6 +2619,8 @@ paths:
       tags:
         - Events
       operationId: consumeEventStreamV23
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
         - $ref: '#/components/parameters/queryLastEventId'
@@ -2669,6 +2694,8 @@ paths:
       tags:
         - Streams
       operationId: createEventStreamV24
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+      x-pagopa-lambda-account: core
       requestBody:
         required: true
         content:
@@ -2713,6 +2740,8 @@ paths:
       tags:
         - Streams
       operationId: listEventStreamsV24
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+      x-pagopa-lambda-account: core
       responses:
         '200':
           description: OK
@@ -2742,6 +2771,8 @@ paths:
       tags:
         - Streams
       operationId: retrieveEventStreamV24
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+      x-pagopa-lambda-account: core
       responses:
         '200':
           description: OK
@@ -2782,6 +2813,8 @@ paths:
       tags:
         - Streams
       operationId: updateEventStreamV24
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+      x-pagopa-lambda-account: core
       requestBody:
         required: true
         content:
@@ -2828,6 +2861,8 @@ paths:
       tags:
         - Streams
       operationId: removeEventStreamV24
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+      x-pagopa-lambda-account: core
       responses:
         '204':
           description: OK
@@ -2877,6 +2912,8 @@ paths:
       tags:
         - Streams
       operationId: disableEventStreamV24
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
       responses:
@@ -2922,6 +2959,8 @@ paths:
       tags:
         - Events
       operationId: consumeEventStreamV24
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
         - $ref: '#/components/parameters/queryLastEventId'
@@ -2995,7 +3034,7 @@ paths:
       tags:
         - Streams
       operationId: createEventStreamV25
-      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
       x-pagopa-lambda-account: core
       requestBody:
         required: true
@@ -3041,7 +3080,7 @@ paths:
       tags:
         - Streams
       operationId: listEventStreamsV25
-      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
       x-pagopa-lambda-account: core
       responses:
         '200':
@@ -3071,8 +3110,7 @@ paths:
       description: Lettura delle configurazioni di uno stream di eventi.
       tags:
         - Streams
-      operationId: retrieveEventStreamV25
-      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
       x-pagopa-lambda-account: core
       responses:
         '200':
@@ -3114,7 +3152,7 @@ paths:
       tags:
         - Streams
       operationId: updateEventStreamV25
-      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
       x-pagopa-lambda-account: core
       requestBody:
         required: true
@@ -3161,8 +3199,7 @@ paths:
         tutti gli eventi associati allo stream e non ancora consumati.
       tags:
         - Streams
-      operationId: removeEventStreamV25
-      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
       x-pagopa-lambda-account: core
       responses:
         '204':
@@ -3213,7 +3250,7 @@ paths:
       tags:
         - Streams
       operationId: disableEventStreamV25
-      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
       x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
@@ -3260,7 +3297,7 @@ paths:
       tags:
         - Events
       operationId: consumeEventStreamV25
-      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
       x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
@@ -3335,7 +3372,7 @@ paths:
       tags:
         - Streams
       operationId: createEventStreamV26
-      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
       x-pagopa-lambda-account: core
       requestBody:
         required: true
@@ -3381,7 +3418,7 @@ paths:
       tags:
         - Streams
       operationId: listEventStreamsV26
-      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
       x-pagopa-lambda-account: core
       responses:
         '200':
@@ -3411,8 +3448,7 @@ paths:
       description: Lettura delle configurazioni di uno stream di eventi.
       tags:
         - Streams
-      operationId: retrieveEventStreamV26
-      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
       x-pagopa-lambda-account: core
       responses:
         '200':
@@ -3454,7 +3490,7 @@ paths:
       tags:
         - Streams
       operationId: updateEventStreamV26
-      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
       x-pagopa-lambda-account: core
       requestBody:
         required: true
@@ -3501,8 +3537,7 @@ paths:
         tutti gli eventi associati allo stream e non ancora consumati.
       tags:
         - Streams
-      operationId: removeEventStreamV26
-      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
       x-pagopa-lambda-account: core
       responses:
         '204':
@@ -3553,7 +3588,7 @@ paths:
       tags:
         - Streams
       operationId: disableEventStreamV26
-      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
       x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
@@ -3600,7 +3635,7 @@ paths:
       tags:
         - Events
       operationId: consumeEventStreamV26
-      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
       x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
@@ -3662,17 +3697,20 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery-progresses/v2.7/streams:
     post:
+      deprecated: true
       summary: Crea nuovo stream di eventi
       description: >-
         Creazione di un flusso di eventi specificando se gli eventi saranno
-        relativi ai cambi di stato o agli eventi di timeline. In risposta,
-        Piattaforma Notifiche, comunicherà un identificativo dello stream e il 
-        timestamp di effettiva attivazione del flusso, tipicamente pochi secondi
-        dopo che è stata  invocata l'operazione.
+        relativi ai cambi di stato o agli eventi di timeline.
+
+
+        In risposta, Piattaforma Notifiche, comunicherà un identificativo dello
+        stream e il  timestamp di effettiva attivazione del flusso, tipicamente
+        pochi secondi dopo che è stata  invocata l'operazione.
       tags:
         - Streams
       operationId: createEventStreamV27
-      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
       x-pagopa-lambda-account: core
       requestBody:
         required: true
@@ -3712,12 +3750,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     get:
+      deprecated: true
       summary: Elenca stream di eventi
       description: Elenca gli stream di eventi
       tags:
         - Streams
       operationId: listEventStreamsV27
-      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
       x-pagopa-lambda-account: core
       responses:
         '200':
@@ -3742,12 +3781,12 @@ paths:
     parameters:
       - $ref: '#/components/parameters/pathStreamId'
     get:
+      deprecated: true
       summary: Leggi metadata dello stream
       description: Lettura delle configurazioni di uno stream di eventi.
       tags:
         - Streams
-      operationId: retrieveEventStreamV27
-      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
       x-pagopa-lambda-account: core
       responses:
         '200':
@@ -3781,14 +3820,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     put:
+      deprecated: true
       summary: Update Stream metadata
       description: >-
         Modifica delle configurazioni dei filtri associati a uno stream di
-        eventi
+        eventi, non è possibile cambiare il valore del flag waitForAccepted.
       tags:
         - Streams
       operationId: updateEventStreamV27
-      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
       x-pagopa-lambda-account: core
       requestBody:
         required: true
@@ -3828,14 +3868,14 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     delete:
+      deprecated: true
       summary: Remove Event Stream
       description: >-
         Cancellazione dello steam di eventi: elimina sia le configurazioni sia
         tutti gli eventi associati allo stream e non ancora consumati.
       tags:
         - Streams
-      operationId: removeEventStreamV27
-      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
       x-pagopa-lambda-account: core
       responses:
         '204':
@@ -3866,19 +3906,27 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery-progresses/v2.7/streams/{streamId}/action/disable:
     post:
+      deprecated: true
       summary: Disabilita uno stream
       description: >-
-        Disabilita uno stream. Da uno stream disabilitato è possibile leggere
-        gli eventi presenti nello stream salvati prima della disabilitazione, ma
-        non ne saranno aggiunti di nuovi. Non è possibile modificare o
-        riabilitare uno stream disabilitato. Uno stream disabilitato non rientra
-        nel conteggio degli stream massimi, non può essere riabilitato e verrà
-        eliminato automaticamente dopo <span id="webhookTtlDisabled">14</span>
-        giorni.
+        Disabilita uno stream.
+
+
+        Da uno stream disabilitato è possibile leggere gli eventi presenti nello
+        stream salvati prima della disabilitazione, ma non ne saranno aggiunti
+        di nuovi.
+
+
+        Non è possibile modificare o riabilitare uno stream disabilitato.
+
+
+        Uno stream disabilitato non rientra nel conteggio degli stream massimi,
+        non può essere riabilitato e verrà eliminato automaticamente dopo <span
+        id="webhookTtlDisabled">14</span> giorni.
       tags:
         - Streams
       operationId: disableEventStreamV27
-      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
       x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
@@ -3915,6 +3963,7 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery-progresses/v2.7/streams/{streamId}/events:
     get:
+      deprecated: true
       summary: Leggi progressi notifiche
       description: >-
         Lettura degli eventi presenti nello stream di aggiornamenti con
@@ -3924,7 +3973,7 @@ paths:
       tags:
         - Events
       operationId: consumeEventStreamV27
-      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
       x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
@@ -5882,7 +5931,7 @@ components:
         controllo, ovvero la seguente regexp: ^[ -{}~\u00A0-ÿ]*$
       type: string
       minLength: 1
-      maxLength: 44
+      maxLength: 88
       pattern: ^.*$
     NotificationDigitalAddress:
       description: Indirizzo di invio della notifica
