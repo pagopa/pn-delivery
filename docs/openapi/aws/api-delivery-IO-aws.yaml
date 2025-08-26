@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: ZJkYHl0Kl3hLsTossYWRI/CbTOfUC0rRn44T/58hI6I=
+  version: JFeLqUjPfGwT1vrC1FsaMlShJ9CjqYPQKQP1egDR6/Q=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -283,11 +283,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
         '403':
-          description: User not authorized
+          description: Mandate not found or TOS not accepted / invalid
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResponseCheckQrMandateDto'
+                $ref: '#/components/schemas/CheckQrForbiddenResponse'
         '404':
           description: QrCode reference Not Found
           content:
@@ -515,6 +515,52 @@ components:
           description: Codice Fiscale
           type: string
           example: CGNNMO01T10A944Q
+    Consent:
+      type: object
+      required:
+        - consentType
+        - recipientId
+        - consentVersion
+        - tosContentUrl
+      properties:
+        recipientId:
+          example: 123e4567-e89b-12d3-a456-426614174000
+          type: string
+        consentType:
+          $ref: '#/components/schemas/ConsentType'
+        accepted:
+          type: boolean
+        consentVersion:
+          $ref: '#/components/schemas/ConsentVersion'
+        isFirstAccept:
+          type: boolean
+        tosContentUrl:
+          type: string
+          description: url of page which contains terms of service or privacy policy
+          format: uri
+          example: https://www.pagopa.it/termini-e-condizioni/
+    CheckQrForbiddenResponseDetail:
+      description: >-
+        Dettaglio della risposta in caso di errore 403 durante la verifica del
+        QR-Code. Può riportare informazioni sul destinatario della notifica in
+        caso di delega non trovata, oppure i dati necessari per l'accettazione
+        dei termini di servizio.
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/ResponseCheckQrMandateDto'
+        - $ref: '#/components/schemas/Consent'
+    CheckQrForbiddenResponse:
+      type: object
+      description: Risposta in caso di errore 403 durante la verifica del QR-Code.
+      properties:
+        errorType:
+          type: string
+          description: Tipo di errore
+          enum:
+            - MANDATE_NOT_PRESENT
+            - TOS_NOT_ACCEPTED
+        detail:
+          $ref: '#/components/schemas/CheckQrForbiddenResponseDetail'
     Problem:
       properties:
         type:
@@ -790,6 +836,20 @@ components:
       minLength: 25
       maxLength: 25
       pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+    ConsentType:
+      type: string
+      description: type of consent
+      enum:
+        - TOS
+        - DATAPRIVACY
+        - TOS_DEST_B2B
+        - TOS_SERCQ
+        - DATAPRIVACY_SERCQ
+    ConsentVersion:
+      type: string
+      description: version of consent
+      maxLength: 10
+      pattern: ^[a-zA-Z0-9_.-]*$
     LegalFactCategory:
       title: Tipi di atti opponibili a terzi
       description: >-
