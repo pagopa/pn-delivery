@@ -215,11 +215,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
         '403':
-          description: User not authorized
+          description: Mandate not found or TOS not accepted / invalid
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResponseCheckQrMandateDto'
+                $ref: '#/components/schemas/CheckQrForbiddenResponse'
         '404':
           description: QrCode reference Not Found
           content:
@@ -359,7 +359,6 @@ components:
           description: Informazioni anagrafiche dell'utente destinatario della notifica
           $ref: '#/components/schemas/UserInfo'
 
-
     UserInfo:
       type: object
       properties:
@@ -367,15 +366,40 @@ components:
           type: string
           description: Nome + cognome __oppure__ ragione sociale
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
-          format: password # NO EXTERNAL
           example: Nome Cognome
         taxId:
           title: Codice Fiscale
           description: Codice Fiscale
           type: string
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
-          format: password # NO EXTERNAL
           example: CGNNMO01T10A944Q
+
+    Consent:
+      $ref: 'remote-refs.yaml#/components/schemas/Consent'
+
+    CheckQrForbiddenResponseDetail:
+        description: >-
+            Dettaglio della risposta in caso di errore 403 durante la verifica del QR-Code.
+            Può riportare informazioni sul destinatario della notifica in caso di delega non trovata,
+            oppure i dati necessari per l'accettazione dei termini di servizio.
+        type: object
+        oneOf:
+            - $ref: '#/components/schemas/ResponseCheckQrMandateDto'
+            - $ref: '#/components/schemas/Consent'
+
+    CheckQrForbiddenResponse:
+      type: object
+      description: >-
+          Risposta in caso di errore 403 durante la verifica del QR-Code.
+      properties:
+        errorType:
+          type: string
+          description: Tipo di errore
+          enum:
+            - MANDATE_NOT_PRESENT
+            - TOS_NOT_ACCEPTED
+        detail:
+          $ref: '#/components/schemas/CheckQrForbiddenResponseDetail'
 
     Problem:
       $ref: 'remote-refs.yaml#/components/schemas/Problem'
