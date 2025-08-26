@@ -6,8 +6,8 @@ Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 <+>UTF-8
 ===================================================================
 diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-external-b2b-pa-bundle.yaml
---- a/docs/openapi/api-external-b2b-pa-bundle.yaml	(revision 1d122771170a98b7db5f1d047f3e271f11487997)
-+++ b/docs/openapi/api-external-b2b-pa-bundle.yaml	(date 1756204761095)
+--- a/docs/openapi/api-external-b2b-pa-bundle.yaml	(revision 853c5596e522cd922582eafcbad58f2ee8397ed8)
++++ b/docs/openapi/api-external-b2b-pa-bundle.yaml	(date 1756225511003)
 @@ -1001,8 +1001,6 @@
        tags:
          - NewNotification
@@ -62,7 +62,25 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        tags:
          - SenderReadB2B
        summary: Verifica accettazione richiesta notifica
-@@ -1375,8 +1363,6 @@
+@@ -1291,8 +1279,6 @@
+       tags:
+         - NewNotification
+       operationId: sendNewNotificationV24
+-      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-sendnewnotification-lambda:live
+-      x-pagopa-lambda-account: core
+       requestBody:
+         content:
+           application/json:
+@@ -1326,8 +1312,6 @@
+                 $ref: '#/components/schemas/Problem'
+     get:
+       operationId: retrieveNotificationRequestStatusV24
+-      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live
+-      x-pagopa-lambda-account: core
+       tags:
+         - SenderReadB2B
+       summary: Verifica accettazione richiesta notifica
+@@ -1375,8 +1359,6 @@
        tags:
          - SenderReadB2B
        operationId: retrieveSentNotification
@@ -71,7 +89,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        parameters:
          - $ref: '#/components/parameters/pathIun'
        responses:
-@@ -1408,8 +1394,6 @@
+@@ -1408,8 +1390,6 @@
        tags:
          - SenderReadB2B
        operationId: retrieveSentNotificationV20
@@ -80,7 +98,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        parameters:
          - $ref: '#/components/parameters/pathIun'
        responses:
-@@ -1441,8 +1425,6 @@
+@@ -1441,8 +1421,6 @@
        tags:
          - SenderReadB2B
        operationId: retrieveSentNotificationV21
@@ -89,7 +107,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        parameters:
          - $ref: '#/components/parameters/pathIun'
        responses:
-@@ -1474,8 +1456,6 @@
+@@ -1474,8 +1452,6 @@
        tags:
          - SenderReadB2B
        operationId: retrieveSentNotificationV23
@@ -98,7 +116,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        parameters:
          - $ref: '#/components/parameters/pathIun'
        responses:
-@@ -1507,8 +1487,6 @@
+@@ -1507,8 +1483,6 @@
        tags:
          - SenderReadB2B
        operationId: retrieveSentNotificationV24
@@ -107,7 +125,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        parameters:
          - $ref: '#/components/parameters/pathIun'
        responses:
-@@ -1540,8 +1518,6 @@
+@@ -1540,8 +1514,6 @@
        tags:
          - SenderReadB2B
        operationId: retrieveSentNotificationV25
@@ -116,7 +134,16 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        parameters:
          - $ref: '#/components/parameters/pathIun'
        responses:
-@@ -1599,8 +1575,6 @@
+@@ -1572,8 +1544,6 @@
+       tags:
+         - SenderReadB2B
+       operationId: retrieveSentNotificationV26
+-      x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda:live
+-      x-pagopa-lambda-account: core
+       parameters:
+         - $ref: '#/components/parameters/pathIun'
+       responses:
+@@ -1599,8 +1569,6 @@
      get:
        deprecated: true
        operationId: retrieveNotificationPrice
@@ -125,7 +152,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        summary: Retrieve notification price and effective date
        description: |-
          Usata dalla PA per recuperare il costo di notificazione tramite
-@@ -1694,7 +1668,6 @@
+@@ -1694,7 +1662,6 @@
        operationId: retrieveNotificationLegalFactsV20
        parameters:
          - $ref: '#/components/parameters/pathIun'
@@ -133,7 +160,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        responses:
          '200':
            description: OK
-@@ -1732,7 +1705,6 @@
+@@ -1732,7 +1699,6 @@
          - $ref: '#/components/parameters/pathIun'
          - $ref: '#/components/parameters/pathLegalFactType'
          - $ref: '#/components/parameters/pathLegalFactId'
@@ -141,7 +168,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        responses:
          '200':
            description: OK
-@@ -1768,7 +1740,6 @@
+@@ -1768,7 +1734,6 @@
        parameters:
          - $ref: '#/components/parameters/pathIun'
          - $ref: '#/components/parameters/pathLegalFactId'
@@ -149,7 +176,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        responses:
          '200':
            description: OK
-@@ -1776,43 +1747,6 @@
+@@ -1776,43 +1741,6 @@
              application/json:
                schema:
                  $ref: '#/components/schemas/LegalFactDownloadMetadataResponse'
@@ -193,7 +220,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
          '400':
            description: Invalid input
            content:
-@@ -1841,11 +1775,8 @@
+@@ -1841,11 +1769,8 @@
        tags:
          - LegalFacts
        operationId: retrieveNotificationLegalFacts
@@ -205,3 +232,372 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        responses:
          '200':
            description: OK
+@@ -2205,8 +2130,6 @@
+       tags:
+         - Streams
+       operationId: createEventStream
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       requestBody:
+         required: true
+         content:
+@@ -2239,8 +2162,6 @@
+       tags:
+         - Streams
+       operationId: listEventStreams
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       responses:
+         '200':
+           description: OK
+@@ -2270,8 +2191,6 @@
+       tags:
+         - Streams
+       operationId: retrieveEventStream
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       responses:
+         '200':
+           description: OK
+@@ -2300,8 +2219,6 @@
+       tags:
+         - Streams
+       operationId: updateEventStream
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       requestBody:
+         required: true
+         content:
+@@ -2336,8 +2253,6 @@
+       tags:
+         - Streams
+       operationId: removeEventStream
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       responses:
+         '204':
+           description: OK
+@@ -2365,8 +2280,6 @@
+       tags:
+         - Events
+       operationId: consumeEventStream
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       parameters:
+         - $ref: '#/components/parameters/pathStreamId'
+         - $ref: '#/components/parameters/queryLastEventId'
+@@ -2425,8 +2338,6 @@
+       tags:
+         - Streams
+       operationId: createEventStreamV23
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       requestBody:
+         required: true
+         content:
+@@ -2471,8 +2382,6 @@
+       tags:
+         - Streams
+       operationId: listEventStreamsV23
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       responses:
+         '200':
+           description: OK
+@@ -2502,8 +2411,6 @@
+       tags:
+         - Streams
+       operationId: retrieveEventStreamV23
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       responses:
+         '200':
+           description: OK
+@@ -2544,8 +2451,6 @@
+       tags:
+         - Streams
+       operationId: updateEventStreamV23
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       requestBody:
+         required: true
+         content:
+@@ -2592,8 +2497,6 @@
+       tags:
+         - Streams
+       operationId: removeEventStreamV23
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       responses:
+         '204':
+           description: OK
+@@ -2643,8 +2546,6 @@
+       tags:
+         - Streams
+       operationId: disableEventStreamV23
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       parameters:
+         - $ref: '#/components/parameters/pathStreamId'
+       responses:
+@@ -2690,8 +2591,6 @@
+       tags:
+         - Events
+       operationId: consumeEventStreamV23
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       parameters:
+         - $ref: '#/components/parameters/pathStreamId'
+         - $ref: '#/components/parameters/queryLastEventId'
+@@ -2765,8 +2664,6 @@
+       tags:
+         - Streams
+       operationId: createEventStreamV24
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       requestBody:
+         required: true
+         content:
+@@ -2811,8 +2708,6 @@
+       tags:
+         - Streams
+       operationId: listEventStreamsV24
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       responses:
+         '200':
+           description: OK
+@@ -2842,8 +2737,6 @@
+       tags:
+         - Streams
+       operationId: retrieveEventStreamV24
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       responses:
+         '200':
+           description: OK
+@@ -2884,8 +2777,6 @@
+       tags:
+         - Streams
+       operationId: updateEventStreamV24
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       requestBody:
+         required: true
+         content:
+@@ -2932,8 +2823,6 @@
+       tags:
+         - Streams
+       operationId: removeEventStreamV24
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       responses:
+         '204':
+           description: OK
+@@ -2983,8 +2872,6 @@
+       tags:
+         - Streams
+       operationId: disableEventStreamV24
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       parameters:
+         - $ref: '#/components/parameters/pathStreamId'
+       responses:
+@@ -3030,8 +2917,6 @@
+       tags:
+         - Events
+       operationId: consumeEventStreamV24
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       parameters:
+         - $ref: '#/components/parameters/pathStreamId'
+         - $ref: '#/components/parameters/queryLastEventId'
+@@ -3105,8 +2990,6 @@
+       tags:
+         - Streams
+       operationId: createEventStreamV25
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       requestBody:
+         required: true
+         content:
+@@ -3151,8 +3034,6 @@
+       tags:
+         - Streams
+       operationId: listEventStreamsV25
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       responses:
+         '200':
+           description: OK
+@@ -3182,8 +3063,6 @@
+       tags:
+         - Streams
+       operationId: retrieveEventStreamV25
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       responses:
+         '200':
+           description: OK
+@@ -3224,8 +3103,6 @@
+       tags:
+         - Streams
+       operationId: updateEventStreamV25
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       requestBody:
+         required: true
+         content:
+@@ -3272,8 +3149,6 @@
+       tags:
+         - Streams
+       operationId: removeEventStreamV25
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       responses:
+         '204':
+           description: OK
+@@ -3323,8 +3198,6 @@
+       tags:
+         - Streams
+       operationId: disableEventStreamV25
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       parameters:
+         - $ref: '#/components/parameters/pathStreamId'
+       responses:
+@@ -3370,8 +3243,6 @@
+       tags:
+         - Events
+       operationId: consumeEventStreamV25
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       parameters:
+         - $ref: '#/components/parameters/pathStreamId'
+         - $ref: '#/components/parameters/queryLastEventId'
+@@ -3445,8 +3316,6 @@
+       tags:
+         - Streams
+       operationId: createEventStreamV26
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       requestBody:
+         required: true
+         content:
+@@ -3491,8 +3360,6 @@
+       tags:
+         - Streams
+       operationId: listEventStreamsV26
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       responses:
+         '200':
+           description: OK
+@@ -3522,8 +3389,6 @@
+       tags:
+         - Streams
+       operationId: retrieveEventStreamV26
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       responses:
+         '200':
+           description: OK
+@@ -3564,8 +3429,6 @@
+       tags:
+         - Streams
+       operationId: updateEventStreamV26
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       requestBody:
+         required: true
+         content:
+@@ -3612,8 +3475,6 @@
+       tags:
+         - Streams
+       operationId: removeEventStreamV26
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       responses:
+         '204':
+           description: OK
+@@ -3663,8 +3524,6 @@
+       tags:
+         - Streams
+       operationId: disableEventStreamV26
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       parameters:
+         - $ref: '#/components/parameters/pathStreamId'
+       responses:
+@@ -3710,8 +3569,6 @@
+       tags:
+         - Events
+       operationId: consumeEventStreamV26
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       parameters:
+         - $ref: '#/components/parameters/pathStreamId'
+         - $ref: '#/components/parameters/queryLastEventId'
+@@ -3785,8 +3642,6 @@
+       tags:
+         - Streams
+       operationId: createEventStreamV27
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       requestBody:
+         required: true
+         content:
+@@ -3831,8 +3686,6 @@
+       tags:
+         - Streams
+       operationId: listEventStreamsV27
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       responses:
+         '200':
+           description: OK
+@@ -3862,8 +3715,6 @@
+       tags:
+         - Streams
+       operationId: retrieveEventStreamV27
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       responses:
+         '200':
+           description: OK
+@@ -3904,8 +3755,6 @@
+       tags:
+         - Streams
+       operationId: updateEventStreamV27
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       requestBody:
+         required: true
+         content:
+@@ -3952,8 +3801,6 @@
+       tags:
+         - Streams
+       operationId: removeEventStreamV27
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       responses:
+         '204':
+           description: OK
+@@ -4003,8 +3850,6 @@
+       tags:
+         - Streams
+       operationId: disableEventStreamV27
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       parameters:
+         - $ref: '#/components/parameters/pathStreamId'
+       responses:
+@@ -4050,8 +3895,6 @@
+       tags:
+         - Events
+       operationId: consumeEventStreamV27
+-      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+-      x-pagopa-lambda-account: core
+       parameters:
+         - $ref: '#/components/parameters/pathStreamId'
+         - $ref: '#/components/parameters/queryLastEventId'
