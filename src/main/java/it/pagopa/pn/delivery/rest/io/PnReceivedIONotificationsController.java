@@ -56,6 +56,7 @@ public class PnReceivedIONotificationsController implements AppIoPnNotificationA
         return ResponseEntity.ok(result);
     }
 
+    @Override
     public ResponseEntity<ResponseCheckQrMandateDto> checkAarQrCodeIO(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String xPagopaPnSrcCh, String xPagopaCxTaxid, RequestCheckQrMandateDto requestCheckQrMandateDto, List<String> xPagopaPnCxGroups, String xPagopaPnSrcChDetails) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         String aarQrCodeValue = requestCheckQrMandateDto.getAarQrCodeValue();

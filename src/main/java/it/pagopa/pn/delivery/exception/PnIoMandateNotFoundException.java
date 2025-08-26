@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public class PnIoMandateNotFoundException extends PnRuntimeException {
-    private final ResponseCheckQrMandateDto responseCheckQrMandateDto;
+    private final transient ResponseCheckQrMandateDto responseCheckQrMandateDto;
 
     public PnIoMandateNotFoundException(ResponseCheckQrMandateDto responseCheckQrMandateDto) {
         super("Can't access notification", "User is not recipient or delegated of notification", HttpStatus.FORBIDDEN.value(), "MISSING_MANDATE", "", "");
