@@ -76,7 +76,7 @@ components:
     ###                          STRUTTURE DATI DI PN-USER-ATTRIBUTES                        ###
     ############################################################################################
     Consent:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-user-attributes/20e56e6f3c9ba4211d23ce96fb1dd831481df10b/docs/openapi/pn-address-book-b2b-internal-io.yaml#/components/schemas/Consent'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-user-attributes/bc63672c38cb903fa82e88491bc236b851b09c0d/docs/openapi/pn-address-book-b2b-internal-io.yaml#/components/schemas/Consent'
 
     F24Metadata:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-f24/0abcbdf4d949be4d8da4573c255e262ff0e81913/docs/openapi/schemas-f24.yaml#/components/schemas/F24Metadata'

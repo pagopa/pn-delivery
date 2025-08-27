@@ -6,9 +6,12 @@ import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.api.AppIoPnNotificationApi;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.CxTypeAuthFleet;
+import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.RequestCheckQrMandateDto;
+import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ResponseCheckQrMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyMessage;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.svc.NotificationQRService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.io.IOMapper;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +22,16 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
+import static it.pagopa.pn.commons.utils.MDCUtils.MDC_PN_CTX_TOPIC;
+import static it.pagopa.pn.commons.utils.MDCUtils.MDC_PN_IUN_KEY;
+
 @Slf4j
 @RequiredArgsConstructor
 @RestController
 public class PnReceivedIONotificationsController implements AppIoPnNotificationApi {
 
     private final NotificationRetrieverService retrieveSvc;
+    private final NotificationQRService notificationQRService;
     private final IOMapper ioMapper;
 
     @Override
@@ -47,5 +54,31 @@ public class PnReceivedIONotificationsController implements AppIoPnNotificationA
             throw exc;
         }
         return ResponseEntity.ok(result);
+    }
+
+    @Override
+    public ResponseEntity<ResponseCheckQrMandateDto> checkAarQrCodeIO(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String xPagopaPnSrcCh, String xPagopaCxTaxid, RequestCheckQrMandateDto requestCheckQrMandateDto, List<String> xPagopaPnCxGroups, String xPagopaPnSrcChDetails) {
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        String aarQrCodeValue = requestCheckQrMandateDto.getAarQrCodeValue();
+        String recipientType = xPagopaPnCxType.getValue();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before( PnAuditLogEventType.AUD_NT_REQQR, "checkAarQrCodeIO aarQrCodeValue={} recipientType={} customerId={}",
+                        aarQrCodeValue,
+                        recipientType,
+                        xPagopaPnCxId)
+                .mdcEntry(MDC_PN_CTX_TOPIC, String.format("aarQrCodeValue=%s", aarQrCodeValue))
+                .build();
+        logEvent.log();
+        ResponseCheckQrMandateDto responseCheckAarMandateDto;
+        try {
+            responseCheckAarMandateDto = notificationQRService.getNotificationByQRFromIOWithMandate( requestCheckQrMandateDto, xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnCxGroups );
+            logEvent.getMdc().put(MDC_PN_IUN_KEY, responseCheckAarMandateDto.getIun());
+            logEvent.generateSuccess().log();
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("Exception on get notification by qr from IO= " + exc.getProblem()).log();
+            throw exc;
+        }
+
+        return ResponseEntity.ok( responseCheckAarMandateDto );
     }
 }
