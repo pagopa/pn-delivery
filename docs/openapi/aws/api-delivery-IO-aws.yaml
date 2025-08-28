@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: JFeLqUjPfGwT1vrC1FsaMlShJ9CjqYPQKQP1egDR6/Q=
+  version: nHASAYLaIetK2KvGjbz/luOIZUFrhyGcpX797KuAGxU=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -515,30 +515,15 @@ components:
           description: Codice Fiscale
           type: string
           example: CGNNMO01T10A944Q
-    Consent:
+    TosNotAcceptedDetail:
       type: object
-      required:
-        - consentType
-        - recipientId
-        - consentVersion
-        - tosContentUrl
+      description: Dettaglio dei termini di servizio non accettati
       properties:
-        recipientId:
-          example: 123e4567-e89b-12d3-a456-426614174000
-          type: string
-        consentType:
-          $ref: '#/components/schemas/ConsentType'
-        accepted:
-          type: boolean
-        consentVersion:
-          $ref: '#/components/schemas/ConsentVersion'
-        isFirstAccept:
-          type: boolean
-        tosContentUrl:
-          type: string
-          description: url of page which contains terms of service or privacy policy
-          format: uri
-          example: https://www.pagopa.it/termini-e-condizioni/
+        consentsToAccept:
+          description: Elenco dei consensi non accettati
+          type: array
+          items:
+            $ref: '#/components/schemas/Consent'
     CheckQrForbiddenResponseDetail:
       description: >-
         Dettaglio della risposta in caso di errore 403 durante la verifica del
@@ -548,7 +533,12 @@ components:
       type: object
       oneOf:
         - $ref: '#/components/schemas/ResponseCheckQrMandateDto'
-        - $ref: '#/components/schemas/Consent'
+        - $ref: '#/components/schemas/TosNotAcceptedDetail'
+      discriminator:
+        propertyName: errorType
+        mapping:
+          MANDATE_NOT_PRESENT: '#/components/schemas/ResponseCheckQrMandateDto'
+          TOS_NOT_ACCEPTED: '#/components/schemas/TosNotAcceptedDetail'
     CheckQrForbiddenResponse:
       type: object
       description: Risposta in caso di errore 403 durante la verifica del QR-Code.
@@ -852,6 +842,35 @@ components:
       description: version of consent
       maxLength: 10
       pattern: ^[a-zA-Z0-9_.-]*$
+    Consent:
+      type: object
+      required:
+        - consentType
+        - recipientId
+        - consentVersion
+        - privacyNoticeId
+        - consentUrl
+      properties:
+        recipientId:
+          example: 123e4567-e89b-12d3-a456-426614174000
+          type: string
+        consentType:
+          $ref: '#/components/schemas/ConsentType'
+        accepted:
+          type: boolean
+        consentVersion:
+          $ref: '#/components/schemas/ConsentVersion'
+        isFirstAccept:
+          type: boolean
+        privacyNoticeId:
+          type: string
+          description: privacy notice identifier
+          example: 12345-abcde-67890-fghij
+        consentUrl:
+          type: string
+          description: url of page which contains terms of service or privacy policy
+          format: uri
+          example: https://www.pagopa.it/termini-e-condizioni/
     LegalFactCategory:
       title: Tipi di atti opponibili a terzi
       description: >-
