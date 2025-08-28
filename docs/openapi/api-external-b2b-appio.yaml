@@ -336,8 +336,16 @@ components:
           type: string
           example: CGNNMO01T10A944Q
 
-    Consent:
-      $ref: 'remote-refs.yaml#/components/schemas/Consent'
+    TosNotAcceptedDetail:
+      type: object
+      description: >-
+        Dettaglio dei termini di servizio non accettati
+      properties:
+        consentsToAccept:
+          description: Elenco dei consensi non accettati
+          type: array
+          items:
+            $ref: 'remote-refs.yaml#/components/schemas/Consent'
 
     CheckQrForbiddenResponseDetail:
         description: >-
@@ -347,7 +355,12 @@ components:
         type: object
         oneOf:
             - $ref: '#/components/schemas/ResponseCheckQrMandateDto'
-            - $ref: '#/components/schemas/Consent'
+            - $ref: '#/components/schemas/TosNotAcceptedDetail'
+        discriminator:
+          propertyName: errorType
+          mapping:
+            MANDATE_NOT_PRESENT: '#/components/schemas/ResponseCheckQrMandateDto'
+            TOS_NOT_ACCEPTED: '#/components/schemas/TosNotAcceptedDetail'
 
     CheckQrForbiddenResponse:
       type: object
