@@ -25,7 +25,7 @@
     "VersioningV1V21SendNewNotificationLambdaProvisionedConcurrency": "1",
     "VersioningV1V21GetNotificationRequestStatusLambdaProvisionedConcurrency": "1",
     "EnhancedWebSecurityEnabled": "true",
-    "DenominationLength": "44",
+    "DenominationLength": "88",
     "DenominationValidationRegexValue": "",
     "DenominationValidationTypeValue": "ISO_LATIN_1",
     "DenominationValidationExcludedCharacter": "NONE",
