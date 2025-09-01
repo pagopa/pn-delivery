@@ -1,7 +1,12 @@
 package it.pagopa.pn.delivery.rest.io;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.pagopa.pn.delivery.exception.PnIoMandateNotFoundException;
+import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
+import it.pagopa.pn.delivery.exception.PnRootIdNonFountException;
+import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.RequestCheckQrMandateDto;
+import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ResponseCheckQrMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyMessage;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
@@ -12,6 +17,7 @@ import it.pagopa.pn.delivery.models.internal.notification.F24Payment;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
 import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
+import it.pagopa.pn.delivery.svc.NotificationQRService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.io.IOMapper;
 import org.junit.jupiter.api.Test;
@@ -23,6 +29,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,12 +44,16 @@ class PnReceivedIONotificationsControllerTest {
     private static final String PA_ID = "PA_ID";
     private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
     private static final String X_PAGOPA_PN_SRC_CH_DET = "sourceChannelDetails";
+    private static final String MANDATE_ID = "3766e7f2-70b2-4264-8ca8-4548fe728b0d";
 
     @Autowired
     WebTestClient webTestClient;
 
     @MockBean
     private NotificationRetrieverService svc;
+
+    @MockBean
+    private NotificationQRService notificationQRService;
 
     @SpyBean
     private IOMapper ioMapper;
@@ -101,6 +112,110 @@ class PnReceivedIONotificationsControllerTest {
                 .exchange()
                 .expectStatus()
                 .isNotFound();
+    }
+
+    @Test
+    void getReceivedNotificationWithMandateFailsForRootId() {
+
+        // When
+        Mockito.when(svc.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(MANDATE_ID)))
+                .thenThrow(new PnRootIdNonFountException("test"));
+
+        // Then
+        webTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/delivery/notifications/received/" + IUN)
+                        .queryParam("mandateId", MANDATE_ID)
+                        .build())
+                .header(HttpHeaders.ACCEPT, "application/io+json")
+                .header("x-pagopa-pn-cx-id", "IO-" +USER_ID )
+                .header("x-pagopa-pn-cx-type", "PF" )
+                .header("x-pagopa-pn-uid", USER_ID )
+                .header("x-pagopa-pn-src-ch", X_PAGOPA_PN_SRC_CH)
+                .header("x-pagopa-pn-src-ch-details", X_PAGOPA_PN_SRC_CH_DET)
+                .exchange()
+                .expectStatus()
+                .isBadRequest();
+    }
+
+    @Test
+    void getReceivedNotificationWithMandateFailsForMandate() {
+
+        // When
+        Mockito.when(svc.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(MANDATE_ID)))
+                .thenThrow(new PnMandateNotFoundException("test"));
+
+        // Then
+        webTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/delivery/notifications/received/" + IUN)
+                        .queryParam("mandateId", MANDATE_ID)
+                        .build())
+                .header(HttpHeaders.ACCEPT, "application/io+json")
+                .header("x-pagopa-pn-cx-id", "IO-" +USER_ID )
+                .header("x-pagopa-pn-cx-type", "PF" )
+                .header("x-pagopa-pn-uid", USER_ID )
+                .header("x-pagopa-pn-src-ch", X_PAGOPA_PN_SRC_CH)
+                .header("x-pagopa-pn-src-ch-details", X_PAGOPA_PN_SRC_CH_DET)
+                .attribute("mandateId", "MANDATE_ID")
+                .exchange()
+                .expectStatus()
+                .isBadRequest();
+    }
+
+
+    @Test
+    void checkAarQrCodeIOSuccess() {
+        // Given
+        RequestCheckQrMandateDto requestCheckQrMandateDto = new RequestCheckQrMandateDto();
+        requestCheckQrMandateDto.setAarQrCodeValue("aarQrCodeValue");
+        ResponseCheckQrMandateDto responseCheckQrMandateDto = new ResponseCheckQrMandateDto();
+        responseCheckQrMandateDto.setIun(IUN);
+
+        // When
+        Mockito.when(notificationQRService.getNotificationByQRFromIOWithMandate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(responseCheckQrMandateDto);
+
+        // Then
+        webTestClient.post()
+                .uri("/delivery/notifications/received/check-qr-code")
+                .header("x-pagopa-pn-cx-id", "IO-" +USER_ID )
+                .header("x-pagopa-cx-taxid", "FAKE_TAX_ID")
+                .header("x-pagopa-pn-cx-type", "PF" )
+                .header("x-pagopa-pn-uid", USER_ID )
+                .header("x-pagopa-pn-src-ch", X_PAGOPA_PN_SRC_CH)
+                .header("x-pagopa-pn-src-ch-details", X_PAGOPA_PN_SRC_CH_DET)
+                .body(Mono.just(requestCheckQrMandateDto), RequestCheckQrMandateDto.class)
+                .exchange()
+                .expectStatus()
+                .is2xxSuccessful();
+    }
+
+    @Test
+    void checkAarQrCodeIOFailsForMandateNotFound() {
+        // Given
+        RequestCheckQrMandateDto requestCheckQrMandateDto = new RequestCheckQrMandateDto();
+        requestCheckQrMandateDto.setAarQrCodeValue("aarQrCodeValue");
+        ResponseCheckQrMandateDto responseCheckQrMandateDto = new ResponseCheckQrMandateDto();
+        responseCheckQrMandateDto.setIun(IUN);
+
+        // When
+        Mockito.when(notificationQRService.getNotificationByQRFromIOWithMandate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenThrow(new PnIoMandateNotFoundException(responseCheckQrMandateDto));
+
+        // Then
+        webTestClient.post()
+                .uri("/delivery/notifications/received/check-qr-code")
+                .header("x-pagopa-pn-cx-id", "IO-" +USER_ID )
+                .header("x-pagopa-cx-taxid", "FAKE_TAX_ID")
+                .header("x-pagopa-pn-cx-type", "PF" )
+                .header("x-pagopa-pn-uid", USER_ID )
+                .header("x-pagopa-pn-src-ch", X_PAGOPA_PN_SRC_CH)
+                .header("x-pagopa-pn-src-ch-details", X_PAGOPA_PN_SRC_CH_DET)
+                .body(Mono.just(requestCheckQrMandateDto), RequestCheckQrMandateDto.class)
+                .exchange()
+                .expectStatus()
+                .isForbidden();
     }
 
     private InternalNotification newNotification() {
