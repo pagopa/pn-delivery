@@ -47,8 +47,14 @@ public class NotificationSearchMultiPageByPFOrPG extends NotificationSearchMulti
         }
 
 
+        long searchStartTime = System.nanoTime();
         // ciclo per ogni partizione, eventualmente scartando quelle non interessate in base alla lastEvaluatedKey
         for (int pIdx = startIndex;pIdx< indexNameAndPartitions.getPartitions().size();pIdx++ ) {
+
+            //fix for search timeout
+            if (isSearchTimeExpired(cfg.getSearchTimeoutSeconds(),searchStartTime,indexNameAndPartitions.getIndexName())) {
+                break;
+            }
 
             String currentpartition = indexNameAndPartitions.getPartitions().get( pIdx );
 
@@ -58,6 +64,7 @@ public class NotificationSearchMultiPageByPFOrPG extends NotificationSearchMulti
             // l'eventuale partizione iniziale ha senso SOLO per la prima partizione
             startEvaluatedKey = null;
 
+            //Limitare qua il tempo
             // se i dati letti sono più di quelli richiesti, posso concludere qui la ricerca
             if (dataRead.size() >= requiredSize)
             {
@@ -69,5 +76,18 @@ public class NotificationSearchMultiPageByPFOrPG extends NotificationSearchMulti
         log.info("search request completed, totalDbQueryCount={} totalRowRead={}", logItemCount, dataRead.size());
 
         return dataRead;
+    }
+
+    private boolean isSearchTimeExpired(Integer searchTimeoutSeconds, long searchStartTime, IndexNameAndPartitions.SearchIndexEnum indexName) {
+        if(indexName.equals(IndexNameAndPartitions.SearchIndexEnum.INDEX_BY_SENDER) &&  searchTimeoutSeconds != null && searchTimeoutSeconds > 0 ){
+            long timeoutNanos = searchTimeoutSeconds * 1_000_000_000L;
+            long elapsed = System.nanoTime() - searchStartTime;
+            if (elapsed >= timeoutNanos) {
+                long elapsedSeconds = elapsed/1_000_000_000L;
+                log.warn("Timeout reached after {} seconds, stopping loop", elapsedSeconds);
+                return true;
+            }
+        }
+        return false;
     }
 }
