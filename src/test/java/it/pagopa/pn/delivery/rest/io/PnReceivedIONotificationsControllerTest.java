@@ -1,10 +1,7 @@
 package it.pagopa.pn.delivery.rest.io;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.pagopa.pn.delivery.exception.PnIoMandateNotFoundException;
-import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
-import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
-import it.pagopa.pn.delivery.exception.PnRootIdNonFountException;
+import it.pagopa.pn.delivery.exception.*;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.RequestCheckQrMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ResponseCheckQrMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyMessage;
@@ -111,7 +108,7 @@ class PnReceivedIONotificationsControllerTest {
                 .header("x-pagopa-pn-src-ch-details", X_PAGOPA_PN_SRC_CH_DET)
                 .exchange()
                 .expectStatus()
-                .isNotFound();
+                .isBadRequest();
     }
 
     @Test
