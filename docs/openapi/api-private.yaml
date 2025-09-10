@@ -69,6 +69,46 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+
+  "/delivery-private/notifications/qr-code/decode":
+    post:
+      summary: Recupera informazioni anagrafiche del destinatario e lo iun dato un QR code
+      description: Restituisce CF,Denomination del destinatario e lo iun della notifica associato al QR code
+      tags:
+        - internal-only
+      operationId: decodeAarQrCode
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestDecodeQrDto"
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserInfoQrCode"
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: QrCode Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  
   "/delivery-private/search":
     get:
       summary: servizio per cercare le notifiche in base ad alcuni parametri di ricerca
@@ -420,7 +460,6 @@ components:
       description: Access token is missing or invalid
 
   schemas:
-
     RequestCheckAarDto:
       type: object
       required:
@@ -498,6 +537,40 @@ components:
         amount:
           type: integer
           format: int32
+          
+    UserInfoQrCode:
+      type: object
+      required:
+        - recipientInfo
+        - iun
+      properties:
+        recipientInfo:
+          $ref: '#/components/schemas/UserInfo'
+        iun:
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/IUN'
+    
+    UserInfo:
+      type: object
+      required:
+        - denomination
+        - taxId
+      properties:
+        denomination:
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/Denomination'
+        taxId:
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/TaxId'
+    
+    RequestDecodeQrDto:
+      description: Le informazioni fornite per decodificare un token qr presente sull'avviso di avvenuta ricezione
+      type: object
+      required:
+        - aarQrCodeValue
+      properties:
+        aarQrCodeValue:
+          type: string
+          description: valore del token QR-Code presente sull'avviso di avvenuta ricezione
+          pattern: ^[ -~]*$
+          maxLength: 300
 
     Problem:
       $ref: './remote-refs.yaml#/components/schemas/Problem'
