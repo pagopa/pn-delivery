@@ -8,11 +8,8 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeA
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.RequestCheckQrMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ResponseCheckQrMandateDto;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.UserInfo;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestCheckAarDto;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestCheckAarMandateDto;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ResponseCheckAarDto;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ResponseCheckAarMandateDto;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationQREntityDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -21,6 +18,7 @@ import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -76,6 +74,34 @@ public class NotificationQRService {
             log.info( "Invalid recipientInternalId={} for aarQrCodeValue={} recipientType={}", recipientInternalId, aarQrCodeValue, recipientType );
             throw new PnNotificationNotFoundException( String.format( "Invalid recipientInternalId=%s for aarQrCodeValue=%s recipientType=%s", recipientInternalId, aarQrCodeValue, recipientType) );
         }
+    }
+
+    public UserInfoQrCode getAarQrCodeToDecode(RequestDecodeQrDto request) {
+        String aarQrCodeValue = request.getAarQrCodeValue();
+        log.info("Get QRCode value for aarQrCodeValue={}", aarQrCodeValue);
+        InternalNotificationQR internalNotificationQR = getInternalNotificationQR(aarQrCodeValue);
+        Optional<InternalNotification> optInternalNotification = notificationDao.getNotificationByIun(internalNotificationQR.getIun(), true);
+        InternalNotification internalNotification = optInternalNotification.orElseThrow();
+        String recipientInternalId = internalNotificationQR.getRecipientInternalId();
+        Optional<NotificationRecipient> optNotificationRecipient = findRecipientByInternalId(internalNotification, recipientInternalId);
+        NotificationRecipient notificationRecipient = optNotificationRecipient.orElseThrow();
+        return buildUserInfoQrCode(internalNotificationQR, getUserInfo(notificationRecipient));
+
+    }
+
+    private UserInfoQrCode buildUserInfoQrCode(InternalNotificationQR internalNotificationQR, it.pagopa.pn.delivery.generated.openapi.server.v1.dto.UserInfo userInfo) {
+        return UserInfoQrCode.builder().build()
+                .iun(internalNotificationQR.getIun())
+                .recipientInfo(userInfo);
+    }
+
+    private it.pagopa.pn.delivery.generated.openapi.server.v1.dto. UserInfo getUserInfo(NotificationRecipient notificationRecipient) {
+        String taxId = notificationRecipient.getTaxId();
+        String denomination = notificationRecipient.getDenomination();
+        it.pagopa.pn.delivery.generated.openapi.server.v1.dto.UserInfo userInfo = new it.pagopa.pn.delivery.generated.openapi.server.v1.dto.UserInfo();
+        userInfo.setTaxId(taxId);
+        userInfo.setDenomination(denomination);
+        return userInfo;
     }
 
     private String getAarQrCodeValue(String stringURI) throws URISyntaxException {
@@ -137,6 +163,12 @@ public class NotificationQRService {
 
     private boolean isRecipientInNotification(InternalNotificationQR internalNotificationQR, String recipientInternalId) {
         return internalNotificationQR.getRecipientInternalId().equals( recipientInternalId );
+    }
+
+    private Optional<NotificationRecipient> findRecipientByInternalId(InternalNotification internalNotification, String recipientInternalId) {
+        return internalNotification.getRecipients().stream()
+                .filter(recipientId -> StringUtils.hasText(recipientId.getInternalId()) && recipientId.getInternalId().equals(recipientInternalId))
+                .findFirst();
     }
 
     private String getMandateId(String senderPaId, InternalNotificationQR internalNotificationQR, String userId, CxTypeAuthFleet cxType, List<String> cxGroups) {
