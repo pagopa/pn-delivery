@@ -28,6 +28,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
 
+import static org.junit.Assert.*;
+@ExtendWith(MockitoExtension.class)
 class NotificationQRServiceTest {
     private static final String IUN = "FAKE-FAKE-FAKE-202209-F-1";
     public static final String AAR_QR_CODE_VALUE = "fakeAARQRCodeValue";
@@ -711,6 +713,76 @@ class NotificationQRServiceTest {
         Assertions.assertThrows(PnIoMandateNotFoundException.class, todo);
     }
 
+
+    @Test
+    void getAarQrCodeToDecodeSuccess() {
+        String aarQrCodeValue = "qrCodeValue";
+        String iun = "iun";
+        String recipientInternalId = "recipientId";
+        RequestDecodeQrDto request = RequestDecodeQrDto.builder().aarQrCodeValue(aarQrCodeValue).build();
+
+        InternalNotificationQR internalNotificationQR = InternalNotificationQR.builder()
+                .aarQRCodeValue(aarQrCodeValue)
+                .iun(iun)
+                .recipientInternalId(recipientInternalId)
+                .build();
+
+        NotificationRecipient recipient = NotificationRecipient.builder()
+                .internalId(recipientInternalId)
+                .taxId("taxId")
+                .denomination("denomination")
+                .build();
+
+        InternalNotification internalNotification = InternalNotification.builder()
+                .iun(iun)
+                .recipients(List.of(recipient))
+                .build();
+
+        Mockito.when(notificationQREntityDao.getNotificationByQR(aarQrCodeValue))
+                .thenReturn(Optional.of(internalNotificationQR));
+        Mockito.when(notificationDao.getNotificationByIun(iun, true))
+                .thenReturn(Optional.of(internalNotification));
+
+        UserInfoQrCode result = svc.getAarQrCodeToDecode(request);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(iun, result.getIun());
+        Assertions.assertNotNull(result.getRecipientInfo());
+        Assertions.assertEquals("taxId", result.getRecipientInfo().getTaxId());
+        Assertions.assertEquals("denomination", result.getRecipientInfo().getDenomination());
+    }
+
+    @Test
+    void getAarQrCodeToDecodeNotFound() {
+        String aarQrCodeValue = "qrCodeValue";
+        String iun = "iun";
+        String recipientInternalId = "recipientId";
+        RequestDecodeQrDto request = RequestDecodeQrDto.builder().aarQrCodeValue(aarQrCodeValue).build();
+
+        InternalNotificationQR internalNotificationQR = InternalNotificationQR.builder()
+                .aarQRCodeValue(aarQrCodeValue)
+                .iun(iun)
+                .recipientInternalId(recipientInternalId)
+                .build();
+
+        NotificationRecipient recipient = NotificationRecipient.builder()
+                .internalId("otherId")
+                .taxId("taxId")
+                .denomination("denomination")
+                .build();
+
+        InternalNotification internalNotification = InternalNotification.builder()
+                .iun(iun)
+                .recipients(List.of(recipient))
+                .build();
+
+        Mockito.when(notificationQREntityDao.getNotificationByQR(aarQrCodeValue))
+                .thenReturn(Optional.of(internalNotificationQR));
+        Mockito.when(notificationDao.getNotificationByIun(iun, true))
+                .thenReturn(Optional.of(internalNotification));
+
+        Assertions.assertThrows(NoSuchElementException.class, () -> svc.getAarQrCodeToDecode(request));
+    }
 
 
     private InternalNotification buildNotificationWithRecipient(String internalId) {
