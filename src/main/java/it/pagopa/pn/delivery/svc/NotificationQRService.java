@@ -8,8 +8,8 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeA
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.RequestCheckQrMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ResponseCheckQrMandateDto;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.UserInfo;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationQREntityDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -18,7 +18,6 @@ import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -77,7 +76,7 @@ public class NotificationQRService {
     }
 
     public UserInfoQrCode getAarQrCodeToDecode(RequestDecodeQrDto request) {
-        String aarQrCodeValue = request.getAarQrCodeValue();
+        String aarQrCodeValue = request.getAarTokenValue();
         log.info("Get QRCode value for aarQrCodeValue={}", aarQrCodeValue);
         InternalNotificationQR internalNotificationQR = getInternalNotificationQR(aarQrCodeValue);
         Optional<InternalNotification> optInternalNotification = notificationDao.getNotificationByIun(internalNotificationQR.getIun(), true);

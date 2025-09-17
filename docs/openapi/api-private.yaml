@@ -76,7 +76,7 @@ paths:
       description: Restituisce CF,Denomination del destinatario e lo iun della notifica associato al QR code
       tags:
         - internal-only
-      operationId: decodeAarQrCode
+      operationId: decodeAarToken
       requestBody:
         content:
           application/json:
@@ -553,9 +553,9 @@ components:
       description: Le informazioni fornite per decodificare un token qr presente sull'avviso di avvenuta ricezione
       type: object
       required:
-        - aarQrCodeValue
+        - aarTokenValue
       properties:
-        aarQrCodeValue:
+        aarTokenValue:
           type: string
           description: valore del token QR-Code presente sull'avviso di avvenuta ricezione
           pattern: ^[ -~]*$

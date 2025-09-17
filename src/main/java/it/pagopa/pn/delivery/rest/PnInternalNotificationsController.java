@@ -48,8 +48,8 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
 
 
     @Override
-    public ResponseEntity<UserInfoQrCode> decodeAarQrCode(RequestDecodeQrDto requestDecodeQrDto) {
-        String aarQrCodeValue = requestDecodeQrDto.getAarQrCodeValue();
+    public ResponseEntity<UserInfoQrCode> decodeAarToken(RequestDecodeQrDto requestDecodeQrDto) {
+        String aarQrCodeValue = requestDecodeQrDto.getAarTokenValue();
         log.info("Start decodeAarQrCode with aarQrCodeValue={}", aarQrCodeValue);
         UserInfoQrCode response;
         try {

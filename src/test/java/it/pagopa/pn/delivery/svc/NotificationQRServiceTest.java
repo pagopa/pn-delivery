@@ -27,8 +27,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
-
-import static org.junit.Assert.*;
 @ExtendWith(MockitoExtension.class)
 class NotificationQRServiceTest {
     private static final String IUN = "FAKE-FAKE-FAKE-202209-F-1";
@@ -719,7 +717,7 @@ class NotificationQRServiceTest {
         String aarQrCodeValue = "qrCodeValue";
         String iun = "iun";
         String recipientInternalId = "recipientId";
-        RequestDecodeQrDto request = RequestDecodeQrDto.builder().aarQrCodeValue(aarQrCodeValue).build();
+        RequestDecodeQrDto request = RequestDecodeQrDto.builder().aarTokenValue(aarQrCodeValue).build();
 
         InternalNotificationQR internalNotificationQR = InternalNotificationQR.builder()
                 .aarQRCodeValue(aarQrCodeValue)
@@ -757,7 +755,7 @@ class NotificationQRServiceTest {
         String aarQrCodeValue = "qrCodeValue";
         String iun = "iun";
         String recipientInternalId = "recipientId";
-        RequestDecodeQrDto request = RequestDecodeQrDto.builder().aarQrCodeValue(aarQrCodeValue).build();
+        RequestDecodeQrDto request = RequestDecodeQrDto.builder().aarTokenValue(aarQrCodeValue).build();
 
         InternalNotificationQR internalNotificationQR = InternalNotificationQR.builder()
                 .aarQRCodeValue(aarQrCodeValue)

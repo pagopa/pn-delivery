@@ -141,7 +141,7 @@ class PnInternalNotificationsControllerTest {
     @Test
     void decodeAarQrCodeSuccess() {
         RequestDecodeQrDto request = RequestDecodeQrDto.builder()
-                .aarQrCodeValue(AAR_QR_CODE_VALUE)
+                .aarTokenValue(AAR_QR_CODE_VALUE)
                 .build();
         UserInfo userInfo = new UserInfo();
         userInfo.setTaxId("taxId");
@@ -166,7 +166,7 @@ class PnInternalNotificationsControllerTest {
     @Test
     void decodeAarQrCodeNotFound() {
         RequestDecodeQrDto request = RequestDecodeQrDto.builder()
-                .aarQrCodeValue(AAR_QR_CODE_VALUE)
+                .aarTokenValue(AAR_QR_CODE_VALUE)
                 .build();
 
         Mockito.when(qrService.getAarQrCodeToDecode(request))
