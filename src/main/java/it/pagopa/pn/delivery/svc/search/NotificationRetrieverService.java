@@ -568,10 +568,10 @@ public class NotificationRetrieverService {
 		List<InternalMandateDto> mandates = pnMandateClient.listMandatesByDelegateV2(userId, mandateId, cxTypeAuthFleet, cxGroups, notificationSentAt, iun, rootSenderId);
 
 		if(!mandates.isEmpty()) {
-			for ( InternalMandateDto mandate : mandates ) {
-				log.info( "Valid mandate for notification detail for delegate={}", userId );
-				return mandate.getDelegator();
-			}
+			// Considerando che abbiamo fornito il filtro sul mandateId, dovrebbe esserci al massimo una delega valida.
+			InternalMandateDto mandate = mandates.get(0);
+			log.info( "Valid mandate for notification detail for delegate={}", userId );
+			return mandate.getDelegator();
 		}
 
 		String message = String.format("Unable to find any mandate for notification detail for delegate=%s with mandateId=%s iun=%s", userId, mandateId, iun);
