@@ -862,7 +862,7 @@ class NotificationRetrieverServiceTest {
                 .build();
 
         //When
-        when( pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString(), eq(CxTypeAuthFleet.PF), any()))
+        when( pnMandateClient.listMandatesByDelegateV2(Mockito.anyString(), Mockito.anyString(), eq(CxTypeAuthFleet.PF), any(), any(), any(), any()))
                 .thenReturn( mandateResult );
         when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.of( internalNotification ) );
         when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
@@ -872,47 +872,6 @@ class NotificationRetrieverServiceTest {
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, delegateInfo, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_SRC_CH_DET );
         Assertions.assertTrue( internalNotificationResult.getDocumentsAvailable() );
-    }
-
-    @Test
-    void getNotificationAndViewEventByDelegateNotAllowedPAID() {
-        //Given
-        String nowTestInstant = "2022-06-17T13:00:00.00Z";
-        InternalNotification internalNotification = getNewInternalNotification();
-
-        var tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV27()
-                .elementId( "elementId" )
-                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV27.REFINEMENT )
-                .timestamp(  Instant.now()
-                        .atOffset(ZoneOffset.UTC) ));
-
-        NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
-                .timeline( tle )
-                .notificationStatus( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusV26.ACCEPTED )
-                .notificationStatusHistory( Collections.singletonList(new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusHistoryElementV26()
-                        .status(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusV26.ACCEPTED)
-                        .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-06-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
-
-
-        //When
-        InternalMandateDto internalMandateDto = new InternalMandateDto();
-        internalMandateDto.setMandateId( MANDATE_ID );
-        internalMandateDto.setDelegate( UID );
-        internalMandateDto.setDelegator( CX_ID );
-        internalMandateDto.setVisibilityIds(List.of(SENDER_ID+"OTHER"));
-        internalMandateDto.setDatefrom( "2022-03-23T23:23:00Z" );
-
-        List<InternalMandateDto> mandateResult = List.of( internalMandateDto );
-
-        //When
-        Mockito.when(externalRegistriesClient.getRootSenderId(Mockito.anyString())).thenReturn(SENDER_ID+"DIFF");
-        Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString(), Mockito.anyString(), any(), any() ) ).thenReturn( mandateResult );
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.of( internalNotification ) );
-        Mockito.when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
-        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
-
-        Assertions.assertThrows(PnMandateNotFoundException.class, () -> svc.getNotificationAndNotifyViewedEvent( IUN, INTERNAL_AUTH_HEADER, MANDATE_ID ));
-
     }
 
 
@@ -941,7 +900,7 @@ class NotificationRetrieverServiceTest {
         List<InternalMandateDto> mandateResult = List.of(  );
 
         //When
-        Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString(), Mockito.anyString(), any(), any() ) ).thenReturn( mandateResult );
+        Mockito.when( pnMandateClient.listMandatesByDelegateV2( Mockito.anyString(), Mockito.anyString(), any(), any(), any(), any(), any() ) ).thenReturn( mandateResult );
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.of( internalNotification ) );
         Mockito.when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
@@ -951,47 +910,6 @@ class NotificationRetrieverServiceTest {
     }
 
     @Test
-    void getNotificationAndViewEventByDelegateNotAllowedNOMandateForDelegator() {
-        //Given
-        String nowTestInstant = "2022-06-17T13:00:00.00Z";
-        InternalNotification internalNotification = getNewInternalNotification();
-
-        var tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV27()
-                .elementId( "elementId" )
-                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV27.REFINEMENT )
-                .timestamp(  Instant.now()
-                        .atOffset(ZoneOffset.UTC) ));
-
-        NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
-                .timeline( tle )
-                .notificationStatus( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusV26.ACCEPTED )
-                .notificationStatusHistory( Collections.singletonList(new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusHistoryElementV26()
-                        .status(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusV26.ACCEPTED)
-                        .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-06-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
-
-
-        //When
-        InternalMandateDto internalMandateDto = new InternalMandateDto();
-        internalMandateDto.setMandateId( MANDATE_ID+"OTHER" );
-        internalMandateDto.setDelegate( UID );
-        internalMandateDto.setDelegator( CX_ID + "OTHER" );
-        internalMandateDto.setDatefrom( "2022-03-23T23:23:00Z" );
-
-        List<InternalMandateDto> mandateResult = List.of( internalMandateDto );
-
-
-        //When
-        Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString(), Mockito.anyString(), any(), any() ) ).thenReturn( mandateResult );
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.of( internalNotification ) );
-        Mockito.when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
-        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
-
-        Assertions.assertThrows(PnMandateNotFoundException.class, () -> svc.getNotificationAndNotifyViewedEvent( IUN, INTERNAL_AUTH_HEADER, MANDATE_ID ));
-
-    }
-
-    @Test
-
     void getNotificationAndViewEventDocsUnavSuccess() {
         //Given
         String nowTestInstant = "2022-06-30T00:00:00.00Z";
@@ -1732,7 +1650,7 @@ class NotificationRetrieverServiceTest {
 
         when(notificationDao.getNotificationByIun(iun, true)).thenReturn(Optional.of(notification));
         when(externalRegistriesClient.getRootSenderId("senderPaId-1")).thenReturn("rootSenderId-1");
-        when(pnMandateClient.listMandatesByDelegate(recipientInternalId, mandateId, null, null)).thenReturn(List.of(internalMandateDto));
+        when(pnMandateClient.listMandatesByDelegateV2(recipientInternalId, mandateId, null, null, notification.getSentAt(), iun, "rootSenderId-1")).thenReturn(List.of(internalMandateDto));
         Assertions.assertDoesNotThrow(() -> svc.checkIUNAndInternalId(iun, recipientInternalId, mandateId, null, null));
     }
 
@@ -1751,7 +1669,7 @@ class NotificationRetrieverServiceTest {
 
         when(notificationDao.getNotificationByIun(iun, true)).thenReturn(Optional.of(notification));
         when(externalRegistriesClient.getRootSenderId("senderPaId-1")).thenReturn("rootSenderId-1");
-        when(pnMandateClient.listMandatesByDelegate(recipientInternalId, mandateId, null, null)).thenReturn(new ArrayList<>());
+        when(pnMandateClient.listMandatesByDelegateV2(recipientInternalId, mandateId, null, null, notification.getSentAt(), iun, "rootSenderId-1")).thenReturn(new ArrayList<>());
         Assertions.assertThrows(PnMandateNotFoundException.class, () -> svc.checkIUNAndInternalId(iun, recipientInternalId, mandateId, null, null));
     }
 }
