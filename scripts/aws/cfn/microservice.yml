@@ -677,6 +677,19 @@ Parameters:
   PhysicalAddressLookupStartDate:
     Type: String
     Description: "Activation date time for physical address lookup feature"
+  
+  ConsentAccepterLambdaName:
+    Type: String
+    Description: 'ConsentAccepterLambdaName'
+  
+  ConsentAccepterLambdaProvisionedConcurrency:
+    Type: Number
+    Description: "ConsentAccepterLambdaProvisionedConcurrency"
+    Default: 1
+  
+  ConsentsToAccept:
+    Type: String
+    Description: 'JSON which contains an array of objects representing consents to accept'
 
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
@@ -960,6 +973,7 @@ Resources:
             - !GetAtt VersioningV1V21SendNewNotificationLambda.Arn
             - !GetAtt VersioningV1V21GetNotificationRequestStatusLambda.Arn
             - !GetAtt VersioningV1V23GetNotificationPriceLambda.Arn
+            - !GetAtt ConsentAccepterLambda.Arn
         RestApiStageArns: !Join
           - ","
           - - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiStageArn
@@ -989,6 +1003,7 @@ Resources:
             - !GetAtt VersioningV1V23GetNotificationPriceLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !GetAtt MetadataStatusUpdaterLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !GetAtt PaLimitCorrectionLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
+            - !GetAtt ConsentAccepterLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !Ref PnDeliveryMetadataStatusDLQAlarmARN
             - !Ref PnDeliveryPaLimitCorrectionDLQAlarmARN
         QueueArns: !Join
@@ -1007,6 +1022,90 @@ Resources:
             - !Sub "/aws/lambda/${VersioningV1V21GetNotificationRequestStatusLambdaName}"
             - !Sub "/aws/lambda/${VersioningV1V23GetNotificationPriceLambdaName}"
             - !Sub "/aws/lambda/${MetadataStatusUpdaterLambdaName}"
+            - !Sub "/aws/lambda/${ConsentAccepterLambdaName}"
+  
+  # Lambda function
+  ConsentAccepterSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub '${ConsentAccepterLambdaName}-sec-group'
+      VpcId: !Ref VpcId
+  
+  ConsentAccepterLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref ConsentAccepterLambdaName
+      Runtime: nodejs22.x
+      Handler: "index.handler"
+      Code:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/consentAccepterLambda.zip"
+      Role: !GetAtt ConsentAccepterLambdaRole.Arn
+      VpcConfig:
+        SecurityGroupIds:
+          - !GetAtt ConsentAccepterSecGroup.GroupId
+        SubnetIds: !Ref SubnetsIds
+      Environment:
+        Variables:
+          API_PRIVATE_BASE_PATH: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery-push/v2.0"
+          CONSENTS_TO_ACCEPT: !Ref ConsentsToAccept
+      TracingConfig:
+        Mode: Active
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
+      Timeout: 30
+      MemorySize: 512
+  
+  # a new version at each deploy, with provisioned concurrency set
+  ConsentAccepterLambdaVersionPnPlaceholderEpochSeconds:
+    Type: AWS::Lambda::Version
+    Properties:
+      FunctionName: !Ref ConsentAccepterLambda
+  
+  ConsentAccepterLambdaVersionAlias:
+    Type: AWS::Lambda::Alias
+    Properties:
+      FunctionName: !Ref ConsentAccepterLambda
+      FunctionVersion: !GetAtt ConsentAccepterLambdaVersionPnPlaceholderEpochSeconds.Version
+      Name: live
+      ProvisionedConcurrencyConfig:
+        ProvisionedConcurrentExecutions: !Ref ConsentAccepterLambdaProvisionedConcurrency
+  
+  ConsentAccepterLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-consentAccepterLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+  
+  ConsentAccepterLambdaAlarms:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
+      Parameters:
+        FunctionName: !Ref ConsentAccepterLambda
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        FilterPattern: "FATAL"
+  
+  # Lambda access right
+  ConsentAccepterLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref ConsentAccepterLambdaVersionAlias
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*"
+      
   # Lambda function role
   
   PnDeliveryInsertTriggerLambdaRole:
