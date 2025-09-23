@@ -65,6 +65,8 @@ public class PnDeliveryConfigs {
 
     private NotificationRefusedVerificationDao notificationRefusedVerificationDao;
 
+    private NotificationReworksDao notificationReworksDao;
+
     private Integer maxPageSize;
 
     private String maxDocumentsAvailableDays;
@@ -145,6 +147,11 @@ public class PnDeliveryConfigs {
 
     @Data
     public static class NotificationRefusedVerificationDao {
+        private String tableName;
+    }
+
+    @Data
+    public static class NotificationReworksDao {
         private String tableName;
     }
 
