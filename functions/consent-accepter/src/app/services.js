@@ -5,7 +5,7 @@ class RestClient {
     const response = await axios.get(
       `${process.env.PN_EXTERNAL_REGISTRIES_BASE_URL}/ext-registry-private/privacynotice/${consentType}/${cxType}`
     );
-    return response.data.lastVersion;
+    return response.data.version;
   }
   static async putConsents(consentType, lastVersion, uid, cxType) {
     const response = await axios.put(
