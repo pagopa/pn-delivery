@@ -766,7 +766,7 @@ Resources:
         ContainerSecret1: !Sub "ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:"
         MicroServiceSecretPrefix: pn-Delivery-Secrets
         JavaToolOptions: "-Dreactor.netty.ioWorkerCount=120 -XX:MaxMetaspaceSize=512M"
-        MappedPaths: "/delivery/*,/delivery-private/*"
+        MappedPaths: "/delivery/*,/delivery-private/*,/delivery-bo/*"
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref VpcEgressSubnetsIds
         VpcId: !Ref VpcId
@@ -2092,3 +2092,31 @@ Resources:
       Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
       SourceArn: !GetAtt PaLimitCorrectionScheduledRule.Arn
+
+  # Expose PN-Delivery microservice public API with API-GW for BACKOFFICE usage
+  DeliveryMicroserviceBoPublicAPI:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service-openapi.yaml"
+      Parameters:
+        MicroServiceUniqueName: !Sub '${ProjectName}-delivery'
+        IntendedUsage: BACKOFFICE
+        DnsName: !Ref ApiDnsName
+        ProjectName: !Ref ProjectName
+        ServiceApiPath: 'delivery-bo'
+        NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
+        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
+        OpenApiBucketName: !Ref MicroserviceBucketName
+        OpenApiBucketKey: !Sub ${MicroserviceBucketBaseKey}/docs/openapi/aws/api-delivery-bo-BO-aws.yaml
+
+  DeliveryMicroservicePublicBoApiWaf:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
+      Parameters:
+        WAFName: !Sub '${ProjectName}-delivery-bo'
+        IntendedUsage: BACKOFFICE
+        APIGatewayARNs: !GetAtt DeliveryMicroserviceBoPublicAPI.Outputs.APIGatewayARN
+        Limit: !Ref B2bWafLimit
