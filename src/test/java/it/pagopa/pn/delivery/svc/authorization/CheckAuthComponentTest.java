@@ -10,6 +10,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipie
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
+import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,13 +30,16 @@ class CheckAuthComponentTest {
     private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
     @Mock
     private PnMandateClientImpl mandateClient;
+    @Mock
+    private PnExternalRegistriesClientImpl externalRegistriesClient;
 
     private CheckAuthComponent checkAuthComponent;
 
     @BeforeEach
     void setup() {
         this.mandateClient = Mockito.mock( PnMandateClientImpl.class );
-        this.checkAuthComponent = new CheckAuthComponent( mandateClient );
+        this.externalRegistriesClient = Mockito.mock( PnExternalRegistriesClientImpl.class );
+        this.checkAuthComponent = new CheckAuthComponent( mandateClient, externalRegistriesClient );
     }
 
     @Test
@@ -89,7 +93,16 @@ class CheckAuthComponentTest {
         ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, null, iun, recipientIdx);
 
         // When
-        Mockito.when( mandateClient.listMandatesByDelegate( cxId, mandateId, CxTypeAuthFleet.PF, null ) )
+        Mockito.when( externalRegistriesClient.getRootSenderId(notification.getSenderPaId())).thenReturn("rootSenderId");
+        Mockito.when( mandateClient.listMandatesByDelegateV2(
+                cxId,
+                mandateId,
+                CxTypeAuthFleet.PF,
+        null,
+                notification.getSentAt(),
+                notification.getIun(),
+                "rootSenderId"
+                ))
                 .thenReturn( Collections.singletonList(new InternalMandateDto()
                         .datefrom( "2022-01-01T00:00Z" )
                         .mandateId( mandateId )
@@ -117,7 +130,16 @@ class CheckAuthComponentTest {
         ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, null, iun, recipientIdx);
 
         // When
-        Mockito.when( mandateClient.listMandatesByDelegate( cxId, mandateId, CxTypeAuthFleet.PF, null ) )
+        Mockito.when( externalRegistriesClient.getRootSenderId(notification.getSenderPaId())).thenReturn("rootSenderId");
+        Mockito.when( mandateClient.listMandatesByDelegateV2(
+                        cxId,
+                        mandateId,
+                        CxTypeAuthFleet.PF,
+                        null,
+                        notification.getSentAt(),
+                        notification.getIun(),
+                        "rootSenderId"
+                ))
                 .thenReturn( Collections.singletonList(new InternalMandateDto()
                         .datefrom( "2022-01-01T00:00Z" )
                         .mandateId( mandateId )
@@ -143,7 +165,16 @@ class CheckAuthComponentTest {
         ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, null, iun, recipientIdx);
 
         // When
-        Mockito.when( mandateClient.listMandatesByDelegate( cxId, mandateId, CxTypeAuthFleet.PG, null ) )
+        Mockito.when( externalRegistriesClient.getRootSenderId(notification.getSenderPaId())).thenReturn("rootSenderId");
+        Mockito.when( mandateClient.listMandatesByDelegateV2(
+                        cxId,
+                        mandateId,
+                        CxTypeAuthFleet.PG,
+                        null,
+                        notification.getSentAt(),
+                        notification.getIun(),
+                        "rootSenderId"
+                ))
                 .thenReturn( Collections.singletonList(new InternalMandateDto()
                         .datefrom( "2022-01-01T00:00Z" )
                         .mandateId( mandateId )
@@ -168,7 +199,16 @@ class CheckAuthComponentTest {
         ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, null, iun, recipientIdx);
 
         // When
-        Mockito.when( mandateClient.listMandatesByDelegate( cxId, mandateId, CxTypeAuthFleet.PF, null ) )
+        Mockito.when( externalRegistriesClient.getRootSenderId(notification.getSenderPaId())).thenReturn("rootSenderId");
+        Mockito.when( mandateClient.listMandatesByDelegateV2(
+                        cxId,
+                        mandateId,
+                        CxTypeAuthFleet.PF,
+                        null,
+                        notification.getSentAt(),
+                        notification.getIun(),
+                        "rootSenderId"
+                ))
                 .thenReturn( Collections.emptyList());
         Executable todo = () -> checkAuthComponent.canAccess( readAccessAuth, notification );
 
@@ -188,7 +228,16 @@ class CheckAuthComponentTest {
         ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, null, iun, recipientIdx);
 
         // When
-        Mockito.when( mandateClient.listMandatesByDelegate( cxId, mandateId, CxTypeAuthFleet.PG, null ) )
+        Mockito.when( externalRegistriesClient.getRootSenderId(notification.getSenderPaId())).thenReturn("rootSenderId");
+        Mockito.when( mandateClient.listMandatesByDelegateV2(
+                        cxId,
+                        mandateId,
+                        CxTypeAuthFleet.PG,
+                        null,
+                        notification.getSentAt(),
+                        notification.getIun(),
+                        "rootSenderId"
+                ))
                 .thenReturn( Collections.emptyList());
         Executable todo = () -> checkAuthComponent.canAccess( readAccessAuth, notification );
 

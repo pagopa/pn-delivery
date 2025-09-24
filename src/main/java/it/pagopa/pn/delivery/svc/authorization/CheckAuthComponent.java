@@ -6,13 +6,13 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeA
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
+import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -20,9 +20,11 @@ import java.util.Objects;
 @Slf4j
 public class CheckAuthComponent {
     private final PnMandateClientImpl pnMandateClient;
+    private final PnExternalRegistriesClientImpl pnExternalRegistriesClient;
 
-    public CheckAuthComponent(PnMandateClientImpl pnMandateClient) {
+    public CheckAuthComponent(PnMandateClientImpl pnMandateClient, PnExternalRegistriesClientImpl pnExternalRegistriesClient) {
         this.pnMandateClient = pnMandateClient;
+        this.pnExternalRegistriesClient = pnExternalRegistriesClient;
     }
 
     public AuthorizationOutcome canAccess(ReadAccessAuth action, InternalNotification notification) {
@@ -47,11 +49,18 @@ public class CheckAuthComponent {
         // gestione deleghe
         String mandateId = action.getMandateId();
         if (recipientIdx == null && mandateId != null) {
-            log.debug( "Check validity mandateId={} cxId={} iun={}", mandateId, cxId, notification.getIun() );
-            List<InternalMandateDto> mandates = pnMandateClient.listMandatesByDelegate(cxId, mandateId, CxTypeAuthFleet.PG, null);
-            if(mandates.isEmpty() ||
-                    OffsetDateTime.parse( Objects.requireNonNull(mandates.get(0).getDatefrom()) ).isAfter( notification.getSentAt() )
-            ) {
+            String rootSenderId = pnExternalRegistriesClient.getRootSenderId(notification.getSenderPaId());
+            log.debug( "Check validity mandateId={} cxId={} iun={} sentAt={} rootSenderId={}", mandateId, cxId, notification.getIun(), notification.getSentAt(), rootSenderId );
+            List<InternalMandateDto> mandates = pnMandateClient.listMandatesByDelegateV2(
+                    cxId,
+                    mandateId,
+                    CxTypeAuthFleet.PG,
+                    null,
+                    notification.getSentAt(),
+                    notification.getIun(),
+                    rootSenderId
+            );
+            if(mandates.isEmpty()) {
                 String message = String.format("Unable to find any mandate for delegate=%s with mandateId=%s", cxId, mandateId);
                 log.error( message );
                 throw new PnMandateNotFoundException( message );
@@ -85,11 +94,18 @@ public class CheckAuthComponent {
         // gestione deleghe
         String mandateId = action.getMandateId();
         if (recipientIdx == null && mandateId != null) {
-            log.debug( "Check validity mandateId={} cxId={} iun={}", mandateId, cxId, notification.getIun() );
-            List<InternalMandateDto> mandates = pnMandateClient.listMandatesByDelegate(cxId, mandateId, CxTypeAuthFleet.PF, null);
-            if(mandates.isEmpty() ||
-                    OffsetDateTime.parse( Objects.requireNonNull(mandates.get(0).getDatefrom()) ).isAfter( notification.getSentAt() )
-            ) {
+            String rootSenderId = pnExternalRegistriesClient.getRootSenderId(notification.getSenderPaId());
+            log.debug( "Check validity mandateId={} cxId={} iun={} sentAt={} rootSenderId={}", mandateId, cxId, notification.getIun(), notification.getSentAt(), rootSenderId );
+            List<InternalMandateDto> mandates = pnMandateClient.listMandatesByDelegateV2(
+                    cxId,
+                    mandateId,
+                    CxTypeAuthFleet.PF,
+                    null,
+                    notification.getSentAt(),
+                    notification.getIun(),
+                    rootSenderId
+            );
+            if(mandates.isEmpty()) {
                 String message = String.format("Unable to find any mandate for delegate=%s with mandateId=%s", cxId, mandateId);
                 log.error( message );
                 throw new PnMandateNotFoundException( message );
