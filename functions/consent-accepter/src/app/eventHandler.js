@@ -3,15 +3,12 @@ const defaultProblem = "Error executing request";
 
 exports.handle = async (event) => {
   try {
-    // Recupero parametri dagli header
     const headerResult = getHeaderParameters(event);
-    // Recupero consensi da accettare
     const consentsToAccept = validateConsentsToAccept();
 
     const promiseList = consentsToAccept.map(consent => acceptConsent(consent, headerResult));
     await Promise.all(promiseList);
     console.log("All consents accepted successfully.");
-    // Chiamata API delivery dopo aver gestito i consensi
     return deliveryResponse = await RestClient.checkQrCode(event);
   } catch (error) {
     console.error("Error: ", error.message);
