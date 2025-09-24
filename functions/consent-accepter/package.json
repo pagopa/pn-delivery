@@ -5,17 +5,14 @@
   "main": "index.js",
   "scripts": {
     "test-build": "npm run-script test && npm run-script coverage && npm run-script sonar && npm run-script build",
-    "zip:full": "zip -r ./function.zip . -x './src/test/*' -x '*.md' -x './nodejs/*' -x './.nyc_output/*' -x './.scannerwork/*' -x './coverage/*' -x '*.env' -x '*.zip'  -x '*.gitignore'",
-    "zip:code": "zip -r ./code_layer.zip . -x './src/test/*' -x '*.md' -x './nodejs/*' -x './.nyc_output/*' -x './.scannerwork/*' -x './coverage/*' -x '*.env' -x '*.zip'  -x '*.gitignore' -x './node_modules/*'",
-    "zip:libs": "zip -r ./lib_layer.zip nodejs -x '*.md'",
-    "build:single": "npm prune --production && rm -f ./function.zip && npm run-script zip:full",
-    "build:multiLayer": "rm -rf nodejs && mkdir -p nodejs && npm prune --production  && cp -Lrf node_modules nodejs && rm -f ./code_layer.zip && npm run-script zip:code && rm -f ./lib_layer.zip && npm run-script zip:libs",
-    "build": "npm run-script build:single && npm run-script build:multiLayer",
-    "test": "nyc --reporter=html --reporter=text mocha './src/test/**/*.test.js' --recursive --timeout=6000 --exit -r dotenv/config",
+    "build": "npm prune --production && rm -f ./function.zip && zip -r ./function.zip . -x './src/test/*' -x '*.md' -x '*.env'  -x './coverage/*' -x './.nyc_output/*' -x './.scannerwork/*'",
+    "test": "nyc --reporter=html --reporter=text mocha './src/test/**/*.test.js' --recursive --timeout=3000 --exit -r dotenv/config",
     "coverage": "nyc report --reporter=lcov",
-    "sonar": "node sonarqube-scanner.js -Dsonar.login=${SONAR_TOKEN}"
+    "integrazione": "nyc --reporter=html --reporter=text mocha './src/test/**/integrazione.test.js' --recursive --timeout=100000 --exit -r dotenv/config",
+    "sonar": "node sonarqube-scanner.js"
   },
   "devDependencies": {
+    "axios-mock-adapter": "^1.22.0",
     "chai": "^4.3.6",
     "eslint": "^8.23.1",
     "eslint-plugin-import": "^2.26.0",
@@ -27,7 +24,8 @@
     "sonarqube-scanner": "^3.3.0"
   },
   "dependencies": {
-    "@aws-sdk/client-eventbridge": "^3.577.0"
+    "axios": "^0.30.0",
+    "axios-retry": "^4.3.0"
   },
   "author": "",
   "license": "ISC"
