@@ -84,10 +84,6 @@ components:
       properties:
         reworkId:
           type: string
-        timelineElementIdsToInvalidate:
-          type: array
-          items:
-            type: string
         creationDate:
           type: string
           format: date-time
