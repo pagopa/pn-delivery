@@ -1,17 +1,17 @@
 openapi: 3.0.1
 info:
-  termsOfService: https://notifichedigitali.pagopa.it/radd/index.html
-  title: 'Piattaforma Notifiche: API B2B per gli operatori RADD'
-  x-summary: 'Piattaforma Notifiche: API B2B per gli operatori RADD'
+  termsOfService: https://termofservice.it
+  x-api-id: api-private
+  title: OpenAPI servizi ad uso solo interno
+  x-summary: OpenAPI servizi ad uso solo interno
+  description: >-
+    API accessibili solo da microservizi interni
   version: '1.0.0'
   contact:
-    email: pn-supporto-radd@pagopa.it
+    email: pn@pagopa.it
   license:
-    name: Licenza di PN
-    url: 'https://notifichedigitali.pagopa.it/radd/index.html'
-  description: >-
-    #Abstract
-    API per la gestione delle richieste di invalidazione di una spedizione.
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 
 servers:
   - url: https://api.notifichedigitali.it
