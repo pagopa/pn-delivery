@@ -598,14 +598,14 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>delivery-bo-api</id>
+                        <id>delivery-rework-api</id>
                         <goals>
                             <goal>generate</goal>
                         </goals>
                         <phase>generate-resources</phase>
                         <configuration>
                             <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/server</templateDirectory>
-                            <inputSpec>${project.basedir}/docs/openapi/api-bo-private.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/docs/openapi/api-rework-private.yaml</inputSpec>
                             <generatorName>spring</generatorName>
                             <library>spring-boot</library>
                             <generateApiDocumentation>false</generateApiDocumentation>

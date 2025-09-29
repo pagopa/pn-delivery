@@ -43,9 +43,9 @@
         {
             "intendedUsage": "BO",
             "openapiFiles": [
-                "api-bo-private.yaml"
+                "api-rework-private.yaml"
             ],
-            "servicePath": "delivery-bo"
+            "servicePath": "delivery-rework"
         }
     ],
     "openapiBundlePresenceCheck": [

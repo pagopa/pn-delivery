@@ -23,7 +23,7 @@ tags:
   - name: ReworkV1
 
 paths:
-  /delivery-bo/v1/notifications/{iun}/rework:
+  /delivery-private/v1/notifications/{iun}/rework:
     put:
       summary: Rework di una notifica
       description: >-
