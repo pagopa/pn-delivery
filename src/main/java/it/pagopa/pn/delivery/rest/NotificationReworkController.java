@@ -2,18 +2,16 @@ package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
-import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.ReworkError;
 import it.pagopa.pn.delivery.generated.openapi.server.bo.v1.api.NotificationReworkApi;
 import it.pagopa.pn.delivery.generated.openapi.server.bo.v1.dto.ReworkRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.bo.v1.dto.ReworkResponse;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationReworksDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationReworksEntity;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.ReworkInformation;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.pnclient.safestorage.PnSafeStorageClientImpl;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
-import lombok.Builder;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -118,13 +116,4 @@ public class NotificationReworkController implements NotificationReworkApi {
         return modelMapper.map(request, it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.ReworkRequest.class);
     }
 
-    @Data
-    @Builder
-    private class ReworkInformation {
-        String reworkId;
-        ReworkRequest request;
-        it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.ReworkResponse response;
-        String iun;
-        ArrayList<ReworkError> errors;
-    }
 }
