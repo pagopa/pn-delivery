@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.delivery.BaseTest;
+import it.pagopa.pn.delivery.exception.PnConflictException;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationReworksEntity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -24,7 +25,7 @@ class NotificationReworksDaoDynamoTestIT extends BaseTest.WithLocalStack {
     entity.setIun("IUN_DI_PROVA");
     entity.setReworkId("REWORKID_1");
 
-    notificationReworksDaoDynamo.putItem(entity).block();
+    notificationReworksDaoDynamo.putIfAbsent(entity).block();
 
     NotificationReworksEntity result = notificationReworksDaoDynamo.findByIunAndReworkId("IUN_DI_PROVA", "REWORKID_1").block();
 
@@ -37,14 +38,14 @@ class NotificationReworksDaoDynamoTestIT extends BaseTest.WithLocalStack {
   void putAndGetItems() {
     NotificationReworksEntity entity = new NotificationReworksEntity();
     entity.setIun("IUN_DI_PROVA");
-    entity.setReworkId("REWORKID_1");
+    entity.setReworkId("REWORKID_2");
 
     NotificationReworksEntity entity2 = new NotificationReworksEntity();
     entity2.setIun("IUN_DI_PROVA");
-    entity2.setReworkId("REWORKID_2");
+    entity2.setReworkId("REWORKID_3");
 
-    notificationReworksDaoDynamo.putItem(entity).block();
-    notificationReworksDaoDynamo.putItem(entity2).block();
+    notificationReworksDaoDynamo.putIfAbsent(entity).block();
+    notificationReworksDaoDynamo.putIfAbsent(entity2).block();
 
     Mono<Page<NotificationReworksEntity>> result = notificationReworksDaoDynamo.findByIun("IUN_DI_PROVA", new HashMap<>(), 5);
     Page<NotificationReworksEntity> entities = result.block();
@@ -55,5 +56,14 @@ class NotificationReworksDaoDynamoTestIT extends BaseTest.WithLocalStack {
 
     Assertions.assertEquals("IUN_DI_PROVA", entities.items().get(1).getIun());
     Assertions.assertEquals("REWORKID_2", entities.items().get(1).getReworkId());
+  }
+
+  @Test
+  void putIfAbsentConflict() {
+    NotificationReworksEntity entity = new NotificationReworksEntity();
+    entity.setIun("IUN_DI_PROVA");
+    entity.setReworkId("REWORKID_1");
+    
+    Assertions.assertThrows(PnConflictException.class, () -> notificationReworksDaoDynamo.putIfAbsent(entity).block());
   }
 }
