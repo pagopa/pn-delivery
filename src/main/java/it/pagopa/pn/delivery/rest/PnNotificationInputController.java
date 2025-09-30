@@ -55,11 +55,10 @@ public class PnNotificationInputController implements NewNotificationApi {
         logEvent.log();
         NewNotificationResponse svcRes;
 
-        if (pnDeliveryConfigs.isCheckTaxonomyCodeEnabled() && taxonomyCodeDaoDynamo.getTaxonomyCodeByKeyAndPaId(taxonomyCode, DEFAULT_PAID).isEmpty()) {
-            throw new PnInvalidInputException(ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_TAXONOMYCODE, taxonomyCode);
-        }
-
         try {
+            if (pnDeliveryConfigs.isCheckTaxonomyCodeEnabled() && taxonomyCodeDaoDynamo.getTaxonomyCodeByKeyAndPaId(taxonomyCode, DEFAULT_PAID).isEmpty()) {
+                throw new PnInvalidInputException(ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_TAXONOMYCODE, taxonomyCode);
+            }
             svcRes = svc.receiveNotification(xPagopaPnCxId, newNotificationRequest, xPagopaPnSrcCh, xPagopaPnSrcChDetails, xPagopaPnCxGroups, xPagopaPnNotificationVersion);
         } catch (PnRuntimeException ex) {
             logEvent.generateFailure("[protocolNumber={}, idempotenceToken={}] " + ex.getProblem(),
