@@ -20,7 +20,6 @@ import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedExce
 
 import java.util.Map;
 
-import static it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore.ATTRIBUTE_NOT_EXISTS;
 import static software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional.keyEqualTo;
 
 @Component
@@ -38,6 +37,19 @@ public class NotificationReworksDaoDynamo extends BaseDao<NotificationReworksEnt
                 NotificationReworksEntity.class
         );
         this.table = dynamoDbEnhancedClient.table(cfg.getNotificationReworksDao().getTableName(), TableSchema.fromBean(NotificationReworksEntity.class));
+    }
+
+    public Mono<NotificationReworksEntity> findLatestByIun(String iun) {
+        QueryConditional queryByHashKey = QueryConditional.keyEqualTo(Key.builder().partitionValue(iun).build());
+
+        QueryEnhancedRequest request = QueryEnhancedRequest.builder()
+                .queryConditional(queryByHashKey)
+                .scanIndexForward(false)
+                .limit(1)
+                .build();
+
+        return Mono.from(table.query(request))
+                .flatMap(page -> Mono.justOrEmpty(page.items().stream().findFirst()));
     }
 
     @Override

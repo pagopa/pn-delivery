@@ -66,4 +66,29 @@ class NotificationReworksDaoDynamoTestIT extends BaseTest.WithLocalStack {
     
     Assertions.assertThrows(PnConflictException.class, () -> notificationReworksDaoDynamo.putIfAbsent(entity).block());
   }
+
+  @Test
+  void findLatestByIun() {
+    NotificationReworksEntity entity = new NotificationReworksEntity();
+    entity.setIun("IUN_DI_PROVA");
+    entity.setReworkId("REWORKID_4");
+
+    NotificationReworksEntity entity2 = new NotificationReworksEntity();
+    entity2.setIun("IUN_DI_PROVA");
+    entity2.setReworkId("REWORKID_5");
+
+    NotificationReworksEntity entity3 = new NotificationReworksEntity();
+    entity3.setIun("IUN_DI_PROVA");
+    entity3.setReworkId("REWORKID_6");
+
+    notificationReworksDaoDynamo.putIfAbsent(entity).block();
+    notificationReworksDaoDynamo.putIfAbsent(entity2).block();
+    notificationReworksDaoDynamo.putIfAbsent(entity3).block();
+
+    NotificationReworksEntity result = notificationReworksDaoDynamo.findLatestByIun("IUN_DI_PROVA").block();
+
+    assert result != null;
+    Assertions.assertEquals("IUN_DI_PROVA", result.getIun());
+    Assertions.assertEquals("REWORKID_6", result.getReworkId());
+  }
 }
