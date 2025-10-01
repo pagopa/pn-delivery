@@ -476,6 +476,31 @@ Resources:
         LogGroupRetention: !Ref LogRetention
         LogGroupPrefix: '/aws/lambda'
 
+  NotificationReworkUpdateLambdaLogGroup:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub "${ProjectName}-delivery-notification-rework-update-lambda"
+        LogGroupRetention: !Ref LogRetention
+        LogGroupPrefix: '/aws/lambda'
+
+  # internal queues DLQ
+  NotificationReworkUpdateLambdaDLQ:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
+      Parameters:
+        QueueName: !Sub '${ProjectName}-notification_rework_update_DLQ'
+        DelaySeconds: 1
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName
+        HasDLQ: "false"
+        QueueHasAlarm: "true"
+
 Outputs:
 
   # Dynamo table
@@ -641,6 +666,20 @@ Outputs:
     Value: !GetAtt PnDeliveryLimitConfigurerQueue.Outputs.SqsAgeAlarmArn
     Description: PnDeliveryLimitConfigurerQueue queue age alarm ARN
 
+  # Stream Step Manager DLQ
+  NotificationReworkUpdateLambdaDLQName:
+    Value: !GetAtt NotificationReworkUpdateLambdaDLQ.Outputs.QueueName
+    Description: pn-notification_rework_update_DLQ queue name
+  NotificationReworkUpdateLambdaDLQURL:
+    Value: !GetAtt NotificationReworkUpdateLambdaDLQ.Outputs.QueueURL
+    Description: pn-notification_rework_update_DLQ queue URL
+  NotificationReworkUpdateLambdaDLQARN:
+    Value: !GetAtt NotificationReworkUpdateLambdaDLQ.Outputs.QueueARN
+    Description: pn-notification_rework_update_DLQ queue ARN
+  NotificationReworkUpdateLambdaDLQAlarmARN:
+    Value: !GetAtt NotificationReworkUpdateLambdaDLQ.Outputs.SqsDLQAlarmArn
+    Description: pn-notification_rework_update_DLQ alarm ARN
+
   # Log group exports
   EcsLogGroup:
     Value: !GetAtt PnDeliveryLogGroup.Outputs.LogGroupName
@@ -669,3 +708,6 @@ Outputs:
 
   PaLimitCorrectionLambdaName:
     Value: !Sub "${ProjectName}-delivery-pa-limit-correction-lambda"
+
+  NotificationReworkUpdateLambdaName:
+    Value: !Sub "${ProjectName}-delivery-notification-rework-update-lambda"

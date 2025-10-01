@@ -520,14 +520,27 @@ Parameters:
     Type: String
     Description: "BatchSize metadata status updater"
 
+  NotificationReworkUpdateLambdaBatchSize:
+    Type: String
+    Description: "BatchSize notification rework updater"
+
   PnDeliveryMetadataStatusLambdaMaxRetryAttempts:
     Type: Number
     Description: "MaxRetryAttempts for metadata status updater Lambda"
     Default: 3
 
+  NotificationReworkUpdateLambdaMaxRetryAttempts:
+    Type: Number
+    Description: "MaxRetryAttempts for notification rework updater"
+    Default: 3
+
   PnDeliveryMetadataStatusUpdaterLambdaMaximumBatchingWindowInSeconds:
     Type: String
     Description: "MaximumBatchingWindow metadata status updater"
+
+  NotificationReworkUpdateLambdaMaximumBatchingWindowInSeconds:
+    Type: String
+    Description: "MaximumBatchingWindow notification rework updater"
 
   B2bWafLimit:
     Default: 600000
@@ -678,6 +691,32 @@ Parameters:
     Type: String
     Description: "Activation date time for physical address lookup feature"
 
+  NotificationReworksDynamoTableName:
+    Type: String
+    Description: "NotificationRefusedVerification Dynamo table name"
+
+  NotificationReworksDynamoTableArn:
+    Type: String
+    Description: "ARN of dynamodb table containing notification refused verification"
+
+
+  NotificationReworkUpdateLambdaProvisionedConcurrency:
+    Type: Number
+    Description: 'NotificationReworkUpdateLambdaProvisionedConcurrency'
+    Default: 1
+
+  NotificationReworkUpdateLambdaName:
+    Type: String
+    Description: 'NotificationReworkUpdateLambdaName'
+
+  NotificationReworkUpdateLambdaDLQAlarmARN:
+    Type: String
+    Description: 'DLQ Alarm ARN for NotificationReworkUpdateLambda'
+
+  NotificationReworkUpdateLambdaDLQARN:
+    Type: String
+    Description: 'DLQ ARN for NotificationReworkUpdateLambda'
+
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
 
@@ -762,6 +801,7 @@ Resources:
         ContainerEnvEntry53: !Sub "PN_DELIVERY_NOTIFICATIONREFUSEDVERIFICATIONDAO_TABLENAME=${NotificationRefusedVerificationDynamoTableName}"
         ContainerEnvEntry54: !Sub "SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${Mandate2DeliveryQueueName},${PnNotificationRefusedQueueName}"
         ContainerEnvEntry55: !Sub "PN_DELIVERY_PHYSICALADDRESSLOOKUPSTARTDATE=${PhysicalAddressLookupStartDate}"
+        ContainerEnvEntry56: !Sub "PN_DELIVERY_NOTIFICATIONREWORKSDAO_TABLENAME=${NotificationReworksDynamoTableName}"
 
         ContainerSecret1: !Sub "ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:"
         MicroServiceSecretPrefix: pn-Delivery-Secrets
@@ -816,6 +856,8 @@ Resources:
               - !Sub "${TaxonomyCodeDynamoTableArn}"
               - !Sub "${NotificationRefusedVerificationDynamoTableArn}"
               - !Sub "${NotificationRefusedVerificationDynamoTableArn}/*"
+              - !Sub "${NotificationReworksDynamoTableArn}"
+              - !Sub "${NotificationReworksDynamoTableArn}/*"
           - Effect: Allow
             Action:
               - "dynamodb:BatchWriteItem"
@@ -952,6 +994,7 @@ Resources:
             - !Ref TaxonomyCodeDynamoTableName
             - !Ref PaNotificationLimitDynamoTableName
             - !Ref NotificationRefusedVerificationDynamoTableName
+            - !Ref NotificationReworksDynamoTableName
         LambdaArns: !Join
           - ","
           - - !GetAtt PnDeliveryInsertTriggerLambdaStack.Outputs.FunctionArn
@@ -989,6 +1032,7 @@ Resources:
             - !GetAtt VersioningV1V23GetNotificationPriceLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !GetAtt MetadataStatusUpdaterLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !GetAtt PaLimitCorrectionLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
+            - !GetAtt NotificationReworkUpdateLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !Ref PnDeliveryMetadataStatusDLQAlarmARN
             - !Ref PnDeliveryPaLimitCorrectionDLQAlarmARN
         QueueArns: !Join
@@ -2092,3 +2136,158 @@ Resources:
       Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
       SourceArn: !GetAtt PaLimitCorrectionScheduledRule.Arn
+
+
+  #########################################################
+  ###           NotificationReworkUpdateLambda          ###
+  #########################################################
+  NotificationReworkUpdateLambdaSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub '${VersioningV1V2StreamLambdaName}-sec-group'
+      VpcId: !Ref VpcId
+
+  # a new version at each deploy, with provisioned concurrency set
+  # remember to set transform -> UpdateDeploymentTransform at beginning of the file
+  NotificationReworkUpdateLambdaVersionPnPlaceholderEpochSeconds:
+    Type: AWS::Lambda::Version
+    Properties:
+      FunctionName: !Ref NotificationReworkUpdateLambda
+
+  # Lambda function
+  NotificationReworkUpdateLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref NotificationReworkUpdateLambdaName
+      Runtime: nodejs18.x
+      Handler: "index.handler"
+      Code:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/notificationReworkUpdateLambda.zip"
+      Role: !GetAtt NotificationReworkUpdateLambdaRole.Arn
+      VpcConfig:
+        SecurityGroupIds:
+          - !GetAtt NotificationReworkUpdateLambdaSecGroup.GroupId
+        SubnetIds: !Ref VpcEgressSubnetsIds
+      Environment:
+        Variables:
+          REGION: !Sub ${AWS::Region}
+          PN_STREAM_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/${DeliveryProgressesApiPath}/v2.8"
+          BASE_PATH: !Sub "http://${ApplicationLoadBalancerDomain}:8080"
+          NUM_RETRY: !Ref NumRetry
+          ATTEMPT_TIMEOUT_SEC: !Ref AttemptTimeoutSec
+      TracingConfig:
+        Mode: Active
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
+      Timeout: 30
+      MemorySize: 512
+      Tags:
+        - Key: "pn-eni-related"
+          Value: "true"
+        - Key: "pn-eni-related-groupName-regexp"
+          Value: !Base64 "^pn-delivery-microsvc-prod-NotificationReworkUpdateLambdaSecGroup*$"
+
+  NotificationReworkUpdateLambdaVersionAlias:
+    Type: AWS::Lambda::Alias
+    Properties:
+      FunctionName: !Ref NotificationReworkUpdateLambda
+      FunctionVersion: !GetAtt NotificationReworkUpdateLambdaVersionPnPlaceholderEpochSeconds.Version
+      Name: live
+      ProvisionedConcurrencyConfig:
+        ProvisionedConcurrentExecutions: !Ref NotificationReworkUpdateLambdaProvisionedConcurrency
+
+  # Lambda function role
+  NotificationReworkUpdateLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-NotificationReworkUpdateLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+        - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
+
+  NotificationReworkUpdateLambdaPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub ${ProjectName}-NotificationReworkUpdateLambdaPolicy
+      Roles:
+        - !Ref NotificationReworkUpdateLambdaRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - kinesis:DescribeStream
+              - kinesis:DescribeStreamSummary
+              - kinesis:GetShardIterator
+              - kinesis:GetRecords
+              - kinesis:ListShards
+              - kinesis:ListStreams
+              - kinesis:SubscribeToShard
+            Resource: !Ref CdcKinesisSourceStreamArn
+          - Effect: Allow
+            Action:
+              - "dynamodb:UpdateItem"
+            Resource:
+              - !Sub "${NotificationReworksDynamoTableArn}"
+              - !Sub "${NotificationReworksDynamoTableArn}/*"
+          - Effect: Allow
+            Action:
+              - sqs:ChangeMessageVisibility
+              - sqs:GetQueueAttributes
+              - sqs:GetQueueUrl
+              - sqs:SendMessage
+            Resource:
+              !Ref NotificationReworkUpdateLambdaDLQARN
+          - Effect: Allow
+            Action:
+              - kms:Decrypt
+            Resource:
+              !Ref CdcKinesisSourceStreamKeyArn
+
+  NotificationReworkUpdateLambdaAlarms:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
+      Parameters:
+        FunctionName: !Ref NotificationReworkUpdateLambda
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        FilterPattern: "FATAL"
+
+  # Lambda access right
+  NotificationReworkUpdateLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref NotificationReworkUpdateLambdaVersionAlias
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*'
+
+  NotificationReworkUpdateLambdaKinesisSource:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: !Sub ${NotificationReworkUpdateLambdaBatchSize}
+      BisectBatchOnFunctionError: true
+      EventSourceArn: !Ref CdcKinesisSourceStreamArn
+      FilterCriteria:
+        Filters:
+          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "dynamodb" : { "NewImage" : { "reworkId": [ { "exists": true } ]}}}}'
+      FunctionName: !Ref NotificationReworkUpdateLambda
+      FunctionResponseTypes:
+        - ReportBatchItemFailures
+      MaximumBatchingWindowInSeconds: !Sub ${NotificationReworkUpdateLambdaMaximumBatchingWindowInSeconds}
+      MaximumRetryAttempts: !Sub ${NotificationReworkUpdateLambdaMaxRetryAttempts}
+      StartingPosition: TRIM_HORIZON
+      DestinationConfig:
+        OnFailure:
+          Destination: !Ref NotificationReworkUpdateLambdaDLQARN
