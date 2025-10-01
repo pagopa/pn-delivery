@@ -44,5 +44,7 @@
     "openapiBundlePresenceCheck": [
         "api-external-b2b-pa-bundle.yaml",
         "pn-delivery-b2b-pg-external-bundle.yaml"
-    ]
+    ],
+    "bundlePatch": "openapi.patch"
+
 }
