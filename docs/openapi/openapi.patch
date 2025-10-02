@@ -1,13 +1,30 @@
 Subject: [PATCH] generate patch
 ---
+Index: docs/openapi/api-external-b2b-appio.yaml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/docs/openapi/api-external-b2b-appio.yaml b/docs/openapi/api-external-b2b-appio.yaml
+--- a/docs/openapi/api-external-b2b-appio.yaml	(revision 3dad3e4c87baba64c78f3579ff19107683122fcb)
++++ b/docs/openapi/api-external-b2b-appio.yaml	(date 1759334948603)
+@@ -159,8 +159,6 @@
+       tags:
+         - AppIO-PN-Notification
+       operationId: checkAarQrCodeIO
+-      x-pagopa-lambda-name: 'pn-consent-accepter-lambda:live'
+-      x-pagopa-lambda-account: core
+       parameters:
+         - $ref: '#/components/parameters/cxTaxIdAuthFleet'
+         - $ref: '#/components/parameters/lollipopOriginalUrl'                                     # ONLY EXTERNAL
 Index: docs/openapi/api-external-b2b-pa-bundle.yaml
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 <+>UTF-8
 ===================================================================
 diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-external-b2b-pa-bundle.yaml
---- a/docs/openapi/api-external-b2b-pa-bundle.yaml	(revision 853c5596e522cd922582eafcbad58f2ee8397ed8)
-+++ b/docs/openapi/api-external-b2b-pa-bundle.yaml	(date 1756225511003)
+--- a/docs/openapi/api-external-b2b-pa-bundle.yaml	(revision 3dad3e4c87baba64c78f3579ff19107683122fcb)
++++ b/docs/openapi/api-external-b2b-pa-bundle.yaml	(date 1759334924125)
 @@ -1001,8 +1001,6 @@
        tags:
          - NewNotification

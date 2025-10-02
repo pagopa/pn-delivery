@@ -45,5 +45,6 @@
         "api-external-b2b-pa-bundle.yaml",
         "pn-delivery-b2b-pg-external-bundle.yaml"
     ],
-    "bundlePatch": "api-external-b2b-bundle_yaml.patch"
+    "bundlePatch": "openapi.patch"
+
 }

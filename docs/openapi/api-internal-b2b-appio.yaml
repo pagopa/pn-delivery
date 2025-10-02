@@ -177,6 +177,8 @@ paths:
       tags:
         - AppIO-PN-Notification
       operationId: checkAarQrCodeIO
+      x-pagopa-lambda-name: 'pn-consent-accepter-lambda:live'
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'                                             # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'                                          # NO EXTERNAL
