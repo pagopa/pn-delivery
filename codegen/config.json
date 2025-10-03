@@ -39,6 +39,13 @@
             "servicePath": "delivery",
             "generateBundle": true,
             "mergeBeforeBundleGeneration": true
+        },
+        {
+            "intendedUsage": "BO",
+            "openapiFiles": [
+                "api-rework-private.yaml"
+            ],
+            "servicePath": "delivery-rework"
         }
     ],
     "openapiBundlePresenceCheck": [

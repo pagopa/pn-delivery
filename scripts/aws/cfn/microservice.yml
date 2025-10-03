@@ -2092,3 +2092,31 @@ Resources:
       Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
       SourceArn: !GetAtt PaLimitCorrectionScheduledRule.Arn
+
+  # Expose PN-Delivery microservice public API with API-GW for BACKOFFICE usage
+  DeliveryMicroserviceReworkPublicAPI:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service-openapi.yaml"
+      Parameters:
+        MicroServiceUniqueName: !Sub '${ProjectName}-delivery'
+        IntendedUsage: BACKOFFICE
+        DnsName: !Ref ApiDnsName
+        ProjectName: !Ref ProjectName
+        ServiceApiPath: 'delivery-rework'
+        NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
+        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
+        OpenApiBucketName: !Ref MicroserviceBucketName
+        OpenApiBucketKey: !Sub ${MicroserviceBucketBaseKey}/docs/openapi/aws/api-delivery-rework-BO-aws.yaml
+
+  DeliveryMicroservicePublicReworkApiWaf:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
+      Parameters:
+        WAFName: !Sub '${ProjectName}-delivery-rework'
+        IntendedUsage: BACKOFFICE
+        APIGatewayARNs: !GetAtt DeliveryMicroserviceReworkPublicAPI.Outputs.APIGatewayARN
+        Limit: !Ref B2bWafLimit
