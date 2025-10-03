@@ -2174,8 +2174,6 @@ Resources:
           REGION: !Sub ${AWS::Region}
           PN_STREAM_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/${DeliveryProgressesApiPath}/v2.8"
           BASE_PATH: !Sub "http://${ApplicationLoadBalancerDomain}:8080"
-          NUM_RETRY: !Ref NumRetry
-          ATTEMPT_TIMEOUT_SEC: !Ref AttemptTimeoutSec
       TracingConfig:
         Mode: Active
       Layers:
