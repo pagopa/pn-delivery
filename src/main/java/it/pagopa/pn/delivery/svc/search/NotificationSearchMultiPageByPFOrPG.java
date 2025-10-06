@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.svc.search;
 
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.exception.PnSearchTimeoutException;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.EntityToDtoNotificationMetadataMapper;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
@@ -64,11 +65,13 @@ public class NotificationSearchMultiPageByPFOrPG extends NotificationSearchMulti
             startEvaluatedKey = null;
 
             // se i dati letti sono più di quelli richiesti, posso concludere qui la ricerca
-            if (dataRead.size() >= requiredSize ||
-                    isSearchTimeExpired(cfg.getSearchTimeoutSeconds(),searchStartTimeNanos,indexNameAndPartitions.getIndexName()))
+            if (dataRead.size() >= requiredSize)
             {
                 log.debug("reached required size, ending search");
                 break;
+            }
+            if(isSearchTimeExpired(cfg.getSearchTimeoutSeconds(),searchStartTimeNanos,indexNameAndPartitions.getIndexName())){
+                throw new PnSearchTimeoutException("Timeout in search notification multiPage");
             }
         }
 

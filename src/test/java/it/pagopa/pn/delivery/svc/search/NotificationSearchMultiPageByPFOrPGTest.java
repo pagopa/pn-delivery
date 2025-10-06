@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.svc.search;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.exception.PnSearchTimeoutException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.BaseRecipientDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
@@ -328,10 +329,10 @@ class NotificationSearchMultiPageByPFOrPGTest {
 
         Mockito.when( cfg.getMaxPageSize() ).thenReturn( 1000 );
 
-        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPageByPFOrPG.searchNotificationMetadata();
+        Assertions.assertThrows(PnSearchTimeoutException.class, () -> {
+            notificationSearchMultiPageByPFOrPG.searchNotificationMetadata();
+        });
 
-        Assertions.assertNotNull( result );
-        Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
         Mockito.verify(notificationDao, Mockito.times(4)).searchForOneMonth(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any());
 
     }
