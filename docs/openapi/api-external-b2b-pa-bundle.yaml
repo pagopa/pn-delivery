@@ -248,7 +248,7 @@ info:
       | Eventi del workflow digitale | SEND_DIGITAL_DOMICILE, SEND_DIGITAL_FEEDBACK, DIGITAL_SUCCESS_WORKFLOW, DIGITAL_FAILURE_WORKFLOW, SEND_SIMPLE_REGISTERED_LETTER, SIMPLE_REGISTERED_LETTER_PROGRESS |
       | Eventi del workflow analogico | SEND_ANALOG_DOMICILE ,SEND_ANALOG_PROGRESS, SEND_ANALOG_FEEDBACK, ANALOG_SUCCESS_WORKFLOW, ANALOG_FAILURE_WORKFLOW, COMPLETELY_UNREACHABLE |
       | Eventi di chiusura del workflow | REFINEMENT, NOTIFICATION_VIEWED, NOTIFICATION_CANCELLED |
-      | Altri eventi | NOTIFICATION_RADD_RETRIEVED |
+      | Altri eventi | NOTIFICATION_RADD_RETRIEVED, ANALOG_WORKFLOW_RECIPIENT_DECEASED|
 
     Il placeholder __DEFAULT__ può essere usato assieme ad altri eventi di
     timeline, ad esempio il filtro "DEFAULT,SEND_COURTESY_MESSAGE" permetterà di
@@ -271,6 +271,9 @@ info:
       - __EFFECTIVE_DATE__: Il destinatario non ha letto la notifica entro il termine stabilito.
       - __UNREACHABLE__: Il destinatario non è reperibile.
       - __CANCELLED__: L'ente ha annullato l'invio della notifica.
+      
+       Stati - v2.6:
+       - __RETURNED_TO_SENDER__: La notifica è stata restituita al mittente.
 
     ### Filtri applicabili ai flussi di eventi di timeline
 
@@ -340,6 +343,13 @@ info:
       |__NOTIFICATION_RADD_RETRIEVED__ | Accesso alla notifica tramite la rete RADD. Non perfeziona la notifica |
 
       </details>
+      
+      <details>
+        <summary>Eventi di timeline - v2.6 (tutti gli elementi v1 + v2 + v2.3 + gli elementi seguenti)</summary>
+      | Categoria | Descrizione |
+      |-----------|-------------|
+      |__ANALOG_WORKFLOW_RECIPIENT_DECEASED__ | Destinatario deceduto |
+      </details>
 
     ## Segregazione per gruppi (dalla versione 2.3)
 
@@ -392,6 +402,21 @@ info:
     Uno stream disabilitato non può essere riabilitato, ma è possibile consumare
     gli eventuali eventi e sarà eliminato automaticamente dopo <span
     id="webhookTtlDisabled">14</span> giorni.
+
+      ## Controllo della pubblicazione degli eventi (dalla versione 2.6)
+    Dalla versione 2.6 in fase di [creazione](#/Streams/createEventStreamV27) di
+    uno stream è stato introdotto <b>waitForAccepted</b> un flag booleano che
+    controlla la pubblicazione degli eventi in uno stream. Per gli stream di
+    <b>TIMELINE</b>, se impostato su true,  ritarda la pubblicazione degli
+    eventi fino a quando non viene ricevuto un evento di accettazione o rifiuto
+    della notifica. Gli eventi con stato <b><code>IN_VALIDATION</code></b>
+    vengono comunque pubblicati immediatamente. Per gli stream di tipo
+    <b>STATUS</b>, assicura che il primo stato pubblicato sia
+    <b><code>ACCEPTED</code></b> o <b><code>REFUSED</code></b>. Sebbene
+    normalmente gli eventi dello stream arrivino nell'ordine cronologico in cui
+    si verificano, non è garantito che possano arrivare in un ordine differente.
+    Gli ID dello stream sono comunque crescenti, ma la data dell'evento potrebbe
+    non essere sempre successiva agli eventi precedenti.
 
 
     ## Lettura degli eventi dallo stream
@@ -539,7 +564,7 @@ info:
 
 
     Le __FAQ__ possono essere consultate al seguente link:
-    [https://docs.pagopa.it/f.a.q.-per-integratori/](https://docs.pagopa.it/f.a.q.-per-integratori/)
+    [https://developer.pagopa.it/send/guides/knowledge-base](https://developer.pagopa.it/send/guides/knowledge-base)
   contact:
     name: 'SEND: supporto enti'
     url: https://pagopa.atlassian.net/servicedesk/customer/portal/5
