@@ -98,6 +98,8 @@ public class PnDeliveryConfigs {
 
     private Instant physicalAddressLookupStartDate;
 
+    private String latestNotificationVersion;
+
     @PostConstruct
     public void init(){
         log.info("CONFIGURATION {}",this);

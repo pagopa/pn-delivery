@@ -47,7 +47,6 @@ import static it.pagopa.pn.delivery.generated.openapi.server.v1.dto.Notification
 @Service
 @CustomLog
 public class NotificationReceiverService {
-	public static final String LATEST_NOTIFICATION_VERSION = "2.4";
 	public static final int VAT_DEFAULT_VALUE = 22;
 	public static final int PA_FEE_DEFAULT_VALUE = 100;
 
@@ -130,7 +129,7 @@ public class NotificationReceiverService {
 		internalNotification.setSenderPaId( xPagopaPnCxId );
 		internalNotification.setSourceChannel( xPagopaPnSrcCh );
 		internalNotification.setSourceChannelDetails(xPagopaPnSrcChDetails);
-		internalNotification.setVersion( StringUtils.hasText( xPagopaPnNotificationVersion ) ? xPagopaPnNotificationVersion : LATEST_NOTIFICATION_VERSION );
+		internalNotification.setVersion( StringUtils.hasText( xPagopaPnNotificationVersion ) ? xPagopaPnNotificationVersion : cfg.getLatestNotificationVersion() );
 
 		setPhysicalAddressLookup(internalNotification);
 
