@@ -77,6 +77,8 @@ public class PnDeliveryConfigs {
 
     private Integer maxAttachmentsCount;
 
+    private Integer searchTimeoutSeconds;
+
     private boolean physicalAddressValidation = false;
     
     private String physicalAddressValidationPattern;

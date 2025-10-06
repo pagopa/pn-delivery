@@ -8,6 +8,7 @@ import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMet
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import lombok.extern.slf4j.Slf4j;
+import static it.pagopa.pn.delivery.svc.search.SearchTimeout.isSearchTimeExpired;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,19 +48,24 @@ public class NotificationSearchMultiPageByPFOrPG extends NotificationSearchMulti
         }
 
 
+        long searchStartTimeNanos = System.nanoTime();
         // ciclo per ogni partizione, eventualmente scartando quelle non interessate in base alla lastEvaluatedKey
         for (int pIdx = startIndex;pIdx< indexNameAndPartitions.getPartitions().size();pIdx++ ) {
 
             String currentpartition = indexNameAndPartitions.getPartitions().get( pIdx );
 
+
+            //limitare qua ma anche nel metodo di ricerca vero e proprio che viene richiamato ricorsivamente
+
             // legge tutti i dati dalla partizione
-            logItemCount += readDataFromPartition(0, currentpartition, dataRead, startEvaluatedKey, requiredSize,  dynamoDbPageSize);
+            logItemCount += readDataFromPartition(0, currentpartition, dataRead, startEvaluatedKey, requiredSize,  dynamoDbPageSize, searchStartTimeNanos);
 
             // l'eventuale partizione iniziale ha senso SOLO per la prima partizione
             startEvaluatedKey = null;
 
             // se i dati letti sono più di quelli richiesti, posso concludere qui la ricerca
-            if (dataRead.size() >= requiredSize)
+            if (dataRead.size() >= requiredSize ||
+                    isSearchTimeExpired(cfg.getSearchTimeoutSeconds(),searchStartTimeNanos,indexNameAndPartitions.getIndexName()))
             {
                 log.debug("reached required size, ending search");
                 break;
@@ -70,4 +76,5 @@ public class NotificationSearchMultiPageByPFOrPG extends NotificationSearchMulti
 
         return dataRead;
     }
+
 }
