@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import static it.pagopa.pn.delivery.svc.search.SearchTimeout.isSearchTimeExpired;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -163,7 +164,14 @@ public abstract class NotificationSearchMultiPage extends NotificationSearch {
      */
     protected int readDataFromPartition(int currentRequest, String partition, List<NotificationMetadataEntity> cumulativeQueryResult,
                                       PnLastEvaluatedKey lastEvaluatedKey,
-                                      Integer requiredSize, int dynamoDbPageSize) {
+                                      Integer requiredSize, int dynamoDbPageSize, Long searchStartTimeNanos) {
+
+
+        //fix for search timeout
+        if (searchStartTimeNanos != null && isSearchTimeExpired(cfg.getSearchTimeoutSeconds(),searchStartTimeNanos,indexNameAndPartitions.getIndexName())) {
+            return currentRequest;
+        }
+
         log.trace( "START compute partition read trunk indexName={}  partition={} currentRequest={} dynamoDbPageSize={}",  indexNameAndPartitions.getIndexName(), partition, currentRequest++, dynamoDbPageSize );
 
         PageSearchTrunk<NotificationMetadataEntity> oneQueryResult;
@@ -202,7 +210,7 @@ public abstract class NotificationSearchMultiPage extends NotificationSearch {
             dynamoDbPageSize = Math.round(dynamoDbPageSize * multiplier);
             dynamoDbPageSize = Math.min(dynamoDbPageSize, MAX_DYNAMO_SIZE);
 
-            return readDataFromPartition(currentRequest, partition, cumulativeQueryResult, nextEvaluationKeyForSearch, requiredSize, dynamoDbPageSize);
+            return readDataFromPartition(currentRequest, partition, cumulativeQueryResult, nextEvaluationKeyForSearch, requiredSize, dynamoDbPageSize, searchStartTimeNanos);
         }
         else
         {
@@ -210,4 +218,5 @@ public abstract class NotificationSearchMultiPage extends NotificationSearch {
             return currentRequest;
         }
     }
+
 }
