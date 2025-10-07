@@ -78,9 +78,11 @@ components:
         pcRetry:
           type: string
           example: PCRETRY_0
+          pattern: PCRETRY_[0-9]+
         recIndex:
           type: string
           example: RECINDEX_0
+          pattern: RECINDEX_[0-9]+
         expectedStatusCode:
           type: string
         expectedDeliveryFailureCause:
