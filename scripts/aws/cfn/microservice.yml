@@ -1049,7 +1049,7 @@ Resources:
       Handler: "index.handler"
       Code:
         S3Bucket: !Ref MicroserviceBucketName
-        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/consentAccepterLambda.zip"
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/consent-accepter.zip"
       Role: !GetAtt ConsentAccepterLambdaRole.Arn
       VpcConfig:
         SecurityGroupIds:
