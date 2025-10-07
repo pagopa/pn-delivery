@@ -23,7 +23,7 @@ tags:
   - name: ReworkV1
 
 paths:
-  /delivery-bo/v1/notifications/{iun}/rework:
+  /delivery-private/v1/notifications/{iun}/rework:
     put:
       summary: Rework di una notifica
       description: >-
@@ -72,12 +72,26 @@ components:
       properties:
         attemptId:
           type: string
-          description: ''
           enum:
             - ATTEMPT_0
             - ATTEMPT_1
+        pcRetry:
+          type: string
+          example: PCRETRY_0
+        recIndex:
+          type: string
+          example: RECINDEX_0
+        expectedStatusCode:
+          type: string
+        expectedDeliveryFailureCause:
+          type: string
+        reason:
+          type: string
       required:
         - attemptId
+        - pcRetry
+        - expectedStatusCode
+        - reason
 
     ReworkResponse:
       type: object

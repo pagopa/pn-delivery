@@ -98,6 +98,8 @@ public class PnDeliveryConfigs {
 
     private Instant physicalAddressLookupStartDate;
 
+    private Integer documentExpiringDateRange;
+
     @PostConstruct
     public void init(){
         log.info("CONFIGURATION {}",this);

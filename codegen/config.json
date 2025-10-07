@@ -39,13 +39,6 @@
             "servicePath": "delivery",
             "generateBundle": true,
             "mergeBeforeBundleGeneration": true
-        },
-        {
-            "intendedUsage": "BO",
-            "openapiFiles": [
-                "api-bo-private.yaml"
-            ],
-            "servicePath": "delivery-bo"
         }
     ],
     "openapiBundlePresenceCheck": [

@@ -1,10 +1,7 @@
 package it.pagopa.pn.delivery.rest;
 
-import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.ReworkResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.bo.v1.dto.ReworkRequest;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPriceResponse;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestCheckAarDto;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationReworksDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef;
@@ -20,17 +17,14 @@ import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.when;
 
 @WebFluxTest(NotificationReworkController.class)
 class NotificationReworkControllerTest {
