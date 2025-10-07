@@ -621,10 +621,10 @@
                                 <reactive>true</reactive>
                                 <skipDefaultInterface>false</skipDefaultInterface>
                                 <useTags>true</useTags>
-                                <basePackage>${project.groupId}.delivery.generated.openapi.server.bo.v1</basePackage>
-                                <modelPackage>${project.groupId}.delivery.generated.openapi.server.bo.v1.dto</modelPackage>
-                                <apiPackage>${project.groupId}.delivery.generated.openapi.server.bo.v1.api</apiPackage>
-                                <configPackage>${project.groupId}.delivery.generated.openapi.server.bo.v1.config</configPackage>
+                                <basePackage>${project.groupId}.delivery.generated.openapi.server.rework.v1</basePackage>
+                                <modelPackage>${project.groupId}.delivery.generated.openapi.server.rework.v1.dto</modelPackage>
+                                <apiPackage>${project.groupId}.delivery.generated.openapi.server.rework.v1.api</apiPackage>
+                                <configPackage>${project.groupId}.delivery.generated.openapi.server.rework.v1.config</configPackage>
                             </configOptions>
                         </configuration>
                     </execution>
