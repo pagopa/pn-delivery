@@ -7,7 +7,7 @@ import java.util.List;
 public class IunGenerator {
 
     private static final char[] IUN_CHARS = new char[] {'A','D','E','G','H','J','K','L','M','N','P','Q','R','T','U','V','W','X','Y','Z'};
-    private static final List<String> INVALID_PAIRS = List.of("UV", "VU", "HN", "NH");
+    private static final List<String> INVALID_PAIRS = List.of("UV", "VU", "HN", "NH", "LJ");
     private static final String SEPARATOR = "-";
 
     private final SecureRandom randomNumberGenerator = new SecureRandom();
