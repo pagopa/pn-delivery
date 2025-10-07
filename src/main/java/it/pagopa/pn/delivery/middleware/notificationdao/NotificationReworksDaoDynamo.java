@@ -14,6 +14,7 @@ import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
@@ -87,4 +88,17 @@ public class NotificationReworksDaoDynamo extends BaseDao<NotificationReworksEnt
 
         return Mono.from(table.query(queryEnhancedRequest.build()));
     }
+
+    @Override
+    public Mono<NotificationReworksEntity> update(NotificationReworksEntity entity) {
+
+        UpdateItemEnhancedRequest<NotificationReworksEntity> updateItemEnhancedRequest =
+                UpdateItemEnhancedRequest.builder(NotificationReworksEntity.class)
+                        .item(entity)
+                        .ignoreNulls(true)
+                        .build();
+
+        return Mono.fromFuture(table.updateItem(updateItemEnhancedRequest).thenApply(r -> entity));
+    }
+
 }

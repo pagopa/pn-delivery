@@ -12,4 +12,5 @@ public interface NotificationReworksDao {
     Mono<NotificationReworksEntity> findByIunAndReworkId(String iun, String reworkId);
     Mono<Page<NotificationReworksEntity>> findByIun(String iun, Map<String, AttributeValue> lastEvaluateKey, int limit);
     Mono<NotificationReworksEntity> findLatestByIun(String iun);
+    Mono<NotificationReworksEntity> update(NotificationReworksEntity notificationReworksEntity);
 }

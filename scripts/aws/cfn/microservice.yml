@@ -811,6 +811,7 @@ Resources:
               - "dynamodb:GetItem"
               - "dynamodb:Query"
               - "dynamodb:PutItem"
+              - "dynamodb:UpdateItem"
             Resource:
               - !Sub "${NotificationsDynamoTableArn}"
               - !Sub "${NotificationsMetadataDynamoTableArn}"

@@ -68,27 +68,40 @@ class NotificationReworksDaoDynamoTestIT extends BaseTest.WithLocalStack {
   }
 
   @Test
-  void findLatestByIun() {
+  void updateItemAndFindLatest() {
     NotificationReworksEntity entity = new NotificationReworksEntity();
     entity.setIun("IUN_DI_PROVA");
-    entity.setReworkId("REWORKID_4");
-
-    NotificationReworksEntity entity2 = new NotificationReworksEntity();
-    entity2.setIun("IUN_DI_PROVA");
-    entity2.setReworkId("REWORKID_5");
-
-    NotificationReworksEntity entity3 = new NotificationReworksEntity();
-    entity3.setIun("IUN_DI_PROVA");
-    entity3.setReworkId("REWORKID_6");
+    entity.setReworkId("REWORKID_7");
+    entity.setStatus("PENDING");
 
     notificationReworksDaoDynamo.putIfAbsent(entity).block();
-    notificationReworksDaoDynamo.putIfAbsent(entity2).block();
-    notificationReworksDaoDynamo.putIfAbsent(entity3).block();
 
-    NotificationReworksEntity result = notificationReworksDaoDynamo.findLatestByIun("IUN_DI_PROVA").block();
+    NotificationReworksEntity result = notificationReworksDaoDynamo.findByIunAndReworkId("IUN_DI_PROVA", "REWORKID_7").block();
 
     assert result != null;
     Assertions.assertEquals("IUN_DI_PROVA", result.getIun());
-    Assertions.assertEquals("REWORKID_6", result.getReworkId());
+    Assertions.assertEquals("REWORKID_7", result.getReworkId());
+    Assertions.assertEquals("PENDING", result.getStatus());
+
+    entity = new NotificationReworksEntity();
+    entity.setIun("IUN_DI_PROVA");
+    entity.setReworkId("REWORKID_7");
+    entity.setStatus("DONE");
+
+    notificationReworksDaoDynamo.update(entity).block();
+
+    result = notificationReworksDaoDynamo.findByIunAndReworkId("IUN_DI_PROVA", "REWORKID_7").block();
+
+    assert result != null;
+    Assertions.assertEquals("IUN_DI_PROVA", result.getIun());
+    Assertions.assertEquals("REWORKID_7", result.getReworkId());
+    Assertions.assertEquals("DONE", result.getStatus());
+
+    result = notificationReworksDaoDynamo.findLatestByIun("IUN_DI_PROVA").block();
+
+    assert result != null;
+    Assertions.assertEquals("IUN_DI_PROVA", result.getIun());
+    Assertions.assertEquals("REWORKID_7", result.getReworkId());
   }
+
 }
