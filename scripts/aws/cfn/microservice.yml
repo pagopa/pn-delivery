@@ -766,7 +766,7 @@ Resources:
         ContainerEnvEntry53: !Sub "PN_DELIVERY_NOTIFICATIONREFUSEDVERIFICATIONDAO_TABLENAME=${NotificationRefusedVerificationDynamoTableName}"
         ContainerEnvEntry54: !Sub "SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${Mandate2DeliveryQueueName},${PnNotificationRefusedQueueName}"
         ContainerEnvEntry55: !Sub "PN_DELIVERY_PHYSICALADDRESSLOOKUPSTARTDATE=${PhysicalAddressLookupStartDate}"
-        ContainerEnvEntry56: !Sub "LOLLIPOP_EXPECTED_FIRST_LC_ORIGINAL_METHOD=${LollipopExpectedLcOriginalMethod}"
+        ContainerEnvEntry56: !Sub "LOLLIPOP_EXPECTED_LC_ORIGINAL_METHOD=${LollipopExpectedLcOriginalMethod}"
 
         ContainerSecret1: !Sub "ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:"
         MicroServiceSecretPrefix: pn-Delivery-Secrets
