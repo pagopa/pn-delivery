@@ -6,13 +6,13 @@ Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 <+>UTF-8
 ===================================================================
 diff --git a/docs/openapi/api-external-b2b-appio.yaml b/docs/openapi/api-external-b2b-appio.yaml
---- a/docs/openapi/api-external-b2b-appio.yaml	(revision 0d7ae0894b288f03691d1454b2db91993587b178)
-+++ b/docs/openapi/api-external-b2b-appio.yaml	(date 1760013807307)
+--- a/docs/openapi/api-external-b2b-appio.yaml	(revision 299d4232d9a422d069ff5a09dc9457f0cd29e7d0)
++++ b/docs/openapi/api-external-b2b-appio.yaml	(date 1760014710407)
 @@ -159,8 +159,6 @@
        tags:
          - AppIO-PN-Notification
        operationId: checkAarQrCodeIO
--      x-pagopa-lambda-name: 'pn-consent-accepter-lambda:live'
+-      x-pagopa-lambda-name: 'pn-consent-accepter:live'
 -      x-pagopa-lambda-account: core
        parameters:
          - $ref: '#/components/parameters/cxTaxIdAuthFleet'
@@ -23,8 +23,8 @@ Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 <+>UTF-8
 ===================================================================
 diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-external-b2b-pa-bundle.yaml
---- a/docs/openapi/api-external-b2b-pa-bundle.yaml	(revision 0d7ae0894b288f03691d1454b2db91993587b178)
-+++ b/docs/openapi/api-external-b2b-pa-bundle.yaml	(date 1760013794011)
+--- a/docs/openapi/api-external-b2b-pa-bundle.yaml	(revision 299d4232d9a422d069ff5a09dc9457f0cd29e7d0)
++++ b/docs/openapi/api-external-b2b-pa-bundle.yaml	(date 1760014696765)
 @@ -1026,8 +1026,6 @@
        tags:
          - NewNotification
