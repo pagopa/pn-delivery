@@ -159,7 +159,7 @@ paths:
       tags:
         - AppIO-PN-Notification
       operationId: checkAarQrCodeIO
-      x-pagopa-lambda-name: 'pn-consent-accepter-lambda:live'
+      x-pagopa-lambda-name: 'pn-consent-accepter:live'
       x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/cxTaxIdAuthFleet'

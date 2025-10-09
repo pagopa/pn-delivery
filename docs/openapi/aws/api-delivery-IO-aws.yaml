@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: VzaLDi7XvVTPWBRn3Sr2WZFMz8fFd+c300rxX2nV7j4=
+  version: BPpQ4mBAojmcbI2QP0HovjNnG2u5Z96Y45uY/ynuGXE=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -251,7 +251,7 @@ paths:
       tags:
         - AppIO-PN-Notification
       operationId: checkAarQrCodeIO
-      x-pagopa-lambda-name: pn-consent-accepter-lambda:live
+      x-pagopa-lambda-name: pn-consent-accepter:live
       x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/cxTaxIdAuthFleet'
@@ -307,7 +307,7 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-consent-accepter-lambda:live/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-consent-accepter:live/invocations
         httpMethod: POST
         requestParameters:
           integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
