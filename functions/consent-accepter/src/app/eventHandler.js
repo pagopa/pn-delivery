@@ -3,13 +3,13 @@ const defaultProblem = "Error executing request";
 
 exports.handle = async (event) => {
   try {
-    const headerResult = getHeaderParameters(event);
+    const userInfo = getUserInfoFromEvent(event);
     const consentsToAccept = validateConsentsToAccept();
 
-    const promiseList = consentsToAccept.map(consent => acceptConsent(consent, headerResult));
+    const promiseList = consentsToAccept.map(consent => acceptConsent(consent, userInfo));
     await Promise.all(promiseList);
     console.log("All consents accepted successfully.");
-    return deliveryResponse = await RestClient.checkQrCode(event);
+    return deliveryResponse = await RestClient.checkQrCode(event, userInfo);
   } catch (error) {
     console.error("Error: ", error.message);
     return {
@@ -19,52 +19,60 @@ exports.handle = async (event) => {
   }
 };
 
-async function acceptConsent(consent, headerResult) {
+async function acceptConsent(consent, userInfo) {
   let lastVersion = consent.version;
   if (!lastVersion) {
     lastVersion = await RestClient.getLastVersion(
       consent.consentType,
-      headerResult.cxType
+      userInfo.cxType
     );
   }
   await RestClient.putConsents(
     consent.consentType,
     lastVersion,
-    headerResult.uid,
-    headerResult.cxType
+    userInfo.uid,
+    userInfo.cxType
   );
 }
 
-function generateProblem(status, message) {
-  return {
-    status: status,
-    errors: [
-      {
-        code: message,
-      },
-    ],
-  };
+function getUserInfoFromEvent(event) {
+  console.log("Trying to get user info from event...");
+  const requestContext = event.requestContext || {};
+  const authorizer = requestContext.authorizer || {};
+  const headers = event.headers || {};
+  const cxId = authorizer["cx_id"];
+  const cxType = authorizer["cx_type"];
+  const taxId = headers["x-pagopa-cx-taxid"];
+  checkRequiredUserInfo([
+    { name: "cxId", value: cxId },
+    { name: "cxType", value: cxType },
+    { name: "taxId", value: taxId }
+  ]);
+  const uid = removeCxPrefix(cxId);
+  return { uid, cxType, cxId, taxId };
 }
 
-function getHeaderParameters(event) {
-  console.log("Trying to get header parameters...");
-  const headers = JSON.parse(JSON.stringify(event.headers || {}));
-  const uid = headers["x-pagopa-pn-uid"];
-  const cxType = headers["x-pagopa-pn-cx-type"];
-  if (!uid || !cxType) {
-    console.warn(
-      "Missing required headers: x-pagopa-pn-uid or x-pagopa-pn-cx-type"
-    );
-    throw new Error("Missing required headers: x-pagopa-pn-uid or x-pagopa-pn-cx-type");
+function checkRequiredUserInfo(userInfoData) {
+  let missingFields = "";
+  for(const field of userInfoData) {
+    if(!field.value){
+      missingFields += field.name + " ";
+    }
   }
-  return { uid, cxType };
+  if (missingFields !== "") {
+    throw new Error("Missing required info: " + missingFields);
+  }
+}
+
+function removeCxPrefix(cxId) {
+  return cxId.replace(/^(PF|PG|PA)-/, "");
 }
 
 function validateConsentsToAccept() {
   const envVar = process.env.CONSENTS_TO_ACCEPT;
-  console.log("Checking if the env is set and every element contains at least field consentType..");
+  console.log("Checking if the env is set and every element contains at least field consentType.");
   if (!envVar) {
-    throw new Error("CONSENTS_TO_ACCEPT not set");
+    throw new Error("CONSENTS_TO_ACCEPT env not set");
   }
   let consents = JSON.parse(envVar);
   if (!Array.isArray(consents))
@@ -74,4 +82,20 @@ function validateConsentsToAccept() {
       throw new Error("Each array element must have the consentType field");
   }
   return consents;
+}
+
+function generateProblem(status, message) {
+  return {
+    type: "GENERIC_ERROR",
+    status: status,
+    title: "Handled error",
+    timestamp: new Date().toISOString(),
+    errors: [
+      {
+        code: "INTERNAL_ERROR",
+        element: null,
+        detail: message,
+      },
+    ],
+  };
 }

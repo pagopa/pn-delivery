@@ -8,6 +8,8 @@ const consentsToAcceptWithoutConsentType = require("./consents_to_accept_without
 const event = require("./event.json");
 const eventWithoutHeaders = require("./event_without_headers.json");
 
+const defaultProblemMessage = "Error executing request";
+
 describe("eventHandler test", () => {
   let mock, oldEnv;
   beforeEach(() => {
@@ -48,32 +50,44 @@ describe("eventHandler test", () => {
     const res = await handle(event);
 
     expect(res.statusCode).to.equal(500);
-    const error = JSON.parse(res.body).errors[0].code;
-    expect(error).to.equal("Error executing request");
+    const error = JSON.parse(res.body).errors[0];
+    const code = error.code;
+    const message = error.detail;
+    expect(code).to.equal("INTERNAL_ERROR");
+    expect(message).to.equal(defaultProblemMessage);
   });
 
   it("it should return error if CONSENTS_TO_ACCEPT is not a JSON array", async () => {
     process.env.CONSENTS_TO_ACCEPT = "{}";
     const res = await handle(event);
     expect(res.statusCode).to.equal(500);
-    const error = JSON.parse(res.body).errors[0].code;
-    expect(error).to.equal("Error executing request");
+    const error = JSON.parse(res.body).errors[0];
+    const code = error.code;
+    const message = error.detail;
+    expect(code).to.equal("INTERNAL_ERROR");
+    expect(message).to.equal(defaultProblemMessage);
   });
 
   it("it should return 500 error if at least one consent is missing the consentType field", async () => {
     process.env.CONSENTS_TO_ACCEPT = JSON.stringify(consentsToAcceptWithoutConsentType);
     const res = await handle(event);
     expect(res.statusCode).to.equal(500);
-    const error = JSON.parse(res.body).errors[0].code;
-    expect(error).to.equal("Error executing request");
+    const error = JSON.parse(res.body).errors[0];
+    const code = error.code;
+    const message = error.detail;
+    expect(code).to.equal("INTERNAL_ERROR");
+    expect(message).to.equal(defaultProblemMessage);
   });
 
-  it("it should return 500 error if required headers are missing in the event", async () => {
+  it("it should return 500 error if required data are missing in the event", async () => {
     process.env.CONSENTS_TO_ACCEPT = JSON.stringify(consentsToAccept);
     const res = await handle(eventWithoutHeaders);
     expect(res.statusCode).to.equal(500);
-    const error = JSON.parse(res.body).errors[0].code;
-    expect(error).to.equal("Error executing request");
+    const error = JSON.parse(res.body).errors[0];
+    const code = error.code;
+    const message = error.detail;
+    expect(code).to.equal("INTERNAL_ERROR");
+    expect(message).to.equal(defaultProblemMessage);
   });
 
   it("it should return 500 error if putConsents throws an error", async () => {
@@ -81,11 +95,14 @@ describe("eventHandler test", () => {
     mock.onPut(/.*/).reply(500);
     const res = await handle(event);
     expect(res.statusCode).to.equal(500);
-    const error = JSON.parse(res.body).errors[0].code;
-    expect(error).to.equal("Error executing request");
+    const error = JSON.parse(res.body).errors[0];
+    const code = error.code;
+    const message = error.detail;
+    expect(code).to.equal("INTERNAL_ERROR");
+    expect(message).to.equal(defaultProblemMessage);
   });
 
-  it("it should return 403 error message because checkQrCode fail and lambda returns generic error", async () => {
+  it("it should return 500 error message because checkQrCode fail and lambda returns generic error", async () => {
     process.env.CONSENTS_TO_ACCEPT = JSON.stringify(consentsToAccept);
     mock.onPut(/.*/).reply(200);
     mock.onPost(/\/check-qr-code/).reply(500, { message: "Internal Server Error" });
@@ -95,7 +112,7 @@ describe("eventHandler test", () => {
     expect(errorBody.message).to.equal("Internal Server Error");
   });
 
-  it("it should return 404 error message because checkQrCode return error", async () => {
+  it("it should return same response of checkQrCode when it fails (404)", async () => {
     process.env.CONSENTS_TO_ACCEPT = JSON.stringify(consentsToAccept);
     mock.onPut(/.*/).reply(200);
     mock.onPost(/\/check-qr-code/).reply(404, { message: "Not Found" });
@@ -105,7 +122,7 @@ describe("eventHandler test", () => {
     expect(errorBody.message).to.equal("Not Found");
   });
 
-  it("it should return 403 error message because checkQrCode return error ", async () => {
+  it("it should return same response of checkQrCode when it fails (403)", async () => {
     process.env.CONSENTS_TO_ACCEPT = JSON.stringify(consentsToAccept);
     mock.onPut(/.*/).reply(200);
     mock.onPost(/\/check-qr-code/).reply(403, { message: "Forbidden" });

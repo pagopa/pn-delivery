@@ -1,7 +1,15 @@
 {
   "headers": {
-    "x-pagopa-pn-uid": "uid",
-    "x-pagopa-pn-cx-type": "cxType"
+    "x-pagopa-cx-taxid": "taxId"
+  },
+  "requestContext": {
+    "authorizer": {
+      "uid": "IO-PF-2cbd393f-26b6-4186-9887-cc03ea531ec7",
+      "principalId": "user",
+      "integrationLatency": 1795,
+      "cx_type": "PF",
+      "cx_id": "PF-2cbd393f-26b6-4186-9887-cc03ea531ec7"
+    }
   },
   "body": {
     "aarQrCodeValue":"https://cittadini.dev.notifichedigitali.it/?aar=UURZVS1QVUFELVFNUUEtMjAyMzA1LUctMV9QRi0zNzY1NDU2MS00NDZhLTRjODgtYjMyOC02Njk5YTgzMjJiMzNfYWI5MTAyNGEtYzNmZS00N2U5LThkMzgtNDVhODA0ODU4MzY3"

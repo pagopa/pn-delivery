@@ -33,28 +33,37 @@ class RestClient {
     }
   }
 
-  static async checkQrCode(event) {
+  static async checkQrCode(body, userInfo) {
     try {
       const response = await axios.post(
         `${process.env.PN_DELIVERY_BASE_URL}/delivery/notifications/received/check-qr-code`,
-        JSON.stringify(event.body),
+        JSON.stringify(body),
+        {
+          headers: {
+            "x-pagopa-pn-cx-type": userInfo.cxType,
+            "x-pagopa-pn-cx-id": userInfo.cxId,
+            "x-pagopa-cx-taxid": userInfo.taxId
+          }
+        }
       );
+
       return{
        statusCode: response.status,
        body: response.data
       };
     } catch (error) {
-    if(error.response){
-        return {
-          statusCode: error.response.status,
-          body: JSON.stringify(error.response.data)
-        };
-     }
-     else if(error.request){
-        console.log("Error for the request:",error.request);
-        throw error;
+      if(error.response){
+          console.log("Error response from server");
+          return {
+            statusCode: error.response.status,
+            body: JSON.stringify(error.response.data)
+          };
       }
-    }
+      else if(error.request){
+          console.log("Error for the request:", error.request);
+          throw error;
+        }
+      }
   }
 }
 

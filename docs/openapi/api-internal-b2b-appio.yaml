@@ -180,12 +180,9 @@ paths:
       x-pagopa-lambda-name: 'pn-consent-accepter:live'
       x-pagopa-lambda-account: core
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'                                             # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'                                          # NO EXTERNAL
         - $ref: '#/components/parameters/cxIdAuthFleet'                                            # NO EXTERNAL
         - $ref: '#/components/parameters/cxGroupsAuthFleet'                                        # NO EXTERNAL
-        - $ref: '#/components/parameters/headerSourceChannel'                                      # NO EXTERNAL
-        - $ref: '#/components/parameters/headerSourceChannelDetails'                               # NO EXTERNAL
         - $ref: '#/components/parameters/cxTaxIdAuthFleet'
 #        - $ref: '#/components/parameters/lollipopOriginalUrl'                                     # ONLY EXTERNAL
 #        - $ref: '#/components/parameters/lollipopOriginalMethod'                                  # ONLY EXTERNAL
