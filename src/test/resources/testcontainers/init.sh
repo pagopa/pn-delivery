@@ -34,6 +34,20 @@ aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
     --stream-specification \
         StreamEnabled=true,StreamViewType=NEW_IMAGE
 
+aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
+    dynamodb create-table \
+    --table-name NotificationReworks \
+    --attribute-definitions \
+        AttributeName=iun,AttributeType=S \
+        AttributeName=reworkId,AttributeType=S \
+    --key-schema \
+        AttributeName=iun,KeyType=HASH \
+        AttributeName=reworkId,KeyType=RANGE \
+    --provisioned-throughput \
+        ReadCapacityUnits=10,WriteCapacityUnits=5 \
+    --stream-specification \
+        StreamEnabled=true,StreamViewType=NEW_IMAGE
+
 
 aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
     dynamodb create-table \
