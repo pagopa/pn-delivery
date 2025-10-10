@@ -1,4 +1,5 @@
 const RestClient = require("./services");
+const { getUserInfoFromEvent, retrieveOnlyLollipopHeaders } = require("./utils");
 const defaultProblem = "Error executing request";
 
 exports.handle = async (event) => {
@@ -9,7 +10,8 @@ exports.handle = async (event) => {
     const promiseList = consentsToAccept.map(consent => acceptConsent(consent, userInfo));
     await Promise.all(promiseList);
     console.log("All consents accepted successfully.");
-    return deliveryResponse = await RestClient.checkQrCode(event, userInfo);
+    const lollipopHeaders = retrieveOnlyLollipopHeaders(event.headers || {});
+    return deliveryResponse = await RestClient.checkQrCode(event.body, lollipopHeaders, userInfo);
   } catch (error) {
     console.error("Error: ", error.message);
     return {
@@ -33,39 +35,6 @@ async function acceptConsent(consent, userInfo) {
     userInfo.uid,
     userInfo.cxType
   );
-}
-
-function getUserInfoFromEvent(event) {
-  console.log("Trying to get user info from event...");
-  const requestContext = event.requestContext || {};
-  const authorizer = requestContext.authorizer || {};
-  const headers = event.headers || {};
-  const cxId = authorizer["cx_id"];
-  const cxType = authorizer["cx_type"];
-  const taxId = headers["x-pagopa-cx-taxid"];
-  checkRequiredUserInfo([
-    { name: "cxId", value: cxId },
-    { name: "cxType", value: cxType },
-    { name: "taxId", value: taxId }
-  ]);
-  const uid = removeCxPrefix(cxId);
-  return { uid, cxType, cxId, taxId };
-}
-
-function checkRequiredUserInfo(userInfoData) {
-  let missingFields = "";
-  for(const field of userInfoData) {
-    if(!field.value){
-      missingFields += field.name + " ";
-    }
-  }
-  if (missingFields !== "") {
-    throw new Error("Missing required info: " + missingFields);
-  }
-}
-
-function removeCxPrefix(cxId) {
-  return cxId.replace(/^(PF|PG|PA)-/, "");
 }
 
 function validateConsentsToAccept() {

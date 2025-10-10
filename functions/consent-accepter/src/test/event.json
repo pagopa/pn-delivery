@@ -1,6 +1,13 @@
 {
   "headers": {
-    "x-pagopa-cx-taxid": "taxId"
+    "x-pagopa-cx-taxid": "taxId",
+    "x-pagopa-lollipop-assertion-ref": "sha256",
+    "x-pagopa-lollipop-assertion-type": "SAML",
+    "x-pagopa-lollipop-auth-jwt": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30",
+    "x-pagopa-lollipop-original-method": "POST",
+    "x-pagopa-lollipop-original-url": "https://api-app.io.pagopa.it/api/v1/send/aar/qr-code-check?isTest=true",
+    "x-pagopa-lollipop-public-key": "test",
+    "x-pagopa-lollipop-user-id": "taxId"
   },
   "requestContext": {
     "authorizer": {
