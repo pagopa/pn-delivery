@@ -66,6 +66,9 @@ components:
         reworkId:
           type: string
           description: identificativo univoco della richiesta di rework
+        reason:
+          type: string
+          description: motivo della richiesta di invalidazione
         invalidatedTimelineElementIds:
           type: array
           items:
@@ -74,6 +77,16 @@ components:
             pattern: ^[ -~]*$
             maxLength: 1024
           description: lista di timelineElementId invalidati dalla richiesta di rework
+        expectedStatusCode:
+          type: string
+          description: evento finale correttivo atteso
+        expectedDeliveryFailureCause:
+          type: string
+          description: causa di mancata consegna attesa
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReworkError"
         createdAt:
           type: string
           pattern: ^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(\.[0-9]+)?(Z|([+\-][0-9]{2}):([0-9]{2}))$
@@ -88,8 +101,24 @@ components:
             - CREATED
             - READY
             - IN_PROGRESS
+            - ERROR
             - DONE
           description: stato della richiesta di rework (CREATED = creata, READY = pronta a ricevere gli eventi correttivi dal recapitista, IN_PROGRESS = almeno un evento correttivo è già stato ricevuto, DONE = è stato ricevuto l'evento finale)
+
+    ReworkError:
+      type: object
+      properties:
+        cause:
+          type: string
+          enum:
+            - INVALID_TIMELINE_ELEMENT
+            - EXPIRED_ATTACHMENT
+            - INVALID_ATTACHMENT
+            - EXPIRED_ADDRESS
+            - INVALID_ADDRESS
+            - INVALID_NOTIFICATION_STATUS
+        description:
+          type: string
 
   parameters:
     pathIun:
@@ -107,7 +136,7 @@ components:
     queryReworkId:
       description: >-
         Identificativo del rework
-      name: iun
+      name: reworkId
       in: query
       required: false
       schema:
