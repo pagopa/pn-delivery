@@ -102,6 +102,8 @@ public class PnDeliveryConfigs {
 
     private String latestNotificationVersion;
 
+    private Integer reworkRetrievePageLimit;
+
     @PostConstruct
     public void init(){
         log.info("CONFIGURATION {}",this);

@@ -694,6 +694,12 @@ Parameters:
   NotificationReworksDynamoTableArn:
     Type: String
     Description: "ARN of dynamodb table containing notification refused verification"
+
+  ReworkRetrievePageLimit:
+    Default: 10
+    Type: Number
+    Description: Page limit for retrieving reworks entities
+
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
 
@@ -781,6 +787,7 @@ Resources:
         ContainerEnvEntry56: !Sub "PN_DELIVERY_SEARCHTIMEOUTSECONDS=${SearchTimeoutSeconds}"
         ContainerEnvEntry57: !Sub "PN_DELIVERY_LATESTNOTIFICATIONVERSION=${LatestNotificationVersion}"
         ContainerEnvEntry58: !Sub "PN_DELIVERY_NOTIFICATIONREWORKSDAO_TABLENAME=${NotificationReworksDynamoTableName}"
+        ContainerEnvEntry59: !Sub "PN_DELIVERY_REWORKRETRIEVEPAGELIMIT=${ReworkRetrievePageLimit}"
         ContainerSecret1: !Sub "ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:"
         MicroServiceSecretPrefix: pn-Delivery-Secrets
         JavaToolOptions: "-Dreactor.netty.ioWorkerCount=120 -XX:MaxMetaspaceSize=512M"
