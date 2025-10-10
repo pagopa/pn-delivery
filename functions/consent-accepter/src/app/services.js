@@ -17,7 +17,7 @@ class RestClient {
     console.log(`Accepting consent ${consentType} (version: ${lastVersion}) for user ${uid} and cxType ${cxType}`);
     try {
       const response = await axios.put(
-        `${process.env.PN_USER_ATTRIBUTES_BASE_URL}/user-consents/v1/consents/${consentType}?lastVersion=${encodeURIComponent(lastVersion)}`,
+        `${process.env.PN_USER_ATTRIBUTES_BASE_URL}/user-consents/v1/consents/${consentType}?version=${encodeURIComponent(lastVersion)}`,
         { action: "ACCEPT" },
         {
           headers: {
@@ -33,16 +33,18 @@ class RestClient {
     }
   }
 
-  static async checkQrCode(body, userInfo) {
+  static async checkQrCode(body, lollipopHeaders, userInfo) {
     try {
       const response = await axios.post(
         `${process.env.PN_DELIVERY_BASE_URL}/delivery/notifications/received/check-qr-code`,
-        JSON.stringify(body),
+        body,
         {
           headers: {
             "x-pagopa-pn-cx-type": userInfo.cxType,
             "x-pagopa-pn-cx-id": userInfo.cxId,
-            "x-pagopa-cx-taxid": userInfo.taxId
+            "x-pagopa-cx-taxid": userInfo.taxId,
+            "Content-Type": "application/json",
+            ...lollipopHeaders
           }
         }
       );

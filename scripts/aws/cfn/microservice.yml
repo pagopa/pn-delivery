@@ -1057,11 +1057,10 @@ Resources:
         SubnetIds: !Ref SubnetsIds
       Environment:
         Variables:
-          API_PRIVATE_BASE_PATH: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery-push/v2.0"
           CONSENTS_TO_ACCEPT: !Ref ConsentsToAccept
-          PN_USER_ATTRIBUTES_BASE_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8082"
-          PN_EXTERNAL_REGISTRIES_BASE_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8087"
-          PN_DELIVERY_BASE_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8085"
+          PN_USER_ATTRIBUTES_BASE_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080"
+          PN_EXTERNAL_REGISTRIES_BASE_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080"
+          PN_DELIVERY_BASE_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080"
       TracingConfig:
         Mode: Active
       Layers:
