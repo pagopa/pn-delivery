@@ -30,7 +30,7 @@
     "DenominationValidationRegexValue": "",
     "DenominationValidationTypeValue": "ISO_LATIN_1",
     "DenominationValidationExcludedCharacter": "NONE",
-    "ConsentsToAccept": "[{\"consentType\":\"TOS\",\"lastVersion\":\"<ultima versione>\"},{\"consentType\":\"DATAPRIVACY\",\"lastVersion\":\"<ultima versione>\"}]",
+    "ConsentsToAccept": "[{\"consentType\":\"TOS\"},{\"consentType\":\"DATAPRIVACY\"}]",
     "MountEfs": "false",
     "PnCronAnalyzer": "-",
     "WireTapLogActivation": "false",
