@@ -1058,9 +1058,7 @@ Resources:
       Environment:
         Variables:
           CONSENTS_TO_ACCEPT: !Ref ConsentsToAccept
-          PN_USER_ATTRIBUTES_BASE_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080"
-          PN_EXTERNAL_REGISTRIES_BASE_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080"
-          PN_DELIVERY_BASE_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080"
+          API_BASE_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080"
       TracingConfig:
         Mode: Active
       Layers:

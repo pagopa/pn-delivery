@@ -5,7 +5,7 @@ class RestClient {
     console.log(`Retrieving last version for consent ${consentType}`);
     try {
       const response = await axios.get(
-        `${process.env.PN_EXTERNAL_REGISTRIES_BASE_URL}/ext-registry-private/privacynotice/${consentType}/${cxType}`
+        `${process.env.API_BASE_URL}/ext-registry-private/privacynotice/${consentType}/${cxType}`
       );
       return response.data.version;
     } catch(error) {
@@ -17,7 +17,7 @@ class RestClient {
     console.log(`Accepting consent ${consentType} (version: ${lastVersion}) for user ${uid} and cxType ${cxType}`);
     try {
       const response = await axios.put(
-        `${process.env.PN_USER_ATTRIBUTES_BASE_URL}/user-consents/v1/consents/${consentType}?version=${encodeURIComponent(lastVersion)}`,
+        `${process.env.API_BASE_URL}/user-consents/v1/consents/${consentType}?version=${encodeURIComponent(lastVersion)}`,
         { action: "ACCEPT" },
         {
           headers: {
@@ -36,7 +36,7 @@ class RestClient {
   static async checkQrCode(body, lollipopHeaders, userInfo) {
     try {
       const response = await axios.post(
-        `${process.env.PN_DELIVERY_BASE_URL}/delivery/notifications/received/check-qr-code`,
+        `${process.env.API_BASE_URL}/delivery/notifications/received/check-qr-code`,
         body,
         {
           headers: {
