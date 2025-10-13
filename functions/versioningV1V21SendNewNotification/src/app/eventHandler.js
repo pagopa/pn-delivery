@@ -28,7 +28,7 @@ exports.handleEvent = async (event) => {
 
     const headers = JSON.parse(JSON.stringify(event["headers"]));
     headers["x-pagopa-pn-src-ch"] = "B2B";
-    headers["x-pagopa-pn-notification-version"] = "1";
+    headers["x-pagopa-pn-notification-version"] = requestVersion;
 
     if (event.requestContext.authorizer["cx_groups"]) {
       headers["x-pagopa-pn-cx-groups"] =
@@ -56,9 +56,9 @@ exports.handleEvent = async (event) => {
 
     // nel caso v1.0 vengono effettuati entrambi gli step: v1.0 -> v2.1 -> v2.3
     switch(requestVersion) {
-      case 10:
+      case "1":
         finalVersionRequest = fromNewNotificationRequestV1ToV21(finalVersionRequest);
-      case 21:
+      case "2.1":
         finalVersionRequest = fromNewNotificationRequestV21ToV23(finalVersionRequest);
         break;
     }
