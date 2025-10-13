@@ -51,7 +51,7 @@ class RestClient {
 
       return{
        statusCode: response.status,
-       body: response.data
+       body: JSON.stringify(response.data)
       };
     } catch (error) {
       if(error.response){

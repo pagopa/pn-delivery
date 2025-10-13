@@ -24,24 +24,24 @@ describe("eventHandler test", () => {
   it("200 ok", async () => {
     process.env.CONSENTS_TO_ACCEPT = JSON.stringify(consentsToAccept);
     mock.onPut(/.*/).reply(200);
-    mock.onPost(/\/check-qr-code/).reply(200, "ok");
+    mock.onPost(/\/check-qr-code/).reply(200, {"iun": "IUN_TEST_001"});
 
     const res = await handle(event);
 
     expect(res.statusCode).to.equal(200);
-    expect(res.body).to.equal("ok");
+    expect(res.body).to.equal("{\"iun\":\"IUN_TEST_001\"}");
   });
 
   it("200 ok with get version from getLastVersion", async () => {
     process.env.CONSENTS_TO_ACCEPT = JSON.stringify(consentsToAcceptWithoutVersion);
     mock.onGet(/\/privacynotice/).reply(200, { version: "2.0.0" });
     mock.onPut(/.*/).reply(200);
-    mock.onPost(/\/check-qr-code/).reply(201, "done");
+    mock.onPost(/\/check-qr-code/).reply(200, {"iun": "IUN_TEST_001"});
 
     const res = await handle(event);
 
-    expect(res.statusCode).to.equal(201);
-    expect(res.body).to.equal("done");
+    expect(res.statusCode).to.equal(200);
+    expect(res.body).to.equal("{\"iun\":\"IUN_TEST_001\"}");
   });
 
   it("it should return error if CONSENTS_TO_ACCEPT environment variable is missing", async () => {
