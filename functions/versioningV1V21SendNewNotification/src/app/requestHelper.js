@@ -19,34 +19,34 @@ exports.generateResponse = function(errorDetails, statusCode, headers){
 
 exports.findRequestVersion = function(event) {
   // a partire dalla versione 1.0 trasformare la request alla versione piú recente sul ms
-  let version = 10;
+  let version = "1";
 
   // a partire dalla versione 2.1 trasformare la request alla versione piú recente sul ms
   if (event["path"].startsWith("/delivery/v2.1/")) {
-      version = 21;
+      version = "2.1";
   }
 
   // a partire dalla versione 2.3 trasformare la request alla versione piú recente sul ms
   // NB: sebbene (a oggi) la 2.3 non passa di qua, in futuro potrebbe e quindi si è già implementata
   // la logica di traduzione (che probabilmente andrà aggiornata nel futuro)
   if (event["path"].startsWith("/delivery/v2.3/")) {
-      version = 23;
+      version = "2.3";
   }
 
   if (event["path"].startsWith("/delivery/v2.4/")) {
-    version = 24;
+    version = "2.4";
 }
   return version;
 }
 
 exports.validateNewNotification = function(newNotificationRequest, requestVersion) {
   switch(requestVersion) {
-    case 10:
+    case "1":
       return validateNewNotificationV1(newNotificationRequest);
-    case 21:
+    case "2.1":
       return validateNewNotificationV21(newNotificationRequest);
-    case 23:
-    case 24:
+    case "2.3":
+    case "2.4":
       return validateNewNotificationV24(newNotificationRequest);
     default:
       return newNotificationRequest;

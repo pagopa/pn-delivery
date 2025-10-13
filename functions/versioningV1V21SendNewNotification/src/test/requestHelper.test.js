@@ -49,14 +49,14 @@ describe('RequestHelper Testing', () => {
             const newNotificationRequestV1JSON = fs.readFileSync("./src/test/newNotificationRequestV1.json");
             let newNotificationRequestV1 = JSON.parse(newNotificationRequestV1JSON);
             newNotificationRequestV1.recipients[0].physicalAddress = null;
-            const errors = validateNewNotification(newNotificationRequestV1, 10);
+            const errors = validateNewNotification(newNotificationRequestV1, "1");
             expect(errors).to.be.an( "array" ).that.is.not.empty
             expect(errors).to.be.eql(["Validation errors: [object has missing required properties ([\"physicalAddress\"])]"]);
         });
         it('shoud return validation ok for newNotificationRequestV21', async () => {
             const newNotificationRequestV21JSON = fs.readFileSync("./src/test/newNotificationRequestV21.json");
             let newNotificationRequestV21 = JSON.parse(newNotificationRequestV21JSON);
-            const errors = validateNewNotification(newNotificationRequestV21, 21);
+            const errors = validateNewNotification(newNotificationRequestV21, "2.1");
             expect(errors).to.be.an( "array" ).that.is.empty
         });
         it('shoud return validation KO for newNotificationRequestV21', async () => {
@@ -70,14 +70,14 @@ describe('RequestHelper Testing', () => {
                 } 
             }
             newNotificationRequestV21.recipients[0].payments.push(f24Payment);
-            const errors = validateNewNotification(newNotificationRequestV21, 21);
+            const errors = validateNewNotification(newNotificationRequestV21, "2.1");
             expect(errors).to.be.an( "array" ).that.is.not.empty
         });
         it('shoud return validation KO for newNotificationRequestV21 (when there is not physicalAddress)', async () => {
             const newNotificationRequestV21JSON = fs.readFileSync("./src/test/newNotificationRequestV21.json");
             let newNotificationRequestV21 = JSON.parse(newNotificationRequestV21JSON);
             newNotificationRequestV21.recipients[0].physicalAddress = null;
-            const errors = validateNewNotification(newNotificationRequestV21, 21);
+            const errors = validateNewNotification(newNotificationRequestV21, "2.1");
             expect(errors).to.be.an( "array" ).that.is.not.empty
             expect(errors).to.be.eql(["Validation errors: [object has missing required properties ([\"physicalAddress\"])]"]);
         });
@@ -85,20 +85,20 @@ describe('RequestHelper Testing', () => {
             const newNotificationRequestV21JSON = fs.readFileSync("./src/test/newNotificationRequestV21.json");
             let newNotificationRequestV21 = JSON.parse(newNotificationRequestV21JSON);
             newNotificationRequestV21.pagoPaIntMode = 'ASYNC';
-            const errors = validateNewNotification(newNotificationRequestV21, 21);
+            const errors = validateNewNotification(newNotificationRequestV21, "2.1");
             expect(errors).to.be.an( "array" ).that.is.not.empty
         });
         it('shoud return validation OK for newNotificationRequestV24', async () => {
             const newNotificationRequestV24JSON = fs.readFileSync("./src/test/newNotificationRequestV24.json");
             let newNotificationRequestV24 = JSON.parse(newNotificationRequestV24JSON);
-            const errors = validateNewNotification(newNotificationRequestV24, 24);
+            const errors = validateNewNotification(newNotificationRequestV24, "2.4");
             expect(errors).to.be.an( "array" ).that.is.empty
         });
         it('shoud return validation KO for newNotificationRequestV24', async () => {
             const newNotificationRequestV24JSON = fs.readFileSync("./src/test/newNotificationRequestV24.json");
             let newNotificationRequestV24 = JSON.parse(newNotificationRequestV24JSON);
             newNotificationRequestV24.recipients[0].physicalAddress = null;
-            const errors = validateNewNotification(newNotificationRequestV24, 24);
+            const errors = validateNewNotification(newNotificationRequestV24, "2.4");
             expect(errors).to.be.an( "array" ).that.is.not.empty
             expect(errors).to.be.eql(["Validation errors: [object has missing required properties ([\"physicalAddress\"])]"]);
         });
