@@ -5,6 +5,7 @@ import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.commons.utils.LogUtils;
+import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.InternalOnlyApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
@@ -43,6 +44,22 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         this.qrService = qrService;
         this.notificationAttachmentService = notificationAttachmentService;
         this.modelMapper = modelMapper;
+    }
+
+
+    @Override
+    public ResponseEntity<UserInfoQrCode> decodeAarToken(RequestDecodeQrDto requestDecodeQrDto) {
+        String aarQrCodeValue = requestDecodeQrDto.getAarTokenValue();
+        log.info("Start decodeAarQrCode with aarQrCodeValue={}", aarQrCodeValue);
+        UserInfoQrCode response;
+        try {
+            response = qrService.getAarQrCodeToDecode(requestDecodeQrDto);
+            log.info("decodeAarQrCode success with aarQrCodeValue={}", aarQrCodeValue);
+        } catch (PnNotFoundException exception) {
+            log.error("Error in decodeAarQrCode for aarQrCodeValue={}: {}", aarQrCodeValue, exception.getMessage());
+            throw exception;
+        }
+        return ResponseEntity.ok(response);
     }
 
     @Override

@@ -6,13 +6,11 @@ import it.pagopa.pn.delivery.exception.PnIoMandateNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
+import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.WorkflowType;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.RequestCheckQrMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ResponseCheckQrMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.UserInfo;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestCheckAarDto;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestCheckAarMandateDto;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ResponseCheckAarDto;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ResponseCheckAarMandateDto;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationQREntityDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -27,6 +25,8 @@ import org.springframework.util.StringUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.OffsetDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -78,6 +78,34 @@ public class NotificationQRService {
         }
     }
 
+    public UserInfoQrCode getAarQrCodeToDecode(RequestDecodeQrDto request) {
+        String aarQrCodeValue = request.getAarTokenValue();
+        log.info("Get QRCode value for aarQrCodeValue={}", aarQrCodeValue);
+        InternalNotificationQR internalNotificationQR = getInternalNotificationQR(aarQrCodeValue);
+        Optional<InternalNotification> optInternalNotification = notificationDao.getNotificationByIun(internalNotificationQR.getIun(), true);
+        InternalNotification internalNotification = optInternalNotification.orElseThrow();
+        String recipientInternalId = internalNotificationQR.getRecipientInternalId();
+        Optional<NotificationRecipient> optNotificationRecipient = findRecipientByInternalId(internalNotification, recipientInternalId);
+        NotificationRecipient notificationRecipient = optNotificationRecipient.orElseThrow();
+        return buildUserInfoQrCode(internalNotificationQR, getUserInfo(notificationRecipient));
+
+    }
+
+    private UserInfoQrCode buildUserInfoQrCode(InternalNotificationQR internalNotificationQR, it.pagopa.pn.delivery.generated.openapi.server.v1.dto.UserInfo userInfo) {
+        return UserInfoQrCode.builder().build()
+                .iun(internalNotificationQR.getIun())
+                .recipientInfo(userInfo);
+    }
+
+    private it.pagopa.pn.delivery.generated.openapi.server.v1.dto. UserInfo getUserInfo(NotificationRecipient notificationRecipient) {
+        String taxId = notificationRecipient.getTaxId();
+        String denomination = notificationRecipient.getDenomination();
+        it.pagopa.pn.delivery.generated.openapi.server.v1.dto.UserInfo userInfo = new it.pagopa.pn.delivery.generated.openapi.server.v1.dto.UserInfo();
+        userInfo.setTaxId(taxId);
+        userInfo.setDenomination(denomination);
+        return userInfo;
+    }
+
     private String getAarQrCodeValue(String stringURI) throws URISyntaxException {
         URI uri = new URI(stringURI);
         return uri.getQuery().split("=")[1];
@@ -96,7 +124,7 @@ public class NotificationQRService {
         InternalNotification internalNotification = optInternalNotification.get();
         boolean isRecipient = isRecipientInNotification( internalNotificationQR, userId );
         if (!isRecipient || (CxTypeAuthFleet.valueOf(recipientType).equals(CxTypeAuthFleet.PG) && !CollectionUtils.isEmpty(cxGroups))) {
-            String mandateId = getMandateId( internalNotification.getSenderPaId(), internalNotificationQR, userId, CxTypeAuthFleet.valueOf(recipientType), cxGroups );
+            String mandateId = getMandateId( internalNotification.getSenderPaId(), internalNotificationQR, internalNotification.getSentAt(), userId, CxTypeAuthFleet.valueOf(recipientType), cxGroups );
             if ( StringUtils.hasText( mandateId ) ) {
                 return ResponseCheckAarMandateDto.builder()
                         .iun( internalNotificationQR.getIun() )
@@ -139,27 +167,37 @@ public class NotificationQRService {
         return internalNotificationQR.getRecipientInternalId().equals( recipientInternalId );
     }
 
-    private String getMandateId(String senderPaId, InternalNotificationQR internalNotificationQR, String userId, CxTypeAuthFleet cxType, List<String> cxGroups) {
+    private Optional<NotificationRecipient> findRecipientByInternalId(InternalNotification internalNotification, String recipientInternalId) {
+        return internalNotification.getRecipients().stream()
+                .filter(recipientId -> StringUtils.hasText(recipientId.getInternalId()) && recipientId.getInternalId().equals(recipientInternalId))
+                .findFirst();
+    }
+
+    // Ordina mettendo prima i workflow STANDARD e REVERSE (o null) e poi gli altri tipi di workflow (CIE, etc.)
+    private Comparator<InternalMandateDto> sortedByWorkflowType() {
+        return Comparator.comparing(dto -> {
+            WorkflowType type = dto.getWorkflowType();
+            if (type == null || type == WorkflowType.STANDARD || type == WorkflowType.REVERSE) {
+                return 0;
+            }
+            return 1;
+        });
+    }
+
+    private String getMandateId(String senderPaId, InternalNotificationQR internalNotificationQR, OffsetDateTime notificationSentAt, String userId, CxTypeAuthFleet cxType, List<String> cxGroups) {
         String mandateId = null;
         String rootSenderId = pnExternalRegistriesClient.getRootSenderId(senderPaId);
-        List<InternalMandateDto> mandateDtoList = mandateClient.listMandatesByDelegate(userId, null, cxType, cxGroups);
+        List<InternalMandateDto> mandateDtoList = mandateClient.listMandatesByDelegateV2(userId, null, cxType, cxGroups, notificationSentAt, internalNotificationQR.getIun(), rootSenderId);
         if (!CollectionUtils.isEmpty(mandateDtoList)) {
             Optional<InternalMandateDto> optMandate = mandateDtoList.stream()
-                    .filter(mandate -> userId.equals(mandate.getDelegate()) &&
-                            internalNotificationQR.getRecipientInternalId().equals( mandate.getDelegator() ) &&
-                            checkVisibilityId(mandate.getVisibilityIds(), rootSenderId)
-                    )
-                    .findFirst();
+                    .filter(mandate -> internalNotificationQR.getRecipientInternalId().equals(mandate.getDelegator()))
+                    .min(sortedByWorkflowType());
+
             if ( optMandate.isPresent() ) {
                 mandateId = optMandate.get().getMandateId();
             }
         }
         return mandateId;
-    }
-
-    // If visibilityIds is null or empty, the mandate is visible to all. When is present, it must contain the senderPaId to be visible to the user
-    private boolean checkVisibilityId(List<String> visibilityIds, String senderPaId) {
-        return CollectionUtils.isEmpty(visibilityIds) || visibilityIds.contains(senderPaId);
     }
 
     public ResponseCheckQrMandateDto getNotificationByQRFromIOWithMandate(RequestCheckQrMandateDto request, String recipientType, String userId, List<String> cxGroups ) {
@@ -177,7 +215,7 @@ public class NotificationQRService {
 
         boolean isRecipient = isRecipientInNotification( internalNotificationQR, userId );
         if (!isRecipient || (CxTypeAuthFleet.valueOf(recipientType).equals(CxTypeAuthFleet.PG) && !CollectionUtils.isEmpty(cxGroups))) {
-            String mandateId = getMandateId( internalNotification.getSenderPaId(), internalNotificationQR, userId, CxTypeAuthFleet.valueOf(recipientType), cxGroups );
+            String mandateId = getMandateId( internalNotification.getSenderPaId(), internalNotificationQR, internalNotification.getSentAt(), userId, CxTypeAuthFleet.valueOf(recipientType), cxGroups );
             if ( StringUtils.hasText( mandateId ) ) {
                 return buildResponseCheckAarMandateDto(internalNotification, recipientInternalId, mandateId);
             } else {

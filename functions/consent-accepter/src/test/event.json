@@ -1,0 +1,24 @@
+{
+  "headers": {
+    "x-pagopa-cx-taxid": "taxId",
+    "x-pagopa-lollipop-assertion-ref": "sha256",
+    "x-pagopa-lollipop-assertion-type": "SAML",
+    "x-pagopa-lollipop-auth-jwt": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30",
+    "x-pagopa-lollipop-original-method": "POST",
+    "x-pagopa-lollipop-original-url": "https://api-app.io.pagopa.it/api/v1/send/aar/qr-code-check?isTest=true",
+    "x-pagopa-lollipop-public-key": "test",
+    "x-pagopa-lollipop-user-id": "taxId"
+  },
+  "requestContext": {
+    "authorizer": {
+      "uid": "IO-PF-2cbd393f-26b6-4186-9887-cc03ea531ec7",
+      "principalId": "user",
+      "integrationLatency": 1795,
+      "cx_type": "PF",
+      "cx_id": "PF-2cbd393f-26b6-4186-9887-cc03ea531ec7"
+    }
+  },
+  "body": {
+    "aarQrCodeValue":"https://cittadini.dev.notifichedigitali.it/?aar=UURZVS1QVUFELVFNUUEtMjAyMzA1LUctMV9QRi0zNzY1NDU2MS00NDZhLTRjODgtYjMyOC02Njk5YTgzMjJiMzNfYWI5MTAyNGEtYzNmZS00N2U5LThkMzgtNDVhODA0ODU4MzY3"
+  }
+}

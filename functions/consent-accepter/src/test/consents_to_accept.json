@@ -1,0 +1,10 @@
+[
+  {
+    "consentType": "TOS",
+    "version": "1.0.0"
+  },
+  {
+    "consentType": "DATAPRIVACY",
+    "version": "1.0.0"
+  }
+]

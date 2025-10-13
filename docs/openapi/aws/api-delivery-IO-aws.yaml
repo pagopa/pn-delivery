@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: AMqF5nEhcuFiFifzPHZiRieRkcBRglWek/7FCyLLLTI=
+  version: BPpQ4mBAojmcbI2QP0HovjNnG2u5Z96Y45uY/ynuGXE=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -251,6 +251,8 @@ paths:
       tags:
         - AppIO-PN-Notification
       operationId: checkAarQrCodeIO
+      x-pagopa-lambda-name: pn-consent-accepter:live
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/cxTaxIdAuthFleet'
         - $ref: '#/components/parameters/lollipopOriginalUrl'
@@ -305,9 +307,8 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/check-qr-code
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-consent-accepter:live/invocations
+        httpMethod: POST
         requestParameters:
           integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
@@ -318,21 +319,9 @@ paths:
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
           integration.request.header.x-pagopa-pn-src-ch: '''IO'''
         passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
+        contentHandling: CONVERT_TO_TEXT
         timeoutInMillis: 29000
-        type: http_proxy
-    options:
-      operationId: Options for /notifications/received/check-qr-code API CORS
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/check-qr-code
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters: {}
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
+        type: aws_proxy
 components:
   parameters:
     cxTaxIdAuthFleet:
