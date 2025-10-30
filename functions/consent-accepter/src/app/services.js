@@ -44,6 +44,7 @@ class RestClient {
             "x-pagopa-pn-cx-id": userInfo.cxId,
             "x-pagopa-cx-taxid": userInfo.taxId,
             "Content-Type": "application/json",
+            "x-pagopa-pn-src-ch": "IO",
             ...headersToForward
           }
         }
