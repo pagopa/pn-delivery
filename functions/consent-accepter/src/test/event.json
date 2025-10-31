@@ -7,7 +7,8 @@
     "x-pagopa-lollipop-original-method": "POST",
     "x-pagopa-lollipop-original-url": "https://api-app.io.pagopa.it/api/v1/send/aar/qr-code-check?isTest=true",
     "x-pagopa-lollipop-public-key": "test",
-    "x-pagopa-lollipop-user-id": "taxId"
+    "x-pagopa-lollipop-user-id": "taxId",
+    "x-pagopa-pn-src-ch": "IO"
   },
   "requestContext": {
     "authorizer": {

@@ -5,10 +5,11 @@ const HEADERS_TO_RETRIEVE = [
     "x-pagopa-lollipop-original-method",
     "x-pagopa-lollipop-original-url",
     "x-pagopa-lollipop-public-key",
-    "x-pagopa-lollipop-user-id"
+    "x-pagopa-lollipop-user-id",
+    "x-pagopa-pn-src-ch"
 ];
 
-function retrieveOnlyLollipopHeaders(headers) {
+function retrieveHeadersToForward(headers) {
     return Object.fromEntries(
         Object.entries(headers).filter(([key]) => HEADERS_TO_RETRIEVE.includes(key))
     );
@@ -49,5 +50,5 @@ function removeCxPrefix(cxId) {
 
 
 exports.getUserInfoFromEvent = getUserInfoFromEvent;
-exports.retrieveOnlyLollipopHeaders = retrieveOnlyLollipopHeaders;
+exports.retrieveHeadersToForward = retrieveHeadersToForward;
 exports.removeCxPrefix = removeCxPrefix;

@@ -33,7 +33,7 @@ class RestClient {
     }
   }
 
-  static async checkQrCode(body, lollipopHeaders, userInfo) {
+  static async checkQrCode(body, headersToForward, userInfo) {
     try {
       const response = await axios.post(
         `${process.env.API_BASE_URL}/delivery/notifications/received/check-qr-code`,
@@ -44,7 +44,8 @@ class RestClient {
             "x-pagopa-pn-cx-id": userInfo.cxId,
             "x-pagopa-cx-taxid": userInfo.taxId,
             "Content-Type": "application/json",
-            ...lollipopHeaders
+            "x-pagopa-pn-src-ch": "IO",
+            ...headersToForward
           }
         }
       );
