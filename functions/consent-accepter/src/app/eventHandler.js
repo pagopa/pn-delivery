@@ -1,5 +1,5 @@
 const RestClient = require("./services");
-const { getUserInfoFromEvent, retrieveOnlyLollipopHeaders } = require("./utils");
+const { getUserInfoFromEvent, retrieveHeadersToForward } = require("./utils");
 const defaultProblem = "Error executing request";
 
 exports.handle = async (event) => {
@@ -10,8 +10,8 @@ exports.handle = async (event) => {
     const promiseList = consentsToAccept.map(consent => acceptConsent(consent, userInfo));
     await Promise.all(promiseList);
     console.log("All consents accepted successfully.");
-    const lollipopHeaders = retrieveOnlyLollipopHeaders(event.headers || {});
-    return deliveryResponse = await RestClient.checkQrCode(event.body, lollipopHeaders, userInfo);
+    const headersToForward = retrieveHeadersToForward(event.headers || {});
+    return deliveryResponse = await RestClient.checkQrCode(event.body, headersToForward, userInfo);
   } catch (error) {
     console.error("Error: ", error.message);
     return {
