@@ -19,6 +19,7 @@
     "LollipopExpectedLcOriginalUrl": "^(?:https://api-app.io.pagopa.it/api/v1/third-party-messages/[a-zA-Z0-9]{26}(?:/attachments/delivery/notifications/received/([A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]-[0-9])/attachments/documents/[0-9])?(?:/attachments/delivery/notifications/received/([A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]-[0-9])/attachments/payment/(F24%7CPAGOPA)(?:/?\\?attachmentIdx\\x3D\\d+))?|https://api-app.io.pagopa.it/api/com/v1/send/aar/(?:qr-code-check|notifications/([A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]-[0-9])|attachments/([^/?#]+)))(?:\\?isTest\\x3D(true|false))?$",
     "LollipopEnableConsumerLogging": "true",
     "LollipopExpectedLcOriginalMethod": "GET;POST",
+    "LollipopWhiteList": "CLMCST42R12D969Z:Cristoforo:Colombo;FRMTTR76M06B715E:Ettore:Fieramosca;GLLGLL64B15G702I:Galileo:Galilei",
     "IsSendActiveDefaultValue": "true",
     "PhysicalAddressValidationValue": "true",
     "PhysicalAddressValidationCharsValue": "@_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ./ '\\-",
