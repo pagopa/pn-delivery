@@ -6,7 +6,9 @@ const HEADERS_TO_RETRIEVE = [
     "x-pagopa-lollipop-original-url",
     "x-pagopa-lollipop-public-key",
     "x-pagopa-lollipop-user-id",
-    "x-pagopa-pn-src-ch"
+    "x-pagopa-pn-src-ch",
+    "signature",
+    "signature-input"
 ];
 
 function retrieveHeadersToForward(headers) {

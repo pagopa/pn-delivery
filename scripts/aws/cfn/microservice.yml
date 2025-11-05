@@ -182,6 +182,11 @@ Parameters:
     Type: String
     Description: "expected lollipop consumer original method (list separated by ;)"
 
+  LollipopWhiteList:
+    Type: String
+    Description: "Comma separated list of whitelisted CNs for Lollipop requests"
+    Default: ""
+
   MaxAttachmentsCount:
     Type: String
     Description: "Max number of attachments allowed for a notification"
@@ -791,6 +796,7 @@ Resources:
         ContainerEnvEntry56: !Sub "PN_DELIVERY_SEARCHTIMEOUTSECONDS=${SearchTimeoutSeconds}"
         ContainerEnvEntry57: !Sub "PN_DELIVERY_LATESTNOTIFICATIONVERSION=${LatestNotificationVersion}"
         ContainerEnvEntry58: !Sub "LOLLIPOP_EXPECTED_LC_ORIGINAL_METHOD=${LollipopExpectedLcOriginalMethod}"
+        ContainerEnvEntry59: !Sub "LOLLIPOP_WHITE_LIST=${LollipopWhiteList}"
         ContainerSecret1: !Sub "ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:"
         MicroServiceSecretPrefix: pn-Delivery-Secrets
         JavaToolOptions: "-Dreactor.netty.ioWorkerCount=120 -XX:MaxMetaspaceSize=512M"
