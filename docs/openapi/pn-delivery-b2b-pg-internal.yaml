@@ -8,7 +8,7 @@ info:
     ## Abstract
       API utilizzate dalle persone giuridiche per avere la lista delle notifiche e il dettaglio di ognuna di queste.
     ## Una possibile sequenza di utilizzo delle API di questa collection
-    <img src="https://raw.githubusercontent.com/pagopa/pn-delivery/refs/heads/feature/docs_openapi_update/docs/openapi/images/pg.svg">
+    <img src="https://raw.githubusercontent.com/pagopa/pn-delivery/refs/heads/develop/docs/openapi/images/pg.svg">
     
     Descrizione delle operazioni:
     <ul>
@@ -26,7 +26,7 @@ info:
 
     Di seguito un diagramma in cui vengono mostrati degli esempi di dati ricevuti in risposta alla chiamata API nella gestione di una notifica.<br>
     Dei dai mostrati vengono messi in evidenza quelli utilizzati per le chiamate API successive. 
-    <img src="https://raw.githubusercontent.com/pagopa/pn-delivery/refs/heads/feature/docs_openapi_update/docs/openapi/images/lettura_notifica.svg">
+    <img src="https://raw.githubusercontent.com/pagopa/pn-delivery/refs/heads/develop/docs/openapi/images/lettura_notifica.svg">
   
     Nella prima richiesta (*GET /delivery/notifications/received/delegated*) fornisce una lista di deleghe; nel riquadro verde più piccolo viene mostrato un estratto di risposta mettendo in evidenza la prima notifica (in particolare lo *iun* di questa).
     <br>
@@ -419,7 +419,7 @@ components:
 
     Problem:
       $ref: './remote-refs.yaml#/components/schemas/Problem'
-    
+
     TimelineElementV27:
       $ref: './remote-refs.yaml#/components/schemas/TimelineElementV27'
     NotificationStatusV26:
