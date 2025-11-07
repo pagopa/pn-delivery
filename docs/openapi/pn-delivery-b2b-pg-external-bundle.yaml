@@ -8,7 +8,7 @@ info:
     ## Abstract
       API utilizzate dalle persone giuridiche per avere la lista delle notifiche e il dettaglio di ognuna di queste.
     ## Una possibile sequenza di utilizzo delle API di questa collection <img
-    src="https://raw.githubusercontent.com/pagopa/pn-delivery/refs/heads/feature/docs_openapi_update/docs/openapi/images/pg.svg">
+    src="https://raw.githubusercontent.com/pagopa/pn-delivery/refs/heads/develop/docs/openapi/images/pg.svg">
 
     Descrizione delle operazioni: <ul>
       <li>1: lista dei gruppi di appartenenza dell'utente della PG</li>
@@ -27,7 +27,7 @@ info:
     ricevuti in risposta alla chiamata API nella gestione di una notifica.<br>
     Dei dai mostrati vengono messi in evidenza quelli utilizzati per le chiamate
     API successive.  <img
-    src="https://raw.githubusercontent.com/pagopa/pn-delivery/refs/heads/feature/docs_openapi_update/docs/openapi/images/lettura_notifica.svg">
+    src="https://raw.githubusercontent.com/pagopa/pn-delivery/refs/heads/develop/docs/openapi/images/lettura_notifica.svg">
 
     Nella prima richiesta (*GET /delivery/notifications/received/delegated*)
     fornisce una lista di deleghe; nel riquadro verde più piccolo viene mostrato
