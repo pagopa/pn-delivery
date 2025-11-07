@@ -213,7 +213,7 @@ class PaymentEventsServiceTest {
         internalNotification.setIun(IUN);
         internalNotification.setSubject("Subject 01");
         internalNotification.setSenderPaId(SENDER_PA_ID);
-        internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
         internalNotification.setRecipients(Collections.singletonList(notificationRecipient));
         internalNotification.setRecipientIds(List.of(RECIPIENT_INTERNAL_ID));
         internalNotification.setSourceChannel(X_PAGOPA_PN_SRC_CH);
@@ -225,7 +225,7 @@ class PaymentEventsServiceTest {
                 .internalId( RECIPIENT_INTERNAL_ID )
                 .taxId( RECIPIENT_TAX_ID )
                 .denomination("Mario Rossi")
-                .recipientType( NotificationRecipientV23.RecipientTypeEnum.valueOf( RECIPIENT_TYPE_PF ) )
+                .recipientType( NotificationRecipientV24.RecipientTypeEnum.valueOf( RECIPIENT_TYPE_PF ) )
                 .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
                         .type(NotificationDigitalAddress.TypeEnum.PEC)
                         .address("account@dominio.it")

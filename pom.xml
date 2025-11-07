@@ -8,7 +8,7 @@
         <relativePath>../pn-parent</relativePath>
     </parent>
     <artifactId>pn-delivery</artifactId>
-    <version>2.10.0-SNAPSHOT</version>
+    <version>2.20.0-SNAPSHOT</version>
     <name>pn-delivery</name>
     <description>Receive new notifications and show internalNotification history</description>
     <scm>
@@ -21,7 +21,7 @@
     <properties>
         <default.package>it.pagopa.pn.delivery</default.package>
         <ant.windows_bash_exe>c:\Program Files\Git\bin\bash.exe</ant.windows_bash_exe>
-        <pagopa.codegen.version>v01.06.01</pagopa.codegen.version>
+        <pagopa.codegen.version>v01.12.00</pagopa.codegen.version>
     </properties>
 
     <dependencies>
@@ -40,12 +40,17 @@
         <dependency>
             <groupId>it.pagopa.pn</groupId>
             <artifactId>pn-commons</artifactId>
-            <version>2.2.6</version>
+            <version>2.15.1-RC.1</version>
+        </dependency>
+        <dependency>
+            <groupId>it.pagopa.pn</groupId>
+            <artifactId>pn-lollipop-client</artifactId>
+            <version>1.1.0-RC.4</version>
         </dependency>
         <dependency>
             <groupId>it.pagopa.pn</groupId>
             <artifactId>pn-model</artifactId>
-            <version>2.2.0</version>
+            <version>2.7.0</version>
         </dependency>
         <dependency>
             <groupId>net.logstash.logback</groupId>
@@ -448,7 +453,7 @@
                         </goals>
                         <phase>process-resources</phase>
                         <configuration>
-                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-mandate/fb72e50fcf4fa207f513b30adb5c1f558b05ec51/docs/openapi/pn-mandate-internal.yaml</inputSpec>
+                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-mandate/85d4e9a4acbf92387b2e6de9e997d02718606aea/docs/openapi/pn-mandate-internal.yaml</inputSpec>
                             <generatorName>java</generatorName>
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>
@@ -498,7 +503,7 @@
                         </goals>
                         <phase>process-resources</phase>
                         <configuration>
-                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery-push/e737a389c18b9e1b728699e74d7b1b42fb4add60/docs/openapi/api-private.yaml</inputSpec>
+                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery-push/cb915f62157ae160b59dd964b2c975edd453c985/docs/openapi/api-private.yaml</inputSpec>
                             <generatorName>java</generatorName>
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>
@@ -523,7 +528,7 @@
                         </goals>
                         <phase>process-resources</phase>
                         <configuration>
-                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-data-vault/1c1bcaef3837a15f866596a6d9af94e3978805ff/docs/openapi/pn-datavault-api-v1.yaml</inputSpec>
+                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-data-vault/510accabdf73d1f714072aa6a91e221e3bf46756/docs/openapi/pn-datavault-api-v1.yaml</inputSpec>
                             <generatorName>java</generatorName>
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>
@@ -561,6 +566,32 @@
                                 <annotationLibrary>none</annotationLibrary>
                                 <documentationProvider>source</documentationProvider>
                                 <openApiNullable>false</openApiNullable>
+                                <useAbstractionForFiles>true</useAbstractionForFiles>
+                                <useBeanValidation>false</useBeanValidation>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-client-pn-national-registries</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-national-registries/a8826fa39a9a6708f5e9e371ca6b751695950510/docs/openapi/PNT2Y-OpenAPI3_PN-NationalRegistries.yaml</inputSpec>
+                            <generatorName>java</generatorName>
+                            <library>resttemplate</library>
+                            <generateApiTests>false</generateApiTests>
+                            <generateModelTests>false</generateModelTests>
+                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
+                            <configOptions>
+                                <apiPackage>${project.groupId}.delivery.generated.openapi.msclient.nationalregistries.v1.api</apiPackage>
+                                <modelPackage>${project.groupId}.delivery.generated.openapi.msclient.nationalregistries.v1.model</modelPackage>
+                                <dateLibrary>java8</dateLibrary>
+                                <annotationLibrary>none</annotationLibrary>
+                                <documentationProvider>source</documentationProvider>
+                                <openApiNullable>false</openApiNullable>
+                                <reactive>false</reactive>
                                 <useAbstractionForFiles>true</useAbstractionForFiles>
                                 <useBeanValidation>false</useBeanValidation>
                             </configOptions>

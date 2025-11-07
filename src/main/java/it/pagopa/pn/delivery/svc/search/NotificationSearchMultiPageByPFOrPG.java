@@ -2,12 +2,14 @@ package it.pagopa.pn.delivery.svc.search;
 
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.exception.PnSearchTimeoutException;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.EntityToDtoNotificationMetadataMapper;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import lombok.extern.slf4j.Slf4j;
+import static it.pagopa.pn.delivery.svc.search.SearchTimeout.isSearchTimeExpired;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,13 +49,17 @@ public class NotificationSearchMultiPageByPFOrPG extends NotificationSearchMulti
         }
 
 
+        long searchStartTimeNanos = System.nanoTime();
         // ciclo per ogni partizione, eventualmente scartando quelle non interessate in base alla lastEvaluatedKey
         for (int pIdx = startIndex;pIdx< indexNameAndPartitions.getPartitions().size();pIdx++ ) {
 
             String currentpartition = indexNameAndPartitions.getPartitions().get( pIdx );
 
+
+            //limitare qua ma anche nel metodo di ricerca vero e proprio che viene richiamato ricorsivamente
+
             // legge tutti i dati dalla partizione
-            logItemCount += readDataFromPartition(0, currentpartition, dataRead, startEvaluatedKey, requiredSize,  dynamoDbPageSize);
+            logItemCount += readDataFromPartition(0, currentpartition, dataRead, startEvaluatedKey, requiredSize,  dynamoDbPageSize, searchStartTimeNanos);
 
             // l'eventuale partizione iniziale ha senso SOLO per la prima partizione
             startEvaluatedKey = null;
@@ -64,10 +70,14 @@ public class NotificationSearchMultiPageByPFOrPG extends NotificationSearchMulti
                 log.debug("reached required size, ending search");
                 break;
             }
+            if(isSearchTimeExpired(cfg.getSearchTimeoutSeconds(),searchStartTimeNanos,indexNameAndPartitions.getIndexName())){
+                throw new PnSearchTimeoutException("Timeout in search notification multiPage");
+            }
         }
 
         log.info("search request completed, totalDbQueryCount={} totalRowRead={}", logItemCount, dataRead.size());
 
         return dataRead;
     }
+
 }

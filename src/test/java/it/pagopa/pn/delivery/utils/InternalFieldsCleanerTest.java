@@ -1,8 +1,8 @@
 package it.pagopa.pn.delivery.utils;
 
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV23;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV24;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
@@ -73,7 +73,7 @@ class InternalFieldsCleanerTest {
                 List.of(
                         NotificationRecipient.builder()
                                 .internalId("internalId")
-                                .recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
+                                .recipientType(NotificationRecipientV24.RecipientTypeEnum.PF)
                                 .taxId("taxId")
                                 .physicalAddress(it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress.builder().build())
                                 .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder().build())
@@ -85,7 +85,7 @@ class InternalFieldsCleanerTest {
         internalNotification.setCancelledIun("IUN_05");
         internalNotification.setCancelledIun("IUN_00");
         internalNotification.setSenderPaId("PA_ID");
-        internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()
                         .taxId("Codice Fiscale 01")

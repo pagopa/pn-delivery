@@ -1,6 +1,6 @@
 package it.pagopa.pn.delivery.utils;
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementV24;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementV27;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
@@ -14,25 +14,21 @@ public class RefinementLocalDate {
     public static final String ZONE_ID_EUROPE_ROME = "Europe/Rome";
 
     @NotNull
-    public OffsetDateTime setLocalRefinementDate(TimelineElementV24 timelineElement) {
-        OffsetDateTime refinementDate;
+    public OffsetDateTime setLocalRefinementDate(TimelineElementV27 timelineElement) {
         OffsetDateTime timestampUtc = timelineElement.getTimestamp();
         // mi sposto all'offest IT
-        ZonedDateTime localDateTime = timestampUtc.toLocalDateTime().atZone( ZoneId.of(ZONE_ID_EUROPE_ROME) );
+        OffsetDateTime localDateTime = OffsetDateTime.ofInstant(timestampUtc.toInstant(), ZoneId.of(ZONE_ID_EUROPE_ROME));
         // mi sposto alle 23:59:59
-        refinementDate = OffsetDateTime.of( localDateTime.getYear(), localDateTime.getMonthValue(), localDateTime.getDayOfMonth(),
-                23, 59, 59, 999999999, ZoneId.of(ZONE_ID_EUROPE_ROME).getRules().getOffset( localDateTime.toInstant() ) );
-        return refinementDate;
+        return localDateTime.withHour(23).withMinute(59).withSecond(59).withNano(999999999);
     }
     @Nullable
     public OffsetDateTime setLocalRefinementDate( OffsetDateTime utcRefinementDate ) {
         OffsetDateTime localRefinementDate = null;
         if ( utcRefinementDate != null ) {
             // mi sposto all'offest IT
-            ZonedDateTime localDateTime = utcRefinementDate.toLocalDateTime().atZone( ZoneId.of(ZONE_ID_EUROPE_ROME) );
+            OffsetDateTime localDateTime = OffsetDateTime.ofInstant(utcRefinementDate.toInstant(), ZoneId.of(ZONE_ID_EUROPE_ROME));
             // mi sposto alle 23:59:59
-            localRefinementDate = OffsetDateTime.of( localDateTime.getYear(), localDateTime.getMonthValue(), localDateTime.getDayOfMonth(),
-                    23, 59, 59, 999999999, ZoneId.of(ZONE_ID_EUROPE_ROME).getRules().getOffset( localDateTime.toInstant() ) );
+            localRefinementDate = localDateTime.withHour(23).withMinute(59).withSecond(59).withNano(999999999);
         }
         return localRefinementDate;
     }

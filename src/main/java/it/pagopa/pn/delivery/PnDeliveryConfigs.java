@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.annotation.PostConstruct;
 import java.time.Duration;
+import java.time.Instant;
 
 @Configuration
 @ConfigurationProperties( prefix = "pn.delivery")
@@ -28,6 +29,8 @@ public class PnDeliveryConfigs {
     private String dataVaultBaseUrl;
 
     private String safeStorageBaseUrl;
+
+    private String nationalRegistriesBaseUrl;
 
     private String f24BaseUrl;
 
@@ -50,11 +53,17 @@ public class PnDeliveryConfigs {
 
     private NotificationMetadataDao notificationMetadataDao;
 
+    private TaxonomyCodeDao taxonomyCodeDao;
+
     private NotificationDelegationMetadataDao notificationDelegationMetadataDao;
 
     private NotificationCostDao notificationCostDao;
 
     private NotificationQRDao notificationQRDao;
+
+    private PaNotificationLimitDao paNotificationLimitDao;
+
+    private NotificationRefusedVerificationDao notificationRefusedVerificationDao;
 
     private Integer maxPageSize;
 
@@ -68,6 +77,8 @@ public class PnDeliveryConfigs {
 
     private Integer maxAttachmentsCount;
 
+    private Integer searchTimeoutSeconds;
+
     private boolean physicalAddressValidation = false;
     
     private String physicalAddressValidationPattern;
@@ -78,6 +89,16 @@ public class PnDeliveryConfigs {
     private String denominationValidationTypeValue;
     private String denominationValidationRegexValue;
     private String denominationValidationExcludedCharacter;
+
+    private boolean checkTaxonomyCodeEnabled;
+
+    private boolean enableTaxIdExternalValidation;
+
+    private boolean skipCheckTaxIdInBlackList;
+
+    private Instant physicalAddressLookupStartDate;
+
+    private String latestNotificationVersion;
 
     @PostConstruct
     public void init(){
@@ -102,6 +123,11 @@ public class PnDeliveryConfigs {
     }
 
     @Data
+    public static class TaxonomyCodeDao {
+        private String tableName;
+    }
+
+    @Data
     public static class NotificationDelegationMetadataDao {
         private String tableName;
     }
@@ -113,6 +139,16 @@ public class PnDeliveryConfigs {
 
     @Data
     public static class NotificationQRDao {
+        private String tableName;
+    }
+
+    @Data
+    public static class PaNotificationLimitDao {
+        private String tableName;
+    }
+
+    @Data
+    public static class NotificationRefusedVerificationDao {
         private String tableName;
     }
 

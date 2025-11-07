@@ -1,6 +1,5 @@
 package it.pagopa.pn.delivery.rest;
 
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnForbiddenException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
@@ -35,7 +34,6 @@ import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
 
 @WebFluxTest(controllers = {PnInternalNotificationsController.class})
 class PnInternalNotificationsControllerTest {
@@ -44,7 +42,7 @@ class PnInternalNotificationsControllerTest {
     private static final String SENDER_ID = "test";
     private static final String START_DATE = "2021-09-17T00:00:00.000Z";
     private static final String END_DATE = "2021-09-18T00:00:00.000Z";
-    private static final NotificationStatus STATUS = NotificationStatus.IN_VALIDATION;
+    private static final NotificationStatusV26 STATUS = NotificationStatusV26.IN_VALIDATION;
     private static final String RECIPIENT_ID = "CGNNMO80A01H501M";
     private static final String RECIPIENT_INTERNAL_ID = "PF-2d74ffe9-aa40-47c2-88ea-9fb171ada637";
     public static final InternalAuthHeader INTERNAL_AUTH_HEADER = new InternalAuthHeader("PF", RECIPIENT_INTERNAL_ID, null, null);
@@ -64,9 +62,6 @@ class PnInternalNotificationsControllerTest {
 
     @Autowired
     WebTestClient webTestClient;
-
-    @MockBean
-    private StatusService svc;
 
     @MockBean
     private NotificationRetrieverService retrieveSvc;
@@ -89,39 +84,6 @@ class PnInternalNotificationsControllerTest {
     @SpyBean
     private ModelMapper modelMapper;
 
-
-
-    @Test
-    void updateStatus() {
-        RequestUpdateStatusDto dto = RequestUpdateStatusDto.builder()
-                .iun(IUN)
-                .build();
-
-        webTestClient.post()
-                .uri("/delivery-private/notifications/update-status" )
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .body(Mono.just(dto), RequestUpdateStatusDto.class)
-                .exchange()
-                .expectStatus().isOk();
-    }
-
-    @Test
-    void updateStatusKo() {
-        doThrow(new PnInternalException("exception")).when(svc).updateStatus(Mockito.any());
-
-        RequestUpdateStatusDto dto = RequestUpdateStatusDto.builder()
-                .iun(IUN)
-                .build();
-
-        webTestClient.post()
-                .uri("/delivery-private/notifications/update-status")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .body(Mono.just(dto), RequestUpdateStatusDto.class)
-                .exchange()
-                .expectStatus().is5xxServerError();
-    }
 
     @Test
     void searchNotificationsPrivateBySender() {
@@ -174,6 +136,48 @@ class PnInternalNotificationsControllerTest {
 
 
         Mockito.verify(retrieveSvc).searchNotification(eq(searchDto), any(), any());
+    }
+
+    @Test
+    void decodeAarQrCodeSuccess() {
+        RequestDecodeQrDto request = RequestDecodeQrDto.builder()
+                .aarTokenValue(AAR_QR_CODE_VALUE)
+                .build();
+        UserInfo userInfo = new UserInfo();
+        userInfo.setTaxId("taxId");
+        UserInfoQrCode userInfoQrCode = UserInfoQrCode.builder().build()
+                .iun("iun")
+                .recipientInfo(userInfo);
+
+        Mockito.when(qrService.getAarQrCodeToDecode(request)).thenReturn(userInfoQrCode);
+
+        webTestClient.post()
+                .uri("/delivery-private/notifications/qr-code/decode")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(request), RequestDecodeQrDto.class)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(UserInfoQrCode.class);
+
+        Mockito.verify(qrService).getAarQrCodeToDecode(request);
+    }
+
+    @Test
+    void decodeAarQrCodeNotFound() {
+        RequestDecodeQrDto request = RequestDecodeQrDto.builder()
+                .aarTokenValue(AAR_QR_CODE_VALUE)
+                .build();
+
+        Mockito.when(qrService.getAarQrCodeToDecode(request))
+                .thenThrow(new PnNotFoundException("test", "test", "test"));
+
+        webTestClient.post()
+                .uri("/delivery-private/notifications/qr-code/decode")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(request), RequestDecodeQrDto.class)
+                .exchange()
+                .expectStatus().isNotFound();
     }
 
     @Test
@@ -683,7 +687,7 @@ class PnInternalNotificationsControllerTest {
                 List.of(
                         NotificationRecipient.builder()
                                 .internalId("internalId")
-                                .recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
+                                .recipientType(NotificationRecipientV24.RecipientTypeEnum.PF)
                                 .taxId("taxId")
                                 .physicalAddress(it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress.builder().build())
                                 .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder().build())
@@ -696,7 +700,7 @@ class PnInternalNotificationsControllerTest {
         internalNotification.setCancelledIun("IUN_05");
         internalNotification.setCancelledIun("IUN_00");
         internalNotification.setSenderPaId("PA_ID");
-        internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()
                         .taxId("Codice Fiscale 01")

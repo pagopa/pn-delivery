@@ -201,6 +201,70 @@ Resources:
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
 
+  TaxonomyCodeTable:
+    Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TableName: !Sub '${ProjectName}-TaxonomyCode'
+      AttributeDefinitions:
+        - AttributeName: "key"
+          AttributeType: "S"
+        - AttributeName: "PAId"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "key"
+          KeyType: "HASH"
+        - AttributeName: "PAId"
+          KeyType: "RANGE"
+      BillingMode: "PAY_PER_REQUEST"
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
+  PaNotificationLimitTable:
+    Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TableName: !Sub '${ProjectName}-PaNotificationLimit'
+      AttributeDefinitions:
+        - AttributeName: "pk"
+          AttributeType: "S"
+        - AttributeName: "yearMonth"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "pk"
+          KeyType: "HASH"
+      GlobalSecondaryIndexes:
+        - IndexName: "yearMonth-index"
+          KeySchema:
+            - AttributeName: "yearMonth"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: "ALL"
+      BillingMode: "PAY_PER_REQUEST"
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
+  NotificationRefusedVerificationTable:
+    Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TableName: !Sub '${ProjectName}-NotificationRefusedVerification'
+      AttributeDefinitions:
+        - AttributeName: "pk"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "pk"
+          KeyType: "HASH"
+      BillingMode: "PAY_PER_REQUEST"
+      TimeToLiveSpecification:
+        AttributeName: "ttl"
+        Enabled: true
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
   ### DLQ used by lambda for communication between PN-DELIVERY and PN-DELIVERY-PUSH ###
   # NB: la coda stessa è di DLQ, quindi va allarmata. Non è necessario invece che sia allarmata la sua DLQ
   PnDeliveryInsertTriggerDLQ:
@@ -217,6 +281,34 @@ Resources:
         OncallDLQLimit: '1'
         QueueHasAlarm:  "true"
 
+  PnNotificationRefusedQueue:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
+      Parameters:
+        QueueName: !Sub '${ProjectName}-notification_refused'
+        DelaySeconds: 1
+        VisibilityTimeout: 60
+        MaxReceiveCount: 10
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName
+        HasDLQ: "false"
+
+  PnNotificationRefusedDispatcherDLQ:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
+      Parameters:
+        QueueName: !Sub '${ProjectName}-notification_refused_dispatcher-DLQ'
+        DelaySeconds: 1
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName
+        HasDLQ: "false"
+        OncallDLQLimit: '1'
+        QueueHasAlarm: "true"
+
   # Coda per inviare eventi di asseverazione, consumata da lambda per salvataggio su bucket s3
   # NB: usati i valori di default per: DelaySeconds, DeadLetterQueueName, MessageRetentionPeriod, MaxReceiveCount, DeadLetterMessageRetentionPeriod,
   # QueueOldestAgeLimit
@@ -232,6 +324,47 @@ Resources:
         AlarmSNSTopicName: !Ref AlarmSNSTopicName
         VisibilityTimeout: 900 # the maximum lambda timeout
         QueueHasAlarm: "false"
+
+  PnDeliveryMetadataStatusDLQ:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
+      Parameters:
+        QueueName: !Sub '${ProjectName}-delivery_metadata_status_DLQ'
+        DelaySeconds: 1
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName
+        HasDLQ: "false"
+        QueueHasAlarm: "true"
+
+  PnDeliveryPaLimitCorrectionDLQ:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
+      Parameters:
+        QueueName: !Sub '${ProjectName}-delivery_pa_limit_correction_DLQ'
+        DelaySeconds: 1
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName
+        HasDLQ: "false"
+        QueueHasAlarm: "true"
+
+  PnDeliveryLimitConfigurerQueue:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
+      Parameters:
+        QueueName: !Sub '${ProjectName}-delivery_limit_configurer'
+        DelaySeconds: 1
+        VisibilityTimeout: 60
+        MaxReceiveCount: 10
+        QueueHasAlarm: "true"
+        HasDLQ: "true"
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName
 
   PnDeliveryLogGroup:
     Type: AWS::CloudFormation::Stack
@@ -309,10 +442,61 @@ Resources:
         LogGroupName: !Sub "${ProjectName}-delivery-versioning-v1v23-getnotificationprice-lambda"
         LogGroupRetention: !Ref LogRetention
         LogGroupPrefix: '/aws/lambda'
+  
+  ConsentAccepterLambdaLogGroup:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub "${ProjectName}-consent-accepter"
+        LogGroupRetention: !Ref LogRetention
+        LogGroupPrefix: '/aws/lambda'
+    
+  MetadataStatusUpdaterLambdaLogGroup:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub "${ProjectName}-delivery-metadata-status-updater-lambda"
+        LogGroupRetention: !Ref LogRetention
+        LogGroupPrefix: '/aws/lambda'
+
+  NotificationRefusedDispatcherLambdaLogGroup:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub "${ProjectName}-delivery-notification-refused-dispatcher-lambda"
+        LogGroupRetention: !Ref LogRetention
+        LogGroupPrefix: '/aws/lambda'
+
+  PaLimitCorrectionLambdaLogGroup:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub "${ProjectName}-delivery-pa-limit-correction-lambda"
+        LogGroupRetention: !Ref LogRetention
+        LogGroupPrefix: '/aws/lambda'
 
 Outputs:
 
   # Dynamo table
+  TaxonomyCodeDynamoTableName:
+    Description: Name of dynamodb table containing taxonomy codes
+    Value: !Ref TaxonomyCodeTable
+  TaxonomyCodeDynamoTableArn:
+    Description: ARN of dynamodb table containing taxonomy codes
+    Value: !Sub '${TaxonomyCodeTable.Arn}'
+
   NotificationsDynamoTableName:
     Description: Name of dynamodb table containing notifications
     Value: !Ref NotificationsTable
@@ -344,12 +528,26 @@ Outputs:
     Description: ARN of dynamodb table containing notifications metadata
     Value: !Sub '${NotificationsMetadataTable.Arn}'
 
+  NotificationRefusedVerificationDynamoTableName:
+    Description: Name of dynamodb table containing notification refused
+    Value: !Ref NotificationRefusedVerificationTable
+  NotificationRefusedVerificationDynamoTableArn:
+    Description: ARN of dynamodb table containing notification refused
+    Value: !Sub '${NotificationRefusedVerificationTable.Arn}'
+
   NotificationDelegationMetadataDynamoTableName:
     Description: Name of dynamodb table containing delegated notifications metadata
     Value: !Ref NotificationDelegationMetadataTable
   NotificationDelegationMetadataDynamoTableArn:
     Description: ARN of dynamodb table containing delegated notifications metadata
     Value: !Sub '${NotificationDelegationMetadataTable.Arn}'
+
+  PaNotificationLimitDynamoTableName:
+    Description: Name of dynamodb table containing PA notification limits
+    Value: !Ref PaNotificationLimitTable
+  PaNotificationLimitDynamoTableArn:
+    Description: ARN of dynamodb table containing PA notification limits
+    Value: !Sub '${PaNotificationLimitTable.Arn}'
 
   # Delivery Insert Trigger DLQ
   PnDeliveryInsertTriggerDLQName:
@@ -387,7 +585,73 @@ Outputs:
   PnDeliveryAsseverationAgeAlarmARN:
     Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.SqsAgeAlarmArn  
     Description: notificationCostServiceCalls-DLQ age alarm ARN
-  
+  PnDeliveryMetadataStatusDLQName:
+    Value: !GetAtt PnDeliveryMetadataStatusDLQ.Outputs.QueueName
+    Description: pn-delivery_metadata_status_DLQ queue name
+  PnDeliveryMetadataStatusDLQURL:
+    Value: !GetAtt PnDeliveryMetadataStatusDLQ.Outputs.QueueURL
+    Description: pn-delivery_metadata_status_DLQ queue URL
+  PnDeliveryMetadataStatusDLQARN:
+    Value: !GetAtt PnDeliveryMetadataStatusDLQ.Outputs.QueueARN
+    Description: pn-delivery_metadata_status_DLQ queue ARN
+  PnDeliveryMetadataStatusDLQAlarmARN:
+    Value: !GetAtt PnDeliveryMetadataStatusDLQ.Outputs.SqsDLQAlarmArn
+    Description: pn-delivery_metadata_status_DLQ alarm ARN
+  PnDeliveryPaLimitCorrectionDLQName:
+    Value: !GetAtt PnDeliveryPaLimitCorrectionDLQ.Outputs.QueueName
+    Description: pn-delivery_pa_limit_correction_DLQ queue name
+  PnDeliveryPaLimitCorrectionDLQURL:
+    Value: !GetAtt PnDeliveryPaLimitCorrectionDLQ.Outputs.QueueURL
+    Description: pn-delivery_pa_limit_correction_DLQ queue URL
+  PnDeliveryPaLimitCorrectionDLQARN:
+    Value: !GetAtt PnDeliveryPaLimitCorrectionDLQ.Outputs.QueueARN
+    Description: pn-delivery_pa_limit_correction_DLQ queue ARN
+  PnDeliveryPaLimitCorrectionDLQAlarmARN:
+    Value: !GetAtt PnDeliveryPaLimitCorrectionDLQ.Outputs.SqsDLQAlarmArn
+    Description: pn-delivery_pa_limit_correction_DLQ alarm ARN
+
+  PnNotificationRefusedQueueName:
+    Value: !GetAtt PnNotificationRefusedQueue.Outputs.QueueName
+    Description: delivery_push_to_delivery queue name
+  PnNotificationRefusedQueueURL:
+    Value: !GetAtt PnNotificationRefusedQueue.Outputs.QueueURL
+    Description: delivery_push_to_delivery queue URL
+  PnNotificationRefusedQueueARN:
+    Value: !GetAtt PnNotificationRefusedQueue.Outputs.QueueARN
+    Description: delivery_push_to_delivery queue ARN
+  PnNotificationRefusedQueueAlarmARN:
+    Value: !GetAtt PnNotificationRefusedQueue.Outputs.SqsDLQAlarmArn
+    Description: delivery_push_to_delivery alarm ARN
+
+  PnNotificationRefusedDispatcherDLQName:
+    Value: !GetAtt PnNotificationRefusedDispatcherDLQ.Outputs.QueueName
+    Description: notification_refused_dispatcher-DLQ queue name
+  PnNotificationRefusedDispatcherDLQURL:
+    Value: !GetAtt PnNotificationRefusedDispatcherDLQ.Outputs.QueueURL
+    Description: notification_refused_dispatcher-DLQ queue URL
+  PnNotificationRefusedDispatcherDLQARN:
+    Value: !GetAtt PnNotificationRefusedDispatcherDLQ.Outputs.QueueARN
+    Description: notification_refused_dispatcher-DLQ queue ARN
+  PnNotificationRefusedDispatcherDLQAlarmARN:
+    Value: !GetAtt PnNotificationRefusedDispatcherDLQ.Outputs.SqsDLQAlarmArn
+    Description: notification_refused_dispatcher-DLQ alarm ARN
+
+  PnDeliveryLimitConfigurerQueueName:
+    Value: !GetAtt PnDeliveryLimitConfigurerQueue.Outputs.QueueName
+    Description: PnDeliveryLimitConfigurerQueue queue name
+  PnDeliveryLimitConfigurerQueueURL:
+    Value: !GetAtt PnDeliveryLimitConfigurerQueue.Outputs.QueueURL
+    Description: PnDeliveryLimitConfigurerQueue queue URL
+  PnDeliveryLimitConfigurerQueueARN:
+    Value: !GetAtt PnDeliveryLimitConfigurerQueue.Outputs.QueueARN
+    Description: PnDeliveryLimitConfigurerQueue queue ARN
+  PnDeliveryLimitConfigurerQueueAlarmARN:
+    Value: !GetAtt PnDeliveryLimitConfigurerQueue.Outputs.SqsDLQAlarmArn
+    Description: PnDeliveryLimitConfigurerQueue queue alarm ARN
+  PnDeliveryLimitConfigurerQueueAgeAlarmARN:
+    Value: !GetAtt PnDeliveryLimitConfigurerQueue.Outputs.SqsAgeAlarmArn
+    Description: PnDeliveryLimitConfigurerQueue queue age alarm ARN
+
   # Log group exports
   EcsLogGroup:
     Value: !GetAtt PnDeliveryLogGroup.Outputs.LogGroupName
@@ -395,6 +659,9 @@ Outputs:
     Value: !Sub "${ProjectName}-delivery-asseveration-lambda"
   PnDeliveryInsertTriggerLambdaName:
     Value: !Sub "${ProjectName}-delivery-insert-trigger-eb-lambda"
+  
+  ConsentAccepterLambdaName:
+    Value: !Sub "${ProjectName}-consent-accepter"
 
   VersioningV1V2GetNotificationLambdaName:
     Value: !Sub "${ProjectName}-delivery-versioning-v1v2-getnotification-lambda"
@@ -408,3 +675,11 @@ Outputs:
   VersioningV1V23GetNotificationPriceLambdaName:
     Value: !Sub "${ProjectName}-delivery-versioning-v1v23-getnotificationprice-lambda"
 
+  MetadataStatusUpdaterLambdaName:
+    Value: !Sub "${ProjectName}-delivery-metadata-status-updater-lambda"
+
+  NotificationRefusedDispatcherLambdaName:
+    Value: !Sub "${ProjectName}-delivery-notification-refused-dispatcher-lambda"
+
+  PaLimitCorrectionLambdaName:
+    Value: !Sub "${ProjectName}-delivery-pa-limit-correction-lambda"

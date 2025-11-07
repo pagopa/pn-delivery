@@ -1,0 +1,113 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Data quality template, creates a nested stack for Glue Table and Crawler
+
+Parameters:
+  TemplateBucketBaseUrl:
+    Type: String
+    Description: The S3 bucket from which to fetch the templates used by this stack.
+  GlueServiceRoleArn:
+    Type: String
+    Description: Service role for the Glue Crawler.
+  LogsBucketName:
+    Type: String
+    Description: Logs bucket name
+  GlueDatabaseName:
+    Description: Name of the Glue Database
+    Type: String
+  NotificationsDynamoTableName:
+    Type: String
+    Description: |
+      DynamoDb table name for pn-delivery, valorized by the related output
+      in the storage.yaml template, used also for identifying the S3 bucket
+      directory where related CDC files are stored.
+  
+  NotificationsGlueTableName:
+    Type: String
+    AllowedPattern: '^[a-z_]+$'
+    ConstraintDescription: | 
+       Glue table name for pn-notifications, accept only lowercase values and underscores.
+    Default: pn_nofifications
+    
+Resources:
+  PnNotificationDataQualityStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub ${TemplateBucketBaseUrl}/fragments/cdc-glue.yaml
+      Parameters:
+        DynamoTableName: !Ref NotificationsDynamoTableName
+        GlueTableName: !Ref NotificationsGlueTableName
+        GlueServiceRoleArn: !Ref GlueServiceRoleArn
+        LogsBucketName: !Ref LogsBucketName
+        GlueDatabaseName: !Ref GlueDatabaseName
+        DynamoDBKeysStructure: |
+          struct<iun:struct<S:string>>
+        DynamoDBNewImageStructure: |
+          struct<
+            abstract:struct<S:string>,
+            amount:struct<N:string>,
+            cancelledIun:struct<S:string>,
+            documents:struct<L:array<struct<M:struct<
+              contentType:struct<S:string>,
+              digests:struct<M:struct<sha256:struct<S:string>>>,
+              ref:struct<M:struct<
+                key:struct<S:string>,
+                versionToken:struct<S:string>
+              >>,
+              requireAck:struct<NULL:boolean,BOOL:boolean>,
+              sendByMail:struct<NULL:boolean,BOOL:boolean>,
+              title:struct<NULL:boolean,S:string>
+            >>>>,
+            group:struct<S:string>,
+            idempotenceToken:struct<S:string>,
+            iun:struct<S:string>,
+            notificationFeePolicy:struct<S:string>,
+            paFee:struct<N:string>,
+            paNotificationId:struct<S:string>,
+            pagoPaIntMode:struct<S:string>,
+            paymentExpirationDate:struct<S:string>,
+            physicalCommunicationType:struct<S:string>,
+            recipients:struct<L:array<struct<M:struct<
+              denomination:struct<NULL:boolean>,
+              digitalDomicile:struct<NULL:boolean>,
+              payments:struct<L:array<struct<M:struct<
+                applyCost:struct<BOOL:boolean>,
+                creditorTaxId:struct<S:string>,
+                noticeCode:struct<S:string>,
+                f24:struct<M:struct<
+                  applyCost:struct<BOOL:boolean>,
+                  title:struct<S:string>,
+                  metadataAttachment:struct<M:struct<
+                    contentType:struct<S:string>,
+                    digests:struct<M:struct<sha256:struct<S:string>>>,
+                    ref:struct<M:struct<
+                      key:struct<S:string>,
+                      versionToken:struct<S:string>
+                    >>
+                  >>
+                >>,
+                pagoPaForm:struct<M:struct<
+                  contentType:struct<S:string>,
+                  digests:struct<M:struct<sha256:struct<S:string>>>,
+                  ref:struct<M:struct<
+                    key:struct<S:string>,
+                    versionToken:struct<S:string>
+                  >>
+                >>
+              >>>>,
+              physicalAddress:struct<NULL:boolean>,
+              recipientId:struct<S:string>,
+              recipientType:struct<S:string>
+            >>>>,
+            requestId:struct<S:string>,
+            senderDenomination:struct<S:string>,
+            senderPaId:struct<S:string>,
+            senderTaxId:struct<S:string>,
+            sentAt:struct<S:string>,
+            sourceChannel:struct<S:string>,
+            sourceChannelDetails:struct<S:string>,
+            subject:struct<S:string>,
+            taxonomyCode:struct<S:string>,
+            vat:struct<N:string>,
+            version:struct<N:string,S:string>,
+            usedServices:struct<M:struct<physicalAddressLookup:struct<BOOL:boolean>>>
+          >

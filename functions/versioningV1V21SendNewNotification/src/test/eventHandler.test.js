@@ -177,6 +177,66 @@ describe('EventHandler Testing', () => {
                 authorizer: {},
                 },
                 resource: "/delivery/requests",
+                path: "/delivery/v2.3/requests",
+                httpMethod: 'POST',
+                body: JSON.stringify(newNotificationRequestV21)
+            };
+
+            const response = await handleEvent(event);
+            expect(response.statusCode).to.equal(202);
+            
+        });
+
+        it("newNotificationRequestV23 accepted", async () => {
+
+            process.env = Object.assign(process.env, {
+                PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery",
+            });
+
+            const eventHandler = proxyquire
+                .noCallThru()
+                .load("../app/eventHandler.js", {});
+
+            let url = `${process.env.PN_DELIVERY_URL}/v2.1/requests`;
+
+            mock.onPost(url).reply(202, {message: 'Accepted'});
+
+            const event = {
+                headers: {},
+                requestContext: {
+                authorizer: {},
+                },
+                resource: "/delivery/requests",
+                path: "/delivery/v2.4/requests",
+                httpMethod: 'POST',
+                body: JSON.stringify(newNotificationRequestV21)
+            };
+
+            const response = await handleEvent(event);
+            expect(response.statusCode).to.equal(202);
+            
+        });
+
+        it("newNotificationRequestV23 accepted", async () => {
+
+            process.env = Object.assign(process.env, {
+                PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery",
+            });
+
+            const eventHandler = proxyquire
+                .noCallThru()
+                .load("../app/eventHandler.js", {});
+
+            let url = `${process.env.PN_DELIVERY_URL}/v2.1/requests`;
+
+            mock.onPost(url).reply(202, {message: 'Accepted'});
+
+            const event = {
+                headers: {},
+                requestContext: {
+                authorizer: {},
+                },
+                resource: "/delivery/requests",
                 path: "/delivery/v2.1/requests",
                 httpMethod: 'POST',
                 body: JSON.stringify(newNotificationRequestV21)

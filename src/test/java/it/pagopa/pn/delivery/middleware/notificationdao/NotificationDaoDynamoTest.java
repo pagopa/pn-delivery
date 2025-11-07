@@ -34,7 +34,7 @@ import java.util.function.Predicate;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class NotificationDaoDynamoTest {
 
@@ -80,7 +80,7 @@ class NotificationDaoDynamoTest {
 
         // GIVEN
         InternalNotification notification = newNotificationWithoutPayments( );
-        notification.setPhysicalCommunicationType(FullSentNotificationV24.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
+        notification.setPhysicalCommunicationType(FullSentNotificationV27.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
 
         // WHEN
         when( pnDataVaultClient.ensureRecipientByExternalId( any(it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
@@ -127,6 +127,7 @@ class NotificationDaoDynamoTest {
         when( pnDataVaultClient.getNotificationAddressesByIun( "IUN_01" ) ).thenReturn( List.of( notificationRecipientAddressesDto ,notificationRecipientAddressesDto1 ) );
         Optional<InternalNotification> saved = this.dao.getNotificationByIun( notification.getIun(), true );
         Assertions.assertTrue( saved.isPresent() );
+        Assertions.assertEquals(0, saved.get().getAdditionalLanguages().size());
         // verifica ordine taxId destinatari
         Assertions.assertEquals(saved.get().getRecipients().get(0).getTaxId(), baseRecipientDto.getTaxId());
         // verifica ordine indirizzi
@@ -134,6 +135,69 @@ class NotificationDaoDynamoTest {
         Assertions.assertEquals( saved.get().getRecipients().get(0).getDigitalDomicile().getAddress(), notificationRecipientAddressesDto.getDigitalAddress().getValue() );
         //Assertions.assertEquals( notification, saved.get() );
     }
+
+    @Test
+    void insertSuccessWithAdditionalLang() throws PnIdConflictException {
+
+        // GIVEN
+        InternalNotification notification = newNotificationWithoutPayments( );
+        notification.setPhysicalCommunicationType(FullSentNotificationV27.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
+        notification.setAdditionalLanguages(List.of("DE"));
+
+        // WHEN
+        when( pnDataVaultClient.ensureRecipientByExternalId( any(it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
+        this.dao.addNotification( notification );
+
+        // THEN
+        BaseRecipientDto baseRecipientDto = new BaseRecipientDto();
+        baseRecipientDto.setRecipientType( it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType.PF );
+        baseRecipientDto.setDenomination( "recipientDenomination" );
+        baseRecipientDto.setInternalId( "opaqueTaxId" );
+        baseRecipientDto.setTaxId( "recipientTaxId" );
+
+        BaseRecipientDto baseRecipientDto1 = new BaseRecipientDto();
+        baseRecipientDto1.setRecipientType( it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType.PF );
+        baseRecipientDto1.setDenomination( "recipientDenomination1" );
+        baseRecipientDto1.setInternalId( "opaqueTaxId1" );
+        baseRecipientDto1.setTaxId( "recipientTaxId1" );
+
+        when( pnDataVaultClient.getRecipientDenominationByInternalId( Mockito.anyList() ) ).thenReturn( List.of(baseRecipientDto1, baseRecipientDto ) );
+
+        NotificationRecipientAddressesDto notificationRecipientAddressesDto = new NotificationRecipientAddressesDto();
+        notificationRecipientAddressesDto.setDenomination( "recipientDenomination" );
+        notificationRecipientAddressesDto.setDigitalAddress( new AddressDto().value( "digitalAddress" ) );
+        notificationRecipientAddressesDto.setPhysicalAddress( new AnalogDomicile()
+                .address( "physicalAddress" )
+                .addressDetails( "addressDetail" )
+                .at( "at" )
+                .municipality( "municipality" )
+                .province( "province" )
+                .cap( "cap" )
+                .state( "state" ));
+
+        NotificationRecipientAddressesDto notificationRecipientAddressesDto1 = new NotificationRecipientAddressesDto();
+        notificationRecipientAddressesDto1.setDenomination( "recipientDenomination1" );
+        notificationRecipientAddressesDto1.setDigitalAddress( new AddressDto().value( "digitalAddress1" ) );
+        notificationRecipientAddressesDto1.setPhysicalAddress( new AnalogDomicile()
+                .address( "physicalAddress1" )
+                .addressDetails( "addressDetail1" )
+                .at( "at1" )
+                .municipality( "municipality1" )
+                .province( "province1" )
+                .cap( "cap1" )
+                .state( "state1" ));
+        when( pnDataVaultClient.getNotificationAddressesByIun( "IUN_01" ) ).thenReturn( List.of( notificationRecipientAddressesDto ,notificationRecipientAddressesDto1 ) );
+        Optional<InternalNotification> saved = this.dao.getNotificationByIun( notification.getIun(), true );
+        Assertions.assertTrue( saved.isPresent() );
+        Assertions.assertEquals(List.of("DE"), saved.get().getAdditionalLanguages());
+        // verifica ordine taxId destinatari
+        Assertions.assertEquals(saved.get().getRecipients().get(0).getTaxId(), baseRecipientDto.getTaxId());
+        // verifica ordine indirizzi
+        assert notificationRecipientAddressesDto.getDigitalAddress() != null;
+        Assertions.assertEquals( saved.get().getRecipients().get(0).getDigitalDomicile().getAddress(), notificationRecipientAddressesDto.getDigitalAddress().getValue() );
+        //Assertions.assertEquals( notification, saved.get() );
+    }
+
 
 
 
@@ -192,6 +256,52 @@ class NotificationDaoDynamoTest {
         Optional<InternalNotification> saved = this.dao.getNotificationByIun( notification.getIun(), true );
         Assertions.assertTrue( saved.isPresent() );
         //Assertions.assertEquals( notification, saved.get() );
+    }
+
+    @Test
+    void testAddNotificationWithRecIndex() throws PnIdConflictException {
+        InternalNotification notification = newNotification( );
+
+        when( pnDataVaultClient.ensureRecipientByExternalId( any(RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
+        this.dao.addNotification( notification );
+
+        NotificationRecipientAddressesDto notificationRecipientAddressesDto = new NotificationRecipientAddressesDto();
+        notificationRecipientAddressesDto.setDenomination( "recipientDenomination" );
+        notificationRecipientAddressesDto.setDigitalAddress( new AddressDto().value( "digitalAddress" ) );
+        notificationRecipientAddressesDto.setPhysicalAddress( new AnalogDomicile()
+                .address( "physicalAddress" )
+                .addressDetails( "addressDetail" )
+                .at( "at" )
+                .municipality( "municipality" )
+                .province( "province" )
+                .cap( "cap" )
+                .state( "state" ));
+        notificationRecipientAddressesDto.setRecIndex(0);
+
+
+        NotificationRecipientAddressesDto notificationRecipientAddressesDto1 = new NotificationRecipientAddressesDto();
+        notificationRecipientAddressesDto1.setDenomination( "recipientDenomination1" );
+        notificationRecipientAddressesDto1.setDigitalAddress( new AddressDto().value( "digitalAddress1" ) );
+        notificationRecipientAddressesDto1.setPhysicalAddress( new AnalogDomicile()
+                .address( "physicalAddress1" )
+                .addressDetails( "addressDetail1" )
+                .at( "at1" )
+                .municipality( "municipality1" )
+                .province( "province1" )
+                .cap( "cap1" )
+                .state( "state1" ));
+        notificationRecipientAddressesDto1.setRecIndex(1);
+
+        when( pnDataVaultClient.getNotificationAddressesByIun( "IUN_01" ) ).thenReturn( List.of( notificationRecipientAddressesDto ,notificationRecipientAddressesDto1 ) );
+
+        List<NotificationRecipientAddressesDto> recipientAddressesDtoList = new ArrayList<>();
+        recipientAddressesDtoList.add(notificationRecipientAddressesDto);
+        recipientAddressesDtoList.add(notificationRecipientAddressesDto1);
+
+        when( pnDataVaultClient.getNotificationAddressesByIun( "IUN_01" ) ).thenReturn( recipientAddressesDtoList );
+        pnDataVaultClient.updateNotificationAddressesByIun("Iun", recipientAddressesDtoList);
+        Optional<InternalNotification> saved = this.dao.getNotificationByIun( notification.getIun(), true );
+        Assertions.assertTrue( saved.isPresent() );
     }
 
     @Test
@@ -462,7 +572,7 @@ class NotificationDaoDynamoTest {
     private InternalNotification newNotificationWithoutPayments() {
         InternalNotification internalNotification = new InternalNotification();
         internalNotification.setPaFee(0);
-        internalNotification.setPagoPaIntMode(NewNotificationRequestV23.PagoPaIntModeEnum.NONE);
+        internalNotification.setPagoPaIntMode(NewNotificationRequestV25.PagoPaIntModeEnum.NONE);
         internalNotification.setSentAt(OffsetDateTime.now());
         internalNotification.setIun("IUN_01");
         internalNotification.setPaProtocolNumber("protocol_01");
@@ -470,14 +580,14 @@ class NotificationDaoDynamoTest {
         internalNotification.setCancelledIun("IUN_05");
         internalNotification.setCancelledIun("IUN_00");
         internalNotification.setSenderPaId("PA_ID");
-        internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
         internalNotification.setNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()
                         .taxId("Codice Fiscale 01")
                         .denomination("Nome Cognome/Ragione Sociale")
                         .internalId( "recipientInternalId" )
-                        .recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
+                        .recipientType(NotificationRecipientV24.RecipientTypeEnum.PF)
                         .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
                                 .type( NotificationDigitalAddress.TypeEnum.PEC )
                                 .address("account@dominio.it")
@@ -488,8 +598,8 @@ class NotificationDaoDynamoTest {
     private InternalNotification newNotification() {
         InternalNotification internalNotification = new InternalNotification();
         internalNotification.setPaFee(0);
-        internalNotification.setPhysicalCommunicationType(FullSentNotificationV24.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
-        internalNotification.setPagoPaIntMode(NewNotificationRequestV23.PagoPaIntModeEnum.NONE);
+        internalNotification.setPhysicalCommunicationType(FullSentNotificationV27.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
+        internalNotification.setPagoPaIntMode(NewNotificationRequestV25.PagoPaIntModeEnum.NONE);
         internalNotification.setSentAt(OffsetDateTime.now());
         internalNotification.setIun("IUN_01");
         internalNotification.setPaProtocolNumber("protocol_01");
@@ -497,7 +607,7 @@ class NotificationDaoDynamoTest {
         internalNotification.setCancelledIun("IUN_05");
         internalNotification.setCancelledIun("IUN_00");
         internalNotification.setSenderPaId("PA_ID");
-        internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
         internalNotification.setNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
         internalNotification.setPaFee(0);
         internalNotification.setDocuments(List.of(NotificationDocument
@@ -538,7 +648,7 @@ class NotificationDaoDynamoTest {
                                         .build())
                                 .build())
                         )
-                        .recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
+                        .recipientType(NotificationRecipientV24.RecipientTypeEnum.PF)
                         .physicalAddress(it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress.builder()
                                 .address("address")
                                 .addressDetails("address")

@@ -1,8 +1,10 @@
 package it.pagopa.pn.delivery.middleware.notificationdao.entities;
 
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV24;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV27;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.UsedServices;
+import it.pagopa.pn.delivery.models.NotificationLang;
 import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
@@ -46,6 +48,9 @@ public class NotificationEntity {
     public static final String FIELD_VERSION = "version";
     public static final String FIELD_PA_FEE = "paFee";
     public static final String FIELD_VAT = "vat";
+    public static final String FIELD_LANG = "languages";
+    public static final String USED_SERVICES = "usedServices";
+
 
     @Getter(onMethod=@__({@DynamoDbPartitionKey, @DynamoDbAttribute(FIELD_IUN)})) private String iun;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_ABSTRACT)})) private String notificationAbstract;
@@ -59,7 +64,7 @@ public class NotificationEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_RECIPIENTS)})) private List<NotificationRecipientEntity> recipients;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_DOCUMENTS)})) private List<DocumentAttachmentEntity> documents;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_NOTIFICATION_FEE_POLICY)})) private NotificationFeePolicy notificationFeePolicy;
-    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PHYSICAL_COMMUNICATION_TYPE)})) private FullSentNotificationV24.PhysicalCommunicationTypeEnum physicalCommunicationType;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PHYSICAL_COMMUNICATION_TYPE)})) private FullSentNotificationV27.PhysicalCommunicationTypeEnum physicalCommunicationType;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_GROUP)})) private String group;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SENDER_DENOMINATION)})) private String senderDenomination;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SENDER_TAX_ID)})) private String senderTaxId;
@@ -74,4 +79,6 @@ public class NotificationEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_VERSION)})) private String version;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PA_FEE)})) private Integer paFee;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_VAT)})) private Integer vat;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_LANG)})) private List<NotificationLang> languages;
+    @Getter(onMethod=@__({@DynamoDbAttribute(USED_SERVICES)})) private UsedServicesEntity usedServices;
 }

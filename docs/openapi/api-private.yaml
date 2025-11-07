@@ -36,50 +36,6 @@ paths:
           description: Ok
         '500':
           description: Internal Server Error
-  "/delivery-private/notifications/update-status":
-    post:
-      description: |-
-        Servizio per l'aggiornamento dello stato di invio della notifica
-        
-        <details no-external>
-        <summary><b> Attributi progettazione di alto livello </b></summary>
-        | Proprietà                | Valore             |
-        | -----------------------: | :----------------- |
-        | __Intended usage__       | Altri ms           |
-        | __Modalità interazione__ | Sincrona           |
-        | __TPS (stimato)__        |                    |
-        | __Idempotenza__          | Si                 |
-        | __Read/Write intensive__ | Write              |
-        | __Cachable__             | No                 |
-        </details>
-      summary: servizio per l'aggiornamento dello stato di invio della notifica
-      tags:
-      - internal-only
-      operationId: updateStatus
-      requestBody:
-        content:
-          application/json:
-            schema:
-              "$ref": "#/components/schemas/RequestUpdateStatusDto"
-        required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json: { }
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '500':
-          description: Internal error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-  
   "/delivery-private/notifications/{iun}":
     get:
       summary: servizio per cercare una notifica dato <iun>
@@ -94,7 +50,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "schemas-pn-notification.yaml#/components/schemas/SentNotificationV23"
+                $ref: "schemas-pn-notification.yaml#/components/schemas/SentNotificationV25"
         '400':
           description: Bad request
           content:
@@ -109,6 +65,45 @@ paths:
                 $ref: '#/components/schemas/Problem'
         '500':
           description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+                
+  "/delivery-private/notifications/qr-code/decode":
+    post:
+      summary: Recupera informazioni anagrafiche del destinatario e lo iun dato un QR code
+      description: Restituisce CF,Denomination del destinatario e lo iun della notifica associato al QR code
+      tags:
+        - internal-only
+      operationId: decodeAarToken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestDecodeQrDto"
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserInfoQrCode"
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: QrCode Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
           content:
             application/problem+json:
               schema:
@@ -495,19 +490,6 @@ components:
         iun:
           $ref: 'schemas-pn-notification.yaml#/components/schemas/IUN'
 
-
-    RequestUpdateStatusDto:
-      type: object
-      properties:
-        iun:
-          $ref: 'schemas-pn-notification.yaml#/components/schemas/IUN'
-        nextStatus:
-          $ref: "remote-refs.yaml#/components/schemas/NotificationStatus"
-        timestamp:
-          type: string
-          description: timestamp del passaggio di stato
-          format: date-time
-
     NotificationCostResponse:
       type: object
       properties:
@@ -555,6 +537,29 @@ components:
         amount:
           type: integer
           format: int32
+    
+    UserInfoQrCode:
+      type: object
+      required:
+        - recipientInfo
+        - iun
+      properties:
+        recipientInfo:
+          $ref: 'api-internal-b2b-appio.yaml#/components/schemas/UserInfo'
+        iun:
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/IUN'
+          
+    RequestDecodeQrDto:
+      description: Le informazioni fornite per decodificare un token qr presente sull'avviso di avvenuta ricezione
+      type: object
+      required:
+        - aarTokenValue
+      properties:
+        aarTokenValue:
+          type: string
+          description: valore del token QR-Code presente sull'avviso di avvenuta ricezione
+          pattern: ^[ -~]*$
+          maxLength: 300
 
     Problem:
       $ref: './remote-refs.yaml#/components/schemas/Problem'

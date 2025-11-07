@@ -5,6 +5,7 @@ import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.commons.utils.LogUtils;
+import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.InternalOnlyApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
@@ -31,20 +32,34 @@ import static it.pagopa.pn.commons.utils.MDCUtils.MDC_PN_IUN_KEY;
 public class PnInternalNotificationsController implements InternalOnlyApi {
 
     private final NotificationRetrieverService retrieveSvc;
-    private final StatusService statusService;
     private final NotificationPriceService priceService;
     private final NotificationQRService qrService;
     private final NotificationAttachmentService notificationAttachmentService;
     private final ModelMapper modelMapper;
 
 
-    public PnInternalNotificationsController(NotificationRetrieverService retrieveSvc, StatusService statusService, NotificationPriceService priceService, NotificationQRService qrService, NotificationAttachmentService notificationAttachmentService, ModelMapper modelMapper) {
+    public PnInternalNotificationsController(NotificationRetrieverService retrieveSvc, NotificationPriceService priceService, NotificationQRService qrService, NotificationAttachmentService notificationAttachmentService, ModelMapper modelMapper) {
         this.retrieveSvc = retrieveSvc;
-        this.statusService = statusService;
         this.priceService = priceService;
         this.qrService = qrService;
         this.notificationAttachmentService = notificationAttachmentService;
         this.modelMapper = modelMapper;
+    }
+
+
+    @Override
+    public ResponseEntity<UserInfoQrCode> decodeAarToken(RequestDecodeQrDto requestDecodeQrDto) {
+        String aarQrCodeValue = requestDecodeQrDto.getAarTokenValue();
+        log.info("Start decodeAarQrCode with aarQrCodeValue={}", aarQrCodeValue);
+        UserInfoQrCode response;
+        try {
+            response = qrService.getAarQrCodeToDecode(requestDecodeQrDto);
+            log.info("decodeAarQrCode success with aarQrCodeValue={}", aarQrCodeValue);
+        } catch (PnNotFoundException exception) {
+            log.error("Error in decodeAarQrCode for aarQrCodeValue={}: {}", aarQrCodeValue, exception.getMessage());
+            throw exception;
+        }
+        return ResponseEntity.ok(response);
     }
 
     @Override
@@ -95,12 +110,12 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     }
 
     @Override
-    public ResponseEntity<SentNotificationV23> getSentNotificationPrivate(String iun) {
+    public ResponseEntity<SentNotificationV25> getSentNotificationPrivate(String iun) {
         InternalNotification notification = retrieveSvc.getNotificationInformation(iun, false, true);
-        SentNotificationV23 sentNotification = modelMapper.map(notification, SentNotificationV23.class);
+        SentNotificationV25 sentNotification = modelMapper.map(notification, SentNotificationV25.class);
 
         int recIdx = 0;
-        for (NotificationRecipientV23 rec : sentNotification.getRecipients()) {
+        for (NotificationRecipientV24 rec : sentNotification.getRecipients()) {
             rec.setInternalId(notification.getRecipientIds().get(recIdx));
             recIdx += 1;
         }
@@ -109,30 +124,9 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     }
 
     @Override
-    public ResponseEntity<Void> updateStatus(RequestUpdateStatusDto requestUpdateStatusDto) {
-        String logMessage = String.format(
-                "Update status for iun=%s nextStatus=%s", requestUpdateStatusDto.getIun(), requestUpdateStatusDto.getNextStatus()
-        );
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_STATUS, logMessage)
-                .iun(requestUpdateStatusDto.getIun())
-                .build();
-        logEvent.log();
-        try {
-            statusService.updateStatus(requestUpdateStatusDto);
-            logEvent.generateSuccess().log();
-        } catch (PnRuntimeException exc) {
-            logEvent.generateFailure("" + exc.getProblem()).log();
-            throw exc;
-        }
-        return ResponseEntity.ok().build();
-    }
-
-    @Override
     public  ResponseEntity<NotificationSearchResponse> searchNotificationsPrivate(OffsetDateTime startDate, OffsetDateTime endDate,
                                                                                   String recipientId, Boolean recipientIdOpaque,
-                                                                                  String senderId, List<NotificationStatus> status,
+                                                                                  String senderId, List<NotificationStatusV26> status,
                                                                                   String mandateId, String cxType, Integer size, String nextPagesKey) {
 
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();

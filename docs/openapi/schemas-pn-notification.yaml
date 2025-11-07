@@ -25,7 +25,7 @@ components:
       type: string
       x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
       minLength: 1
-#      maxLength: 44                     # ONLY EXTERNAL
+#      maxLength: 88                     # ONLY EXTERNAL
       pattern: ^.*$
 
 
@@ -95,11 +95,11 @@ components:
 
 
 
-    SentNotificationV23:
+    SentNotificationV25:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata
       allOf:
-        - $ref: '#/components/schemas/NewNotificationRequestV23'
+        - $ref: '#/components/schemas/NewNotificationRequestV25'
         - type: object
           required:
             - iun
@@ -107,10 +107,7 @@ components:
           properties:
             senderPaId:
               type: string
-              description: >-
-                Identificativo (non IPA) della PA mittente che ha eseguito
-                l'onboarding su SelfCare. La risoluzione di questo è ottenibile da
-                /ext-registry/pa/v1/activated-on-pn
+              description: Identificativo (non IPA) della PA mittente che ha eseguito l'onboarding su SelfCare.
               # wide range of characters
               pattern: ^.*$
               maxLength: 256
@@ -128,8 +125,10 @@ components:
             version:                                                    # NO EXTERNAL
               type: string                                              # NO EXTERNAL
               description: Indica la versione della notifica            # NO EXTERNAL
+            usedServices:
+                $ref: '#/components/schemas/UsedServices'
 
-    NewNotificationRequestV23:
+    NewNotificationRequestV25:
       description: I campi utilizzati per la creazione di una nuova Notifica.
       type: object
       required:
@@ -177,7 +176,7 @@ components:
           type: array
           description: Informazioni sui destinatari
           items:
-            $ref: "#/components/schemas/NotificationRecipientV23"
+            $ref: "#/components/schemas/NotificationRecipientV24"
           minItems: 1
         documents:
           type: array
@@ -238,20 +237,39 @@ components:
             - NONE
             - SYNC
             - ASYNC
-
+        additionalLanguages:
+          description: >-
+            In questo campo è possibile definire la lingua addizionale (oltre a quella italiana) da utilizzare per la generazione documenti, atti opponibili a terzi ecc.<br/>
+            Le lingue accettate e dunque i valori possibili degli item dell'array sono: <br/>
+            - DE <br/>
+            - SI <br/>
+            - FR <br/>
+            DE (tedesco), SI (sloveno), FR (francese)
+            Attualmente è possibile indicare un solo item e dunque una sola lingua aggiuntiva. Se non vengono indicate lingue aggiuntive la lingua utilizzata per generare <br/>
+            documenti, atti opponibili a terzi ecc. sarà quella italiana.
+          type: array
+          items:
+            type: string
+            maxItems: 1
+    UsedServices:
+      description: >-
+        Servizi utilizzati per la creazione della notifica
+      type: object
+      properties:
+        physicalAddressLookup:
+          type: boolean
 
     ############################################################################################
     ###                                ELEMENTI DI DETTAGLIO                                 ###
     ############################################################################################
 
 
-    NotificationRecipientV23:
+    NotificationRecipientV24:
       description: Informazioni sui destinatari
       required:
         - denomination
         - recipientType
         - taxId
-        - physicalAddress
       type: object
       additionalProperties: false
       properties:
@@ -514,7 +532,7 @@ components:
           description: Campo "presso" dell'indirizzo
           # wide range of characters
           pattern: ^.*$
-          maxLength: 256
+#          maxLength: 44                                        # ONLY EXTERNAL
         address:
           type: string
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
@@ -616,7 +634,7 @@ components:
           type: string
           description: Oggetto della notifica
         notificationStatus:
-          $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
+          $ref: './remote-refs.yaml#/components/schemas/NotificationStatusV26'
         recipients:
           description: >-
             Elenco delle denominazioni dei destinatari della notifica. <br/>
@@ -629,9 +647,10 @@ components:
           description: Data accettazione notifica
           type: string
           format: date-time
+          deprecated: true
         group:
           type: string
-          description: Gruppo di utenti che può visualizzare la notifica
+          description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
           # ASCII printable characters
           pattern: ^[ -~]*$
           maxLength: 1024

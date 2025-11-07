@@ -13,35 +13,28 @@
         {
             "intendedUsage": "B2B",
             "commonFiles": [
-                "schemas-pn-notification.yaml"
+                "schemas-pn-notification.yaml",
+                "schemas-pn-notification-older-version.yaml"
             ],
             "openapiFiles": [
                 "api-internal-b2b-pa.yaml",
                 "api-internal-b2b-pa-older-versions.yaml",
-                { "url": "https://raw.githubusercontent.com/pagopa/pn-delivery-push/e737a389c18b9e1b728699e74d7b1b42fb4add60/docs/openapi/api-external-pn-delivery-push-bundle.yaml", "mergeDescription": false },
-                { "url": "https://raw.githubusercontent.com/pagopa/pn-delivery-push/e737a389c18b9e1b728699e74d7b1b42fb4add60/docs/openapi/api-external-b2b-webhook-bundle.yaml", "mergeDescription": true }
+                { "url": "https://raw.githubusercontent.com/pagopa/pn-delivery-push/cb915f62157ae160b59dd964b2c975edd453c985/docs/openapi/api-external-pn-delivery-push-bundle.yaml", "mergeDescription": false },
+                { "url": "https://raw.githubusercontent.com/pagopa/pn-stream/8eced2f4e8f4b14b3818ca63c0bf82e5495fd078/docs/openapi/pn-stream-api-external-bundle.yaml", "mergeDescription": true }
             ],
             "servicePath": "delivery",
             "generateBundle": true,
             "mergeBeforeBundleGeneration": true
         },
         {
-            "intendedUsage": "WEB",
-            "openapiFiles": [
-                "api-internal-b2b-pa.yaml",
-                "api-internal-web-pa.yaml",
-                "api-internal-web-recipient.yaml"
-            ],
-            "servicePath": "delivery"
-        },
-        {
             "intendedUsage": "B2BPG",
             "commonFiles": [
-                "schemas-pn-notification.yaml"
+                "schemas-pn-notification.yaml",
+                "schemas-pn-notification-older-version.yaml"
             ],
             "openapiFiles": [
                 "pn-delivery-b2b-pg-internal.yaml",
-                { "url": "https://raw.githubusercontent.com/pagopa/pn-delivery-push/b30dff5b8dcb02e4a28e80be983d0ffd2c73d1aa/docs/openapi/api-external-pn-delivery-push-b2b-pg-bundle.yaml", "mergeDescription": false }
+                { "url": "https://raw.githubusercontent.com/pagopa/pn-delivery-push/cb915f62157ae160b59dd964b2c975edd453c985/docs/openapi/api-external-pn-delivery-push-b2b-pg-bundle.yaml", "mergeDescription": false }
             ],
             "servicePath": "delivery",
             "generateBundle": true,
@@ -52,5 +45,6 @@
         "api-external-b2b-pa-bundle.yaml",
         "pn-delivery-b2b-pg-external-bundle.yaml"
     ],
-    "bundlePatch": "api-external-b2b-bundle_yaml.patch"
+    "bundlePatch": "openapi.patch"
+
 }

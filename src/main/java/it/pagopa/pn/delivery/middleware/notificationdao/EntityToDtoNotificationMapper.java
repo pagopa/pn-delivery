@@ -1,11 +1,13 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV23;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV25;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV23;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV24;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.UsedServices;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.NotificationLang;
 import it.pagopa.pn.delivery.models.internal.notification.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -13,6 +15,7 @@ import org.springframework.util.StringUtils;
 
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -20,6 +23,7 @@ import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_COD
 
 @Component
 public class EntityToDtoNotificationMapper {
+    private static final String IT_LANGUAGE = "IT";
 
     public InternalNotification entity2Dto(NotificationEntity entity) {
         if (entity.getPhysicalCommunicationType() == null) {
@@ -57,10 +61,28 @@ public class EntityToDtoNotificationMapper {
                 .paFee(entity.getPaFee())
                 .vat(entity.getVat())
                 .sourceChannelDetails(entity.getSourceChannelDetails())
-                .pagoPaIntMode(entity.getPagoPaIntMode() != null ? NewNotificationRequestV23.PagoPaIntModeEnum.fromValue(entity.getPagoPaIntMode()) : null)
-                .version(entity.getVersion());
+                .pagoPaIntMode(entity.getPagoPaIntMode() != null ? NewNotificationRequestV25.PagoPaIntModeEnum.fromValue(entity.getPagoPaIntMode()) : null)
+                .version(entity.getVersion())
+                .additionalLanguages(removeITLanguageFromDto(entity.getLanguages()))
+                .usedServices(entity.getUsedServices() != null ? getUsedServicesDto(entity.getUsedServices()) : null);
 
         return builder.build();
+    }
+
+    private InternalUsedService getUsedServicesDto(UsedServicesEntity usedServices) {
+        return InternalUsedService.builder()
+                .physicalAddressLookup(usedServices.getPhysicalAddressLookup())
+                .build();
+    }
+
+    private List<String> removeITLanguageFromDto(List<NotificationLang> languages) {
+        if(!CollectionUtils.isEmpty(languages)) {
+            return languages.stream()
+                    .map(NotificationLang::getLang)
+                    .filter(language -> !IT_LANGUAGE.equalsIgnoreCase(language))
+                    .toList();
+        }
+        return Collections.emptyList();
     }
 
     private List<NotificationRecipient> entity2RecipientsDto(List<NotificationRecipientEntity> recipients) {
@@ -72,7 +94,7 @@ public class EntityToDtoNotificationMapper {
     private NotificationRecipient entity2Recipient(NotificationRecipientEntity entity) {
         return NotificationRecipient.builder()
                 .internalId(entity.getRecipientId())
-                .recipientType(NotificationRecipientV23.RecipientTypeEnum.valueOf(entity.getRecipientType().getValue()))
+                .recipientType(NotificationRecipientV24.RecipientTypeEnum.valueOf(entity.getRecipientType().getValue()))
                 .payments(entity2PaymentInfo(entity.getPayments()))
                 .build();
     }

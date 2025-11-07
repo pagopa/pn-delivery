@@ -172,6 +172,8 @@ public class NotificationAttachmentService {
                 .cxType(internalAuthHeader.cxType())
                 .cxId(internalAuthHeader.xPagopaPnCxId())
                 .uid(internalAuthHeader.xPagopaPnUid())
+                .cxSourceChannel(internalAuthHeader.xPagopaPnSrcCh())
+                .cxSourceChannelDetails(internalAuthHeader.xPagopaPnSrcChDetails())
                 .mandateId(mandateId)
                 .iun(iun)
                 .documentIndex(documentIdx)
@@ -207,6 +209,8 @@ public class NotificationAttachmentService {
                 .cxType(internalAuthHeader.cxType())
                 .cxId(internalAuthHeader.xPagopaPnCxId())
                 .uid(internalAuthHeader.xPagopaPnUid())
+                .cxSourceChannel(internalAuthHeader.xPagopaPnSrcCh())
+                .cxSourceChannelDetails(internalAuthHeader.xPagopaPnSrcChDetails())
                 .mandateId(mandateId)
                 .iun(iun)
                 .documentIndex(null)
@@ -222,6 +226,8 @@ public class NotificationAttachmentService {
         String cxType = inputDownloadDto.getCxType();
         String cxId = inputDownloadDto.getCxId();
         String uid = inputDownloadDto.getUid();
+        String cxSourceChannel = inputDownloadDto.getCxSourceChannel();
+        String cxSourceChannelDetails = inputDownloadDto.getCxSourceChannelDetails();
         String mandateId = inputDownloadDto.getMandateId();
         String iun = inputDownloadDto.getIun();
         Integer recipientIdx = inputDownloadDto.getRecipientIdx();
@@ -265,7 +271,7 @@ public class NotificationAttachmentService {
                             .operatorUuid(uid)
                             .build();
                 }
-                notificationViewedProducer.sendNotificationViewed(iun, Instant.now(), authorizationOutcome.getEffectiveRecipientIdx(), delegateInfo);
+                notificationViewedProducer.sendNotificationViewed(iun, Instant.now(), authorizationOutcome.getEffectiveRecipientIdx(), delegateInfo, cxSourceChannel, cxSourceChannelDetails);
             }
 
             return InternalAttachmentWithFileKey.of(NotificationAttachmentDownloadMetadataResponse.builder()

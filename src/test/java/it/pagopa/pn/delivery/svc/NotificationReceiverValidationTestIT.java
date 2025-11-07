@@ -23,8 +23,6 @@ import java.util.Set;
 })
 class NotificationReceiverValidationTestIT {
 
-    private static final String IUN = "FAKE-FAKE-FAKE-202209-F-1";
-    private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
     private static final String INVALID_TAX_ID_NOT_IN_WHITE_LIST = "ASDASDASD";
     private static final String INVALID_TAX_ID_IN_WHITE_LIST = "EEEEEE00E00E000A";
 
@@ -37,9 +35,9 @@ class NotificationReceiverValidationTestIT {
     @Test
     void taxIdNotInWhiteListInvalidCF() {
 
-        NewNotificationRequestV23 notificationRequest = newNotification( INVALID_TAX_ID_NOT_IN_WHITE_LIST );
+        NewNotificationRequestV25 notificationRequest = newNotification( INVALID_TAX_ID_NOT_IN_WHITE_LIST );
 
-        Set<ConstraintViolation<NewNotificationRequestV23>> constraintViolations = validator.checkNewNotificationRequestBeforeInsert(notificationRequest);
+        Set<ConstraintViolation<NewNotificationRequestV25>> constraintViolations = validator.checkNewNotificationRequestBeforeInsert(notificationRequest, notificationRequest.getSenderTaxId());
 
         assertConstraintViolationPresentByMessage(constraintViolations, "Invalid taxId for recipient 0", 1);
     }
@@ -47,9 +45,9 @@ class NotificationReceiverValidationTestIT {
     @Test
     void taxIdInWhiteListInvalidCF() {
 
-        NewNotificationRequestV23 notificationRequest = newNotification( INVALID_TAX_ID_IN_WHITE_LIST );
+        NewNotificationRequestV25 notificationRequest = newNotification( INVALID_TAX_ID_IN_WHITE_LIST );
 
-        Set<ConstraintViolation<NewNotificationRequestV23>> constraintViolations = validator.checkNewNotificationRequestBeforeInsert(notificationRequest);
+        Set<ConstraintViolation<NewNotificationRequestV25>> constraintViolations = validator.checkNewNotificationRequestBeforeInsert(notificationRequest, notificationRequest.getSenderTaxId());
 
         assertConstraintViolationPresentByMessage(constraintViolations, "Invalid taxId for recipient 0", 0);
 
@@ -58,21 +56,22 @@ class NotificationReceiverValidationTestIT {
     @Test
     void taxIdNotInWhiteListMultipleInvalidCF() {
 
-        NewNotificationRequestV23 notificationRequest = newNotification( INVALID_TAX_ID_IN_WHITE_LIST );
-        notificationRequest.addRecipientsItem( NotificationRecipientV23.builder()
+        NewNotificationRequestV25 notificationRequest = newNotification( INVALID_TAX_ID_IN_WHITE_LIST );
+        notificationRequest.addRecipientsItem( NotificationRecipientV24.builder()
                         .taxId( INVALID_TAX_ID_NOT_IN_WHITE_LIST )
-                        .recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
+                        .recipientType(NotificationRecipientV24.RecipientTypeEnum.PF)
+                        .physicalAddress(NotificationPhysicalAddress.builder().build())
                 .build() );
 
-        Set<ConstraintViolation<NewNotificationRequestV23>> constraintViolations = validator.checkNewNotificationRequestBeforeInsert(notificationRequest);
+        Set<ConstraintViolation<NewNotificationRequestV25>> constraintViolations = validator.checkNewNotificationRequestBeforeInsert(notificationRequest, notificationRequest.getSenderTaxId());
 
         assertConstraintViolationPresentByMessage(constraintViolations, "Invalid taxId for recipient 1", 1);
     }
 
-    private NewNotificationRequestV23 newNotification( String recipientTaxId ) {
-        List<NotificationRecipientV23> recipients = new ArrayList<>();
+    private NewNotificationRequestV25 newNotification( String recipientTaxId ) {
+        List<NotificationRecipientV24> recipients = new ArrayList<>();
         recipients.add(
-                NotificationRecipientV23.builder().recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
+                NotificationRecipientV24.builder().recipientType(NotificationRecipientV24.RecipientTypeEnum.PF)
                         .taxId( recipientTaxId ).denomination("Nome Cognome / Ragione Sociale")
                         .digitalDomicile(NotificationDigitalAddress.builder()
                                 .type(NotificationDigitalAddress.TypeEnum.PEC).address("account@domain.it").build())
@@ -80,7 +79,7 @@ class NotificationReceiverValidationTestIT {
                                 .province("province").municipality("municipality").at("at").build())
                         .payments(new ArrayList<>())
                         .build());
-        return NewNotificationRequestV23.builder().senderDenomination("Sender Denomination")
+        return NewNotificationRequestV25.builder().senderDenomination("Sender Denomination")
                 .notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject")
                 .senderTaxId("paId").recipients(recipients).build();

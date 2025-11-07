@@ -46,10 +46,15 @@ exports.findRequestVersion = function(event) {
     }
 
     // a partire dalla versione piú recente sul ms riportare alla v2.3
-    // NB: sebbene (a oggi) la 2.3 non passa di qua, in futuro potrebbe e quindi si è già implementata
-    // la logica di traduzione (che probabilmente andrà aggiornata nel futuro)
     if (event["path"].startsWith("/delivery/v2.3/")) {
         version = 23;
     }
+
+    // NB: sebbene (a oggi) la 2.4 non passa di qua, in futuro potrebbe e quindi si è già implementata
+    // la logica di traduzione (che probabilmente andrà aggiornata nel futuro)
+    if (event["path"].startsWith("/delivery/v2.4/")) {
+        version = 24;
+    }
+
     return version;
 }

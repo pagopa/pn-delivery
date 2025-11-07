@@ -199,5 +199,72 @@ aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
                  }
              ]"
 
+aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
+    ssm put-parameter \
+    --name "MapTaxIdBlackList" \
+    --type String \
+    --value "[
+                 {
+                     \"taxId\": \"00000000000\"
+                 },
+                 {
+                     \"taxId\": \"PPPPLT80A01H501V\"
+                 }
+             ]"
+
+aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
+    dynamodb create-table \
+    --table-name PaNotificationLimit \
+    --attribute-definitions \
+        AttributeName=pk,AttributeType=S \
+        AttributeName=yearMonth,AttributeType=S \
+    --key-schema \
+        AttributeName=pk,KeyType=HASH \
+    --provisioned-throughput \
+        ReadCapacityUnits=10,WriteCapacityUnits=5 \
+    --global-secondary-indexes \
+    "[
+        {
+            \"IndexName\": \"yearMonth-index\",
+            \"KeySchema\": [{\"AttributeName\":\"yearMonth\",\"KeyType\":\"HASH\"}],
+            \"Projection\":{
+                \"ProjectionType\":\"ALL\"
+            },
+            \"ProvisionedThroughput\": {
+                \"ReadCapacityUnits\": 10,
+                \"WriteCapacityUnits\": 5
+            }
+        }
+    ]"
+
+aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
+    dynamodb create-table \
+    --table-name NotificationRefusedVerification \
+    --attribute-definitions \
+        AttributeName=pk,AttributeType=S \
+    --key-schema \
+        AttributeName=pk,KeyType=HASH \
+    --provisioned-throughput \
+        ReadCapacityUnits=10,WriteCapacityUnits=5
+
+aws --profile default --region us-east-1 --endpoint-url http://localstack:4566 \
+    sqs create-queue \
+    --attributes '{"DelaySeconds":"2"}' \
+    --queue-name "pn-notification_refused"
+
+aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
+    ssm put-parameter \
+    --name "PaActiveForPhysicalAddressLookup" \
+    --type String \
+    --value "[
+                 \"5b994d4a-0fa8-47ac-9c7b-354f1d44a1ce\"
+             ]"
+
+aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
+    ssm put-parameter \
+    --name "AARQrUrlConfigs" \
+    --type String \
+    --value "{\"0.9.0\": {\"directAccessUrlTemplatePhysical\": \"https://cittadini.dev.notifichedigitali.it/\",\"directAccessUrlTemplateLegal\": \"https://imprese.dev.notifichedigitali.it/\",\"quickAccessUrlAarDetailSuffix\": \"?aar\"},\"1.0.0\": {\"directAccessUrlTemplatePhysical\": \"https://cittadini.dev.notifichedigitali.it/io\",\"directAccessUrlTemplateLegal\": \"https://imprese.dev.notifichedigitali.it/\",\"quickAccessUrlAarDetailSuffix\": \"?aar\"}}"
+
 
 echo "Initialization terminated"
