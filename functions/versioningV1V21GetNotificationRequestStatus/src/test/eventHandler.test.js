@@ -251,6 +251,39 @@ describe("eventHandler tests", function () {
         expect(resJson.additionalLanguages).to.be.contain("DE")
     });
 
+    it("should return 200 for v2.4 - Request refused", async () => {
+            const notificationRequestStatusJSON = fs.readFileSync("./src/test/notificationRequestStatusV25.json");
+            let notificationRequestStatusV25 = JSON.parse(notificationRequestStatusJSON);
+
+            process.env = Object.assign(process.env, {
+                PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery/v2.5/",
+            });
+
+            let url = `${process.env.PN_DELIVERY_URL}/requests?`;
+            const params = new URLSearchParams({
+                notificationRequestId: 'validNotificationRequestId'
+            });
+
+            mock.onGet(url, { params: params }).reply(200, notificationRequestStatusV25, { "Content-Type": "application/json" });
+
+            const event = {
+                path: '/delivery/v2.4/requests',
+                httpMethod: "GET",
+                headers: {},
+                requestContext: {
+                    authorizer: {},
+                },
+                queryStringParameters: {
+                    notificationRequestId: 'validNotificationRequestId'
+                }
+            }
+
+            const res = await handleEvent(event)
+            let resJson = JSON.parse(res.body);
+
+            expect(resJson.errors[0].recIndex).to.be.undefined;
+        });
+
     it("should return 200 with paProtocolNumber and idempotenceToken", async () => {
         const notificationRequestStatusJSON = fs.readFileSync("./src/test/notificationRequestStatusV23.json");
         let notificationRequestStatusV21 = JSON.parse(notificationRequestStatusJSON);

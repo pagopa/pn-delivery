@@ -432,15 +432,15 @@ public class NotificationRetrieverService {
 		return getNotificationInformation(iun, withTimeline, requestBySender, null);
 	}
 
-	protected OffsetDateTime findRefinementDate(List<TimelineElementV26> timeline, String iun) {
+	protected OffsetDateTime findRefinementDate(List<TimelineElementV27> timeline, String iun) {
 		log.debug( "Find refinement date iun={}", iun );
 		OffsetDateTime refinementDate = null;
 		// cerco elemento timeline con category refinement o notificationView
-		Optional<TimelineElementV26> optionalMin = timeline
+		Optional<TimelineElementV27> optionalMin = timeline
 				.stream()
-				.filter(tle -> TimelineElementCategoryV26.REFINEMENT.equals(tle.getCategory() )
-						|| TimelineElementCategoryV26.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
-				.min( Comparator.comparing(TimelineElementV26::getTimestamp) );
+				.filter(tle -> TimelineElementCategoryV27.REFINEMENT.equals(tle.getCategory() )
+						|| TimelineElementCategoryV27.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
+				.min( Comparator.comparing(TimelineElementV27::getTimestamp) );
 		// se trovo la data di perfezionamento della notifica
 		if (optionalMin.isPresent()) {
 			refinementDate = refinementLocalDateUtils.setLocalRefinementDate(optionalMin.get());
@@ -503,7 +503,7 @@ public class NotificationRetrieverService {
 		InternalNotification notification = getNotificationInformation(iun);
 
 		if ( StringUtils.hasText( mandateId ) ) {
-			delegatorId = checkMandateForNotificationDetail(internalAuthHeader.xPagopaPnCxId(), mandateId, notification.getSenderPaId(), iun, internalAuthHeader.cxType(), internalAuthHeader.xPagopaPnCxGroups());
+			delegatorId = checkMandateForNotificationDetail(internalAuthHeader.xPagopaPnCxId(), mandateId, notification.getSenderPaId(), iun, internalAuthHeader.cxType(), internalAuthHeader.xPagopaPnCxGroups(), notification.getSentAt());
 			delegateInfo = NotificationViewDelegateInfo.builder()
 					.mandateId( mandateId )
 					.internalId(internalAuthHeader.xPagopaPnCxId())
@@ -527,10 +527,10 @@ public class NotificationRetrieverService {
 		if (!CxType.PA.name().equals(internalAuthHeader.cxType())) {
 			//se il servizio è invocato da un destinatario, devo filtrare la timeline solo per lo specifico destinatario (o suo delegato)
 			//filtro (cyType != PA) superfluo poiché attualmente il servizio è invocato solo lato destinatario
-			List<TimelineElementV26> timeline = internalNotification.getTimeline();
+			List<TimelineElementV27> timeline = internalNotification.getTimeline();
 			log.debug("Timelines size before filter: {}", timeline.size());
 
-			List<TimelineElementV26> filteredTimelineElements = timeline.stream().filter(timelineElement -> timelineElement.getDetails() == null ||
+			List<TimelineElementV27> filteredTimelineElements = timeline.stream().filter(timelineElement -> timelineElement.getDetails() == null ||
 							timelineElement.getDetails().getRecIndex() == null ||
 							timelineElement.getDetails().getRecIndex() == recipientIndex)
 					.toList();
@@ -562,44 +562,20 @@ public class NotificationRetrieverService {
 		}
 	}
 
-	private String checkMandateForNotificationDetail(String userId, String mandateId, String paId, String iun, String recipientType, List<String> cxGroups) {
+	private String checkMandateForNotificationDetail(String userId, String mandateId, String paId, String iun, String recipientType, List<String> cxGroups, OffsetDateTime notificationSentAt) {
 		CxTypeAuthFleet cxTypeAuthFleet = StringUtils.hasText(recipientType) ? CxTypeAuthFleet.valueOf(recipientType) : null;
-		List<InternalMandateDto> mandates = pnMandateClient.listMandatesByDelegate(userId, mandateId, cxTypeAuthFleet, cxGroups);
 		String rootSenderId = pnExternalRegistriesClient.getRootSenderId(paId);
+		List<InternalMandateDto> mandates = pnMandateClient.listMandatesByDelegateV2(userId, mandateId, cxTypeAuthFleet, cxGroups, notificationSentAt, iun, rootSenderId);
+
 		if(!mandates.isEmpty()) {
-
-			for ( InternalMandateDto mandate : mandates ) {
-				String delegatorId = evaluateMandateAndRetrieveDelegatorId(userId, mandateId, rootSenderId, iun, mandate);
-				if (delegatorId != null)
-					return delegatorId;
-			}
-		}
-
-		String message = String.format("Unable to find any mandate for notification detail for delegate=%s with mandateId=%s iun=%s", userId, mandateId, iun);
-		handlePnMandateInvalid(message);
-		return null;
-	}
-
-	private String evaluateMandateAndRetrieveDelegatorId(String userId, String mandateId, String rootSenderId, String iun, InternalMandateDto mandate){
-		if (mandate.getDelegator() != null && mandate.getMandateId() != null && mandate.getMandateId().equals(mandateId)) {
-
-			if( !CollectionUtils.isEmpty(mandate.getVisibilityIds()) ) {
-				boolean isPaIdInVisibilityPa = mandate.getVisibilityIds().stream().anyMatch(
-						rootSenderId::equals
-				);
-
-				if( !isPaIdInVisibilityPa ){
-					String message = String.format("Unable to find valid mandate for notification detail, paNotificationId=%s is not in visibility pa id for mandate" +
-							"- iun=%s delegate=%s with mandateId=%s", rootSenderId, iun, userId, mandateId);
-					log.warn(message);
-					return null;
-				}
-			}
-
+			// Considerando che abbiamo fornito il filtro sul mandateId, dovrebbe esserci al massimo una delega valida.
+			InternalMandateDto mandate = mandates.get(0);
 			log.info( "Valid mandate for notification detail for delegate={}", userId );
 			return mandate.getDelegator();
 		}
 
+		String message = String.format("Unable to find any mandate for notification detail for delegate=%s with mandateId=%s iun=%s", userId, mandateId, iun);
+		handlePnMandateInvalid(message);
 		return null;
 	}
 
@@ -677,7 +653,7 @@ public class NotificationRetrieverService {
 		assert timelineStatusHistoryDto.getNotificationStatus() != null;
 		return notification
 				.timeline( timelineList.stream()
-						.map( timelineElement -> modelMapper.map(timelineElement, TimelineElementV26.class ) )
+						.map( timelineElement -> modelMapper.map(timelineElement, TimelineElementV27.class ) )
 						.toList()  )
 				.notificationStatusHistory( statusHistory.stream()
 						.map( el -> modelMapper.map( el, NotificationStatusHistoryElementV26.class ))
@@ -760,8 +736,8 @@ public class NotificationRetrieverService {
 	}
 
 	public boolean isNotificationCancelled(InternalNotification notification) {
-		var cancellationRequestCategory = TimelineElementCategoryV26.NOTIFICATION_CANCELLATION_REQUEST;
-		Optional<TimelineElementV26> cancellationRequestTimeline = notification.getTimeline().stream()
+		var cancellationRequestCategory = TimelineElementCategoryV27.NOTIFICATION_CANCELLATION_REQUEST;
+		Optional<TimelineElementV27> cancellationRequestTimeline = notification.getTimeline().stream()
 				.filter(timelineElement -> cancellationRequestCategory.toString().equals(timelineElement.getCategory().toString()))
 				.findFirst();
 		boolean cancellationTimelineIsPresent = cancellationRequestTimeline.isPresent();
@@ -776,7 +752,7 @@ public class NotificationRetrieverService {
 
 		if(StringUtils.hasText(mandateId)) {
 			// Se è presente il mandateId, il campo recipientInternalId è valorizzato con l'id del delegato
-			checkMandateForNotificationDetail(recipientInternalId, mandateId, internalNotification.getSenderPaId(), iun, cxType, cxGroups);
+			checkMandateForNotificationDetail(recipientInternalId, mandateId, internalNotification.getSenderPaId(), iun, cxType, cxGroups, internalNotification.getSentAt());
 		} else {
 			boolean isRecipientOfNotification = internalNotification.getRecipientIds().stream()
 					.anyMatch(recId -> recId.equalsIgnoreCase(recipientInternalId));

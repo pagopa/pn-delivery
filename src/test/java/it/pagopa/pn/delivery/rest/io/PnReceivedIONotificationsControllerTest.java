@@ -1,7 +1,9 @@
 package it.pagopa.pn.delivery.rest.io;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
+import it.pagopa.pn.delivery.exception.*;
+import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.RequestCheckQrMandateDto;
+import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ResponseCheckQrMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyMessage;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
@@ -9,8 +11,10 @@ import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.*;
 import it.pagopa.pn.delivery.models.internal.notification.F24Payment;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
 import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
+import it.pagopa.pn.delivery.svc.NotificationQRService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.io.IOMapper;
 import org.junit.jupiter.api.Test;
@@ -22,6 +26,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,12 +41,16 @@ class PnReceivedIONotificationsControllerTest {
     private static final String PA_ID = "PA_ID";
     private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
     private static final String X_PAGOPA_PN_SRC_CH_DET = "sourceChannelDetails";
+    private static final String MANDATE_ID = "3766e7f2-70b2-4264-8ca8-4548fe728b0d";
 
     @Autowired
     WebTestClient webTestClient;
 
     @MockBean
     private NotificationRetrieverService svc;
+
+    @MockBean
+    private NotificationQRService notificationQRService;
 
     @SpyBean
     private IOMapper ioMapper;
@@ -99,16 +108,114 @@ class PnReceivedIONotificationsControllerTest {
                 .header("x-pagopa-pn-src-ch-details", X_PAGOPA_PN_SRC_CH_DET)
                 .exchange()
                 .expectStatus()
-                .isNotFound();
+                .isBadRequest();
+    }
+
+    @Test
+    void getReceivedNotificationWithMandateFailsForRootId() {
+
+        // When
+        Mockito.when(svc.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(MANDATE_ID)))
+                .thenThrow(new PnRootIdNonFountException("test"));
+
+        // Then
+        webTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/delivery/notifications/received/" + IUN)
+                        .queryParam("mandateId", MANDATE_ID)
+                        .build())
+                .header(HttpHeaders.ACCEPT, "application/io+json")
+                .header("x-pagopa-pn-cx-id", "IO-" +USER_ID )
+                .header("x-pagopa-pn-cx-type", "PF" )
+                .header("x-pagopa-pn-uid", USER_ID )
+                .header("x-pagopa-pn-src-ch", X_PAGOPA_PN_SRC_CH)
+                .header("x-pagopa-pn-src-ch-details", X_PAGOPA_PN_SRC_CH_DET)
+                .exchange()
+                .expectStatus()
+                .isBadRequest();
+    }
+
+    @Test
+    void getReceivedNotificationWithMandateFailsForMandate() {
+
+        // When
+        Mockito.when(svc.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(MANDATE_ID)))
+                .thenThrow(new PnMandateNotFoundException("test"));
+
+        // Then
+        webTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/delivery/notifications/received/" + IUN)
+                        .queryParam("mandateId", MANDATE_ID)
+                        .build())
+                .header(HttpHeaders.ACCEPT, "application/io+json")
+                .header("x-pagopa-pn-cx-id", "IO-" +USER_ID )
+                .header("x-pagopa-pn-cx-type", "PF" )
+                .header("x-pagopa-pn-uid", USER_ID )
+                .header("x-pagopa-pn-src-ch", X_PAGOPA_PN_SRC_CH)
+                .header("x-pagopa-pn-src-ch-details", X_PAGOPA_PN_SRC_CH_DET)
+                .attribute("mandateId", "MANDATE_ID")
+                .exchange()
+                .expectStatus()
+                .isBadRequest();
+    }
+
+
+    @Test
+    void checkAarQrCodeIOSuccess() {
+        // Given
+        RequestCheckQrMandateDto requestCheckQrMandateDto = new RequestCheckQrMandateDto();
+        requestCheckQrMandateDto.setAarQrCodeValue("aarQrCodeValue");
+        ResponseCheckQrMandateDto responseCheckQrMandateDto = new ResponseCheckQrMandateDto();
+        responseCheckQrMandateDto.setIun(IUN);
+
+        // When
+        Mockito.when(notificationQRService.getNotificationByQRFromIOWithMandate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(responseCheckQrMandateDto);
+
+        // Then
+        webTestClient.post()
+                .uri("/delivery/notifications/received/check-qr-code")
+                .header("x-pagopa-pn-cx-id", "IO-" +USER_ID )
+                .header("x-pagopa-cx-taxid", "FAKE_TAX_ID")
+                .header("x-pagopa-pn-cx-type", "PF" )
+                .body(Mono.just(requestCheckQrMandateDto), RequestCheckQrMandateDto.class)
+                .exchange()
+                .expectStatus()
+                .is2xxSuccessful();
+    }
+
+    @Test
+    void checkAarQrCodeIOFailsForMandateNotFound() {
+        // Given
+        RequestCheckQrMandateDto requestCheckQrMandateDto = new RequestCheckQrMandateDto();
+        requestCheckQrMandateDto.setAarQrCodeValue("aarQrCodeValue");
+        ResponseCheckQrMandateDto responseCheckQrMandateDto = new ResponseCheckQrMandateDto();
+        responseCheckQrMandateDto.setIun(IUN);
+
+        // When
+        Mockito.when(notificationQRService.getNotificationByQRFromIOWithMandate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenThrow(new PnIoMandateNotFoundException(responseCheckQrMandateDto));
+
+        // Then
+        webTestClient.post()
+                .uri("/delivery/notifications/received/check-qr-code")
+                .header("x-pagopa-pn-cx-id", "IO-" +USER_ID )
+                .header("x-pagopa-cx-taxid", "FAKE_TAX_ID")
+                .header("x-pagopa-pn-cx-type", "PF" )
+                .body(Mono.just(requestCheckQrMandateDto), RequestCheckQrMandateDto.class)
+                .exchange()
+                .expectStatus()
+                .isForbidden();
     }
 
     private InternalNotification newNotification() {
-        TimelineElementV26 timelineElement = new TimelineElementV26();
-        timelineElement.setCategory(TimelineElementCategoryV26.AAR_CREATION_REQUEST);
+        TimelineElementV27 timelineElement = new TimelineElementV27();
+        timelineElement.setCategory(TimelineElementCategoryV27.AAR_CREATION_REQUEST);
         InternalNotification internalNotification = new InternalNotification();
         internalNotification.setNotificationStatusHistory(List.of(NotificationStatusHistoryElementV26.builder()
                 .status(NotificationStatusV26.ACCEPTED).build()));
-        internalNotification.setPagoPaIntMode(NewNotificationRequestV24.PagoPaIntModeEnum.NONE);
+        internalNotification.setPagoPaIntMode(NewNotificationRequestV25.PagoPaIntModeEnum.NONE);
         internalNotification.setTimeline(List.of(timelineElement));
         internalNotification.setIun("iun");
         internalNotification.setPaProtocolNumber("protocol_01");
@@ -121,15 +228,23 @@ class PnReceivedIONotificationsControllerTest {
         internalNotification.setDocuments(List.of(NotificationDocument.builder()
                 .title("title")
                 .contentType("application/pdf")
+                .ref(NotificationAttachmentBodyRef.builder()
+                        .key("ssKey")
+                        .versionToken("versionToken").build())
                 .docIdx("docIdx").build()));
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()
                         .taxId("Codice Fiscale 01")
-                        .recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
+                        .recipientType(NotificationRecipientV24.RecipientTypeEnum.PF)
                         .denomination("Nome Cognome/Ragione Sociale")
                         .internalId( "recipientInternalId" )
                         .payments(List.of(NotificationPaymentInfo.builder()
-                                        .f24(F24Payment.builder().build())
+                                        .f24(F24Payment.builder()
+                                                .metadataAttachment(MetadataAttachment.builder()
+                                                        .ref(NotificationAttachmentBodyRef.builder()
+                                                                .key("ssKey").build())
+                                                        .build())
+                                                .build())
                                 .pagoPa(PagoPaPayment.builder().build()).build()))
                         .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
                                 .type( NotificationDigitalAddress.TypeEnum.PEC )

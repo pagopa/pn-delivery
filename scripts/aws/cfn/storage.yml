@@ -351,6 +351,21 @@ Resources:
         HasDLQ: "false"
         QueueHasAlarm: "true"
 
+  PnDeliveryLimitConfigurerQueue:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
+      Parameters:
+        QueueName: !Sub '${ProjectName}-delivery_limit_configurer'
+        DelaySeconds: 1
+        VisibilityTimeout: 60
+        MaxReceiveCount: 10
+        QueueHasAlarm: "true"
+        HasDLQ: "true"
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName
+
   PnDeliveryLogGroup:
     Type: AWS::CloudFormation::Stack
     UpdateReplacePolicy: Retain
@@ -427,7 +442,18 @@ Resources:
         LogGroupName: !Sub "${ProjectName}-delivery-versioning-v1v23-getnotificationprice-lambda"
         LogGroupRetention: !Ref LogRetention
         LogGroupPrefix: '/aws/lambda'
-
+  
+  ConsentAccepterLambdaLogGroup:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub "${ProjectName}-consent-accepter"
+        LogGroupRetention: !Ref LogRetention
+        LogGroupPrefix: '/aws/lambda'
+    
   MetadataStatusUpdaterLambdaLogGroup:
     Type: AWS::CloudFormation::Stack
     UpdateReplacePolicy: Retain
@@ -610,6 +636,22 @@ Outputs:
     Value: !GetAtt PnNotificationRefusedDispatcherDLQ.Outputs.SqsDLQAlarmArn
     Description: notification_refused_dispatcher-DLQ alarm ARN
 
+  PnDeliveryLimitConfigurerQueueName:
+    Value: !GetAtt PnDeliveryLimitConfigurerQueue.Outputs.QueueName
+    Description: PnDeliveryLimitConfigurerQueue queue name
+  PnDeliveryLimitConfigurerQueueURL:
+    Value: !GetAtt PnDeliveryLimitConfigurerQueue.Outputs.QueueURL
+    Description: PnDeliveryLimitConfigurerQueue queue URL
+  PnDeliveryLimitConfigurerQueueARN:
+    Value: !GetAtt PnDeliveryLimitConfigurerQueue.Outputs.QueueARN
+    Description: PnDeliveryLimitConfigurerQueue queue ARN
+  PnDeliveryLimitConfigurerQueueAlarmARN:
+    Value: !GetAtt PnDeliveryLimitConfigurerQueue.Outputs.SqsDLQAlarmArn
+    Description: PnDeliveryLimitConfigurerQueue queue alarm ARN
+  PnDeliveryLimitConfigurerQueueAgeAlarmARN:
+    Value: !GetAtt PnDeliveryLimitConfigurerQueue.Outputs.SqsAgeAlarmArn
+    Description: PnDeliveryLimitConfigurerQueue queue age alarm ARN
+
   # Log group exports
   EcsLogGroup:
     Value: !GetAtt PnDeliveryLogGroup.Outputs.LogGroupName
@@ -617,6 +659,9 @@ Outputs:
     Value: !Sub "${ProjectName}-delivery-asseveration-lambda"
   PnDeliveryInsertTriggerLambdaName:
     Value: !Sub "${ProjectName}-delivery-insert-trigger-eb-lambda"
+  
+  ConsentAccepterLambdaName:
+    Value: !Sub "${ProjectName}-consent-accepter"
 
   VersioningV1V2GetNotificationLambdaName:
     Value: !Sub "${ProjectName}-delivery-versioning-v1v2-getnotification-lambda"

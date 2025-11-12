@@ -178,9 +178,22 @@ Parameters:
     Type: String
     Description: "enable lollipop consumer logging"
 
+  LollipopExpectedLcOriginalMethod:
+    Type: String
+    Description: "expected lollipop consumer original method (list separated by ;)"
+
+  LollipopWhiteList:
+    Type: String
+    Description: "Comma separated list of whitelisted CNs for Lollipop requests"
+    Default: ""
+
   MaxAttachmentsCount:
     Type: String
     Description: "Max number of attachments allowed for a notification"
+
+  SearchTimeoutSeconds:
+    Type: String
+    Description: "Max time in second for search notification"
 
   MaxRecipientsCount:
     Type: String
@@ -666,6 +679,36 @@ Parameters:
     Default: '0 12 * * ? *'
     Description: Cron to schedule the Lambda PaLimitCorrection (UTC). Default is every day at 12:00
 
+  PnDeliveryLimitConfigurerQueueARN:
+    Type: String
+    Description: 'PnDeliveryLimitConfigurer queue ARN'
+
+  PnDeliveryLimitConfigurerQueueURL:
+    Type: String
+    Description: 'PnDeliveryLimitConfigurer queue URL'
+
+  PhysicalAddressLookupStartDate:
+    Type: String
+    Description: "Activation date time for physical address lookup feature"
+  
+  ConsentAccepterLambdaName:
+    Type: String
+    Description: 'ConsentAccepterLambdaName'
+  
+  ConsentAccepterLambdaProvisionedConcurrency:
+    Type: Number
+    Description: "ConsentAccepterLambdaProvisionedConcurrency"
+    Default: 1
+  
+  ConsentsToAccept:
+    Type: String
+    Description: 'JSON which contains an array of objects representing consents to accept'
+
+  LatestNotificationVersion:
+    Type: String
+    Description: "latest notification version without v ex. 2.4"
+    AllowedPattern: '^\d\.\d$'
+
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
 
@@ -749,7 +792,11 @@ Resources:
         ContainerEnvEntry52: !Sub "PN_DELIVERY_PANOTIFICATIONLIMITDAO_TABLENAME=${PaNotificationLimitDynamoTableName}"
         ContainerEnvEntry53: !Sub "PN_DELIVERY_NOTIFICATIONREFUSEDVERIFICATIONDAO_TABLENAME=${NotificationRefusedVerificationDynamoTableName}"
         ContainerEnvEntry54: !Sub "SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${Mandate2DeliveryQueueName},${PnNotificationRefusedQueueName}"
-
+        ContainerEnvEntry55: !Sub "PN_DELIVERY_PHYSICALADDRESSLOOKUPSTARTDATE=${PhysicalAddressLookupStartDate}"
+        ContainerEnvEntry56: !Sub "PN_DELIVERY_SEARCHTIMEOUTSECONDS=${SearchTimeoutSeconds}"
+        ContainerEnvEntry57: !Sub "PN_DELIVERY_LATESTNOTIFICATIONVERSION=${LatestNotificationVersion}"
+        ContainerEnvEntry58: !Sub "LOLLIPOP_EXPECTED_LC_ORIGINAL_METHOD=${LollipopExpectedLcOriginalMethod}"
+        ContainerEnvEntry59: !Sub "LOLLIPOP_WHITE_LIST=${LollipopWhiteList}"
         ContainerSecret1: !Sub "ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:"
         MicroServiceSecretPrefix: pn-Delivery-Secrets
         JavaToolOptions: "-Dreactor.netty.ioWorkerCount=120 -XX:MaxMetaspaceSize=512M"
@@ -832,6 +879,8 @@ Resources:
               - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapTaxIdWhiteList"
               - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapTaxIdBlackList"
               - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapPaSendActive"
+              - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/PaActiveForPhysicalAddressLookup"
+              - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/AARQrUrlConfigs'
 
   # Expose PN-Delivery microservice public API with API-GW for B2B usage
   DeliveryMicroservicePublicAPI:
@@ -891,35 +940,6 @@ Resources:
         ExcludedRule0: CrossSiteScripting_BODY,SizeRestrictions_BODY
         Limit: !Ref B2bWafLimit
 
-  # Expose PN-Delivery microservice public API with API-GW for WEB usage
-  DeliveryMicroservicePublicWebAPI:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service-openapi.yaml"
-      Parameters:
-        MicroServiceUniqueName: !Sub "${ProjectName}-delivery"
-        IntendedUsage: WEB
-        DnsName: !Ref WebApiDnsName
-        ProjectName: !Ref ProjectName
-        ServiceApiPath: "delivery"
-        NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
-        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
-        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
-        OpenApiBucketName: !Ref MicroserviceBucketName
-        OpenApiBucketKey: !Sub ${MicroserviceBucketBaseKey}/docs/openapi/aws/api-delivery-WEB-aws.yaml
-
-  DeliveryMicroservicePublicWebApiWaf:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
-      Parameters:
-        WAFName: !Sub "${ProjectName}-delivery-web"
-        IntendedUsage: WEB
-        APIGatewayARNs: !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.APIGatewayARN
-        Limit: !Ref WebWafLimit
-        EnhancedWebSecurityEnabled: !Ref EnhancedWebSecurityEnabled
-
   # Expose PN-Delivery microservice public API with API-GW for IO Backend usage
   DeliveryMicroservicePublicIoAPI:
     Type: AWS::CloudFormation::Stack
@@ -974,28 +994,25 @@ Resources:
             - !GetAtt VersioningV1V21SendNewNotificationLambda.Arn
             - !GetAtt VersioningV1V21GetNotificationRequestStatusLambda.Arn
             - !GetAtt VersioningV1V23GetNotificationPriceLambda.Arn
+            - !GetAtt ConsentAccepterLambda.Arn
         RestApiStageArns: !Join
           - ","
           - - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiStageArn
             - !GetAtt DeliveryMicroserviceB2BPGAPI.Outputs.RestApiStageArn
-            - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiStageArn
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiStageArn
         RestApiNames: !Join
           - ","
           - - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiName
             - !GetAtt DeliveryMicroserviceB2BPGAPI.Outputs.RestApiName
-            - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiName
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiName
         AlarmArns: !Join
           - ","
           - - !GetAtt DeliveryMicroservice.Outputs.FatalLogsMetricAlarmArn
             - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiErrorAlarmArn
             - !GetAtt DeliveryMicroserviceB2BPGAPI.Outputs.RestApiErrorAlarmArn
-            - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiErrorAlarmArn
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiErrorAlarmArn
             - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiLatencyAlarmArn
             - !GetAtt DeliveryMicroserviceB2BPGAPI.Outputs.RestApiLatencyAlarmArn
-            - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiLatencyAlarmArn
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiLatencyAlarmArn
             - !Ref PnDeliveryInsertTriggerDLQAlarmARN
             - !Ref PnDeliveryAsseverationDLQAlarmARN
@@ -1007,6 +1024,7 @@ Resources:
             - !GetAtt VersioningV1V23GetNotificationPriceLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !GetAtt MetadataStatusUpdaterLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !GetAtt PaLimitCorrectionLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
+            - !GetAtt ConsentAccepterLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !Ref PnDeliveryMetadataStatusDLQAlarmARN
             - !Ref PnDeliveryPaLimitCorrectionDLQAlarmARN
         QueueArns: !Join
@@ -1014,6 +1032,7 @@ Resources:
           - - !Ref Mandate2DeliveryQueueARN
             - !Ref PnDeliveryAsseverationQueueARN
             - !Ref PnNotificationRefusedQueueARN
+            - !Ref PnDeliveryLimitConfigurerQueueARN
         LogGroupsNames: !Join
           - ","
           - - !Sub "/aws/ecs/${ProjectName}-delivery"
@@ -1024,6 +1043,90 @@ Resources:
             - !Sub "/aws/lambda/${VersioningV1V21GetNotificationRequestStatusLambdaName}"
             - !Sub "/aws/lambda/${VersioningV1V23GetNotificationPriceLambdaName}"
             - !Sub "/aws/lambda/${MetadataStatusUpdaterLambdaName}"
+            - !Sub "/aws/lambda/${ConsentAccepterLambdaName}"
+  
+  # Lambda function
+  ConsentAccepterSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub '${ConsentAccepterLambdaName}-sec-group'
+      VpcId: !Ref VpcId
+  
+  ConsentAccepterLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref ConsentAccepterLambdaName
+      Runtime: nodejs22.x
+      Handler: "index.handler"
+      Code:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/consent-accepter.zip"
+      Role: !GetAtt ConsentAccepterLambdaRole.Arn
+      VpcConfig:
+        SecurityGroupIds:
+          - !GetAtt ConsentAccepterSecGroup.GroupId
+        SubnetIds: !Ref SubnetsIds
+      Environment:
+        Variables:
+          CONSENTS_TO_ACCEPT: !Ref ConsentsToAccept
+          API_BASE_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080"
+      TracingConfig:
+        Mode: Active
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
+      Timeout: 30
+      MemorySize: 512
+  
+  # a new version at each deploy, with provisioned concurrency set
+  ConsentAccepterLambdaVersionPnPlaceholderEpochSeconds:
+    Type: AWS::Lambda::Version
+    Properties:
+      FunctionName: !Ref ConsentAccepterLambda
+  
+  ConsentAccepterLambdaVersionAlias:
+    Type: AWS::Lambda::Alias
+    Properties:
+      FunctionName: !Ref ConsentAccepterLambda
+      FunctionVersion: !GetAtt ConsentAccepterLambdaVersionPnPlaceholderEpochSeconds.Version
+      Name: live
+      ProvisionedConcurrencyConfig:
+        ProvisionedConcurrentExecutions: !Ref ConsentAccepterLambdaProvisionedConcurrency
+  
+  ConsentAccepterLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-consentAccepterLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+  
+  ConsentAccepterLambdaAlarms:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
+      Parameters:
+        FunctionName: !Ref ConsentAccepterLambda
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        FilterPattern: "FATAL"
+  
+  # Lambda access right
+  ConsentAccepterLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref ConsentAccepterLambdaVersionAlias
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*"
+      
   # Lambda function role
   
   PnDeliveryInsertTriggerLambdaRole:
@@ -1081,7 +1184,7 @@ Resources:
     Type: AWS::Lambda::LayerVersion
     Properties:
       CompatibleRuntimes:
-        - nodejs18.x
+        - nodejs22.x
       Content:
         S3Bucket: !Ref MicroserviceBucketName
         S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/insertTrigger_libs.zip"
@@ -1096,7 +1199,7 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda.yaml"
       Parameters:
         FunctionName: !Ref PnDeliveryInsertTriggerLambdaName
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         Handler: "index.handler"
         MemorySize: 256
         Timeout: 10
@@ -1219,7 +1322,7 @@ Resources:
     Type: "AWS::Lambda::Function"
     Properties:
       Handler: index.handler
-      Runtime: nodejs20.x
+      Runtime: nodejs22.x
       FunctionName: !Ref PnDeliveryAsseverationLambdaName
       Description: "It triggers the asseveration written of sqs"
       MemorySize: !Ref PnDeliveryAsseverationLambdaMemory
@@ -1301,7 +1404,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Ref VersioningV1V2GetNotificationLambdaName
-      Runtime: nodejs18.x
+      Runtime: nodejs22.x
       Handler: "index.handler"
       Code:
         S3Bucket: !Ref MicroserviceBucketName
@@ -1314,7 +1417,7 @@ Resources:
       Environment:
         Variables:
           REGION: !Sub ${AWS::Region}
-          PN_DELIVERY_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery/v2.6"
+          PN_DELIVERY_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery/v2.7"
           NUM_RETRY: !Ref NumRetry
           ATTEMPT_TIMEOUT_SEC: !Ref AttemptTimeoutSec
           ENABLE_DECEASED_WORKFLOW: !Ref EnableDeceasedWorkflow
@@ -1397,7 +1500,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Ref VersioningV1V21SendNewNotificationLambdaName
-      Runtime: nodejs18.x
+      Runtime: nodejs22.x
       Handler: "index.handler"
       Code:
         S3Bucket: !Ref MicroserviceBucketName
@@ -1410,7 +1513,7 @@ Resources:
       Environment:
         Variables:
           REGION: !Sub ${AWS::Region}
-          PN_DELIVERY_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery/v2.4"
+          PN_DELIVERY_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery/v2.5"
           NUM_RETRY: !Ref NumRetry
           ATTEMPT_TIMEOUT_SEC: !Ref AttemptTimeoutSec
       TracingConfig:
@@ -1492,7 +1595,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Ref VersioningV1V21GetNotificationRequestStatusLambdaName
-      Runtime: nodejs18.x
+      Runtime: nodejs22.x
       Handler: "index.handler"
       Code:
         S3Bucket: !Ref MicroserviceBucketName
@@ -1505,7 +1608,7 @@ Resources:
       Environment:
         Variables:
           REGION: !Sub ${AWS::Region}
-          PN_DELIVERY_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery/v2.4"
+          PN_DELIVERY_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery/v2.5"
           NUM_RETRY: !Ref NumRetry
           ATTEMPT_TIMEOUT_SEC: !Ref AttemptTimeoutSec
       TracingConfig:
@@ -1587,7 +1690,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Ref VersioningV1V23GetNotificationPriceLambdaName
-      Runtime: nodejs18.x
+      Runtime: nodejs22.x
       Handler: "index.handler"
       Code:
         S3Bucket: !Ref MicroserviceBucketName
@@ -1682,7 +1785,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Ref MetadataStatusUpdaterLambdaName
-      Runtime: nodejs18.x
+      Runtime: nodejs22.x
       Handler: "index.handler"
       Code:
         S3Bucket: !Ref MicroserviceBucketName
@@ -1711,6 +1814,8 @@ Resources:
         FunctionName: !Ref MetadataStatusUpdaterLambda
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
         FilterPattern: "FATAL"
+        IteratorAgeEvaluationPeriods: 30 # 30 minutes
+        IteratorAgeThreshold: 3600000 # 1 hour
 
   # Lambda function role
   MetadataStatusUpdaterLambdaRole:
@@ -1810,7 +1915,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Ref NotificationRefusedDispatcherLambdaName
-      Runtime: nodejs18.x
+      Runtime: nodejs22.x
       Handler: "index.handler"
       Code:
         S3Bucket: !Ref MicroserviceBucketName
@@ -1919,7 +2024,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Ref PaLimitCorrectionLambdaName
-      Runtime: nodejs20.x
+      Runtime: nodejs22.x
       Handler: "index.handler"
       Code:
         S3Bucket: !Ref MicroserviceBucketName
@@ -2027,6 +2132,78 @@ Resources:
         - Arn: !GetAtt PaLimitCorrectionLambda.Arn
           Id: PaLimitCorrectionLambdaTarget
           Input: '{ "dateToVerifyLimit": null }'
+
+  PnDeliveryLimitConfigurerQueueRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Route SafeStorage Events to pn-delivery LimitConfigurer
+      RoleArn: !GetAtt "EventBusEnqueueRole.Arn"
+      EventBusName: !Sub '${ProjectName}-CoreEventBus'
+      EventPattern:
+        detail-type: [ "SafeStorageOutcomeEvent" ]
+        detail:
+          documentType: [ 'SEND_SERVICE_ORDER' ]
+      Targets:
+        - Arn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:PnCoreEventBusMatchedEventLogger
+          Id: !Sub ${ProjectName}-Logger-SafeStore2LimitConfigurer
+          InputTransformer:
+            InputPathsMap:
+              "timestamp": "$.time"
+            InputTemplate: |
+              {
+                  "timestamp": <timestamp>,
+                  "ruleArn": <aws.events.rule-arn>,
+                  "ruleName": <aws.events.rule-name>,
+                  "ingestionTime": <aws.events.event.ingestion-time>,
+                  "originalEvent": <aws.events.event.json>
+              }
+        - Id: !Sub '${ProjectName}-SafeStore2DeliveryLimitConfigurer'
+          Arn: !Ref PnDeliveryLimitConfigurerQueueARN
+          InputPath: $.detail
+          DeadLetterConfig:
+            Arn: !Sub arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:pn-CoreEventBus-DLQ
+
+    # Allow event bus rules to write to queues
+  EventBusEnqueueRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+        Version: "2012-10-17"
+      Policies:
+        - PolicyName: !Sub ${ProjectName}-delivery-eventBusRuleQueuePolicy
+          PolicyDocument:
+            Statement:
+              - Sid: putEvents
+                Action:
+                  - sqs:ChangeMessageVisibility
+                  - sqs:GetQueueAttributes
+                  - sqs:GetQueueUrl
+                  - sqs:SendMessage
+                Effect: Allow
+                Resource:
+                  - !Ref PnDeliveryLimitConfigurerQueueARN
+
+  PnDeliveryQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref PnDeliveryLimitConfigurerQueueURL
+      PolicyDocument:
+        Statement:
+          - Sid: "SendEventsToDLQ"
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "events.amazonaws.com"
+            Action:
+              - "SQS:SendMessage"
+            Resource:
+              - !Ref "PnDeliveryLimitConfigurerQueueARN"
 
   PermissionForEventsToInvokeLambda:
     Type: AWS::Lambda::Permission

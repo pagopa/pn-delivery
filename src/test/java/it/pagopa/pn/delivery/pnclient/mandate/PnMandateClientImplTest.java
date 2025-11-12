@@ -6,11 +6,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.api.MandatePrivateServiceApi;
+import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.api.MandatePrivateServiceV2Api;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.DelegateType;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.MandateByDelegatorRequestDto;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +30,9 @@ import org.springframework.web.client.RestClientException;
 class PnMandateClientImplTest {
     @MockBean(name = "it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.api.MandatePrivateServiceApi")
     private MandatePrivateServiceApi mandatePrivateServiceApi;
+
+    @MockBean(name = "it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.api.MandatePrivateServiceV2Api")
+    private MandatePrivateServiceV2Api mandatePrivateServiceV2Api;
 
     @Autowired
     private PnMandateClientImpl pnMandateClientImpl;
@@ -163,6 +168,22 @@ class PnMandateClientImplTest {
         assertTrue(actualListMandatesByDelegatorsResult.isEmpty());
         verify(mandatePrivateServiceApi).listMandatesByDelegators(Mockito.<DelegateType>any(),
                 Mockito.<List<String>>any(), Mockito.<List<MandateByDelegatorRequestDto>>any());
+    }
+
+    /**
+     * Method under test: {@link PnMandateClientImpl#listMandatesByDelegateV2(String, String, CxTypeAuthFleet, List, OffsetDateTime, String, String)}
+     */
+    @Test
+    void listMandatesByDelegateV2() {
+        ArrayList<InternalMandateDto> internalMandateDtoList = new ArrayList<>();
+        when(mandatePrivateServiceV2Api.listMandatesByDelegateV2(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(internalMandateDtoList);
+        ArrayList<String> cxGroups = new ArrayList<>();
+        List<InternalMandateDto> actualListMandatesByDelegatorsResult = pnMandateClientImpl
+                .listMandatesByDelegateV2("Delegated", "testMandateId", CxTypeAuthFleet.PF, cxGroups, OffsetDateTime.now(), "iunTest", "rootSenderIdTest");
+        assertSame(internalMandateDtoList, actualListMandatesByDelegatorsResult);
+        assertTrue(actualListMandatesByDelegatorsResult.isEmpty());
+        verify(mandatePrivateServiceV2Api).listMandatesByDelegateV2(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
     }
 }
 

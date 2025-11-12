@@ -139,6 +139,48 @@ class PnInternalNotificationsControllerTest {
     }
 
     @Test
+    void decodeAarQrCodeSuccess() {
+        RequestDecodeQrDto request = RequestDecodeQrDto.builder()
+                .aarTokenValue(AAR_QR_CODE_VALUE)
+                .build();
+        UserInfo userInfo = new UserInfo();
+        userInfo.setTaxId("taxId");
+        UserInfoQrCode userInfoQrCode = UserInfoQrCode.builder().build()
+                .iun("iun")
+                .recipientInfo(userInfo);
+
+        Mockito.when(qrService.getAarQrCodeToDecode(request)).thenReturn(userInfoQrCode);
+
+        webTestClient.post()
+                .uri("/delivery-private/notifications/qr-code/decode")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(request), RequestDecodeQrDto.class)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(UserInfoQrCode.class);
+
+        Mockito.verify(qrService).getAarQrCodeToDecode(request);
+    }
+
+    @Test
+    void decodeAarQrCodeNotFound() {
+        RequestDecodeQrDto request = RequestDecodeQrDto.builder()
+                .aarTokenValue(AAR_QR_CODE_VALUE)
+                .build();
+
+        Mockito.when(qrService.getAarQrCodeToDecode(request))
+                .thenThrow(new PnNotFoundException("test", "test", "test"));
+
+        webTestClient.post()
+                .uri("/delivery-private/notifications/qr-code/decode")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(request), RequestDecodeQrDto.class)
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
     void searchNotificationsPrivate() {
         //Given
         NotificationSearchRow searchRow = NotificationSearchRow.builder()
@@ -645,7 +687,7 @@ class PnInternalNotificationsControllerTest {
                 List.of(
                         NotificationRecipient.builder()
                                 .internalId("internalId")
-                                .recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
+                                .recipientType(NotificationRecipientV24.RecipientTypeEnum.PF)
                                 .taxId("taxId")
                                 .physicalAddress(it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress.builder().build())
                                 .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder().build())

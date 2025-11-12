@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: bn/P+i4Tri87ksL3Brg5ITROffjpGCMEcr+LgZhyT1A=
+  version: QMBTnrlaD03KN40NiSaaDl0K5EO61DfuVATgkANOx8c=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -157,7 +157,7 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
-  /v2.5/notifications/received/{iun}:
+  /v2.6/notifications/received/{iun}:
     get:
       summary: Dettaglio di una notifica ricevuta.
       description: >-
@@ -171,7 +171,7 @@ paths:
                   - eventuali documenti di pagamento (campo payments reperibile nel dettaglio del destinatario)
       tags:
         - RecipientReadB2B
-      operationId: getReceivedNotificationV25
+      operationId: getReceivedNotificationV26
       x-api-permissions:
         - REFINEMENT
       parameters:
@@ -183,7 +183,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FullReceivedNotificationV25'
+                $ref: '#/components/schemas/FullReceivedNotificationV26'
         '400':
           description: Bad request
           content:
@@ -202,7 +202,7 @@ paths:
         - pn-auth-fleet_b2bAuthorizer_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.5/notifications/received/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.6/notifications/received/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -220,10 +220,10 @@ paths:
         timeoutInMillis: 29000
         type: http_proxy
     options:
-      operationId: Options for /v2.5/notifications/received/{iun} API CORS
+      operationId: Options for /v2.6/notifications/received/{iun} API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.5/notifications/received/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.6/notifications/received/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -527,13 +527,13 @@ components:
         maxLength: 25
         pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
   schemas:
-    FullReceivedNotificationV25:
+    FullReceivedNotificationV26:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata e il
         processo di  inoltro della notifica verso i destinatari (Persone Fisiche
         o Giuridiche).
       allOf:
-        - $ref: '#/components/schemas/SentNotificationV24'
+        - $ref: '#/components/schemas/SentNotificationV25'
         - type: object
           required:
             - notificationStatus
@@ -550,7 +550,7 @@ components:
                 processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV26'
+                $ref: '#/components/schemas/TimelineElementV27'
     Problem:
       properties:
         type:
@@ -596,7 +596,7 @@ components:
       required:
         - status
         - errors
-    TimelineElementV26:
+    TimelineElementV27:
       type: object
       additionalProperties: false
       properties:
@@ -637,9 +637,9 @@ components:
             Chiavi dei documenti che provano l'effettivo accadimento dell'evento
             descritto in timeline. Questo elemento
         category:
-          $ref: '#/components/schemas/TimelineElementCategoryV26'
+          $ref: '#/components/schemas/TimelineElementCategoryV27'
         details:
-          $ref: '#/components/schemas/TimelineElementDetailsV26'
+          $ref: '#/components/schemas/TimelineElementDetailsV27'
     NotificationStatusV26:
       type: string
       description: |
@@ -777,7 +777,7 @@ components:
         controllo, ovvero la seguente regexp: ^[ -{}~\u00A0-ÿ]*$
       type: string
       minLength: 1
-      maxLength: 44
+      maxLength: 88
       pattern: ^.*$
     NotificationDigitalAddress:
       description: Indirizzo di invio della notifica
@@ -1008,13 +1008,12 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/NotificationPaymentItem'
-    NotificationRecipientV23:
+    NotificationRecipientV24:
       description: Informazioni sui destinatari
       required:
         - denomination
         - recipientType
         - taxId
-        - physicalAddress
       type: object
       additionalProperties: false
       properties:
@@ -1088,7 +1087,7 @@ components:
         <br/> Esempio vat al 22% -> 22 <br/>
       minimum: 0
       maximum: 100
-    NewNotificationRequestV24:
+    NewNotificationRequestV25:
       description: I campi utilizzati per la creazione di una nuova Notifica.
       type: object
       required:
@@ -1131,7 +1130,7 @@ components:
           type: array
           description: Informazioni sui destinatari
           items:
-            $ref: '#/components/schemas/NotificationRecipientV23'
+            $ref: '#/components/schemas/NotificationRecipientV24'
           minItems: 1
         documents:
           type: array
@@ -1208,10 +1207,16 @@ components:
           items:
             type: string
             maxItems: 1
-    SentNotificationV24:
+    UsedServices:
+      description: Servizi utilizzati per la creazione della notifica
+      type: object
+      properties:
+        physicalAddressLookup:
+          type: boolean
+    SentNotificationV25:
       description: Le informazioni riguardanti una richiesta di notifica accettata
       allOf:
-        - $ref: '#/components/schemas/NewNotificationRequestV24'
+        - $ref: '#/components/schemas/NewNotificationRequestV25'
         - type: object
           required:
             - iun
@@ -1235,6 +1240,8 @@ components:
             documentsAvailable:
               type: boolean
               description: Indica se i documenti notificati sono ancora disponibili.
+            usedServices:
+              $ref: '#/components/schemas/UsedServices'
     TimelineElementId:
       type: string
     NotificationStatusHistoryElementV26:
@@ -1285,7 +1292,7 @@ components:
           maxLength: 512
         category:
           $ref: '#/components/schemas/LegalFactCategoryV20'
-    TimelineElementCategoryV26:
+    TimelineElementCategoryV27:
       type: string
       description: |
         stato di avanzamento del processo di notifica:`
@@ -1332,6 +1339,8 @@ components:
           * `PREPARE_ANALOG_DOMICILE_FAILURE` - Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel
           * `NOTIFICATION_RADD_RETRIEVED` - Accesso alla notifica tramite la rete RADD. Non perfeziona la notifica.
           * `ANALOG_WORKFLOW_RECIPIENT_DECEASED` - Destinatario deceduto
+          * `PUBLIC_REGISTRY_VALIDATION_CALL` - Ricerca dell'indirizzo di spedizione in fase di validazione notifica
+          * `PUBLIC_REGISTRY_VALIDATION_RESPONSE` - Recupero dell'indirizzo di spedizione dai registri nazionali
       enum:
         - SENDER_ACK_CREATION_REQUEST
         - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
@@ -1376,6 +1385,8 @@ components:
         - PREPARE_ANALOG_DOMICILE_FAILURE
         - NOTIFICATION_RADD_RETRIEVED
         - ANALOG_WORKFLOW_RECIPIENT_DECEASED
+        - PUBLIC_REGISTRY_VALIDATION_CALL
+        - PUBLIC_REGISTRY_VALIDATION_RESPONSE
     SenderAckCreationRequestDetails:
       type: object
       properties:
@@ -1440,12 +1451,31 @@ components:
           $ref: '#/components/schemas/PhysicalAddress'
         normalizedAddress:
           $ref: '#/components/schemas/PhysicalAddress'
-    NotificationRequestAcceptedDetails:
+    NotificationRequestAcceptedDetailsV27:
       type: object
       properties:
         recIndex:
           type: number
           description: Index destinatario notifica digitale
+        notificationRequestId:
+          type: string
+          description: >-
+            identificativo univoco di una richiesta di invio notifica, non è lo
+            IUN
+        paProtocolNumber:
+          type: string
+          description: >-
+            Numero di protocollo associato alla notifica, può essere
+            riutilizzato per rettifiche.
+          pattern: ^.*$
+          maxLength: 256
+        idempotenceToken:
+          type: string
+          description: >-
+            token usato per disambiguare "richieste di notificazione" effettuate
+            con lo stesso  numero di protocollo.
+          pattern: ^[ -~]*$
+          maxLength: 256
     AnalogFailureWorkflowDetails:
       type: object
       required:
@@ -1760,7 +1790,7 @@ components:
           type: string
           description: Data evento refinement
           format: date-time
-    NotificationRefusedErrorV25:
+    NotificationRefusedErrorV27:
       type: object
       properties:
         errorCode:
@@ -1779,18 +1809,44 @@ components:
               - NOT_VALID_ADDRESS - L'indirizzo di invio cartaceo inserito per il destinatario non ha superato i controlli di correttezza.
               - PAYMENT_NOT_VALID - I dati del pagamento non sono sono registrati sulla piattaforma GPD (modalità asincrona di integrazione pagoPA)
               - SERVICE_UNAVAILABLE - Il sistema non è attualmente disponibile.
+              - ADDRESS_NOT_FOUND - La ricerca dell’indirizzo effettuata con il servizio di LookupAddress non ha prodotto risultati.
+              - ADDRESS_SEARCH_FAILED - C'è stato un problema con la ricerca dell'indirizzo effettuata con il servizio di LookupAddess.
               ...
         detail:
           type: string
           maxLength: 2048
-    RequestRefusedDetailsV25:
+        recIndex:
+          type: number
+          description: >-
+            Index destinatario notifica digitale con errore che ha portato al
+            rifiuto della notifica
+    RequestRefusedDetailsV27:
       type: object
       properties:
         refusalReasons:
           type: array
           description: Motivazioni che hanno portato al rifiuto della notifica
           items:
-            $ref: '#/components/schemas/NotificationRefusedErrorV25'
+            $ref: '#/components/schemas/NotificationRefusedErrorV27'
+        notificationRequestId:
+          type: string
+          description: >-
+            identificativo univoco di una richiesta di invio notifica, non è lo
+            IUN
+        paProtocolNumber:
+          type: string
+          description: >-
+            Numero di protocollo associato alla notifica, può essere
+            riutilizzato per rettifiche.
+          pattern: ^.*$
+          maxLength: 256
+        idempotenceToken:
+          type: string
+          description: >-
+            token usato per disambiguare "richieste di notificazione" effettuate
+            con lo stesso  numero di protocollo.
+          pattern: ^[ -~]*$
+          maxLength: 256
     ScheduleAnalogWorkflowDetailsV23:
       type: object
       required:
@@ -2461,12 +2517,43 @@ components:
             stata precedentemente visualizzata
           example: 1220
           type: number
-    TimelineElementDetailsV26:
+    PublicRegistryValidationCallDetails:
+      type: object
+      required:
+        - recIndexes
+        - deliveryMode
+        - sendDate
+      properties:
+        recIndexes:
+          description: Lista destinatari notifica
+          type: array
+          items:
+            type: number
+        deliveryMode:
+          $ref: '#/components/schemas/DeliveryMode'
+        sendDate:
+          type: string
+          description: Data invio richiesta ai public registry
+          format: date-time
+    PublicRegistryValidationResponseDetails:
+      allOf:
+        - $ref: '#/components/schemas/PublicRegistryResponseDetails'
+        - type: object
+          properties:
+            registry:
+              type: string
+              description: >
+                Rappresenta il registro consultato per ottenere l'indirizzo. Può
+                assumere i seguenti valori:
+                  - ANPR
+                  - REGISTRO_IMPRESE
+              maxLength: 128
+    TimelineElementDetailsV27:
       description: The raw event payload that will be different based on the event.
       oneOf:
         - $ref: '#/components/schemas/SenderAckCreationRequestDetails'
         - $ref: '#/components/schemas/NormalizedAddressDetails'
-        - $ref: '#/components/schemas/NotificationRequestAcceptedDetails'
+        - $ref: '#/components/schemas/NotificationRequestAcceptedDetailsV27'
         - $ref: '#/components/schemas/AnalogFailureWorkflowDetails'
         - $ref: '#/components/schemas/AnalogSuccessWorkflowDetails'
         - $ref: '#/components/schemas/CompletelyUnreachableCreationRequestDetails'
@@ -2481,7 +2568,7 @@ components:
         - $ref: '#/components/schemas/PublicRegistryCallDetails'
         - $ref: '#/components/schemas/PublicRegistryResponseDetails'
         - $ref: '#/components/schemas/RefinementDetailsV23'
-        - $ref: '#/components/schemas/RequestRefusedDetailsV25'
+        - $ref: '#/components/schemas/RequestRefusedDetailsV27'
         - $ref: '#/components/schemas/ScheduleAnalogWorkflowDetailsV23'
         - $ref: '#/components/schemas/ScheduleDigitalWorkflowDetailsV23'
         - $ref: '#/components/schemas/ScheduleRefinementDetails'
@@ -2506,6 +2593,8 @@ components:
         - $ref: '#/components/schemas/NotificationCancelledDetails'
         - $ref: '#/components/schemas/PrepareAnalogDomicileFailureDetails'
         - $ref: '#/components/schemas/AnalogWorkflowRecipientDeceasedDetailsV26'
+        - $ref: '#/components/schemas/PublicRegistryValidationCallDetails'
+        - $ref: '#/components/schemas/PublicRegistryValidationResponseDetails'
     NotificationAttachmentDownloadMetadataResponse:
       title: Url e metadati per il download di un allegato di una notifica
       description: |-

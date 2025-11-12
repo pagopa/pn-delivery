@@ -108,5 +108,6 @@ Resources:
             subject:struct<S:string>,
             taxonomyCode:struct<S:string>,
             vat:struct<N:string>,
-            version:struct<N:string,S:string>
+            version:struct<N:string,S:string>,
+            usedServices:struct<M:struct<physicalAddressLookup:struct<BOOL:boolean>>>
           >

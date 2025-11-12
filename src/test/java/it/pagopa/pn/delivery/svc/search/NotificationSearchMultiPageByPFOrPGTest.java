@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.svc.search;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.exception.PnSearchTimeoutException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.BaseRecipientDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.time.Instant;
@@ -25,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 class NotificationSearchMultiPageByPFOrPGTest {
 
@@ -294,6 +297,44 @@ class NotificationSearchMultiPageByPFOrPGTest {
         Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
         Assertions.assertEquals(3, result.getNextPagesKey().size());
         Assertions.assertTrue(result.isMoreResult());
+    }
+
+
+    @Test
+    void searchNotificationMetadataTimeout() {
+        PageSearchTrunk<NotificationMetadataEntity> rrr = new PageSearchTrunk<>();
+        rrr.setResults(new ArrayList<>());
+        for(int i = 0;i<1000;i++)
+        {
+            rrr.getResults().add( NotificationMetadataEntity.builder()
+                    .iunRecipientId("IUN##internalId"+i )
+                    .notificationStatus( NotificationStatusV26.VIEWED.getValue() )
+                    .senderId( "SenderId" )
+                    .sentAt(Instant.now())
+                    .recipientIds(List.of( "internalId"+i ) )
+                    .build() );
+        }
+        rrr.setLastEvaluatedKey(new HashMap<>());
+
+        int timeoutSecond = 2;
+        Mockito.when( cfg.getSearchTimeoutSeconds() ).thenReturn( timeoutSecond );
+
+        Mockito.when(notificationDao.searchForOneMonth(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any()))
+                .thenAnswer(invocation -> {
+                    System.out.println("DAO Mock: Inizio attesa di " + cfg.getSearchTimeoutSeconds() + " secondi...");
+                    TimeUnit.MILLISECONDS.sleep(500);
+                    return rrr;
+                });
+
+
+        Mockito.when( cfg.getMaxPageSize() ).thenReturn( 1000 );
+
+        Assertions.assertThrows(PnSearchTimeoutException.class, () -> {
+            notificationSearchMultiPageByPFOrPG.searchNotificationMetadata();
+        });
+
+        Mockito.verify(notificationDao, Mockito.times(4)).searchForOneMonth(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any());
+
     }
 
 

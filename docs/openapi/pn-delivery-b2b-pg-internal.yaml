@@ -8,7 +8,7 @@ info:
     ## Abstract
       API utilizzate dalle persone giuridiche per avere la lista delle notifiche e il dettaglio di ognuna di queste.
     ## Una possibile sequenza di utilizzo delle API di questa collection
-    <img src="https://raw.githubusercontent.com/pagopa/pn-delivery/refs/heads/feature/docs_openapi_update/docs/openapi/images/pg.svg">
+    <img src="https://raw.githubusercontent.com/pagopa/pn-delivery/refs/heads/develop/docs/openapi/images/pg.svg">
     
     Descrizione delle operazioni:
     <ul>
@@ -26,7 +26,7 @@ info:
 
     Di seguito un diagramma in cui vengono mostrati degli esempi di dati ricevuti in risposta alla chiamata API nella gestione di una notifica.<br>
     Dei dai mostrati vengono messi in evidenza quelli utilizzati per le chiamate API successive. 
-    <img src="https://raw.githubusercontent.com/pagopa/pn-delivery/refs/heads/feature/docs_openapi_update/docs/openapi/images/lettura_notifica.svg">
+    <img src="https://raw.githubusercontent.com/pagopa/pn-delivery/refs/heads/develop/docs/openapi/images/lettura_notifica.svg">
   
     Nella prima richiesta (*GET /delivery/notifications/received/delegated*) fornisce una lista di deleghe; nel riquadro verde più piccolo viene mostrato un estratto di risposta mettendo in evidenza la prima notifica (in particolare lo *iun* di questa).
     <br>
@@ -173,7 +173,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
 
-  "/delivery/v2.5/notifications/received/{iun}":
+  "/delivery/v2.6/notifications/received/{iun}":
     get:
       summary: Dettaglio di una notifica ricevuta.
       description: >-
@@ -188,7 +188,7 @@ paths:
                   - eventuali documenti di pagamento (campo payments reperibile nel dettaglio del destinatario)
       tags:
         - RecipientReadB2B
-      operationId: getReceivedNotificationV25
+      operationId: getReceivedNotificationV26
       #      security:                                      # ONLY EXTERNAL
       #        - bearerAuth: [ ]                            # ONLY EXTERNAL
       x-api-permissions:
@@ -208,7 +208,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/FullReceivedNotificationV25"
+                $ref: "#/components/schemas/FullReceivedNotificationV26"
         '400':
           description: Bad request
           content:
@@ -394,12 +394,12 @@ components:
     UnauthorizedError:
       description: Access token is missing or invalid
   schemas:
-    FullReceivedNotificationV25:
+    FullReceivedNotificationV26:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata e il processo di 
         inoltro della notifica verso i destinatari (Persone Fisiche o Giuridiche).
       allOf:
-        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotificationV24'
+        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotificationV25'
         - type: object
           required:
             - notificationStatus
@@ -415,13 +415,13 @@ components:
                 elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV26'
+                $ref: '#/components/schemas/TimelineElementV27'
 
     Problem:
       $ref: './remote-refs.yaml#/components/schemas/Problem'
-    
-    TimelineElementV26:
-      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV26'
+
+    TimelineElementV27:
+      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV27'
     NotificationStatusV26:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatusV26'
     NotificationStatusHistoryV26:

@@ -47,16 +47,18 @@ paths:
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathAttachmentName'
         - $ref: '#/components/parameters/attachmentIdx'
-        - $ref: '#/components/parameters/cxTaxIdAuthFleet'                                     # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopOriginalUrl'                                     # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopOriginalMethod'                                  # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopPublicKey'                                       # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopAssertionRef'                                    # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopAssertionType'                                   # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopAuthJwt'                                         # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopUserId'                                          # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopSignatureInput'                                  # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopSignature'                                       # ONLY EXTERNAL
+        - $ref: '#/components/parameters/queryMandateId'
+#        - $ref: '#/components/parameters/cxTaxIdAuthFleet'                                        # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopOriginalUrl'                                     # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopOriginalMethod'                                  # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopPublicKey'                                       # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopAssertionRef'                                    # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopAssertionType'                                   # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopAuthJwt'                                         # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopUserId'                                          # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopSignatureInput'                                  # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopSignature'                                       # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/headerIoSource'                                          # ONLY EXTERNAL
       responses:
         '200':
           description: OK
@@ -94,6 +96,7 @@ paths:
         - $ref: '#/components/parameters/headerSourceChannel'                                      # NO EXTERNAL
         - $ref: '#/components/parameters/headerSourceChannelDetails'                               # NO EXTERNAL
         - $ref: 'parameters-notification-search.yaml#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/queryMandateId'
 #        - $ref: '#/components/parameters/cxTaxIdAuthFleet'                                        # ONLY EXTERNAL
 #        - $ref: '#/components/parameters/lollipopOriginalUrl'                                     # ONLY EXTERNAL
 #        - $ref: '#/components/parameters/lollipopOriginalMethod'                                  # ONLY EXTERNAL
@@ -104,6 +107,7 @@ paths:
 #        - $ref: '#/components/parameters/lollipopUserId'                                          # ONLY EXTERNAL
 #        - $ref: '#/components/parameters/lollipopSignatureInput'                                  # ONLY EXTERNAL
 #        - $ref: '#/components/parameters/lollipopSignature'                                       # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/headerIoSource'                                          # ONLY EXTERNAL
       responses:
         '200':
           description: OK
@@ -133,7 +137,8 @@ paths:
         - $ref: '#/components/parameters/headerSourceChannelDetails'                           # NO EXTERNAL
         - $ref: 'parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: 'api-internal-b2b-pa.yaml#/components/parameters/pathDocumentIdx'
-        - $ref: '#/components/parameters/cxTaxIdAuthFleet'                                     # ONLY EXTERNAL
+        - $ref: '#/components/parameters/queryMandateId'
+#        - $ref: '#/components/parameters/cxTaxIdAuthFleet'                                        # ONLY EXTERNAL
 #        - $ref: '#/components/parameters/lollipopOriginalUrl'                                     # ONLY EXTERNAL
 #        - $ref: '#/components/parameters/lollipopOriginalMethod'                                  # ONLY EXTERNAL
 #        - $ref: '#/components/parameters/lollipopPublicKey'                                       # ONLY EXTERNAL
@@ -143,6 +148,7 @@ paths:
 #        - $ref: '#/components/parameters/lollipopUserId'                                          # ONLY EXTERNAL
 #        - $ref: '#/components/parameters/lollipopSignatureInput'                                  # ONLY EXTERNAL
 #        - $ref: '#/components/parameters/lollipopSignature'                                       # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/headerIoSource'                                          # ONLY EXTERNAL
       responses:
         '200':
           description: OK
@@ -158,6 +164,69 @@ paths:
                 $ref: '#/components/schemas/Problem'
         '404':
           description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  "/delivery/notifications/received/check-qr-code":
+    post:
+      description: |-
+        Servizio per la verifica accesso tramite aar qr code
+      summary: servizio per la verifica del aar-qr-code
+      tags:
+        - AppIO-PN-Notification
+      operationId: checkAarQrCodeIO
+      x-pagopa-lambda-name: 'pn-consent-accepter:live'
+      x-pagopa-lambda-account: core
+      parameters:
+        - $ref: '#/components/parameters/cxTypeAuthFleet'                                          # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'                                            # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'                                        # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTaxIdAuthFleet'
+#        - $ref: '#/components/parameters/lollipopOriginalUrl'                                     # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopOriginalMethod'                                  # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopPublicKey'                                       # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopAssertionRef'                                    # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopAssertionType'                                   # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopAuthJwt'                                         # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopUserId'                                          # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopSignatureInput'                                  # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopSignature'                                       # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/headerIoSource'                                          # ONLY EXTERNAL
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestCheckQrMandateDto"
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseCheckQrMandateDto"
+        '400':
+          description: QrCode value invalid
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Mandate not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseCheckQrMandateDto'
+        '404':
+          description: QrCode reference Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
           content:
             application/problem+json:
               schema:
@@ -188,6 +257,14 @@ components:
 
     headerSourceChannelDetails: # NO EXTERNAL
       $ref: './remote-refs.yaml#/components/parameters/headerSourceChannelDetails'  # NO EXTERNAL
+
+#    headerIoSource:                                                                       # ONLY EXTERNAL
+#      name: "x-pagopa-pn-io-src"                                                          # ONLY EXTERNAL
+#      in: "header"                                                                        # ONLY EXTERNAL
+#      description: "User login source channel details, should be QR_CODE or left empty"   # ONLY EXTERNAL
+#      required: false                                                                     # ONLY EXTERNAL
+#      schema:                                                                             # ONLY EXTERNAL
+#        type: "string"                                                                    # ONLY EXTERNAL
 
     pathAttachmentName:
       name: attachmentName
@@ -223,6 +300,15 @@ components:
       schema:
         type: string
 
+    queryMandateId:
+      name: mandateId
+      description: Identificativo della delega
+      in: query
+      required: false
+      schema:
+        type: string
+        format: uuid
+
     ############################################################################################
     ###                     HEADER DI AUTENTICAZIONE LOLLIPOP                               ###
     ############################################################################################
@@ -248,6 +334,50 @@ components:
   schemas:
     ThirdPartyMessage:
       $ref: './schemas-pn-timeline-appio.yaml#/components/schemas/ThirdPartyMessage'
+
+    RequestCheckQrMandateDto:
+      description: Le informazioni fornite per verificare l'AAR-QR-CodeValue
+      type: object
+      required:
+        - aarQrCodeValue
+      properties:
+        aarQrCodeValue:
+          type: string
+          description: valore del token QR-Code presente sull'avviso di avvenuta ricezione
+          pattern: ^[ -~]*$
+          maxLength: 300
+
+    ResponseCheckQrMandateDto:
+      description: >-
+        Le informazioni fornite in risposta alla verifica del AAR-QR-CodeValue con possibile identificativo della delega attiva
+      type: object
+      required:
+        - iun
+        - recipientInfo
+      properties:
+        iun:
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/IUN'
+        mandateId:
+          description: identificativo della delega
+          type: string
+        recipientInfo:
+          description: Informazioni anagrafiche dell'utente destinatario della notifica
+          $ref: '#/components/schemas/UserInfo'
+
+    UserInfo:
+      type: object
+      properties:
+        denomination:
+          type: string
+          description: Nome + cognome __oppure__ ragione sociale
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          example: Nome Cognome
+        taxId:
+          title: Codice Fiscale
+          description: Codice Fiscale
+          type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          example: CGNNMO01T10A944Q
 
     Problem:
       $ref: 'remote-refs.yaml#/components/schemas/Problem'

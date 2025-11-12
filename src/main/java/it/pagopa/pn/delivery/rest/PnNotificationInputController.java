@@ -44,7 +44,7 @@ public class PnNotificationInputController implements NewNotificationApi {
     }
 
     @Override
-    public ResponseEntity<NewNotificationResponse> sendNewNotificationV24(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String xPagopaPnSrcCh, NewNotificationRequestV24 newNotificationRequest, List<String> xPagopaPnCxGroups, String xPagopaPnSrcChDetails, String xPagopaPnNotificationVersion) {
+    public ResponseEntity<NewNotificationResponse> sendNewNotificationV25(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String xPagopaPnSrcCh, NewNotificationRequestV25 newNotificationRequest, List<String> xPagopaPnCxGroups, String xPagopaPnSrcChDetails, String xPagopaPnNotificationVersion) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         @NotNull String paProtocolNumber = newNotificationRequest.getPaProtocolNumber();
         String paIdempotenceToken = newNotificationRequest.getIdempotenceToken();
@@ -55,11 +55,10 @@ public class PnNotificationInputController implements NewNotificationApi {
         logEvent.log();
         NewNotificationResponse svcRes;
 
-        if (pnDeliveryConfigs.isCheckTaxonomyCodeEnabled() && taxonomyCodeDaoDynamo.getTaxonomyCodeByKeyAndPaId(taxonomyCode, DEFAULT_PAID).isEmpty()) {
-            throw new PnInvalidInputException(ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_TAXONOMYCODE, taxonomyCode);
-        }
-
         try {
+            if (pnDeliveryConfigs.isCheckTaxonomyCodeEnabled() && taxonomyCodeDaoDynamo.getTaxonomyCodeByKeyAndPaId(taxonomyCode, DEFAULT_PAID).isEmpty()) {
+                throw new PnInvalidInputException(ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_TAXONOMYCODE, taxonomyCode);
+            }
             svcRes = svc.receiveNotification(xPagopaPnCxId, newNotificationRequest, xPagopaPnSrcCh, xPagopaPnSrcChDetails, xPagopaPnCxGroups, xPagopaPnNotificationVersion);
         } catch (PnRuntimeException ex) {
             logEvent.generateFailure("[protocolNumber={}, idempotenceToken={}] " + ex.getProblem(),

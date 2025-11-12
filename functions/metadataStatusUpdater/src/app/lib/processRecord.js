@@ -40,7 +40,7 @@ const deletePayments = async (notification) => {
         );
         await dynamo.deleteItem("pn-NotificationsCost", {
           creditorTaxId_noticeCode,
-        });
+        }, notification.iun);
       }
     }
   }

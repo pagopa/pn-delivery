@@ -70,9 +70,9 @@ public class NotificationSearchMultiPageByPFAndPGOnly extends NotificationSearch
 
 
         // leggo TUTTE le righe di PF ( nella partizione 0 PF )
-        logItemCountPF += readDataFromPartition( 0, indexNameAndPartitions.getPartitions().get( 0 ), dataReadPF, lastEvaluatedKeyPF, null, dynamoDbPageSize );
+        logItemCountPF += readDataFromPartition( 0, indexNameAndPartitions.getPartitions().get( 0 ), dataReadPF, lastEvaluatedKeyPF, null, dynamoDbPageSize, null);
         // leggo TUTTE le righe di PG ( nella partizione 1 PG )
-        logItemCountPG += readDataFromPartition( 0, indexNameAndPartitions.getPartitions().get( 1 ), dataReadPG, lastEvaluatedKeyPG, null, dynamoDbPageSize );
+        logItemCountPG += readDataFromPartition( 0, indexNameAndPartitions.getPartitions().get( 1 ), dataReadPG, lastEvaluatedKeyPG, null, dynamoDbPageSize, null );
 
         List<NotificationMetadataEntity> dataRead = Stream.concat(dataReadPF.stream(), dataReadPG.stream()).toList();
 

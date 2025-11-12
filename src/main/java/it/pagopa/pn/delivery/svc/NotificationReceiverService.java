@@ -1,6 +1,9 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
+import it.pagopa.pn.commons.log.PnAuditLogBuilder;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.config.SendActiveParameterConsumer;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
@@ -8,10 +11,12 @@ import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.F24.v1.model.SaveF24Item;
 import it.pagopa.pn.delivery.generated.openapi.msclient.F24.v1.model.SaveF24Request;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV24;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV25;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationResponse;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.UsedServices;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.internal.notification.InternalUsedService;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
@@ -30,9 +35,11 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static it.pagopa.pn.commons.utils.MDCUtils.MDC_PN_CTX_TOPIC;
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_INVALIDPARAMETER_GROUP;
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_SEND_IS_DISABLED;
 import static it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy.DELIVERY_MODE;
@@ -40,7 +47,6 @@ import static it.pagopa.pn.delivery.generated.openapi.server.v1.dto.Notification
 @Service
 @CustomLog
 public class NotificationReceiverService {
-	public static final String LATEST_NOTIFICATION_VERSION = "2.4";
 	public static final int VAT_DEFAULT_VALUE = 22;
 	public static final int PA_FEE_DEFAULT_VALUE = 100;
 
@@ -94,7 +100,7 @@ public class NotificationReceiverService {
 	 */
 	public NewNotificationResponse receiveNotification(
 			String xPagopaPnCxId,
-			NewNotificationRequestV24 newNotificationRequest,
+			NewNotificationRequestV25 newNotificationRequest,
 			String xPagopaPnSrcCh,
 			String xPagopaPnSrcChDetails,
 			List<String> xPagopaPnCxGroups,
@@ -110,7 +116,7 @@ public class NotificationReceiverService {
 		log.debug("New notification storing START paProtocolNumber={} idempotenceToken={}",
 				newNotificationRequest.getPaProtocolNumber(), newNotificationRequest.getIdempotenceToken());
 		log.logChecking("New notification request validation process");
-		validator.checkNewNotificationRequestBeforeInsertAndThrow(newNotificationRequest);
+		validator.checkNewNotificationRequestBeforeInsertAndThrow(newNotificationRequest, xPagopaPnCxId);
 		log.debug("Validation OK for paProtocolNumber={}", newNotificationRequest.getPaProtocolNumber() );
 		log.logCheckingOutcome("New notification request validation process", true, "");
 		String notificationGroup = newNotificationRequest.getGroup();
@@ -123,7 +129,9 @@ public class NotificationReceiverService {
 		internalNotification.setSenderPaId( xPagopaPnCxId );
 		internalNotification.setSourceChannel( xPagopaPnSrcCh );
 		internalNotification.setSourceChannelDetails(xPagopaPnSrcChDetails);
-		internalNotification.setVersion( StringUtils.hasText( xPagopaPnNotificationVersion ) ? xPagopaPnNotificationVersion : LATEST_NOTIFICATION_VERSION );
+		internalNotification.setVersion( StringUtils.hasText( xPagopaPnNotificationVersion ) ? xPagopaPnNotificationVersion : cfg.getLatestNotificationVersion() );
+
+		setPhysicalAddressLookup(internalNotification);
 
 		SaveF24Request saveF24Request = new SaveF24Request();
 		List<SaveF24Item> saveF24Items = IntStream.range(0, internalNotification.getRecipients().size())
@@ -165,6 +173,22 @@ public class NotificationReceiverService {
 		return response;
 	}
 
+	private void setPhysicalAddressLookup(InternalNotification internalNotification){
+		Boolean isPhysicalAddressLookup = internalNotification.getRecipients().stream().anyMatch(recipient -> Objects.isNull(recipient.getPhysicalAddress()));
+		if(Boolean.TRUE.equals(isPhysicalAddressLookup)){
+			PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+			PnAuditLogEvent logEvent = auditLogBuilder
+					.before(PnAuditLogEventType.AUD_NT_LOOKUP_ADDRESS_ENABLED, "notificationUsePhysicalAddressLookupService paTaxId={} paProtocolNumber={}",
+							internalNotification.getSenderPaId(),
+							internalNotification.getPaProtocolNumber())
+					.mdcEntry(MDC_PN_CTX_TOPIC, String.format("paTaxId=%s;paProtocolNumber=%s", internalNotification.getSenderPaId(), internalNotification.getPaProtocolNumber()))
+					.build();
+			logEvent.log();
+
+			internalNotification.setUsedServices(InternalUsedService.builder().physicalAddressLookup(true).build());
+		}
+	}
+
 	private void checkCounterAndSaveNotification(InternalNotification internalNotification) {
 		boolean toUpdate = checkAndUpdatePaNotificationLimit(internalNotification);
 		try {
@@ -189,7 +213,7 @@ public class NotificationReceiverService {
 		return false;
 	}
 
-	private void setDefaultValueForNotification(NewNotificationRequestV24 newNotificationRequest) {
+	private void setDefaultValueForNotification(NewNotificationRequestV25 newNotificationRequest) {
 		if(newNotificationRequest.getVat() ==  null){
 			newNotificationRequest.setVat(VAT_DEFAULT_VALUE);
 		}
@@ -237,20 +261,20 @@ public class NotificationReceiverService {
 
 	}
 
-	private void setPagoPaIntMode(NewNotificationRequestV24 newNotificationRequest) {
+	private void setPagoPaIntMode(NewNotificationRequestV25 newNotificationRequest) {
 		// controllo se non é stato settato il valore pagoPaIntMode dalla PA
 		if ( ObjectUtils.isEmpty( newNotificationRequest.getPagoPaIntMode() ) ) {
 			// verifico che nessun destinatario ha un pagamento
 			if ( newNotificationRequest.getRecipients().stream()
 					.noneMatch(notificationRecipient -> notificationRecipient.getPayments() != null && !notificationRecipient.getPayments().isEmpty())) {
 				// metto default a NONE
-				newNotificationRequest.setPagoPaIntMode(NewNotificationRequestV24.PagoPaIntModeEnum.NONE);
+				newNotificationRequest.setPagoPaIntMode(NewNotificationRequestV25.PagoPaIntModeEnum.NONE);
 			} else {
 				// qualche destinatario ha un pagamento
 				if (newNotificationRequest.getNotificationFeePolicy().equals( DELIVERY_MODE )) {
-					newNotificationRequest.setPagoPaIntMode(NewNotificationRequestV24.PagoPaIntModeEnum.SYNC);
+					newNotificationRequest.setPagoPaIntMode(NewNotificationRequestV25.PagoPaIntModeEnum.SYNC);
 				} else {
-					newNotificationRequest.setPagoPaIntMode( NewNotificationRequestV24.PagoPaIntModeEnum.NONE );
+					newNotificationRequest.setPagoPaIntMode( NewNotificationRequestV25.PagoPaIntModeEnum.NONE );
 				}
 			}
 		}

@@ -5,6 +5,7 @@ import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.commons.utils.LogUtils;
+import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.InternalOnlyApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
@@ -43,6 +44,22 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         this.qrService = qrService;
         this.notificationAttachmentService = notificationAttachmentService;
         this.modelMapper = modelMapper;
+    }
+
+
+    @Override
+    public ResponseEntity<UserInfoQrCode> decodeAarToken(RequestDecodeQrDto requestDecodeQrDto) {
+        String aarQrCodeValue = requestDecodeQrDto.getAarTokenValue();
+        log.info("Start decodeAarQrCode with aarQrCodeValue={}", aarQrCodeValue);
+        UserInfoQrCode response;
+        try {
+            response = qrService.getAarQrCodeToDecode(requestDecodeQrDto);
+            log.info("decodeAarQrCode success with aarQrCodeValue={}", aarQrCodeValue);
+        } catch (PnNotFoundException exception) {
+            log.error("Error in decodeAarQrCode for aarQrCodeValue={}: {}", aarQrCodeValue, exception.getMessage());
+            throw exception;
+        }
+        return ResponseEntity.ok(response);
     }
 
     @Override
@@ -93,12 +110,12 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     }
 
     @Override
-    public ResponseEntity<SentNotificationV24> getSentNotificationPrivate(String iun) {
+    public ResponseEntity<SentNotificationV25> getSentNotificationPrivate(String iun) {
         InternalNotification notification = retrieveSvc.getNotificationInformation(iun, false, true);
-        SentNotificationV24 sentNotification = modelMapper.map(notification, SentNotificationV24.class);
+        SentNotificationV25 sentNotification = modelMapper.map(notification, SentNotificationV25.class);
 
         int recIdx = 0;
-        for (NotificationRecipientV23 rec : sentNotification.getRecipients()) {
+        for (NotificationRecipientV24 rec : sentNotification.getRecipients()) {
             rec.setInternalId(notification.getRecipientIds().get(recIdx));
             recIdx += 1;
         }
