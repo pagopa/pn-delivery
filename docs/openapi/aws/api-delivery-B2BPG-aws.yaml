@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: QMBTnrlaD03KN40NiSaaDl0K5EO61DfuVATgkANOx8c=
+  version: qDb/iHldyeFvVLHuhWf67/ObE7swmNdCQzRpkZdQUkQ=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1118,12 +1118,14 @@ components:
           maxLength: 256
         subject:
           type: string
-          description: titolo della notifica
+          description: titolo della notifica, NON inserire dati personali/sensibili
           maxLength: 134
           pattern: ^.*$
         abstract:
           type: string
-          description: descrizione sintetica della notifica
+          description: >-
+            descrizione sintetica della notifica, NON inserire dati
+            personali/sensibili
           pattern: ^.*$
           maxLength: 1024
         recipients:
