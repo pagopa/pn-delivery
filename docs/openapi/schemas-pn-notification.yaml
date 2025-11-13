@@ -162,13 +162,13 @@ components:
           maxLength: 256
         subject:
           type: string
-          description: titolo della notifica
+          description: titolo della notifica, NON inserire dati personali/sensibili
           maxLength: 134
           # wide range of characters
           pattern: ^.*$
         abstract:
           type: string
-          description: descrizione sintetica della notifica
+          description: descrizione sintetica della notifica, NON inserire dati personali/sensibili
           # wide range of characters
           pattern: ^.*$
           maxLength: 1024
