@@ -1134,10 +1134,10 @@ Resources:
                 - lambda.amazonaws.com
             Action:
               - sts:AssumeRole
-          - Sid: RedisAuth
+          - Effect: Allow
             Action:
               - elasticache:Connect
-            Effect: Allow
+          - Effect: Allow
             Resource:
               - !Ref RedisServerlessArn
               - !Ref ElasticCacheDeliveryUserArn
