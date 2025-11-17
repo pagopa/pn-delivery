@@ -712,42 +712,30 @@ Parameters:
   RedisServerlessArn:
     Type: String
     Description: 'RedisServerless ARN'
+  
+  RedisServerlessName:
+    Type: String
+    Description: 'RedisServerless Name'
+  
+  ElasticacheUserArn1:
+    Type: String
+    Description: 'ElastiCacheUser for radd'
+
+  RedisEndpoint:
+    Type: String
+    Description: 'ElastiCache Redis endpoint'
 
   ElasticCacheDeliveryUserArn:
     Type: String
-    Description: 'ElastiCacheUser for pn-delivery'
+    Description: 'ElastiCache user id'
 
-  ElasticacheEndpoint:
+  ElasticCacheDeliveryUserId:
     Type: String
-    Description: elasticache endpoint
-
-  ElasticacheMode:
-    Type: String
-    Description: elasticache mode
-    Default: serverless
-    AllowedValues:
-      - serverless
-      - managed
-
-  ElasticacheUserId:
-    Type: String
-    Description: the username to connect to elasticache
-
-  ElasticacheCacheName:
-    Type: String
-    Description: the name of the cache
-
-  ElasticacheCacheRegion:
-    Type: String
-    Description: the region of the cache
-
-  ElasticachePort:
-    Type: String
-    Description: the port of the cache
-
+    Description: 'ElastiCache user id'
+    
   ElasticacheSecurityGroup:
     Type: String
-    Description: Elasticache security group
+    Description: 'Elastic cache security Group'
 
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
