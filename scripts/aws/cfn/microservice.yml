@@ -1134,21 +1134,22 @@ Resources:
                 - lambda.amazonaws.com
             Action:
               - sts:AssumeRole
-        Policies:
-          - PolicyName: ElasticacheConnectPolicy
-            PolicyDocument:
-              Version: 2012-10-17
-              Statement:
-                - Effect: Allow
-                  Action:
-                    - elasticache:Connect
-                  Resource:
-                    - !Ref RedisServerlessArn
-                    - !Ref ElasticCacheDeliveryUserArn
+      Policies:
+        - PolicyName: RedisAccessPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - elasticache:Connect
+                Resource:
+                  - !Ref RedisServerlessArn
+                  - !Ref ElasticCacheDeliveryUserArn
+
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
-  
+    
   ConsentAccepterLambdaAlarms:
     Type: AWS::CloudFormation::Stack
     Properties:
