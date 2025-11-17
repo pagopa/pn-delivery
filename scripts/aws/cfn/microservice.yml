@@ -709,6 +709,46 @@ Parameters:
     Description: "latest notification version without v ex. 2.4"
     AllowedPattern: '^\d\.\d$'
 
+  RedisServerlessArn:
+    Type: String
+    Description: 'RedisServerless ARN'
+
+  ElasticCacheDeliveryUserArn:
+    Type: String
+    Description: 'ElastiCacheUser for pn-delivery'
+
+  ElasticacheEndpoint:
+    Type: String
+    Description: elasticache endpoint
+
+  ElasticacheMode:
+    Type: String
+    Description: elasticache mode
+    Default: serverless
+    AllowedValues:
+      - serverless
+      - managed
+
+  ElasticacheUserId:
+    Type: String
+    Description: the username to connect to elasticache
+
+  ElasticacheCacheName:
+    Type: String
+    Description: the name of the cache
+
+  ElasticacheCacheRegion:
+    Type: String
+    Description: the region of the cache
+
+  ElasticachePort:
+    Type: String
+    Description: the port of the cache
+
+  ElasticacheSecurityGroup:
+    Type: String
+    Description: Elasticache security group
+
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
 
@@ -1065,6 +1105,7 @@ Resources:
       VpcConfig:
         SecurityGroupIds:
           - !GetAtt ConsentAccepterSecGroup.GroupId
+          - !Ref ElasticacheSecurityGroup
         SubnetIds: !Ref SubnetsIds
       Environment:
         Variables:
@@ -1105,6 +1146,13 @@ Resources:
                 - lambda.amazonaws.com
             Action:
               - sts:AssumeRole
+          - Sid: RedisAuth
+            Action:
+              - elasticache:Connect
+            Effect: Allow
+            Resource:
+              - !Ref RedisServerlessArn
+              - !Ref ElasticCacheDeliveryUserArn
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
