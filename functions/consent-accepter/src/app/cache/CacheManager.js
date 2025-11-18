@@ -1,0 +1,110 @@
+const LocalCache = require('./LocalCache');
+const RedisCache = require('./RedisCache');
+
+const DEFAULT_SECONDS_TTL = 900; // secondi (15 minuti)
+
+/**
+ * CacheManager - Orchestrazione centralizzata del sistema di caching multi-livello
+ * Gestisce l'interazione tra cache locale, Redis e data source esterno
+ */
+class CacheManager {
+  /**
+   * @param {object} config - Configurazione del cache manager
+   * @param {number} config.secondsTTL - TTL cache in secondi (default: 900)
+   * @param {Function} config.externalFetcher - Funzione per recuperare dati da fonte esterna
+   */
+  constructor(config = {}) {
+    this.secondsTTL = config.secondsTTL || DEFAULT_SECONDS_TTL;
+    this.localCache = new LocalCache();
+    this.redisCache = new RedisCache();
+    this.externalFetcher = config.externalFetcher;
+    if (!this.externalFetcher) {
+      throw new Error('External fetcher not configured');
+    }
+    this.keyGenerator = this._defaultKeyGenerator;
+  }
+
+  _defaultKeyGenerator(cxType, consentType) {
+    return `${cxType}##${consentType}`;
+  }
+
+  /**
+   * Recupera un valore con strategia multi-livello
+   * @param {string} cxType - Tipo contesto (es: PF, PG)
+   * @param {string} consentType - Tipo consenso (es: TOS, PRIVACY)
+   * @returns {Promise<string>} - versione del consenso
+   */
+  async get(cxType, consentType) {
+    const key = this.keyGenerator(cxType, consentType);
+    
+    console.log(`[CacheManager] get with cxType: ${cxType}, consentType: ${consentType} (key: ${key})`);
+    
+    try {
+      const localValue = this.localCache.get(key);
+      if (localValue !== null) {
+        console.log(`[CacheManager] Local Cache hit (${key})`);
+        return localValue;
+      }
+      
+      const redisValue = await this.redisCache.get(key);
+      if (redisValue !== null) {
+        console.log(`[CacheManager] Redis hit (${key})`);
+        
+        // Popola cache locale per prossimi accessi
+        this.localCache.set(key, redisValue, redisValue.expiresAt);
+        
+        return redisValue;
+      }
+      
+      // LIVELLO 3: External Source
+      console.log(`[CacheManager] Cache miss on every level (${key})`);
+      const sourceValue = await this.externalFetcher(cxType, consentType);
+      
+      if (sourceValue === null || sourceValue === undefined) {
+        throw new Error(`Value not found for ${cxType}_${consentType}`);
+      }
+      
+      // Popola entrambe le cache
+      let consentValue = {
+        version: sourceValue,
+        consentType: consentType,
+        cxType: cxType,
+        expiresAt: this._getExpiresAt() 
+      };
+      await this._populateAllCaches(key, consentValue);
+      
+      return sourceValue;
+      
+    } catch (error) {
+      console.error(`[CacheManager] Error retrieving ${key}:`, error);
+      throw error;
+    }
+  }
+
+  _getExpiresAt() {
+    const ttlMs = this.secondsTTL * 1000;
+    const expiresAt = Date.now() + ttlMs;
+    return expiresAt; 
+  }
+
+  /**
+   * Popola tutte le cache con un valore
+   * @private
+   */
+  async _populateAllCaches(key, value) {
+    // Cache locale
+    const localSuccess = this.localCache.set(key, value, value.expiresAt);
+    if (localSuccess) {
+      console.log(`[CacheManager] Cache locale popolata (${key})`);
+    }
+    
+    // Redis
+    const redisSuccess = await this.redisCache.set(key, value, value.expiresAt);
+    if (redisSuccess) {
+      console.log(`[CacheManager] Redis popolato (${key})`);
+    }
+  }
+  
+}
+
+module.exports = CacheManager;
