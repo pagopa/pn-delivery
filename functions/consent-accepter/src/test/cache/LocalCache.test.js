@@ -87,8 +87,9 @@ describe('LocalCache', () => {
     it('should return false for unexpired item', () => {
       const futureTime = Date.now() + 10000;
       const entry = { value: 'test', expiresAt: futureTime };
+      cache.localCache.set('key1', entry);
       
-      const result = cache._isItemExpired(entry, 'key1');
+      const result = cache._isItemExpired('key1');
       expect(result).to.be.false;
     });
 
@@ -97,15 +98,16 @@ describe('LocalCache', () => {
       const entry = { value: 'test', expiresAt: pastTime };
       cache.localCache.set('key1', entry);
       
-      const result = cache._isItemExpired(entry, 'key1');
+      const result = cache._isItemExpired('key1');
       expect(result).to.be.true;
       expect(cache.localCache.has('key1')).to.be.false;
     });
 
     it('should return false for item without expiration', () => {
       const entry = { value: 'test' };
+      cache.localCache.set('key1', entry);
       
-      const result = cache._isItemExpired(entry, 'key1');
+      const result = cache._isItemExpired('key1');
       expect(result).to.be.false;
     });
   });

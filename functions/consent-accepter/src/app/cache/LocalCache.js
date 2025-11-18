@@ -3,8 +3,9 @@ class LocalCache {
     this.localCache = new Map();
   }
 
-  _isItemExpired(entry, key) {
+  _isItemExpired(key) {
     const now = Date.now();
+    const entry = this.localCache.get(key);
     if (entry.expiresAt && now > entry.expiresAt) {
       this.localCache.delete(key);
       return true;
@@ -20,7 +21,7 @@ class LocalCache {
       return null;
     }
 
-    if (this._isItemExpired(entry, key)) {
+    if (this._isItemExpired(key)) {
       return null;
     }
 
