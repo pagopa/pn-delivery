@@ -709,6 +709,34 @@ Parameters:
     Description: "latest notification version without v ex. 2.4"
     AllowedPattern: '^\d\.\d$'
 
+  RedisServerlessArn:
+    Type: String
+    Description: 'RedisServerless ARN'
+  
+  RedisServerlessName:
+    Type: String
+    Description: 'RedisServerless Name'
+  
+  ElasticacheUserArn1:
+    Type: String
+    Description: 'ElastiCacheUser for radd'
+
+  RedisEndpoint:
+    Type: String
+    Description: 'ElastiCache Redis endpoint'
+
+  ElasticCacheDeliveryUserArn:
+    Type: String
+    Description: 'ElastiCache user id'
+
+  ElasticCacheDeliveryUserId:
+    Type: String
+    Description: 'ElastiCache user id'
+    
+  ElasticacheSecurityGroup:
+    Type: String
+    Description: 'Elastic cache security Group'
+
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
 
@@ -1065,6 +1093,7 @@ Resources:
       VpcConfig:
         SecurityGroupIds:
           - !GetAtt ConsentAccepterSecGroup.GroupId
+          - !Ref ElasticacheSecurityGroup
         SubnetIds: !Ref SubnetsIds
       Environment:
         Variables:
@@ -1105,10 +1134,22 @@ Resources:
                 - lambda.amazonaws.com
             Action:
               - sts:AssumeRole
+      Policies:
+        - PolicyName: RedisAccessPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - elasticache:Connect
+                Resource:
+                  - !Ref RedisServerlessArn
+                  - !Ref ElasticCacheDeliveryUserArn
+
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
-  
+    
   ConsentAccepterLambdaAlarms:
     Type: AWS::CloudFormation::Stack
     Properties:
