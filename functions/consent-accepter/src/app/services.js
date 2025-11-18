@@ -1,7 +1,7 @@
 const axios = require("axios");
 
 class RestClient {
-  static async getLastVersion(consentType, cxType) {
+  static async getLastVersion(cxType, consentType) {
     console.log(`Retrieving last version for consent ${consentType}`);
     try {
       const response = await axios.get(
@@ -62,7 +62,7 @@ class RestClient {
             body: JSON.stringify(error.response.data)
           };
       }
-      else if(error.request){
+      else {
           console.log("Error for the request:", error.request);
           throw error;
         }

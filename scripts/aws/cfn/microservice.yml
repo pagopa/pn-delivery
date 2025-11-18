@@ -713,6 +713,11 @@ Parameters:
     Type: String
     Description: "Namespace for Redis keys"
 
+  CacheItemTtlSeconds:
+    Type: Number
+    Description: "TTL in seconds for cache items"
+    Default: 900
+
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
 
@@ -1079,6 +1084,7 @@ Resources:
           USER_ID_REDIS: "TEST"
           REDIS_ENDPOINT: "TEST"
           REDIS_NAMESPACE: !Ref RedisNamespace
+          CACHE_ITEM_TTL_SECONDS: !Ref CacheItemTtlSeconds
       TracingConfig:
         Mode: Active
       Layers:

@@ -1,6 +1,15 @@
 const RestClient = require("./services");
 const { getUserInfoFromEvent, retrieveHeadersToForward } = require("./utils");
 const defaultProblem = "Error executing request";
+const CacheManager = require('./cache/CacheManager');
+
+/**
+ * Inizializza il CacheManager con configurazione
+ */
+const cacheManager = new CacheManager({
+  localTTL: parseInt(process.env.CACHE_ITEM_TTL_SECONDS) || 60,
+  externalFetcher: RestClient.getLastVersion
+});
 
 exports.handle = async (event) => {
   try {
@@ -24,10 +33,7 @@ exports.handle = async (event) => {
 async function acceptConsent(consent, userInfo) {
   let lastVersion = consent.version;
   if (!lastVersion) {
-    lastVersion = await RestClient.getLastVersion(
-      consent.consentType,
-      userInfo.cxType
-    );
+    lastVersion = cacheManager.get(userInfo.cxType, consent.consentType);
   }
   await RestClient.putConsents(
     consent.consentType,
