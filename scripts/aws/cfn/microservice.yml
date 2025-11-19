@@ -1108,7 +1108,6 @@ Resources:
         Variables:
           CONSENTS_TO_ACCEPT: !Ref ConsentsToAccept
           API_BASE_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080"
-          AWS_REGION: !Ref AWS::Region
           REDIS_SERVER_NAME: !Ref RedisServerlessName
           USER_ID_REDIS: !Ref ElasticCacheDeliveryUserId
           REDIS_ENDPOINT: !Ref RedisEndpoint
