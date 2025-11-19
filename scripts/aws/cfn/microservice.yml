@@ -1109,9 +1109,9 @@ Resources:
           CONSENTS_TO_ACCEPT: !Ref ConsentsToAccept
           API_BASE_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080"
           AWS_REGION: !Ref AWS::Region
-          REDIS_SERVER_NAME: "TEST"
-          USER_ID_REDIS: "TEST"
-          REDIS_ENDPOINT: "TEST"
+          REDIS_SERVER_NAME: !Ref RedisServerlessName
+          USER_ID_REDIS: !Ref ElasticCacheDeliveryUserId
+          REDIS_ENDPOINT: !Ref RedisEndpoint
           REDIS_NAMESPACE: !Ref RedisNamespace
           CACHE_ITEM_TTL_SECONDS: !Ref CacheItemTtlSeconds
       TracingConfig:
