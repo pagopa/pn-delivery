@@ -15,26 +15,49 @@ class RedisCache {
     return `${this.REDIS_NAMESPACE}${this.REDIS_PREFIX}${key}`;
   }
 
-  async connectClient() {
-    console.log("Connecting to Redis"); 
-    let newClient = await this.provider.getClient();
-    await newClient.connect();
-    console.log("Redis connection OK");
-    this.redisClient = newClient;
-  }
+  async connect() {
+    console.log("[RedisCache] connect() - START");
 
-  async disconnectClient() {
-    if (this.redisClient) {
-      await this.redisClient.disconnect();
-      console.log("Redis disconnected");
+    if (this.redisClient?.isReady) {
+      console.log("[RedisCache] connect() - Already connected, skipping");
+      return;
+    }
+
+    try {
+      const client = await this.provider.getClient();
+      await client.connect();
+      this.redisClient = client;
+      console.log("[RedisCache] connect() - Redis connection OK");
+    } catch (error) {
+      console.error("[RedisCache] connect() - Error during connection:", error);
+      this.provider.invalidateClient();
       this.redisClient = null;
     }
-  } 
+  }
+
+  async disconnect() {
+    console.log("[RedisCache] disconnect() - START");
+    
+    try {
+      // Check se c'è un client da disconnettere
+      if (!this.redisClient) {
+        console.log("[RedisCache] disconnect() - No client to disconnect");
+        return;
+      }
+
+      await this.redisClient.quit();
+      this.redisClient = null;
+      console.log("[RedisCache] disconnect() - Quit successful");
+      
+    } catch (error) {
+      console.error("[RedisCache] disconnect() - Error during disconnection:", error);
+      // Forza il reset del client anche in caso di errore
+      this.redisClient = null;
+    }
+  }
 
   async set(key, value, msTimestamp) {
     try {
-      await this.connectClient();
-
       const serializedValue = JSON.stringify(value);
       const options = {};
 
@@ -43,33 +66,28 @@ class RedisCache {
       }
 
       await this.redisClient.set(this._composeRedisKey(key) , serializedValue, options);
-      console.log(`Value set in Redis with expiresAt ${msTimestamp}: ${key}`);
+      console.log(`[RedisCache] Value set in Redis with expiresAt ${msTimestamp}: ${key}`);
       return true;
     } catch (error) {
-      console.error(`Error setting key ${key}:`, error);
+      console.error(`[RedisCache] Error setting key ${key}:`, error);
       return false;
-    } finally {
-      await this.disconnectClient();
-    } 
+    }
   }
 
   async get(key) {
     try {
-      await this.connectClient();
       const serializedValue = await this.redisClient.get(this._composeRedisKey(key));
 
       if (serializedValue === null) {
-        console.log(`Redis Cache miss with key: ${key}`);
+        console.log(`[RedisCache] Redis Cache miss with key: ${key}`);
         return null;
       }
 
-      console.log(`Redis Cache hit with key: ${key}`);
+      console.log(`[RedisCache] Redis Cache hit with key: ${key}`);
       return JSON.parse(serializedValue);
     } catch (error) {
-      console.error(`Error getting key ${key}:`, error);
+      console.error(`[RedisCache] Error getting key ${key}:`, error);
       return null;
-    } finally {
-      await this.disconnectClient();
     }
   } 
 }

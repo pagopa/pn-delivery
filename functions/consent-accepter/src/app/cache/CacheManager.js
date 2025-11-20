@@ -24,6 +24,22 @@ class CacheManager {
     this.keyGenerator = this._defaultKeyGenerator;
   }
 
+  /**
+   * Inizializza la connessione alla cache Redis
+   * @return {Promise<void>}
+   **/  
+  async connect() {
+    await this.redisCache.connect();
+  }
+
+  /**
+   * Chiude la connessione alla cache Redis
+   * @return {Promise<void>}
+   **/    
+  async disconnect() {
+    await this.redisCache.disconnect();
+  } 
+
   _defaultKeyGenerator(cxType, consentType) {
     return `${cxType}##${consentType}`;
   }
@@ -43,8 +59,9 @@ class CacheManager {
       const localValue = this.localCache.get(key);
       if (localValue !== null) {
         console.log(`[CacheManager] Local Cache hit (${key})`);
-        return localValue;
+        return localValue.version;
       }
+      
       
       const redisValue = await this.redisCache.get(key);
       if (redisValue !== null) {
@@ -53,7 +70,7 @@ class CacheManager {
         // Popola cache locale per prossimi accessi
         this.localCache.set(key, redisValue, redisValue.expiresAt);
         
-        return redisValue;
+        return redisValue.version;
       }
       
       // LIVELLO 3: External Source
@@ -61,7 +78,7 @@ class CacheManager {
       const sourceValue = await this.externalFetcher(cxType, consentType);
       
       if (sourceValue === null || sourceValue === undefined) {
-        throw new Error(`Value not found for ${cxType}_${consentType}`);
+        throw new Error(`[CacheManager] Value not found for ${key} from external source`);
       }
       
       // Popola entrambe le cache
@@ -92,17 +109,8 @@ class CacheManager {
    * @private
    */
   async _populateAllCaches(key, value) {
-    // Cache locale
-    const localSuccess = this.localCache.set(key, value, value.expiresAt);
-    if (localSuccess) {
-      console.log(`[CacheManager] Cache locale popolata (${key})`);
-    }
-    
-    // Redis
-    const redisSuccess = await this.redisCache.set(key, value, value.expiresAt);
-    if (redisSuccess) {
-      console.log(`[CacheManager] Redis popolato (${key})`);
-    }
+    this.localCache.set(key, value, value.expiresAt);
+    await this.redisCache.set(key, value, value.expiresAt);
   }
   
 }

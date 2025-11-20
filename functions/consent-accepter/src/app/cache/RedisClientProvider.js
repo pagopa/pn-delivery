@@ -17,9 +17,11 @@ class RedisClientProvider {
       this.client &&
       this.expiration > Date.now()
     ) {
+      console.log("[RedisClientProvider] getClient() - Returning existing valid client");
       return this.client;
-    } 
+    }
 
+    console.log("[RedisClientProvider] getClient() - Creating new client");
     const credentials = await fromNodeProviderChain()();
     const sign = new Signer({
         region: process.env.AWS_REGION,
@@ -43,6 +45,11 @@ class RedisClientProvider {
     };
     this.client = createClient(redisConfig);
     return this.client;
+  }
+
+  invalidateClient() {
+    this.client = null;
+    this.expiration = null;
   }
 }
 

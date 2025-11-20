@@ -183,4 +183,17 @@ describe('RedisClientProvider', () => {
       }
     });
   });
+
+  describe('invalidateClient', () => {
+    it('should set client and expiration to null', () => {
+      const mockClient = { connect: sinon.stub() };
+      redisClientProvider.client = mockClient;
+      redisClientProvider.expiration = Date.now() + 10000;
+
+      redisClientProvider.invalidateClient();
+
+      expect(redisClientProvider.client).to.be.null;
+      expect(redisClientProvider.expiration).to.be.null;
+    });
+  });
 });
