@@ -58,15 +58,12 @@ class CacheManager {
     try {
       const localValue = this.localCache.get(key);
       if (localValue !== null) {
-        console.log(`[CacheManager] Local Cache hit (${key})`);
         return localValue.version;
       }
       
       
       const redisValue = await this.redisCache.get(key);
       if (redisValue !== null) {
-        console.log(`[CacheManager] Redis hit (${key})`);
-        
         // Popola cache locale per prossimi accessi
         this.localCache.set(key, redisValue, redisValue.expiresAt);
         

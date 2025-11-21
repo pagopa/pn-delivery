@@ -66,7 +66,7 @@ class RedisCache {
       }
 
       await this.redisClient.set(this._composeRedisKey(key) , serializedValue, options);
-      console.log(`[RedisCache] Value set in Redis with expiresAt ${msTimestamp}: ${key}`);
+      console.log(`[RedisCache] Value set with expiresAt ${msTimestamp}: ${key}`);
       return true;
     } catch (error) {
       console.error(`[RedisCache] Error setting key ${key}:`, error);

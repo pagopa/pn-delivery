@@ -44,7 +44,7 @@ class LocalCache {
       });
 
       console.log(
-        `[LocalCache] Value set in with expiration ${new Date(expiresAtMs).toISOString()}: ${key}`
+        `[LocalCache] Value set with expiration ${new Date(expiresAtMs).toISOString()}: ${key}`
       );
 
       return true;
