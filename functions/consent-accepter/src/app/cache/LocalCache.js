@@ -17,7 +17,7 @@ class LocalCache {
     const entry = this.localCache.get(key);
 
     if (!entry) {
-      console.log(`Local Cache miss with key: ${key}`);
+      console.log(`[LocalCache] miss with key: ${key}`);
       return null;
     }
 
@@ -25,7 +25,7 @@ class LocalCache {
       return null;
     }
 
-    console.log(`Local Cache hit with key: ${key}`);
+    console.log(`[LocalCache] hit with key: ${key}`);
     return entry.value;
   }
 
@@ -33,7 +33,7 @@ class LocalCache {
     try {
       if (!expiresAtMs || expiresAtMs <= 0) {
         console.warn(
-          `Invalid expiration timestamp for key ${key}: ${expiresAtMs  }.`
+          `[LocalCache] Invalid expiration timestamp for key ${key}: ${expiresAtMs  }.`
         );
         return false;
       }
@@ -44,12 +44,12 @@ class LocalCache {
       });
 
       console.log(
-        `Value set in local cache with expiration ${new Date(expiresAtMs).toISOString()}: ${key}`
+        `[LocalCache] Value set in with expiration ${new Date(expiresAtMs).toISOString()}: ${key}`
       );
 
       return true;
     } catch (error) {
-      console.error(`Error writing to local cache for key ${key}:`, error);
+      console.error(`[LocalCache] Error writing for key ${key}:`, error);
       return false;
     }
   }
@@ -58,7 +58,7 @@ class LocalCache {
     const existed = this.localCache.delete(key);
 
     if (existed) {
-      console.log(`Key deleted from local cache with key: ${key}`);
+      console.log(`[LocalCache] Key deleted with key: ${key}`);
     }
 
     return existed;

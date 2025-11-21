@@ -21,13 +21,17 @@ describe('CacheManager', () => {
     
     redisCacheStub = {
       get: sinon.stub(),
-      set: sinon.stub()
+      set: sinon.stub(),
+      connect: sinon.stub(),
+      disconnect: sinon.stub()
     };
 
     sinon.stub(LocalCache.prototype, 'get').callsFake(localCacheStub.get);
     sinon.stub(LocalCache.prototype, 'set').callsFake(localCacheStub.set);
     sinon.stub(RedisCache.prototype, 'get').callsFake(redisCacheStub.get);
     sinon.stub(RedisCache.prototype, 'set').callsFake(redisCacheStub.set);
+    sinon.stub(RedisCache.prototype, 'connect').callsFake(redisCacheStub.connect);
+    sinon.stub(RedisCache.prototype, 'disconnect').callsFake(redisCacheStub.disconnect);
 
     cacheManager = new CacheManager({
       externalFetcher: mockExternalFetcher,
@@ -71,14 +75,35 @@ describe('CacheManager', () => {
     });
   });
 
+  describe('connect', () => {
+    it('should connect to Redis cache successfully', async () => {
+      redisCacheStub.connect.resolves();
+
+      await cacheManager.connect();
+
+      expect(redisCacheStub.connect.calledOnce).to.be.true;
+    });
+  }); 
+
+  describe('disconnect', () => {
+    it('should disconnect from Redis cache successfully', async () => {
+      redisCacheStub.disconnect.resolves();
+
+      await cacheManager.disconnect();
+
+      expect(redisCacheStub.disconnect.calledOnce).to.be.true;
+    }); 
+  });
+
   describe('get - Local Cache Hit', () => {
     it('should return value from local cache when available', async () => {
-      const expectedValue = 'v1.0';
-      localCacheStub.get.returns(expectedValue);
+      const version = 'v1.0';
+      const value = {version: version};
+      localCacheStub.get.returns(value);
 
       const result = await cacheManager.get('PF', 'TOS');
 
-      expect(result).to.equal(expectedValue);
+      expect(result).to.equal(version);
       expect(localCacheStub.get.calledWith('PF##TOS')).to.be.true;
       expect(redisCacheStub.get.called).to.be.false;
       expect(mockExternalFetcher.called).to.be.false;
@@ -109,7 +134,7 @@ describe('CacheManager', () => {
 
       const result = await cacheManager.get('PF', 'TOS');
 
-      expect(result).to.equal(redisValue);
+      expect(result).to.equal(redisValue.version);
       expect(localCacheStub.get.calledWith('PF##TOS')).to.be.true;
       expect(redisCacheStub.get.calledWith('PF##TOS')).to.be.true;
       expect(localCacheStub.set.calledWith('PF##TOS', redisValue, redisValue.expiresAt)).to.be.true;
@@ -182,7 +207,7 @@ describe('CacheManager', () => {
         await cacheManager.get('PF', 'TOS');
         expect.fail('Should have thrown an error');
       } catch (error) {
-        expect(error.message).to.equal('Value not found for PF_TOS');
+        expect(error.message).to.equal('[CacheManager] Value not found for PF##TOS from external source');
       }
     });
 
@@ -193,7 +218,7 @@ describe('CacheManager', () => {
         await cacheManager.get('PF', 'TOS');
         expect.fail('Should have thrown an error');
       } catch (error) {
-        expect(error.message).to.equal('Value not found for PF_TOS');
+        expect(error.message).to.equal('[CacheManager] Value not found for PF##TOS from external source');
       }
     });
 

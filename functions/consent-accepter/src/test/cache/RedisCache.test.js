@@ -13,8 +13,8 @@ const composeRedisKey = (key) => {
 describe('RedisCache', () => {
   let redisCache;
   let mockClient;
-  let mockProvider;
-  let providerStub;
+  let providerGetClientStub;
+  let providerInvalidateStub;
 
   beforeEach(() => {
     process.env.REDIS_NAMESPACE = namespace;
@@ -22,19 +22,14 @@ describe('RedisCache', () => {
     // Create mock Redis client
     mockClient = {
       connect: sinon.stub().resolves(),
-      disconnect: sinon.stub().resolves(),
+      quit: sinon.stub().resolves(),
       set: sinon.stub().resolves(),
       get: sinon.stub().resolves()
     };
 
-    // Create mock provider
-    mockProvider = {
-      getClient: sinon.stub().resolves(mockClient)
-    };
-
     // Stub the RedisClientProvider constructor
-    providerStub = sinon.stub(RedisClientProvider.prototype, 'getClient').returns(Promise.resolve(mockClient));
-
+    providerGetClientStub = sinon.stub(RedisClientProvider.prototype, 'getClient').returns(Promise.resolve(mockClient));
+    providerInvalidateStub = sinon.stub(RedisClientProvider.prototype, 'invalidateClient').returns();
     redisCache = new RedisCache();
   });
 
@@ -42,65 +37,114 @@ describe('RedisCache', () => {
     sinon.restore();
   });
 
-  describe('constructor', () => {
-    it('should initialize with RedisClientProvider and null redisClient', () => {
-      expect(redisCache.provider).to.be.instanceOf(RedisClientProvider);
-      expect(redisCache.redisClient).to.be.null;
-    });
-  });
-
-  describe('connectClient', () => {
+  describe('connect', () => {
     it('should connect to Redis successfully', async () => {
-      await redisCache.connectClient();
+      await redisCache.connect();
 
-      expect(providerStub.calledOnce).to.be.true;
+      expect(providerGetClientStub.calledOnce).to.be.true;
       expect(mockClient.connect.calledOnce).to.be.true;
       expect(redisCache.redisClient).to.equal(mockClient);
     });
 
-    it('should handle connection errors', async () => {
+    it('should skip connection if client is already ready', async () => {
+      mockClient.isReady = true;
+      redisCache.redisClient = mockClient;
+
+      await redisCache.connect();
+
+      expect(providerGetClientStub.called).to.be.false;
+      expect(mockClient.connect.called).to.be.false;
+    });
+
+    it('should handle provider getClient errors', async () => {
+      const error = new Error('Provider failed');
+      providerGetClientStub.rejects(error);
+
+      await redisCache.connect();
+
+      expect(providerGetClientStub.calledOnce).to.be.true;
+      expect(mockClient.connect.called).to.be.false;
+      expect(providerInvalidateStub.calledOnce).to.be.true;
+      expect(redisCache.redisClient).to.be.null;
+    });
+
+    it('should handle client connection errors', async () => {
       const error = new Error('Connection failed');
       mockClient.connect.rejects(error);
 
-      try {
-        await redisCache.connectClient();
-        expect.fail('Should have thrown an error');
-      } catch (err) {
-        expect(err).to.equal(error);
-      }
+      await redisCache.connect();
+
+      expect(providerGetClientStub.calledOnce).to.be.true;
+      expect(mockClient.connect.calledOnce).to.be.true;
+      expect(providerInvalidateStub.calledOnce).to.be.true;
+      expect(redisCache.redisClient).to.be.null;
+    });
+
+    it('should handle case where client exists but isReady is false', async () => {
+      const oldClient = { isReady: false };
+      redisCache.redisClient = oldClient;
+
+      await redisCache.connect();
+
+      expect(providerGetClientStub.calledOnce).to.be.true;
+      expect(mockClient.connect.calledOnce).to.be.true;
+      expect(redisCache.redisClient).to.equal(mockClient);
+      expect(redisCache.redisClient).to.not.equal(oldClient);
+    });
+
+
+    it('should not call connect twice on already ready client', async () => {
+      mockClient.isReady = true;
+      redisCache.redisClient = mockClient;
+
+      await redisCache.connect();
+      await redisCache.connect(); // Second call
+
+      expect(providerGetClientStub.called).to.be.false;
+      expect(mockClient.connect.called).to.be.false;
     });
   });
 
-  describe('disconnectClient', () => {
-    it('should disconnect when client exists', async () => {
+  describe('disconnect', () => {
+    it('should disconnect successfully when client exists', async () => {
       redisCache.redisClient = mockClient;
 
-      await redisCache.disconnectClient();
+      await redisCache.disconnect();
 
-      expect(mockClient.disconnect.calledOnce).to.be.true;
+      expect(mockClient.quit.calledOnce).to.be.true;
       expect(redisCache.redisClient).to.be.null;
     });
 
     it('should handle null client gracefully', async () => {
       redisCache.redisClient = null;
 
-      await redisCache.disconnectClient();
+      await redisCache.disconnect();
 
-      expect(mockClient.disconnect.called).to.be.false;
+      expect(mockClient.quit.called).to.be.false;
+      expect(redisCache.redisClient).to.be.null;
     });
 
-    it('should handle disconnect errors', async () => {
-      const error = new Error('Disconnect failed');
-      mockClient.disconnect.rejects(error);
+    it('should handle quit errors and still reset client', async () => {
+      const error = new Error('Quit failed');
+      mockClient.quit.rejects(error);
       redisCache.redisClient = mockClient;
 
-      try {
-        await redisCache.disconnectClient();
-        expect.fail('Should have thrown an error');
-      } catch (err) {
-        expect(err).to.equal(error);
-      }
+      await redisCache.disconnect();
+
+      expect(mockClient.quit.calledOnce).to.be.true;
+      expect(redisCache.redisClient).to.be.null; // Should be reset even on error
     });
+
+    it('should handle multiple disconnect calls safely', async () => {
+      redisCache.redisClient = mockClient;
+
+      await redisCache.disconnect();
+      await redisCache.disconnect(); // Second call with null client
+
+      expect(mockClient.quit.calledOnce).to.be.true; // Only called once
+      expect(redisCache.redisClient).to.be.null;
+    });
+
   });
 
   describe('set', () => {
@@ -109,6 +153,7 @@ describe('RedisCache', () => {
       const value = { data: 'test' };
       const timestamp = Date.now() + 10000;
 
+      await redisCache.connect();
       const result = await redisCache.set(key, value, timestamp);
 
       expect(result).to.be.true;
@@ -120,6 +165,7 @@ describe('RedisCache', () => {
       const key = 'testKey';
       const value = { data: 'test' };
 
+      await redisCache.connect();
       const result = await redisCache.set(key, value);
 
       expect(result).to.be.true;
@@ -137,33 +183,6 @@ describe('RedisCache', () => {
 
       expect(result).to.be.false;
     });
-
-    it('should always disconnect after set operation', async () => {
-      const disconnectSpy = sinon.spy(redisCache, 'disconnectClient');
-      
-      await redisCache.set('key', 'value');
-
-      expect(disconnectSpy.calledOnce).to.be.true;
-    });
-
-    it('should disconnect even when set fails', async () => {
-      mockClient.set.rejects(new Error('Set failed'));
-      const disconnectSpy = sinon.spy(redisCache, 'disconnectClient');
-      
-      await redisCache.set('key', 'value');
-
-      expect(disconnectSpy.calledOnce).to.be.true;
-    });
-
-    it('should handle complex objects', async () => {
-      const key = 'complexKey';
-      const value = { nested: { data: 'test' }, array: [1, 2, 3] };
-
-      const result = await redisCache.set(key, value);
-
-      expect(result).to.be.true;
-      expect(mockClient.set.calledWith(composeRedisKey(key), JSON.stringify(value), {})).to.be.true;
-    });
   });
 
   describe('get', () => {
@@ -173,6 +192,7 @@ describe('RedisCache', () => {
       const serializedValue = JSON.stringify(value);
       mockClient.get.resolves(serializedValue);
 
+      await redisCache.connect();
       const result = await redisCache.get(key);
 
       expect(result).to.deep.equal(value);
@@ -183,6 +203,7 @@ describe('RedisCache', () => {
       const key = 'nonExistentKey';
       mockClient.get.resolves(null);
 
+      await redisCache.connect();
       const result = await redisCache.get(key);
 
       expect(result).to.be.null;
@@ -207,29 +228,12 @@ describe('RedisCache', () => {
       expect(result).to.be.null;
     });
 
-    it('should always disconnect after get operation', async () => {
-      mockClient.get.resolves(JSON.stringify({ data: 'test' }));
-      const disconnectSpy = sinon.spy(redisCache, 'disconnectClient');
-      
-      await redisCache.get('key');
-
-      expect(disconnectSpy.calledOnce).to.be.true;
-    });
-
-    it('should disconnect even when get fails', async () => {
-      mockClient.get.rejects(new Error('Get failed'));
-      const disconnectSpy = sinon.spy(redisCache, 'disconnectClient');
-      
-      await redisCache.get('key');
-
-      expect(disconnectSpy.calledOnce).to.be.true;
-    });
-
     it('should handle primitive values', async () => {
       const key = 'stringKey';
       const value = 'simple string';
       mockClient.get.resolves(JSON.stringify(value));
 
+      await redisCache.connect();
       const result = await redisCache.get(key);
 
       expect(result).to.equal(value);
@@ -243,35 +247,6 @@ describe('RedisCache', () => {
       const result = await redisCache.get(key);
 
       expect(result).to.be.null;
-    });
-  });
-
-  describe('integration scenarios', () => {
-    it('should handle connection failure during set', async () => {
-      const connectError = new Error('Connection failed');
-      mockClient.connect.rejects(connectError);
-
-      const result = await redisCache.set('key', 'value');
-
-      expect(result).to.be.false;
-    });
-
-    it('should handle connection failure during get', async () => {
-      const connectError = new Error('Connection failed');
-      mockClient.connect.rejects(connectError);
-
-      const result = await redisCache.get('key');
-
-      expect(result).to.be.null;
-    });
-
-    it('should handle provider getClient failure', async () => {
-      const providerError = new Error('Provider failed');
-      providerStub.rejects(providerError);
-
-      const result = await redisCache.set('key', 'value');
-
-      expect(result).to.be.false;
     });
   });
 });
