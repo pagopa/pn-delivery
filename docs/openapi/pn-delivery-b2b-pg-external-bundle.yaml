@@ -1154,8 +1154,8 @@ components:
             In questo campo è possibile definire la lingua addizionale (oltre a
             quella italiana) da utilizzare per la generazione documenti, atti
             opponibili a terzi ecc.<br/> Le lingue accettate e dunque i valori
-            possibili degli item dell'array sono: <br/> - DE <br/> - SI <br/> -
-            FR <br/> DE (tedesco), SI (sloveno), FR (francese) Attualmente è
+            possibili degli item dell'array sono: <br/> - DE <br/> - SL <br/> -
+            FR <br/> DE (tedesco), SL (sloveno), FR (francese) Attualmente è
             possibile indicare un solo item e dunque una sola lingua aggiuntiva.
             Se non vengono indicate lingue aggiuntive la lingua utilizzata per
             generare <br/> documenti, atti opponibili a terzi ecc. sarà quella
