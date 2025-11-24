@@ -17,7 +17,6 @@ class LocalCache {
     const entry = this.localCache.get(key);
 
     if (!entry) {
-      console.log(`[LocalCache] miss with key: ${key}`);
       return null;
     }
 
@@ -25,7 +24,6 @@ class LocalCache {
       return null;
     }
 
-    console.log(`[LocalCache] hit with key: ${key}`);
     return entry.value;
   }
 
@@ -43,25 +41,11 @@ class LocalCache {
         expiresAt: expiresAtMs
       });
 
-      console.log(
-        `[LocalCache] Value set with expiration ${new Date(expiresAtMs).toISOString()}: ${key}`
-      );
-
       return true;
     } catch (error) {
       console.error(`[LocalCache] Error writing for key ${key}:`, error);
       return false;
     }
-  }
-  
-  del(key) {
-    const existed = this.localCache.delete(key);
-
-    if (existed) {
-      console.log(`[LocalCache] Key deleted with key: ${key}`);
-    }
-
-    return existed;
   }
 }
 

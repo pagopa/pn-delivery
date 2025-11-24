@@ -16,8 +16,6 @@ class RedisCache {
   }
 
   async connect() {
-    console.log("[RedisCache] connect() - START");
-
     if (this.redisClient?.isReady) {
       console.log("[RedisCache] connect() - Already connected, skipping");
       return;
@@ -36,8 +34,6 @@ class RedisCache {
   }
 
   async disconnect() {
-    console.log("[RedisCache] disconnect() - START");
-    
     try {
       // Check se c'è un client da disconnettere
       if (!this.redisClient) {
@@ -66,7 +62,6 @@ class RedisCache {
       }
 
       await this.redisClient.set(this._composeRedisKey(key) , serializedValue, options);
-      console.log(`[RedisCache] Value set with expiresAt ${msTimestamp}: ${key}`);
       return true;
     } catch (error) {
       console.error(`[RedisCache] Error setting key ${key}:`, error);
@@ -79,11 +74,9 @@ class RedisCache {
       const serializedValue = await this.redisClient.get(this._composeRedisKey(key));
 
       if (serializedValue === null) {
-        console.log(`[RedisCache] Redis Cache miss with key: ${key}`);
         return null;
       }
 
-      console.log(`[RedisCache] Redis Cache hit with key: ${key}`);
       return JSON.parse(serializedValue);
     } catch (error) {
       console.error(`[RedisCache] Error getting key ${key}:`, error);

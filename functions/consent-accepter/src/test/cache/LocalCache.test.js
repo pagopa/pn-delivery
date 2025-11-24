@@ -67,22 +67,6 @@ describe('LocalCache', () => {
     });
   });
 
-  describe('del', () => {
-    it('should delete existing key and return true', () => {
-      const futureTime = Date.now() + 10000;
-      cache.set('key1', 'value1', futureTime);
-      
-      const result = cache.del('key1');
-      expect(result).to.be.true;
-      expect(cache.localCache.has('key1')).to.be.false;
-    });
-
-    it('should return false for non-existent key', () => {
-      const result = cache.del('nonexistent');
-      expect(result).to.be.false;
-    });
-  });
-
   describe('_isItemExpired', () => {
     it('should return false for unexpired item', () => {
       const futureTime = Date.now() + 10000;
