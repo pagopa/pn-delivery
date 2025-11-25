@@ -712,11 +712,11 @@ Parameters:
   RedisServerlessArn:
     Type: String
     Description: 'RedisServerless ARN'
-  
+
   RedisServerlessName:
     Type: String
     Description: 'RedisServerless Name'
-  
+
   ElasticacheUserArn1:
     Type: String
     Description: 'ElastiCacheUser for radd'
@@ -732,10 +732,19 @@ Parameters:
   ElasticCacheDeliveryUserId:
     Type: String
     Description: 'ElastiCache user id'
-    
+
   ElasticacheSecurityGroup:
     Type: String
     Description: 'Elastic cache security Group'
+
+  RedisNamespace:
+    Type: String
+    Description: "Namespace for Redis keys"
+
+  CacheItemTtlSeconds:
+    Type: Number
+    Description: "TTL in seconds for cache items"
+    Default: 900
 
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
@@ -1099,6 +1108,11 @@ Resources:
         Variables:
           CONSENTS_TO_ACCEPT: !Ref ConsentsToAccept
           API_BASE_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080"
+          REDIS_SERVER_NAME: !Ref RedisServerlessName
+          USER_ID_REDIS: !Ref ElasticCacheDeliveryUserId
+          REDIS_ENDPOINT: !Ref RedisEndpoint
+          REDIS_NAMESPACE: !Ref RedisNamespace
+          CACHE_ITEM_TTL_SECONDS: !Ref CacheItemTtlSeconds
       TracingConfig:
         Mode: Active
       Layers:
@@ -1149,7 +1163,7 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
-    
+
   ConsentAccepterLambdaAlarms:
     Type: AWS::CloudFormation::Stack
     Properties:

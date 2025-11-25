@@ -6,11 +6,15 @@
   "scripts": {
     "test-build": "npm run-script test && npm run-script coverage && npm run-script sonar && npm run-script build",
     "build": "npm prune --production && rm -f ./function.zip && zip -r ./function.zip . -x './src/test/*' -x '*.md' -x '*.env'  -x './coverage/*' -x './.nyc_output/*' -x './.scannerwork/*'",
-    "test": "nyc --reporter=html --reporter=text mocha './src/test/**/*.test.js' --recursive --timeout=3000 --exit -r dotenv/config",
+    "test": "nyc --reporter=html --reporter=text mocha ./src/test/**/*.test.js --recursive --timeout=3000 --exit -r dotenv/config",
     "coverage": "nyc report --reporter=lcov",
     "sonar": "node sonarqube-scanner.js"
   },
-  "devDependencies": {
+  "devDependencies": {    
+    "@aws-sdk/credential-providers": "^3.590.0",
+    "@aws-sdk/hash-node": "^3.374.0",
+    "@aws-sdk/signature-v4": "^3.374.0",
+    "@aws-sdk/util-format-url": "^3.577.0",
     "axios-mock-adapter": "^1.22.0",
     "chai": "^4.5.0",
     "eslint": "^8.57.1",
@@ -20,11 +24,13 @@
     "mocha-lcov-reporter": "^1.3.0",
     "nyc": "^15.1.0",
     "proxyquire": "^2.1.3",
+    "sinon": "^21.0.0",
     "sonarqube-scanner": "^3.5.0"
   },
   "dependencies": {
     "axios": "^1.12.2",
-    "axios-retry": "^4.5.0"
+    "axios-retry": "^4.5.0",
+    "redis": "^5.9.0"
   },
   "author": "",
   "license": "ISC"

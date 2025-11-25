@@ -54,6 +54,8 @@
     "PaLimitCorrectionLambdaDebugMode": "false",
     "PhysicalAddressLookupStartDate": "2025-03-01T00:00:00.000Z",
     "SearchTimeoutSeconds": "6",
-    "LatestNotificationVersion": "2.5"
+    "LatestNotificationVersion": "2.5",
+    "RedisNamespace": "pn-delivery::",
+    "CacheItemTtlSeconds": "180"
   }
 }
