@@ -56,6 +56,7 @@
     "SearchTimeoutSeconds": "6",
     "LatestNotificationVersion": "2.5",
     "RedisNamespace": "pn-delivery::",
-    "CacheItemTtlSeconds": "180"
+    "CacheItemTtlSeconds": "180",
+    "LogLevelForConsentAccepterLambda": "INFO"
   }
 }
