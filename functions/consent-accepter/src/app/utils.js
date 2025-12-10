@@ -1,3 +1,5 @@
+const logger = require("./logger");
+
 const HEADERS_TO_RETRIEVE = [
     "x-pagopa-lollipop-assertion-ref",
     "x-pagopa-lollipop-assertion-type",
@@ -18,7 +20,7 @@ function retrieveHeadersToForward(headers) {
 }
 
 function getUserInfoFromEvent(event) {
-  console.log("Trying to get user info from event...");
+  logger.info("Trying to get user info from event...");
   const requestContext = event.requestContext || {};
   const authorizer = requestContext.authorizer || {};
   const headers = event.headers || {};

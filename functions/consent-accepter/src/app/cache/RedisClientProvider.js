@@ -1,6 +1,7 @@
 const { createClient } = require("redis");
 const { Signer } = require("./Signer");
 const { fromNodeProviderChain } = require("@aws-sdk/credential-providers");
+const logger = require("../logger");
 
 const AUTHTOKEN_DURATION = 900; //seconds (15 minutes)
 const REDIS_URL_CONST = "rediss://" + process.env.REDIS_ENDPOINT + ":6379";
@@ -17,11 +18,11 @@ class RedisClientProvider {
       this.client &&
       this.expiration > Date.now()
     ) {
-      console.log("[RedisClientProvider] getClient() - Returning existing valid client");
+      logger.info("[RedisClientProvider] getClient() - Returning existing valid client");
       return this.client;
     }
 
-    console.log("[RedisClientProvider] getClient() - Creating new client");
+    logger.info("[RedisClientProvider] getClient() - Creating new client");
     const credentials = await fromNodeProviderChain()();
     const sign = new Signer({
         region: process.env.AWS_REGION,
