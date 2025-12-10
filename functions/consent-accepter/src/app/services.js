@@ -1,20 +1,21 @@
 const axios = require("axios");
+const logger = require("./logger");
 
 class RestClient {
   static async getLastVersion(cxType, consentType) {
-    console.log(`Retrieving last version for consent ${consentType}`);
+    logger.info(`Retrieving last version for consent ${consentType}`);
     try {
       const response = await axios.get(
         `${process.env.API_BASE_URL}/ext-registry-private/privacynotice/${consentType}/${cxType}`
       );
       return response.data.version;
     } catch(error) {
-      console.error(`Error invoking api getLastVersion for consentType: ${consentType}`, error);
+      logger.error(`Error invoking api getLastVersion for consentType: ${consentType}`, error);
       throw error
     }
   }
   static async putConsents(consentType, lastVersion, uid, cxType) {
-    console.log(`Accepting consent ${consentType} (version: ${lastVersion}) for user ${uid} and cxType ${cxType}`);
+    logger.info(`Accepting consent ${consentType} (version: ${lastVersion}) for user ${uid} and cxType ${cxType}`);
     try {
       const response = await axios.put(
         `${process.env.API_BASE_URL}/user-consents/v1/consents/${consentType}?version=${encodeURIComponent(lastVersion)}`,
@@ -28,7 +29,7 @@ class RestClient {
       );
        return response.data;
     } catch(error) {
-      console.error(`Error invoking putConsents with consentType : ${consentType} and version : ${lastVersion}`, error);
+      logger.error(`Error invoking putConsents with consentType : ${consentType} and version : ${lastVersion}`, error);
       throw error;
     }
   }
@@ -56,14 +57,14 @@ class RestClient {
       };
     } catch (error) {
       if(error.response){
-          console.log("Error response from server");
+          logger.info("Error response from server");
           return {
             statusCode: error.response.status,
             body: JSON.stringify(error.response.data)
           };
       }
       else {
-          console.log("Error for the request:", error.request);
+          logger.info("Error for the request:", error.request);
           throw error;
         }
       }
