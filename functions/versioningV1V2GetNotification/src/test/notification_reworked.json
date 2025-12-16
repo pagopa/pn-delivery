@@ -1,0 +1,579 @@
+{
+    "abstract": "Abstract della notifica",
+    "paProtocolNumber": "20251202000000",
+    "subject": "invio notifica test EC",
+    "recipients": [
+        {
+            "recipientType": "PF",
+            "taxId": "FRMTTR76M06B715E",
+            "denomination": "Fieramosca Ettore",
+            "physicalAddress": {
+                "at": "Presso",
+                "address": "VIA ROMA 10 @OK_890",
+                "addressDetails": "SCALA B",
+                "zip": "00118",
+                "municipality": "ROMA",
+                "municipalityDetails": "CENTRO",
+                "province": "RM",
+                "foreignState": "ITALIA"
+            },
+            "payments": []
+        },
+        {
+            "recipientType": "PF"
+        }
+    ],
+    "documents": [
+        {
+            "digests": {
+                "sha256": "a3k0NDN93at7dEU6xsckGnWP2kLPaRnbsNXJMabyEr0="
+            },
+            "contentType": "application/pdf",
+            "ref": {
+                "key": "PN_NOTIFICATION_ATTACHMENTS-73c54f5e1395444a9f630738ec3a7fdb.pdf",
+                "versionToken": "v1"
+            },
+            "docIdx": "0"
+        }
+    ],
+    "notificationFeePolicy": "FLAT_RATE",
+    "physicalCommunicationType": "REGISTERED_LETTER_890",
+    "senderDenomination": "Comune di palermo",
+    "senderTaxId": "80016350821",
+    "group": "6321d32564ff061a51464b9d",
+    "taxonomyCode": "010202N",
+    "paFee": 0,
+    "vat": 0,
+    "pagoPaIntMode": "NONE",
+    "additionalLanguages": [],
+    "senderPaId": "a95dace4-4a47-4149-a814-0e669113ce40",
+    "iun": "KUKM-NGDV-VEWU-202512-T-1",
+    "sentAt": "2025-12-02T11:31:00.675510159Z",
+    "documentsAvailable": true,
+    "notificationStatus": "EFFECTIVE_DATE",
+    "notificationStatusHistory": [
+        {
+            "status": "ACCEPTED",
+            "activeFrom": "2025-12-02T11:31:00.675510159Z",
+            "relatedTimelineElements": [
+                "REQUEST_ACCEPTED.IUN_KUKM-NGDV-VEWU-202512-T-1",
+                "AAR_CREATION_REQUEST.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_1",
+                "AAR_CREATION_REQUEST.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0",
+                "AAR_GEN.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_1",
+                "AAR_GEN.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0",
+                "GET_ADDRESS.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_1.SOURCE_PLATFORM.ATTEMPT_0",
+                "GET_ADDRESS.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_1.SOURCE_SPECIAL.ATTEMPT_0",
+                "NATIONAL_REGISTRY_CALL.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_1.DELIVERYMODE_DIGITAL.CONTACTPHASE_CHOOSE_DELIVERY.ATTEMPT_0",
+                "GET_ADDRESS.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.SOURCE_PLATFORM.ATTEMPT_0",
+                "GET_ADDRESS.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.SOURCE_SPECIAL.ATTEMPT_0",
+                "NATIONAL_REGISTRY_CALL.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.DELIVERYMODE_DIGITAL.CONTACTPHASE_CHOOSE_DELIVERY.ATTEMPT_0",
+                "NATIONAL_REGISTRY_RESPONSE.CORRELATIONID_NATIONAL_REGISTRY_CALL.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.DELIVERYMODE_DIGITAL.CONTACTPHASE_CHOOSE_DELIVERY.ATTEMPT_0",
+                "NATIONAL_REGISTRY_RESPONSE.CORRELATIONID_NATIONAL_REGISTRY_CALL.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_1.DELIVERYMODE_DIGITAL.CONTACTPHASE_CHOOSE_DELIVERY.ATTEMPT_0",
+                "GET_ADDRESS.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.SOURCE_GENERAL.ATTEMPT_0",
+                "GET_ADDRESS.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_1.SOURCE_GENERAL.ATTEMPT_0",
+                "SCHEDULE_ANALOG_WORKFLOW.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0",
+                "SCHEDULE_ANALOG_WORKFLOW.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_1",
+                "PREPARE_ANALOG_DOMICILE.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.ATTEMPT_0",
+                "PREPARE_ANALOG_DOMICILE.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_1.ATTEMPT_0"
+            ]
+        },
+        {
+            "status": "DELIVERING",
+            "activeFrom": "2025-12-02T11:36:05.619047272Z",
+            "relatedTimelineElements": [
+                "SEND_ANALOG_DOMICILE.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.ATTEMPT_0",
+                "SEND_ANALOG_DOMICILE.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_1.ATTEMPT_0",
+                "SEND_ANALOG_PROGRESS.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.ATTEMPT_0.IDX_1",
+                "SEND_ANALOG_PROGRESS.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_1.ATTEMPT_0.IDX_1",
+                "SEND_ANALOG_PROGRESS.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.ATTEMPT_0.IDX_3",
+                "SEND_ANALOG_PROGRESS.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_1.ATTEMPT_0.IDX_3",
+                "SEND_ANALOG_PROGRESS.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_1.ATTEMPT_0.IDX_2",
+                "SEND_ANALOG_PROGRESS.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_1.ATTEMPT_0.IDX_4",
+                "SEND_ANALOG_PROGRESS.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_1.ATTEMPT_0.IDX_5",
+                "SEND_ANALOG_FEEDBACK.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_1.ATTEMPT_0",
+                "PREPARE_ANALOG_DOMICILE.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_1.ATTEMPT_1",
+                "PREPARE_ANALOG_DOMICILE_FAILURE.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_1",
+                "ANALOG_FAILURE_WORKFLOW.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_1",
+                "COMPLETELY_UNREACHABLE_CREATION_REQUEST.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_1",
+                "COMPLETELY_UNREACHABLE.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_1",
+                "SCHEDULE_REFINEMENT_WORKFLOW.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_1"
+            ]
+        },
+        {
+            "status": "EFFECTIVE_DATE",
+            "activeFrom": "2025-12-02T11:42:28.515222274Z",
+            "relatedTimelineElements": [
+                "REFINEMENT.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_1",
+                "SEND_ANALOG_PROGRESS.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.ATTEMPT_0.IDX_10.REWORK_2",
+                "SEND_ANALOG_PROGRESS.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.ATTEMPT_0.IDX_9.REWORK_2",
+                "SEND_ANALOG_FEEDBACK.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.ATTEMPT_0.REWORK_2",
+                "ANALOG_SUCCESS_WORKFLOW.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.REWORK_2",
+                "SCHEDULE_REFINEMENT_WORKFLOW.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.REWORK_2",
+                "REFINEMENT.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.REWORK_2",
+                "SEND_ANALOG_PROGRESS.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.ATTEMPT_1.IDX_1",
+                "SEND_ANALOG_PROGRESS.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.ATTEMPT_1.IDX_3"
+            ]
+        }
+    ],
+    "timeline": [
+        {
+            "elementId": "VALIDATE_NORMALIZE_ADDRESSES_REQUEST.IUN_KUKM-NGDV-VEWU-202512-T-1",
+            "timestamp": "2025-12-02T11:31:30.78717976Z",
+            "ingestionTimestamp": "2025-12-02T11:31:30.78717976Z",
+            "eventTimestamp": "2025-12-02T11:31:30.78717976Z",
+            "notificationSentAt": "2025-12-02T11:31:00.675510159Z",
+            "legalFactsIds": [],
+            "category": "VALIDATE_NORMALIZE_ADDRESSES_REQUEST",
+            "details": {}
+        },
+        {
+            "elementId": "NORMALIZED_ADDRESS.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0",
+            "timestamp": "2025-12-02T11:34:27.626478924Z",
+            "ingestionTimestamp": "2025-12-02T11:34:27.626478924Z",
+            "eventTimestamp": "2025-12-02T11:34:27.626478924Z",
+            "notificationSentAt": "2025-12-02T11:31:00.675510159Z",
+            "legalFactsIds": [],
+            "category": "NORMALIZED_ADDRESS",
+            "details": {
+                "recIndex": 0,
+                "oldAddress": {
+                    "at": "Presso",
+                    "address": "via Roma 10 @OK_890",
+                    "addressDetails": "scala b",
+                    "zip": "00118",
+                    "municipality": "Roma",
+                    "municipalityDetails": "Centro",
+                    "province": "RM",
+                    "foreignState": "ITALIA"
+                },
+                "normalizedAddress": {
+                    "at": "Presso",
+                    "address": "VIA ROMA 10 @OK_890",
+                    "addressDetails": "SCALA B",
+                    "zip": "00118",
+                    "municipality": "ROMA",
+                    "municipalityDetails": "CENTRO",
+                    "province": "RM",
+                    "foreignState": "ITALIA"
+                }
+            }
+        },
+        {
+            "elementId": "SENDERACK_LEGALFACT_CREATION_REQUEST.IUN_KUKM-NGDV-VEWU-202512-T-1",
+            "timestamp": "2025-12-02T11:34:30.943288688Z",
+            "ingestionTimestamp": "2025-12-02T11:34:30.943288688Z",
+            "eventTimestamp": "2025-12-02T11:34:30.943288688Z",
+            "notificationSentAt": "2025-12-02T11:31:00.675510159Z",
+            "legalFactsIds": [],
+            "category": "SENDER_ACK_CREATION_REQUEST",
+            "details": {
+                "legalFactId": "safestorage://PN_LEGAL_FACTS-7875ec42667f42b88a4e427086bac402.pdf"
+            }
+        },
+        {
+            "elementId": "REQUEST_ACCEPTED.IUN_KUKM-NGDV-VEWU-202512-T-1",
+            "timestamp": "2025-12-02T11:35:12.793309454Z",
+            "ingestionTimestamp": "2025-12-02T11:35:12.793309454Z",
+            "eventTimestamp": "2025-12-02T11:35:12.793309454Z",
+            "notificationSentAt": "2025-12-02T11:31:00.675510159Z",
+            "legalFactsIds": [
+                {
+                    "key": "safestorage://PN_LEGAL_FACTS-7875ec42667f42b88a4e427086bac402.pdf",
+                    "category": "SENDER_ACK"
+                }
+            ],
+            "category": "REQUEST_ACCEPTED",
+            "details": {
+                "notificationRequestId": "S1VLTS1OR0RWLVZFV1UtMjAyNTEyLVQtMQ==",
+                "paProtocolNumber": "20251202000000"
+            }
+        },
+        {
+            "elementId": "AAR_CREATION_REQUEST.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0",
+            "timestamp": "2025-12-02T11:35:17.82387478Z",
+            "ingestionTimestamp": "2025-12-02T11:35:17.82387478Z",
+            "eventTimestamp": "2025-12-02T11:35:17.82387478Z",
+            "notificationSentAt": "2025-12-02T11:31:00.675510159Z",
+            "legalFactsIds": [],
+            "category": "AAR_CREATION_REQUEST",
+            "details": {
+                "recIndex": 0,
+                "numberOfPages": 2,
+                "aarKey": "safestorage://PN_AAR-5e08b6cecee4e53a8d305385cc71aa2.pdf"
+            }
+        },
+        {
+            "elementId": "AAR_GEN.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0",
+            "timestamp": "2025-12-02T11:35:33.573929978Z",
+            "ingestionTimestamp": "2025-12-02T11:35:33.573929978Z",
+            "eventTimestamp": "2025-12-02T11:35:33.573929978Z",
+            "notificationSentAt": "2025-12-02T11:31:00.675510159Z",
+            "legalFactsIds": [],
+            "category": "AAR_GENERATION",
+            "details": {
+                "recIndex": 0,
+                "generatedAarUrl": "safestorage://PN_AAR-5e08b6cecee4e53a8d305385cc71aa2.pdf",
+                "numberOfPages": 2
+            }
+        },
+        {
+            "elementId": "GET_ADDRESS.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.SOURCE_PLATFORM.ATTEMPT_0",
+            "timestamp": "2025-12-02T11:35:34.592426938Z",
+            "ingestionTimestamp": "2025-12-02T11:35:34.592426938Z",
+            "eventTimestamp": "2025-12-02T11:35:34.592426938Z",
+            "notificationSentAt": "2025-12-02T11:31:00.675510159Z",
+            "legalFactsIds": [],
+            "category": "GET_ADDRESS",
+            "details": {
+                "recIndex": 0,
+                "digitalAddressSource": "PLATFORM",
+                "isAvailable": false,
+                "attemptDate": "2025-12-02T11:35:34.592423399Z"
+            }
+        },
+        {
+            "elementId": "GET_ADDRESS.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.SOURCE_SPECIAL.ATTEMPT_0",
+            "timestamp": "2025-12-02T11:35:34.628850754Z",
+            "ingestionTimestamp": "2025-12-02T11:35:34.628850754Z",
+            "eventTimestamp": "2025-12-02T11:35:34.628850754Z",
+            "notificationSentAt": "2025-12-02T11:31:00.675510159Z",
+            "legalFactsIds": [],
+            "category": "GET_ADDRESS",
+            "details": {
+                "recIndex": 0,
+                "digitalAddressSource": "SPECIAL",
+                "isAvailable": false,
+                "attemptDate": "2025-12-02T11:35:34.628847071Z"
+            }
+        },
+        {
+            "elementId": "NATIONAL_REGISTRY_CALL.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.DELIVERYMODE_DIGITAL.CONTACTPHASE_CHOOSE_DELIVERY.ATTEMPT_0",
+            "timestamp": "2025-12-02T11:35:34.697841248Z",
+            "ingestionTimestamp": "2025-12-02T11:35:34.697841248Z",
+            "eventTimestamp": "2025-12-02T11:35:34.697841248Z",
+            "notificationSentAt": "2025-12-02T11:31:00.675510159Z",
+            "legalFactsIds": [],
+            "category": "PUBLIC_REGISTRY_CALL",
+            "details": {
+                "recIndex": 0,
+                "deliveryMode": "DIGITAL",
+                "contactPhase": "CHOOSE_DELIVERY",
+                "sentAttemptMade": 0,
+                "sendDate": "2025-12-02T11:35:34.697836161Z"
+            }
+        },
+        {
+            "elementId": "NATIONAL_REGISTRY_RESPONSE.CORRELATIONID_NATIONAL_REGISTRY_CALL.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.DELIVERYMODE_DIGITAL.CONTACTPHASE_CHOOSE_DELIVERY.ATTEMPT_0",
+            "timestamp": "2025-12-02T11:35:58.108579687Z",
+            "ingestionTimestamp": "2025-12-02T11:35:58.108579687Z",
+            "eventTimestamp": "2025-12-02T11:35:58.108579687Z",
+            "notificationSentAt": "2025-12-02T11:31:00.675510159Z",
+            "legalFactsIds": [],
+            "category": "PUBLIC_REGISTRY_RESPONSE",
+            "details": {
+                "recIndex": 0
+            }
+        },
+        {
+            "elementId": "GET_ADDRESS.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.SOURCE_GENERAL.ATTEMPT_0",
+            "timestamp": "2025-12-02T11:35:58.175366043Z",
+            "ingestionTimestamp": "2025-12-02T11:35:58.175366043Z",
+            "eventTimestamp": "2025-12-02T11:35:58.175366043Z",
+            "notificationSentAt": "2025-12-02T11:31:00.675510159Z",
+            "legalFactsIds": [],
+            "category": "GET_ADDRESS",
+            "details": {
+                "recIndex": 0,
+                "digitalAddressSource": "GENERAL",
+                "isAvailable": false,
+                "attemptDate": "2025-12-02T11:35:58.175360659Z"
+            }
+        },
+        {
+            "elementId": "SCHEDULE_ANALOG_WORKFLOW.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0",
+            "timestamp": "2025-12-02T11:35:58.362977283Z",
+            "ingestionTimestamp": "2025-12-02T11:35:58.362977283Z",
+            "eventTimestamp": "2025-12-02T11:35:58.362977283Z",
+            "notificationSentAt": "2025-12-02T11:31:00.675510159Z",
+            "legalFactsIds": [],
+            "category": "SCHEDULE_ANALOG_WORKFLOW",
+            "details": {
+                "recIndex": 0,
+                "schedulingDate": "2025-12-02T11:35:58.362943348Z"
+            }
+        },
+        {
+            "elementId": "PREPARE_ANALOG_DOMICILE.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.ATTEMPT_0",
+            "timestamp": "2025-12-02T11:35:59.779275983Z",
+            "ingestionTimestamp": "2025-12-02T11:35:59.779275983Z",
+            "eventTimestamp": "2025-12-02T11:35:59.779275983Z",
+            "notificationSentAt": "2025-12-02T11:31:00.675510159Z",
+            "legalFactsIds": [],
+            "category": "PREPARE_ANALOG_DOMICILE",
+            "details": {
+                "recIndex": 0,
+                "physicalAddress": {
+                    "at": "Presso",
+                    "address": "VIA ROMA 10 @OK_890",
+                    "addressDetails": "SCALA B",
+                    "zip": "00118",
+                    "municipality": "ROMA",
+                    "municipalityDetails": "CENTRO",
+                    "province": "RM",
+                    "foreignState": "ITALIA"
+                },
+                "sentAttemptMade": 0,
+                "serviceLevel": "REGISTERED_LETTER_890"
+            }
+        },
+        {
+            "elementId": "SEND_ANALOG_DOMICILE.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.ATTEMPT_0",
+            "timestamp": "2025-12-02T11:36:05.619047272Z",
+            "ingestionTimestamp": "2025-12-02T11:36:05.619047272Z",
+            "eventTimestamp": "2025-12-02T11:36:05.619047272Z",
+            "notificationSentAt": "2025-12-02T11:31:00.675510159Z",
+            "legalFactsIds": [],
+            "category": "SEND_ANALOG_DOMICILE",
+            "details": {
+                "recIndex": 0,
+                "physicalAddress": {
+                    "at": "Presso",
+                    "address": "VIA ROMA 10 @OK_890",
+                    "addressDetails": "SCALA B",
+                    "zip": "00118",
+                    "municipality": "ROMA",
+                    "municipalityDetails": "CENTRO",
+                    "province": "RM",
+                    "foreignState": "ITALIA"
+                },
+                "sentAttemptMade": 0,
+                "serviceLevel": "REGISTERED_LETTER_890",
+                "productType": "890",
+                "analogCost": 860,
+                "numberOfPages": 1,
+                "envelopeWeight": 10,
+                "prepareRequestId": "PREPARE_ANALOG_DOMICILE.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.ATTEMPT_0"
+            }
+        },
+        {
+            "elementId": "SEND_ANALOG_PROGRESS.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.ATTEMPT_0.IDX_1",
+            "timestamp": "2025-12-02T11:37:08Z",
+            "ingestionTimestamp": "2025-12-02T11:37:12.371949998Z",
+            "eventTimestamp": "2025-12-02T11:37:08Z",
+            "notificationSentAt": "2025-12-02T11:31:00.675510159Z",
+            "legalFactsIds": [],
+            "category": "SEND_ANALOG_PROGRESS",
+            "details": {
+                "recIndex": 0,
+                "notificationDate": "2025-12-02T11:37:08Z",
+                "deliveryDetailCode": "CON080",
+                "serviceLevel": "REGISTERED_LETTER_890",
+                "attachments": [],
+                "sendRequestId": "SEND_ANALOG_DOMICILE.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.ATTEMPT_0",
+                "registeredLetterCode": "bbba24b08b08478eb38388e0fb6d2569"
+            }
+        },
+        {
+            "elementId": "SEND_ANALOG_PROGRESS.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.ATTEMPT_0.IDX_3",
+            "timestamp": "2025-12-02T11:37:13Z",
+            "ingestionTimestamp": "2025-12-02T11:37:27.716065391Z",
+            "eventTimestamp": "2025-12-02T11:37:13Z",
+            "notificationSentAt": "2025-12-02T11:31:00.675510159Z",
+            "legalFactsIds": [
+                {
+                    "key": "safestorage://PN_PRINTED-a92504a72f3a49d9b8b7e5cc5544ff3d.pdf",
+                    "category": "ANALOG_DELIVERY"
+                }
+            ],
+            "category": "SEND_ANALOG_PROGRESS",
+            "details": {
+                "recIndex": 0,
+                "notificationDate": "2025-12-02T11:37:13Z",
+                "deliveryDetailCode": "CON020",
+                "serviceLevel": "REGISTERED_LETTER_890",
+                "attachments": [
+                    {
+                        "id": "0",
+                        "documentType": "Copia Conforme AAR",
+                        "url": "safestorage://PN_PRINTED-a92504a72f3a49d9b8b7e5cc5544ff3d.pdf",
+                        "date": "2025-12-02T11:37:20.870593492Z"
+                    }
+                ],
+                "sendRequestId": "SEND_ANALOG_DOMICILE.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.ATTEMPT_0",
+                "registeredLetterCode": "bbba24b08b08478eb38388e0fb6d2569"
+            }
+        },
+        {
+            "elementId": "SEND_ANALOG_PROGRESS.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.ATTEMPT_0.IDX_10.REWORK_2",
+            "timestamp": "2025-12-02T13:53:23Z",
+            "ingestionTimestamp": "2025-12-02T14:26:59.986070624Z",
+            "eventTimestamp": "2025-12-02T13:53:23Z",
+            "notificationSentAt": "2025-12-02T11:31:00.675510159Z",
+            "legalFactsIds": [
+                {
+                    "key": "safestorage://PN_EXTERNAL_LEGAL_FACTS-6b8abe97ba8542e3bc163b935a188a96.pdf",
+                    "category": "ANALOG_DELIVERY"
+                }
+            ],
+            "category": "SEND_ANALOG_PROGRESS",
+            "details": {
+                "recIndex": 0,
+                "notificationDate": "2025-12-02T13:53:23Z",
+                "deliveryDetailCode": "RECAG001B",
+                "serviceLevel": "REGISTERED_LETTER_890",
+                "attachments": [
+                    {
+                        "id": "1",
+                        "documentType": "23L",
+                        "url": "safestorage://PN_EXTERNAL_LEGAL_FACTS-6b8abe97ba8542e3bc163b935a188a96.pdf",
+                        "date": "2025-11-26T10:29:21Z"
+                    }
+                ],
+                "sendRequestId": "SEND_ANALOG_DOMICILE.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.ATTEMPT_0"
+            }
+        },
+        {
+            "elementId": "SEND_ANALOG_PROGRESS.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.ATTEMPT_0.IDX_9.REWORK_2",
+            "timestamp": "2025-12-02T13:53:23Z",
+            "ingestionTimestamp": "2025-12-02T14:25:19.609735605Z",
+            "eventTimestamp": "2025-12-02T13:53:23Z",
+            "notificationSentAt": "2025-12-02T11:31:00.675510159Z",
+            "legalFactsIds": [],
+            "category": "SEND_ANALOG_PROGRESS",
+            "details": {
+                "recIndex": 0,
+                "notificationDate": "2025-12-02T13:53:23Z",
+                "deliveryDetailCode": "RECAG001A",
+                "serviceLevel": "REGISTERED_LETTER_890",
+                "attachments": [],
+                "sendRequestId": "SEND_ANALOG_DOMICILE.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.ATTEMPT_0"
+            }
+        },
+        {
+            "elementId": "SEND_ANALOG_FEEDBACK.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.ATTEMPT_0.REWORK_2",
+            "timestamp": "2025-12-02T13:53:23Z",
+            "ingestionTimestamp": "2025-12-02T14:27:05.914006005Z",
+            "eventTimestamp": "2025-12-02T13:53:23Z",
+            "notificationSentAt": "2025-12-02T11:31:00.675510159Z",
+            "legalFactsIds": [],
+            "category": "SEND_ANALOG_FEEDBACK",
+            "details": {
+                "recIndex": 0,
+                "physicalAddress": {
+                    "at": "Presso",
+                    "address": "VIA ROMA 10 @OK_890",
+                    "addressDetails": "SCALA B",
+                    "zip": "00118",
+                    "municipality": "ROMA",
+                    "municipalityDetails": "CENTRO",
+                    "province": "RM",
+                    "foreignState": "ITALIA"
+                },
+                "sentAttemptMade": 0,
+                "responseStatus": "OK",
+                "notificationDate": "2025-12-02T13:53:23Z",
+                "deliveryDetailCode": "RECAG001C",
+                "serviceLevel": "REGISTERED_LETTER_890",
+                "attachments": [],
+                "sendRequestId": "SEND_ANALOG_DOMICILE.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.ATTEMPT_0"
+            }
+        },
+        {
+            "elementId": "ANALOG_SUCCESS_WORKFLOW.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.REWORK_2",
+            "timestamp": "2025-12-02T13:53:23Z",
+            "ingestionTimestamp": "2025-12-02T14:27:07.404231373Z",
+            "eventTimestamp": "2025-12-02T13:53:23Z",
+            "notificationSentAt": "2025-12-02T11:31:00.675510159Z",
+            "legalFactsIds": [],
+            "category": "ANALOG_SUCCESS_WORKFLOW",
+            "details": {
+                "recIndex": 0,
+                "physicalAddress": {
+                    "at": "Presso",
+                    "address": "VIA ROMA 10 @OK_890",
+                    "addressDetails": "SCALA B",
+                    "zip": "00118",
+                    "municipality": "ROMA",
+                    "municipalityDetails": "CENTRO",
+                    "province": "RM",
+                    "foreignState": "ITALIA"
+                }
+            }
+        },
+        {
+            "elementId": "SCHEDULE_REFINEMENT_WORKFLOW.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.REWORK_2",
+            "timestamp": "2025-12-02T13:53:23Z",
+            "ingestionTimestamp": "2025-12-02T14:27:07.507585701Z",
+            "eventTimestamp": "2025-12-02T13:53:23Z",
+            "notificationSentAt": "2025-12-02T11:31:00.675510159Z",
+            "legalFactsIds": [],
+            "category": "SCHEDULE_REFINEMENT",
+            "details": {
+                "recIndex": 0,
+                "schedulingDate": "2025-12-02T13:57:23Z"
+            }
+        },
+        {
+            "elementId": "REFINEMENT.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.REWORK_2",
+            "timestamp": "2025-12-02T13:57:23Z",
+            "ingestionTimestamp": "2025-12-02T14:27:10.803502737Z",
+            "eventTimestamp": "2025-12-02T13:57:23Z",
+            "notificationSentAt": "2025-12-02T11:31:00.675510159Z",
+            "legalFactsIds": [],
+            "category": "REFINEMENT",
+            "details": {
+                "recIndex": 0,
+                "eventTimestamp": "2025-12-02T11:41:21Z",
+                "notificationCost": 100
+            }
+        },
+        {
+            "elementId": "SEND_ANALOG_PROGRESS.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.ATTEMPT_1.IDX_1",
+            "timestamp": "2025-12-02T13:57:57Z",
+            "ingestionTimestamp": "2025-12-02T13:58:02.340606864Z",
+            "eventTimestamp": "2025-12-02T13:57:57Z",
+            "notificationSentAt": "2025-12-02T11:31:00.675510159Z",
+            "legalFactsIds": [],
+            "category": "SEND_ANALOG_PROGRESS",
+            "details": {
+                "recIndex": 0,
+                "notificationDate": "2025-12-02T13:57:57Z",
+                "deliveryDetailCode": "CON080",
+                "serviceLevel": "REGISTERED_LETTER_890",
+                "attachments": [],
+                "sendRequestId": "SEND_ANALOG_DOMICILE.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.ATTEMPT_1",
+                "registeredLetterCode": "736e02db89b64cba9c4fafd3c40714e1"
+            }
+        },
+        {
+            "elementId": "SEND_ANALOG_PROGRESS.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.ATTEMPT_1.IDX_3",
+            "timestamp": "2025-12-02T13:58:03Z",
+            "ingestionTimestamp": "2025-12-02T13:58:17.063840293Z",
+            "eventTimestamp": "2025-12-02T13:58:03Z",
+            "notificationSentAt": "2025-12-02T11:31:00.675510159Z",
+            "legalFactsIds": [
+                {
+                    "key": "safestorage://PN_PRINTED-adef23e79f1343b481e2ece5ed032c74.pdf",
+                    "category": "ANALOG_DELIVERY"
+                }
+            ],
+            "category": "SEND_ANALOG_PROGRESS",
+            "details": {
+                "recIndex": 0,
+                "notificationDate": "2025-12-02T13:58:03Z",
+                "deliveryDetailCode": "CON020",
+                "serviceLevel": "REGISTERED_LETTER_890",
+                "attachments": [
+                    {
+                        "id": "0",
+                        "documentType": "Copia Conforme AAR",
+                        "url": "safestorage://PN_PRINTED-adef23e79f1343b481e2ece5ed032c74.pdf",
+                        "date": "2025-12-02T13:58:11.105818835Z"
+                    }
+                ],
+                "sendRequestId": "SEND_ANALOG_DOMICILE.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.ATTEMPT_1",
+                "registeredLetterCode": "736e02db89b64cba9c4fafd3c40714e1"
+            }
+        }
+    ]
+}
