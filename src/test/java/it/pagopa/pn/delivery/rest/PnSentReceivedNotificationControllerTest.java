@@ -500,7 +500,7 @@ class PnSentReceivedNotificationControllerTest {
 		notification.setNotificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElementV26.builder()
 						.status( NotificationStatusV26.REFUSED )
 				.build() ) );
-		notification.setTimeline( Collections.singletonList( TimelineElementV27.builder()
+		notification.setTimeline( Collections.singletonList( TimelineElementV28.builder()
 						.category( TimelineElementCategoryV27.REQUEST_REFUSED )
 						.details( TimelineElementDetailsV27.builder()
 								.refusalReasons( Collections.singletonList( NotificationRefusedErrorV27.builder()

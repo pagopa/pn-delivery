@@ -562,7 +562,7 @@ class NotificationRetrieverServiceTest {
     @NotNull
     private InternalNotification getNewInternalNotification() {
         InternalNotification internalNotification = new InternalNotification();
-        TimelineElementV27 timelineElement = new TimelineElementV27();
+        TimelineElementV28 timelineElement = new TimelineElementV28();
         timelineElement.setCategory(TimelineElementCategoryV27.AAR_CREATION_REQUEST);
         internalNotification.setTimeline(List.of(timelineElement));
         internalNotification.setIun(IUN);
@@ -752,11 +752,11 @@ class NotificationRetrieverServiceTest {
     @Test
     void checkRefinementDateOraSolare() {
         // Given
-        List<TimelineElementV27> timelineElementList = List.of( TimelineElementV27.builder()
+        List<TimelineElementV28> timelineElementList = List.of( TimelineElementV28.builder()
                         .category( TimelineElementCategoryV27.REFINEMENT )
                         .timestamp( OffsetDateTime.parse( "2022-10-05T12:23:15.123456Z" ) )
                         .build(),
-                TimelineElementV27.builder()
+                TimelineElementV28.builder()
                         .category( TimelineElementCategoryV27.NOTIFICATION_VIEWED )
                         .timestamp( OffsetDateTime.parse( "2022-10-03T10:10:15.123456Z" ) )
                         .build()
@@ -773,11 +773,11 @@ class NotificationRetrieverServiceTest {
     @Test
     void checkRefinementDateOraLegale() {
         // Given
-        List<TimelineElementV27> timelineElementList = List.of( TimelineElementV27.builder()
+        List<TimelineElementV28> timelineElementList = List.of( TimelineElementV28.builder()
                         .category( TimelineElementCategoryV27.REFINEMENT )
                         .timestamp( OffsetDateTime.parse( "2022-12-05T12:23:15.123456Z" ) )
                         .build(),
-                TimelineElementV27.builder()
+                TimelineElementV28.builder()
                         .category( TimelineElementCategoryV27.NOTIFICATION_VIEWED )
                         .timestamp( OffsetDateTime.parse( "2022-12-03T10:10:15.123456Z" ) )
                         .build()

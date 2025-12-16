@@ -210,7 +210,7 @@ class PnReceivedIONotificationsControllerTest {
     }
 
     private InternalNotification newNotification() {
-        TimelineElementV27 timelineElement = new TimelineElementV27();
+        TimelineElementV28 timelineElement = new TimelineElementV28();
         timelineElement.setCategory(TimelineElementCategoryV27.AAR_CREATION_REQUEST);
         InternalNotification internalNotification = new InternalNotification();
         internalNotification.setNotificationStatusHistory(List.of(NotificationStatusHistoryElementV26.builder()
