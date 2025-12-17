@@ -207,7 +207,7 @@ class PnSentReceivedNotificationControllerTest {
 
 	@Test
 	void testTimeLine(){
-		TimelineElementDetailsV27 actualTimelineElementDetails = new TimelineElementDetailsV27();
+		TimelineElementDetailsV28 actualTimelineElementDetails = new TimelineElementDetailsV28();
 		actualTimelineElementDetails.aarKey("Aar Key");
 		actualTimelineElementDetails.amount(10);
 		actualTimelineElementDetails.analogCost(1);
@@ -394,7 +394,7 @@ class PnSentReceivedNotificationControllerTest {
 		testingTimeLine3(actualTimelineElementDetails);
 	}
 
-	void testingTimeLine3(TimelineElementDetailsV27 actualTimelineElementDetails){
+	void testingTimeLine3(TimelineElementDetailsV28 actualTimelineElementDetails){
 		assertNotNull(actualTimelineElementDetails.getLegalFactGenerationDate());
 		assertEquals("42", actualTimelineElementDetails.getLegalFactId());
 		assertEquals("42", actualTimelineElementDetails.getLegalfactId());
@@ -426,7 +426,7 @@ class PnSentReceivedNotificationControllerTest {
 		assertEquals(RecipientType.PF, actualTimelineElementDetails.getRecipientType());
 	}
 
-	void testingTimeLine2(TimelineElementDetailsV27 actualTimelineElementDetails){
+	void testingTimeLine2(TimelineElementDetailsV28 actualTimelineElementDetails){
 		assertEquals("Aar Key", actualTimelineElementDetails.getAarKey());
 		assertEquals(10, actualTimelineElementDetails.getAmount().intValue());
 		assertEquals(1, actualTimelineElementDetails.getAnalogCost().intValue());
@@ -450,12 +450,12 @@ class PnSentReceivedNotificationControllerTest {
 		assertNotNull(actualTimelineElementDetails.getLastAttemptDate());
 		assertEquals("Registered Letter Code", actualTimelineElementDetails.getRegisteredLetterCode());
 		assertEquals("42", actualTimelineElementDetails.getRelatedRequestId());
-		TimelineElementDetailsV27 actualIsAvailableResult = actualTimelineElementDetails.isAvailable(true);
+		TimelineElementDetailsV28 actualIsAvailableResult = actualTimelineElementDetails.isAvailable(true);
 		assertSame(actualTimelineElementDetails, actualIsAvailableResult);
 		assertEquals("Notice Code", actualTimelineElementDetails.getNoticeCode());
 	}
 
-	void testingTimeLine1(TimelineElementDetailsV27 timelineElementDetails){
+	void testingTimeLine1(TimelineElementDetailsV28 timelineElementDetails){
 		Assertions.assertNotNull(timelineElementDetails.getLegalFactId());
 		Assertions.assertNotNull(timelineElementDetails.getNormalizedAddress());
 		Assertions.assertNotNull(timelineElementDetails.getGeneratedAarUrl());
@@ -473,7 +473,7 @@ class PnSentReceivedNotificationControllerTest {
 		Assertions.assertNotNull(timelineElementDetails.getRaddTransactionId());
 	}
 
-	void testingTimeLine(TimelineElementDetailsV27 timelineElementDetails){
+	void testingTimeLine(TimelineElementDetailsV28 timelineElementDetails){
 		Assertions.assertNotNull(timelineElementDetails.getResponseStatus());
 		Assertions.assertNotNull(timelineElementDetails.getNextLastAttemptMadeForSource());
 		Assertions.assertNotNull(timelineElementDetails.getNextSourceAttemptsMade());
@@ -501,8 +501,8 @@ class PnSentReceivedNotificationControllerTest {
 						.status( NotificationStatusV26.REFUSED )
 				.build() ) );
 		notification.setTimeline( Collections.singletonList( TimelineElementV28.builder()
-						.category( TimelineElementCategoryV27.REQUEST_REFUSED )
-						.details( TimelineElementDetailsV27.builder()
+						.category( TimelineElementCategoryV28.REQUEST_REFUSED )
+						.details( TimelineElementDetailsV28.builder()
 								.refusalReasons( Collections.singletonList( NotificationRefusedErrorV27.builder()
 												.errorCode( "FILE_NOTFOUND" )
 												.detail( "Allegato non trovato. fileKey=81dde2a8-9719-4407-b7b3-63e7ea694869" )

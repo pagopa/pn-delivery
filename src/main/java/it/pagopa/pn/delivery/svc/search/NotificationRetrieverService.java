@@ -438,8 +438,8 @@ public class NotificationRetrieverService {
 		// cerco elemento timeline con category refinement o notificationView
 		Optional<TimelineElementV28> optionalMin = timeline
 				.stream()
-				.filter(tle -> TimelineElementCategoryV27.REFINEMENT.equals(tle.getCategory() )
-						|| TimelineElementCategoryV27.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
+				.filter(tle -> TimelineElementCategoryV28.REFINEMENT.equals(tle.getCategory() )
+						|| TimelineElementCategoryV28.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
 				.min( Comparator.comparing(TimelineElementV28::getTimestamp) );
 		// se trovo la data di perfezionamento della notifica
 		if (optionalMin.isPresent()) {
@@ -736,7 +736,7 @@ public class NotificationRetrieverService {
 	}
 
 	public boolean isNotificationCancelled(InternalNotification notification) {
-		var cancellationRequestCategory = TimelineElementCategoryV27.NOTIFICATION_CANCELLATION_REQUEST;
+		var cancellationRequestCategory = TimelineElementCategoryV28.NOTIFICATION_CANCELLATION_REQUEST;
 		Optional<TimelineElementV28> cancellationRequestTimeline = notification.getTimeline().stream()
 				.filter(timelineElement -> cancellationRequestCategory.toString().equals(timelineElement.getCategory().toString()))
 				.findFirst();
