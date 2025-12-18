@@ -13,16 +13,24 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class ModelMapperConfig {
-    
+    /*
+        Dopo la migrazione di delivery-push a Spring Boot 3, l'API di history ha modificato il formato delle risposte JSON:
+        prima restituiva tutti i possibili campi di details (principalmente valorizzati a null),
+        mentre ora restituisce solo i campi effettivamente utilizzati.
+        Questo cambiamento impatta due campi specifici (recIndexes e notRefinedRecipients) che il generatore di questo microservizio istanzia
+        di default come liste vuote. (Questo perchè i 2 campi sono definiti come required nei rispettivi schemi OpenAPI).
+        Poiché questi campi non sono più presenti nella risposta, vengono automaticamente valorizzati per tutti gli elementi di timeline come
+        liste vuote invece che come null, alterando il comportamento originale del servizio.
+        Per mantenere la coerenza con i client (che si aspettano null), questo mapping imposta a null i campi recIndexes e notRefinedRecipients
+        per tutti gli elementi della timeline, eccetto quelli che li utilizzano effettivamente.
+        Questo workaround sarà necessario fino al completamento della migrazione a Spring Boot 3 e all'aggiornamento del plugin di generazione.
+     */
     static Converter<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV27,TimelineElementV27> timelineElementV27Converter =
         context -> {
             it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV27 source = context.getSource();
             TimelineElementV27 destination = context.getDestination();
+
             assert source.getCategory() != null;
-            /*
-                Mapping per settare a null i campi recIndexes e notRefinedRecipients per tutti gli elementi di timeline,
-                eccetto per quelli che li utilizzano effettivamente.
-            */
             if(!source.getCategory().equals(TimelineElementCategoryV27.PUBLIC_REGISTRY_VALIDATION_CALL))destination.getDetails().setRecIndexes(null);
             if(!source.getCategory().equals(TimelineElementCategoryV27.NOTIFICATION_CANCELLED)) destination.getDetails().setNotRefinedRecipientIndexes(null);
 
