@@ -528,6 +528,20 @@
             }
         },
         {
+            "elementId": "NOTIFICATION_VIEWED_CREATION_REQUEST.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0",
+            "timestamp": "2025-12-02T13:56:57Z",
+            "ingestionTimestamp": "2025-12-02T13:57:02.340606864Z",
+            "eventTimestamp": "2025-12-02T13:56:57Z",
+            "notificationSentAt": "2025-12-02T11:31:00.675510159Z",
+            "legalFactsIds": [],
+            "category": "NOTIFICATION_VIEWED_CREATION_REQUEST",
+            "details": {
+                "recIndex": 0,
+                "eventTimestamp": "2025-12-02T13:56:57Z",
+                "legalFactId": "safestorage://PN_NOTIFICATION_VIEWED-3f4e2b1c5d4e4f8e8e6f4c3b2a1d0e9f.pdf"
+            }
+        },
+        {
             "elementId": "SEND_ANALOG_PROGRESS.IUN_KUKM-NGDV-VEWU-202512-T-1.RECINDEX_0.ATTEMPT_1.IDX_1",
             "timestamp": "2025-12-02T13:57:57Z",
             "ingestionTimestamp": "2025-12-02T13:58:02.340606864Z",

@@ -488,6 +488,12 @@ describe("eventHandler tests", function () {
     expect(resJson.timeline.some(
       (tl) => tl.category == "NOTIFICATION_TIMELINE_REWORKED")
     ).to.be.false;
+    // check che NON sia presente il campo legalFactId:
+    const creationRequestElements = resJson.timeline.filter((tl) => tl.category == "NOTIFICATION_VIEWED_CREATION_REQUEST");
+    expect(creationRequestElements.length).to.be.greaterThan(0);
+    creationRequestElements.forEach((el) => {
+      expect(el.details.legalFactId).to.be.undefined;
+    });
   });
 
   it("statusCode 200 v1", async () => {
