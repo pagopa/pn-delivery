@@ -464,11 +464,10 @@ paths:
     ###                             RICERCA NOTIFICHE ACCETTATE                             ###
     ###########################################################################################
 
-  "/delivery/v2.7/notifications/sent/{iun}":
+  "/delivery/v2.8/notifications/sent/{iun}":
     get:
-      summary: 'EXPERIMENTAL - Mittente: lettura dettagli notifica versione 2'
+      summary: 'Mittente: lettura dettagli notifica versione 2'
       description: |-
-        (EXPERIMENTAL)
         Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
 
         <details no-external>
@@ -484,8 +483,8 @@ paths:
         </details>
       tags:
         - SenderReadB2B
-      operationId: getSentNotificationV27                                    # NO EXTERNAL
-#      operationId: retrieveSentNotificationV27                                # ONLY EXTERNAL
+      operationId: getSentNotificationV28                                    # NO EXTERNAL
+#      operationId: retrieveSentNotificationV28                                # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
@@ -498,7 +497,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/FullSentNotificationV27"
+                $ref: "#/components/schemas/FullSentNotificationV28"
         '400':
           description: Bad request
           content:
@@ -1089,7 +1088,7 @@ components:
     ###                              DTO NOTIFICA CON DETTAGLI                              ###
     ###########################################################################################
 
-    FullSentNotificationV27:
+    FullSentNotificationV28:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
         processo di inoltro della notifica verso il cittadino.

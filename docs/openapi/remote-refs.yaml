@@ -49,13 +49,13 @@ components:
     ###                          STRUTTURE DATI DI PN-DELIVERY_PUSH                          ###
     ############################################################################################
     TimelineElementV28:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/2f0204ca8b63796dab230e1f6e661e11a298b695/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElementV28'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/85a4df05646af1832399c79860d34cf2d58ef5b8/docs/openapi/schemas-pn-timeline-external.yaml#/components/schemas/TimelineElementV28'
     NotificationStatusV26:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/2f0204ca8b63796dab230e1f6e661e11a298b695/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatusV26'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/85a4df05646af1832399c79860d34cf2d58ef5b8/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatusV26'
     NotificationStatusHistoryV26:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/2f0204ca8b63796dab230e1f6e661e11a298b695/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatusHistoryV26'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/85a4df05646af1832399c79860d34cf2d58ef5b8/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatusHistoryV26'
     RequestStatus:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/2f0204ca8b63796dab230e1f6e661e11a298b695/docs/openapi/api-internal-pn-delivery-push.yaml#/components/schemas/RequestStatus'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/85a4df05646af1832399c79860d34cf2d58ef5b8/docs/openapi/api-internal-pn-delivery-push.yaml#/components/schemas/RequestStatus'
     ############################################################################################
     ###                          STRUTTURE DATI DI PN-COMMONS                                ###
     ############################################################################################
@@ -103,9 +103,9 @@ components:
       # DO NOT CHANGE: this is timeline V2.6 commit id.
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/898b155966acda508abd4149e0efb5ce66c6e9b0/docs/openapi/api-external-b2b-webhook-bundle.yaml#/components/schemas/TimelineElementV26'
 
-    TimelineElementId:
+    TimelineElementV27:
       # DO NOT CHANGE: this is timeline V2.7 commit id.
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/3362e83e62d3a8f17d4620050158d85bbf15b6dd/docs/openapi/api-external-b2b-webhook-bundle.yaml#/components/schemas/TimelineElementV27'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/30ada13a28acbe8eb5770e74f0e98ac86f9af132/docs/openapi/schemas-pn-timeline-external.yaml#/components/schemas/TimelineElementV27'
 
     NotificationStatus:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/d551b3605f9607686eccef0299a3e678ad7457ef/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatus'

@@ -77,8 +77,8 @@ class PnSentReceivedNotificationControllerTest {
 	private static final String RECIPIENT_ID = "CGNNMO80A01H501M";
 	public static final List<String> GROUPS = List.of("Group1", "Group2");
 	public static final String DELIVERY_REQUESTS_PATH = "/delivery/v2.5/requests";
-	public static final String DELIVERY_RECEIVED_PATH = "/delivery/v2.6/notifications/received/";
-	public static final String DELIVERY_SENT_PATH = "/delivery/v2.7/notifications/sent/";
+	public static final String DELIVERY_RECEIVED_PATH = "/delivery/v2.7/notifications/received/";
+	public static final String DELIVERY_SENT_PATH = "/delivery/v2.8/notifications/sent/";
 
 	@Autowired
     WebTestClient webTestClient;
@@ -119,7 +119,7 @@ class PnSentReceivedNotificationControllerTest {
 			.exchange()
 			.expectStatus()
 			.isOk()
-			.expectBody(FullSentNotificationV27.class);
+			.expectBody(FullSentNotificationV28.class);
 		
 		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck(IUN, PA_ID, GROUPS);
 	}
@@ -243,7 +243,6 @@ class PnSentReceivedNotificationControllerTest {
 		actualTimelineElementDetails
 				.legalFactGenerationDate(OffsetDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.MIDNIGHT, ZoneOffset.UTC));
 		actualTimelineElementDetails.legalFactId("42");
-		actualTimelineElementDetails.legalfactId("42");
 		PhysicalAddress newAddress = new PhysicalAddress("At", "42 Main St", "42 Main St", "21654",
 				"Municipality", "Municipality Details", "Province", "Foreign State");
 
@@ -333,7 +332,6 @@ class PnSentReceivedNotificationControllerTest {
 				ZoneOffset.UTC);
 		actualTimelineElementDetails.setLegalFactGenerationDate(legalFactGenerationDate);
 		actualTimelineElementDetails.setLegalFactId("42");
-		actualTimelineElementDetails.setLegalfactId("42");
 		PhysicalAddress newAddress2 = new PhysicalAddress("At", "42 Main St", "42 Main St", "21654",
 				"Municipality", "Municipality Details", "Province", "Foreign State");
 
@@ -397,7 +395,6 @@ class PnSentReceivedNotificationControllerTest {
 	void testingTimeLine3(TimelineElementDetailsV28 actualTimelineElementDetails){
 		assertNotNull(actualTimelineElementDetails.getLegalFactGenerationDate());
 		assertEquals("42", actualTimelineElementDetails.getLegalFactId());
-		assertEquals("42", actualTimelineElementDetails.getLegalfactId());
 		PhysicalAddress newAddress3 = actualTimelineElementDetails.getNewAddress();
 		PhysicalAddress normalizedAddress3 = actualTimelineElementDetails.getNormalizedAddress();
 		assertEquals(normalizedAddress3, newAddress3);
@@ -460,7 +457,6 @@ class PnSentReceivedNotificationControllerTest {
 		Assertions.assertNotNull(timelineElementDetails.getNormalizedAddress());
 		Assertions.assertNotNull(timelineElementDetails.getGeneratedAarUrl());
 		Assertions.assertNotNull(timelineElementDetails.getPhysicalAddress());
-		Assertions.assertNotNull(timelineElementDetails.getLegalfactId());
 		Assertions.assertNotNull(timelineElementDetails.getEndWorkflowStatus());
 		Assertions.assertNotNull(timelineElementDetails.getCompletionWorkflowDate());
 		Assertions.assertNotNull(timelineElementDetails.getLegalFactGenerationDate());
@@ -640,7 +636,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody(FullReceivedNotificationV26.class);
+				.expectBody(FullReceivedNotificationV27.class);
 
 		Mockito.verify(svc).getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
 	}
@@ -692,7 +688,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody(FullReceivedNotificationV26.class);
+				.expectBody(FullReceivedNotificationV27.class);
 
 		Mockito.verify(svc).getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, MANDATE_ID);
 	}
