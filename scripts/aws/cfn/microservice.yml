@@ -746,6 +746,10 @@ Parameters:
     Description: "TTL in seconds for cache items"
     Default: 900
 
+  LogLevelForConsentAccepterLambda:
+    Type: String
+    Description: "Log level for consent accepter lambda"
+
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
 
@@ -1113,6 +1117,7 @@ Resources:
           REDIS_ENDPOINT: !Ref RedisEndpoint
           REDIS_NAMESPACE: !Ref RedisNamespace
           CACHE_ITEM_TTL_SECONDS: !Ref CacheItemTtlSeconds
+          LOG_LEVEL: !Ref LogLevelForConsentAccepterLambda
       TracingConfig:
         Mode: Active
       Layers:

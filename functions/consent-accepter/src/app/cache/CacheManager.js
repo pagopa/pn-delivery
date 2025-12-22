@@ -1,5 +1,6 @@
 const LocalCache = require('./LocalCache');
 const RedisCache = require('./RedisCache');
+const logger = require("../logger");
 
 const DEFAULT_SECONDS_TTL = 900; // secondi (15 minuti)
 
@@ -53,17 +54,19 @@ class CacheManager {
   async get(cxType, consentType) {
     const key = this.keyGenerator(cxType, consentType);
     
-    console.log(`[CacheManager] get with cxType: ${cxType}, consentType: ${consentType} (key: ${key})`);
+    logger.info(`[CacheManager] get with cxType: ${cxType}, consentType: ${consentType} (key: ${key})`);
     
     try {
       const localValue = this.localCache.get(key);
       if (localValue !== null) {
+      logger.debug(`[CacheManager] Local Cache hit (${key})`);
         return localValue.version;
       }
       
       
       const redisValue = await this.redisCache.get(key);
       if (redisValue !== null) {
+      logger.debug(`[CacheManager] Redis hit (${key})`);
         // Popola cache locale per prossimi accessi
         this.localCache.set(key, redisValue, redisValue.expiresAt);
         
@@ -71,7 +74,7 @@ class CacheManager {
       }
       
       // LIVELLO 3: External Source
-      console.log(`[CacheManager] Cache miss on every level (${key})`);
+      logger.info(`[CacheManager] Cache miss on every level (${key})`);
       const sourceValue = await this.externalFetcher(cxType, consentType);
       
       if (sourceValue === null || sourceValue === undefined) {
@@ -90,7 +93,7 @@ class CacheManager {
       return sourceValue;
       
     } catch (error) {
-      console.error(`[CacheManager] Error retrieving ${key}:`, error);
+      logger.error(`[CacheManager] Error retrieving ${key}:`, error);
       throw error;
     }
   }
