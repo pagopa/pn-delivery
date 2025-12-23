@@ -776,17 +776,15 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery/v2.7/notifications/sent/{iun}:
+  /delivery/v2.8/notifications/sent/{iun}:
     get:
-      summary: 'EXPERIMENTAL - Mittente: lettura dettagli notifica versione 2'
+      summary: 'Mittente: lettura dettagli notifica versione 2'
       description: >-
-        (EXPERIMENTAL)
-
         Questa operazione permette di leggere tutti i dettagli di una notifica
         accettata. <br/>
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationV27
+      operationId: retrieveSentNotificationV28
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:
@@ -795,7 +793,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FullSentNotificationV27'
+                $ref: '#/components/schemas/FullSentNotificationV28'
         '400':
           description: Bad request
           content:
@@ -1562,6 +1560,7 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery/v2.6/notifications/sent/{iun}:
     get:
+      deprecated: true
       summary: 'Mittente: lettura dettagli notifica versione 2'
       description: >-
         Questa operazione permette di leggere tutti i dettagli di una notifica
@@ -1578,6 +1577,41 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FullSentNotificationV26'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /delivery/v2.7/notifications/sent/{iun}:
+    get:
+      deprecated: true
+      summary: 'EXPERIMENTAL - Mittente: lettura dettagli notifica versione 2'
+      description: >-
+        (EXPERIMENTAL)
+
+        Questa operazione permette di leggere tutti i dettagli di una notifica
+        accettata. <br/>
+      tags:
+        - SenderReadB2B
+      operationId: retrieveSentNotificationV27
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda:live
+      x-pagopa-lambda-account: core
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FullSentNotificationV27'
         '400':
           description: Bad request
           content:
@@ -1821,12 +1855,12 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery-progresses/v2.8/streams:
+  /delivery-progresses/v2.9/streams:
     post:
-      summary: EXPERIMENTAL - Crea nuovo stream di eventi
+      summary: Crea nuovo stream di eventi
       description: >-
-        (EXPERIMENTAL) Creazione di un flusso di eventi specificando se gli
-        eventi saranno relativi ai cambi di stato o agli eventi di timeline.
+        Creazione di un flusso di eventi specificando se gli eventi saranno
+        relativi ai cambi di stato o agli eventi di timeline.
 
 
         In risposta, Piattaforma Notifiche, comunicherà un identificativo dello
@@ -1834,20 +1868,20 @@ paths:
         pochi secondi dopo che è stata  invocata l'operazione.
       tags:
         - Streams
-      operationId: createEventStreamV28
+      operationId: createEventStreamV29
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StreamCreationRequestV28'
+              $ref: '#/components/schemas/StreamCreationRequestV29'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StreamMetadataResponseV28'
+                $ref: '#/components/schemas/StreamMetadataResponseV29'
         '400':
           description: Invalid input
           content:
@@ -1873,11 +1907,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     get:
-      summary: EXPERIMENTAL - Elenca stream di eventi
-      description: (EXPERIMENTAL) Elenca gli stream di eventi
+      summary: Elenca stream di eventi
+      description: Elenca gli stream di eventi
       tags:
         - Streams
-      operationId: listEventStreamsV28
+      operationId: listEventStreamsV29
       responses:
         '200':
           description: OK
@@ -1897,22 +1931,22 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery-progresses/v2.8/streams/{streamId}:
+  /delivery-progresses/v2.9/streams/{streamId}:
     parameters:
       - $ref: '#/components/parameters/pathStreamId'
     get:
-      summary: EXPERIMENTAL - Leggi metadata dello stream
-      description: (EXPERIMENTAL) Lettura delle configurazioni di uno stream di eventi.
+      summary: Leggi metadata dello stream
+      description: Lettura delle configurazioni di uno stream di eventi.
       tags:
         - Streams
-      operationId: retrieveEventStreamV28
+      operationId: retrieveEventStreamV29
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StreamMetadataResponseV28'
+                $ref: '#/components/schemas/StreamMetadataResponseV29'
         '400':
           description: Invalid input
           content:
@@ -1938,27 +1972,26 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     put:
-      summary: EXPERIMENTAL - Update Stream metadata
+      summary: Update Stream metadata
       description: >-
-        (EXPERIMENTAL) Modifica delle configurazioni dei filtri associati a uno
-        stream di eventi, non è possibile cambiare il valore del flag
-        waitForAccepted.
+        Modifica delle configurazioni dei filtri associati a uno stream di
+        eventi, non è possibile cambiare il valore del flag waitForAccepted.
       tags:
         - Streams
-      operationId: updateEventStreamV28
+      operationId: updateEventStreamV29
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StreamRequestV28'
+              $ref: '#/components/schemas/StreamRequestV29'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StreamMetadataResponseV28'
+                $ref: '#/components/schemas/StreamMetadataResponseV29'
         '400':
           description: Invalid input
           content:
@@ -1984,14 +2017,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     delete:
-      summary: EXPERIMENTAL - Remove Event Stream
+      summary: Remove Event Stream
       description: >-
-        (EXPERIMENTAL) Cancellazione dello steam di eventi: elimina sia le
-        configurazioni sia tutti gli eventi associati allo stream e non ancora
-        consumati.
+        Cancellazione dello steam di eventi: elimina sia le configurazioni sia
+        tutti gli eventi associati allo stream e non ancora consumati.
       tags:
         - Streams
-      operationId: removeEventStreamV28
+      operationId: removeEventStreamV29
       responses:
         '204':
           description: OK
@@ -2019,11 +2051,11 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery-progresses/v2.8/streams/{streamId}/action/disable:
+  /delivery-progresses/v2.9/streams/{streamId}/action/disable:
     post:
-      summary: EXPERIMENTAL - Disabilita uno stream
+      summary: Disabilita uno stream
       description: >-
-        (EXPERIMENTAL) Disabilita uno stream.
+        Disabilita uno stream.
 
 
         Da uno stream disabilitato è possibile leggere gli eventi presenti nello
@@ -2039,7 +2071,7 @@ paths:
         id="webhookTtlDisabled">14</span> giorni.
       tags:
         - Streams
-      operationId: disableEventStreamV28
+      operationId: disableEventStreamV29
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
       responses:
@@ -2048,7 +2080,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StreamMetadataResponseV28'
+                $ref: '#/components/schemas/StreamMetadataResponseV29'
         '400':
           description: Invalid input
           content:
@@ -2073,17 +2105,17 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery-progresses/v2.8/streams/{streamId}/events:
+  /delivery-progresses/v2.9/streams/{streamId}/events:
     get:
-      summary: EXPERIMENTAL - Leggi progressi notifiche
+      summary: Leggi progressi notifiche
       description: >-
-        (EXPERIMENTAL) Lettura degli eventi presenti nello stream di
-        aggiornamenti con indicazione che il mittente ha ricevuto e memorizzato
-        l'evento identificato dal parametro _lastEventId_ e tutti gli eventi
-        precedenti. Tali eventi potranno essere cancellati dallo stream.
+        Lettura degli eventi presenti nello stream di aggiornamenti con
+        indicazione che il mittente ha ricevuto e memorizzato l'evento
+        identificato dal parametro _lastEventId_ e tutti gli eventi precedenti.
+        Tali eventi potranno essere cancellati dallo stream.
       tags:
         - Events
-      operationId: consumeEventStreamV28
+      operationId: consumeEventStreamV29
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
         - $ref: '#/components/parameters/queryLastEventId'
@@ -2107,7 +2139,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProgressResponseV28'
+                $ref: '#/components/schemas/ProgressResponseV29'
         '400':
           description: Invalid input
           content:
@@ -3978,6 +4010,348 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+  /delivery-progresses/v2.8/streams:
+    post:
+      deprecated: true
+      summary: EXPERIMENTAL - Crea nuovo stream di eventi
+      description: >-
+        (EXPERIMENTAL) Creazione di un flusso di eventi specificando se gli
+        eventi saranno relativi ai cambi di stato o agli eventi di timeline.
+
+
+        In risposta, Piattaforma Notifiche, comunicherà un identificativo dello
+        stream e il  timestamp di effettiva attivazione del flusso, tipicamente
+        pochi secondi dopo che è stata  invocata l'operazione.
+      tags:
+        - Streams
+      operationId: createEventStreamV28
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+      x-pagopa-lambda-account: core
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StreamCreationRequestV28'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamMetadataResponseV28'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: ReplacedId Stream not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+    get:
+      deprecated: true
+      summary: EXPERIMENTAL - Elenca stream di eventi
+      description: (EXPERIMENTAL) Elenca gli stream di eventi
+      tags:
+        - Streams
+      operationId: listEventStreamsV28
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+      x-pagopa-lambda-account: core
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamListResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /delivery-progresses/v2.8/streams/{streamId}:
+    parameters:
+      - $ref: '#/components/parameters/pathStreamId'
+    get:
+      deprecated: true
+      summary: EXPERIMENTAL - Leggi metadata dello stream
+      description: (EXPERIMENTAL) Lettura delle configurazioni di uno stream di eventi.
+      tags:
+        - Streams
+      operationId: retrieveEventStreamV28
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+      x-pagopa-lambda-account: core
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamMetadataResponseV28'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Stream not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+    put:
+      deprecated: true
+      summary: EXPERIMENTAL - Update Stream metadata
+      description: >-
+        (EXPERIMENTAL) Modifica delle configurazioni dei filtri associati a uno
+        stream di eventi, non è possibile cambiare il valore del flag
+        waitForAccepted.
+      tags:
+        - Streams
+      operationId: updateEventStreamV28
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+      x-pagopa-lambda-account: core
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StreamRequestV28'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamMetadataResponseV28'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Stream not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+    delete:
+      deprecated: true
+      summary: EXPERIMENTAL - Remove Event Stream
+      description: >-
+        (EXPERIMENTAL) Cancellazione dello steam di eventi: elimina sia le
+        configurazioni sia tutti gli eventi associati allo stream e non ancora
+        consumati.
+      tags:
+        - Streams
+      operationId: removeEventStreamV28
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+      x-pagopa-lambda-account: core
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Stream not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /delivery-progresses/v2.8/streams/{streamId}/action/disable:
+    post:
+      deprecated: true
+      summary: EXPERIMENTAL - Disabilita uno stream
+      description: >-
+        (EXPERIMENTAL) Disabilita uno stream.
+
+
+        Da uno stream disabilitato è possibile leggere gli eventi presenti nello
+        stream salvati prima della disabilitazione, ma non ne saranno aggiunti
+        di nuovi.
+
+
+        Non è possibile modificare o riabilitare uno stream disabilitato.
+
+
+        Uno stream disabilitato non rientra nel conteggio degli stream massimi,
+        non può essere riabilitato e verrà eliminato automaticamente dopo <span
+        id="webhookTtlDisabled">14</span> giorni.
+      tags:
+        - Streams
+      operationId: disableEventStreamV28
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+      x-pagopa-lambda-account: core
+      parameters:
+        - $ref: '#/components/parameters/pathStreamId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamMetadataResponseV28'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Stream not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /delivery-progresses/v2.8/streams/{streamId}/events:
+    get:
+      deprecated: true
+      summary: EXPERIMENTAL - Leggi progressi notifiche
+      description: >-
+        (EXPERIMENTAL) Lettura degli eventi presenti nello stream di
+        aggiornamenti con indicazione che il mittente ha ricevuto e memorizzato
+        l'evento identificato dal parametro _lastEventId_ e tutti gli eventi
+        precedenti. Tali eventi potranno essere cancellati dallo stream.
+      tags:
+        - Events
+      operationId: consumeEventStreamV28
+      x-pagopa-lambda-name: pn-versioningV1V2StreamLambda:live
+      x-pagopa-lambda-account: core
+      parameters:
+        - $ref: '#/components/parameters/pathStreamId'
+        - $ref: '#/components/parameters/queryLastEventId'
+      responses:
+        '200':
+          description: OK
+          headers:
+            retry-after:
+              schema:
+                type: integer
+                format: int32
+              description: >-
+                Numero di millisecondi di attesa prima di effettuare una nuova
+                lettura di eventi.
+
+                Sarà valorizzato a zero se ci sono eventi in coda che non sono
+                stati forniti per  raggiunta dimensione massima della risposta.
+
+                Sarà maggiore di zero se gli eventi in coda sono stati tutti
+                inviati.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProgressResponseV28'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Not allowed to consume details
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Stream not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '429':
+          description: Too Many Requests
+          headers:
+            retry-after:
+              schema:
+                type: integer
+                format: int32
+              description: >-
+                Numero di millisecondi di attesa prima di effettuare una nuova
+                lettura di eventi.
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
 components:
   parameters:
     notificationRequestId:
@@ -4450,7 +4824,7 @@ components:
           type: string
       required:
         - code
-    FullSentNotificationV27:
+    FullSentNotificationV28:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica
         accettata) e il  processo di inoltro della notifica verso il cittadino.
@@ -4472,7 +4846,7 @@ components:
                 processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV27'
+                $ref: '#/components/schemas/TimelineElementV28'
     PaymentEventsRequestPagoPa:
       title: Invio eventi di pagamento da PA a PN
       description: >-
@@ -4563,7 +4937,7 @@ components:
         amount:
           type: integer
           format: int32
-    TimelineElementV27:
+    TimelineElementV28:
       type: object
       additionalProperties: false
       properties:
@@ -4604,9 +4978,9 @@ components:
             Chiavi dei documenti che provano l'effettivo accadimento dell'evento
             descritto in timeline. Questo elemento
         category:
-          $ref: '#/components/schemas/TimelineElementCategoryV27'
+          $ref: '#/components/schemas/TimelineElementCategoryV28'
         details:
-          $ref: '#/components/schemas/TimelineElementDetailsV27'
+          $ref: '#/components/schemas/TimelineElementDetailsV28'
     NotificationStatusV26:
       type: string
       description: |
@@ -5530,6 +5904,29 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/TimelineElementV26'
+    FullSentNotificationV27:
+      description: >-
+        Le informazioni riguardanti una notifica (richiesta di notifica
+        accettata) e il  processo di inoltro della notifica verso il cittadino.
+      allOf:
+        - $ref: '#/components/schemas/SentNotificationV25'
+        - type: object
+          required:
+            - notificationStatus
+            - notificationStatusHistory
+            - timeline
+          properties:
+            notificationStatus:
+              $ref: '#/components/schemas/NotificationStatusV26'
+            notificationStatusHistory:
+              $ref: '#/components/schemas/NotificationStatusHistoryV26'
+            timeline:
+              description: >-
+                elenco dettagliato di tutto ciò che è accaduto durrante il
+                processo di notifica
+              type: array
+              items:
+                $ref: '#/components/schemas/TimelineElementV27'
     PaFeeV21:
       type: integer
       description: >-
@@ -6402,7 +6799,7 @@ components:
           maxLength: 512
         category:
           $ref: '#/components/schemas/LegalFactCategoryV20'
-    TimelineElementCategoryV27:
+    TimelineElementCategoryV28:
       type: string
       description: |
         stato di avanzamento del processo di notifica:`
@@ -6451,6 +6848,7 @@ components:
           * `ANALOG_WORKFLOW_RECIPIENT_DECEASED` - Destinatario deceduto
           * `PUBLIC_REGISTRY_VALIDATION_CALL` - Ricerca dell'indirizzo di spedizione in fase di validazione notifica
           * `PUBLIC_REGISTRY_VALIDATION_RESPONSE` - Recupero dell'indirizzo di spedizione dai registri nazionali
+          * `NOTIFICATION_TIMELINE_REWORKED` - Invio richiesta di Rework della timeline per una notifica
       enum:
         - SENDER_ACK_CREATION_REQUEST
         - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
@@ -6497,6 +6895,7 @@ components:
         - ANALOG_WORKFLOW_RECIPIENT_DECEASED
         - PUBLIC_REGISTRY_VALIDATION_CALL
         - PUBLIC_REGISTRY_VALIDATION_RESPONSE
+        - NOTIFICATION_TIMELINE_REWORKED
     SenderAckCreationRequestDetails:
       type: object
       properties:
@@ -6562,13 +6961,9 @@ components:
           $ref: '#/components/schemas/PhysicalAddress'
         normalizedAddress:
           $ref: '#/components/schemas/PhysicalAddress'
-    NotificationRequestAcceptedDetailsV27:
+    NotificationRequestAcceptedDetailsV28:
       type: object
       properties:
-        recIndex:
-          type: integer
-          description: Index destinatario notifica digitale
-          format: int32
         notificationRequestId:
           type: string
           description: >-
@@ -6619,7 +7014,7 @@ components:
       enum:
         - SUCCESS
         - FAILURE
-    CompletelyUnreachableCreationRequestDetails:
+    CompletelyUnreachableCreationRequestDetailsV28:
       type: object
       required:
         - recIndex
@@ -6628,7 +7023,7 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
-        legalfactId:
+        legalFactId:
           type: string
           maxLength: 128
           description: >-
@@ -6668,7 +7063,7 @@ components:
           x-field-extra-annotation: '@lombok.ToString.Exclude'
           type: string
           description: account@domain
-    DigitalDeliveryCreationRequestDetails:
+    DigitalDeliveryCreationRequestDetailsV28:
       type: object
       required:
         - recIndex
@@ -6686,7 +7081,7 @@ components:
           type: string
           description: Data chiusura workflow
           format: date-time
-        legalfactId:
+        legalFactId:
           type: string
           maxLength: 128
           description: >-
@@ -6778,7 +7173,7 @@ components:
           maxLength: 128
         delegateType:
           $ref: '#/components/schemas/RecipientType'
-    NotificationViewedCreationRequestDetailsV23:
+    NotificationViewedCreationRequestDetailsV28:
       type: object
       required:
         - recIndex
@@ -6787,7 +7182,7 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
-        legalfactId:
+        legalFactId:
           type: string
           maxLength: 128
           description: >-
@@ -7335,57 +7730,16 @@ components:
           type: string
           maxLength: 10
           description: >
-            __Motivazione di mancata consegna__ obbligatorie negli stati di
-            mancata consegna
-              - __M01__ destinatario irreperibile
-              - __M02__ destinatario deceduto
-              - __M03__ destinatario sconosciuto
-              - __M04__ destinatario trasferito
-              - __M05__ invio rifiutato
-              - __M06__ indirizzo inesatto
-              - __M07__ indirizzo inesistente
-              - __M08__ indirizzo insufficiente
-              - __F01__ - in caso di furto
-              - __F02__ - in caso di smarrimento
-              - __F03__ - in caso di deterioramento
+            i codici delle motivazioni di mancata consegna possono essere
+            consultati alla seguente
+            [pagina](https://developer.pagopa.it/send/guides/knowledge-base/v2.5/readme/creazione-e-gestione-degli-stream/stream-di-timeline/decodifiche-send_analog#decodifica-deliveryfailurecause)
         deliveryDetailCode:
           type: string
           maxLength: 20
           description: >
-            Formato: - __deliveryDetailCode__- [prodotto] - [statusCode] -
-            statusDescription
-              - __CON020__- [ALL] - [PROGRESS] - Originale dell’AAR (documento nativo digitale) reso disponibile dal Consolidatore e firmato digitalmente da PagoPA
-              - __CON080__- [ALL] - [PROGRESS] - Stampato ed Imbustato
-              - __RECRS001C__- [RS] - [OK] - Consegnato - Fascicolo Chiuso
-              - __RECRS002C__- [RS] - [KO] - Mancata consegna - Fascicolo Chiuso
-              - __RECRS002F__- [RS] - [KO] - Irreperibilità Assoluta - Fascicolo Chiuso
-              - __RECRS003C__- [RS] - [OK] - Consegnato presso Punti di Giacenza - Fascicolo Chiuso
-              - __RECRS004C__- [RS] - [OK] - Mancata consegna presso Punti di Giacenza - Fascicolo Chiuso
-              - __RECRS005C__- [RS] - [OK] - Compiuta giacenza - Fascicolo Chiuso
-              - __RECRS006__- [RS] - [PROGRESS] - Furto/Smarrimento/deterioramento
-              - __RECRN001C__- [AR] - [OK] - Consegnato - Fascicolo Chiuso
-              - __RECRN002C__- [AR] - [KO] - Mancata consegna - Fascicolo Chiuso
-              - __RECRN002F__- [AR] - [KO] - Irreperibilità Assoluta - Fascicolo Chiuso
-              - __RECRN003C__- [AR] - [OK] - Consegnato presso Punti di Giacenza - Fascicolo Chiuso
-              - __RECRN004C__- [AR] - [KO] - Mancata consegna presso Punti di Giacenza - Fascicolo Chiuso
-              - __RECRN005C__- [AR] - [OK] - Compiuta giacenza - Fascicolo Chiuso
-              - __RECRN006__- [AR] - [PROGRESS] - Furto/Smarrimento/deterioramento
-              - __RECAG001C__- [890] - [OK] - Consegnato - Fascicolo Chiuso
-              - __RECAG002C__- [890] - [OK] - Consegnato a persona abilitata - Fascicolo Chiuso
-              - __RECAG003C__- [890] - [KO] - Mancata consegna - Fascicolo Chiuso
-              - __RECAG003F__- [890] - [KO] - Irreperibilità Assoluta - Fascicolo Chiuso
-              - __RECAG004__- [890] - [PROGRESS] - Furto/Smarrimento/deterioramento
-              - __RECAG005C__- [890] - [OK | PROGRESS] - Consegnato presso Punti di Giacenza - Fascicolo Chiuso
-              - __RECAG006C__- [890] - [OK | PROGRESS] - Consegna a persona abilitata presso Punti di Giacenza - Fas. Ch.
-              - __RECAG007C__- [890] - [KO | PROGRESS] - Mancata consegna presso Punti di Giacenza - Fascicolo Chiuso
-              - __RECAG008C__- [890] - [PROGRESS] - Compiuta giacenza - Fascicolo Chiuso
-              - __PNAG012__- [890] - [KO] - Distacco d'ufficio 23L - Fascicolo Chiuso
-              - __RECRI003C__- [RIR] - [OK] - Consegnato - Fascicolo Chiuso
-              - __RECRI004C__- [RIR] - [KO] - Non Consegnato - fascicolo Chiuso
-              - __RECRI005__- [RIR] - [PROGRESS] - Furto/Smarrimento/deterioramento
-              - __RECRSI003C__- [RIS] - [OK] - Consegnato - Fascicolo Chiuso
-              - __RECRSI004C__- [RIS] - [KO] - Non Consegnato - fascicolo Chiuso
-              - __RECRSI005__- [RIS] - [PROGRESS] - Furto/Smarrimento/deterioramento
+            i codici di decodifica degli eventi di invio cartaceo possono essere
+            consultati alla seguente
+            [pagina](https://developer.pagopa.it/send/guides/knowledge-base/v2.5/readme/creazione-e-gestione-degli-stream/stream-di-timeline/decodifiche-send_analog#codici-send_analog_progress-comuni-a-tutte-le-tipologie)
         attachments:
           type: array
           items:
@@ -7721,21 +8075,65 @@ components:
                   - ANPR
                   - REGISTRO_IMPRESE
               maxLength: 128
-    TimelineElementDetailsV27:
+    NotificationStatusHistoryInvalidatedElement:
+      description: elenco degli avanzamenti effettuati dal processo di notifica
+      type: object
+      required:
+        - status
+        - activeFrom
+        - relatedTimelineElements
+      properties:
+        status:
+          $ref: '#/components/schemas/NotificationStatusV26'
+        activeFrom:
+          type: string
+          description: data e ora di raggiungimento dello stato di avanzamento
+          format: date-time
+        relatedTimelineElements:
+          type: array
+          description: Eventi avvenuti nello stato
+          items:
+            $ref: '#/components/schemas/TimelineElementV28'
+    NotificationTimelineReworkedDetails:
+      type: object
+      required:
+        - recIndex
+        - sentAttemptMade
+        - invalidatedTimelineAndStatusHistory
+        - categoryType
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        sentAttemptMade:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+        invalidatedTimelineAndStatusHistory:
+          description: >-
+            elenco degli avanzamenti effettuati dal processo di notifica prima
+            dell'invalidazione
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationStatusHistoryInvalidatedElement'
+        categoryType:
+          type: string
+    TimelineElementDetailsV28:
       description: The raw event payload that will be different based on the event.
       oneOf:
         - $ref: '#/components/schemas/SenderAckCreationRequestDetails'
         - $ref: '#/components/schemas/NormalizedAddressDetails'
-        - $ref: '#/components/schemas/NotificationRequestAcceptedDetailsV27'
+        - $ref: '#/components/schemas/NotificationRequestAcceptedDetailsV28'
         - $ref: '#/components/schemas/AnalogFailureWorkflowDetails'
         - $ref: '#/components/schemas/AnalogSuccessWorkflowDetails'
-        - $ref: '#/components/schemas/CompletelyUnreachableCreationRequestDetails'
+        - $ref: '#/components/schemas/CompletelyUnreachableCreationRequestDetailsV28'
         - $ref: '#/components/schemas/CompletelyUnreachableDetails'
-        - $ref: '#/components/schemas/DigitalDeliveryCreationRequestDetails'
+        - $ref: '#/components/schemas/DigitalDeliveryCreationRequestDetailsV28'
         - $ref: '#/components/schemas/DigitalFailureWorkflowDetails'
         - $ref: '#/components/schemas/DigitalSuccessWorkflowDetails'
         - $ref: '#/components/schemas/GetAddressInfoDetails'
-        - $ref: '#/components/schemas/NotificationViewedCreationRequestDetailsV23'
+        - $ref: '#/components/schemas/NotificationViewedCreationRequestDetailsV28'
         - $ref: '#/components/schemas/NotificationViewedDetailsV23'
         - $ref: '#/components/schemas/NotificationRADDRetrievedDetails'
         - $ref: '#/components/schemas/PublicRegistryCallDetails'
@@ -7768,6 +8166,7 @@ components:
         - $ref: '#/components/schemas/AnalogWorkflowRecipientDeceasedDetailsV26'
         - $ref: '#/components/schemas/PublicRegistryValidationCallDetails'
         - $ref: '#/components/schemas/PublicRegistryValidationResponseDetails'
+        - $ref: '#/components/schemas/NotificationTimelineReworkedDetails'
     NotificationAttachmentDownloadMetadataResponse:
       title: Url e metadati per il download di un allegato di una notifica
       description: |-
@@ -7995,6 +8394,51 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
+    CompletelyUnreachableCreationRequestDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        legalfactId:
+          type: string
+          maxLength: 128
+          description: >-
+            Identificativo dell'atto opponibile a terzi del quale è stata
+            richiesta la creazione
+        endWorkflowStatus:
+          $ref: '#/components/schemas/EndWorkflowStatus'
+        completionWorkflowDate:
+          type: string
+          description: Data chiusura workflow
+          format: date-time
+    DigitalDeliveryCreationRequestDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: '#/components/schemas/DigitalAddress'
+        endWorkflowStatus:
+          $ref: '#/components/schemas/EndWorkflowStatus'
+        completionWorkflowDate:
+          type: string
+          description: Data chiusura workflow
+          format: date-time
+        legalfactId:
+          type: string
+          maxLength: 128
+          description: >-
+            Identificativo dell'atto opponibile a terzi del quale è stata
+            richiesta la creazione
     RaddType:
       type: string
       description: |
@@ -8620,6 +9064,31 @@ components:
         - NOTIFICATION_CANCELLED
         - PREPARE_ANALOG_DOMICILE_FAILURE
         - NOTIFICATION_RADD_RETRIEVED
+    NotificationViewedCreationRequestDetailsV23:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        legalfactId:
+          type: string
+          maxLength: 128
+          description: >-
+            Identificativo dell'atto opponibile a terzi del quale è stata
+            richiesta la creazione
+        eventTimestamp:
+          type: string
+          description: Data ricezione richiesta visualizzazione notifica
+          format: date-time
+        raddType:
+          $ref: '#/components/schemas/RaddTypeV23'
+        raddTransactionId:
+          $ref: '#/components/schemas/RaddTransactionId'
+        delegateInfo:
+          $ref: '#/components/schemas/DelegateInfo'
     NotificationRefusedErrorV23:
       type: object
       properties:
@@ -8725,6 +9194,101 @@ components:
           description: Motivazioni che hanno portato al rifiuto della notifica
           items:
             $ref: '#/components/schemas/NotificationRefusedErrorV25'
+    schemas-SendAnalogFeedbackDetailsV25:
+      type: object
+      required:
+        - recIndex
+        - physicalAddress
+        - serviceLevel
+        - sentAttemptMade
+        - responseStatus
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        physicalAddress:
+          $ref: '#/components/schemas/PhysicalAddress'
+        serviceLevel:
+          $ref: '#/components/schemas/ServiceLevel'
+        sentAttemptMade:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+        newAddress:
+          $ref: '#/components/schemas/PhysicalAddress'
+        responseStatus:
+          $ref: '#/components/schemas/ResponseStatus'
+        notificationDate:
+          type: string
+          format: date-time
+        deliveryFailureCause:
+          type: string
+          maxLength: 10
+          description: >
+            __Motivazione di mancata consegna__ obbligatorie negli stati di
+            mancata consegna
+              - __M01__ destinatario irreperibile
+              - __M02__ destinatario deceduto
+              - __M03__ destinatario sconosciuto
+              - __M04__ destinatario trasferito
+              - __M05__ invio rifiutato
+              - __M06__ indirizzo inesatto
+              - __M07__ indirizzo inesistente
+              - __M08__ indirizzo insufficiente
+              - __F01__ - in caso di furto
+              - __F02__ - in caso di smarrimento
+              - __F03__ - in caso di deterioramento
+        deliveryDetailCode:
+          type: string
+          maxLength: 20
+          description: >
+            Formato: - __deliveryDetailCode__- [prodotto] - [statusCode] -
+            statusDescription
+              - __CON020__- [ALL] - [PROGRESS] - Originale dell’AAR (documento nativo digitale) reso disponibile dal Consolidatore e firmato digitalmente da PagoPA
+              - __CON080__- [ALL] - [PROGRESS] - Stampato ed Imbustato
+              - __RECRS001C__- [RS] - [OK] - Consegnato - Fascicolo Chiuso
+              - __RECRS002C__- [RS] - [KO] - Mancata consegna - Fascicolo Chiuso
+              - __RECRS002F__- [RS] - [KO] - Irreperibilità Assoluta - Fascicolo Chiuso
+              - __RECRS003C__- [RS] - [OK] - Consegnato presso Punti di Giacenza - Fascicolo Chiuso
+              - __RECRS004C__- [RS] - [OK] - Mancata consegna presso Punti di Giacenza - Fascicolo Chiuso
+              - __RECRS005C__- [RS] - [OK] - Compiuta giacenza - Fascicolo Chiuso
+              - __RECRS006__- [RS] - [PROGRESS] - Furto/Smarrimento/deterioramento
+              - __RECRN001C__- [AR] - [OK] - Consegnato - Fascicolo Chiuso
+              - __RECRN002C__- [AR] - [KO] - Mancata consegna - Fascicolo Chiuso
+              - __RECRN002F__- [AR] - [KO] - Irreperibilità Assoluta - Fascicolo Chiuso
+              - __RECRN003C__- [AR] - [OK] - Consegnato presso Punti di Giacenza - Fascicolo Chiuso
+              - __RECRN004C__- [AR] - [KO] - Mancata consegna presso Punti di Giacenza - Fascicolo Chiuso
+              - __RECRN005C__- [AR] - [OK] - Compiuta giacenza - Fascicolo Chiuso
+              - __RECRN006__- [AR] - [PROGRESS] - Furto/Smarrimento/deterioramento
+              - __RECAG001C__- [890] - [OK] - Consegnato - Fascicolo Chiuso
+              - __RECAG002C__- [890] - [OK] - Consegnato a persona abilitata - Fascicolo Chiuso
+              - __RECAG003C__- [890] - [KO] - Mancata consegna - Fascicolo Chiuso
+              - __RECAG003F__- [890] - [KO] - Irreperibilità Assoluta - Fascicolo Chiuso
+              - __RECAG004__- [890] - [PROGRESS] - Furto/Smarrimento/deterioramento
+              - __RECAG005C__- [890] - [OK | PROGRESS] - Consegnato presso Punti di Giacenza - Fascicolo Chiuso
+              - __RECAG006C__- [890] - [OK | PROGRESS] - Consegna a persona abilitata presso Punti di Giacenza - Fas. Ch.
+              - __RECAG007C__- [890] - [KO | PROGRESS] - Mancata consegna presso Punti di Giacenza - Fascicolo Chiuso
+              - __RECAG008C__- [890] - [PROGRESS] - Compiuta giacenza - Fascicolo Chiuso
+              - __PNAG012__- [890] - [KO] - Distacco d'ufficio 23L - Fascicolo Chiuso
+              - __RECRI003C__- [RIR] - [OK] - Consegnato - Fascicolo Chiuso
+              - __RECRI004C__- [RIR] - [KO] - Non Consegnato - fascicolo Chiuso
+              - __RECRI005__- [RIR] - [PROGRESS] - Furto/Smarrimento/deterioramento
+              - __RECRSI003C__- [RIS] - [OK] - Consegnato - Fascicolo Chiuso
+              - __RECRSI004C__- [RIS] - [KO] - Non Consegnato - fascicolo Chiuso
+              - __RECRSI005__- [RIS] - [PROGRESS] - Furto/Smarrimento/deterioramento
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttachmentDetails'
+        sendRequestId:
+          type: string
+          description: RequestId della richiesta d'invio
+          maxLength: 512
+        registeredLetterCode:
+          type: string
+          description: Codice della raccomandata
+          maxLength: 128
     TimelineElementDetailsV25:
       description: The raw event payload that will be different based on the event.
       oneOf:
@@ -8756,7 +9320,7 @@ components:
         - $ref: '#/components/schemas/SendDigitalProgressDetailsV23'
         - $ref: '#/components/schemas/BaseAnalogDetails'
         - $ref: '#/components/schemas/SendAnalogDetails'
-        - $ref: '#/components/schemas/SendAnalogFeedbackDetailsV25'
+        - $ref: '#/components/schemas/schemas-SendAnalogFeedbackDetailsV25'
         - $ref: '#/components/schemas/BaseRegisteredLetterDetails'
         - $ref: '#/components/schemas/SimpleRegisteredLetterDetails'
         - $ref: '#/components/schemas/AarCreationRequestDetails'
@@ -8891,7 +9455,7 @@ components:
         - $ref: '#/components/schemas/SendDigitalProgressDetailsV23'
         - $ref: '#/components/schemas/BaseAnalogDetails'
         - $ref: '#/components/schemas/SendAnalogDetails'
-        - $ref: '#/components/schemas/SendAnalogFeedbackDetailsV25'
+        - $ref: '#/components/schemas/schemas-SendAnalogFeedbackDetailsV25'
         - $ref: '#/components/schemas/BaseRegisteredLetterDetails'
         - $ref: '#/components/schemas/SimpleRegisteredLetterDetails'
         - $ref: '#/components/schemas/AarCreationRequestDetails'
@@ -8949,6 +9513,218 @@ components:
           $ref: '#/components/schemas/TimelineElementCategoryV26'
         details:
           $ref: '#/components/schemas/TimelineElementDetailsV26'
+    TimelineElementCategoryV27:
+      type: string
+      description: |
+        stato di avanzamento del processo di notifica:`
+          * `SENDER_ACK_CREATION_REQUEST` - Invio della richiesta di creazione, firma e marca dell'atto opponibile a terzi di presa in carico per il mittente a safe storage
+          * `VALIDATE_NORMALIZE_ADDRESSES_REQUEST` - Invio della richiesta di validazione e normalizzazione indirizzi fisici presenti nella richiesta di notifica
+          * `NORMALIZED_ADDRESS` - Salvataggio indirizzi normalizzati
+          * `REQUEST_ACCEPTED` - Richiesta di notifica accettata a seguito dei controlli di validazione
+          * `REQUEST_REFUSED` - Richiesta di notifica rifiutata per fallimento di validazione
+          * `SEND_COURTESY_MESSAGE` - Invio di un messaggio di cortesia
+          * `GET_ADDRESS` - Disponibilità dell’indirizzo specifico (domicilio digitale di piattaforma, domicilio digitale speciale, domicilio digitale generale, indirizzo fisico sulla notifica o sui registri nazionali)
+          * `PUBLIC_REGISTRY_CALL` - Richiesta ai registri pubblici per ottenere domicilio digitale generale o per ottenere indirizzo fisico da ANPR, da registro della imprese, da anagrafe tributaria.
+          * `PUBLIC_REGISTRY_RESPONSE` - Ricevuta la risposta dei registri pubblici
+          * `SCHEDULE_ANALOG_WORKFLOW` - Pianificazione del workflow per invio cartaceo
+          * `SCHEDULE_DIGITAL_WORKFLOW` -Pianificazione del workflow per invio digitale (PEC) del secondo tentativo in caso di fallimento del primo.
+          * `PREPARE_DIGITAL_DOMICILE` - Preparazione per l’invio dell’avviso digitale.Va a valutare la timeline per capire quale sarà il prossimo indirizzo da usare.
+          * `SEND_DIGITAL_DOMICILE` - Invio digitale dell’avviso di notifica
+          * `SEND_DIGITAL_PROGRESS` - Tentativo di Invio PEC ad un determinato indirizzo.
+          * `SEND_DIGITAL_FEEDBACK` - Ottenuto esito ad un invio digitale
+          * `SCHEDULE_REFINEMENT` - Pianificato il perfezionamento per decorrenza termini
+          * `REFINEMENT` - Perfezionamento per decorrenza termini
+          * `DIGITAL_DELIVERY_CREATION_REQUEST` - Invio della richiesta di creazione, firma e marca dell'atto opponibile a terzi di chiusura del workflow digitale a safe storage
+          * `DIGITAL_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio digitale
+          * `DIGITAL_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio digitale: tutti i tentativi di invio ai domicili digitali sono falliti.
+          * `ANALOG_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio cartaceo
+          * `ANALOG_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio cartaceo NOTA: se per tutti i destinatari si conclude il workflow con fallimento verrà scatenato l’evento COMPLETELY_UNREACHABLE
+          * `PREPARE_SIMPLE_REGISTERED_LETTER` - Invio richiesta di prepare (preparazione ad invio) raccomandata semplice a paperChannel
+          * `SEND_SIMPLE_REGISTERED_LETTER` - Invio di raccomandata semplice
+          * `SEND_SIMPLE_REGISTERED_LETTER_PROGRESS` - Ricezione informazioni intermedia relative ad una notificazione cartacea semplice
+          * `NOTIFICATION_VIEWED_CREATION_REQUEST` - Invio della richiesta di creazione, firma e marca dell'atto opponibile a terzi di presa visione a safe storage
+          * `NOTIFICATION_VIEWED` - Visualizzazione della notifica (perfeziona la notifica se non già perfezionata per decorrenza termini o da altro destinatario)
+          * `PREPARE_ANALOG_DOMICILE` - Invio richiesta di prepare (preparazione ad invio) cartaceo a paperChannel
+          * `SEND_ANALOG_DOMICILE` - Invio cartaceo dell’avviso di notifica
+          * `SEND_ANALOG_PROGRESS` - Ricezione informazioni intermedia relative ad una notificazione cartacea
+          * `SEND_ANALOG_FEEDBACK` - Ricezione esito dell'invio cartaceo
+          * `COMPLETELY_UNREACHABLE_CREATION_REQUEST` - Invio della richiesta di creazione, firma e marca dell'atto (simile a opponibile a terzi) di completamento con fallimento del workflow di invio cartaceo
+          * `COMPLETELY_UNREACHABLE` - Tutti i destinatari risultano irraggiungibili
+          * `AAR_CREATION_REQUEST` - Invio della richiesta di creazione, firma e marca dell'AAR (Avviso di Avvenuta Ricezione) a safe storage
+          * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
+          * `PAYMENT` - Evento di ricezione __dal mittente__ dell'informazione di chiusura di uno o più pagamenti di tipo pagoPA (vedi #/components/schemas/PagoPaPayment). La presenza di questo evento inibisce l'invio di eventuali comunicazioni analogiche future ma non perfeziona la notifica.
+          * `NOT_HANDLED` - [DEPRECATO] Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
+          * `PROBABLE_SCHEDULING_ANALOG_DATE` - Data probabile di inizio del flusso analogico
+          * `NOTIFICATION_CANCELLATION_REQUEST` - Richiesta di annullamento di una notifica
+          * `NOTIFICATION_CANCELLED` - Notifica annullata
+          * `PREPARE_ANALOG_DOMICILE_FAILURE` - Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel
+          * `NOTIFICATION_RADD_RETRIEVED` - Accesso alla notifica tramite la rete RADD. Non perfeziona la notifica.
+          * `ANALOG_WORKFLOW_RECIPIENT_DECEASED` - Destinatario deceduto
+          * `PUBLIC_REGISTRY_VALIDATION_CALL` - Ricerca dell'indirizzo di spedizione in fase di validazione notifica
+          * `PUBLIC_REGISTRY_VALIDATION_RESPONSE` - Recupero dell'indirizzo di spedizione dai registri nazionali
+      enum:
+        - SENDER_ACK_CREATION_REQUEST
+        - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
+        - NORMALIZED_ADDRESS
+        - REQUEST_ACCEPTED
+        - SEND_COURTESY_MESSAGE
+        - GET_ADDRESS
+        - PUBLIC_REGISTRY_CALL
+        - PUBLIC_REGISTRY_RESPONSE
+        - SCHEDULE_ANALOG_WORKFLOW
+        - SCHEDULE_DIGITAL_WORKFLOW
+        - PREPARE_DIGITAL_DOMICILE
+        - SEND_DIGITAL_DOMICILE
+        - SEND_DIGITAL_PROGRESS
+        - SEND_DIGITAL_FEEDBACK
+        - REFINEMENT
+        - SCHEDULE_REFINEMENT
+        - DIGITAL_DELIVERY_CREATION_REQUEST
+        - DIGITAL_SUCCESS_WORKFLOW
+        - DIGITAL_FAILURE_WORKFLOW
+        - ANALOG_SUCCESS_WORKFLOW
+        - ANALOG_FAILURE_WORKFLOW
+        - PREPARE_SIMPLE_REGISTERED_LETTER
+        - SEND_SIMPLE_REGISTERED_LETTER
+        - SEND_SIMPLE_REGISTERED_LETTER_PROGRESS
+        - NOTIFICATION_VIEWED_CREATION_REQUEST
+        - NOTIFICATION_VIEWED
+        - PREPARE_ANALOG_DOMICILE
+        - SEND_ANALOG_DOMICILE
+        - SEND_ANALOG_PROGRESS
+        - SEND_ANALOG_FEEDBACK
+        - PAYMENT
+        - COMPLETELY_UNREACHABLE
+        - COMPLETELY_UNREACHABLE_CREATION_REQUEST
+        - REQUEST_REFUSED
+        - AAR_CREATION_REQUEST
+        - AAR_GENERATION
+        - NOT_HANDLED
+        - PROBABLE_SCHEDULING_ANALOG_DATE
+        - NOTIFICATION_CANCELLATION_REQUEST
+        - NOTIFICATION_CANCELLED
+        - PREPARE_ANALOG_DOMICILE_FAILURE
+        - NOTIFICATION_RADD_RETRIEVED
+        - ANALOG_WORKFLOW_RECIPIENT_DECEASED
+        - PUBLIC_REGISTRY_VALIDATION_CALL
+        - PUBLIC_REGISTRY_VALIDATION_RESPONSE
+    NotificationRequestAcceptedDetailsV27:
+      type: object
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        notificationRequestId:
+          type: string
+          description: >-
+            identificativo univoco di una richiesta di invio notifica, non è lo
+            IUN
+        paProtocolNumber:
+          type: string
+          description: >-
+            Numero di protocollo associato alla notifica, può essere
+            riutilizzato per rettifiche.
+          pattern: ^.*$
+          maxLength: 256
+        idempotenceToken:
+          type: string
+          description: >-
+            token usato per disambiguare "richieste di notificazione" effettuate
+            con lo stesso  numero di protocollo.
+          pattern: ^[ -~]*$
+          maxLength: 256
+    TimelineElementDetailsV27:
+      description: The raw event payload that will be different based on the event.
+      oneOf:
+        - $ref: '#/components/schemas/SenderAckCreationRequestDetails'
+        - $ref: '#/components/schemas/NormalizedAddressDetails'
+        - $ref: '#/components/schemas/NotificationRequestAcceptedDetailsV27'
+        - $ref: '#/components/schemas/AnalogFailureWorkflowDetails'
+        - $ref: '#/components/schemas/AnalogSuccessWorkflowDetails'
+        - $ref: '#/components/schemas/CompletelyUnreachableCreationRequestDetails'
+        - $ref: '#/components/schemas/CompletelyUnreachableDetails'
+        - $ref: '#/components/schemas/DigitalDeliveryCreationRequestDetails'
+        - $ref: '#/components/schemas/DigitalFailureWorkflowDetails'
+        - $ref: '#/components/schemas/DigitalSuccessWorkflowDetails'
+        - $ref: '#/components/schemas/GetAddressInfoDetails'
+        - $ref: '#/components/schemas/NotificationViewedCreationRequestDetailsV23'
+        - $ref: '#/components/schemas/NotificationViewedDetailsV23'
+        - $ref: '#/components/schemas/NotificationRADDRetrievedDetails'
+        - $ref: '#/components/schemas/PublicRegistryCallDetails'
+        - $ref: '#/components/schemas/PublicRegistryResponseDetails'
+        - $ref: '#/components/schemas/RefinementDetailsV23'
+        - $ref: '#/components/schemas/RequestRefusedDetailsV27'
+        - $ref: '#/components/schemas/ScheduleAnalogWorkflowDetailsV23'
+        - $ref: '#/components/schemas/ScheduleDigitalWorkflowDetailsV23'
+        - $ref: '#/components/schemas/ScheduleRefinementDetails'
+        - $ref: '#/components/schemas/SendCourtesyMessageDetails'
+        - $ref: '#/components/schemas/PrepareDigitalDetails'
+        - $ref: '#/components/schemas/SendDigitalDetails'
+        - $ref: '#/components/schemas/SendDigitalFeedbackDetails'
+        - $ref: '#/components/schemas/SendDigitalProgressDetailsV23'
+        - $ref: '#/components/schemas/BaseAnalogDetails'
+        - $ref: '#/components/schemas/SendAnalogDetails'
+        - $ref: '#/components/schemas/schemas-SendAnalogFeedbackDetailsV25'
+        - $ref: '#/components/schemas/BaseRegisteredLetterDetails'
+        - $ref: '#/components/schemas/SimpleRegisteredLetterDetails'
+        - $ref: '#/components/schemas/AarCreationRequestDetails'
+        - $ref: '#/components/schemas/AarGenerationDetails'
+        - $ref: '#/components/schemas/NotHandledDetails'
+        - $ref: '#/components/schemas/NotificationPaidDetailsV23'
+        - $ref: '#/components/schemas/SendAnalogProgressDetailsV23'
+        - $ref: '#/components/schemas/SimpleRegisteredLetterProgressDetails'
+        - $ref: '#/components/schemas/ProbableDateAnalogWorkflowDetails'
+        - $ref: '#/components/schemas/NotificationCancellationRequestDetails'
+        - $ref: '#/components/schemas/NotificationCancelledDetails'
+        - $ref: '#/components/schemas/PrepareAnalogDomicileFailureDetails'
+        - $ref: '#/components/schemas/AnalogWorkflowRecipientDeceasedDetailsV26'
+        - $ref: '#/components/schemas/PublicRegistryValidationCallDetails'
+        - $ref: '#/components/schemas/PublicRegistryValidationResponseDetails'
+    TimelineElementV27:
+      type: object
+      additionalProperties: false
+      properties:
+        elementId:
+          type: string
+          maxLength: 512
+          description: >-
+            Identificativo dell'elemento di timeline: insieme allo IUN della
+            notifica definisce in maniera univoca l'elemento di timeline
+        timestamp:
+          type: string
+          deprecated: true
+          description: >-
+            Istante in cui avviene l'evento descritto in questo elemento di
+            timeline (deprecato, fare riferimento al campo eventTimestamp)
+          format: date-time
+        ingestionTimestamp:
+          type: string
+          description: >-
+            Istante in cui l'evento descritto in questo elemento di timeline è
+            gestito da SEND
+          format: date-time
+        eventTimestamp:
+          type: string
+          description: >-
+            Istante in cui avviene l'evento descritto in questo elemento di
+            timeline
+          format: date-time
+        notificationSentAt:
+          type: string
+          description: Momento di ricezione della richiesta di notifica da parte di SEND
+          format: date-time
+        legalFactsIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/LegalFactsIdV20'
+          description: >-
+            Chiavi dei documenti che provano l'effettivo accadimento dell'evento
+            descritto in timeline. Questo elemento
+        category:
+          $ref: '#/components/schemas/TimelineElementCategoryV27'
+        details:
+          $ref: '#/components/schemas/TimelineElementDetailsV27'
     PersonalData:
       type: object
       properties:
@@ -9702,13 +10478,13 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/LegalFactListElement'
-    StreamCreationRequestV28:
+    StreamCreationRequestV29:
       description: >-
         Richiesta di creazione di uno stream di eventi di avanzamento delle
         notifiche. Lo stream verrà creato nello stato abilitato
       type: object
       allOf:
-        - $ref: '#/components/schemas/StreamRequestV28'
+        - $ref: '#/components/schemas/StreamRequestV29'
         - type: object
           properties:
             replacedStreamId:
@@ -9725,7 +10501,7 @@ components:
                 autorizzazione dell'apiKey sui gruppi del precedente stream.
               type: string
               format: uuid
-    StreamRequestV28:
+    StreamRequestV29:
       description: >-
         Struttura comune per eventi di creazione/aggiornamento di uno stream di
         eventi di avanzamento delle notifiche. L'aggiornamento delle proprietà
@@ -9795,10 +10571,10 @@ components:
     StreamGroup:
       type: string
       description: Identificativo del gruppo.
-    StreamMetadataResponseV28:
+    StreamMetadataResponseV29:
       description: Configurazioni di un flusso di eventi
       allOf:
-        - $ref: '#/components/schemas/StreamRequestV28'
+        - $ref: '#/components/schemas/StreamRequestV29'
         - type: object
           required:
             - streamId
@@ -9838,11 +10614,11 @@ components:
           type: string
           maxLength: 256
           pattern: ^.*$
-    ProgressResponseV28:
+    ProgressResponseV29:
       type: array
       items:
-        $ref: '#/components/schemas/ProgressResponseElementV28'
-    ProgressResponseElementV28:
+        $ref: '#/components/schemas/ProgressResponseElementV29'
+    ProgressResponseElementV29:
       type: object
       required:
         - eventId
@@ -9864,7 +10640,7 @@ components:
         newStatus:
           $ref: '#/components/schemas/NotificationStatusV26'
         element:
-          $ref: '#/components/schemas/TimelineElementV27'
+          $ref: '#/components/schemas/TimelineElementV28'
     ProgressResponse:
       type: array
       items:
@@ -10621,6 +11397,148 @@ components:
           $ref: '#/components/schemas/NotificationStatusV26'
         element:
           $ref: '#/components/schemas/TimelineElementV26'
+    StreamCreationRequestV28:
+      description: >-
+        Richiesta di creazione di uno stream di eventi di avanzamento delle
+        notifiche. Lo stream verrà creato nello stato abilitato
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/StreamRequestV28'
+        - type: object
+          properties:
+            replacedStreamId:
+              description: >-
+                opzionale, eventuale streamId che viene sostituito da questo. Se
+                specificato, lo stream indicato sarà disabilitato
+                contestualmente alla creazione del nuovo stream, permettendo di
+                consumare tutti gli eventi del vecchio stream senza che ne
+                vengano aggiunti di nuovi. Inoltre, il nuovo stream partirà da
+                un eventId successivo rispetto al vecchio stream (anche se non
+                "esattamente" successivo per evitare sovrapposizioni con
+                eventuali eventi salvati durante il cambio di configurazione).
+                La creazione del nuovo stream è soggetta al controllo di
+                autorizzazione dell'apiKey sui gruppi del precedente stream.
+              type: string
+              format: uuid
+    StreamRequestV28:
+      description: >-
+        Struttura comune per eventi di creazione/aggiornamento di uno stream di
+        eventi di avanzamento delle notifiche. L'aggiornamento delle proprietà
+        dello stream è soggetta al controllo di autorizzazione dell'apiKey sui
+        gruppi.
+      type: object
+      required:
+        - title
+        - eventType
+        - groups
+      properties:
+        title:
+          description: Nome sintetico dello stream
+          type: string
+          maxLength: 256
+          pattern: ^.*$
+        eventType:
+          description: |-
+            Tipo di eventi presenti nel flusso:
+              - _STATUS_: cambiamenti di stato delle notifiche
+              - _TIMELINE_: eventi a granularità fine
+          type: string
+          enum:
+            - STATUS
+            - TIMELINE
+        groups:
+          description: >-
+            rappresenta l'elenco degli id gruppi abilitati a richiedere i
+            dettagli. Una apiKey può consumare o modificare uno stream solo se
+            non ha gruppi o se tutti i gruppi dello stream sono presenti nella
+            apiKey. Se viene specificato array vuoto, si noti che solo apiKey
+            senza gruppi potranno consumare o modificare lo stream. Inoltre, nel
+            caso di updateEventStream, la lista dei gruppi presente nello stream
+            deve essere un sottoinsieme dei gruppi passati nella richiesta (in
+            pratica si possono solo aggiungere gruppi a quelli esistenti) oppure
+            entrambi array vuoti.
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/StreamGroup'
+            minLength: 0
+        filterValues:
+          description: >-
+            rappresenta l'elenco degli stati o elementi di timeline che si
+            vogliono filtrare; inserendo un array vuoto [] si riceveranno solo
+            gli elementi relativi alla versione con cui è stato creato lo
+            stream. Se specificati invece, avranno priorità rispetto agli eventi
+            della versione (quindi se sono un sottoinsieme, si riceveranno solo
+            quelli. Se si specificano eventi introdotti in versioni più recenti,
+            questi saranno inviati) Infine, è possibile utilizzare il
+            placeholder "DEFAULT" per specificare l'insieme di eventi più
+            rilevanti di una notifica.
+          type: array
+          items:
+            type: string
+            minLength: 4
+            maxLength: 256
+            pattern: ^[A-Z_]+$
+        waitForAccepted:
+          description: >-
+            Stream di tipo TIMELINE: se true pubblica gli eventi sullo stream
+            solo dopo la pubblicazione dell'evento di accettazione/rifiuto della
+            notifica.  Tutti gli eventi dello stato IN_VALIDATION vengono
+            pubblicati senza ritardo. Stream di tipo STATUS: se true pubblica
+            gli stati garantendo che il primo stato sia l'ACCEPTED o il REFUSED
+          type: boolean
+    StreamMetadataResponseV28:
+      description: Configurazioni di un flusso di eventi
+      allOf:
+        - $ref: '#/components/schemas/StreamRequestV28'
+        - type: object
+          required:
+            - streamId
+            - activationDate
+          properties:
+            streamId:
+              description: Identificativo del flusso di eventi
+              type: string
+              format: uuid
+            activationDate:
+              description: Timestamp in cui il flusso di eventi è stato attivato
+              type: string
+              format: date-time
+            disabledDate:
+              description: Timestamp in cui il flusso di eventi è stato disabilitato
+              type: string
+              format: date-time
+            version:
+              description: versione di base dello stream.
+              type: string
+              pattern: ^v\d\d\d?$
+    ProgressResponseV28:
+      type: array
+      items:
+        $ref: '#/components/schemas/ProgressResponseElementV28'
+    ProgressResponseElementV28:
+      type: object
+      required:
+        - eventId
+        - element
+      properties:
+        eventId:
+          description: Elemento che garantisce univocità all'interno dello stream
+          type: string
+        notificationRequestId:
+          description: Identificativo della richiesta di notifica
+          type: string
+        iun:
+          description: >-
+            Identificativo della notifica, presente solo se la richiesta di
+            notifica è  stata accettata.
+          type: string
+          maxLength: 25
+          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+        newStatus:
+          $ref: '#/components/schemas/NotificationStatusV26'
+        element:
+          $ref: '#/components/schemas/TimelineElementV27'
     StreamMetadataResponse:
       description: Configurazioni di un flusso di eventi
       allOf:
