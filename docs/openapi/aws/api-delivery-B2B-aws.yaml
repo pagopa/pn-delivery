@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: +GqaGlFNedKMWOPCeomr7KZ1FU/WDovyN7Pr29d0Ork=
+  version: NEP5pNQNJEMNL7VfPKtJ204GJD7wx6ibH7E+nl+5WGI=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -4182,7 +4182,6 @@ components:
         - recIndex
         - sentAttemptMade
         - invalidatedTimelineAndStatusHistory
-        - categoryType
       properties:
         recIndex:
           type: number
@@ -4197,8 +4196,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/NotificationStatusHistoryInvalidatedElement'
-        categoryType:
-          type: string
     TimelineElementDetailsV28:
       description: The raw event payload that will be different based on the event.
       oneOf:

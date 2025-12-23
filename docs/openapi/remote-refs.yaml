@@ -49,13 +49,13 @@ components:
     ###                          STRUTTURE DATI DI PN-DELIVERY_PUSH                          ###
     ############################################################################################
     TimelineElementV28:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/eb1723e4193bfa5f04971d6176284550275e8650/docs/openapi/schemas-pn-timeline-external.yaml#/components/schemas/TimelineElementV28'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/9e486010b7103547b0da6bf9136d14f87da43fd6/docs/openapi/schemas-pn-timeline-external.yaml#/components/schemas/TimelineElementV28'
     NotificationStatusV26:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/eb1723e4193bfa5f04971d6176284550275e8650/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatusV26'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/9e486010b7103547b0da6bf9136d14f87da43fd6/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatusV26'
     NotificationStatusHistoryV26:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/eb1723e4193bfa5f04971d6176284550275e8650/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatusHistoryV26'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/9e486010b7103547b0da6bf9136d14f87da43fd6/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatusHistoryV26'
     RequestStatus:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/eb1723e4193bfa5f04971d6176284550275e8650/docs/openapi/api-internal-pn-delivery-push.yaml#/components/schemas/RequestStatus'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/9e486010b7103547b0da6bf9136d14f87da43fd6/docs/openapi/api-internal-pn-delivery-push.yaml#/components/schemas/RequestStatus'
     ############################################################################################
     ###                          STRUTTURE DATI DI PN-COMMONS                                ###
     ############################################################################################

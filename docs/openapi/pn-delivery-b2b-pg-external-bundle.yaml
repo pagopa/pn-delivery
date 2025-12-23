@@ -2550,7 +2550,6 @@ components:
         - recIndex
         - sentAttemptMade
         - invalidatedTimelineAndStatusHistory
-        - categoryType
       properties:
         recIndex:
           type: integer
@@ -2567,8 +2566,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/NotificationStatusHistoryInvalidatedElement'
-        categoryType:
-          type: string
     TimelineElementDetailsV28:
       description: The raw event payload that will be different based on the event.
       oneOf:
