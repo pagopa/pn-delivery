@@ -424,16 +424,15 @@ paths:
     ###                             RICERCA NOTIFICHE ACCETTATE                             ###
     ###########################################################################################
 
-  "/delivery/v2.7/notifications/sent/{iun}":
+  "/delivery/v2.8/notifications/sent/{iun}":
     get:
-      summary: 'EXPERIMENTAL - Mittente: lettura dettagli notifica versione 2'
+      summary: 'Mittente: lettura dettagli notifica versione 2'
       description: |-
-        (EXPERIMENTAL)
         Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
 
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationV27                                # ONLY EXTERNAL
+      operationId: retrieveSentNotificationV28                                # ONLY EXTERNAL
       parameters:
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
       responses:
@@ -442,7 +441,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/FullSentNotificationV27"
+                $ref: "#/components/schemas/FullSentNotificationV28"
         '400':
           description: Bad request
           content:
@@ -982,7 +981,7 @@ components:
     ###                              DTO NOTIFICA CON DETTAGLI                              ###
     ###########################################################################################
 
-    FullSentNotificationV27:
+    FullSentNotificationV28:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
         processo di inoltro della notifica verso il cittadino.
@@ -1003,7 +1002,7 @@ components:
                 elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV27'
+                $ref: '#/components/schemas/TimelineElementV28'
 
     ###########################################################################################
     ###                              DTO EVENTO DI PAGAMENTO                                ###
@@ -1108,8 +1107,8 @@ components:
           type: integer
           format: int32
 
-    TimelineElementV27:
-      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV27'
+    TimelineElementV28:
+      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV28'
     NotificationStatusV26:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatusV26'
     NotificationStatusHistoryV26:

@@ -168,7 +168,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery/v2.6/notifications/received/{iun}:
+  /delivery/v2.7/notifications/received/{iun}:
     get:
       summary: Dettaglio di una notifica ricevuta.
       description: >-
@@ -182,7 +182,7 @@ paths:
                   - eventuali documenti di pagamento (campo payments reperibile nel dettaglio del destinatario)
       tags:
         - RecipientReadB2B
-      operationId: getReceivedNotificationV26
+      operationId: getReceivedNotificationV27
       x-api-permissions:
         - REFINEMENT
       parameters:
@@ -194,7 +194,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FullReceivedNotificationV26'
+                $ref: '#/components/schemas/FullReceivedNotificationV27'
         '400':
           description: Bad request
           content:
@@ -478,7 +478,7 @@ components:
     UnauthorizedError:
       description: Access token is missing or invalid
   schemas:
-    FullReceivedNotificationV26:
+    FullReceivedNotificationV27:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata e il
         processo di  inoltro della notifica verso i destinatari (Persone Fisiche
@@ -501,7 +501,7 @@ components:
                 processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV27'
+                $ref: '#/components/schemas/TimelineElementV28'
     Problem:
       properties:
         type:
@@ -548,7 +548,7 @@ components:
       required:
         - status
         - errors
-    TimelineElementV27:
+    TimelineElementV28:
       type: object
       additionalProperties: false
       properties:
@@ -589,9 +589,9 @@ components:
             Chiavi dei documenti che provano l'effettivo accadimento dell'evento
             descritto in timeline. Questo elemento
         category:
-          $ref: '#/components/schemas/TimelineElementCategoryV27'
+          $ref: '#/components/schemas/TimelineElementCategoryV28'
         details:
-          $ref: '#/components/schemas/TimelineElementDetailsV27'
+          $ref: '#/components/schemas/TimelineElementDetailsV28'
     NotificationStatusV26:
       type: string
       description: |
@@ -1249,7 +1249,7 @@ components:
           maxLength: 512
         category:
           $ref: '#/components/schemas/LegalFactCategoryV20'
-    TimelineElementCategoryV27:
+    TimelineElementCategoryV28:
       type: string
       description: |
         stato di avanzamento del processo di notifica:`
@@ -1298,6 +1298,7 @@ components:
           * `ANALOG_WORKFLOW_RECIPIENT_DECEASED` - Destinatario deceduto
           * `PUBLIC_REGISTRY_VALIDATION_CALL` - Ricerca dell'indirizzo di spedizione in fase di validazione notifica
           * `PUBLIC_REGISTRY_VALIDATION_RESPONSE` - Recupero dell'indirizzo di spedizione dai registri nazionali
+          * `NOTIFICATION_TIMELINE_REWORKED` - Invio richiesta di Rework della timeline per una notifica
       enum:
         - SENDER_ACK_CREATION_REQUEST
         - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
@@ -1344,6 +1345,7 @@ components:
         - ANALOG_WORKFLOW_RECIPIENT_DECEASED
         - PUBLIC_REGISTRY_VALIDATION_CALL
         - PUBLIC_REGISTRY_VALIDATION_RESPONSE
+        - NOTIFICATION_TIMELINE_REWORKED
     SenderAckCreationRequestDetails:
       type: object
       properties:
@@ -1409,13 +1411,9 @@ components:
           $ref: '#/components/schemas/PhysicalAddress'
         normalizedAddress:
           $ref: '#/components/schemas/PhysicalAddress'
-    NotificationRequestAcceptedDetailsV27:
+    NotificationRequestAcceptedDetailsV28:
       type: object
       properties:
-        recIndex:
-          type: integer
-          description: Index destinatario notifica digitale
-          format: int32
         notificationRequestId:
           type: string
           description: >-
@@ -1466,7 +1464,7 @@ components:
       enum:
         - SUCCESS
         - FAILURE
-    CompletelyUnreachableCreationRequestDetails:
+    CompletelyUnreachableCreationRequestDetailsV28:
       type: object
       required:
         - recIndex
@@ -1475,7 +1473,7 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
-        legalfactId:
+        legalFactId:
           type: string
           maxLength: 128
           description: >-
@@ -1515,7 +1513,7 @@ components:
           x-field-extra-annotation: '@lombok.ToString.Exclude'
           type: string
           description: account@domain
-    DigitalDeliveryCreationRequestDetails:
+    DigitalDeliveryCreationRequestDetailsV28:
       type: object
       required:
         - recIndex
@@ -1533,7 +1531,7 @@ components:
           type: string
           description: Data chiusura workflow
           format: date-time
-        legalfactId:
+        legalFactId:
           type: string
           maxLength: 128
           description: >-
@@ -1625,7 +1623,7 @@ components:
           maxLength: 128
         delegateType:
           $ref: '#/components/schemas/RecipientType'
-    NotificationViewedCreationRequestDetailsV23:
+    NotificationViewedCreationRequestDetailsV28:
       type: object
       required:
         - recIndex
@@ -1634,7 +1632,7 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
-        legalfactId:
+        legalFactId:
           type: string
           maxLength: 128
           description: >-
@@ -2182,57 +2180,16 @@ components:
           type: string
           maxLength: 10
           description: >
-            __Motivazione di mancata consegna__ obbligatorie negli stati di
-            mancata consegna
-              - __M01__ destinatario irreperibile
-              - __M02__ destinatario deceduto
-              - __M03__ destinatario sconosciuto
-              - __M04__ destinatario trasferito
-              - __M05__ invio rifiutato
-              - __M06__ indirizzo inesatto
-              - __M07__ indirizzo inesistente
-              - __M08__ indirizzo insufficiente
-              - __F01__ - in caso di furto
-              - __F02__ - in caso di smarrimento
-              - __F03__ - in caso di deterioramento
+            i codici delle motivazioni di mancata consegna possono essere
+            consultati alla seguente
+            [pagina](https://developer.pagopa.it/send/guides/knowledge-base/v2.5/readme/creazione-e-gestione-degli-stream/stream-di-timeline/decodifiche-send_analog#decodifica-deliveryfailurecause)
         deliveryDetailCode:
           type: string
           maxLength: 20
           description: >
-            Formato: - __deliveryDetailCode__- [prodotto] - [statusCode] -
-            statusDescription
-              - __CON020__- [ALL] - [PROGRESS] - Originale dell’AAR (documento nativo digitale) reso disponibile dal Consolidatore e firmato digitalmente da PagoPA
-              - __CON080__- [ALL] - [PROGRESS] - Stampato ed Imbustato
-              - __RECRS001C__- [RS] - [OK] - Consegnato - Fascicolo Chiuso
-              - __RECRS002C__- [RS] - [KO] - Mancata consegna - Fascicolo Chiuso
-              - __RECRS002F__- [RS] - [KO] - Irreperibilità Assoluta - Fascicolo Chiuso
-              - __RECRS003C__- [RS] - [OK] - Consegnato presso Punti di Giacenza - Fascicolo Chiuso
-              - __RECRS004C__- [RS] - [OK] - Mancata consegna presso Punti di Giacenza - Fascicolo Chiuso
-              - __RECRS005C__- [RS] - [OK] - Compiuta giacenza - Fascicolo Chiuso
-              - __RECRS006__- [RS] - [PROGRESS] - Furto/Smarrimento/deterioramento
-              - __RECRN001C__- [AR] - [OK] - Consegnato - Fascicolo Chiuso
-              - __RECRN002C__- [AR] - [KO] - Mancata consegna - Fascicolo Chiuso
-              - __RECRN002F__- [AR] - [KO] - Irreperibilità Assoluta - Fascicolo Chiuso
-              - __RECRN003C__- [AR] - [OK] - Consegnato presso Punti di Giacenza - Fascicolo Chiuso
-              - __RECRN004C__- [AR] - [KO] - Mancata consegna presso Punti di Giacenza - Fascicolo Chiuso
-              - __RECRN005C__- [AR] - [OK] - Compiuta giacenza - Fascicolo Chiuso
-              - __RECRN006__- [AR] - [PROGRESS] - Furto/Smarrimento/deterioramento
-              - __RECAG001C__- [890] - [OK] - Consegnato - Fascicolo Chiuso
-              - __RECAG002C__- [890] - [OK] - Consegnato a persona abilitata - Fascicolo Chiuso
-              - __RECAG003C__- [890] - [KO] - Mancata consegna - Fascicolo Chiuso
-              - __RECAG003F__- [890] - [KO] - Irreperibilità Assoluta - Fascicolo Chiuso
-              - __RECAG004__- [890] - [PROGRESS] - Furto/Smarrimento/deterioramento
-              - __RECAG005C__- [890] - [OK | PROGRESS] - Consegnato presso Punti di Giacenza - Fascicolo Chiuso
-              - __RECAG006C__- [890] - [OK | PROGRESS] - Consegna a persona abilitata presso Punti di Giacenza - Fas. Ch.
-              - __RECAG007C__- [890] - [KO | PROGRESS] - Mancata consegna presso Punti di Giacenza - Fascicolo Chiuso
-              - __RECAG008C__- [890] - [PROGRESS] - Compiuta giacenza - Fascicolo Chiuso
-              - __PNAG012__- [890] - [KO] - Distacco d'ufficio 23L - Fascicolo Chiuso
-              - __RECRI003C__- [RIR] - [OK] - Consegnato - Fascicolo Chiuso
-              - __RECRI004C__- [RIR] - [KO] - Non Consegnato - fascicolo Chiuso
-              - __RECRI005__- [RIR] - [PROGRESS] - Furto/Smarrimento/deterioramento
-              - __RECRSI003C__- [RIS] - [OK] - Consegnato - Fascicolo Chiuso
-              - __RECRSI004C__- [RIS] - [KO] - Non Consegnato - fascicolo Chiuso
-              - __RECRSI005__- [RIS] - [PROGRESS] - Furto/Smarrimento/deterioramento
+            i codici di decodifica degli eventi di invio cartaceo possono essere
+            consultati alla seguente
+            [pagina](https://developer.pagopa.it/send/guides/knowledge-base/v2.5/readme/creazione-e-gestione-degli-stream/stream-di-timeline/decodifiche-send_analog#codici-send_analog_progress-comuni-a-tutte-le-tipologie)
         attachments:
           type: array
           items:
@@ -2568,21 +2525,62 @@ components:
                   - ANPR
                   - REGISTRO_IMPRESE
               maxLength: 128
-    TimelineElementDetailsV27:
+    NotificationStatusHistoryInvalidatedElement:
+      description: elenco degli avanzamenti effettuati dal processo di notifica
+      type: object
+      required:
+        - status
+        - activeFrom
+        - relatedTimelineElements
+      properties:
+        status:
+          $ref: '#/components/schemas/NotificationStatusV26'
+        activeFrom:
+          type: string
+          description: data e ora di raggiungimento dello stato di avanzamento
+          format: date-time
+        relatedTimelineElements:
+          type: array
+          description: Eventi avvenuti nello stato
+          items:
+            $ref: '#/components/schemas/TimelineElementV28'
+    NotificationTimelineReworkedDetails:
+      type: object
+      required:
+        - recIndex
+        - sentAttemptMade
+        - invalidatedTimelineAndStatusHistory
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        sentAttemptMade:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+        invalidatedTimelineAndStatusHistory:
+          description: >-
+            elenco degli avanzamenti effettuati dal processo di notifica prima
+            dell'invalidazione
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationStatusHistoryInvalidatedElement'
+    TimelineElementDetailsV28:
       description: The raw event payload that will be different based on the event.
       oneOf:
         - $ref: '#/components/schemas/SenderAckCreationRequestDetails'
         - $ref: '#/components/schemas/NormalizedAddressDetails'
-        - $ref: '#/components/schemas/NotificationRequestAcceptedDetailsV27'
+        - $ref: '#/components/schemas/NotificationRequestAcceptedDetailsV28'
         - $ref: '#/components/schemas/AnalogFailureWorkflowDetails'
         - $ref: '#/components/schemas/AnalogSuccessWorkflowDetails'
-        - $ref: '#/components/schemas/CompletelyUnreachableCreationRequestDetails'
+        - $ref: '#/components/schemas/CompletelyUnreachableCreationRequestDetailsV28'
         - $ref: '#/components/schemas/CompletelyUnreachableDetails'
-        - $ref: '#/components/schemas/DigitalDeliveryCreationRequestDetails'
+        - $ref: '#/components/schemas/DigitalDeliveryCreationRequestDetailsV28'
         - $ref: '#/components/schemas/DigitalFailureWorkflowDetails'
         - $ref: '#/components/schemas/DigitalSuccessWorkflowDetails'
         - $ref: '#/components/schemas/GetAddressInfoDetails'
-        - $ref: '#/components/schemas/NotificationViewedCreationRequestDetailsV23'
+        - $ref: '#/components/schemas/NotificationViewedCreationRequestDetailsV28'
         - $ref: '#/components/schemas/NotificationViewedDetailsV23'
         - $ref: '#/components/schemas/NotificationRADDRetrievedDetails'
         - $ref: '#/components/schemas/PublicRegistryCallDetails'
@@ -2615,6 +2613,7 @@ components:
         - $ref: '#/components/schemas/AnalogWorkflowRecipientDeceasedDetailsV26'
         - $ref: '#/components/schemas/PublicRegistryValidationCallDetails'
         - $ref: '#/components/schemas/PublicRegistryValidationResponseDetails'
+        - $ref: '#/components/schemas/NotificationTimelineReworkedDetails'
     NotificationAttachmentDownloadMetadataResponse:
       title: Url e metadati per il download di un allegato di una notifica
       description: |-
