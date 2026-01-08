@@ -452,6 +452,50 @@ describe("eventHandler tests", function () {
     expect(resJson.usedServices).to.be.undefined;
   });
 
+  it("statusCode 200 v2.7", async () => {
+    const notificationJSON = fs.readFileSync("./src/test/notification_reworked.json");
+    let notification = JSON.parse(notificationJSON);
+
+    process.env = Object.assign(process.env, {
+      PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
+      ENABLE_DECEASED_WORKFLOW: true,
+    });
+
+    const iunValue = "12345";
+
+    let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
+
+    mock.onGet(url).reply(200, notification, { "Content-Type": "application/json" });
+
+    const event = {
+      pathParameters: { iun: iunValue },
+      headers: {},
+      requestContext: {
+        authorizer: {},
+      },
+      resource: "v2.7/notifications/sent/{iun}",
+      path: "/delivery/v2.7/notifications/sent/MOCK_IUN",
+      httpMethod: "GET",
+    };
+    const context = {};
+
+    const response = await versioning(event, context);
+
+    expect(response.statusCode).to.equal(200);
+
+    // check che NON sia presente la categoria NOTIFICATION_TIMELINE_REWORKED
+    let resJson = JSON.parse(response.body);
+    expect(resJson.timeline.some(
+      (tl) => tl.category == "NOTIFICATION_TIMELINE_REWORKED")
+    ).to.be.false;
+    // check che NON sia presente il campo legalFactId:
+    const creationRequestElements = resJson.timeline.filter((tl) => tl.category == "NOTIFICATION_VIEWED_CREATION_REQUEST");
+    expect(creationRequestElements.length).to.be.greaterThan(0);
+    creationRequestElements.forEach((el) => {
+      expect(el.details.legalFactId).to.be.undefined;
+    });
+  });
+
   it("statusCode 200 v1", async () => {
     const notificationJSON = fs.readFileSync("./src/test/notification.json");
     let notification = JSON.parse(notificationJSON);
