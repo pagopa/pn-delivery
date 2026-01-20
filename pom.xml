@@ -40,7 +40,7 @@
         <dependency>
             <groupId>it.pagopa.pn</groupId>
             <artifactId>pn-commons</artifactId>
-            <version>2.15.1</version>
+            <version>2.16.0-SNAPSHOT-FOR-TRACING</version>
         </dependency>
         <dependency>
             <groupId>it.pagopa.pn</groupId>
