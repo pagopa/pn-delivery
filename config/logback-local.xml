@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE xml>
 <configuration scan="true" scanPeriod="30 seconds" >
+    <logger name="io.opentelemetry" level="DEBUG" />
+    <logger name="io.opentelemetry.javaagent" level="DEBUG" />
+    <logger name="io.opentelemetry.extension.aws" level="DEBUG" />
+
+    <logger name="io.opentelemetry.api.propagation" level="DEBUG" />
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d [%X{trace_id}] %highlight(%-5level) - %-4relative - [%thread] - %cyan(%logger{20}) - %msg %n</pattern>
