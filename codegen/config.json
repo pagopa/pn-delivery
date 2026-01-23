@@ -20,7 +20,7 @@
                 "api-internal-b2b-pa.yaml",
                 "api-internal-b2b-pa-older-versions.yaml",
                 { "url": "https://raw.githubusercontent.com/pagopa/pn-delivery-push/9e486010b7103547b0da6bf9136d14f87da43fd6/docs/openapi/api-external-pn-delivery-push-bundle.yaml", "mergeDescription": false },
-                { "url": "https://raw.githubusercontent.com/pagopa/pn-stream/6558ba4a8bfcd26b5c2d8c4bae1b10baa4c7e705/docs/openapi/pn-stream-api-external-bundle.yaml", "mergeDescription": true }
+                { "url": "https://raw.githubusercontent.com/pagopa/pn-stream/bfeade6563a893ff279b53ebf89c0c5e2e75b178/docs/openapi/pn-stream-api-external-bundle.yaml", "mergeDescription": true }
             ],
             "servicePath": "delivery",
             "generateBundle": true,
