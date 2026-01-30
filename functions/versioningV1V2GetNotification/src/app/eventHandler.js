@@ -118,7 +118,12 @@ exports.versioning = async (event, context) => {
   if (event.requestContext.authorizer["uid"]) {
     headers["x-pagopa-pn-uid"] = event.requestContext.authorizer["uid"];
   }
-
+  if(process.env._X_AMZN_TRACE_ID){
+    event.requestContext.authorizer["X-Amzn-Trace-Id"] = process.env._X_AMZN_TRACE_ID;
+  }else{
+    console.log("Variabile _X_AMZN_TRACE_ID non trovata");
+  }
+  
   console.log("calling ", url);
   let response;
   let lastError = null;

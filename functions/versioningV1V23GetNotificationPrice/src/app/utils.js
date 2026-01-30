@@ -4,8 +4,7 @@ function headerMapper(event) {
         "x-pagopa-pn-src-ch": "B2B",
     };
     
-    const authorizer = event.requestContext.authorizer;
-
+    const authorizer = event.requestContext.authorizer;ZW
     const headerMappings = {
         "cx_groups": "x-pagopa-pn-cx-groups",
         "cx_id": "x-pagopa-pn-cx-id",
@@ -13,7 +12,7 @@ function headerMapper(event) {
         "cx_type": "x-pagopa-pn-cx-type",
         "cx_jti": "x-pagopa-pn-jti",
         "sourceChannelDetails": "x-pagopa-pn-src-ch-details",
-        "uid": "x-pagopa-pn-uid",
+        "uid": "x-pagopa-pn-uid"
     };
 
     Object.entries(headerMappings).forEach(([key, headerName]) => {
@@ -22,6 +21,12 @@ function headerMapper(event) {
         }
     });
 
+    if(process.env._X_AMZN_TRACE_ID){
+        headers["X-Amzn-Trace-Id"] = process.env._X_AMZN_TRACE_ID;
+    }else{
+        console.log("Variabile _X_AMZN_TRACE_ID non trovata");
+    }
+    
     return headers;
 };
   
