@@ -4,7 +4,7 @@ function headerMapper(event) {
         "x-pagopa-pn-src-ch": "B2B",
     };
     
-    const authorizer = event.requestContext.authorizer;ZW
+    const authorizer = event.requestContext.authorizer;
     const headerMappings = {
         "cx_groups": "x-pagopa-pn-cx-groups",
         "cx_id": "x-pagopa-pn-cx-id",
