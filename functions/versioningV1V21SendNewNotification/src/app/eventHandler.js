@@ -53,7 +53,11 @@ exports.handleEvent = async (event) => {
     if (event.requestContext.authorizer["uid"]) {
       headers["x-pagopa-pn-uid"] = event.requestContext.authorizer["uid"];
     }
-
+    if(process.env._X_AMZN_TRACE_ID){
+      headers["X-Amzn-Trace-Id"] = process.env._X_AMZN_TRACE_ID;
+    }else{
+      console.log("No _X_AMZN_TRACE_ID found in evnvironment variables");
+    }
     // nel caso v1.0 vengono effettuati entrambi gli step: v1.0 -> v2.1 -> v2.3
     switch(requestVersion) {
       case "1":
