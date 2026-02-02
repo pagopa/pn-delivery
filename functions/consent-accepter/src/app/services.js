@@ -1,8 +1,8 @@
 const axios = require("axios");
 const logger = require("./logger");
 
-const getTraceIdFromEv = () => {
-  return process.env.X_AMZN_TRACE_ID ? process.env.X_AMZN_TRACE_ID : logger.debug("X_AMZN_TRACE_ID non presente");
+const getTraceIdFromEnv = () => {
+  return process.env.X_AMZN_TRACE_ID ? process.env.X_AMZN_TRACE_ID : "";
 };
 
 class RestClient {
