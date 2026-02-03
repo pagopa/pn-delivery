@@ -2,7 +2,7 @@ const axios = require("axios");
 const logger = require("./logger");
 
 const getTraceIdFromEnv = () => {
-  return process.env.X_AMZN_TRACE_ID ? process.env.X_AMZN_TRACE_ID : "";
+  return process.env._X_AMZN_TRACE_ID ? process.env._X_AMZN_TRACE_ID : "";
 };
 
 class RestClient {
