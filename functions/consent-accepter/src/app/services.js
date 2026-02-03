@@ -11,7 +11,7 @@ class RestClient {
     try {
       const response = await axios.get(
         `${process.env.API_BASE_URL}/ext-registry-private/privacynotice/${consentType}/${cxType}`,
-        { headers:{"X-Amzn-Trace-Id": getTraceIdFromEv()} }
+        { headers:{"X-Amzn-Trace-Id": getTraceIdFromEnv()} }
       );
       return response.data.version;
     } catch(error) {
@@ -29,7 +29,7 @@ class RestClient {
           headers: {
             "x-pagopa-pn-uid": uid,
             "x-pagopa-pn-cx-type": cxType,
-            "X-Amzn-Trace-Id": getTraceIdFromEv()
+            "X-Amzn-Trace-Id": getTraceIdFromEnv()
           }
         }
       );
@@ -52,7 +52,7 @@ class RestClient {
             "x-pagopa-cx-taxid": userInfo.taxId,
             "Content-Type": "application/json",
             "x-pagopa-pn-src-ch": "IO",
-            "X-Amzn-Trace-Id": getTraceIdFromEv(),
+            "X-Amzn-Trace-Id": getTraceIdFromEnv(),
             ...headersToForward
           }
         }
