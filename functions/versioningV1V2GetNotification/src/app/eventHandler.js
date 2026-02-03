@@ -118,7 +118,12 @@ exports.versioning = async (event, context) => {
   if (event.requestContext.authorizer["uid"]) {
     headers["x-pagopa-pn-uid"] = event.requestContext.authorizer["uid"];
   }
-
+  if(process.env._X_AMZN_TRACE_ID){
+    headers["X-Amzn-Trace-Id"] = process.env._X_AMZN_TRACE_ID;
+  }else{
+    console.log("No _X_AMZN_TRACE_ID found in evnvironment variables");
+  }
+  
   console.log("calling ", url);
   let response;
   let lastError = null;

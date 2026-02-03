@@ -1,12 +1,17 @@
 const axios = require("axios");
 const logger = require("./logger");
 
+const getTraceIdFromEnv = () => {
+  return process.env.X_AMZN_TRACE_ID ? process.env.X_AMZN_TRACE_ID : "";
+};
+
 class RestClient {
   static async getLastVersion(cxType, consentType) {
     logger.info(`Retrieving last version for consent ${consentType}`);
     try {
       const response = await axios.get(
-        `${process.env.API_BASE_URL}/ext-registry-private/privacynotice/${consentType}/${cxType}`
+        `${process.env.API_BASE_URL}/ext-registry-private/privacynotice/${consentType}/${cxType}`,
+        { headers:{"X-Amzn-Trace-Id": getTraceIdFromEv()} }
       );
       return response.data.version;
     } catch(error) {
@@ -23,7 +28,8 @@ class RestClient {
         {
           headers: {
             "x-pagopa-pn-uid": uid,
-            "x-pagopa-pn-cx-type": cxType
+            "x-pagopa-pn-cx-type": cxType,
+            "X-Amzn-Trace-Id": getTraceIdFromEv()
           }
         }
       );
@@ -46,6 +52,7 @@ class RestClient {
             "x-pagopa-cx-taxid": userInfo.taxId,
             "Content-Type": "application/json",
             "x-pagopa-pn-src-ch": "IO",
+            "X-Amzn-Trace-Id": getTraceIdFromEv(),
             ...headersToForward
           }
         }
