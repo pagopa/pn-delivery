@@ -4,14 +4,14 @@
 openapi: 3.0.3
 
 paths:
-  "/delivery/price/{iun}/recipient/{recIndex}":
+  "/delivery/cost/{iun}/recipient/{recIndex}":
     get:
-      operationId: NotificationPriceRecipient                                     # ONLY EXTERNAL
-      summary: Retrieve notification price for recipient
+      operationId: NotificationCostRecipient                                     # ONLY EXTERNAL
+      summary: Retrieve notification cost for recipient
       description: >-
         Servizio che restituisce il costo di notificazione per il singolo destinatario
       tags:
-        - NotificationPriceRecipient
+        - NotificationCostRecipient
       parameters:
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - name: recIndex
@@ -27,7 +27,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotificationPriceRecipientResponse'
+                $ref: '#/components/schemas/NotificationCostRecipientResponse'
         '400':
           description: Invalid input
           content:
@@ -51,35 +51,14 @@ paths:
 components:
 
   schemas:
-    NotificationPriceRecipientResponse:
-      title: Notification price Response for recipient
+    NotificationCostRecipientResponse:
+      title: Notification cost Response for recipient
       description: >-
-        Notification price and effective date
+        Notification cost and effective date
       type: object
       properties:
-        totalPrice:
-          description:
-            Costo totale di notificazione in eurocent, che include la paFee e vat applicato ai costi cartacei
-          type: integer
-          format: int32
-        baseCost:
-            description: Costo base di notificazione in eurocent, dato da paFee e sendFee
-            type: integer
-            format: int32
-        firstAnalogCost:
-          $ref: '#/components/schemas/AnalogCost'
-        secondAnalogCost:
-          $ref: '#/components/schemas/AnalogCost'
-        vat:
-          $ref: 'schemas-pn-notification.yaml#/components/schemas/VatV23'
-        paFee:
-          $ref: 'schemas-pn-notification.yaml#/components/schemas/PaFeeV23'
-        sendFee:
-          description: costo base di SeND per notificazione
-          type: integer
-          format: int32
-        notificationFeePolicy:
-          $ref: './schemas-pn-notification.yaml#/components/schemas/NotificationFeePolicy'
+        totalCost:
+          $ref: '#/components/schemas/TotalCost'
         pagoPaIntMode:
           type: string
           description: >-
@@ -91,6 +70,96 @@ components:
             - NONE
             - SYNC
             - ASYNC
+
+    PaFee:
+      type: integer
+      description: >-
+        Costo espresso in eurocent sostenuto dal mittente, per l'elaborazione degli
+        atti, provvedimenti, avvisi e comunicazioni oggetto di notifica, per
+        il relativo deposito sulla piattaforma e per la gestione degli  esiti
+        della notifica (Decreto 30 maggio 2022 - Art. 3, comma 1, lettera a). <br/>
+        Obbligatoria per notifiche con notificationFeePolicy=DELIVERY_MODE <br/>
+        Per le notifiche effettuate con versioni precedenti alla 2.3 si assume il valore di default 100.<br/>
+        Esempio paFee ad 1€ -> 100 <br/>
+      format: int32
+      minimum: 0
+      maximum: 100
+
+    TotalCost:
+      title: Costo totale di notificazione applicato all'utente
+      description: >-
+        ----
+      type: object
+      properties:
+        cost:
+          description: Costo totale in eurocent
+          type: integer
+          format: int32
+        details:
+          $ref: '#/components/schemas/TotalCostDetails'
+
+    TotalCostDetails:
+      title: Dettaglio del costo totale
+      description: >-
+        ----
+      type: object
+      properties:
+        baseCost:
+          $ref: '#/components/schemas/BaseCost'
+        firstAnalogCost:
+          $ref: '#/components/schemas/AnalogCost'
+        secondAnalogCost:
+          $ref: '#/components/schemas/AnalogCost'
+        vat:
+          type: integer
+          description: >-
+            IVA espressa in percentuale sui costi degli avvisi in formato cartaceo.<br/>
+            Esempio vat al 22% -> 22 <br/>
+          format: int32
+          minimum: 0
+          maximum: 100
+        notificationFeePolicy:
+          type: string
+          description: >-
+            Politica di addebitamento dei costi di notifica. <br/>
+            - _FLAT_RATE_: costo forfettario fisso. In questa modalità SEND non gestisce 
+            il costo della notifica per il destinatario.<br/>
+            - _DELIVERY_MODE_: costo calcolato in base all'effettivo percorso di notifica. <br/>
+          enum:
+            - FLAT_RATE
+            - DELIVERY_MODE
+
+    BaseCost:
+      title: Costo totale di notificazione applicato all'utente
+      description: >-
+        ----
+      type: object
+      properties:
+        cost:
+          description: Costo base di notificazione in eurocent, dato da paFee e sendFee
+          type: integer
+          format: int32
+        details:
+          $ref: '#/components/schemas/BaseCostDetails'
+
+    BaseCostDetails:
+      title: Dettaglio del costo base di notificazione
+      description: >-
+        ----
+      type: object
+      properties:
+        paFee:
+          type: integer
+          description: >-
+            Costo espresso in eurocent sostenuto dal mittente
+            Esempio paFee ad 1€ -> 100 <br/>
+          format: int32
+          minimum: 0
+          maximum: 100
+        sendFee:
+          description: costo base di SeND per notificazione
+          type: integer
+          format: int32
 
     AnalogCost:
       title: Costo di invio cartaceo
