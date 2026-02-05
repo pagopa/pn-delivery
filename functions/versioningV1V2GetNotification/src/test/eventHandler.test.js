@@ -488,11 +488,12 @@ describe("eventHandler tests", function () {
     expect(resJson.timeline.some(
       (tl) => tl.category == "NOTIFICATION_TIMELINE_REWORKED")
     ).to.be.false;
-    // check che NON sia presente il campo legalFactId:
+    // check che NON sia presente il campo legalFactId ma sia rimappato in legalfactId:
     const creationRequestElements = resJson.timeline.filter((tl) => tl.category == "NOTIFICATION_VIEWED_CREATION_REQUEST");
     expect(creationRequestElements.length).to.be.greaterThan(0);
     creationRequestElements.forEach((el) => {
       expect(el.details.legalFactId).to.be.undefined;
+      expect(el.details.legalfactId).to.be.not.undefined;
     });
   });
 
