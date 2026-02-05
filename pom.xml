@@ -21,7 +21,7 @@
     <properties>
         <default.package>it.pagopa.pn.delivery</default.package>
         <ant.windows_bash_exe>c:\Program Files\Git\bin\bash.exe</ant.windows_bash_exe>
-        <pagopa.codegen.version>v01.12.00</pagopa.codegen.version>
+        <pagopa.codegen.version>v01.16.00</pagopa.codegen.version>
     </properties>
 
     <dependencies>
@@ -45,7 +45,7 @@
         <dependency>
             <groupId>it.pagopa.pn</groupId>
             <artifactId>pn-lollipop-client</artifactId>
-            <version>1.2.1</version>
+            <version>1.3.0-RC.1</version>
         </dependency>
         <dependency>
             <groupId>it.pagopa.pn</groupId>
