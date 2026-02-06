@@ -25,7 +25,7 @@ public class ModelMapperConfig {
         per tutti gli elementi della timeline, eccetto quelli che li utilizzano effettivamente.
         Questo workaround sarà necessario fino al completamento della migrazione a Spring Boot 3 e all'aggiornamento del plugin di generazione.
      */
-    static Converter<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28,TimelineElementV28> timelineElementV27Converter =
+    static Converter<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28,TimelineElementV28> timelineElementConverter =
         context -> {
             it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28 source = context.getSource();
             TimelineElementV28 destination = context.getDestination();
@@ -33,7 +33,7 @@ public class ModelMapperConfig {
             assert source.getCategory() != null;
             if(!source.getCategory().equals(TimelineElementCategoryV28.PUBLIC_REGISTRY_VALIDATION_CALL))destination.getDetails().setRecIndexes(null);
             if(!source.getCategory().equals(TimelineElementCategoryV28.NOTIFICATION_CANCELLED)) destination.getDetails().setNotRefinedRecipientIndexes(null);
-
+            if(!source.getCategory().equals(TimelineElementCategoryV28.NOTIFICATION_TIMELINE_REWORKED)) destination.getDetails().setInvalidatedTimelineAndStatusHistory(null);
             destination.setTimestamp(source.getTimestamp());
             return destination;
         };
@@ -44,8 +44,8 @@ public class ModelMapperConfig {
         modelMapper.getConfiguration().setMatchingStrategy( MatchingStrategies.STRICT );
         modelMapper.createTypeMap( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusHistoryElementV26.class, NotificationStatusHistoryElementV26 .class )
                 .addMapping( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusHistoryElementV26::getActiveFrom, NotificationStatusHistoryElementV26::setActiveFrom );
-        modelMapper.createTypeMap( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28.class, TimelineElementV28.class )
-                .addMapping(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28::getTimestamp, TimelineElementV28::setTimestamp );
+        modelMapper.createTypeMap(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28.class, TimelineElementV28.class)
+                .setPostConverter(ModelMapperConfig.timelineElementConverter);
         modelMapper.createTypeMap( NotificationRecipient.class, NotificationRecipientEntity.class )
                 .addMapping( NotificationRecipient::getTaxId, NotificationRecipientEntity::setRecipientId );
         modelMapper.createTypeMap( NotificationRecipientEntity.class, NotificationRecipient.class )

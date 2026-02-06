@@ -16,15 +16,17 @@ exports.transformFromV28ToV27 = function (responseV28) {
 
 function transformTimeline(tl){
     /* 
-        Nella versione 2.8 è stato rinominato il campo legalfactId in legalFactId per le category:
+        Nella versione 2.8 è stato rinominato il campo "legalfactId" in "legalFactId" per le category:
         COMPLETELY_UNREACHABLE_CREATION_REQUEST
         DIGITAL_DELIVERY_CREATION_REQUEST
         NOTIFICATION_VIEWED_CREATION_REQUEST
+        Si decide di restituire per tutte le versioni precedenti il campo "legalfactId", in modo da non creare problemi di compatibilità.
     */
     if ((tl.category === 'COMPLETELY_UNREACHABLE_CREATION_REQUEST'
         || tl.category === 'DIGITAL_DELIVERY_CREATION_REQUEST'
         || tl.category === 'NOTIFICATION_VIEWED_CREATION_REQUEST'
         ) && tl.details != null) {
+        tl.details.legalfactId = tl.details.legalFactId;
         delete tl.details.legalFactId;
     }
     return tl;
