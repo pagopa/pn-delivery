@@ -695,6 +695,11 @@ components:
           type: string
           description: >-
             SHA256 del contenuto del file.
+        numberOfPages:
+            type: integer
+            format: int32
+            description: numero di pagine del documento, se disponibile. Può essere null se il documento non è un PDF o se l'informazione non è disponibile.
+            default: 10 # valore di default solo a scopo di test
         url:
           type: string
           description: >-

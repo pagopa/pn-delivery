@@ -284,7 +284,9 @@ public class NotificationAttachmentService {
                     .sha256(fileInfos.fileDownloadResponse.getChecksum())
                     .retryAfter(nullSafeBigDecimalToInteger(
                             fileInfos.fileDownloadResponse.getDownload().getRetryAfter()
-                    )).build(), fileInfos.fileKey);
+                    ))
+                    .numberOfPages(10) // TODO: only for test purposes!
+                    .build(), fileInfos.fileKey);
         } else {
             log.error("downloadDocumentWithRedirect Notification not found for iun={}", iun);
             throw new PnNotificationNotFoundException("Notification not found for iun=" + iun);
