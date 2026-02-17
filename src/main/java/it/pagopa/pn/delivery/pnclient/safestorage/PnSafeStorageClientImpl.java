@@ -23,7 +23,7 @@ public class PnSafeStorageClientImpl {
 
     public FileDownloadResponse getFile(String fileKey, Boolean metadataOnly) {
         log.logInvokingExternalService(PnLogger.EXTERNAL_SERVICES.PN_SAFE_STORAGE, "getFile");
-        return fileDownloadApi.getFile( fileKey, this.cfg.getSafeStorageCxId(), metadataOnly );
+        return fileDownloadApi.getFile( fileKey, this.cfg.getSafeStorageCxId(), metadataOnly, false);
     }
 
     public FileCreationResponse createFile(FileCreationRequest fileCreationRequest, String sha256) {

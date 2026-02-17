@@ -282,6 +282,7 @@ public class NotificationAttachmentService {
                     ))
                     .contentType(fileInfos.fileDownloadResponse.getContentType())
                     .sha256(fileInfos.fileDownloadResponse.getChecksum())
+                    .numberOfPages(fileInfos.fileDownloadResponse.getNumberOfPages())
                     .retryAfter(nullSafeBigDecimalToInteger(
                             fileInfos.fileDownloadResponse.getDownload().getRetryAfter()
                     )).build(), fileInfos.fileKey);
