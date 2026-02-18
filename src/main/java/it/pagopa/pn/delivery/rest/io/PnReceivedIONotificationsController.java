@@ -23,8 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
-import static it.pagopa.pn.commons.utils.MDCUtils.MDC_PN_CTX_TOPIC;
-import static it.pagopa.pn.commons.utils.MDCUtils.MDC_PN_IUN_KEY;
+import static it.pagopa.pn.commons.utils.MDCUtils.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -39,14 +38,21 @@ public class PnReceivedIONotificationsController implements AppIoPnNotificationA
     public ResponseEntity<ThirdPartyMessage> getReceivedNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String xPagopaPnSrcCh, String iun, List<String> xPagopaPnCxGroups, String xPagopaPnSrcChDetails, UUID mandateId) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         ThirdPartyMessage result;
+        PnAuditLogEventType eventType = PnAuditLogEventType.AUD_NT_VIEW_RCP;
+        String logMsg = "getReceivedNotification";
+        if (mandateId != null) {
+            eventType = PnAuditLogEventType.AUD_NT_VIEW_DEL;
+            logMsg = "getReceivedNotificationDelegate with mandateId={}";
+        }
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_VIEW_RCP, "getReceivedNotification")
+                .before(eventType, logMsg, mandateId)
                 .iun(iun)
+                .mdcEntry(MDC_PN_MANDATEID_KEY, mandateId != null ? mandateId.toString() : "null")
                 .build();
         logEvent.log();
         try {
             InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups, xPagopaPnSrcCh, xPagopaPnSrcChDetails);
-            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, mandateId != null ? mandateId.toString() : null);
+            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, mandateId != null ? mandateId.toString() : null, logEvent);
             boolean isNotificationCancelled = retrieveSvc.isNotificationCancelled(internalNotification);
             result = ioMapper.mapToThirdPartMessage(internalNotification, isNotificationCancelled);
             logEvent.generateSuccess().log();
