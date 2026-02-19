@@ -6,6 +6,7 @@ import it.pagopa.pn.commons.exceptions.ExceptionHelper;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.dto.ProblemError;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.*;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationHistoryResponse;
@@ -26,6 +27,7 @@ import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.svc.authorization.CxType;
+import it.pagopa.pn.delivery.utils.MDCCostants;
 import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -516,8 +518,8 @@ public class NotificationRetrieverService {
 					notification.getSentAt()
 			);
 			String workflowType = mandateDto.getWorkflowType() != null ? mandateDto.getWorkflowType().getValue() : "STANDARD";
-			logEvent.getMdc().put("mandate_workflow_type", workflowType);
-			logEvent.getMdc().put("delegateId", mandateDto.getDelegate());
+			logEvent.getMdc().put(MDCCostants.MDC_PN_MANDATE_WORKFLOW_TYPE_KEY, workflowType);
+			logEvent.getMdc().put(MDCUtils.MDC_PN_DELEGATE_ID_KEY, mandateDto.getDelegate());
 			delegatorId = mandateDto.getDelegator();
 			delegateInfo = NotificationViewDelegateInfo.builder()
 					.mandateId( mandateId )
@@ -532,7 +534,7 @@ public class NotificationRetrieverService {
 
 		String recipientId = delegatorId != null ? delegatorId : internalAuthHeader.xPagopaPnCxId();
 		int recipientIndex = getRecipientIndexFromRecipientId(notification, recipientId);
-		logEvent.getMdc().put("recipientId", recipientId);
+		logEvent.getMdc().put(MDCUtils.MDC_PN_RECIPIENT_ID_KEY, recipientId);
 		filterTimelinesByRecipient(notification, internalAuthHeader, recipientIndex);
 		filterRecipients(notification, internalAuthHeader, recipientIndex);
 		notifyNotificationViewedEvent(notification, recipientIndex, delegateInfo, internalAuthHeader);
