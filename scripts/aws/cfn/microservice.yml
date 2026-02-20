@@ -750,6 +750,50 @@ Parameters:
     Type: String
     Description: "Log level for consent accepter lambda"
 
+  MandateViewFailureAlarmFilterPattern:
+    Type: String
+    Default: '{ $.level = "ERROR" }'
+
+    MandateViewFailureAlarmPeriod:
+      Type: Number
+      Default: 300
+
+    MandateViewFailureAlarmThreshold:
+      Type: Number
+      Default: 1
+
+    MandateViewFailureAlarmEvaluationPeriods:
+      Type: Number
+      Default: 12
+
+    MandateViewFailureAlarmDatapointsToAlarm:
+      Type: Number
+      Default: 1
+
+    MandateViewFailureAlarmEnableOncall:
+      Type: String
+      Description: "Create onCall alarm"
+      Default: false
+      AllowedValues:
+        - true
+        - false
+
+    OncallMandateViewFailureAlarmPeriod:
+      Type: Number
+      Default: 300
+
+    OncallMandateViewFailureAlarmThreshold:
+      Type: Number
+      Default: 1
+
+    OncallMandateViewFailureAlarmEvaluationPeriods:
+      Type: Number
+      Default: 12
+
+    OncallMandateViewFailureAlarmDatapointsToAlarm:
+      Type: Number
+      Default: 1
+
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
 
@@ -852,6 +896,30 @@ Resources:
         AlbSecurityGroup: !Ref AlbSecurityGroup
         EcsLogGroup: !Ref EcsLogGroup
         LogAlarmStrategyV1: !Ref LogAlarmStrategy
+
+  MandateViewFailureDetectionAlarm:
+  Type: AWS::CloudFormation::Stack
+  Properties:
+    TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/custom-metric.yaml"
+    Parameters:
+    AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+    MetricName: !Sub "${ProjectName}-mandate-view-failure"
+    MetricNamespace: !Ref MetricNamespace
+    LogGroupName: "/aws/ecs/pn-mandate"
+    FilterPattern: !Ref MandateViewFailureAlarmFilterPattern
+    Period: !Ref MandateViewFailureAlarmPeriod
+    Threshold: !Ref MandateViewFailureAlarmThreshold
+    EvaluationPeriods: !Ref MandateViewFailureAlarmEvaluationPeriods
+    DatapointsToAlarm: !Ref MandateViewFailureAlarmDatapointsToAlarm
+    Statistic: Sum
+    ComparisonOperator: GreaterThanOrEqualToThreshold
+    HasOncall: !Ref MandateViewFailureAlarmEnableOncall
+    OncallPeriod: !Ref OncallMandateViewFailureAlarmPeriod
+    OncallThreshold: !Ref OncallMandateViewFailureAlarmThreshold
+    OncallEvaluationPeriods: !Ref OncallMandateViewFailureAlarmEvaluationPeriods
+    OncallDatapointsToAlarm: !Ref OncallMandateViewFailureAlarmDatapointsToAlarm
+    OncallComparisonOperator: GreaterThanOrEqualToThreshold
+    OncallStatistic: Sum
 
   # Grant operational rights to PN-Delivery microservice
   DeliveryMicroserviceTaskManagedPolicy:
