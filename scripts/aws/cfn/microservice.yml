@@ -750,49 +750,49 @@ Parameters:
     Type: String
     Description: "Log level for consent accepter lambda"
 
-  MandateViewFailureAlarmFilterPattern:
+  IONotificationViewFailureAlarmFilterPattern:
     Type: String
     Default: '{ $.level = "ERROR" }'
 
-    MandateViewFailureAlarmPeriod:
-      Type: Number
-      Default: 300
+  IONotificationViewFailureAlarmPeriod:
+    Type: Number
+    Default: 300
 
-    MandateViewFailureAlarmThreshold:
-      Type: Number
-      Default: 1
+  IONotificationViewFailureAlarmThreshold:
+    Type: Number
+    Default: 1
 
-    MandateViewFailureAlarmEvaluationPeriods:
-      Type: Number
-      Default: 12
+  IONotificationViewFailureAlarmEvaluationPeriods:
+    Type: Number
+    Default: 12
 
-    MandateViewFailureAlarmDatapointsToAlarm:
-      Type: Number
-      Default: 1
+  IONotificationViewFailureAlarmDatapointsToAlarm:
+    Type: Number
+    Default: 1
 
-    MandateViewFailureAlarmEnableOncall:
-      Type: String
-      Description: "Create onCall alarm"
-      Default: false
-      AllowedValues:
-        - true
-        - false
+  IONotificationViewFailureAlarmEnableOncall:
+    Type: String
+    Description: "Create onCall alarm"
+    Default: false
+    AllowedValues:
+      - true
+      - false
 
-    OncallMandateViewFailureAlarmPeriod:
-      Type: Number
-      Default: 300
+  OncallIONotificationViewFailureAlarmPeriod:
+    Type: Number
+    Default: 300
 
-    OncallMandateViewFailureAlarmThreshold:
-      Type: Number
-      Default: 1
+  OncallIONotificationViewFailureAlarmThreshold:
+    Type: Number
+    Default: 1
 
-    OncallMandateViewFailureAlarmEvaluationPeriods:
-      Type: Number
-      Default: 12
+  OncallIONotificationViewFailureAlarmEvaluationPeriods:
+    Type: Number
+    Default: 12
 
-    OncallMandateViewFailureAlarmDatapointsToAlarm:
-      Type: Number
-      Default: 1
+  OncallIONotificationViewFailureAlarmDatapointsToAlarm:
+    Type: Number
+    Default: 1
 
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
@@ -897,27 +897,27 @@ Resources:
         EcsLogGroup: !Ref EcsLogGroup
         LogAlarmStrategyV1: !Ref LogAlarmStrategy
 
-  MandateViewFailureDetectionAlarm:
+  IONotificationViewFailureDetectionAlarm:
   Type: AWS::CloudFormation::Stack
   Properties:
     TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/custom-metric.yaml"
     Parameters:
     AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-    MetricName: !Sub "${ProjectName}-mandate-view-failure"
+    MetricName: !Sub "${ProjectName}-io-notification-view-failure"
     MetricNamespace: !Ref MetricNamespace
-    LogGroupName: "/aws/ecs/pn-mandate"
-    FilterPattern: !Ref MandateViewFailureAlarmFilterPattern
-    Period: !Ref MandateViewFailureAlarmPeriod
-    Threshold: !Ref MandateViewFailureAlarmThreshold
-    EvaluationPeriods: !Ref MandateViewFailureAlarmEvaluationPeriods
-    DatapointsToAlarm: !Ref MandateViewFailureAlarmDatapointsToAlarm
+    LogGroupName: "/aws/ecs/pn-delivery"
+    FilterPattern: !Ref IONotificationViewFailureAlarmFilterPattern
+    Period: !Ref IONotificationViewFailureAlarmPeriod
+    Threshold: !Ref IONotificationViewFailureAlarmThreshold
+    EvaluationPeriods: !Ref IONotificationViewFailureAlarmEvaluationPeriods
+    DatapointsToAlarm: !Ref IONotificationViewFailureAlarmDatapointsToAlarm
     Statistic: Sum
     ComparisonOperator: GreaterThanOrEqualToThreshold
-    HasOncall: !Ref MandateViewFailureAlarmEnableOncall
-    OncallPeriod: !Ref OncallMandateViewFailureAlarmPeriod
-    OncallThreshold: !Ref OncallMandateViewFailureAlarmThreshold
-    OncallEvaluationPeriods: !Ref OncallMandateViewFailureAlarmEvaluationPeriods
-    OncallDatapointsToAlarm: !Ref OncallMandateViewFailureAlarmDatapointsToAlarm
+    HasOncall: !Ref IONotificationViewFailureAlarmEnableOncall
+    OncallPeriod: !Ref OncallIONotificationViewFailureAlarmPeriod
+    OncallThreshold: !Ref OncallIONotificationViewFailureAlarmThreshold
+    OncallEvaluationPeriods: !Ref OncallIONotificationViewFailureAlarmEvaluationPeriods
+    OncallDatapointsToAlarm: !Ref OncallIONotificationViewFailureAlarmDatapointsToAlarm
     OncallComparisonOperator: GreaterThanOrEqualToThreshold
     OncallStatistic: Sum
 
