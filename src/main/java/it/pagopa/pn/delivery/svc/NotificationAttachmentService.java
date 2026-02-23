@@ -40,14 +40,12 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.*;
 
@@ -86,7 +84,7 @@ public class NotificationAttachmentService {
 
     public FileDownloadResponse getFile(String fileKey) {
         log.info("getFile with fileKey={} ", fileKey);
-        return this.safeStorageClient.getFile(fileKey, false);
+        return this.safeStorageClient.getFile(fileKey, false, true);
     }
 
     public List<PreLoadResponse> preloadDocuments(List<PreLoadRequest> preLoadRequests) {
@@ -282,7 +280,7 @@ public class NotificationAttachmentService {
                     ))
                     .contentType(fileInfos.fileDownloadResponse.getContentType())
                     .sha256(fileInfos.fileDownloadResponse.getChecksum())
-                    .numberOfPages(fileInfos.fileDownloadResponse.getNumberOfPages())
+                    .numberOfPages(retrieveNumberOfPages(fileInfos.getFileDownloadResponse().getTags()))
                     .retryAfter(nullSafeBigDecimalToInteger(
                             fileInfos.fileDownloadResponse.getDownload().getRetryAfter()
                     )).build(), fileInfos.fileKey);
@@ -290,6 +288,14 @@ public class NotificationAttachmentService {
             log.error("downloadDocumentWithRedirect Notification not found for iun={}", iun);
             throw new PnNotificationNotFoundException("Notification not found for iun=" + iun);
         }
+    }
+
+    private Integer retrieveNumberOfPages(Map<String, List<String>> documentTags) {
+        if (CollectionUtils.isEmpty(documentTags)) {
+            return null;
+        }
+        List<String> tagValues = documentTags.get(cfg.getDocumentNumberOfPagesTagKey());
+        return CollectionUtils.isEmpty(tagValues) ? null : Integer.valueOf(tagValues.get(0));
     }
 
     private Integer handleReceiverAttachmentDownload(Integer recipientIdx, Integer effectiveRecipientIdx, Integer documentIdx) {

@@ -21,9 +21,9 @@ public class PnSafeStorageClientImpl {
     private final PnDeliveryConfigs cfg;
 
 
-    public FileDownloadResponse getFile(String fileKey, Boolean metadataOnly) {
+    public FileDownloadResponse getFile(String fileKey, Boolean metadataOnly, Boolean tags) {
         log.logInvokingExternalService(PnLogger.EXTERNAL_SERVICES.PN_SAFE_STORAGE, "getFile");
-        return fileDownloadApi.getFile( fileKey, this.cfg.getSafeStorageCxId(), metadataOnly, false);
+        return fileDownloadApi.getFile( fileKey, this.cfg.getSafeStorageCxId(), metadataOnly, tags);
     }
 
     public FileCreationResponse createFile(FileCreationRequest fileCreationRequest, String sha256) {
