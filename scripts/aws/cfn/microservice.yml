@@ -2322,21 +2322,21 @@ Resources:
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/custom-metric.yaml"
       Parameters:
-      AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-      MetricName: !Sub "${ProjectName}-io-notification-view-failure"
-      MetricNamespace: !Ref MetricNamespace
-      LogGroupName: "/aws/ecs/pn-delivery"
-      FilterPattern: !Ref IONotificationViewFailureAlarmFilterPattern
-      Period: !Ref IONotificationViewFailureAlarmPeriod
-      Threshold: !Ref IONotificationViewFailureAlarmThreshold
-      EvaluationPeriods: !Ref IONotificationViewFailureAlarmEvaluationPeriods
-      DatapointsToAlarm: !Ref IONotificationViewFailureAlarmDatapointsToAlarm
-      Statistic: Sum
-      ComparisonOperator: GreaterThanOrEqualToThreshold
-      HasOncall: !Ref IONotificationViewFailureAlarmEnableOncall
-      OncallPeriod: !Ref OncallIONotificationViewFailureAlarmPeriod
-      OncallThreshold: !Ref OncallIONotificationViewFailureAlarmThreshold
-      OncallEvaluationPeriods: !Ref OncallIONotificationViewFailureAlarmEvaluationPeriods
-      OncallDatapointsToAlarm: !Ref OncallIONotificationViewFailureAlarmDatapointsToAlarm
-      OncallComparisonOperator: GreaterThanOrEqualToThreshold
-      OncallStatistic: Sum
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        MetricName: !Sub "${ProjectName}-io-notification-view-failure"
+        MetricNamespace: !Ref MetricNamespace
+        LogGroupName: "/aws/ecs/pn-delivery"
+        FilterPattern: !Ref IONotificationViewFailureAlarmFilterPattern
+        Period: !Ref IONotificationViewFailureAlarmPeriod
+        Threshold: !Ref IONotificationViewFailureAlarmThreshold
+        EvaluationPeriods: !Ref IONotificationViewFailureAlarmEvaluationPeriods
+        DatapointsToAlarm: !Ref IONotificationViewFailureAlarmDatapointsToAlarm
+        Statistic: Sum
+        ComparisonOperator: GreaterThanOrEqualToThreshold
+        HasOncall: !Ref IONotificationViewFailureAlarmEnableOncall
+        OncallPeriod: !Ref OncallIONotificationViewFailureAlarmPeriod
+        OncallThreshold: !Ref OncallIONotificationViewFailureAlarmThreshold
+        OncallEvaluationPeriods: !Ref OncallIONotificationViewFailureAlarmEvaluationPeriods
+        OncallDatapointsToAlarm: !Ref OncallIONotificationViewFailureAlarmDatapointsToAlarm
+        OncallComparisonOperator: GreaterThanOrEqualToThreshold
+        OncallStatistic: Sum
