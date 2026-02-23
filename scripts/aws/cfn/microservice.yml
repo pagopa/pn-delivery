@@ -750,6 +750,11 @@ Parameters:
     Type: String
     Description: "Log level for consent accepter lambda"
 
+  MetricNamespace:
+    Type: String
+    Description: "CloudWatch custom metric namespace"
+    Default: "Advanced"
+
   IONotificationViewFailureAlarmFilterPattern:
     Type: String
     Default: '{ $.level = "ERROR" }'
