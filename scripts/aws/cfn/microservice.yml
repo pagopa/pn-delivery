@@ -897,30 +897,6 @@ Resources:
         EcsLogGroup: !Ref EcsLogGroup
         LogAlarmStrategyV1: !Ref LogAlarmStrategy
 
-  IONotificationViewFailureDetectionAlarm:
-  Type: AWS::CloudFormation::Stack
-  Properties:
-    TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/custom-metric.yaml"
-    Parameters:
-    AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-    MetricName: !Sub "${ProjectName}-io-notification-view-failure"
-    MetricNamespace: !Ref MetricNamespace
-    LogGroupName: "/aws/ecs/pn-delivery"
-    FilterPattern: !Ref IONotificationViewFailureAlarmFilterPattern
-    Period: !Ref IONotificationViewFailureAlarmPeriod
-    Threshold: !Ref IONotificationViewFailureAlarmThreshold
-    EvaluationPeriods: !Ref IONotificationViewFailureAlarmEvaluationPeriods
-    DatapointsToAlarm: !Ref IONotificationViewFailureAlarmDatapointsToAlarm
-    Statistic: Sum
-    ComparisonOperator: GreaterThanOrEqualToThreshold
-    HasOncall: !Ref IONotificationViewFailureAlarmEnableOncall
-    OncallPeriod: !Ref OncallIONotificationViewFailureAlarmPeriod
-    OncallThreshold: !Ref OncallIONotificationViewFailureAlarmThreshold
-    OncallEvaluationPeriods: !Ref OncallIONotificationViewFailureAlarmEvaluationPeriods
-    OncallDatapointsToAlarm: !Ref OncallIONotificationViewFailureAlarmDatapointsToAlarm
-    OncallComparisonOperator: GreaterThanOrEqualToThreshold
-    OncallStatistic: Sum
-
   # Grant operational rights to PN-Delivery microservice
   DeliveryMicroserviceTaskManagedPolicy:
     Type: AWS::IAM::ManagedPolicy
@@ -2340,3 +2316,27 @@ Resources:
       Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
       SourceArn: !GetAtt PaLimitCorrectionScheduledRule.Arn
+
+  IONotificationViewFailureDetectionAlarm:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/custom-metric.yaml"
+      Parameters:
+      AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+      MetricName: !Sub "${ProjectName}-io-notification-view-failure"
+      MetricNamespace: !Ref MetricNamespace
+      LogGroupName: "/aws/ecs/pn-delivery"
+      FilterPattern: !Ref IONotificationViewFailureAlarmFilterPattern
+      Period: !Ref IONotificationViewFailureAlarmPeriod
+      Threshold: !Ref IONotificationViewFailureAlarmThreshold
+      EvaluationPeriods: !Ref IONotificationViewFailureAlarmEvaluationPeriods
+      DatapointsToAlarm: !Ref IONotificationViewFailureAlarmDatapointsToAlarm
+      Statistic: Sum
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      HasOncall: !Ref IONotificationViewFailureAlarmEnableOncall
+      OncallPeriod: !Ref OncallIONotificationViewFailureAlarmPeriod
+      OncallThreshold: !Ref OncallIONotificationViewFailureAlarmThreshold
+      OncallEvaluationPeriods: !Ref OncallIONotificationViewFailureAlarmEvaluationPeriods
+      OncallDatapointsToAlarm: !Ref OncallIONotificationViewFailureAlarmDatapointsToAlarm
+      OncallComparisonOperator: GreaterThanOrEqualToThreshold
+      OncallStatistic: Sum
