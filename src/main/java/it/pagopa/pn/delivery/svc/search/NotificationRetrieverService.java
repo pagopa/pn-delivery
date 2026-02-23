@@ -27,7 +27,6 @@ import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.svc.authorization.CxType;
-import it.pagopa.pn.delivery.utils.MDCCostants;
 import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -518,7 +517,7 @@ public class NotificationRetrieverService {
 					notification.getSentAt()
 			);
 			String workflowType = mandateDto.getWorkflowType() != null ? mandateDto.getWorkflowType().getValue() : "STANDARD";
-			logEvent.getMdc().put(MDCCostants.MDC_PN_MANDATE_WORKFLOW_TYPE_KEY, workflowType);
+			logEvent.getMdc().put(MDCUtils.MDC_PN_MANDATE_WORKFLOW_TYPE_KEY, workflowType);
 			logEvent.getMdc().put(MDCUtils.MDC_PN_DELEGATE_ID_KEY, mandateDto.getDelegate());
 			delegatorId = mandateDto.getDelegator();
 			delegateInfo = NotificationViewDelegateInfo.builder()
