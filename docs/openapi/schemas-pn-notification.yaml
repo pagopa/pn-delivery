@@ -46,7 +46,7 @@ components:
       pattern: '^\d+$'
 
     paTaxId:
-      description: Payment PA fiscal code
+      description: CF del mittente, non deve essere la partita IVA
       example: '77777777777'
       type: string
       maxLength: 11
