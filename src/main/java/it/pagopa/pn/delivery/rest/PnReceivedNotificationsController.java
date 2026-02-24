@@ -24,8 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import static it.pagopa.pn.commons.utils.MDCUtils.MDC_PN_CTX_TOPIC;
-import static it.pagopa.pn.commons.utils.MDCUtils.MDC_PN_IUN_KEY;
+import static it.pagopa.pn.commons.utils.MDCUtils.*;
 
 @Slf4j
 @RestController
