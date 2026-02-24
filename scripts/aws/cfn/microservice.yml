@@ -750,6 +750,55 @@ Parameters:
     Type: String
     Description: "Log level for consent accepter lambda"
 
+  MetricNamespace:
+    Type: String
+    Description: "CloudWatch custom metric namespace"
+    Default: "Advanced"
+
+  IONotificationViewFailureAlarmFilterPattern:
+    Type: String
+    Default: '{ $.level = "ERROR" }'
+
+  IONotificationViewFailureAlarmPeriod:
+    Type: Number
+    Default: 300
+
+  IONotificationViewFailureAlarmThreshold:
+    Type: Number
+    Default: 1
+
+  IONotificationViewFailureAlarmEvaluationPeriods:
+    Type: Number
+    Default: 12
+
+  IONotificationViewFailureAlarmDatapointsToAlarm:
+    Type: Number
+    Default: 1
+
+  IONotificationViewFailureAlarmEnableOncall:
+    Type: String
+    Description: "Create onCall alarm"
+    Default: false
+    AllowedValues:
+      - true
+      - false
+
+  OncallIONotificationViewFailureAlarmPeriod:
+    Type: Number
+    Default: 300
+
+  OncallIONotificationViewFailureAlarmThreshold:
+    Type: Number
+    Default: 1
+
+  OncallIONotificationViewFailureAlarmEvaluationPeriods:
+    Type: Number
+    Default: 12
+
+  OncallIONotificationViewFailureAlarmDatapointsToAlarm:
+    Type: Number
+    Default: 1
+
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
 
@@ -2272,3 +2321,27 @@ Resources:
       Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
       SourceArn: !GetAtt PaLimitCorrectionScheduledRule.Arn
+
+  IONotificationViewFailureDetectionAlarm:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/custom-metric.yaml"
+      Parameters:
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        MetricName: !Sub "${ProjectName}-io-notification-view-failure"
+        MetricNamespace: !Ref MetricNamespace
+        LogGroupName: "/aws/ecs/pn-delivery"
+        FilterPattern: !Ref IONotificationViewFailureAlarmFilterPattern
+        Period: !Ref IONotificationViewFailureAlarmPeriod
+        Threshold: !Ref IONotificationViewFailureAlarmThreshold
+        EvaluationPeriods: !Ref IONotificationViewFailureAlarmEvaluationPeriods
+        DatapointsToAlarm: !Ref IONotificationViewFailureAlarmDatapointsToAlarm
+        Statistic: Sum
+        ComparisonOperator: GreaterThanOrEqualToThreshold
+        HasOncall: !Ref IONotificationViewFailureAlarmEnableOncall
+        OncallPeriod: !Ref OncallIONotificationViewFailureAlarmPeriod
+        OncallThreshold: !Ref OncallIONotificationViewFailureAlarmThreshold
+        OncallEvaluationPeriods: !Ref OncallIONotificationViewFailureAlarmEvaluationPeriods
+        OncallDatapointsToAlarm: !Ref OncallIONotificationViewFailureAlarmDatapointsToAlarm
+        OncallComparisonOperator: GreaterThanOrEqualToThreshold
+        OncallStatistic: Sum

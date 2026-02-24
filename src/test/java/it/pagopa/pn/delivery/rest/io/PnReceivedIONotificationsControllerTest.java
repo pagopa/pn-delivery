@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.rest.io;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.delivery.exception.*;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.RequestCheckQrMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ResponseCheckQrMandateDto;
@@ -69,7 +70,7 @@ class PnReceivedIONotificationsControllerTest {
         System.out.println(expectedValueJson);
 
         // When
-        Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.any( InternalAuthHeader.class ), eq( null)) )
+        Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.any( InternalAuthHeader.class ), eq( null), Mockito.any(PnAuditLogEvent.class)) )
                 .thenReturn( notification );
 
         // Then
@@ -87,14 +88,14 @@ class PnReceivedIONotificationsControllerTest {
                 .expectBody()
                 .json(expectedValueJson);
 
-        Mockito.verify(svc).getNotificationAndNotifyViewedEvent(IUN, new InternalAuthHeader("PF", "IO-" + USER_ID, USER_ID, null, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_SRC_CH_DET), null);
+        Mockito.verify(svc).getNotificationAndNotifyViewedEvent(Mockito.eq(IUN), Mockito.eq(new InternalAuthHeader("PF", "IO-" + USER_ID, USER_ID, null, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_SRC_CH_DET)), Mockito.eq(null), Mockito.any(PnAuditLogEvent.class));
     }
 
     @Test
     void getReceivedNotificationFailure() {
 
         // When
-        Mockito.when(svc.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(null)))
+        Mockito.when(svc.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(null), Mockito.any(PnAuditLogEvent.class)))
                 .thenThrow(new PnNotificationNotFoundException("test"));
 
         // Then
@@ -115,7 +116,7 @@ class PnReceivedIONotificationsControllerTest {
     void getReceivedNotificationWithMandateFailsForRootId() {
 
         // When
-        Mockito.when(svc.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(MANDATE_ID)))
+        Mockito.when(svc.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(MANDATE_ID), Mockito.any(PnAuditLogEvent.class)))
                 .thenThrow(new PnRootIdNonFountException("test"));
 
         // Then
@@ -139,7 +140,7 @@ class PnReceivedIONotificationsControllerTest {
     void getReceivedNotificationWithMandateFailsForMandate() {
 
         // When
-        Mockito.when(svc.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(MANDATE_ID)))
+        Mockito.when(svc.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(MANDATE_ID), Mockito.any(PnAuditLogEvent.class)))
                 .thenThrow(new PnMandateNotFoundException("test"));
 
         // Then
