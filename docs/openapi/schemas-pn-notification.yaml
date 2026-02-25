@@ -45,6 +45,14 @@ components:
       minLength: 18
       pattern: '^\d+$'
 
+    paTaxIdV28:
+      description: CF del mittente, non deve essere indicata la partita IVA.
+      example: '77777777777'
+      type: string
+      maxLength: 11
+      minLength: 11
+      pattern: '^\d+$'
+
     paTaxId:
       description: Payment PA fiscal code
       example: '77777777777'
@@ -197,7 +205,7 @@ components:
         senderDenomination:
           $ref: '#/components/schemas/Denomination'
         senderTaxId:
-          $ref: '#/components/schemas/paTaxId'
+          $ref: '#/components/schemas/paTaxIdV28'
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica

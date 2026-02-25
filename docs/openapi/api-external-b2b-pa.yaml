@@ -552,7 +552,7 @@ paths:
           required: true
           example: '77777777777'
           schema:
-            $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxId'
+            $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxIdV28'
         - name: noticeCode
           description: Payment notice number  numero avviso
           in: path
