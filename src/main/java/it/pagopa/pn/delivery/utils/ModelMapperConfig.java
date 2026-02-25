@@ -31,9 +31,11 @@ public class ModelMapperConfig {
             TimelineElementV28 destination = context.getDestination();
 
             assert source.getCategory() != null;
-            if(!source.getCategory().equals(TimelineElementCategoryV28.PUBLIC_REGISTRY_VALIDATION_CALL))destination.getDetails().setRecIndexes(null);
-            if(!source.getCategory().equals(TimelineElementCategoryV28.NOTIFICATION_CANCELLED)) destination.getDetails().setNotRefinedRecipientIndexes(null);
-            if(!source.getCategory().equals(TimelineElementCategoryV28.NOTIFICATION_TIMELINE_REWORKED)) destination.getDetails().setInvalidatedTimelineAndStatusHistory(null);
+            if (destination.getDetails() != null) {
+                if(!source.getCategory().equals(TimelineElementCategoryV28.PUBLIC_REGISTRY_VALIDATION_CALL))destination.getDetails().setRecIndexes(null);
+                if(!source.getCategory().equals(TimelineElementCategoryV28.NOTIFICATION_CANCELLED)) destination.getDetails().setNotRefinedRecipientIndexes(null);
+                if(!source.getCategory().equals(TimelineElementCategoryV28.NOTIFICATION_TIMELINE_REWORKED)) destination.getDetails().setInvalidatedTimelineAndStatusHistory(null);
+            }
             destination.setTimestamp(source.getTimestamp());
             return destination;
         };
