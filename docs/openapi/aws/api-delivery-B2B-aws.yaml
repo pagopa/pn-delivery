@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: NEP5pNQNJEMNL7VfPKtJ204GJD7wx6ibH7E+nl+5WGI=
+  version: Cz1EsYYJ15VHRj+/uf6IZkt22e5ZKitSJHFPyVLMgj4=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -471,7 +471,7 @@ paths:
           required: true
           example: '77777777777'
           schema:
-            $ref: '#/components/schemas/paTaxId'
+            $ref: '#/components/schemas/paTaxIdV28'
         - name: noticeCode
           description: Payment notice number  numero avviso
           in: path
@@ -2672,6 +2672,13 @@ components:
       minLength: 25
       maxLength: 25
       pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+    paTaxIdV28:
+      description: CF del mittente, non deve essere indicata la partita IVA.
+      example: '77777777777'
+      type: string
+      maxLength: 11
+      minLength: 11
+      pattern: ^\d+$
     PaFeeV23:
       type: number
       description: >-
@@ -2761,7 +2768,7 @@ components:
         senderDenomination:
           $ref: '#/components/schemas/Denomination'
         senderTaxId:
-          $ref: '#/components/schemas/paTaxId'
+          $ref: '#/components/schemas/paTaxIdV28'
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
