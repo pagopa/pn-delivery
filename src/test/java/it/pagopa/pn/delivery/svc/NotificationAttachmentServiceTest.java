@@ -381,6 +381,45 @@ class NotificationAttachmentServiceTest {
     }
 
     @Test
+    void downloadDocumentWithRedirect_WithInvalidNumberOfPagesValue() {
+        // Given
+        String cxType = "PF";
+        int docidx = 0;
+
+
+        Optional<InternalNotification> optNotification =
+                Optional.of(buildNotification(IUN, X_PAGOPA_PN_CX_ID));
+
+        NotificationRecipient recipient =
+                NotificationRecipient.builder().taxId(X_PAGOPA_PN_CX_ID).build();
+
+        AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.ok(recipient, 0);
+
+
+        String tagKey = "document_number_of_pages";
+        when(cfg.getDocumentNumberOfPagesTagKey()).thenReturn(tagKey);
+        when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean()))
+                .thenReturn(buildFileDownloadResponse(Map.of(tagKey, List.of("invalidFormat"))));
+        when(notificationDao.getNotificationByIun(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(optNotification);
+        when(checkAuthComponent.canAccess(Mockito.any(ReadAccessAuth.class),
+                Mockito.any(InternalNotification.class))).thenReturn(authorizationOutcome);
+
+        // When
+        NotificationAttachmentDownloadMetadataResponse result =
+                attachmentService.downloadDocumentWithRedirect(IUN, new InternalAuthHeader(cxType, X_PAGOPA_PN_CX_ID, X_PAGOPA_PN_UID, null), null, docidx, false);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(IUN + "__" + optNotification.get().getDocuments().get(0).getTitle() + ".pdf",
+                result.getFilename());
+        assertNotNull(result.getUrl());
+        assertNull(result.getNumberOfPages());
+
+        Mockito.verify(notificationViewedProducer, Mockito.times(0))
+                .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt(), Mockito.any(NotificationViewDelegateInfo.class), Mockito.anyString(), Mockito.anyString());
+    }
+
+    @Test
     void downloadAttachmentWithRedirectByIunRecUidAttachNameMandateId() {
         // Given
         String cxType = "PF";

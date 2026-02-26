@@ -295,7 +295,16 @@ public class NotificationAttachmentService {
             return null;
         }
         List<String> tagValues = documentTags.get(cfg.getDocumentNumberOfPagesTagKey());
-        return CollectionUtils.isEmpty(tagValues) ? null : Integer.valueOf(tagValues.get(0));
+        if (CollectionUtils.isEmpty(tagValues)) {
+            return null;
+        }
+        String tagValue = tagValues.get(0);
+        try {
+            return Integer.valueOf(tagValue);
+        } catch (NumberFormatException ex) {
+            log.warn("Unable to parse document number of pages tag value '{}' for key '{}'", tagValue, cfg.getDocumentNumberOfPagesTagKey(), ex);
+            return null;
+        }
     }
 
     private Integer handleReceiverAttachmentDownload(Integer recipientIdx, Integer effectiveRecipientIdx, Integer documentIdx) {
