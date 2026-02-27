@@ -21,19 +21,19 @@ public class PnSafeStorageClientImpl {
     private final PnDeliveryConfigs cfg;
 
 
-    public FileDownloadResponse getFile(String fileKey, Boolean metadataOnly) {
+    public FileDownloadResponse getFile(String fileKey, Boolean metadataOnly, Boolean tags) {
         log.logInvokingExternalService(PnLogger.EXTERNAL_SERVICES.PN_SAFE_STORAGE, "getFile");
-        return fileDownloadApi.getFile( fileKey, this.cfg.getSafeStorageCxId(), metadataOnly );
+        return fileDownloadApi.getFile( fileKey, this.cfg.getSafeStorageCxId(), metadataOnly, tags);
     }
 
     public FileCreationResponse createFile(FileCreationRequest fileCreationRequest, String sha256) {
         log.logInvokingExternalService(PnLogger.EXTERNAL_SERVICES.PN_SAFE_STORAGE, "createFile");
-        log.info("POST LOG: safeStorageCxID {} sha256{} fileCreationRequest{}",this.cfg.getSafeStorageCxId(),sha256,fileCreationRequest.toString());
+        log.info("POST LOG: safeStorageCxID {} sha256 {} fileCreationRequest{}",this.cfg.getSafeStorageCxId(),sha256,fileCreationRequest.toString());
 
         return fileUploadApi.createFile(
                 this.cfg.getSafeStorageCxId(),
-                "SHA-256",
                 sha256,
+                "SHA-256",
                 fileCreationRequest);
     }
 }
