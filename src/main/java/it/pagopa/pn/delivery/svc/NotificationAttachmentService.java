@@ -421,6 +421,7 @@ public class NotificationAttachmentService {
             fileDownloadResponse.setContentType(contentType);
             fileDownloadResponse.setContentLength(f24Response.getContentLength());
             fileDownloadInfo.setUrl(f24Response.getUrl());
+            fileDownloadResponse.setNumberOfPages(f24Response.getNumberOfPages());
         } else {
             fileDownloadResponse.setChecksum("");
             fileDownloadResponse.setContentLength(BigDecimal.valueOf(0));
