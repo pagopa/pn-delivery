@@ -35,6 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -656,6 +657,7 @@ class NotificationAttachmentServiceTest {
         f24Response.setSha256("123");
         f24Response.setNumberOfPages(10);
         Mockito.when(cfg.getF24CxId()).thenReturn("pn-delivery");
+        Mockito.when(cfg.getDocumentNumberOfPagesTagKey()).thenReturn("document_number_of_pages");
         Mockito.when(pnF24Client.generatePDF(anyString(), anyString(), any(), anyInt())).thenReturn(f24Response);
         NotificationAttachmentService.FileInfos fileInfos =
                 attachmentService.computeFileInfo(fileDownloadIdentify, notification);
@@ -664,7 +666,8 @@ class NotificationAttachmentServiceTest {
         Assertions.assertEquals("123", fileInfos.getFileDownloadResponse().getChecksum());
         Assertions.assertEquals(new BigDecimal(100), fileInfos.getFileDownloadResponse().getContentLength());
         Assertions.assertEquals("application/pdf", fileInfos.getFileDownloadResponse().getContentType());
-        Assertions.assertEquals(10, fileInfos.getFileDownloadResponse().getNumberOfPages());
+        Assertions.assertFalse(CollectionUtils.isEmpty(fileInfos.getFileDownloadResponse().getTags()));
+        Assertions.assertEquals("10", fileInfos.getFileDownloadResponse().getTags().get("document_number_of_pages").get(0));
     }
 
     @Test
@@ -692,6 +695,7 @@ class NotificationAttachmentServiceTest {
         f24Response.setContentLength(new BigDecimal(100));
         f24Response.setSha256("123");
         Mockito.when(cfg.getF24CxId()).thenReturn("pn-delivery");
+        Mockito.when(cfg.getDocumentNumberOfPagesTagKey()).thenReturn("document_number_of_pages");
         Mockito.when(pnF24Client.generatePDF(anyString(), anyString(), any(), anyInt())).thenReturn(f24Response);
         NotificationAttachmentService.FileInfos fileInfos =
                 attachmentService.computeFileInfo(fileDownloadIdentify, notification);
@@ -700,7 +704,8 @@ class NotificationAttachmentServiceTest {
         Assertions.assertEquals("123", fileInfos.getFileDownloadResponse().getChecksum());
         Assertions.assertEquals(new BigDecimal(100), fileInfos.getFileDownloadResponse().getContentLength());
         Assertions.assertEquals("application/pdf", fileInfos.getFileDownloadResponse().getContentType());
-        Assertions.assertEquals(10, fileInfos.getFileDownloadResponse().getNumberOfPages());
+        Assertions.assertFalse(CollectionUtils.isEmpty(fileInfos.getFileDownloadResponse().getTags()));
+        Assertions.assertEquals("10", fileInfos.getFileDownloadResponse().getTags().get("document_number_of_pages").get(0));
     }
 
     @Test
