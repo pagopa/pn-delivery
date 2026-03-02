@@ -153,12 +153,8 @@ paths:
       operationId: getNotificationCostPrivate
       parameters:
         - name: paTaxId
-          description: Payment PA fiscal code
-          in: path
-          required: true
-          example: '77777777777'
           schema:
-            $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxIdV28'
+            $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxId'
         - name: noticeCode
           description: Payment notice number  numero avviso
           in: path
