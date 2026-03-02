@@ -420,8 +420,8 @@ public class NotificationAttachmentService {
             fileDownloadResponse.setChecksum(f24Response.getSha256());
             fileDownloadResponse.setContentType(contentType);
             fileDownloadResponse.setContentLength(f24Response.getContentLength());
+            fileDownloadResponse.setTags(Map.of(cfg.getDocumentNumberOfPagesTagKey(), List.of(String.valueOf(f24Response.getNumberOfPages()))));
             fileDownloadInfo.setUrl(f24Response.getUrl());
-            fileDownloadResponse.setNumberOfPages(f24Response.getNumberOfPages());
         } else {
             fileDownloadResponse.setChecksum("");
             fileDownloadResponse.setContentLength(BigDecimal.valueOf(0));

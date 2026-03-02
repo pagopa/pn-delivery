@@ -478,7 +478,7 @@
                         </goals>
                         <phase>process-resources</phase>
                         <configuration>
-                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-ss/e46d61b9797bd4236e62ac4eca2aa4758d23f2b8/docs/openapi/pn-safestorage-v1.1-api.yaml</inputSpec>
+                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-ss/38169be67d31f65cb2b81055bd45b7177451e687/docs/openapi/pn-safestorage-v1.1-api.yaml</inputSpec>
                             <generatorName>java</generatorName>
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>
