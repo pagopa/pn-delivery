@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: BPpQ4mBAojmcbI2QP0HovjNnG2u5Z96Y45uY/ynuGXE=
+  version: B1Wl1dtDie6BhP8P3lE6CVV4FTrGmXhhX09XaVAvmz4=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -661,7 +661,7 @@ components:
       minLength: 18
       pattern: ^\d+$
     paTaxId:
-      description: Payment PA fiscal code
+      description: Payment PA fiscal code selfcare
       example: '77777777777'
       type: string
       maxLength: 11

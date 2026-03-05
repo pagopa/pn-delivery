@@ -678,11 +678,7 @@ paths:
       tags:                                                                         
         - NotificationPrice                                                         
       parameters:                                                                   
-        - name: paTaxId                                                             
-          description: Payment PA fiscal code                                       
-          in: path                                                                  
-          required: true                                                            
-          example: '77777777777'                                                    
+        - name: paTaxId
           schema:                                                                    
             $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxId'        
         - name: noticeCode                                                          
