@@ -70,11 +70,11 @@ class PnSafeStorageClientImplTestIT extends MockAWSObjectsTest {
                 .respond(response()
                         .withStatusCode(200)
                 );
-        safeStorageClient.getFile( fileKey, false );
+        safeStorageClient.getFile( fileKey, false, false );
 
         //Then
         assertDoesNotThrow( () -> {
-            safeStorageClient.getFile( fileKey, false );
+            safeStorageClient.getFile( fileKey, false, false );
         });
     }
 

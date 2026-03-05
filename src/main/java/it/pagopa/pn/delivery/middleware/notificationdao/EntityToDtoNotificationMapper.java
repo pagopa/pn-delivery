@@ -78,6 +78,7 @@ public class EntityToDtoNotificationMapper {
     private List<String> removeITLanguageFromDto(List<NotificationLang> languages) {
         if(!CollectionUtils.isEmpty(languages)) {
             return languages.stream()
+                    .filter(Objects::nonNull)
                     .map(NotificationLang::getLang)
                     .filter(language -> !IT_LANGUAGE.equalsIgnoreCase(language))
                     .toList();
