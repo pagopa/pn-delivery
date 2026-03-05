@@ -755,6 +755,11 @@ Parameters:
     Description: "Maximum record age in seconds for MetadataStatusUpdaterLambdaKinesisSource"
     Default: 604800 # 7 days
 
+  NotificationRefusedDispatcherLambdaMaximumRecordAge:
+    Type: Number
+    Description: "Maximum record age in seconds for NotificationRefusedDispatcherLambdaKinesisSource"
+    Default: 604800 # 7 days
+
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
 
@@ -2073,16 +2078,18 @@ Resources:
               !Ref PnNotificationRefusedQueueARN
           - Effect: Allow
             Action:
-              - sqs:ChangeMessageVisibility
-              - sqs:GetQueueAttributes
-              - sqs:GetQueueUrl
-              - sqs:SendMessage
-            Resource:
-              !Ref PnNotificationRefusedDispatcherDLQARN
+              - s3:ListBucket
+              - s3:GetBucketLocation
+            Resource: !Sub arn:aws:s3:::${ESMKinesisFailureNotificationsBucketName}
+          - Effect: Allow
+            Action:
+              - s3:PutObject
+            Resource: !Sub arn:aws:s3:::${ESMKinesisFailureNotificationsBucketName}/*
 
   # CDC to Notification Refused Dispatcher
   NotificationRefusedDispatcherLambdaKinesisSource:
     Type: AWS::Lambda::EventSourceMapping
+    DependsOn: NotificationRefusedDispatcherLambdaPolicy
     Properties:
       BatchSize: !Sub ${NotificationRefusedDispatcherLambdaBatchSize}
       BisectBatchOnFunctionError: true
@@ -2094,10 +2101,35 @@ Resources:
         Filters:
           - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName": [ "INSERT" ], "dynamodb" : { "NewImage" : { "category" : { "S" : [ "REQUEST_REFUSED" ] } }}}}'
       MaximumBatchingWindowInSeconds: !Sub ${NotificationRefusedDispatcherLambdaMaximumBatchingWindowInSeconds}
+      MaximumRecordAgeInSeconds: !Ref NotificationRefusedDispatcherLambdaMaximumRecordAge
       StartingPosition: TRIM_HORIZON
       DestinationConfig:
         OnFailure:
-          Destination: !Ref PnNotificationRefusedDispatcherDLQARN
+          Destination: !Sub arn:aws:s3:::${ESMKinesisFailureNotificationsBucketName}
+
+  NotificationRefusedDispatcherKinesisFailuresAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${ProjectName}-NotificationRefusedDispatcher-ESM-Alarm"
+      AlarmDescription: "CloudWatch alarm for when NotificationRefusedDispatcherLambda has Kinesis stream read failures, which can indicate problems with the function processing or with the stream itself."
+      TreatMissingData: notBreaching        
+      AlarmActions:
+        - !Ref AlarmSNSTopicArn
+      OKActions:
+        - !Ref AlarmSNSTopicArn
+      Dimensions:
+        - Value: !Ref NotificationRefusedDispatcherLambda
+          Name: FunctionName
+        - Value: !Ref CdcKinesisSourceStreamName
+          Name: StreamName
+      DatapointsToAlarm: 1           
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      EvaluationPeriods: 6
+      Period: 600
+      Namespace: ESM/Kinesis   
+      MetricName: ProcessingFailures
+      Statistic: Maximum      
+      Threshold: 1
 
   NotificationRefusedDispatcherLambdaAlarms:
     Type: AWS::CloudFormation::Stack
