@@ -517,17 +517,13 @@ Parameters:
     Type: String
     Description: 'Where to send CDC'
 
+  CdcKinesisSourceStreamName:
+    Type: String
+    Description: 'Name of the kinesis stream where CDC are sent'
+
   CdcKinesisSourceStreamKeyArn:
     Description: "Kinesis source CDC stream crypto key ARN"
     Type: String
-
-  PnDeliveryMetadataStatusDLQARN:
-   Type: String
-   Description: "DLQ ARN for metadata status updater"
-
-  PnDeliveryMetadataStatusDLQAlarmARN:
-    Type: String
-    Description: "DLQ Alarm ARN for metadata status updater"
 
   PnDeliveryMetadataStatusLambdaBatchSize:
     Type: String
@@ -749,6 +745,20 @@ Parameters:
   LogLevelForConsentAccepterLambda:
     Type: String
     Description: "Log level for consent accepter lambda"
+
+  ESMKinesisFailureNotificationsBucketName:
+    Type: String
+    Description: "S3 bucket name for ESM Kinesis failure notifications"
+
+  MetadataStatusUpdaterMaximumRecordAge:
+    Type: Number
+    Description: "Maximum record age in seconds for MetadataStatusUpdaterLambdaKinesisSource"
+    Default: 604800 # 7 days
+
+  NotificationRefusedDispatcherLambdaMaximumRecordAge:
+    Type: Number
+    Description: "Maximum record age in seconds for NotificationRefusedDispatcherLambdaKinesisSource"
+    Default: 604800 # 7 days
 
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
@@ -1066,7 +1076,6 @@ Resources:
             - !GetAtt MetadataStatusUpdaterLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !GetAtt PaLimitCorrectionLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !GetAtt ConsentAccepterLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
-            - !Ref PnDeliveryMetadataStatusDLQAlarmARN
             - !Ref PnDeliveryPaLimitCorrectionDLQAlarmARN
         QueueArns: !Join
           - ","
@@ -1939,16 +1948,19 @@ Resources:
             Resource: !Ref CdcKinesisSourceStreamKeyArn
           - Effect: Allow
             Action:
-              - sqs:ChangeMessageVisibility
-              - sqs:GetQueueAttributes
-              - sqs:GetQueueUrl
-              - sqs:SendMessage
-            Resource:
-              !Ref PnDeliveryMetadataStatusDLQARN
+              - s3:ListBucket
+              - s3:GetBucketLocation
+            Resource: !Sub arn:aws:s3:::${ESMKinesisFailureNotificationsBucketName}
+          - Effect: Allow
+            Action:
+              - s3:PutObject
+            Resource: !Sub arn:aws:s3:::${ESMKinesisFailureNotificationsBucketName}/*
 
   # CDC to Webhook Event Manager
   MetadataStatusUpdaterLambdaKinesisSource:
     Type: AWS::Lambda::EventSourceMapping
+    DependsOn:
+      - MetadataStatusUpdaterLambdaPolicy
     Properties:
       BatchSize: !Sub ${PnDeliveryMetadataStatusLambdaBatchSize}
       BisectBatchOnFunctionError: true
@@ -1961,10 +1973,35 @@ Resources:
         - ReportBatchItemFailures
       MaximumBatchingWindowInSeconds: !Sub ${PnDeliveryMetadataStatusUpdaterLambdaMaximumBatchingWindowInSeconds}
       MaximumRetryAttempts: !Sub ${PnDeliveryMetadataStatusLambdaMaxRetryAttempts}
+      MaximumRecordAgeInSeconds: !Ref MetadataStatusUpdaterMaximumRecordAge
       StartingPosition: TRIM_HORIZON
       DestinationConfig:
         OnFailure:
-          Destination: !Ref PnDeliveryMetadataStatusDLQARN
+          Destination: !Sub arn:aws:s3:::${ESMKinesisFailureNotificationsBucketName}
+
+  MetadataStatusUpdaterKinesisFailuresAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${ProjectName}-MetadataStatusUpdaterLambda-ESM-Alarm"
+      AlarmDescription: "CloudWatch alarm for when MetadataStatusUpdaterLambda has Kinesis stream read failures, which can indicate problems with the function processing or with the stream itself."
+      TreatMissingData: notBreaching        
+      AlarmActions:
+        - !Ref AlarmSNSTopicArn
+      OKActions:
+        - !Ref AlarmSNSTopicArn
+      Dimensions:
+        - Value: !Ref MetadataStatusUpdaterLambda
+          Name: FunctionName
+        - Value: !Ref CdcKinesisSourceStreamName
+          Name: StreamName
+      DatapointsToAlarm: 1           
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      EvaluationPeriods: 6
+      Period: 600
+      Namespace: ESM/Kinesis   
+      MetricName: ProcessingFailures
+      Statistic: Maximum      
+      Threshold: 1
 
   #########################################################
   ###        NotificationRefusedDispatcherLambda        ###
@@ -2041,16 +2078,18 @@ Resources:
               !Ref PnNotificationRefusedQueueARN
           - Effect: Allow
             Action:
-              - sqs:ChangeMessageVisibility
-              - sqs:GetQueueAttributes
-              - sqs:GetQueueUrl
-              - sqs:SendMessage
-            Resource:
-              !Ref PnNotificationRefusedDispatcherDLQARN
+              - s3:ListBucket
+              - s3:GetBucketLocation
+            Resource: !Sub arn:aws:s3:::${ESMKinesisFailureNotificationsBucketName}
+          - Effect: Allow
+            Action:
+              - s3:PutObject
+            Resource: !Sub arn:aws:s3:::${ESMKinesisFailureNotificationsBucketName}/*
 
   # CDC to Notification Refused Dispatcher
   NotificationRefusedDispatcherLambdaKinesisSource:
     Type: AWS::Lambda::EventSourceMapping
+    DependsOn: NotificationRefusedDispatcherLambdaPolicy
     Properties:
       BatchSize: !Sub ${NotificationRefusedDispatcherLambdaBatchSize}
       BisectBatchOnFunctionError: true
@@ -2062,10 +2101,35 @@ Resources:
         Filters:
           - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName": [ "INSERT" ], "dynamodb" : { "NewImage" : { "category" : { "S" : [ "REQUEST_REFUSED" ] } }}}}'
       MaximumBatchingWindowInSeconds: !Sub ${NotificationRefusedDispatcherLambdaMaximumBatchingWindowInSeconds}
+      MaximumRecordAgeInSeconds: !Ref NotificationRefusedDispatcherLambdaMaximumRecordAge
       StartingPosition: TRIM_HORIZON
       DestinationConfig:
         OnFailure:
-          Destination: !Ref PnNotificationRefusedDispatcherDLQARN
+          Destination: !Sub arn:aws:s3:::${ESMKinesisFailureNotificationsBucketName}
+
+  NotificationRefusedDispatcherKinesisFailuresAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${ProjectName}-NotificationRefusedDispatcher-ESM-Alarm"
+      AlarmDescription: "CloudWatch alarm for when NotificationRefusedDispatcherLambda has Kinesis stream read failures, which can indicate problems with the function processing or with the stream itself."
+      TreatMissingData: notBreaching        
+      AlarmActions:
+        - !Ref AlarmSNSTopicArn
+      OKActions:
+        - !Ref AlarmSNSTopicArn
+      Dimensions:
+        - Value: !Ref NotificationRefusedDispatcherLambda
+          Name: FunctionName
+        - Value: !Ref CdcKinesisSourceStreamName
+          Name: StreamName
+      DatapointsToAlarm: 1           
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      EvaluationPeriods: 6
+      Period: 600
+      Namespace: ESM/Kinesis   
+      MetricName: ProcessingFailures
+      Statistic: Maximum      
+      Threshold: 1
 
   NotificationRefusedDispatcherLambdaAlarms:
     Type: AWS::CloudFormation::Stack
