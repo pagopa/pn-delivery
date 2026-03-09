@@ -37,15 +37,15 @@ class PnSafeStorageClientImplTest {
     private PnSafeStorageClientImpl pnSafeStorageClientImpl;
 
     /**
-     * Method under test: {@link PnSafeStorageClientImpl#getFile(String, Boolean)}
+     * Method under test: {@link PnSafeStorageClientImpl#getFile(String, Boolean, Boolean)}
      */
     @Test
     void testGetFile() throws RestClientException {
         FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
-        when(fileDownloadApi.getFile(Mockito.<String>any(), Mockito.<String>any(), Mockito.<Boolean>any()))
+        when(fileDownloadApi.getFile(Mockito.<String>any(), Mockito.<String>any(), Mockito.<Boolean>any(), Mockito.<Boolean>any()))
                 .thenReturn(fileDownloadResponse);
-        assertSame(fileDownloadResponse, pnSafeStorageClientImpl.getFile("File Key", true));
-        verify(fileDownloadApi).getFile(Mockito.<String>any(), Mockito.<String>any(), Mockito.<Boolean>any());
+        assertSame(fileDownloadResponse, pnSafeStorageClientImpl.getFile("File Key", true, false));
+        verify(fileDownloadApi).getFile(Mockito.<String>any(), Mockito.<String>any(), Mockito.<Boolean>any(), Mockito.<Boolean>any());
     }
 
     /**
