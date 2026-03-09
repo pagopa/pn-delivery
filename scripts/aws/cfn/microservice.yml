@@ -1037,7 +1037,7 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service-openapi.yaml"
       Parameters:
         MicroServiceUniqueName: !Sub "${ProjectName}-delivery"
-        IntendedUsage: IOL
+        IntendedUsage: IO_EXP
         DnsName: !Ref IoApiDnsName
         ProjectName: !Ref ProjectName
         ServiceApiPath: "delivery"
