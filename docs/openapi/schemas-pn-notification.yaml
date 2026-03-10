@@ -706,7 +706,10 @@ components:
           description: >-
             Stima del numero di secondi da aspettare prima che il contenuto del 
             documento sia disponibile per il download.
-    
+        numberOfPages:
+          type: integer
+          description: numero di pagine del documento. Valorizzato solo se il documento è di tipo PDF
+
 
     NotificationQuickAccessLinkTokens:
       description: Dizionario recipientId/quickAccessLinkToken

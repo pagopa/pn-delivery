@@ -100,6 +100,8 @@ public class PnDeliveryConfigs {
 
     private String latestNotificationVersion;
 
+    private String documentNumberOfPagesTagKey;
+
     @PostConstruct
     public void init(){
         log.info("CONFIGURATION {}",this);
