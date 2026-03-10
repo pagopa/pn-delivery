@@ -46,7 +46,7 @@ components:
       pattern: '^\d+$'
 
     paTaxId:
-      description: Payment PA fiscal code
+      description: Payment PA fiscal code selfcare
       example: '77777777777'
       type: string
       maxLength: 11
