@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: BPpQ4mBAojmcbI2QP0HovjNnG2u5Z96Y45uY/ynuGXE=
+  version: 3uOoliJTUEBRg9AOjLlRuQBuUMGLhzb035FIULuVz6A=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -54,7 +54,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_IoAuthorizer_openapi: []
+        - pn-auth-fleet_LollipopAuthorizer_openapi: []
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
@@ -70,6 +70,9 @@ paths:
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
           integration.request.header.x-pagopa-pn-src-ch: '''IO'''
+          integration.request.header.x-pagopa-pn-name: context.authorizer.name
+          integration.request.header.x-pagopa-pn-family-name: context.authorizer.familyName
+          integration.request.header.x-pagopa-pn-result-code: context.authorizer.resultCode
           integration.request.path.iun: method.request.path.iun
           integration.request.path.attachmentName: method.request.path.attachmentName
         passthroughBehavior: when_no_match
@@ -130,7 +133,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_IoAuthorizer_openapi: []
+        - pn-auth-fleet_LollipopAuthorizer_openapi: []
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
@@ -146,6 +149,9 @@ paths:
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
           integration.request.header.x-pagopa-pn-src-ch: '''IO'''
+          integration.request.header.x-pagopa-pn-name: context.authorizer.name
+          integration.request.header.x-pagopa-pn-family-name: context.authorizer.familyName
+          integration.request.header.x-pagopa-pn-result-code: context.authorizer.resultCode
           integration.request.path.iun: method.request.path.iun
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
@@ -206,7 +212,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_IoAuthorizer_openapi: []
+        - pn-auth-fleet_LollipopAuthorizer_openapi: []
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
@@ -222,6 +228,9 @@ paths:
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
           integration.request.header.x-pagopa-pn-src-ch: '''IO'''
+          integration.request.header.x-pagopa-pn-name: context.authorizer.name
+          integration.request.header.x-pagopa-pn-family-name: context.authorizer.familyName
+          integration.request.header.x-pagopa-pn-result-code: context.authorizer.resultCode
           integration.request.path.iun: method.request.path.iun
           integration.request.path.docIdx: method.request.path.docIdx
         passthroughBehavior: when_no_match
@@ -303,7 +312,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_IoAuthorizer_openapi: []
+        - pn-auth-fleet_LollipopAuthorizer_openapi: []
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
@@ -318,6 +327,9 @@ paths:
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
           integration.request.header.x-pagopa-pn-src-ch: '''IO'''
+          integration.request.header.x-pagopa-pn-name: context.authorizer.name
+          integration.request.header.x-pagopa-pn-family-name: context.authorizer.familyName
+          integration.request.header.x-pagopa-pn-result-code: context.authorizer.resultCode
         passthroughBehavior: when_no_match
         contentHandling: CONVERT_TO_TEXT
         timeoutInMillis: 29000
@@ -804,17 +816,17 @@ components:
       type: apiKey
       name: x-api-key
       in: header
-    pn-auth-fleet_IoAuthorizer_openapi:
+    pn-auth-fleet_LollipopAuthorizer_openapi:
       type: apiKey
-      name: Unused
+      name: x-pagopa-lollipop-auth-jwt
       in: header
       x-amazon-apigateway-authtype: custom
       x-amazon-apigateway-authorizer:
         authorizerUri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-ioAuthorizerLambda/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-lollipopAuthorizerLambda/invocations
         authorizerResultTtlInSeconds: 300
         identitySource: >-
-          method.request.header.x-api-key,
+          method.request.header.x-pagopa-lollipop-auth-jwt,
           method.request.header.x-pagopa-cx-taxid
         type: request
 tags:

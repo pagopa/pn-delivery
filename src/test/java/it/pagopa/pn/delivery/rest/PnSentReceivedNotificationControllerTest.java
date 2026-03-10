@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
@@ -619,7 +620,7 @@ class PnSentReceivedNotificationControllerTest {
 		InternalNotification notification = newNotification();
 
 		// When
-		Mockito.when(svc.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(null)))
+		Mockito.when(svc.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(null), Mockito.any(PnAuditLogEvent.class)))
 				.thenReturn( notification );
 
 		// Then
@@ -638,14 +639,14 @@ class PnSentReceivedNotificationControllerTest {
 				.isOk()
 				.expectBody(FullReceivedNotificationV27.class);
 
-		Mockito.verify(svc).getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
+		Mockito.verify(svc).getNotificationAndNotifyViewedEvent(Mockito.eq(IUN), Mockito.eq(INTERNAL_AUTH_HEADER), Mockito.eq(null), Mockito.any(PnAuditLogEvent.class));
 	}
 
 	@Test
 	void getReceivedNotificationFailure() {
 
 		// When
-		Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.any( InternalAuthHeader.class ), eq( null )) )
+		Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.any( InternalAuthHeader.class ), eq( null ), Mockito.any(PnAuditLogEvent.class)) )
 				.thenThrow(new PnNotificationNotFoundException("test"));
 
 		// Then
@@ -667,7 +668,7 @@ class PnSentReceivedNotificationControllerTest {
 		// Given
 		InternalNotification notification = newNotification();
 		// When
-		Mockito.when(svc.getNotificationAndNotifyViewedEvent(anyString(), any(InternalAuthHeader.class), anyString()))
+		Mockito.when(svc.getNotificationAndNotifyViewedEvent(anyString(), any(InternalAuthHeader.class), anyString(), Mockito.any(PnAuditLogEvent.class)))
 				.thenReturn(notification);
 
 		// Then
@@ -690,7 +691,7 @@ class PnSentReceivedNotificationControllerTest {
 				.isOk()
 				.expectBody(FullReceivedNotificationV27.class);
 
-		Mockito.verify(svc).getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, MANDATE_ID);
+		Mockito.verify(svc).getNotificationAndNotifyViewedEvent(Mockito.eq(IUN), Mockito.eq(INTERNAL_AUTH_HEADER), Mockito.eq(MANDATE_ID), Mockito.any(PnAuditLogEvent.class));
 	}
 
 	@Test

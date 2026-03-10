@@ -4,6 +4,9 @@ import it.pagopa.pn.api.dto.events.NotificationViewDelegateInfo;
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.commons.log.PnAuditLogBuilder;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnForbiddenException;
 import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
@@ -796,6 +799,7 @@ class NotificationRetrieverServiceTest {
         //Given
         String nowTestInstant = "2022-06-17T13:00:00.00Z";
         InternalNotification internalNotification = getNewInternalNotification();
+        PnAuditLogEvent logEvent = createDefaultAuditLog();
 
         var tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28()
                 .elementId( "elementId" )
@@ -816,12 +820,19 @@ class NotificationRetrieverServiceTest {
         when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null, logEvent);
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, null, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_SRC_CH_DET );
         Assertions.assertTrue( internalNotificationResult.getDocumentsAvailable() );
         Assertions.assertNull(internalNotificationResult.getDocuments() );
+    }
+
+    private PnAuditLogEvent createDefaultAuditLog() {
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        return auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_VIEW_DEL, "test")
+                .build();
     }
 
     @Test
@@ -830,6 +841,8 @@ class NotificationRetrieverServiceTest {
         //Given
         String nowTestInstant = "2022-06-17T13:00:00.00Z";
         InternalNotification internalNotification = getNewInternalNotification();
+
+        PnAuditLogEvent logEvent = createDefaultAuditLog();
 
         var tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28()
                 .elementId( "elementId" )
@@ -868,7 +881,7 @@ class NotificationRetrieverServiceTest {
         when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, MANDATE_ID);
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, MANDATE_ID, logEvent);
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, delegateInfo, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_SRC_CH_DET );
         Assertions.assertTrue( internalNotificationResult.getDocumentsAvailable() );
@@ -880,6 +893,8 @@ class NotificationRetrieverServiceTest {
         //Given
         String nowTestInstant = "2022-06-17T13:00:00.00Z";
         InternalNotification internalNotification = getNewInternalNotification();
+
+        PnAuditLogEvent logEvent = createDefaultAuditLog();
 
         var tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28()
                 .elementId( "elementId" )
@@ -905,7 +920,7 @@ class NotificationRetrieverServiceTest {
         Mockito.when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
-        Assertions.assertThrows(PnMandateNotFoundException.class, () -> svc.getNotificationAndNotifyViewedEvent( IUN, INTERNAL_AUTH_HEADER, MANDATE_ID ));
+        Assertions.assertThrows(PnMandateNotFoundException.class, () -> svc.getNotificationAndNotifyViewedEvent( IUN, INTERNAL_AUTH_HEADER, MANDATE_ID, logEvent ));
 
     }
 
@@ -914,6 +929,8 @@ class NotificationRetrieverServiceTest {
         //Given
         String nowTestInstant = "2022-06-30T00:00:00.00Z";
         InternalNotification internalNotification = getNewInternalNotification();
+
+        PnAuditLogEvent logEvent = createDefaultAuditLog();
 
         var tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28()
                 .elementId( "elementId" )
@@ -933,7 +950,7 @@ class NotificationRetrieverServiceTest {
         when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null, logEvent);
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, null, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_SRC_CH_DET );
@@ -945,6 +962,7 @@ class NotificationRetrieverServiceTest {
     void getNotificationAndViewEventError() {
         //Given
         InternalNotification internalNotification = getNewInternalNotification();
+        PnAuditLogEvent logEvent = createDefaultAuditLog();
 
         var tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28()
                 .elementId( "elementId" )
@@ -965,7 +983,7 @@ class NotificationRetrieverServiceTest {
         when( clock.instant() ).thenReturn( Instant.now() );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
-        Executable todo = () -> svc.getNotificationAndNotifyViewedEvent(IUN, new InternalAuthHeader("PF", CX_TYPE, UID, null), null);
+        Executable todo = () -> svc.getNotificationAndNotifyViewedEvent(IUN, new InternalAuthHeader("PF", CX_TYPE, UID, null), null, logEvent);
 
         //Then
         Assertions.assertThrows(PnNotFoundException.class, todo);
@@ -975,6 +993,7 @@ class NotificationRetrieverServiceTest {
 
     void getNotificationWith2IUVBeforeTerms() {
         InternalNotification internalNotification = getNewInternalNotification();
+        PnAuditLogEvent logEvent = createDefaultAuditLog();
 
         var tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28()
                         .elementId( "elementId" )
@@ -997,7 +1016,7 @@ class NotificationRetrieverServiceTest {
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
         when( clock.instant() ).thenReturn( Instant.parse( "2022-01-15T00:00:00.00Z" ) );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null, logEvent);
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-01-15T00:00:00.00Z" ), 0, null, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_SRC_CH_DET );
@@ -1009,6 +1028,7 @@ class NotificationRetrieverServiceTest {
 
     void getNotificationWith2IUVWithFirstIUVPayedAfterTerms() {
         InternalNotification internalNotification = getNewInternalNotification();
+        PnAuditLogEvent logEvent = createDefaultAuditLog();
 
         var tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28()
                         .elementId( "elementId" )
@@ -1035,7 +1055,7 @@ class NotificationRetrieverServiceTest {
         when( clock.instant() ).thenReturn( Instant.parse( "2022-02-11T00:00:00.00Z" ) );
         when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( paymentInfo );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null, logEvent);
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-02-11T00:00:00.00Z" ), 0, null, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_SRC_CH_DET );
@@ -1047,6 +1067,7 @@ class NotificationRetrieverServiceTest {
     void getNotificationWith2IUVWithFirstIUVNoPayedAfterTerms() {
         String nowTestInstant = "2022-01-17T13:00:00.00Z";
         InternalNotification internalNotification = getNewInternalNotification();
+        PnAuditLogEvent logEvent = createDefaultAuditLog();
 
         var tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28()
                         .elementId( "elementId" )
@@ -1073,7 +1094,7 @@ class NotificationRetrieverServiceTest {
         when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( paymentInfo );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null, logEvent);
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, null, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_SRC_CH_DET );
@@ -1086,6 +1107,7 @@ class NotificationRetrieverServiceTest {
         String nowTestInstant = "2022-03-06T23:59:00.00Z";
 
         InternalNotification internalNotification = getNewInternalNotification();
+        PnAuditLogEvent logEvent = createDefaultAuditLog();
 
         var tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28()
                         .elementId( "elementId" )
@@ -1112,7 +1134,7 @@ class NotificationRetrieverServiceTest {
         when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( paymentInfo );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null, logEvent);
 
         //Then
         Mockito.verify(notificationViewedProducer).sendNotificationViewed(IUN, Instant.parse(nowTestInstant), 0, null, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_SRC_CH_DET);
@@ -1132,6 +1154,7 @@ class NotificationRetrieverServiceTest {
         String nowTestInstant = "2022-05-01T15:00:00.00Z";
 
         InternalNotification internalNotification = getNewInternalNotification();
+        PnAuditLogEvent logEvent = createDefaultAuditLog();
 
         var tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28()
                         .elementId( "elementId" )
@@ -1158,7 +1181,7 @@ class NotificationRetrieverServiceTest {
         when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( paymentInfo );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null, logEvent);
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, null, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_SRC_CH_DET );
@@ -1169,6 +1192,7 @@ class NotificationRetrieverServiceTest {
 
     void getNotificationWith2IUVAfterMaxTerms() {
         InternalNotification internalNotification = getNewInternalNotification();
+        PnAuditLogEvent logEvent = createDefaultAuditLog();
 
         var tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28()
                         .elementId( "elementId" )
@@ -1191,7 +1215,7 @@ class NotificationRetrieverServiceTest {
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
         when( clock.instant() ).thenReturn( Instant.parse( "2022-05-11T00:00:00.00Z" ) );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null, logEvent);
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-05-11T00:00:00.00Z" ), 0, null, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_SRC_CH_DET );
@@ -1202,6 +1226,7 @@ class NotificationRetrieverServiceTest {
 
     void getNotificationWith2IUVWithExtRegistryException() {
         InternalNotification internalNotification = getNewInternalNotification();
+        PnAuditLogEvent logEvent = createDefaultAuditLog();
 
         var tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28()
                         .elementId( "elementId" )
@@ -1225,7 +1250,7 @@ class NotificationRetrieverServiceTest {
         when( clock.instant() ).thenReturn( Instant.parse( "2022-03-11T00:00:00.00Z" ) );
         when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenThrow( PnHttpResponseException.class );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null, logEvent);
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-03-11T00:00:00.00Z" ), 0, null, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_SRC_CH_DET );
         Assertions.assertEquals(NOTICE_CODE, internalNotificationResult.getRecipients().get( 0 ).getPayments().get(0).getPagoPa().getNoticeCode() );
@@ -1236,6 +1261,7 @@ class NotificationRetrieverServiceTest {
     void getNotificationWithoutDocumentsSuccess() {
         // Given
         InternalNotification internalNotification = getNewInternalNotification();
+        PnAuditLogEvent logEvent = createDefaultAuditLog();
 
         var tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28()
                 .elementId( "elementId" )
@@ -1254,7 +1280,7 @@ class NotificationRetrieverServiceTest {
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
         when( clock.instant()).thenReturn(Instant.now());
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null, logEvent);
 
         Assertions.assertFalse( internalNotificationResult.getDocumentsAvailable() );
         Assertions.assertEquals( Collections.emptyList(), internalNotification.getDocuments() );
@@ -1270,6 +1296,7 @@ class NotificationRetrieverServiceTest {
         // Given
         String nowTestInstant = "2022-06-29T18:00:00.00Z";
         InternalNotification internalNotification = getNewInternalNotification();
+        PnAuditLogEvent logEvent = createDefaultAuditLog();
 
         var tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28()
                 .elementId( "elementId" )
@@ -1289,7 +1316,7 @@ class NotificationRetrieverServiceTest {
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
         // Then
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null, logEvent);
         Assertions.assertTrue(internalNotificationResult.getDocumentsAvailable());
     }
 
@@ -1299,6 +1326,7 @@ class NotificationRetrieverServiceTest {
         // Given
         String nowTestInstant = "2022-06-30T00:00:00.00Z";
         InternalNotification internalNotification = getNewInternalNotification();
+        PnAuditLogEvent logEvent = createDefaultAuditLog();
 
         var tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28()
                 .elementId( "elementId" )
@@ -1318,7 +1346,7 @@ class NotificationRetrieverServiceTest {
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
         // Then
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null, logEvent);
 
         Assertions.assertFalse( internalNotificationResult.getDocumentsAvailable() );
         Assertions.assertEquals( Collections.emptyList(), internalNotification.getDocuments() );
@@ -1334,6 +1362,7 @@ class NotificationRetrieverServiceTest {
     void getNotificationFilteredByRecIndex() {
         InternalNotification internalNotification = getNewInternalNotification();
         enrichInternalNotificationWithAnotherRecipient(internalNotification, "another-recipient");
+        PnAuditLogEvent logEvent = createDefaultAuditLog();
 
         var tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28()
                         .elementId( "elementId" )
@@ -1357,7 +1386,7 @@ class NotificationRetrieverServiceTest {
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
         Mockito.when( clock.instant() ).thenReturn( Instant.parse( "2022-01-15T00:00:00.00Z" ) );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, INTERNAL_AUTH_HEADER, null );
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, INTERNAL_AUTH_HEADER, null, logEvent );
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-01-15T00:00:00.00Z" ), 0, null, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_SRC_CH_DET );
@@ -1378,6 +1407,7 @@ class NotificationRetrieverServiceTest {
     void getNotificationNotFilteredByRecIndex() {
         InternalNotification internalNotification = getNewInternalNotification();
         enrichInternalNotificationWithAnotherRecipient(internalNotification, "another-recipient");
+        PnAuditLogEvent logEvent = createDefaultAuditLog();
 
         var tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28()
                         .elementId( "elementId" )
@@ -1401,7 +1431,7 @@ class NotificationRetrieverServiceTest {
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
         Mockito.when( clock.instant() ).thenReturn( Instant.parse( "2022-01-15T00:00:00.00Z" ) );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, INTERNAL_AUTH_HEADER, null );
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, INTERNAL_AUTH_HEADER, null, logEvent );
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-01-15T00:00:00.00Z" ), 0, null, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_SRC_CH_DET );

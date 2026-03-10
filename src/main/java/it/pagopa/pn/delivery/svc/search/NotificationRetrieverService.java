@@ -5,6 +5,8 @@ import it.pagopa.pn.api.dto.events.NotificationViewDelegateInfo;
 import it.pagopa.pn.commons.exceptions.ExceptionHelper;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.dto.ProblemError;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.*;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationHistoryResponse;
@@ -27,6 +29,7 @@ import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.svc.authorization.CxType;
 import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
@@ -492,7 +495,8 @@ public class NotificationRetrieverService {
 	public InternalNotification getNotificationAndNotifyViewedEvent(
 			String iun,
 			InternalAuthHeader internalAuthHeader,
-			String mandateId
+			String mandateId,
+			PnAuditLogEvent logEvent
 	) {
 		log.debug("Start getNotificationAndSetViewed for {}", iun);
 
@@ -503,7 +507,19 @@ public class NotificationRetrieverService {
 		InternalNotification notification = getNotificationInformation(iun);
 
 		if ( StringUtils.hasText( mandateId ) ) {
-			delegatorId = checkMandateForNotificationDetail(internalAuthHeader.xPagopaPnCxId(), mandateId, notification.getSenderPaId(), iun, internalAuthHeader.cxType(), internalAuthHeader.xPagopaPnCxGroups(), notification.getSentAt());
+			InternalMandateDto mandateDto = checkMandateForNotificationDetail(
+					internalAuthHeader.xPagopaPnCxId(),
+					mandateId,
+					notification.getSenderPaId(),
+					iun,
+					internalAuthHeader.cxType(),
+					internalAuthHeader.xPagopaPnCxGroups(),
+					notification.getSentAt()
+			);
+			String workflowType = mandateDto.getWorkflowType() != null ? mandateDto.getWorkflowType().getValue() : "STANDARD";
+			logEvent.getMdc().put(MDCUtils.MDC_PN_MANDATE_WORKFLOW_TYPE_KEY, workflowType);
+			logEvent.getMdc().put(MDCUtils.MDC_PN_DELEGATE_ID_KEY, mandateDto.getDelegate());
+			delegatorId = mandateDto.getDelegator();
 			delegateInfo = NotificationViewDelegateInfo.builder()
 					.mandateId( mandateId )
 					.internalId(internalAuthHeader.xPagopaPnCxId())
@@ -517,6 +533,7 @@ public class NotificationRetrieverService {
 
 		String recipientId = delegatorId != null ? delegatorId : internalAuthHeader.xPagopaPnCxId();
 		int recipientIndex = getRecipientIndexFromRecipientId(notification, recipientId);
+		logEvent.getMdc().put(MDCUtils.MDC_PN_RECIPIENT_ID_KEY, recipientId);
 		filterTimelinesByRecipient(notification, internalAuthHeader, recipientIndex);
 		filterRecipients(notification, internalAuthHeader, recipientIndex);
 		notifyNotificationViewedEvent(notification, recipientIndex, delegateInfo, internalAuthHeader);
@@ -562,7 +579,7 @@ public class NotificationRetrieverService {
 		}
 	}
 
-	private String checkMandateForNotificationDetail(String userId, String mandateId, String paId, String iun, String recipientType, List<String> cxGroups, OffsetDateTime notificationSentAt) {
+	private @NotNull InternalMandateDto checkMandateForNotificationDetail(String userId, String mandateId, String paId, String iun, String recipientType, List<String> cxGroups, OffsetDateTime notificationSentAt) {
 		CxTypeAuthFleet cxTypeAuthFleet = StringUtils.hasText(recipientType) ? CxTypeAuthFleet.valueOf(recipientType) : null;
 		String rootSenderId = pnExternalRegistriesClient.getRootSenderId(paId);
 		List<InternalMandateDto> mandates = pnMandateClient.listMandatesByDelegateV2(userId, mandateId, cxTypeAuthFleet, cxGroups, notificationSentAt, iun, rootSenderId);
@@ -571,7 +588,7 @@ public class NotificationRetrieverService {
 			// Considerando che abbiamo fornito il filtro sul mandateId, dovrebbe esserci al massimo una delega valida.
 			InternalMandateDto mandate = mandates.get(0);
 			log.info( "Valid mandate for notification detail for delegate={}", userId );
-			return mandate.getDelegator();
+			return mandate;
 		}
 
 		String message = String.format("Unable to find any mandate for notification detail for delegate=%s with mandateId=%s iun=%s", userId, mandateId, iun);

@@ -1,7 +1,7 @@
 {
     "openapi": [
         {
-            "intendedUsage": "IO",
+            "intendedUsage": "IOL",
             "commonFiles": [
                 "schemas-pn-notification.yaml"
             ],
