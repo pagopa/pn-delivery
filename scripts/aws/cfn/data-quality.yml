@@ -59,6 +59,7 @@ Resources:
             >>>>,
             group:struct<S:string>,
             idempotenceToken:struct<S:string>,
+            languages:struct<L:array<struct<M:struct<lang:struct<S:string>>>>>,
             iun:struct<S:string>,
             notificationFeePolicy:struct<S:string>,
             paFee:struct<N:string>,
