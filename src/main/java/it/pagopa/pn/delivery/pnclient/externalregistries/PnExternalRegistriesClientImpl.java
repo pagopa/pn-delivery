@@ -3,13 +3,11 @@ package it.pagopa.pn.delivery.pnclient.externalregistries;
 import it.pagopa.pn.commons.exceptions.PnRuntimeException;
 import it.pagopa.pn.commons.log.PnLogger;
 import it.pagopa.pn.delivery.exception.PnRootIdNonFountException;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.InfoPaApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.InternalOnlyApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.PaymentInfoApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.RootSenderIdApi;
-import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
-import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroupStatus;
-import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaymentInfo;
-import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.RootSenderIdResponse;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.*;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
@@ -26,6 +24,7 @@ public class PnExternalRegistriesClientImpl {
     private final PaymentInfoApi paymentInfoApi;
     private final InternalOnlyApi internalOnlyApi;
     private final RootSenderIdApi rootSenderIdApi;
+    private final InfoPaApi infoPaApi;
 
     public PaymentInfo getPaymentInfo(String paTaxId, String noticeNumber ) {
         log.logInvokingExternalService(PnLogger.EXTERNAL_SERVICES.PN_EXTERNAL_REGISTRIES, "getPaymentInfo");
@@ -42,7 +41,7 @@ public class PnExternalRegistriesClientImpl {
         }
     }
 
-    @Cacheable("aooSenderIdCache")
+    @Cacheable(value = "aooSenderIdCache", cacheManager = "pnCacheManager")
     public String getRootSenderId(String senderId){
         try{
             RootSenderIdResponse rootSenderIdPrivate = rootSenderIdApi.getRootSenderIdPrivate(senderId);
@@ -52,5 +51,10 @@ public class PnExternalRegistriesClientImpl {
             log.error(message);
             throw new PnRootIdNonFountException(message);
         }
+    }
+
+    public PaInfo getOnePa(String paId){
+            log.logInvokingExternalService(PnLogger.EXTERNAL_SERVICES.PN_EXTERNAL_REGISTRIES, "getOnePa");
+            return infoPaApi.getOnePa(paId);
     }
 }
