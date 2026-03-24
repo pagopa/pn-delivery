@@ -102,6 +102,8 @@ public class PnDeliveryConfigs {
 
     private String documentNumberOfPagesTagKey;
 
+    private Duration infoPaCacheDuration;
+
     @PostConstruct
     public void init(){
         log.info("CONFIGURATION {}",this);
