@@ -1,6 +1,5 @@
 package it.pagopa.pn.delivery.pnclient.externalregistries;
 
-import it.pagopa.pn.commons.exceptions.PnRuntimeException;
 import it.pagopa.pn.commons.log.PnLogger;
 import it.pagopa.pn.delivery.exception.PnRootIdNonFountException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.InfoPaApi;
