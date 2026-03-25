@@ -104,6 +104,8 @@ public class PnDeliveryConfigs {
 
     private Duration infoPaCacheDuration;
 
+    private boolean enableSenderTaxIdCongruence;
+
     @PostConstruct
     public void init(){
         log.info("CONFIGURATION {}",this);

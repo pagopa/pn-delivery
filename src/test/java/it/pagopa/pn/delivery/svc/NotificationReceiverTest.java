@@ -13,6 +13,7 @@ import it.pagopa.pn.delivery.config.PhysicalAddressLookupParameterConsumer;
 import it.pagopa.pn.delivery.config.SendActiveParameterConsumer;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.InfoPaApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroupStatus;
 import it.pagopa.pn.delivery.generated.openapi.msclient.nationalregistries.v1.api.AgenziaEntrateApi;
@@ -90,6 +91,7 @@ class NotificationReceiverTest {
 	private PnF24ClientImpl pnF24Client;
 	private PnDeliveryConfigs cfg;
 	private AgenziaEntrateApi agenziaEntrateApi;
+	private InfoPaApi infoPaApi;
 	private PaNotificationLimitService paNotificationLimitService;
 	private PhysicalAddressLookupParameterConsumer physicalAddressLookupParameter;
 
@@ -112,10 +114,11 @@ class NotificationReceiverTest {
 		agenziaEntrateApi = Mockito.mock(AgenziaEntrateApi.class);
 		paNotificationLimitService = Mockito.mock(PaNotificationLimitService.class);
 		physicalAddressLookupParameter = Mockito.mock(PhysicalAddressLookupParameterConsumer.class);
+		infoPaApi = Mockito.mock(InfoPaApi.class);
 		featureFlagUtils = Mockito.mock(FeatureFlagUtils.class);
 		// - Separate Tests
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator(), mvpParameterConsumer, validateUtils, pnDeliveryConfigs, agenziaEntrateApi, physicalAddressLookupParameter, featureFlagUtils);
+		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator(), mvpParameterConsumer, validateUtils, pnDeliveryConfigs, agenziaEntrateApi, physicalAddressLookupParameter, infoPaApi, pnExternalRegistriesClient,featureFlagUtils);
 
 		Mockito.when( validateUtils.validate( Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean() ) ).thenReturn( true );
 		Mockito.when( sendActiveParameterConsumer.isSendActive( Mockito.anyString() ) ).thenReturn( true );
