@@ -59,6 +59,7 @@
     "CacheItemTtlSeconds": "180",
     "LogLevelForConsentAccepterLambda": "INFO",
     "IONotificationViewFailureAlarmFilterPattern": "{ $.level = \"ERROR\" && $.source_channel_details = \"QR_CODE\" && ($.aud_type = \"AUD_NT_VIEW_RCP\" || $.aud_type = \"AUD_NT_VIEW_DEL\") }",
+    "EnableSenderTaxIdCongruence": "false",
     "InfoPaCacheDuration": "2h"
   }
 }
