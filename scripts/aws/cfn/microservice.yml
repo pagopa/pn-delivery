@@ -117,6 +117,12 @@ Parameters:
     AllowedValues: [ true, false ]
     Default: false
 
+  EnableSenderTaxIdCongruence:
+    Type: String
+    Description: "Flag to enable sender tax id congruence validation"
+    AllowedValues: [ true, false ]
+    Default: true
+
   InfoPaCacheDuration:
     Type: String
     Description: "Duration of info PA cache"
