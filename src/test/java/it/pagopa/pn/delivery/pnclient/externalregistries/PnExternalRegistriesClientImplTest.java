@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.pnclient.externalregistries;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
@@ -44,7 +45,6 @@ class PnExternalRegistriesClientImplTest {
 
     @Autowired
     private PnExternalRegistriesClientImpl pnExternalRegistriesClientImpl;
-
 
     /**
      * Method under test: {@link PnExternalRegistriesClientImpl#getGroups(String, boolean)}
@@ -94,7 +94,7 @@ class PnExternalRegistriesClientImplTest {
         response.setRootId("rootIdTest");
         when(rootSenderIdApi.getRootSenderIdPrivate(Mockito.anyString())).thenReturn(response);
         String result = pnExternalRegistriesClientImpl.getRootSenderId("senderIdTest");
-        assertSame("rootIdTest", result);
+        assertEquals("rootIdTest", result);
         verify(rootSenderIdApi).getRootSenderIdPrivate(Mockito.anyString());
     }
 
@@ -107,7 +107,7 @@ class PnExternalRegistriesClientImplTest {
         paInfo.setId("paIdTest");
         when(infoPaApi.getOnePa(Mockito.anyString())).thenReturn(paInfo);
         PaInfo result = pnExternalRegistriesClientImpl.getOnePa("paIdTest");
-        assertSame(paInfo, result);
+        assertEquals(paInfo, result);
         verify(infoPaApi).getOnePa(Mockito.anyString());
     }
 }

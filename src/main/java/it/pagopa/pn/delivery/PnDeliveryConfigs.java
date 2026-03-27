@@ -102,6 +102,8 @@ public class PnDeliveryConfigs {
 
     private String documentNumberOfPagesTagKey;
 
+    private boolean enableSenderTaxIdCongruence;
+
     @PostConstruct
     public void init(){
         log.info("CONFIGURATION {}",this);
