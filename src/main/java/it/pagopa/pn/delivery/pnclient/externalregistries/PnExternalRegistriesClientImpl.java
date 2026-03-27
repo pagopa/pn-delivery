@@ -52,6 +52,7 @@ public class PnExternalRegistriesClientImpl {
         }
     }
 
+    @Cacheable(value = "infoPa", cacheManager = "infoPaCacheManager")
     public PaInfo getOnePa(String paId) {
         log.logInvokingExternalService(PnLogger.EXTERNAL_SERVICES.PN_EXTERNAL_REGISTRIES, "getOnePa");
         return infoPaApi.getOnePa(paId);

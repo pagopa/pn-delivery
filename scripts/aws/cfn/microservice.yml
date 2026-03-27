@@ -903,6 +903,7 @@ Resources:
         ContainerEnvEntry58: !Sub "LOLLIPOP_EXPECTED_LC_ORIGINAL_METHOD=${LollipopExpectedLcOriginalMethod}"
         ContainerEnvEntry59: !Sub "LOLLIPOP_WHITE_LIST=${LollipopWhiteList}"
         ContainerEnvEntry60: !Sub "PN_DELIVERY_ENABLE_SENDER_TAX_ID_CONGRUENCE=${EnableSenderTaxIdCongruence}"
+        ContainerEnvEntry61: !Sub "PN_DELIVERY_INFO_PA_CACHE_DURATION=${InfoPaCacheDuration}"
         ContainerSecret1: !Sub "ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:"
         MicroServiceSecretPrefix: pn-Delivery-Secrets
         JavaToolOptions: "-Dreactor.netty.ioWorkerCount=120 -XX:MaxMetaspaceSize=512M"

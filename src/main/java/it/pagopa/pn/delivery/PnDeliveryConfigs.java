@@ -102,7 +102,11 @@ public class PnDeliveryConfigs {
 
     private String documentNumberOfPagesTagKey;
 
+<<<<<<< feature/PN-19130
     private boolean enableSenderTaxIdCongruence;
+=======
+    private Duration infoPaCacheDuration;
+>>>>>>> feature/PN-19128-epic-branch
 
     @PostConstruct
     public void init(){
