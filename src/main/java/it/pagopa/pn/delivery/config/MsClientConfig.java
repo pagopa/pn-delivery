@@ -15,6 +15,7 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.api.MandatePr
 import it.pagopa.pn.delivery.generated.openapi.msclient.nationalregistries.v1.api.AgenziaEntrateApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.api.FileDownloadApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.api.FileUploadApi;
+import it.pagopa.pn.delivery.generated.openapi.msclient.timelineservice.v1.api.TimelineControllerApi;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -135,7 +136,7 @@ public class MsClientConfig {
 
         @Bean
         @Primary
-        it.pagopa.pn.delivery.generated.openapi.msclient.timelineservice.v1.api.TimelineControllerApi timelineControllerApi (@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryConfigs cfg) {
+        TimelineControllerApi timelineControllerApi (@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryConfigs cfg) {
             it.pagopa.pn.delivery.generated.openapi.msclient.timelineservice.v1.ApiClient newApiClient = new it.pagopa.pn.delivery.generated.openapi.msclient.timelineservice.v1.ApiClient(restTemplate);
             newApiClient.setBasePath(cfg.getTimelineServiceBaseUrl());
             return new it.pagopa.pn.delivery.generated.openapi.msclient.timelineservice.v1.api.TimelineControllerApi(newApiClient);
