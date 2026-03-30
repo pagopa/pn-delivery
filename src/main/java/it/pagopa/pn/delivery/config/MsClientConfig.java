@@ -132,5 +132,13 @@ public class MsClientConfig {
             newApiClient.setBasePath( cfg.getNationalRegistriesBaseUrl() );
             return new AgenziaEntrateApi(newApiClient);
         }
+
+        @Bean
+        @Primary
+        it.pagopa.pn.delivery.generated.openapi.msclient.timelineservice.v1.api.TimelineControllerApi timelineControllerApi (@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryConfigs cfg) {
+            it.pagopa.pn.delivery.generated.openapi.msclient.timelineservice.v1.ApiClient newApiClient = new it.pagopa.pn.delivery.generated.openapi.msclient.timelineservice.v1.ApiClient(restTemplate);
+            newApiClient.setBasePath(cfg.getTimelineServiceBaseUrl());
+            return new it.pagopa.pn.delivery.generated.openapi.msclient.timelineservice.v1.api.TimelineControllerApi(newApiClient);
+        }
     }
 }
