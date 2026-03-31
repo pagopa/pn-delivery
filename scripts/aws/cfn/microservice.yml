@@ -2409,3 +2409,4 @@ Resources:
         OncallDatapointsToAlarm: !Ref OncallIONotificationViewFailureAlarmDatapointsToAlarm
         OncallComparisonOperator: GreaterThanOrEqualToThreshold
         OncallStatistic: Sum
+        HasAlarm: false
