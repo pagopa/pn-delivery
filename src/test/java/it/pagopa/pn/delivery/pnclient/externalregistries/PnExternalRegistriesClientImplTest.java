@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.pnclient.externalregistries;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
@@ -8,9 +9,12 @@ import static org.mockito.Mockito.when;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.InternalOnlyApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.PaymentInfoApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.RootSenderIdApi;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.InfoPaApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroupStatus;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaymentInfo;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.RootSenderIdResponse;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +39,9 @@ class PnExternalRegistriesClientImplTest {
 
     @MockBean(name = "it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.RootSenderIdApi")
     private RootSenderIdApi rootSenderIdApi;
+
+    @MockBean(name = "it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.InfoPaApi")
+    private InfoPaApi infoPaApi;
 
     @Autowired
     private PnExternalRegistriesClientImpl pnExternalRegistriesClientImpl;
@@ -77,5 +84,30 @@ class PnExternalRegistriesClientImplTest {
         assertTrue(actualGroups.isEmpty());
         verify(internalOnlyApi).getAllGroupsPrivate(Mockito.<String>any(), Mockito.<PaGroupStatus>any());
     }
-}
 
+    /**
+     * Method under test: {@link PnExternalRegistriesClientImpl#getRootSenderId(String)}
+     */
+    @Test
+    void testGetRootSenderId() {
+        RootSenderIdResponse response = new RootSenderIdResponse();
+        response.setRootId("rootIdTest");
+        when(rootSenderIdApi.getRootSenderIdPrivate(Mockito.anyString())).thenReturn(response);
+        String result = pnExternalRegistriesClientImpl.getRootSenderId("senderIdTest");
+        assertEquals("rootIdTest", result);
+        verify(rootSenderIdApi).getRootSenderIdPrivate(Mockito.anyString());
+    }
+
+    /**
+     * Method under test: {@link PnExternalRegistriesClientImpl#getOnePa(String)}
+     */
+    @Test
+    void testGetOnePa() {
+        PaInfo paInfo = new PaInfo();
+        paInfo.setId("paIdTest");
+        when(infoPaApi.getOnePa(Mockito.anyString())).thenReturn(paInfo);
+        PaInfo result = pnExternalRegistriesClientImpl.getOnePa("paIdTest");
+        assertEquals(paInfo, result);
+        verify(infoPaApi).getOnePa(Mockito.anyString());
+    }
+}
