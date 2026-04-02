@@ -41,6 +41,8 @@ public class PnDeliveryConfigs {
 
     private String timelineServiceBaseUrl;
 
+    private String notificationCostServiceBaseUrl;
+
     private Topics topics;
 
     private Duration preloadUrlDuration;
