@@ -39,6 +39,8 @@ public class PnDeliveryConfigs {
 
     private String externalRegistriesBaseUrl;
 
+    private String timelineServiceBaseUrl;
+
     private String notificationCostServiceBaseUrl;
 
     private Topics topics;
