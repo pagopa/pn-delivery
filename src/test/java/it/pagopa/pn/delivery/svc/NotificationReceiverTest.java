@@ -90,7 +90,7 @@ class NotificationReceiverTest {
 	private PnF24ClientImpl pnF24Client;
 	private PnDeliveryConfigs cfg;
 	private AgenziaEntrateApi agenziaEntrateApi;
-	private PaNotificationLimitService paNotificationLimitService;
+    private PaNotificationLimitService paNotificationLimitService;
 	private PhysicalAddressLookupParameterConsumer physicalAddressLookupParameter;
 
 	private FeatureFlagUtils featureFlagUtils;
@@ -115,7 +115,7 @@ class NotificationReceiverTest {
 		featureFlagUtils = Mockito.mock(FeatureFlagUtils.class);
 		// - Separate Tests
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator(), mvpParameterConsumer, validateUtils, pnDeliveryConfigs, agenziaEntrateApi, physicalAddressLookupParameter, featureFlagUtils);
+		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator(), mvpParameterConsumer, validateUtils, pnDeliveryConfigs, agenziaEntrateApi, physicalAddressLookupParameter, pnExternalRegistriesClient, featureFlagUtils);
 
 		Mockito.when( validateUtils.validate( Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean() ) ).thenReturn( true );
 		Mockito.when( sendActiveParameterConsumer.isSendActive( Mockito.anyString() ) ).thenReturn( true );
