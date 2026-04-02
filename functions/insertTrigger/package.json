@@ -27,7 +27,7 @@
     "sonarqube-scanner": "^3.3.0"
   },
   "dependencies": {
-    "@aws-sdk/client-eventbridge": "^3.577.0"
+    "@aws-sdk/client-eventbridge": "^3.1004.0"
   },
   "author": "",
   "license": "ISC"
