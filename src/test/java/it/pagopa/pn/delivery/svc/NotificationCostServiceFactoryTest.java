@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.svc;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,7 @@ import org.mockito.Mockito;
 import java.time.Instant;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 public class NotificationCostServiceFactoryTest {
@@ -56,5 +58,11 @@ public class NotificationCostServiceFactoryTest {
 
         NotificationCostService service = factory.getNotificationCostServiceBySentAt(sentAt);
         assertThat(service).isInstanceOf(DeliveryPushNotificationCostService.class);
+    }
+
+    @Test
+    void getNotificationCostServiceBySentAt_shouldThrowException_whenSentAtIsNull() {
+        assertThrows(PnInternalException.class, () -> factory.getNotificationCostServiceBySentAt(null)
+        );
     }
 }

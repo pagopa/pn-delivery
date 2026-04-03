@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class NotificationProcessCostResponseMapper {
     public NotificationProcessCostResponseInt fromExternal(NotificationProcessCostResponse ext) {
-        if (ext == null) throw new PnInternalException("PN_GENERIC_ERROR", "Cannot map null NotificationProcessCostResponse");
+        if (ext == null) throw new PnInternalException("Cannot map null NotificationProcessCostResponse", "PN_GENERIC_ERROR");
         NotificationProcessCostResponseInt internal = new NotificationProcessCostResponseInt();
         internal.setPartialCost(ext.getPartialCost());
         internal.setTotalCost(ext.getTotalCost());
@@ -26,7 +26,7 @@ public class NotificationProcessCostResponseMapper {
     }
 
     public NotificationProcessCostResponseInt mapFromTimelineAndCostResponse(DeliveryInformationResponse timelineResponse, NotificationCostRecipientResponse costResponse) {
-        if (timelineResponse == null || costResponse == null) throw new PnInternalException("PN_GENERIC_ERROR", "Cannot map null NotificationProcessCostResponse");
+        if (timelineResponse == null || costResponse == null) throw new PnInternalException("Cannot process notification data: required response is null", "PN_GENERIC_ERROR");
         NotificationProcessCostResponseInt internal = new NotificationProcessCostResponseInt();
         internal.setPartialCost(getPartialCost(costResponse));
         internal.setTotalCost(costResponse.getTotalCost().getCostWithVat());
