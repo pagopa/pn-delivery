@@ -1,0 +1,43 @@
+package it.pagopa.pn.delivery.svc;
+
+import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.exception.PnNotificationCancelledException;
+import it.pagopa.pn.delivery.generated.openapi.msclient.notificationcostservice.v1.model.NotificationCostRecipientResponse;
+import it.pagopa.pn.delivery.generated.openapi.msclient.timelineservice.v1.model.DeliveryInformationResponse;
+import it.pagopa.pn.delivery.models.NotificationCostRequest;
+import it.pagopa.pn.delivery.models.NotificationProcessCostResponseInt;
+import it.pagopa.pn.delivery.pnclient.notificationcost.PnNotificationCostServiceClientImpl;
+import it.pagopa.pn.delivery.pnclient.timelineservice.PnTimelineServiceClientImpl;
+
+import static it.pagopa.pn.delivery.svc.NotificationPriceService.ERROR_CODE_DELIVERY_PUSH_NOTIFICATION_NOT_ACCEPTED;
+
+public class NotificationCostServiceImpl implements NotificationCostService {
+
+    private final PnTimelineServiceClientImpl pnTimelineServiceClient;
+    private final PnNotificationCostServiceClientImpl pnNotificationCostServiceClient;
+    private final NotificationProcessCostResponseMapper notificationMapper;
+
+    public NotificationCostServiceImpl(PnTimelineServiceClientImpl pnTimelineServiceClient, PnNotificationCostServiceClientImpl pnNotificationCostServiceClient, NotificationProcessCostResponseMapper notificationMapper) {
+        this.pnTimelineServiceClient = pnTimelineServiceClient;
+        this.pnNotificationCostServiceClient = pnNotificationCostServiceClient;
+        this.notificationMapper = notificationMapper;
+    }
+
+    @Override
+    public NotificationProcessCostResponseInt getNotificationCost(NotificationCostRequest request) {
+        DeliveryInformationResponse deliveryInformation = pnTimelineServiceClient.getDeliveryInformation(request.iun(), request.recipientIdx());
+
+        if (deliveryInformation.getIsNotificationCancelled()) {
+            throw new PnNotificationCancelledException("Cannot retrieve price for cancelled notification");
+        }
+        if (!deliveryInformation.getIsNotificationAccepted()){
+            throw new PnNotFoundException("Notification is not ACCEPTED", String.format(
+                    "Notification with iun=%s, has not been accepted yet", request.iun()),
+                    ERROR_CODE_DELIVERY_PUSH_NOTIFICATION_NOT_ACCEPTED);
+        }
+
+        NotificationCostRecipientResponse notificationCostRecipientResponse = pnNotificationCostServiceClient.getNotificationCostRecipient(request.iun(), request.recipientIdx());
+
+        return notificationMapper.mapFromTimelineAndCostResponse(deliveryInformation, notificationCostRecipientResponse);
+    }
+}
