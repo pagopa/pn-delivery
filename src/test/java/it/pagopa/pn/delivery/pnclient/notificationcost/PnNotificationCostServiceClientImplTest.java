@@ -27,12 +27,12 @@ public class PnNotificationCostServiceClientImplTest {
         Integer recIndex = 1;
 
         NotificationCostRecipientResponse mockResponse = mock(NotificationCostRecipientResponse.class);
-        when(notificationCostRecipientApi.notificationCostRecipient(iun, recIndex)).thenReturn(mockResponse);
+        when(notificationCostRecipientApi.getNotificationCost(iun, recIndex)).thenReturn(mockResponse);
 
         NotificationCostRecipientResponse response = pnNotificationCostServiceClientImpl.getNotificationCostRecipient(iun, recIndex);
 
         assertNotNull(response);
         assertEquals(mockResponse, response);
-        verify(notificationCostRecipientApi, times(1)).notificationCostRecipient(iun, recIndex);
+        verify(notificationCostRecipientApi, times(1)).getNotificationCost(iun, recIndex);
     }
 }
