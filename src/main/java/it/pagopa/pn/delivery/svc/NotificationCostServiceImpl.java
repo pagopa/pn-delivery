@@ -8,23 +8,24 @@ import it.pagopa.pn.delivery.models.NotificationCostRequest;
 import it.pagopa.pn.delivery.models.NotificationProcessCostResponseInt;
 import it.pagopa.pn.delivery.pnclient.notificationcost.PnNotificationCostServiceClientImpl;
 import it.pagopa.pn.delivery.pnclient.timelineservice.PnTimelineServiceClientImpl;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import static it.pagopa.pn.delivery.svc.NotificationPriceService.ERROR_CODE_DELIVERY_PUSH_NOTIFICATION_NOT_ACCEPTED;
 
+@Service
+@RequiredArgsConstructor
+@Slf4j
 public class NotificationCostServiceImpl implements NotificationCostService {
 
     private final PnTimelineServiceClientImpl pnTimelineServiceClient;
     private final PnNotificationCostServiceClientImpl pnNotificationCostServiceClient;
     private final NotificationProcessCostResponseMapper notificationMapper;
 
-    public NotificationCostServiceImpl(PnTimelineServiceClientImpl pnTimelineServiceClient, PnNotificationCostServiceClientImpl pnNotificationCostServiceClient, NotificationProcessCostResponseMapper notificationMapper) {
-        this.pnTimelineServiceClient = pnTimelineServiceClient;
-        this.pnNotificationCostServiceClient = pnNotificationCostServiceClient;
-        this.notificationMapper = notificationMapper;
-    }
-
     @Override
     public NotificationProcessCostResponseInt getNotificationCost(NotificationCostRequest request) {
+        log.info("getNotificationCost - IUN={} recIndex={}", request.iun(), request.recipientIdx());
         DeliveryInformationResponse deliveryInformation = pnTimelineServiceClient.getDeliveryInformation(request.iun(), request.recipientIdx());
 
         if (deliveryInformation.getIsNotificationCancelled()) {
@@ -37,7 +38,6 @@ public class NotificationCostServiceImpl implements NotificationCostService {
         }
 
         NotificationCostRecipientResponse notificationCostRecipientResponse = pnNotificationCostServiceClient.getNotificationCostRecipient(request.iun(), request.recipientIdx());
-
         return notificationMapper.mapFromTimelineAndCostResponse(deliveryInformation, notificationCostRecipientResponse);
     }
 }

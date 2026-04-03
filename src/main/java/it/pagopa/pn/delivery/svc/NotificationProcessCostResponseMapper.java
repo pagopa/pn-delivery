@@ -1,15 +1,18 @@
 package it.pagopa.pn.delivery.svc;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationProcessCostResponse;
 import it.pagopa.pn.delivery.generated.openapi.msclient.notificationcostservice.v1.model.BaseCostComponent;
 import it.pagopa.pn.delivery.generated.openapi.msclient.notificationcostservice.v1.model.BaseCostName;
 import it.pagopa.pn.delivery.generated.openapi.msclient.notificationcostservice.v1.model.NotificationCostRecipientResponse;
 import it.pagopa.pn.delivery.generated.openapi.msclient.timelineservice.v1.model.DeliveryInformationResponse;
 import it.pagopa.pn.delivery.models.NotificationProcessCostResponseInt;
+import org.springframework.stereotype.Component;
 
+@Component
 public class NotificationProcessCostResponseMapper {
     public NotificationProcessCostResponseInt fromExternal(NotificationProcessCostResponse ext) {
-        if (ext == null) return null;
+        if (ext == null) throw new PnInternalException("PN_GENERIC_ERROR", "Cannot map null NotificationProcessCostResponse");
         NotificationProcessCostResponseInt internal = new NotificationProcessCostResponseInt();
         internal.setPartialCost(ext.getPartialCost());
         internal.setTotalCost(ext.getTotalCost());
@@ -23,7 +26,7 @@ public class NotificationProcessCostResponseMapper {
     }
 
     public NotificationProcessCostResponseInt mapFromTimelineAndCostResponse(DeliveryInformationResponse timelineResponse, NotificationCostRecipientResponse costResponse) {
-        if (timelineResponse == null || costResponse == null) return null;
+        if (timelineResponse == null || costResponse == null) throw new PnInternalException("PN_GENERIC_ERROR", "Cannot map null NotificationProcessCostResponse");
         NotificationProcessCostResponseInt internal = new NotificationProcessCostResponseInt();
         internal.setPartialCost(getPartialCost(costResponse));
         internal.setTotalCost(costResponse.getTotalCost().getCostWithVat());

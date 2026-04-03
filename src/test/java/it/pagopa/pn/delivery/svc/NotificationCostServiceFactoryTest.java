@@ -1,9 +1,6 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
-import it.pagopa.pn.delivery.pnclient.notificationcost.PnNotificationCostServiceClientImpl;
-import it.pagopa.pn.delivery.pnclient.timelineservice.PnTimelineServiceClientImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -19,25 +16,19 @@ public class NotificationCostServiceFactoryTest {
     @Mock
     private PnDeliveryConfigs deliveryConfigs;
     @Mock
-    private PnDeliveryPushClientImpl pnDeliveryPushClient;
+    private DeliveryPushNotificationCostService deliveryPushNotificationCostService;
     @Mock
-    private PnTimelineServiceClientImpl pnTimelineServiceClient;
-    @Mock
-    private PnNotificationCostServiceClientImpl pnNotificationCostServiceClient;
-    @Mock
-    private NotificationProcessCostResponseMapper notificationMapper;
+    private NotificationCostServiceImpl notificationCostService;
 
     private NotificationCostServiceFactory factory;
 
     @BeforeEach
     void setUp() {
         deliveryConfigs = Mockito.mock(PnDeliveryConfigs.class);
-        pnDeliveryPushClient = Mockito.mock(PnDeliveryPushClientImpl.class);
-        pnTimelineServiceClient = Mockito.mock(PnTimelineServiceClientImpl.class);
-        pnNotificationCostServiceClient = Mockito.mock(PnNotificationCostServiceClientImpl.class);
-        notificationMapper = Mockito.mock(NotificationProcessCostResponseMapper.class);
+        deliveryPushNotificationCostService = Mockito.mock(DeliveryPushNotificationCostService.class);
+        notificationCostService = Mockito.mock(NotificationCostServiceImpl.class);
 
-        factory = new NotificationCostServiceFactory(deliveryConfigs, pnDeliveryPushClient, pnTimelineServiceClient, pnNotificationCostServiceClient, notificationMapper);
+        factory = new NotificationCostServiceFactory(deliveryConfigs, deliveryPushNotificationCostService, notificationCostService);
     }
 
     @Test

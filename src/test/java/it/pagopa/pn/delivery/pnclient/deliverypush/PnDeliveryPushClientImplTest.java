@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.pnclient.deliverypush;
 
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.exception.PnNotificationCancelledException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.api.NotificationProcessCostApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.api.TimelineAndStatusApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy;
@@ -106,7 +107,7 @@ class PnDeliveryPushClientImplTest {
                 any(), anyBoolean(), anyInt(), anyInt())).thenThrow(exception);
 
         Executable todo = () -> pnDeliveryPushClientImpl.getNotificationProcessCost( "iun", 1, NotificationFeePolicy.DELIVERY_MODE, false, 0, 22);
-        assertThrows(PnNotFoundException.class, todo);
+        assertThrows(PnNotificationCancelledException.class, todo);
     }
 }
 

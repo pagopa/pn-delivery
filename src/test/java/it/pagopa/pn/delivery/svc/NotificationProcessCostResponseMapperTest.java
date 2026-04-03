@@ -72,4 +72,29 @@ class NotificationProcessCostResponseMapperTest {
         assertEquals(refinementDate, result.getRefinementDate());
         assertEquals(viewedDate, result.getNotificationViewDate());
     }
+
+    @Test
+    void fromExternal_shouldThrowOnNull() {
+        NotificationProcessCostResponseMapper mapper = new NotificationProcessCostResponseMapper();
+        Exception ex = assertThrows(
+            it.pagopa.pn.commons.exceptions.PnInternalException.class,
+            () -> mapper.fromExternal(null)
+        );
+        assertNotNull(ex.getMessage());
+    }
+
+    @Test
+    void mapFromTimelineAndCostResponse_shouldThrowOnNull() {
+        NotificationProcessCostResponseMapper mapper = new NotificationProcessCostResponseMapper();
+        // timelineResponse null
+        assertThrows(
+            it.pagopa.pn.commons.exceptions.PnInternalException.class,
+            () -> mapper.mapFromTimelineAndCostResponse(null, new NotificationCostRecipientResponse())
+        );
+        // costResponse null
+        assertThrows(
+            it.pagopa.pn.commons.exceptions.PnInternalException.class,
+            () -> mapper.mapFromTimelineAndCostResponse(new DeliveryInformationResponse(), null)
+        );
+    }
 }
