@@ -2653,6 +2653,12 @@ components:
           description: >-
             Stima del numero di secondi da aspettare prima che il contenuto del 
             documento sia disponibile per il download.
+        numberOfPages:
+          type: integer
+          format: int32
+          description: >-
+            numero di pagine del documento. Valorizzato solo se il documento è
+            di tipo PDF
     LegalFactDownloadMetadataResponse:
       title: Url e metadati per il download di un allegato di una notifica
       description: |-

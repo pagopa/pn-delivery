@@ -708,6 +708,7 @@ components:
             documento sia disponibile per il download.
         numberOfPages:
           type: integer
+          format: int32
           description: numero di pagine del documento. Valorizzato solo se il documento è di tipo PDF
 
 
