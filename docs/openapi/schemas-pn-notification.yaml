@@ -706,10 +706,10 @@ components:
           description: >-
             Stima del numero di secondi da aspettare prima che il contenuto del 
             documento sia disponibile per il download.
-        numberOfPages:
-          type: integer
-          format: int32
-          description: numero di pagine del documento. Valorizzato solo se il documento è di tipo PDF
+        numberOfPages:  # NO EXTERNAL
+          type: integer # NO EXTERNAL
+          format: int32 # NO EXTERNAL
+          description: numero di pagine del documento. Valorizzato solo se il documento è di tipo PDF # NO EXTERNAL
 
 
     NotificationQuickAccessLinkTokens:

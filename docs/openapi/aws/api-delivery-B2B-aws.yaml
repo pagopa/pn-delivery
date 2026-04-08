@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: zI9nmTvvcFNmuWYK39WLTg1oRaRvlylm7a3QMRJEaSY=
+  version: NEP5pNQNJEMNL7VfPKtJ204GJD7wx6ibH7E+nl+5WGI=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -4281,11 +4281,6 @@ components:
           description: >-
             Stima del numero di secondi da aspettare prima che il contenuto del 
             documento sia disponibile per il download.
-        numberOfPages:
-          type: number
-          description: >-
-            numero di pagine del documento. Valorizzato solo se il documento è
-            di tipo PDF
     PnFunctionality:
       title: Funzionalità di PN
       description: >-
