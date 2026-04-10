@@ -14,8 +14,9 @@ public class ReadAccessAuth {
 
     private String iun;
     private Integer recipientIdx;
+    private ReadAccessAction action;
 
-    public static ReadAccessAuth newAccessRequest(String cxType, String cxId, String mandateId, List<String> cxGroups, String iun, Integer recipientIdx) {
+    public static ReadAccessAuth newAccessRequest(String cxType, String cxId, String mandateId, List<String> cxGroups, String iun, Integer recipientIdx, ReadAccessAction action) {
         ReadAccessAuth result = new ReadAccessAuth();
         result.setCxType( CxType.valueOf( cxType ) );
         result.setCxId( cxId );
@@ -23,6 +24,7 @@ public class ReadAccessAuth {
         result.setCxGroups( cxGroups );
         result.setIun( iun );
         result.setRecipientIdx( recipientIdx );
+        result.setAction( action );
         return result;
     }
 
