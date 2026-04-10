@@ -62,7 +62,7 @@ class CheckAuthComponentTest {
 
 
     @ParameterizedTest
-    @ValueSource(strings = {"PG", "PF", "PA"})
+    @ValueSource(strings = {"PG", "PF", "PA", "BS"})
     void canAccessPFPGPAUnauthorized(String cxType) {
         String cxId = "CX_ID";
         String iun = "IUN_01";
@@ -245,6 +245,24 @@ class CheckAuthComponentTest {
         Assertions.assertThrows( PnNotFoundException.class, todo);
     }
 
+
+    @Test
+    void canAccessBSSuccess() {
+        String cxType = "BS";
+        String cxId = "PA_ID";
+        String iun = "IUN_01";
+        Integer recipientIdx = 0;
+
+        InternalNotification notification = newNotification();
+        // Given
+        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, null, null, iun, recipientIdx);
+
+        // When
+        AuthorizationOutcome authorizationOutcome = checkAuthComponent.canAccess( readAccessAuth, notification );
+
+        // Then
+        Assertions.assertTrue( authorizationOutcome.isAuthorized() );
+    }
 
     @Test
     void canAccessPASuccess() {

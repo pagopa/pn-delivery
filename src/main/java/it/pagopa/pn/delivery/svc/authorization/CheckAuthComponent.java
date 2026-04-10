@@ -34,7 +34,7 @@ public class CheckAuthComponent {
         CxType cxType = action.getCxType();
 
         return switch (cxType) {
-            case PA -> paCanAccess(action, notification);
+            case PA, BS -> paCanAccess(action, notification);
             case PF -> pfCanAccess(action, notification);
             case PG -> pgCanAccess(action, notification);
         };
