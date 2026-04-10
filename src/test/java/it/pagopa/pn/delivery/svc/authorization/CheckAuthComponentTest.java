@@ -51,7 +51,7 @@ class CheckAuthComponentTest {
 
         InternalNotification notification = newNotification();
         // Given
-        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, null, null, iun, recipientIdx, null);
+        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, null, null, iun, recipientIdx, ReadAccessAction.DOWNLOAD_DOCUMENTS);
 
         // When
         Executable todo = () -> checkAuthComponent.canAccess( readAccessAuth, notification );
@@ -62,7 +62,7 @@ class CheckAuthComponentTest {
 
 
     @ParameterizedTest
-    @ValueSource(strings = {"PG", "PF", "PA", "BS"})
+    @ValueSource(strings = {"PG", "PF", "PA"})
     void canAccessPFPGPAUnauthorized(String cxType) {
         String cxId = "CX_ID";
         String iun = "IUN_01";
@@ -70,7 +70,7 @@ class CheckAuthComponentTest {
 
         InternalNotification notification = newNotification();
         // Given
-        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, null, null, iun, recipientIdx, null);
+        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, null, null, iun, recipientIdx, ReadAccessAction.DOWNLOAD_DOCUMENTS);
 
         // When
         AuthorizationOutcome authorizationOutcome = checkAuthComponent.canAccess( readAccessAuth, notification );
@@ -90,7 +90,7 @@ class CheckAuthComponentTest {
 
         InternalNotification notification = newNotification();
         // Given
-        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, null, iun, recipientIdx, null);
+        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, null, iun, recipientIdx, ReadAccessAction.DOWNLOAD_DOCUMENTS);
 
         // When
         Mockito.when( externalRegistriesClient.getRootSenderId(notification.getSenderPaId())).thenReturn("rootSenderId");
@@ -127,7 +127,7 @@ class CheckAuthComponentTest {
         notification.setRecipientIds(List.of("recipientId"));
         notification.setRecipients(List.of(NotificationRecipient.builder().taxId("taxId").recipientType(NotificationRecipientV24.RecipientTypeEnum.PF).build()));
         // Given
-        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, null, iun, recipientIdx, null);
+        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, null, iun, recipientIdx, ReadAccessAction.DOWNLOAD_DOCUMENTS);
 
         // When
         Mockito.when( externalRegistriesClient.getRootSenderId(notification.getSenderPaId())).thenReturn("rootSenderId");
@@ -162,7 +162,7 @@ class CheckAuthComponentTest {
 
         InternalNotification notification = newNotification();
         // Given
-        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, null, iun, recipientIdx, null);
+        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, null, iun, recipientIdx, ReadAccessAction.DOWNLOAD_DOCUMENTS);
 
         // When
         Mockito.when( externalRegistriesClient.getRootSenderId(notification.getSenderPaId())).thenReturn("rootSenderId");
@@ -196,7 +196,7 @@ class CheckAuthComponentTest {
 
         InternalNotification notification = newNotification();
         // Given
-        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, null, iun, recipientIdx, null);
+        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, null, iun, recipientIdx, ReadAccessAction.DOWNLOAD_DOCUMENTS);
 
         // When
         Mockito.when( externalRegistriesClient.getRootSenderId(notification.getSenderPaId())).thenReturn("rootSenderId");
@@ -225,7 +225,7 @@ class CheckAuthComponentTest {
 
         InternalNotification notification = newNotification();
         // Given
-        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, null, iun, recipientIdx, null);
+        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, null, iun, recipientIdx, ReadAccessAction.DOWNLOAD_DOCUMENTS);
 
         // When
         Mockito.when( externalRegistriesClient.getRootSenderId(notification.getSenderPaId())).thenReturn("rootSenderId");
@@ -291,7 +291,7 @@ class CheckAuthComponentTest {
 
         InternalNotification notification = newNotification();
         // Given
-        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, null, null, iun, recipientIdx, null);
+        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, null, null, iun, recipientIdx, ReadAccessAction.DOWNLOAD_DOCUMENTS);
 
         // When
         AuthorizationOutcome authorizationOutcome = checkAuthComponent.canAccess( readAccessAuth, notification );

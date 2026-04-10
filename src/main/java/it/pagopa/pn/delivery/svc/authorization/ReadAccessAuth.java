@@ -17,6 +17,7 @@ public class ReadAccessAuth {
     private ReadAccessAction action;
 
     public static ReadAccessAuth newAccessRequest(String cxType, String cxId, String mandateId, List<String> cxGroups, String iun, Integer recipientIdx, ReadAccessAction action) {
+        Objects.requireNonNull(action, "ReadAccessAuth action must not be null");
         ReadAccessAuth result = new ReadAccessAuth();
         result.setCxType( CxType.valueOf( cxType ) );
         result.setCxId( cxId );
