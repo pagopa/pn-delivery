@@ -24,7 +24,6 @@ public class PnNotificationCostServiceClientImplTest {
     @Test
     void getNotificationCostRecipient() {
         String iuv = "test_iuv";
-        Integer recIndex = 1;
 
         NotificationCostPaymentResponse mockResponse = mock(NotificationCostPaymentResponse.class);
         when(notificationCostRecipientApi.getNotificationCostByPayment(iuv)).thenReturn(mockResponse);
