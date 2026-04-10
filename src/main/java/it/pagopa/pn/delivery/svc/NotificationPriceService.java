@@ -1,27 +1,20 @@
 package it.pagopa.pn.delivery.svc;
 
-import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
-import it.pagopa.pn.delivery.exception.PnNotificationCancelledException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy;
-import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationProcessCostResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationCostResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPriceResponseV23;
 import it.pagopa.pn.delivery.middleware.AsseverationEventsProducer;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationCostEntityDao;
-import it.pagopa.pn.delivery.models.AsseverationEvent;
-import it.pagopa.pn.delivery.models.InternalAsseverationEvent;
-import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.InternalNotificationCost;
+import it.pagopa.pn.delivery.models.*;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
-import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
+import it.pagopa.pn.delivery.utils.PaymentUtils;
 import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
@@ -36,7 +29,7 @@ public class NotificationPriceService {
     private final Clock clock;
     private final NotificationCostEntityDao notificationCostEntityDao;
     private final NotificationDao notificationDao;
-    private final PnDeliveryPushClientImpl deliveryPushClient;
+    private final NotificationCostServiceFactory notificationCostServiceFactory;
 
     private final AsseverationEventsProducer asseverationEventsProducer;
     private final RefinementLocalDate refinementLocalDateUtils;
@@ -45,11 +38,11 @@ public class NotificationPriceService {
     public static final String ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED = "PN_DELIVERYPUSH_NOTIFICATION_CANCELLED";
     public static final String ERROR_CODE_DELIVERY_PUSH_NOTIFICATION_NOT_ACCEPTED = "PN_DELIVERY_PUSH_NOTIFICATION_NOT_ACCEPTED";
 
-    public NotificationPriceService(Clock clock, NotificationCostEntityDao notificationCostEntityDao, NotificationDao notificationDao, PnDeliveryPushClientImpl deliveryPushClient, AsseverationEventsProducer asseverationEventsProducer, RefinementLocalDate refinementLocalDateUtils) {
+    public NotificationPriceService(Clock clock, NotificationCostEntityDao notificationCostEntityDao, NotificationDao notificationDao, NotificationCostServiceFactory notificationCostServiceFactory, AsseverationEventsProducer asseverationEventsProducer, RefinementLocalDate refinementLocalDateUtils) {
         this.clock = clock;
         this.notificationCostEntityDao = notificationCostEntityDao;
         this.notificationDao = notificationDao;
-        this.deliveryPushClient = deliveryPushClient;
+        this.notificationCostServiceFactory = notificationCostServiceFactory;
         this.asseverationEventsProducer = asseverationEventsProducer;
         this.refinementLocalDateUtils = refinementLocalDateUtils;
     }
@@ -69,8 +62,9 @@ public class NotificationPriceService {
         log.info( "Get notification process cost with iun={} recipientId={} recipientIdx={} feePolicy={}", iun, recipientId, recipientIdx, notificationFeePolicy);
 
         boolean applyCost = getApplyCost(internalNotification, noticeCode);
+        String iuv = PaymentUtils.composeIuv(noticeCode, paTaxId);
 
-        NotificationProcessCostResponse notificationProcessCost = getNotificationProcessCost(internalNotification, notificationFeePolicy, recipientIdx, applyCost);
+        NotificationProcessCostResponseInt notificationProcessCost = getNotificationProcessCost(internalNotification, notificationFeePolicy, recipientIdx, applyCost, iuv);
 
         // invio l'evento di asseverazione sulla coda
         log.info( "Send asseveration event iun={} creditorTaxId={} noticeCode={}", iun, paTaxId, noticeCode );
@@ -141,35 +135,14 @@ public class NotificationPriceService {
         }
     }
 
-    private NotificationProcessCostResponse getNotificationProcessCost(InternalNotification internalNotification, NotificationFeePolicy notificationFeePolicy, int recipientIdx, boolean applyCost) {
+    private NotificationProcessCostResponseInt getNotificationProcessCost(InternalNotification internalNotification, NotificationFeePolicy notificationFeePolicy, int recipientIdx, boolean applyCost, String iuv) {
         String iun = internalNotification.getIun();
         Integer paFee = internalNotification.getPaFee();
         Integer vat = internalNotification.getVat();
 
-        // contatto delivery-push per farmi calcolare tramite iun, recipientIdx, notificationFeePolicy costo della notifica
-        // delivery-push mi risponde con amount, data perfezionamento presa visione, data perfezionamento decorrenza termini
-        try {
-            return deliveryPushClient.getNotificationProcessCost(iun, recipientIdx, notificationFeePolicy, applyCost, paFee, vat);
-        } catch (Exception exc) {
-            // nel caso in cui la risposta da parte di delivery push è un 404, devo controllare che la causale
-            // sia per colpa della notifica cancellata. Se si, ritorno a mia volta un 404, altrimenti ritorno
-            // direttamente l'exception originale
-            if (exc instanceof PnHttpResponseException pnHttpResponseException
-                    && pnHttpResponseException.getStatusCode() == HttpStatus.NOT_FOUND.value()
-                    && (pnHttpResponseException.getProblem().getErrors().get(0).getCode().equals(ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED))) {
-
-                throw new PnNotificationCancelledException("Cannot retrive price for cancelled notification", exc);
-            }
-            if (exc instanceof PnHttpResponseException pnHttpResponseException
-                    && pnHttpResponseException.getStatusCode() == HttpStatus.NOT_FOUND.value()
-                    && (pnHttpResponseException.getProblem().getErrors().get(0).getCode().equals(ERROR_CODE_DELIVERY_PUSH_NOTIFICATION_NOT_ACCEPTED))) {
-                throw new PnNotFoundException("Notification is not ACCEPTED", String.format(
-                        "Notification with iun=%s, has not been accepted yet", iun),
-                        ERROR_CODE_DELIVERY_PUSH_NOTIFICATION_NOT_ACCEPTED );
-            }
-
-            throw exc;
-        }
+        NotificationCostRequest notificationCostRequest = new NotificationCostRequest(iun, recipientIdx, notificationFeePolicy, applyCost, paFee, vat, iuv);
+        NotificationCostService notificationCostService = notificationCostServiceFactory.getNotificationCostServiceBySentAt(internalNotification.getSentAt().toInstant());
+        return notificationCostService.getNotificationCost(notificationCostRequest);
     }
 
     // NOTA da eliminare poiché non utilizzato da pn-delivery-push

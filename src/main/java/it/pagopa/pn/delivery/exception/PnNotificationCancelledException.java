@@ -10,4 +10,7 @@ public class PnNotificationCancelledException extends PnNotFoundException {
     public PnNotificationCancelledException(String description, Exception ex) {
         super("Notification cancelled", description, ERROR_CODE_DELIVERY_NOTIFICATION_CANCELLED, ex);
     }
+    public PnNotificationCancelledException(String description) {
+        super("Notification cancelled", description, ERROR_CODE_DELIVERY_NOTIFICATION_CANCELLED);
+    }
 }
