@@ -19,7 +19,7 @@ public class NotificationCostServiceFactory {
         if (sentAt == null) {
             throw new PnInternalException("SentAt cannot be null", "PN_GENERIC_ERROR");
         }
-        if (deliveryConfigs.getNewCostMsActivationDate() == null || sentAt.isBefore(deliveryConfigs.getNewCostMsActivationDate())) {
+        if (deliveryConfigs.getNotificationCostServiceStartDate() == null || sentAt.isBefore(deliveryConfigs.getNotificationCostServiceStartDate())) {
             return deliveryPushNotificationCostService;
         } else {
             return notificationCostService;

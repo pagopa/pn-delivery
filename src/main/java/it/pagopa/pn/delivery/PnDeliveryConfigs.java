@@ -43,7 +43,7 @@ public class PnDeliveryConfigs {
 
     private String notificationCostServiceBaseUrl;
 
-    private Instant newCostMsActivationDate;
+    private Instant notificationCostServiceStartDate;
 
     private Topics topics;
 

@@ -58,7 +58,6 @@
     "RedisNamespace": "pn-delivery::",
     "CacheItemTtlSeconds": "180",
     "LogLevelForConsentAccepterLambda": "INFO",
-    "IONotificationViewFailureAlarmFilterPattern": "{ $.level = \"ERROR\" && $.source_channel_details = \"QR_CODE\" && ($.aud_type = \"AUD_NT_VIEW_RCP\" || $.aud_type = \"AUD_NT_VIEW_DEL\") }",
-    "NewCostMsActivationDate": "2026-04-01T10:00:00Z"
+    "IONotificationViewFailureAlarmFilterPattern": "{ $.level = \"ERROR\" && $.source_channel_details = \"QR_CODE\" && ($.aud_type = \"AUD_NT_VIEW_RCP\" || $.aud_type = \"AUD_NT_VIEW_DEL\") }"
   }
 }

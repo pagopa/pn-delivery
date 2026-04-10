@@ -2,7 +2,7 @@ package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationCancelledException;
-import it.pagopa.pn.delivery.generated.openapi.msclient.notificationcostservice.v1.model.NotificationCostRecipientResponse;
+import it.pagopa.pn.delivery.generated.openapi.msclient.notificationcostservice.v1.model.NotificationCostPaymentResponse;
 import it.pagopa.pn.delivery.generated.openapi.msclient.timelineservice.v1.model.DeliveryInformationResponse;
 import it.pagopa.pn.delivery.models.NotificationCostRequest;
 import it.pagopa.pn.delivery.models.NotificationProcessCostResponseInt;
@@ -37,7 +37,7 @@ public class NotificationCostServiceImpl implements NotificationCostService {
                     ERROR_CODE_DELIVERY_PUSH_NOTIFICATION_NOT_ACCEPTED);
         }
 
-        NotificationCostRecipientResponse notificationCostRecipientResponse = pnNotificationCostServiceClient.getNotificationCostRecipient(request.iun(), request.recipientIdx());
-        return notificationMapper.mapFromTimelineAndCostResponse(deliveryInformation, notificationCostRecipientResponse);
+        NotificationCostPaymentResponse notificationCostByPayment = pnNotificationCostServiceClient.getNotificationCostByPayment(request.iuv());
+        return notificationMapper.mapFromTimelineAndCostResponse(deliveryInformation, notificationCostByPayment);
     }
 }

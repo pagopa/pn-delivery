@@ -21,8 +21,7 @@ import static org.mockserver.model.HttpResponse.response;
 })
 public class PnNotificationCostServiceClientImplTestIT extends MockAWSObjectsTest {
 
-    private static final String IUN = "test-iun";
-    private static final Integer REC_INDEX = 1;
+    private static final String IUV = "test-iuv";
 
     @Autowired
     private PnNotificationCostServiceClientImpl pnNotificationCostServiceClient;
@@ -42,7 +41,7 @@ public class PnNotificationCostServiceClientImplTestIT extends MockAWSObjectsTes
     @Test
     void getNotificationCostRecipientSuccess() {
         // Given
-        String path = "/notification-cost-private/cost/" + IUN + "/recipient/" + REC_INDEX;
+        String path = "/notification-cost-private/cost/payment/" + IUV;
 
         mockServer.when(
                 request()
@@ -55,6 +54,6 @@ public class PnNotificationCostServiceClientImplTestIT extends MockAWSObjectsTes
                         .withBody("{\"iun\":\"test-iun\",\"recIndex\":1,\"cost\":0.05}")
         );
 
-        assertDoesNotThrow(() -> pnNotificationCostServiceClient.getNotificationCostRecipient(IUN, REC_INDEX));
+        assertDoesNotThrow(() -> pnNotificationCostServiceClient.getNotificationCostByPayment(IUV));
     }
 }

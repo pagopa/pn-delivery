@@ -12,6 +12,7 @@ import it.pagopa.pn.delivery.models.*;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
+import it.pagopa.pn.delivery.utils.PaymentUtils;
 import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -61,8 +62,9 @@ public class NotificationPriceService {
         log.info( "Get notification process cost with iun={} recipientId={} recipientIdx={} feePolicy={}", iun, recipientId, recipientIdx, notificationFeePolicy);
 
         boolean applyCost = getApplyCost(internalNotification, noticeCode);
+        String iuv = PaymentUtils.composeIuv(noticeCode, paTaxId);
 
-        NotificationProcessCostResponseInt notificationProcessCost = getNotificationProcessCost(internalNotification, notificationFeePolicy, recipientIdx, applyCost);
+        NotificationProcessCostResponseInt notificationProcessCost = getNotificationProcessCost(internalNotification, notificationFeePolicy, recipientIdx, applyCost, iuv);
 
         // invio l'evento di asseverazione sulla coda
         log.info( "Send asseveration event iun={} creditorTaxId={} noticeCode={}", iun, paTaxId, noticeCode );
@@ -133,12 +135,12 @@ public class NotificationPriceService {
         }
     }
 
-    private NotificationProcessCostResponseInt getNotificationProcessCost(InternalNotification internalNotification, NotificationFeePolicy notificationFeePolicy, int recipientIdx, boolean applyCost) {
+    private NotificationProcessCostResponseInt getNotificationProcessCost(InternalNotification internalNotification, NotificationFeePolicy notificationFeePolicy, int recipientIdx, boolean applyCost, String iuv) {
         String iun = internalNotification.getIun();
         Integer paFee = internalNotification.getPaFee();
         Integer vat = internalNotification.getVat();
 
-        NotificationCostRequest notificationCostRequest = new NotificationCostRequest(iun, recipientIdx, notificationFeePolicy, applyCost, paFee, vat);
+        NotificationCostRequest notificationCostRequest = new NotificationCostRequest(iun, recipientIdx, notificationFeePolicy, applyCost, paFee, vat, iuv);
         NotificationCostService notificationCostService = notificationCostServiceFactory.getNotificationCostServiceBySentAt(internalNotification.getSentAt().toInstant());
         return notificationCostService.getNotificationCost(notificationCostRequest);
     }

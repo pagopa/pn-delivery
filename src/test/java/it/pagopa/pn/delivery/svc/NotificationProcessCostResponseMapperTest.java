@@ -59,7 +59,12 @@ class NotificationProcessCostResponseMapperTest {
         AnalogCostDetail analogCostDetail = new AnalogCostDetail().cost(50).vat(22);
         TotalCostDetails details = new TotalCostDetails().baseCostDetail(baseCostDetail).analogCostDetail(analogCostDetail);
         TotalCost totalCost = new TotalCost().costWithVat(200).details(details);
-        NotificationCostRecipientResponse costResponse = new NotificationCostRecipientResponse().totalCost(totalCost);
+
+        PartialCost partialCost = new PartialCost().cost(70);
+
+        NotificationCostPaymentResponse costResponse = new NotificationCostPaymentResponse()
+            .totalCost(totalCost)
+            .partialCost(partialCost);
 
         NotificationProcessCostResponseInt result = mapper.mapFromTimelineAndCostResponse(timeline, costResponse);
         assertNotNull(result);
@@ -89,7 +94,7 @@ class NotificationProcessCostResponseMapperTest {
         // timelineResponse null
         assertThrows(
             it.pagopa.pn.commons.exceptions.PnInternalException.class,
-            () -> mapper.mapFromTimelineAndCostResponse(null, new NotificationCostRecipientResponse())
+            () -> mapper.mapFromTimelineAndCostResponse(null, new NotificationCostPaymentResponse())
         );
         // costResponse null
         assertThrows(

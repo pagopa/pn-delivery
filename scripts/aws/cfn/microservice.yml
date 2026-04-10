@@ -809,10 +809,6 @@ Parameters:
     Description: "Maximum record age in seconds for NotificationRefusedDispatcherLambdaKinesisSource"
     Default: 604800 # 7 days
 
-  NewCostMsActivationDate:
-    Type: String
-    Description: "Activation date for new cost microservice in ISO format (yyyy-MM-ddTHH:mm:ssZ)"
-
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
 
@@ -903,7 +899,7 @@ Resources:
         ContainerEnvEntry59: !Sub "LOLLIPOP_WHITE_LIST=${LollipopWhiteList}"
         ContainerEnvEntry60: !Sub "PN_DELIVERY_TIMELINESERVICEBASEURL=http://${ApplicationLoadBalancerDomain}:8080"
         ContainerEnvEntry61: !Sub "PN_DELIVERY_NOTIFICATIONCOSTSERVICEBASEURL=http://${ApplicationLoadBalancerDomain}:8080"
-        ContainerEnvEntry62: !Sub "PN_DELIVERY_NEWCOSTMSACTIVATIONDATE=${NewCostMsActivationDate}"
+        ContainerEnvEntry62: !Sub 'PN_DELIVERY_NOTIFICATIONCOSTSERVICESTARTDATE={{resolve:ssm:/config/notification-cost-service/start-date}}'
         ContainerSecret1: !Sub "ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:"
         MicroServiceSecretPrefix: pn-Delivery-Secrets
         JavaToolOptions: "-Dreactor.netty.ioWorkerCount=120 -XX:MaxMetaspaceSize=512M"

@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.pnclient.notificationcost;
 
 import it.pagopa.pn.delivery.generated.openapi.msclient.notificationcostservice.v1.api.NotificationCostRecipientApi;
-import it.pagopa.pn.delivery.generated.openapi.msclient.notificationcostservice.v1.model.NotificationCostRecipientResponse;
+import it.pagopa.pn.delivery.generated.openapi.msclient.notificationcostservice.v1.model.NotificationCostPaymentResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,16 +23,16 @@ public class PnNotificationCostServiceClientImplTest {
 
     @Test
     void getNotificationCostRecipient() {
-        String iun = "test_iun";
+        String iuv = "test_iuv";
         Integer recIndex = 1;
 
-        NotificationCostRecipientResponse mockResponse = mock(NotificationCostRecipientResponse.class);
-        when(notificationCostRecipientApi.getNotificationCost(iun, recIndex)).thenReturn(mockResponse);
+        NotificationCostPaymentResponse mockResponse = mock(NotificationCostPaymentResponse.class);
+        when(notificationCostRecipientApi.getNotificationCostByPayment(iuv)).thenReturn(mockResponse);
 
-        NotificationCostRecipientResponse response = pnNotificationCostServiceClientImpl.getNotificationCostRecipient(iun, recIndex);
+        NotificationCostPaymentResponse response = pnNotificationCostServiceClientImpl.getNotificationCostByPayment(iuv);
 
         assertNotNull(response);
         assertEquals(mockResponse, response);
-        verify(notificationCostRecipientApi, times(1)).getNotificationCost(iun, recIndex);
+        verify(notificationCostRecipientApi, times(1)).getNotificationCostByPayment(iuv);
     }
 }

@@ -28,7 +28,7 @@ public class DeliveryPushNotificationCostServiceTest {
 
     @Test
     void getNotificationCost_shouldMapResponseCorrectly() {
-        NotificationCostRequest request = new NotificationCostRequest("iun", 1, NotificationFeePolicy.DELIVERY_MODE, false, 0, 22);
+        NotificationCostRequest request = new NotificationCostRequest("iun", 1, NotificationFeePolicy.DELIVERY_MODE, false, 0, 22, "TEST-IUV");
         var externalResponse = Mockito.mock(NotificationProcessCostResponse.class);
         var expectedInternalResponse = Mockito.mock(it.pagopa.pn.delivery.models.NotificationProcessCostResponseInt.class);
 
@@ -44,7 +44,7 @@ public class DeliveryPushNotificationCostServiceTest {
 
     @Test
     void getNotificationCost_shouldPropagateClientException() {
-        NotificationCostRequest request = new NotificationCostRequest("iun", 1, NotificationFeePolicy.DELIVERY_MODE, false, 0, 22);
+        NotificationCostRequest request = new NotificationCostRequest("iun", 1, NotificationFeePolicy.DELIVERY_MODE, false, 0, 22, "TEST-IUV");
         when(pnDeliveryPushClient.getNotificationProcessCost(any(), anyInt(), any(), anyBoolean(), anyInt(), anyInt()))
                 .thenThrow(new RuntimeException("client error"));
         assertThrows(RuntimeException.class, () -> service.getNotificationCost(request));

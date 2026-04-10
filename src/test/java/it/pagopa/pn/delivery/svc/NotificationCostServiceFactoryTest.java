@@ -36,7 +36,7 @@ public class NotificationCostServiceFactoryTest {
     @Test
     void testGetNotificationCostServiceBySentAt_BeforeActivationDate() {
         Instant sentAt = Instant.parse("2024-01-01T00:00:00Z");
-        when(deliveryConfigs.getNewCostMsActivationDate()).thenReturn(Instant.parse("2024-06-01T00:00:00Z"));
+        when(deliveryConfigs.getNotificationCostServiceStartDate()).thenReturn(Instant.parse("2024-06-01T00:00:00Z"));
 
         NotificationCostService service = factory.getNotificationCostServiceBySentAt(sentAt);
         assertThat(service).isInstanceOf(DeliveryPushNotificationCostService.class);
@@ -45,7 +45,7 @@ public class NotificationCostServiceFactoryTest {
     @Test
     void testGetNotificationCostServiceBySentAt_AfterActivationDate() {
         Instant sentAt = Instant.parse("2026-01-01T00:00:00Z");
-        when(deliveryConfigs.getNewCostMsActivationDate()).thenReturn(Instant.parse("2024-06-01T00:00:00Z"));
+        when(deliveryConfigs.getNotificationCostServiceStartDate()).thenReturn(Instant.parse("2024-06-01T00:00:00Z"));
 
         NotificationCostService service = factory.getNotificationCostServiceBySentAt(sentAt);
         assertThat(service).isInstanceOf(NotificationCostServiceImpl.class);
@@ -54,7 +54,7 @@ public class NotificationCostServiceFactoryTest {
     @Test
     void testGetNotificationCostServiceBySentAt_NullActivationDate() {
         Instant sentAt = Instant.parse("2026-01-01T00:00:00Z");
-        when(deliveryConfigs.getNewCostMsActivationDate()).thenReturn(null);
+        when(deliveryConfigs.getNotificationCostServiceStartDate()).thenReturn(null);
 
         NotificationCostService service = factory.getNotificationCostServiceBySentAt(sentAt);
         assertThat(service).isInstanceOf(DeliveryPushNotificationCostService.class);
