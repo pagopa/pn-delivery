@@ -112,7 +112,7 @@ public class NotificationReceiverValidator {
 
             String taxId = paInfo.getTaxId();
             if(!newNotificationRequestV2.getSenderTaxId().equals(taxId)){
-                throw new PnInvalidTaxIdException(ERROR_CODE_DELIVERY_INVALID_TAX_ID);
+                throw new PnInvalidTaxIdException(ERROR_CODE_DELIVERY_INVALID_SENDER_TAX_ID);
             }
         }
     }
@@ -566,3 +566,4 @@ public class NotificationReceiverValidator {
         return errors;
     }
 }
+
