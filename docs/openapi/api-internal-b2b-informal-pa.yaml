@@ -22,9 +22,6 @@ servers:
   - url: https://api.uat.notifichedigitali.it
     description: Ambiente di collaudo
 tags:
-  - name: HealthCheck
-    description: >-
-      Invocazioni per sapere lo stato di Piattaforma Notifiche # il servizio è ancora in fase di sviluppo
   - name: Messages
     description: >-
       Invocazioni per la gestione dei template dei messaggi da utilizzare per le notifiche bonarie
