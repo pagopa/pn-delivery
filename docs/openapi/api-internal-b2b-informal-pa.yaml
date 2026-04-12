@@ -1,0 +1,474 @@
+# di seguito le variabili che possono subire variazioni in caso di modifiche all'applicazione, da ricercare in base all'ID
+# <span id="pnTemporaryDocument">7 giorni</span> configurazione per file temporanei caricati prima dell'inserimento notifica, definito in storageConfigurations name: PN_TEMPORARY_DOCUMENT in pn-safestorage-v1-api.yaml
+# <span id="numberOfPresignedRequest">15</span> pn.delivery.number-of-presigned-request=15 numero di maxItems della preloadRequest
+openapi: 3.0.3
+info:
+  termsOfService: https://selfcare.notifichedigitali.it/termini-di-servizio
+  x-api-id: api-internal-b2b-informal-pa # NO EXTERNAL
+#  x-api-id: api-internal-b2b-informal-pa # ONLY EXTERNAL
+  title: 'Piattaforma Notifiche: API B2B per le notifiche bonarie esposte alle Pubbliche Amministrazioni'
+  x-summary: 'Piattaforma Notifiche: API B2B per le notifiche bonarie esposte alle Pubbliche Amministrazioni'
+  version: '1.0.0'
+  description: #TODO: da aggiornare
+    La Piattaforma Notifiche espone alle Pubbliche Amministrazioni un set di API per la gestione delle notifiche bonarie. <br/>
+    Le API esposte in questo documento sono considerate "informali" in quanto sono a disposizione di un numero limitato di enti che hanno aderito a una fase di sperimentazione, e non sono ancora state pubblicizzate ufficialmente. <br/>
+    Per qualsiasi informazione o richiesta di adesione alla fase di sperimentazione è possibile contattare il supporto tecnico dedicato agli enti.
+  contact:
+    name: 'SEND: supporto enti'
+    url: https://pagopa.atlassian.net/servicedesk/customer/portal/5
+servers:
+  - url: https://api.notifichedigitali.it
+    description: Ambiente di produzione
+  - url: https://api.uat.notifichedigitali.it
+    description: Ambiente di collaudo
+tags:
+  - name: HealthCheck
+    description: >-
+      Invocazioni per sapere lo stato di Piattaforma Notifiche # il servizio è ancora in fase di sviluppo
+  - name: Messages
+    description: >-
+      Invocazioni per la gestione dei template dei messaggi da utilizzare per le notifiche bonarie
+  - name: NewInformalNotification
+    description: >-
+      Invocazioni per effettuare il pre-caricamento dei documenti della notifica e inviare notifiche
+  - name: SenderReadInformalNotificationB2B
+    description: >-
+      Invocazioni utilizzabili dai mittenti per verificare lo stato delle richieste 
+      di notifica inviate e delle notifiche accettate.
+
+paths:
+    ###########################################################################################
+    ###                          GESTIONE MESSAGGI NOTIFICHE BONARIE                        ###
+    ###########################################################################################
+  "/delivery/v1/messages":
+    post:
+      tags:
+        - Messages
+      summary: Crea un nuovo template di messaggio
+      description: |
+        Salva il contenuto del messaggio in modo sicuro e ottiene un messageId da utilizzare per creare una notifica bonaria. <br/>
+      operationId: newMessage
+      parameters: # NO EXTERNAL
+        - $ref: '#/components/parameters/uidAuthFleet'                # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'             # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'               # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'           # NO EXTERNAL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewMessageRequest'
+      responses:
+        '201':
+          description: Message created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  "/delivery/v1/messages/{messageId}":
+    get:
+      tags:
+        - Messages
+      summary: Recupera i dati di un messaggio
+      description: Recupera il contenuto di un messaggio precedentemente creato dato il suo id.
+      operationId: getMessageById
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/uidAuthFleet'                # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'             # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'               # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'           # NO EXTERNAL
+      responses:
+        '200':
+          description: Message details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Message not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+
+    ###########################################################################################
+    ###                          CREAZIONE RICHIESTE DI NOTIFICA                            ###
+    ###########################################################################################
+  "/delivery/v1/notifications/informal":
+    post:
+      summary: Richiesta sottomissione di una nuova comunicazione bonaria
+      description: |-
+        Operazione utilizzata dalla Pubblica Amministrazione per richiedere l'invio di una notifica bonaria.
+
+        La restituzione di uno stato HTTP 202 significa solo che la richiesta è sintatticamente
+        valida, non che la richiesta sia stata validata ed accettata. <br/>
+        Per conoscere lo stato di accettazione della richiesta di notifica bisogna utilizzare l'operazione
+        _getNotificationRequestStatus_ oppure utilizzare la modalità push prevista dai webhook. <br/>
+        
+        <details no-external>
+        <summary><b> Attributi progettazione di alto livello </b></summary>
+        | Proprietà                | Valore             |
+        | -----------------------: | :----------------- |
+        | __Intended usage__       | B2B, WEB           |
+        | __Modalità interazione__ | Sincrona           |
+        | __TPS (stimato)__        | 5 richieste/sec    |
+        | __Idempotenza__          | No                 |
+        | __Read/Write intensive__ | Write              |
+        | __Cachable__             | No                 |
+        </details>
+      tags:
+        - NewInformalNotification
+      operationId: sendNewInformalNotificationV1
+      parameters:                                                     # NO EXTERNAL
+        - $ref: '#/components/parameters/uidAuthFleet'                # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'             # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'               # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'           # NO EXTERNAL
+        - $ref: '#/components/parameters/headerSourceChannel'         # NO EXTERNAL
+        - $ref: '#/components/parameters/headerSourceChannelDetails'  # NO EXTERNAL
+        - $ref: '#/components/parameters/headerNotificationVersion'   # NO EXTERNAL
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas-pn-notification.yaml#/components/schemas/InformalNotificationRequestV1"
+        required: true
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewInformalNotificationResponse"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+
+    ###########################################################################################
+    ###                        VERIFICA STATO RICHIESTE DI NOTIFICA                         ###
+    ###########################################################################################
+    get:
+      operationId: getInformalNotificationRequestStatusV1                       # NO EXTERNAL
+#      operationId: retrieveInformalNotificationRequestStatusV1                # ONLY EXTERNAL
+      tags:
+        - SenderReadInformalNotificationB2B
+      summary: Verifica accettazione richiesta notifica
+      description: >-
+        Questa operazione serve per verificare se la richiesta di notifica è stata accettata e ottenere
+        lo IUN associato a tale richiesta. <br/>
+        Bisogna specificare il parametro _requestId_ oppure la coppia costituita dai parametri 
+        _paProtocolNumber_ e _idempotenceToken_. <br/>
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'             # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
+        - $ref: '#/components/parameters/notificationRequestId'
+        - $ref: '#/components/parameters/paProtocolNumber'
+        - $ref: '#/components/parameters/idempotenceToken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewInformalNotificationRequestStatusResponseV1"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+components:
+
+  parameters:
+
+    ############################################################################################
+    ###                     PARAMETRO VERSIONE CREAZIONE NOTIFICA                            ###
+    ############################################################################################
+    headerNotificationVersion:                                                      # NO EXTERNAL
+      name: x-pagopa-pn-notification-version                                        # NO EXTERNAL
+      in: header                                                                    # NO EXTERNAL
+      description: Notification creation version                                    # NO EXTERNAL
+      required: false                                                               # NO EXTERNAL
+      schema:                                                                       # NO EXTERNAL
+        type: string                                                                # NO EXTERNAL
+
+    ############################################################################################
+    ###                     PARAMETRO SORGENTE CREAZIONE NOTIFICA                            ###
+    ############################################################################################
+    headerSourceChannel:                                                            # NO EXTERNAL
+      $ref: './remote-refs.yaml#/components/parameters/headerSourceChannel'         # NO EXTERNAL
+
+    headerSourceChannelDetails:                                                     # NO EXTERNAL
+      $ref: './remote-refs.yaml#/components/parameters/headerSourceChannelDetails'  # NO EXTERNAL
+
+    ############################################################################################
+    ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
+    ############################################################################################
+    cxTypeAuthFleet:                                                                # NO EXTERNAL
+      $ref: './remote-refs.yaml#/components/parameters/cxTypeAuthFleet'             # NO EXTERNAL
+    cxIdAuthFleet:                                                                  # NO EXTERNAL
+      $ref: './remote-refs.yaml#/components/parameters/cxIdAuthFleet'               # NO EXTERNAL
+    cxGroupsAuthFleet:                                                              # NO EXTERNAL
+      $ref: './remote-refs.yaml#/components/parameters/cxGroupsAuthFleet'           # NO EXTERNAL
+    uidAuthFleet:                                                                   # NO EXTERNAL
+      $ref: './remote-refs.yaml#/components/parameters/uidAuthFleet'                # NO EXTERNAL
+
+    ############################################################################################
+    ###                       PARAMETRI RICERCA RICHIESTA DI NOTIFICA                        ###
+    ############################################################################################
+    notificationRequestId:
+      in: query
+      required: false
+      name: notificationRequestId
+      schema:
+        $ref: './schemas-pn-notification.yaml#/components/schemas/NotificationRequestId'
+
+    paProtocolNumber:
+      name: paProtocolNumber
+      in: query
+      required: false
+      schema:
+        $ref: './schemas-pn-notification.yaml#/components/schemas/PaProtocolNumber'
+
+    idempotenceToken:
+      name: idempotenceToken
+      in: query
+      required: false
+      schema:
+        $ref: './schemas-pn-notification.yaml#/components/schemas/IdempotenceToken'
+
+  schemas:
+    ###########################################################################################
+    ###                              DTO RICHIESTE DI MESSAGGI                              ###
+    ###########################################################################################
+    LocalizedContent:
+      type: object
+      required: [ subject, longBody, language ]
+      properties:
+        subject:
+          type: string
+          maxLength: 256
+          description: "Titolo del messaggio (es. Oggetto della mail o 
+                            intestazione IO)"
+          example: "Sollecito di pagamento Tari 2023"
+        longBody:
+          type: string
+          maxLength: 10000
+          description: "Corpo esteso del messaggio in formato Markdown"
+          example: "Gentile cittadino, la informiamo che..."
+        shortBody:
+          type: string
+          maxLength: 160
+          description: "Versione breve per SMS o anteprime"
+          example: "Sollecito Tari: hai una nuova comunicazione da SEND."
+        language:
+          type: string
+          description: >-
+            Lingua del messaggio. Valori accettati:
+            - IT <br/>
+            - DE <br/>
+            - SI <br/>
+            - FR <br/>
+            DE (tedesco), SI (sloveno), FR (francese).
+
+    NewMessageRequest:
+      type: object
+      required: [ subject, body ]
+      properties:
+        primaryMessage:
+          description: Contenuto principale del messaggio, deve essere in lingua italiana
+          $ref: '#/components/schemas/LocalizedContent'
+        additionalMessage:
+          description: Contenuto aggiuntivo del messaggio, opzionale, può essere in una lingua diversa dall'italiano
+          $ref: '#/components/schemas/LocalizedContent'
+
+    MessageResponse:
+      type: object
+      allOf:
+          - $ref: '#/components/schemas/NewMessageRequest'
+          - type: object
+            properties:
+              messageId:
+                description: Identificativo univoco del messaggio, da utilizzare per creare una notifica bonaria
+                type: string
+                format: uuid
+              createdAt:
+                description: Data e ora di creazione del messaggio
+                type: string
+                format: date-time
+
+    ###########################################################################################
+    ###                              DTO RICHIESTE DI NOTIFICA                              ###
+    ###########################################################################################
+
+    NewInformalNotificationResponse:
+      $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationResponse"
+
+    NewInformalNotificationRequestStatusResponseV1:
+      allOf:
+        - $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV25"
+        - type: object
+          required:
+            - notificationRequestId
+            - notificationRequestStatus
+          properties:
+            notificationRequestId:
+              description: >-
+                identificativo univoco di una richiesta di invio notifica, non è lo IUN
+              type: string
+            notificationRequestStatus:
+              description: >-
+                - __WAITING__: in attesa di essere valutata
+                - __ACCEPTED__: richiesta di notifica accettata, lo IUN è valorizzato
+                - __REFUSED__: richiesta di notifica rifiutata, è valorizzato il campo _errors_
+              type: string
+            retryAfter:
+              type: integer
+              format: int32
+              description: >-
+                Numero di secondi da attendere prima di effettuare una nuova richiesta per 
+                la stessa entità; valorizzato quando lo status è __WAITING__.
+            iun:
+              $ref: "./schemas-pn-notification.yaml#/components/schemas/IUN"
+            errors:
+              description: >-
+                Elenco degli errori che hanno causato il rifiuto della richiesta di notifica
+              type: array
+              items:
+                $ref: '#/components/schemas/NotificationRequestRefusedProblemError'
+
+    NotificationRequestRefusedProblemError:
+      allOf:
+        - $ref: '#/components/schemas/ProblemError'
+        - type: object
+          required:
+            - code
+          properties:
+            recIndex:
+              description: Index destinatario notifica digitale
+              type: integer
+              format: int32
+
+    Problem:
+      $ref: './remote-refs.yaml#/components/schemas/Problem'
+    ProblemError:
+      $ref: './remote-refs.yaml#/components/schemas/ProblemError'
+
+#  securitySchemes:        # ONLY EXTERNAL
+#    ApiKeyAuth:           # ONLY EXTERNAL
+#      type: apiKey        # ONLY EXTERNAL
+#      in: header          # ONLY EXTERNAL
+#      name: x-api-key     # ONLY EXTERNAL
+
+#security:                 # ONLY EXTERNAL
+#  - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
+
+
+
+
