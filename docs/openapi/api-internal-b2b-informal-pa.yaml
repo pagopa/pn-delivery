@@ -551,7 +551,7 @@ components:
 
     NewInformalNotificationRequestStatusResponseV1:
       allOf:
-        - $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV25"
+        - $ref: "./schemas-pn-notification.yaml#/components/schemas/InformalNotificationRequestV1"
         - type: object
           required:
             - notificationRequestId
