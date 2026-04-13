@@ -157,7 +157,11 @@ public class CheckAuthComponent {
             Integer recipientIdx = action.getRecipientIdx();
             NotificationRecipient effectiveRecipient = null;
             if ( recipientIdx != null && recipientIdx >= 0 ) {
-                effectiveRecipient = notification.getRecipients().get(recipientIdx);
+                if ( recipientIdx < notification.getRecipients().size() ) {
+                    effectiveRecipient = notification.getRecipients().get(recipientIdx);
+                } else {
+                    log.warn( "senderCanAccess recipientIdx={} out of bounds (recipients size={}) iun={}", recipientIdx, notification.getRecipients().size(), notification.getIun() );
+                }
             }
             result = AuthorizationOutcome.ok(effectiveRecipient, recipientIdx);
         } else {
