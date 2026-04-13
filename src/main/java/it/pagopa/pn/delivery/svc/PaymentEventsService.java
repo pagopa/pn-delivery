@@ -14,6 +14,7 @@ import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.svc.authorization.AuthorizationOutcome;
 import it.pagopa.pn.delivery.svc.authorization.CheckAuthComponent;
+import it.pagopa.pn.delivery.svc.authorization.ReadAccessAction;
 import it.pagopa.pn.delivery.svc.authorization.ReadAccessAuth;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -78,7 +79,7 @@ public class PaymentEventsService {
             }
 
             // controllo autorizzazione
-            ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest( cxType, xPagopaPnCxId, null, xPagopaPnCxGroups, iun, recipientIdx );
+            ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest( cxType, xPagopaPnCxId, null, xPagopaPnCxGroups, iun, recipientIdx, ReadAccessAction.HANDLE_PAYMENTS );
             AuthorizationOutcome authorizationOutcome = checkAuthComponent.canAccess( readAccessAuth, internalNotification );
 
             if ( !authorizationOutcome.isAuthorized() ) {
