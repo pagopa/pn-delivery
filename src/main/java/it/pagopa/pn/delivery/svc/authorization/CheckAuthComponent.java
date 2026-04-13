@@ -155,13 +155,13 @@ public class CheckAuthComponent {
         AuthorizationOutcome result;
         if ( authorized ) {
             Integer recipientIdx = action.getRecipientIdx();
+            if ( recipientIdx != null && recipientIdx >= notification.getRecipients().size() ) {
+                log.warn( "senderCanAccess recipientIdx={} out of bounds (recipients size={}) iun={}", recipientIdx, notification.getRecipients().size(), notification.getIun() );
+                return AuthorizationOutcome.fail();
+            }
             NotificationRecipient effectiveRecipient = null;
             if ( recipientIdx != null && recipientIdx >= 0 ) {
-                if ( recipientIdx < notification.getRecipients().size() ) {
-                    effectiveRecipient = notification.getRecipients().get(recipientIdx);
-                } else {
-                    log.warn( "senderCanAccess recipientIdx={} out of bounds (recipients size={}) iun={}", recipientIdx, notification.getRecipients().size(), notification.getIun() );
-                }
+                effectiveRecipient = notification.getRecipients().get(recipientIdx);
             }
             result = AuthorizationOutcome.ok(effectiveRecipient, recipientIdx);
         } else {
