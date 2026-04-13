@@ -280,6 +280,107 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
 
+      ###########################################################################################
+      ###                     DOWNLOAD DOCUMENTI E ALLEGATI PER PAGAMENTO                     ###
+      ###########################################################################################
+
+  "/delivery/v1/notifications/informal/sent/{iun}/attachments/documents/{docIdx}":
+    get:
+      description: |-
+        Download documento notificato
+
+        <details no-external>
+        <summary><b> Attributi progettazione di alto livello </b></summary>
+        | Proprietà                | Valore             |
+        | -----------------------: | :----------------- |
+        | __Intended usage__       | B2B, WEB           |
+        | __Modalità interazione__ | Sincrona           |
+        | __TPS (stimato)__        |                    |
+        | __Idempotenza__          | Si                 |
+        | __Read/Write intensive__ | Read               |
+        | __Cachable__             | No                 |
+        </details>
+      summary: Download documento notificato
+      tags:
+        - SenderReadInformalNotificationB2B
+      operationId: getSentInformalNotificationDocument                                      # NO EXTERNAL
+      #      operationId: retrieveSentInformalNotificationDocument                                # ONLY EXTERNAL
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'           # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'        # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'          # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'      # NO EXTERNAL
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathDocumentIdx'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-notification.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  "/delivery/v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{pathAttachmentName}":
+    get:
+      description: Download allegato per pagamento
+      summary: Download allegato per pagamento
+      tags:
+        - SenderReadInformalNotificationB2B
+      operationId: getSentInformalNotificationAttachment                                      # NO EXTERNAL
+      #      operationId: retrieveSentInformalNotificationAttachment                                # ONLY EXTERNAL
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'             # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathRecipientIdx'
+        - $ref: '#/components/parameters/pathAttachmentName'
+        - $ref: '#/components/parameters/attachmentIdx'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-notification.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
 components:
 
   parameters:
@@ -339,6 +440,47 @@ components:
       required: false
       schema:
         $ref: './schemas-pn-notification.yaml#/components/schemas/IdempotenceToken'
+
+    ############################################################################################
+    ###                             PARAMETRI DOWNLOAD DOCUMENTI                             ###
+    ############################################################################################
+    pathDocumentIdx:
+      name: docIdx
+      description: indice del documento nella lista partendo da 0.
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+
+    pathRecipientIdx:
+      name: recipientIdx
+      description: indice del destinatario nella lista partendo da 0.
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+
+    pathAttachmentName:
+      name: attachmentName
+      description: Tipologia del pagamento allegato alla notifica. Valore possibile PAGOPA
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 3
+        maxLength: 6
+        pattern: "PAGOPA"
+
+    attachmentIdx:
+      in: query
+      name: attachmentIdx
+      description: indice del documento di pagamento partendo da 0
+      required: false
+      schema:
+        type: integer
+        format: int32
 
   schemas:
     ###########################################################################################

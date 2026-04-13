@@ -318,7 +318,6 @@ components:
           minItems: 1
         documents:
           type: array
-          minItems: 1 #TODO necessario ci sia almeno un documento?
           items:
             $ref: '#/components/schemas/NotificationDocument'
         group:
