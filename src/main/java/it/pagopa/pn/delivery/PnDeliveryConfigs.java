@@ -119,8 +119,12 @@ public class PnDeliveryConfigs {
     public void init(){
         log.info("CONFIGURATION {}",this);
 
-        if(this.newCostServiceActivationDate.isBefore(newCostServiceNotificationProcessingStartDate)) {
-            throw new IllegalArgumentException("Data attivazione integrazione con nuovo servizio costi (notificationPriceNewServiceStartDate) minore della data attivazione del nuovo microservizio costi (notificationCostServiceStartDate)");
+        if(newCostServiceActivationDate != null && newCostServiceNotificationProcessingStartDate == null) {
+            throw new IllegalArgumentException("newCostServiceNotificationProcessingStartDate and newCostServiceActivationDate must be both set or both null");
+        }
+
+        if(this.newCostServiceActivationDate != null && this.newCostServiceActivationDate.isBefore(newCostServiceNotificationProcessingStartDate)) {
+            throw new IllegalArgumentException("newCostServiceActivationDate must not be before newCostServiceNotificationProcessingStartDate");
         }
     }
 

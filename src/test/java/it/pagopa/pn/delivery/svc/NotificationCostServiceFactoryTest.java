@@ -14,11 +14,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 public class NotificationCostServiceFactoryTest {
-    @Mock
-    private DeliveryPushNotificationCostService deliveryPushNotificationCostService;
-    @Mock
-    private NotificationCostServiceImpl notificationCostService;
-    @Mock
     private FeatureFlagUtils featureFlagUtils;
 
     private NotificationCostServiceFactory factory;
@@ -26,8 +21,8 @@ public class NotificationCostServiceFactoryTest {
     @BeforeEach
     void setUp() {
         featureFlagUtils = Mockito.mock(FeatureFlagUtils.class);
-        deliveryPushNotificationCostService = Mockito.mock(DeliveryPushNotificationCostService.class);
-        notificationCostService = Mockito.mock(NotificationCostServiceImpl.class);
+        DeliveryPushNotificationCostService deliveryPushNotificationCostService = Mockito.mock(DeliveryPushNotificationCostService.class);
+        NotificationCostServiceImpl notificationCostService = Mockito.mock(NotificationCostServiceImpl.class);
 
 
         factory = new NotificationCostServiceFactory(deliveryPushNotificationCostService, notificationCostService, featureFlagUtils);

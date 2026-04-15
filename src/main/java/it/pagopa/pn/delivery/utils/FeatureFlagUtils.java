@@ -31,7 +31,7 @@ public class FeatureFlagUtils {
      * **/
     public boolean isIntegrationWithNewCostServiceEnabled(Instant sentAt) {
         if(pnDeliveryConfigs.getNewCostServiceActivationDate() == null) {
-            log.warn("The parameter notificationPriceNewServiceStartDate is not configured, feature is always deactivated.");
+            log.warn("The parameter newCostServiceActivationDate is not configured, feature is always deactivated.");
             return false;
         }
 
@@ -49,6 +49,11 @@ public class FeatureFlagUtils {
         // Se già mi sono integrato con il nuovo servizio di costi, non ha senso monitorare l'effettivo utilizzo del nuovo servizio, quindi il monitoraggio sarà disabilitato.
         if(isIntegrationWithNewCostServiceEnabled(sentAt)) {
             log.debug("Integration with new cost service is enabled, so monitoring will be skipped.");
+            return false;
+        }
+
+        if (pnDeliveryConfigs.getNewCostServiceNotificationProcessingStartDate() == null) {
+            log.warn("The parameter newCostServiceNotificationProcessingStartDate is not configured, monitoring feature is always deactivated.");
             return false;
         }
 

@@ -157,7 +157,7 @@ class FeatureFlagUtilsTest {
     }
 
     @Test
-    void isMonitoringOfNewCostServiceEnabled_returnsFalse_whenIntegrationDisabled_flagEnabled_butMonitoringStartDateAfterSentAt() {
+    void isMonitoringOfNewCostServiceEnabled_returnsFalse_whenIntegrationDisabled_flagEnabled_butNewCostServiceNotificationProcessingStartDateAfterSentAt() {
         Instant sentAt = Instant.parse("2026-04-14T10:00:00Z");
         when(pnDeliveryConfigs.getNewCostServiceActivationDate()).thenReturn(sentAt.plusSeconds(60));
         when(pnDeliveryConfigs.isNewCostServiceMonitoringEnabled()).thenReturn(true);
@@ -169,13 +169,15 @@ class FeatureFlagUtilsTest {
     }
 
     @Test
-    void isMonitoringOfNewCostServiceEnabled_throwsException_whenMonitoringStartDateIsNull_andIntegrationDisabled() {
+    void isMonitoringOfNewCostServiceEnabled_returnsFalse_whenNewCostServiceNotificationProcessingStartDateIsNull_flagEnabled_andIntegrationDisabled() {
         Instant sentAt = Instant.parse("2026-04-14T10:00:00Z");
         when(pnDeliveryConfigs.getNewCostServiceActivationDate()).thenReturn(sentAt.plusSeconds(60));
         when(pnDeliveryConfigs.isNewCostServiceMonitoringEnabled()).thenReturn(true);
         when(pnDeliveryConfigs.getNewCostServiceNotificationProcessingStartDate()).thenReturn(null);
 
-        assertThrows(NullPointerException.class, () -> featureFlagUtils.isMonitoringOfNewCostServiceEnabled(sentAt));
+        boolean result = featureFlagUtils.isMonitoringOfNewCostServiceEnabled(sentAt);
+
+        assertFalse(result);
     }
 
 }

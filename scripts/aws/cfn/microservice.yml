@@ -914,9 +914,9 @@ Resources:
         ContainerEnvEntry59: !Sub "LOLLIPOP_WHITE_LIST=${LollipopWhiteList}"
         ContainerEnvEntry60: !Sub "PN_DELIVERY_TIMELINESERVICEBASEURL=http://${ApplicationLoadBalancerDomain}:8080"
         ContainerEnvEntry61: !Sub "PN_DELIVERY_NOTIFICATIONCOSTSERVICEBASEURL=http://${ApplicationLoadBalancerDomain}:8080"
-        ContainerEnvEntry62: !Sub 'PN_DELIVERY_NOTIFICATIONCOSTSERVICESTARTDATE={{resolve:ssm:/config/notification-cost-service/notification-processing-start-date}}'
-        ContainerEnvEntry63: !Sub 'PN_DELIVERY_NOTIFICATIONPRICENEWSERVICESTARTDATE={{resolve:ssm:/config/pn-delivery/new-cost-service-activation-date}}'
-        ContainerEnvEntry64: !Sub 'PN_DELIVERY_NOTIFICATIONPRICENEWSERVICEENABLEMONITORING={{resolve:ssm:/config/pn-delivery/new-cost-service-monitoring-enabled}}'
+        ContainerEnvEntry62: !Sub 'PN_DELIVERY_NEWCOSTSERVICENOTIFICATIONPROCESSINGSTARTDATE={{resolve:ssm:/config/notification-cost-service/notification-processing-start-date}}'
+        ContainerEnvEntry63: !Sub 'PN_DELIVERY_NEWCOSTSERVICEACTIVATIONDATE={{resolve:ssm:/config/pn-delivery/new-cost-service-activation-date}}'
+        ContainerEnvEntry64: !Sub 'PN_DELIVERY_NEWCOSTSERVICEMONITORINGENABLED={{resolve:ssm:/config/pn-delivery/new-cost-service-monitoring-enabled}}'
         ContainerEnvEntry65: !Sub 'METRIC_FORMAT_TYPE=${MetricFormatType}'
         ContainerEnvEntry66: !Sub 'PN_DELIVERY_NOTIFICATION_COST_SERVICE_READ_TIMEOUT_MILLIS=${NotificationCostServiceReadTimeoutMillis}'
         ContainerEnvEntry67: !Sub 'PN_DELIVERY_NOTIFICATION_COST_SERVICE_RETRY_MAX_ATTEMPTS=${NotificationCostServiceMaxRetryAttempts}'
