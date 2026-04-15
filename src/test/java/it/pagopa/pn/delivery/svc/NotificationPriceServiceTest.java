@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -56,6 +57,9 @@ class NotificationPriceServiceTest {
     private NotificationCostServiceFactory notificationCostServiceFactory;
 
     @Mock
+    private NotificationCostServiceMonitor notificationCostServiceMonitor;
+
+    @Mock
     NotificationCostServiceImpl notificationCostService;
 
     private final RefinementLocalDate refinementLocalDateUtils = new RefinementLocalDate();
@@ -65,7 +69,7 @@ class NotificationPriceServiceTest {
     @BeforeEach
     void setup() {
         Clock clock = Clock.fixed( Instant.parse( EVENT_DATE ), ZoneId.of("UTC"));
-        svc = new NotificationPriceService(clock, notificationCostEntityDao, notificationDao, notificationCostServiceFactory, asseverationEventsProducer, refinementLocalDateUtils);
+        svc = new NotificationPriceService(clock, notificationCostEntityDao, notificationDao, notificationCostServiceFactory, notificationCostServiceMonitor, asseverationEventsProducer, refinementLocalDateUtils);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -98,7 +102,9 @@ class NotificationPriceServiceTest {
         Mockito.when(notificationCostServiceFactory.getNotificationCostServiceBySentAt(Mockito.any()))
                 .thenReturn( notificationCostService );
 
-        Mockito.when(notificationCostService.getNotificationCost(Mockito.any()))
+
+        ArgumentCaptor<NotificationCostRequest> requestCaptor = ArgumentCaptor.forClass(NotificationCostRequest.class);
+        Mockito.when(notificationCostService.getNotificationCost(requestCaptor.capture()))
                 .thenReturn(notificationProcessCostResponseInt);
 
 
@@ -126,7 +132,12 @@ class NotificationPriceServiceTest {
                 .build();
 
         assertDoesNotThrow(() -> (asseverationEventsProducer ).sendAsseverationEvent( asseverationEvent ));
-
+        Mockito.verify(notificationCostServiceMonitor)
+                .monitorNewNotificationPriceService(
+                        internalNotification,
+                        requestCaptor.getValue(),
+                        notificationProcessCostResponseInt
+                );
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -160,6 +171,13 @@ class NotificationPriceServiceTest {
 
         //Then
         assertThrows(PnInternalException.class, todo);
+
+        Mockito.verify(notificationCostServiceMonitor, Mockito.never())
+                .monitorNewNotificationPriceService(
+                        Mockito.any(),
+                        Mockito.any(),
+                        Mockito.any()
+                );
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -172,6 +190,13 @@ class NotificationPriceServiceTest {
         Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
 
         assertThrows(PnNotFoundException.class, todo);
+
+        Mockito.verify(notificationCostServiceMonitor, Mockito.never())
+                .monitorNewNotificationPriceService(
+                        Mockito.any(),
+                        Mockito.any(),
+                        Mockito.any()
+                );
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -193,6 +218,13 @@ class NotificationPriceServiceTest {
         Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
 
         assertThrows(PnNotFoundException.class, todo);
+
+        Mockito.verify(notificationCostServiceMonitor, Mockito.never())
+                .monitorNewNotificationPriceService(
+                        Mockito.any(),
+                        Mockito.any(),
+                        Mockito.any()
+                );
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -296,9 +328,14 @@ class NotificationPriceServiceTest {
         Mockito.when( notificationCostEntityDao.getNotificationByPaymentInfo( Mockito.anyString(),Mockito.anyString() ) )
                 .thenReturn( Optional.of(internalNotificationCost) );
 
-        Assertions.assertThrows(PnNotificationNotFoundException.class, () -> {
-            svc.getNotificationPrice(PA_TAX_ID, NOTICE_CODE);
-        });
+        Assertions.assertThrows(PnNotificationNotFoundException.class, () -> svc.getNotificationPrice(PA_TAX_ID, NOTICE_CODE));
+
+        Mockito.verify(notificationCostServiceMonitor, Mockito.never())
+                .monitorNewNotificationPriceService(
+                        Mockito.any(),
+                        Mockito.any(),
+                        Mockito.any()
+                );
     }
 
     @NotNull

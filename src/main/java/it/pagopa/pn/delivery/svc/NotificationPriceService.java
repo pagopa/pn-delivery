@@ -12,7 +12,6 @@ import it.pagopa.pn.delivery.models.*;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
-import it.pagopa.pn.delivery.utils.PaymentUtils;
 import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,6 +29,7 @@ public class NotificationPriceService {
     private final NotificationCostEntityDao notificationCostEntityDao;
     private final NotificationDao notificationDao;
     private final NotificationCostServiceFactory notificationCostServiceFactory;
+    private final NotificationCostServiceMonitor notificationCostServiceMonitor;
 
     private final AsseverationEventsProducer asseverationEventsProducer;
     private final RefinementLocalDate refinementLocalDateUtils;
@@ -38,11 +38,12 @@ public class NotificationPriceService {
     public static final String ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED = "PN_DELIVERYPUSH_NOTIFICATION_CANCELLED";
     public static final String ERROR_CODE_DELIVERY_PUSH_NOTIFICATION_NOT_ACCEPTED = "PN_DELIVERY_PUSH_NOTIFICATION_NOT_ACCEPTED";
 
-    public NotificationPriceService(Clock clock, NotificationCostEntityDao notificationCostEntityDao, NotificationDao notificationDao, NotificationCostServiceFactory notificationCostServiceFactory, AsseverationEventsProducer asseverationEventsProducer, RefinementLocalDate refinementLocalDateUtils) {
+    public NotificationPriceService(Clock clock, NotificationCostEntityDao notificationCostEntityDao, NotificationDao notificationDao, NotificationCostServiceFactory notificationCostServiceFactory, NotificationCostServiceMonitor notificationCostServiceMonitor, AsseverationEventsProducer asseverationEventsProducer, RefinementLocalDate refinementLocalDateUtils) {
         this.clock = clock;
         this.notificationCostEntityDao = notificationCostEntityDao;
         this.notificationDao = notificationDao;
         this.notificationCostServiceFactory = notificationCostServiceFactory;
+        this.notificationCostServiceMonitor = notificationCostServiceMonitor;
         this.asseverationEventsProducer = asseverationEventsProducer;
         this.refinementLocalDateUtils = refinementLocalDateUtils;
     }
@@ -57,20 +58,19 @@ public class NotificationPriceService {
                 internalNotification.getNotificationFeePolicy().getValue()
         );
         int recipientIdx = internalNotificationCost.getRecipientIdx();
-        // se la lista degli id non presente nell'internal notifications la posso recuperare dalla notificationMetadataEntity
         String recipientId = internalNotification.getRecipientIds().get(recipientIdx);
         log.info( "Get notification process cost with iun={} recipientId={} recipientIdx={} feePolicy={}", iun, recipientId, recipientIdx, notificationFeePolicy);
 
-        boolean applyCost = getApplyCost(internalNotification, noticeCode);
-        String iuv = PaymentUtils.composeIuv(noticeCode, paTaxId);
-
-        NotificationProcessCostResponseInt notificationProcessCost = getNotificationProcessCost(internalNotification, notificationFeePolicy, recipientIdx, applyCost, iuv);
+        NotificationCostRequest notificationCostRequest = buildNotificationCostRequest(internalNotification, recipientIdx, notificationFeePolicy, paTaxId, noticeCode);
+        NotificationProcessCostResponseInt notificationProcessCost = getNotificationProcessCost(internalNotification, notificationCostRequest);
 
         // invio l'evento di asseverazione sulla coda
         log.info( "Send asseveration event iun={} creditorTaxId={} noticeCode={}", iun, paTaxId, noticeCode );
         asseverationEventsProducer.sendAsseverationEvent(
                 createInternalAsseverationEvent(internalNotificationCost, internalNotification)
         );
+
+        notificationCostServiceMonitor.monitorNewNotificationPriceService(internalNotification, notificationCostRequest, notificationProcessCost);
 
         // creazione dto response
         return NotificationPriceResponseV23.builder()
@@ -84,6 +84,16 @@ public class NotificationPriceService {
                 .notificationViewDate( refinementLocalDateUtils.setLocalRefinementDate( notificationProcessCost.getNotificationViewDate() ) )
                 .iun( iun )
                 .build();
+    }
+
+    private NotificationCostRequest buildNotificationCostRequest(InternalNotification internalNotification, int recipientIdx, NotificationFeePolicy notificationFeePolicy, String paTaxId, String noticeCode) {
+        String iun = internalNotification.getIun();
+        Integer paFee = internalNotification.getPaFee();
+        Integer vat = internalNotification.getVat();
+        boolean applyCost = getApplyCost(internalNotification, noticeCode);
+
+
+        return new NotificationCostRequest(iun, recipientIdx, notificationFeePolicy, applyCost, paFee, vat, paTaxId, noticeCode);
     }
 
     private boolean getApplyCost(InternalNotification internalNotification, String noticeCode){
@@ -135,12 +145,7 @@ public class NotificationPriceService {
         }
     }
 
-    private NotificationProcessCostResponseInt getNotificationProcessCost(InternalNotification internalNotification, NotificationFeePolicy notificationFeePolicy, int recipientIdx, boolean applyCost, String iuv) {
-        String iun = internalNotification.getIun();
-        Integer paFee = internalNotification.getPaFee();
-        Integer vat = internalNotification.getVat();
-
-        NotificationCostRequest notificationCostRequest = new NotificationCostRequest(iun, recipientIdx, notificationFeePolicy, applyCost, paFee, vat, iuv);
+    private NotificationProcessCostResponseInt getNotificationProcessCost(InternalNotification internalNotification, NotificationCostRequest notificationCostRequest) {
         NotificationCostService notificationCostService = notificationCostServiceFactory.getNotificationCostServiceBySentAt(internalNotification.getSentAt().toInstant());
         return notificationCostService.getNotificationCost(notificationCostRequest);
     }

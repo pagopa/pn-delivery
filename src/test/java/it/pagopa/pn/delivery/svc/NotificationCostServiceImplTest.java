@@ -33,7 +33,7 @@ public class NotificationCostServiceImplTest {
 
     @Test
     void getNotificationCost_shouldThrowIfCancelled() {
-        NotificationCostRequest request = new NotificationCostRequest("iun", 1, null, false, 0, 22, "TEST-IUV");
+        NotificationCostRequest request = new NotificationCostRequest("iun", 1, null, false, 0, 22, "TEST-TAX-ID", "TEST-NOTICE-CODE");
         DeliveryInformationResponse deliveryInfo = Mockito.mock(DeliveryInformationResponse.class);
         when(pnTimelineServiceClient.getDeliveryInformation("iun", 1)).thenReturn(deliveryInfo);
         when(deliveryInfo.getIsNotificationCancelled()).thenReturn(true);
@@ -42,7 +42,7 @@ public class NotificationCostServiceImplTest {
 
     @Test
     void getNotificationCost_shouldThrowIfNotAccepted() {
-        NotificationCostRequest request = new NotificationCostRequest("iun", 1, null, false, 0, 22, "TEST-IUV");
+        NotificationCostRequest request = new NotificationCostRequest("iun", 1, null, false, 0, 22, "TEST-TAX-ID", "TEST-NOTICE-CODE");
         DeliveryInformationResponse deliveryInfo = Mockito.mock(DeliveryInformationResponse.class);
         when(pnTimelineServiceClient.getDeliveryInformation("iun", 1)).thenReturn(deliveryInfo);
         when(deliveryInfo.getIsNotificationCancelled()).thenReturn(false);
@@ -52,7 +52,7 @@ public class NotificationCostServiceImplTest {
 
     @Test
     void getNotificationCost_shouldMapResponseCorrectly() {
-        NotificationCostRequest request = new NotificationCostRequest("iun", 1, null, false, 0, 22,"TEST-IUV");
+        NotificationCostRequest request = new NotificationCostRequest("iun", 1, null, false, 0, 22,"TEST-TAX-ID", "TEST-NOTICE-CODE");
         DeliveryInformationResponse deliveryInfo = Mockito.mock(DeliveryInformationResponse.class);
         NotificationCostPaymentResponse externalResponse = Mockito.mock(NotificationCostPaymentResponse.class);
         NotificationProcessCostResponseInt expectedInternalResponse = Mockito.mock(NotificationProcessCostResponseInt.class);
@@ -60,13 +60,30 @@ public class NotificationCostServiceImplTest {
         Mockito.when(pnTimelineServiceClient.getDeliveryInformation("iun", 1)).thenReturn(deliveryInfo);
         Mockito.when(deliveryInfo.getIsNotificationCancelled()).thenReturn(false);
         Mockito.when(deliveryInfo.getIsNotificationAccepted()).thenReturn(true);
-        Mockito.when(pnNotificationCostServiceClient.getNotificationCostByPayment("TEST-IUV")).thenReturn(externalResponse);
-        Mockito.when(notificationMapper.mapFromTimelineAndCostResponse(deliveryInfo, externalResponse)).thenReturn(expectedInternalResponse);
+        Mockito.when(pnNotificationCostServiceClient.getNotificationCostByPayment("TEST-TAX-ID", "TEST-NOTICE-CODE")).thenReturn(externalResponse);
+        Mockito.when(notificationMapper.mapFromTimelineAndCostResponse(deliveryInfo, externalResponse, 22)).thenReturn(expectedInternalResponse);
 
         NotificationProcessCostResponseInt actualResponse = service.getNotificationCost(request);
         assertEquals(expectedInternalResponse, actualResponse);
         Mockito.verify(pnTimelineServiceClient).getDeliveryInformation("iun", 1);
-        Mockito.verify(pnNotificationCostServiceClient).getNotificationCostByPayment("TEST-IUV");
-        Mockito.verify(notificationMapper).mapFromTimelineAndCostResponse(deliveryInfo, externalResponse);
+        Mockito.verify(pnNotificationCostServiceClient).getNotificationCostByPayment("TEST-TAX-ID", "TEST-NOTICE-CODE");
+        Mockito.verify(notificationMapper).mapFromTimelineAndCostResponse(deliveryInfo, externalResponse, 22);
+    }
+
+    @Test
+    void getNotificationCostForMonitoring_shouldMapResponseCorrectly() {
+        NotificationCostRequest request = new NotificationCostRequest("iun", 1, null, false, 0, 22,"TEST-TAX-ID", "TEST-NOTICE-CODE");
+        NotificationCostPaymentResponse externalResponse = Mockito.mock(NotificationCostPaymentResponse.class);
+        NotificationProcessCostResponseInt expectedInternalResponse = Mockito.mock(NotificationProcessCostResponseInt.class);
+
+        Mockito.when(pnNotificationCostServiceClient.getNotificationCostByPaymentForMonitoring("TEST-TAX-ID", "TEST-NOTICE-CODE")).thenReturn(externalResponse);
+        Mockito.when(notificationMapper.mapFromTimelineAndCostResponse(Mockito.any(), Mockito.eq(externalResponse), Mockito.eq(22))).thenReturn(expectedInternalResponse);
+
+        NotificationProcessCostResponseInt actualResponse = service.getNotificationCostForMonitoring(request);
+        assertEquals(expectedInternalResponse, actualResponse);
+        Mockito.verify(pnTimelineServiceClient, Mockito.never()).getDeliveryInformation(Mockito.anyString(), Mockito.anyInt());
+        Mockito.verify(pnNotificationCostServiceClient).getNotificationCostByPaymentForMonitoring("TEST-TAX-ID", "TEST-NOTICE-CODE");
+        Mockito.verify(pnNotificationCostServiceClient, Mockito.never()).getNotificationCostByPayment(Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(notificationMapper).mapFromTimelineAndCostResponse(Mockito.any(), Mockito.eq(externalResponse), Mockito.eq(22));
     }
 }

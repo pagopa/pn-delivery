@@ -25,7 +25,7 @@ public class NotificationProcessCostResponseMapper {
         return internal;
     }
 
-    public NotificationProcessCostResponseInt mapFromTimelineAndCostResponse(DeliveryInformationResponse timelineResponse, NotificationCostPaymentResponse costResponse) {
+    public NotificationProcessCostResponseInt mapFromTimelineAndCostResponse(DeliveryInformationResponse timelineResponse, NotificationCostPaymentResponse costResponse, int defaultVat) {
         if (timelineResponse == null || costResponse == null) throw new PnInternalException("Cannot process notification data: required response is null", "PN_GENERIC_ERROR");
         NotificationProcessCostResponseInt internal = new NotificationProcessCostResponseInt();
         internal.setPartialCost(costResponse.getPartialCost().getCost());
@@ -33,7 +33,7 @@ public class NotificationProcessCostResponseMapper {
         internal.setAnalogCost(getAnalogCost(costResponse));
         internal.setPaFee(getBaseCostComponent(BaseCostName.PA_FEE, costResponse));
         internal.setSendFee(getBaseCostComponent(BaseCostName.SEND_FEE, costResponse));
-        internal.setVat(getVat(costResponse));
+        internal.setVat(getVat(costResponse, defaultVat));
         if (timelineResponse.getRefinementOrViewedDateDetail() != null) {
             internal.setRefinementDate(timelineResponse.getRefinementOrViewedDateDetail().getRefinementDate());
             internal.setNotificationViewDate(timelineResponse.getRefinementOrViewedDateDetail().getViewedDate());
@@ -55,7 +55,8 @@ public class NotificationProcessCostResponseMapper {
         return costResponse.getTotalCost().getDetails().getAnalogCostDetail() != null ? costResponse.getTotalCost().getDetails().getAnalogCostDetail().getCost() : 0;
     }
 
-    private int getVat(NotificationCostPaymentResponse costResponse) {
-        return costResponse.getTotalCost().getDetails().getAnalogCostDetail() != null ? costResponse.getTotalCost().getDetails().getAnalogCostDetail().getVat() : 0;
+    // In caso di assenza di dettaglio analog cost, si assume che l'IVA sia pari a quella valorizzata dall'oggetto Notification
+    private int getVat(NotificationCostPaymentResponse costResponse, int defaultVat) {
+        return costResponse.getTotalCost().getDetails().getAnalogCostDetail() != null ? costResponse.getTotalCost().getDetails().getAnalogCostDetail().getVat() : defaultVat;
     }
 }

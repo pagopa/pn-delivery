@@ -66,16 +66,21 @@ class NotificationProcessCostResponseMapperTest {
             .totalCost(totalCost)
             .partialCost(partialCost);
 
-        NotificationProcessCostResponseInt result = mapper.mapFromTimelineAndCostResponse(timeline, costResponse);
+        NotificationProcessCostResponseInt result = mapper.mapFromTimelineAndCostResponse(timeline, costResponse, 33);
         assertNotNull(result);
         assertEquals(20 + 50, result.getPartialCost());
         assertEquals(200, result.getTotalCost());
         assertEquals(50, result.getAnalogCost());
         assertEquals(10, result.getPaFee());
         assertEquals(20, result.getSendFee());
-        assertEquals(22, result.getVat());
+        assertEquals(22, result.getVat()); // VAT should be taken from analog cost detail, not default
         assertEquals(refinementDate, result.getRefinementDate());
         assertEquals(viewedDate, result.getNotificationViewDate());
+
+        // Test with null analog cost detail to verify default VAT is used
+        details.setAnalogCostDetail(null);
+        result = mapper.mapFromTimelineAndCostResponse(timeline, costResponse, 33);
+        assertEquals(33, result.getVat());
     }
 
     @Test
@@ -94,12 +99,12 @@ class NotificationProcessCostResponseMapperTest {
         // timelineResponse null
         assertThrows(
             it.pagopa.pn.commons.exceptions.PnInternalException.class,
-            () -> mapper.mapFromTimelineAndCostResponse(null, new NotificationCostPaymentResponse())
+            () -> mapper.mapFromTimelineAndCostResponse(null, new NotificationCostPaymentResponse(), 22)
         );
         // costResponse null
         assertThrows(
             it.pagopa.pn.commons.exceptions.PnInternalException.class,
-            () -> mapper.mapFromTimelineAndCostResponse(new DeliveryInformationResponse(), null)
+            () -> mapper.mapFromTimelineAndCostResponse(new DeliveryInformationResponse(), null, 22)
         );
     }
 }

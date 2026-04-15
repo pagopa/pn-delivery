@@ -37,7 +37,13 @@ public class NotificationCostServiceImpl implements NotificationCostService {
                     ERROR_CODE_DELIVERY_PUSH_NOTIFICATION_NOT_ACCEPTED);
         }
 
-        NotificationCostPaymentResponse notificationCostByPayment = pnNotificationCostServiceClient.getNotificationCostByPayment(request.iuv());
-        return notificationMapper.mapFromTimelineAndCostResponse(deliveryInformation, notificationCostByPayment);
+        NotificationCostPaymentResponse notificationCostByPayment = pnNotificationCostServiceClient.getNotificationCostByPayment(request.paTaxId(), request.noticeCode());
+        return notificationMapper.mapFromTimelineAndCostResponse(deliveryInformation, notificationCostByPayment, request.vat());
+    }
+
+    public NotificationProcessCostResponseInt getNotificationCostForMonitoring(NotificationCostRequest request) {
+        log.info("getNotificationCostForMonitoring - IUN={} recIndex={}", request.iun(), request.recipientIdx());
+        NotificationCostPaymentResponse notificationCostByPayment = pnNotificationCostServiceClient.getNotificationCostByPaymentForMonitoring(request.paTaxId(), request.noticeCode());
+        return notificationMapper.mapFromTimelineAndCostResponse(new DeliveryInformationResponse(), notificationCostByPayment, request.vat());
     }
 }

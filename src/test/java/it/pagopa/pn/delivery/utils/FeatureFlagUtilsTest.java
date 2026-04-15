@@ -57,4 +57,125 @@ class FeatureFlagUtilsTest {
 
         assertTrue(result);
     }
+
+    @Test
+    void isIntegrationWithNewCostServiceEnabled_returnsFalse_whenStartDateIsNull() {
+        Instant sentAt = Instant.parse("2026-04-14T10:00:00Z");
+        when(pnDeliveryConfigs.getNewCostServiceActivationDate()).thenReturn(null);
+
+        boolean result = featureFlagUtils.isIntegrationWithNewCostServiceEnabled(sentAt);
+
+        assertFalse(result);
+    }
+
+    @Test
+    void isIntegrationWithNewCostServiceEnabled_returnsTrue_whenStartDateIsEqualToSentAt() {
+        Instant sentAt = Instant.parse("2026-04-14T10:00:00Z");
+        when(pnDeliveryConfigs.getNewCostServiceActivationDate()).thenReturn(sentAt);
+
+        boolean result = featureFlagUtils.isIntegrationWithNewCostServiceEnabled(sentAt);
+
+        assertTrue(result);
+    }
+
+    @Test
+    void isIntegrationWithNewCostServiceEnabled_returnsTrue_whenStartDateIsBeforeSentAt() {
+        Instant sentAt = Instant.parse("2026-04-14T10:00:00Z");
+        Instant startDate = sentAt.minusSeconds(60);
+        when(pnDeliveryConfigs.getNewCostServiceActivationDate()).thenReturn(startDate);
+
+        boolean result = featureFlagUtils.isIntegrationWithNewCostServiceEnabled(sentAt);
+
+        assertTrue(result);
+    }
+
+    @Test
+    void isIntegrationWithNewCostServiceEnabled_returnsFalse_whenStartDateIsAfterSentAt() {
+        Instant sentAt = Instant.parse("2026-04-14T10:00:00Z");
+        Instant startDate = sentAt.plusSeconds(60);
+        when(pnDeliveryConfigs.getNewCostServiceActivationDate()).thenReturn(startDate);
+
+        boolean result = featureFlagUtils.isIntegrationWithNewCostServiceEnabled(sentAt);
+
+        assertFalse(result);
+    }
+
+    @Test
+    void isIntegrationWithNewCostServiceEnabled_throwsException_whenSentAtIsNull() {
+        Instant startDate = Instant.parse("2026-04-14T10:00:00Z");
+        when(pnDeliveryConfigs.getNewCostServiceActivationDate()).thenReturn(startDate);
+
+        assertThrows(NullPointerException.class, () -> featureFlagUtils.isIntegrationWithNewCostServiceEnabled(null));
+    }
+
+    @Test
+    void isMonitoringOfNewCostServiceEnabled_returnsFalse_whenIntegrationIsEnabled() {
+        Instant sentAt = Instant.parse("2026-04-14T10:00:00Z");
+        when(pnDeliveryConfigs.getNewCostServiceActivationDate()).thenReturn(sentAt.minusSeconds(60));
+
+        boolean result = featureFlagUtils.isMonitoringOfNewCostServiceEnabled(sentAt);
+
+        assertFalse(result);
+        verify(pnDeliveryConfigs, never()).isNewCostServiceMonitoringEnabled();
+        verify(pnDeliveryConfigs, never()).getNewCostServiceNotificationProcessingStartDate();
+    }
+
+    @Test
+    void isMonitoringOfNewCostServiceEnabled_returnsTrue_whenIntegrationDisabled_flagEnabled_andStartDateBeforeSentAt() {
+        Instant sentAt = Instant.parse("2026-04-14T10:00:00Z");
+        when(pnDeliveryConfigs.getNewCostServiceActivationDate()).thenReturn(sentAt.plusSeconds(60));
+        when(pnDeliveryConfigs.isNewCostServiceMonitoringEnabled()).thenReturn(true);
+        when(pnDeliveryConfigs.getNewCostServiceNotificationProcessingStartDate()).thenReturn(sentAt.minusSeconds(60));
+
+        boolean result = featureFlagUtils.isMonitoringOfNewCostServiceEnabled(sentAt);
+
+        assertTrue(result);
+    }
+
+    @Test
+    void isMonitoringOfNewCostServiceEnabled_returnsTrue_whenIntegrationDisabled_flagEnabled_andStartDateEqualsSentAt() {
+        Instant sentAt = Instant.parse("2026-04-14T10:00:00Z");
+        when(pnDeliveryConfigs.getNewCostServiceActivationDate()).thenReturn(sentAt.plusSeconds(60));
+        when(pnDeliveryConfigs.isNewCostServiceMonitoringEnabled()).thenReturn(true);
+        when(pnDeliveryConfigs.getNewCostServiceNotificationProcessingStartDate()).thenReturn(sentAt);
+
+        boolean result = featureFlagUtils.isMonitoringOfNewCostServiceEnabled(sentAt);
+
+        assertTrue(result);
+    }
+
+    @Test
+    void isMonitoringOfNewCostServiceEnabled_returnsFalse_whenIntegrationDisabled_butFlagDisabled() {
+        Instant sentAt = Instant.parse("2026-04-14T10:00:00Z");
+        when(pnDeliveryConfigs.getNewCostServiceActivationDate()).thenReturn(sentAt.plusSeconds(60));
+        when(pnDeliveryConfigs.isNewCostServiceMonitoringEnabled()).thenReturn(false);
+        when(pnDeliveryConfigs.getNewCostServiceNotificationProcessingStartDate()).thenReturn(sentAt.minusSeconds(60));
+
+        boolean result = featureFlagUtils.isMonitoringOfNewCostServiceEnabled(sentAt);
+
+        assertFalse(result);
+    }
+
+    @Test
+    void isMonitoringOfNewCostServiceEnabled_returnsFalse_whenIntegrationDisabled_flagEnabled_butMonitoringStartDateAfterSentAt() {
+        Instant sentAt = Instant.parse("2026-04-14T10:00:00Z");
+        when(pnDeliveryConfigs.getNewCostServiceActivationDate()).thenReturn(sentAt.plusSeconds(60));
+        when(pnDeliveryConfigs.isNewCostServiceMonitoringEnabled()).thenReturn(true);
+        when(pnDeliveryConfigs.getNewCostServiceNotificationProcessingStartDate()).thenReturn(sentAt.plusSeconds(60));
+
+        boolean result = featureFlagUtils.isMonitoringOfNewCostServiceEnabled(sentAt);
+
+        assertFalse(result);
+    }
+
+    @Test
+    void isMonitoringOfNewCostServiceEnabled_throwsException_whenMonitoringStartDateIsNull_andIntegrationDisabled() {
+        Instant sentAt = Instant.parse("2026-04-14T10:00:00Z");
+        when(pnDeliveryConfigs.getNewCostServiceActivationDate()).thenReturn(sentAt.plusSeconds(60));
+        when(pnDeliveryConfigs.isNewCostServiceMonitoringEnabled()).thenReturn(true);
+        when(pnDeliveryConfigs.getNewCostServiceNotificationProcessingStartDate()).thenReturn(null);
+
+        assertThrows(NullPointerException.class, () -> featureFlagUtils.isMonitoringOfNewCostServiceEnabled(sentAt));
+    }
+
 }
