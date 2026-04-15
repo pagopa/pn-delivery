@@ -810,6 +810,10 @@ Parameters:
     Type: String
     Description: "S3 bucket name for ESM Kinesis failure notifications"
 
+  InformalNotificationCheckCampaignLangActive:
+    Type: String
+    Description: "Flag to enable check on campaign language for a informal notification"
+
   MetadataStatusUpdaterMaximumRecordAge:
     Type: Number
     Description: "Maximum record age in seconds for MetadataStatusUpdaterLambdaKinesisSource"
@@ -910,6 +914,7 @@ Resources:
         ContainerEnvEntry59: !Sub "LOLLIPOP_WHITE_LIST=${LollipopWhiteList}"
         ContainerEnvEntry60: !Sub "PN_DELIVERY_ENABLE_SENDER_TAX_ID_CONGRUENCE=${EnableSenderTaxIdCongruence}"
         ContainerEnvEntry61: !Sub "PN_DELIVERY_INFO_PA_CACHE_DURATION=${InfoPaCacheDuration}"
+        ContainerEnvEntry62: !Sub "PN_DELIVERY_INFORMAL_NOTIFICATION_CHECK_CAMPAIGN_LANG_ACTIVE=${InformalNotificationCheckCampaignLangActive}"
         ContainerSecret1: !Sub "ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:"
         MicroServiceSecretPrefix: pn-Delivery-Secrets
         JavaToolOptions: "-Dreactor.netty.ioWorkerCount=120 -XX:MaxMetaspaceSize=512M"

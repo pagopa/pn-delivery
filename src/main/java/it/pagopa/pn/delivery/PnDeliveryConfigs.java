@@ -75,6 +75,12 @@ public class PnDeliveryConfigs {
 
     private Integer maxRecipientsCount;
 
+    private Integer informalNotificationMaxRecipients;
+
+    private Integer informalNotificationMaxAttachments;
+
+    private Integer informalNotificationMaxPayments;
+
     private Integer maxAttachmentsCount;
 
     private Integer searchTimeoutSeconds;
@@ -105,6 +111,8 @@ public class PnDeliveryConfigs {
     private boolean enableSenderTaxIdCongruence;
 
     private Duration infoPaCacheDuration;
+
+    private boolean informalNotificationCheckCampaignLangActive;
 
     @PostConstruct
     public void init(){
