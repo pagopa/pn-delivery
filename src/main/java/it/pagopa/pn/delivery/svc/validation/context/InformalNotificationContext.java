@@ -7,7 +7,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class NotificaInformaleContext implements NotificaContext {
+public class InformalNotificationContext implements NotificationContext {
     InternalNotification payload;
     String cxId;
     String messageId;

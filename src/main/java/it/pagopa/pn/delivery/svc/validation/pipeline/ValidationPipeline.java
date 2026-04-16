@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
-public final class ValidationPipeline<C extends ValidationContext> {
+public final class ValidationPipeline<C extends ValidationContext<?>> {
 
     private final List<AuthorizationValidator<? super C>> authorizationValidators;
     private final List<FormalValidator<? super C>> formalValidators;
@@ -27,10 +27,6 @@ public final class ValidationPipeline<C extends ValidationContext> {
         this.businessValidators = List.copyOf(businessValidators);
     }
 
-    public static <C extends ValidationContext> ValidationPipelineBuilder<C> builder() {
-        return new ValidationPipelineBuilder<>();
-    }
-
     public void execute(C context) {
         runAuthorization(context);
         runFormal(context);
@@ -43,7 +39,7 @@ public final class ValidationPipeline<C extends ValidationContext> {
                 .filter(ValidationResult::isFailure)
                 .findFirst()
                 .ifPresent(r -> {
-                    throw new ValidationException(r.getErrors(), HttpStatus.FORBIDDEN.toString());
+                    throw new ValidationException(r.getErrors(), "Validazione authorization non riuscita", HttpStatus.FORBIDDEN);
                 });
     }
 
@@ -55,7 +51,7 @@ public final class ValidationPipeline<C extends ValidationContext> {
                 .toList();
 
         if (!errors.isEmpty()) {
-            throw new ValidationException(errors, HttpStatus.BAD_REQUEST.toString());
+            throw new ValidationException(errors, "Validazione formal non riuscita", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -67,7 +63,7 @@ public final class ValidationPipeline<C extends ValidationContext> {
                 .toList();
 
         if (!errors.isEmpty()) {
-            throw new ValidationException(errors, HttpStatus.UNPROCESSABLE_ENTITY.toString());
+            throw new ValidationException(errors, "Validazione business non riuscita", HttpStatus.UNPROCESSABLE_ENTITY);
         }
     }
 }

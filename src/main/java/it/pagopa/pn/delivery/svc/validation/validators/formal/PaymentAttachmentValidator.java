@@ -6,10 +6,11 @@ import it.pagopa.pn.delivery.models.internal.notification.MetadataAttachment;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.svc.validation.ErrorCodes;
 import it.pagopa.pn.delivery.svc.validation.ValidationResult;
-import it.pagopa.pn.delivery.svc.validation.context.NotificaContext;
+import it.pagopa.pn.delivery.svc.validation.context.NotificationContext;
 import it.pagopa.pn.delivery.svc.validation.validators.FormalValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import javax.validation.ConstraintViolation;
 import java.util.ArrayList;
@@ -17,9 +18,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Component
 @Slf4j
 @RequiredArgsConstructor
-public class PaymentAttachmentValidator implements FormalValidator<NotificaContext> {
+public class PaymentAttachmentValidator implements FormalValidator<NotificationContext> {
 
     private static final String APPLICATION_PDF_CONTENT_TYPE = "application/pdf";
     private static final String APPLICATION_JSON_CONTENT_TYPE = "application/json";
@@ -29,7 +31,7 @@ public class PaymentAttachmentValidator implements FormalValidator<NotificaConte
     public static final String PN_F24_META = "PN_F24_META";
 
     @Override
-    public ValidationResult validate(NotificaContext context) {
+    public ValidationResult validate(NotificationContext context) {
 
         ArrayList<ProblemError> errors = new ArrayList<>();
 

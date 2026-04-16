@@ -4,7 +4,7 @@ import it.pagopa.pn.commons.exceptions.dto.ProblemError;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.svc.validation.ErrorCodes;
 import it.pagopa.pn.delivery.svc.validation.ValidationResult;
-import it.pagopa.pn.delivery.svc.validation.context.NotificaContext;
+import it.pagopa.pn.delivery.svc.validation.context.NotificationContext;
 import it.pagopa.pn.delivery.svc.validation.validators.FormalValidator;
 import it.pagopa.pn.delivery.utils.DenominationValidationUtils;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ import static it.pagopa.pn.delivery.utils.DenominationValidationUtils.Validation
 
 @Slf4j
 @RequiredArgsConstructor
-public class DenominationAndAtValidator implements FormalValidator<NotificaContext> {
+public class DenominationAndAtValidator implements FormalValidator<NotificationContext> {
 
     private final Integer denominationLength;
     private final String denominationValidationTypeValue;
@@ -26,7 +26,7 @@ public class DenominationAndAtValidator implements FormalValidator<NotificaConte
     private final String denominationValidationExcludedCharacter;
 
     @Override
-    public ValidationResult validate(NotificaContext context) {
+    public ValidationResult validate(NotificationContext context) {
         ArrayList<ProblemError> errors = new ArrayList<>();
         int recIdx = 0;
 

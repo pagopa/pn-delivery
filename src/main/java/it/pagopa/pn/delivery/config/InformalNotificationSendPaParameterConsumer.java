@@ -14,7 +14,7 @@ import java.util.Optional;
 @Configuration
 public class InformalNotificationSendPaParameterConsumer {
 
-    @Value("${pn.delivery.features.is-nformal-default-value}")
+    @Value("${pn.delivery.features.is-informal-default-value}")
     private Boolean isInformalDefaultValue;
 
     private final ParameterConsumer parameterConsumer;

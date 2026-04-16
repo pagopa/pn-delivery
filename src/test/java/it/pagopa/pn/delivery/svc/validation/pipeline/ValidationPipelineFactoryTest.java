@@ -1,8 +1,6 @@
 package it.pagopa.pn.delivery.svc.validation.pipeline;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.config.InformalNotificationSendPaParameterConsumer;
-import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.svc.validation.validators.AuthorizationValidator;
 import it.pagopa.pn.delivery.svc.validation.validators.BusinessValidator;
 import it.pagopa.pn.delivery.svc.validation.validators.FormalValidator;
@@ -46,20 +44,30 @@ class ValidationPipelineFactoryTest {
     private static final String PHYSICAL_ADDRESS_VALIDATION_PATTERN = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ./ '-";
 
     private PnDeliveryConfigs cfg;
-    private PnExternalRegistriesClientImpl pnExternalRegistriesClient;
-    private InformalNotificationSendPaParameterConsumer parameterConsumer;
     private SenderTaxIdCongruenceValidator senderTaxIdCongruenceValidator;
     private RecipientTaxIdSyntaxValidator recipientTaxIdSyntaxValidator;
+    private SendInformalNotificationActiveValidator sendInformalNotificationActiveValidator;
+    private AdditionalLanguageFormalValidator additionalLanguageFormalValidator;
+    private PgTaxIdValidator pgTaxIdValidator;
+    private GroupValidator groupValidator;
+    private PaymentAttachmentValidator paymentAttachmentValidator;
+    private ProvinceRequiredValidator provinceRequiredValidator;
+    private UniqueAttachmentsValidator uniqueAttachmentsValidator;
 
     private ValidationPipelineFactory<?> factory;
 
     @BeforeEach
     void setUp() {
         cfg = mock(PnDeliveryConfigs.class);
-        pnExternalRegistriesClient = mock(PnExternalRegistriesClientImpl.class);
-        parameterConsumer = mock(InformalNotificationSendPaParameterConsumer.class);
         senderTaxIdCongruenceValidator = mock(SenderTaxIdCongruenceValidator.class);
         recipientTaxIdSyntaxValidator = mock(RecipientTaxIdSyntaxValidator.class);
+        sendInformalNotificationActiveValidator = mock(SendInformalNotificationActiveValidator.class);
+        additionalLanguageFormalValidator = mock(AdditionalLanguageFormalValidator.class);
+        pgTaxIdValidator = mock(PgTaxIdValidator.class);
+        groupValidator = mock(GroupValidator.class);
+        paymentAttachmentValidator = mock(PaymentAttachmentValidator.class);
+        provinceRequiredValidator = mock(ProvinceRequiredValidator.class);
+        uniqueAttachmentsValidator = mock(UniqueAttachmentsValidator.class);
 
         when(cfg.getDenominationLength()).thenReturn(DENOMINATION_LENGTH);
         when(cfg.getDenominationValidationTypeValue()).thenReturn(DENOMINATION_VALIDATION_TYPE);
@@ -75,10 +83,15 @@ class ValidationPipelineFactoryTest {
 
         factory = new ValidationPipelineFactory<>(
                 cfg,
-                pnExternalRegistriesClient,
-                parameterConsumer,
                 senderTaxIdCongruenceValidator,
-                recipientTaxIdSyntaxValidator
+                recipientTaxIdSyntaxValidator,
+                sendInformalNotificationActiveValidator,
+                additionalLanguageFormalValidator,
+                pgTaxIdValidator,
+                groupValidator,
+                paymentAttachmentValidator,
+                provinceRequiredValidator,
+                uniqueAttachmentsValidator
         );
     }
 
@@ -91,23 +104,23 @@ class ValidationPipelineFactoryTest {
         List<BusinessValidator<?>> businessValidators = getValidators(pipeline, "businessValidators");
 
         assertThat(authorizationValidators).hasSize(2);
-        assertThat(authorizationValidators.get(0)).isSameAs(senderTaxIdCongruenceValidator);
-        assertThat(authorizationValidators.get(1)).isInstanceOf(SendInformalNotificationActiveValidator.class);
+        assertThat(authorizationValidators.get(0)).isSameAs(sendInformalNotificationActiveValidator);
+        assertThat(authorizationValidators.get(1)).isSameAs(senderTaxIdCongruenceValidator);
 
         assertThat(formalValidators).hasSize(13);
-        assertThat(formalValidators.get(0)).isInstanceOf(AdditionalLanguageFormalValidator.class);
-        assertThat(formalValidators.get(1)).isInstanceOf(CampaignMessageLanguageValidator.class);
-        assertThat(formalValidators.get(2)).isInstanceOf(DenominationAndAtValidator.class);
-        assertThat(formalValidators.get(3)).isInstanceOf(GroupValidator.class);
-        assertThat(formalValidators.get(4)).isInstanceOf(MaxAttachmentsSizeValidator.class);
-        assertThat(formalValidators.get(5)).isInstanceOf(MaxPaymentsSizeValidator.class);
-        assertThat(formalValidators.get(6)).isInstanceOf(MaxRecipientsSizeValidator.class);
-        assertThat(formalValidators.get(7)).isInstanceOf(PaymentAttachmentValidator.class);
-        assertThat(formalValidators.get(8)).isInstanceOf(PgTaxIdValidator.class);
+        assertThat(formalValidators.get(0)).isInstanceOf(MaxAttachmentsSizeValidator.class);
+        assertThat(formalValidators.get(1)).isInstanceOf(MaxRecipientsSizeValidator.class);
+        assertThat(formalValidators.get(2)).isSameAs(additionalLanguageFormalValidator);
+        assertThat(formalValidators.get(3)).isInstanceOf(CampaignMessageLanguageValidator.class);
+        assertThat(formalValidators.get(4)).isSameAs(groupValidator);
+        assertThat(formalValidators.get(5)).isSameAs(pgTaxIdValidator);
+        assertThat(formalValidators.get(6)).isSameAs(recipientTaxIdSyntaxValidator);
+        assertThat(formalValidators.get(7)).isInstanceOf(MaxPaymentsSizeValidator.class);
+        assertThat(formalValidators.get(8)).isSameAs(paymentAttachmentValidator);
         assertThat(formalValidators.get(9)).isInstanceOf(PhysicalAddressValidator.class);
-        assertThat(formalValidators.get(10)).isInstanceOf(ProvinceRequiredValidator.class);
-        assertThat(formalValidators.get(11)).isSameAs(recipientTaxIdSyntaxValidator);
-        assertThat(formalValidators.get(12)).isInstanceOf(UniqueAttachmentsValidator.class);
+        assertThat(formalValidators.get(10)).isSameAs(provinceRequiredValidator);
+        assertThat(formalValidators.get(11)).isInstanceOf(DenominationAndAtValidator.class);
+        assertThat(formalValidators.get(12)).isSameAs(uniqueAttachmentsValidator);
 
         assertThat(businessValidators).isEmpty();
     }
@@ -115,26 +128,33 @@ class ValidationPipelineFactoryTest {
     @Test
     void buildInformalPipelineShouldPropagateDependenciesAndConfigurationToCreatedValidators() {
         ValidationPipeline<?> pipeline = buildInformalPipeline();
+
         List<AuthorizationValidator<?>> authorizationValidators = getValidators(pipeline, "authorizationValidators");
         List<FormalValidator<?>> formalValidators = getValidators(pipeline, "formalValidators");
 
-        SendInformalNotificationActiveValidator sendInformalNotificationActiveValidator =
-                (SendInformalNotificationActiveValidator) authorizationValidators.get(1);
+        assertThat(authorizationValidators.get(0)).isSameAs(sendInformalNotificationActiveValidator);
+        assertThat(authorizationValidators.get(1)).isSameAs(senderTaxIdCongruenceValidator);
+        assertThat(formalValidators.get(2)).isSameAs(additionalLanguageFormalValidator);
+        assertThat(formalValidators.get(4)).isSameAs(groupValidator);
+        assertThat(formalValidators.get(5)).isSameAs(pgTaxIdValidator);
+        assertThat(formalValidators.get(6)).isSameAs(recipientTaxIdSyntaxValidator);
+        assertThat(formalValidators.get(8)).isSameAs(paymentAttachmentValidator);
+        assertThat(formalValidators.get(10)).isSameAs(provinceRequiredValidator);
+        assertThat(formalValidators.get(12)).isSameAs(uniqueAttachmentsValidator);
+
         CampaignMessageLanguageValidator campaignMessageLanguageValidator =
-                (CampaignMessageLanguageValidator) formalValidators.get(1);
+                (CampaignMessageLanguageValidator) formalValidators.get(3);
         DenominationAndAtValidator denominationAndAtValidator =
-                (DenominationAndAtValidator) formalValidators.get(2);
+                (DenominationAndAtValidator) formalValidators.get(11);
         MaxAttachmentsSizeValidator maxAttachmentsSizeValidator =
-                (MaxAttachmentsSizeValidator) formalValidators.get(4);
+                (MaxAttachmentsSizeValidator) formalValidators.get(0);
         MaxPaymentsSizeValidator maxPaymentsSizeValidator =
-                (MaxPaymentsSizeValidator) formalValidators.get(5);
+                (MaxPaymentsSizeValidator) formalValidators.get(7);
         MaxRecipientsSizeValidator maxRecipientsSizeValidator =
-                (MaxRecipientsSizeValidator) formalValidators.get(6);
+                (MaxRecipientsSizeValidator) formalValidators.get(1);
         PhysicalAddressValidator physicalAddressValidator =
                 (PhysicalAddressValidator) formalValidators.get(9);
 
-        assertThat(ReflectionTestUtils.getField(sendInformalNotificationActiveValidator, "parameterConsumer"))
-                .isSameAs(parameterConsumer);
 
         assertThat(ReflectionTestUtils.getField(campaignMessageLanguageValidator, "isInformalNotificationCheckCampaignLangActive"))
                 .isEqualTo(CAMPAIGN_LANG_CHECK_ACTIVE);
@@ -173,12 +193,12 @@ class ValidationPipelineFactoryTest {
         assertThat(getValidators(pipeline, "businessValidators")).isEmpty();
     }
 
-    private ValidationPipeline<?> buildInformalPipeline() {
-        return (ValidationPipeline<?>) ReflectionTestUtils.invokeMethod(factory, "buildInformalPipeline");
-    }
-
     @SuppressWarnings("unchecked")
     private <T> List<T> getValidators(ValidationPipeline<?> pipeline, String fieldName) {
         return (List<T>) ReflectionTestUtils.getField(pipeline, fieldName);
+    }
+
+    private ValidationPipeline<?> buildInformalPipeline() {
+        return factory.informalPipeline();
     }
 }

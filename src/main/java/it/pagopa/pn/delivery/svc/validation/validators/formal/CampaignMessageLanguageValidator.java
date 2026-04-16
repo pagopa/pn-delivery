@@ -3,8 +3,8 @@ package it.pagopa.pn.delivery.svc.validation.validators.formal;
 import it.pagopa.pn.commons.exceptions.dto.ProblemError;
 import it.pagopa.pn.delivery.svc.validation.ErrorCodes;
 import it.pagopa.pn.delivery.svc.validation.ValidationResult;
-import it.pagopa.pn.delivery.svc.validation.context.NotificaContext;
-import it.pagopa.pn.delivery.svc.validation.context.NotificaInformaleContext;
+import it.pagopa.pn.delivery.svc.validation.context.NotificationContext;
+import it.pagopa.pn.delivery.svc.validation.context.InformalNotificationContext;
 import it.pagopa.pn.delivery.svc.validation.validators.FormalValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,22 +15,22 @@ import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
-public class CampaignMessageLanguageValidator implements FormalValidator<NotificaContext> {
+public class CampaignMessageLanguageValidator implements FormalValidator<NotificationContext> {
 
     private final Boolean isInformalNotificationCheckCampaignLangActive;
 
     @Override
-    public ValidationResult validate(NotificaContext context) {
+    public ValidationResult validate(NotificationContext context) {
         ArrayList<ProblemError> errors = new ArrayList<>();
 
-        NotificaInformaleContext internalContext = (NotificaInformaleContext) context;
+        InformalNotificationContext internalContext = (InformalNotificationContext) context;
 
         checkCongruenceBetweenAdditionalLanguageRequestedAndCampaign(internalContext, errors);
 
         return new ValidationResult(errors);
     }
 
-    private void checkCongruenceBetweenAdditionalLanguageRequestedAndCampaign(NotificaInformaleContext context, ArrayList<ProblemError> errors) {
+    private void checkCongruenceBetweenAdditionalLanguageRequestedAndCampaign(InformalNotificationContext context, ArrayList<ProblemError> errors) {
 
         if (!isInformalNotificationCheckCampaignLangActive) {
             return;

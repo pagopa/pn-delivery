@@ -7,7 +7,7 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.mo
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.svc.validation.ErrorCodes;
 import it.pagopa.pn.delivery.svc.validation.validators.AuthorizationValidator;
-import it.pagopa.pn.delivery.svc.validation.context.NotificaContext;
+import it.pagopa.pn.delivery.svc.validation.context.NotificationContext;
 import it.pagopa.pn.delivery.svc.validation.ValidationResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,13 +21,13 @@ import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_COD
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class SenderTaxIdCongruenceValidator implements AuthorizationValidator<NotificaContext> {
+public class SenderTaxIdCongruenceValidator implements AuthorizationValidator<NotificationContext> {
 
     private final PnDeliveryConfigs pnDeliveryConfigs;
     private final PnExternalRegistriesClientImpl pnExternalRegistriesClient;
 
     @Override
-    public ValidationResult validate(NotificaContext context) {
+    public ValidationResult validate(NotificationContext context) {
         ArrayList<ProblemError> errors = new ArrayList<>();
 
         checkSenderTaxIdCongruence(context, errors);
@@ -35,7 +35,7 @@ public class SenderTaxIdCongruenceValidator implements AuthorizationValidator<No
         return new ValidationResult(errors);
     }
 
-    private void checkSenderTaxIdCongruence(NotificaContext context, ArrayList<ProblemError> errors) {
+    private void checkSenderTaxIdCongruence(NotificationContext context, ArrayList<ProblemError> errors) {
         if(pnDeliveryConfigs.isEnableSenderTaxIdCongruence()){
             PaInfo paInfo = pnExternalRegistriesClient.getOnePa(context.getCxId());
             if (paInfo == null || !StringUtils.hasText(paInfo.getTaxId())) {

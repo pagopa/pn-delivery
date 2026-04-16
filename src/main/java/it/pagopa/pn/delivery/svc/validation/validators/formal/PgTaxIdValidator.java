@@ -5,7 +5,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipie
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.svc.validation.ErrorCodes;
 import it.pagopa.pn.delivery.svc.validation.ValidationResult;
-import it.pagopa.pn.delivery.svc.validation.context.NotificaContext;
+import it.pagopa.pn.delivery.svc.validation.context.NotificationContext;
 import it.pagopa.pn.delivery.svc.validation.validators.FormalValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,10 +16,10 @@ import java.util.ArrayList;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class PgTaxIdValidator implements FormalValidator<NotificaContext> {
+public class PgTaxIdValidator implements FormalValidator<NotificationContext> {
     
     @Override
-    public ValidationResult validate(NotificaContext context) {
+    public ValidationResult validate(NotificationContext context) {
         int recIdx = 0;
         ArrayList<ProblemError> errors = new ArrayList<>();
         for (NotificationRecipient recipient : context.getPayload().getRecipients()) {

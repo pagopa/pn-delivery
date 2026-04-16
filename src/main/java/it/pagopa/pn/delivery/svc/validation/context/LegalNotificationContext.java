@@ -4,7 +4,7 @@ import it.pagopa.pn.delivery.models.InternalNotification;
 import lombok.Data;
 
 @Data
-public class NotificaLegaleContext implements NotificaContext {
+public class LegalNotificationContext implements NotificationContext {
     InternalNotification payload;
     String cxId;
 }

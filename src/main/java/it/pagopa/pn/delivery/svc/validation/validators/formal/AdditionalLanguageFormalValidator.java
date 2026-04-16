@@ -3,9 +3,9 @@ package it.pagopa.pn.delivery.svc.validation.validators.formal;
 import it.pagopa.pn.commons.exceptions.dto.ProblemError;
 import it.pagopa.pn.delivery.svc.search.AllowedAdditionalLanguages;
 import it.pagopa.pn.delivery.svc.validation.ErrorCodes;
-import it.pagopa.pn.delivery.svc.validation.context.NotificaContext;
+import it.pagopa.pn.delivery.svc.validation.context.NotificationContext;
 import it.pagopa.pn.delivery.svc.validation.validators.FormalValidator;
-import it.pagopa.pn.delivery.svc.validation.context.NotificaInformaleContext;
+import it.pagopa.pn.delivery.svc.validation.context.InformalNotificationContext;
 import it.pagopa.pn.delivery.svc.validation.ValidationResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,22 +20,22 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class AdditionalLanguageFormalValidator implements FormalValidator<NotificaContext> {
+public class AdditionalLanguageFormalValidator implements FormalValidator<NotificationContext> {
 
     private static final String REQUIRED_ADDITIONAL_LANG_SIZE = "È obbligatorio fornire una sola lingua aggiuntiva.";
 
     @Override
-    public ValidationResult validate(NotificaContext context) {
+    public ValidationResult validate(NotificationContext context) {
         ArrayList<ProblemError> errors = new ArrayList<>();
 
-        NotificaInformaleContext internalContext = (NotificaInformaleContext) context;
+        InformalNotificationContext internalContext = (InformalNotificationContext) context;
 
         checkAdditionalLanguages(internalContext, errors);
 
         return new ValidationResult(errors);
     }
 
-    private void checkAdditionalLanguages(NotificaInformaleContext context, ArrayList<ProblemError> errors) {
+    private void checkAdditionalLanguages(InformalNotificationContext context, ArrayList<ProblemError> errors) {
         List<String> additionalLanguages = context.getAdditionalLanguages();
         if(!CollectionUtils.isNullOrEmpty(additionalLanguages) && additionalLanguages.size() > 1){
             errors.add( ProblemError.builder().element("additionalLanguages").code(ErrorCodes.ERROR_CODE_REQUIRED_ADDITIONAL_LANG.getValue()).detail(REQUIRED_ADDITIONAL_LANG_SIZE).build());

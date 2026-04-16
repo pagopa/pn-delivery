@@ -7,27 +7,29 @@ import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.svc.validation.ErrorCodes;
 import it.pagopa.pn.delivery.svc.validation.ValidationResult;
-import it.pagopa.pn.delivery.svc.validation.context.NotificaContext;
+import it.pagopa.pn.delivery.svc.validation.context.NotificationContext;
 import it.pagopa.pn.delivery.svc.validation.validators.FormalValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+@Component
 @Slf4j
 @RequiredArgsConstructor
-public class UniqueAttachmentsValidator implements FormalValidator<NotificaContext> {
+public class UniqueAttachmentsValidator implements FormalValidator<NotificationContext> {
 
 
     @Override
-    public ValidationResult validate(NotificaContext context) {
+    public ValidationResult validate(NotificationContext context) {
 
         ArrayList<ProblemError> errors = new ArrayList<>();
         checkIfNotificationHasDuplicateAttachments(context, errors);
         return new ValidationResult(errors);
     }
 
-    private void checkIfNotificationHasDuplicateAttachments(NotificaContext context, ArrayList<ProblemError> errors) {
+    private void checkIfNotificationHasDuplicateAttachments(NotificationContext context, ArrayList<ProblemError> errors) {
         if (!hasDistinctAttachments(context.getPayload())) {
             errors.add(ProblemError.builder().detail("Same attachment compares more then once in the same request").code(ErrorCodes.ERROR_CODE_DUPLICATED_ATTACHMENTS.getValue()).element("attachments").build());
         }

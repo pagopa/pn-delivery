@@ -14,8 +14,8 @@ import it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAd
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
 import it.pagopa.pn.delivery.svc.validation.ValidationResult;
-import it.pagopa.pn.delivery.svc.validation.context.NotificaInformaleContext;
-import it.pagopa.pn.delivery.svc.validation.context.NotificaLegaleContext;
+import it.pagopa.pn.delivery.svc.validation.context.InformalNotificationContext;
+import it.pagopa.pn.delivery.svc.validation.context.LegalNotificationContext;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV24;
 
 import java.time.Instant;
@@ -34,15 +34,15 @@ public final class ValidatorTestSupport {
     private ValidatorTestSupport() {
     }
 
-    public static NotificaLegaleContext legalContext(InternalNotification payload) {
-        NotificaLegaleContext context = new NotificaLegaleContext();
+    public static LegalNotificationContext legalContext(InternalNotification payload) {
+        LegalNotificationContext context = new LegalNotificationContext();
         context.setPayload(payload);
         context.setCxId(DEFAULT_CX_ID);
         return context;
     }
 
-    public static NotificaInformaleContext informalContext(InternalNotification payload, List<String> additionalLanguages, Campaign campaign) {
-        NotificaInformaleContext context = new NotificaInformaleContext();
+    public static InformalNotificationContext informalContext(InternalNotification payload, List<String> additionalLanguages, Campaign campaign) {
+        InformalNotificationContext context = new InformalNotificationContext();
         context.setPayload(payload);
         context.setCxId(DEFAULT_CX_ID);
         context.setCampaign(campaign);

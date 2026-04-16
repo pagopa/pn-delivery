@@ -8,10 +8,10 @@ import it.pagopa.pn.delivery.svc.validation.context.ValidationContext;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ValidationPipelineBuilder<C extends ValidationContext> {
-    private List<FormalValidator<? super C>> formal = new ArrayList<>();
-    private List<AuthorizationValidator<? super C>> authorization = new ArrayList<>();
-    private List<BusinessValidator<? super C>> business = new ArrayList<>();
+public class ValidationPipelineBuilder<C extends ValidationContext<?>> {
+    private final List<FormalValidator<? super C>> formal = new ArrayList<>();
+    private final List<AuthorizationValidator<? super C>> authorization = new ArrayList<>();
+    private final List<BusinessValidator<? super C>> business = new ArrayList<>();
 
     public final ValidationPipelineBuilder<C> authorization(AuthorizationValidator<? super C> validators) {
         this.authorization.add(validators);
@@ -28,7 +28,7 @@ public class ValidationPipelineBuilder<C extends ValidationContext> {
         return this;
     }
 
-    public ValidationPipeline<C> build() {
+    public ValidationPipeline<? super C> build() {
         return new ValidationPipeline<>(formal, authorization, business);
     }
 }
