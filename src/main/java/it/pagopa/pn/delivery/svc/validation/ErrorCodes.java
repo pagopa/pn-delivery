@@ -1,5 +1,8 @@
 package it.pagopa.pn.delivery.svc.validation;
 
+import lombok.Getter;
+
+@Getter
 public enum ErrorCodes {
 
 	ERROR_CODE_SEND_IS_DISABLED("PN_DELIVERY_SEND_IS_DISABLED"),
@@ -27,8 +30,5 @@ public enum ErrorCodes {
 		this.value = value;
 	}
 
-	public String getValue() {
-		return value;
-	}
 }
 

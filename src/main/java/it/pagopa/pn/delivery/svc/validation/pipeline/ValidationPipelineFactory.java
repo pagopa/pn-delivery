@@ -28,7 +28,7 @@ public class ValidationPipelineFactory<C extends ValidationContext<?>> {
     private final UniqueAttachmentsValidator uniqueAttachmentsValidator;
 
     @Bean
-    public ValidationPipeline<?> informalPipeline() {
+    public ValidationPipeline<InformalNotificationContext> informalPipeline() {
         return new ValidationPipelineBuilder<InformalNotificationContext>()
                 .authorization(sendInformalNotificationActiveValidator)
                 .authorization(senderTaxIdCongruenceValidator)

@@ -7,6 +7,10 @@ import lombok.*;
 @Getter
 @Setter
 @Builder(toBuilder = true)
+@AllArgsConstructor
 @NoArgsConstructor
 public class WorkflowEntity {
+    private String channel;
+    private String deisredFeedback;
+    private boolean includeAttachment;
 }

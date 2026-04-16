@@ -28,7 +28,7 @@ public class ValidationPipelineBuilder<C extends ValidationContext<?>> {
         return this;
     }
 
-    public ValidationPipeline<? super C> build() {
+    public ValidationPipeline<C> build() {
         return new ValidationPipeline<>(formal, authorization, business);
     }
 }

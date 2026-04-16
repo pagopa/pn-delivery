@@ -43,9 +43,9 @@ public class Campaign {
     private String serviceId;
 
     @Valid
-    private List<Message> messagesId;
+    private List<Message> messages;
 
-    private boolean isSensitive;
+    private boolean sensitiveContent;
 
     private boolean stopOnViewed;
 

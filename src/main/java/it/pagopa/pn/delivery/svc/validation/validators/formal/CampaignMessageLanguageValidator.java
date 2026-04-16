@@ -37,7 +37,7 @@ public class CampaignMessageLanguageValidator implements FormalValidator<Notific
             return;
         }
 
-        List<String> languagesInCampaign = context.getCampaign().getMessagesId().stream().map(message -> message.getAdditionalLanguage().name()).toList();
+        List<String> languagesInCampaign = context.getCampaign().getMessages().stream().map(message -> message.getAdditionalLanguage().name()).toList();
         List<String> requestedAdditionalLanguages = context.getAdditionalLanguages() != null ? context.getAdditionalLanguages() : Collections.emptyList();
 
         if (!new HashSet<>(languagesInCampaign).containsAll(requestedAdditionalLanguages)) {
