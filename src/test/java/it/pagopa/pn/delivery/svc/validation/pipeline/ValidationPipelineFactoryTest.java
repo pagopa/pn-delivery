@@ -170,7 +170,7 @@ class ValidationPipelineFactoryTest {
 
         assertThat(ReflectionTestUtils.getField(maxAttachmentsSizeValidator, "maxAttachments"))
                 .isEqualTo(MAX_ATTACHMENTS_COUNT);
-        assertThat(ReflectionTestUtils.getField(maxPaymentsSizeValidator, "getMaxPayments"))
+        assertThat(ReflectionTestUtils.getField(maxPaymentsSizeValidator, "maxPayments"))
                 .isEqualTo(MAX_PAYMENT_NUMBER);
         assertThat(ReflectionTestUtils.getField(maxRecipientsSizeValidator, "maxRecipients"))
                 .isEqualTo(MAX_RECIPIENTS_COUNT);

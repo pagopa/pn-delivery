@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -37,7 +38,7 @@ public class CampaignMessageLanguageValidator implements FormalValidator<Notific
         }
 
         List<String> languagesInCampaign = context.getCampaign().getMessagesId().stream().map(message -> message.getAdditionalLanguage().name()).toList();
-        List<String> requestedAdditionalLanguages = context.getAdditionalLanguages();
+        List<String> requestedAdditionalLanguages = context.getAdditionalLanguages() != null ? context.getAdditionalLanguages() : Collections.emptyList();
 
         if (!new HashSet<>(languagesInCampaign).containsAll(requestedAdditionalLanguages)) {
             errors.add( ProblemError.builder().element("additionalLanguages").code(ErrorCodes.ERROR_CODE_INVALID_ADDITIONAL_LANG.getValue()).detail("All requested additional languages must be present in the current campaign.").build());

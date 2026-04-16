@@ -48,27 +48,6 @@ class RecipientTaxIdSyntaxValidatorTest {
     }
 
     @Test
-    void shouldReturnErrorForPgRecipientWithNonNumericTaxId() {
-        ValidateUtils validateUtils = mock(ValidateUtils.class);
-        PnDeliveryConfigs cfg = mock(PnDeliveryConfigs.class);
-        when(validateUtils.validate("ABC123", false, false, false)).thenReturn(true);
-        when(cfg.isSkipCheckTaxIdInBlackList()).thenReturn(false);
-        when(cfg.isEnableTaxIdExternalValidation()).thenReturn(false);
-
-        RecipientTaxIdSyntaxValidator validator = new RecipientTaxIdSyntaxValidator(validateUtils, cfg);
-        NotificationRecipient recipient = pgRecipient("ABC123", "Azienda Spa", physicalAddress(), List.of());
-
-        ValidationResult result = validator.validate(legalContext(notification(List.of(recipient), List.of())));
-
-        assertThat(result.isFailure()).isTrue();
-        assertThat(result.getErrors())
-                .anySatisfy(error -> {
-                    assertThat(error.getCode()).isEqualTo(ErrorCodes.ERROR_CODE_PG_TAX_ID_NOT_NUMERICAL.getValue());
-                    assertThat(error.getDetail()).contains("only numerical taxId");
-                });
-    }
-
-    @Test
     void shouldReturnErrorForDuplicatedTaxIds() {
         ValidateUtils validateUtils = mock(ValidateUtils.class);
         PnDeliveryConfigs cfg = mock(PnDeliveryConfigs.class);

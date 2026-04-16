@@ -1,7 +1,6 @@
 package it.pagopa.pn.delivery.svc.validation.validators.formal;
 
 import it.pagopa.pn.commons.exceptions.dto.ProblemError;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV25;
 import it.pagopa.pn.delivery.models.internal.notification.MetadataAttachment;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.svc.validation.ErrorCodes;
@@ -12,11 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.validation.ConstraintViolation;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Component
 @Slf4j
@@ -42,10 +38,9 @@ public class PaymentAttachmentValidator implements FormalValidator<NotificationC
     }
 
     private void checkCongruenceBetweenContentTypeAndFileKey(List<NotificationPaymentInfo> payments, ArrayList<ProblemError> errors) {
-        Set<ConstraintViolation<NewNotificationRequestV25>> violations = new HashSet<>();
         for (NotificationPaymentInfo paymentItem : payments) {
             // Verifica per pagamenti F24
-            if (paymentItem.getF24() != null) {
+            if (paymentItem.getF24() != null && paymentItem.getF24().getMetadataAttachment() != null) {
                 MetadataAttachment metadataAttachment = paymentItem.getF24().getMetadataAttachment();
                 checkContentType(metadataAttachment.getContentType(), metadataAttachment.getRef().getKey(), errors);
             }
@@ -58,10 +53,10 @@ public class PaymentAttachmentValidator implements FormalValidator<NotificationC
     }
 
     private void checkContentType(String contentType, String key, ArrayList<ProblemError> errors) {
-        if (APPLICATION_PDF_CONTENT_TYPE.equalsIgnoreCase(contentType) && (!key.contains(PN_NOTIFICATION_ATTACHMENTS) || key.endsWith(EXTENSION_JSON) )) {
+        if (APPLICATION_PDF_CONTENT_TYPE.equalsIgnoreCase(contentType) && (!key.contains(PN_NOTIFICATION_ATTACHMENTS) || !key.endsWith(EXTENSION_PDF) )) {
             errors.add(ProblemError.builder().detail(String.format("Key: %s does not conform to the expected content type: %s", key, contentType)).element("payment").code(ErrorCodes.ERROR_CODE_PAYMENT_ATTACHMENT_CONTENT_TYPE.getValue()).build());
         }
-        if (APPLICATION_JSON_CONTENT_TYPE.equalsIgnoreCase(contentType) && (!key.contains(PN_F24_META) || key.endsWith(EXTENSION_PDF))) {
+        if (APPLICATION_JSON_CONTENT_TYPE.equalsIgnoreCase(contentType) && (!key.contains(PN_F24_META) || !key.endsWith(EXTENSION_JSON))) {
             errors.add(ProblemError.builder().detail(String.format("Key: %s does not conform to the expected content type: %s", key, contentType)).element("payment").code(ErrorCodes.ERROR_CODE_PAYMENT_ATTACHMENT_CONTENT_TYPE.getValue()).build());
         }
     }

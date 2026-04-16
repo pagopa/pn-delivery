@@ -36,7 +36,7 @@ class UniqueAttachmentsValidatorTest {
         assertSingleError(
                 validator.validate(legalContext(notification(List.of(recipient), List.of(document("key-1", "sha-1"), document("key-1", "sha-1"))))),
                 ErrorCodes.ERROR_CODE_DUPLICATED_ATTACHMENTS.getValue(),
-                "Same attachment compares more then once in the same request"
+                "Same attachment appears more than once in the same request"
         );
     }
 
@@ -51,7 +51,7 @@ class UniqueAttachmentsValidatorTest {
         assertSingleError(
                 validator.validate(legalContext(notification(List.of(recipient), List.of(document("key-1", "sha-1"))))),
                 ErrorCodes.ERROR_CODE_DUPLICATED_ATTACHMENTS.getValue(),
-                "Same attachment compares more then once in the same request"
+                "Same attachment appears more than once in the same request"
         );
     }
 }

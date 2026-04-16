@@ -31,12 +31,12 @@ public class UniqueAttachmentsValidator implements FormalValidator<NotificationC
 
     private void checkIfNotificationHasDuplicateAttachments(NotificationContext context, ArrayList<ProblemError> errors) {
         if (!hasDistinctAttachments(context.getPayload())) {
-            errors.add(ProblemError.builder().detail("Same attachment compares more then once in the same request").code(ErrorCodes.ERROR_CODE_DUPLICATED_ATTACHMENTS.getValue()).element("attachments").build());
+            errors.add(ProblemError.builder().detail("Same attachment appears more than once in the same request").code(ErrorCodes.ERROR_CODE_DUPLICATED_ATTACHMENTS.getValue()).element("attachments").build());
         }
     }
 
     /**
-     * Validazio di NewNotificationRequestV25 per verificare l'assenza di duplicati tra gli allegati
+     * Validazione di InternalNotification per verificare l'assenza di duplicati tra gli allegati
      * @param newNotificationRequest
      * @return
      */

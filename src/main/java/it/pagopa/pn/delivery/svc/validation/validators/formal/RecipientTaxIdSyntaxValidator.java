@@ -31,27 +31,16 @@ public class RecipientTaxIdSyntaxValidator implements FormalValidator<Notificati
         Set<String> distinctTaxIds = new HashSet<>();
         ArrayList<ProblemError> errors = new ArrayList<>();
         for (NotificationRecipient recipient : context.getPayload().getRecipients()) {
-
-            // limitazione temporanea: destinatari PG possono avere solo TaxId numerico
-            onlyNumericalTaxIdForPGV2(recIdx, recipient, errors);
             //Check taxId
             checkTaxId(recipient, distinctTaxIds, recIdx, errors);
-
             recIdx++;
         }
 
         return new ValidationResult(errors);
     }
 
-    private void onlyNumericalTaxIdForPGV2(int recIdx, NotificationRecipient recipient, ArrayList<ProblemError> errors) {
-        if (NotificationRecipientV24.RecipientTypeEnum.PG.equals(recipient.getRecipientType()) &&
-                (!recipient.getTaxId().matches("^\\d+$"))) {
-            errors.add(ProblemError.builder().element("taxId").code(ErrorCodes.ERROR_CODE_PG_TAX_ID_NOT_NUMERICAL.getValue()).detail("SEND accepts only numerical taxId for PG recipient " + recIdx).build());
-        }
-    }
-
     /**
-     * Validazio di NotificationRecipientV24 per verificare il taxId e la sua univocità
+     * Validazione di NotificationRecipientV24 per verificare il taxId e la sua univocità
      * @param recipient
      * @return
      */

@@ -23,27 +23,23 @@ public class ProvinceRequiredValidator implements FormalValidator<NotificationCo
 
     @Override
     public ValidationResult validate(NotificationContext context) {
-        int recIdx = 0;
         ArrayList<ProblemError> errors = new ArrayList<>();
 
         for (NotificationRecipient recipient : context.getPayload().getRecipients()) {
             NotificationPhysicalAddress physicalAddress = recipient.getPhysicalAddress();
-            checkIfProvinceIsRequired(physicalAddress, recIdx, errors);
-            recIdx++;
+            checkIfProvinceIsRequired(physicalAddress, errors);
         }
 
         return new ValidationResult(errors);
     }
 
-    private void checkIfProvinceIsRequired(NotificationPhysicalAddress physicalAddress, int recIdx, ArrayList<ProblemError> errors) {
+    private void checkIfProvinceIsRequired(NotificationPhysicalAddress physicalAddress, ArrayList<ProblemError> errors) {
         if (Objects.isNull(physicalAddress)) return;
 
         boolean addressIsItalian = !StringUtils.hasText(physicalAddress.getForeignState()) || physicalAddress.getForeignState().toUpperCase().trim().startsWith("ITAL");
         boolean addressDoesNotHaveProvince = !StringUtils.hasText(physicalAddress.getProvince());
 
         if (addressIsItalian && addressDoesNotHaveProvince) {
-            String errorMessage = String.format("Recipient %d: Province is required for Italian addresses", recIdx);
-            log.error(errorMessage);
             errors.add(ProblemError.builder()
                     .element("address")
                     .code(ErrorCodes.ERROR_CODE_PROVINCE_REQUIRED.getValue())

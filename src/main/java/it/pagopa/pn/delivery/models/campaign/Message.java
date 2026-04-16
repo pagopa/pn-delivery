@@ -16,7 +16,7 @@ public class Message {
 
     public enum AdditionalLanguage {
         DE,
-        SI,
+        SL,
         FR
     }
 
