@@ -1,5 +1,5 @@
 package it.pagopa.pn.delivery.svc.authorization;
 
 public enum CxType {
-    PA,PF,PG
+    PA,PF,PG,BS
 }

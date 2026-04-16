@@ -37,6 +37,7 @@ public class CheckAuthComponent {
             case PA -> paCanAccess(action, notification);
             case PF -> pfCanAccess(action, notification);
             case PG -> pgCanAccess(action, notification);
+            case BS -> bsCanAccess(action, notification);
         };
     }
 
@@ -136,12 +137,28 @@ public class CheckAuthComponent {
     }
 
     private AuthorizationOutcome paCanAccess(ReadAccessAuth action, InternalNotification notification) {
+        return senderCanAccess(action, notification);
+    }
+
+    private AuthorizationOutcome bsCanAccess(ReadAccessAuth action, InternalNotification notification) {
+        if (action.getAction() != ReadAccessAction.DOWNLOAD_DOCUMENTS) {
+            log.warn("bsCanAccess action {} not allowed for cxType BS", action.getAction());
+            return AuthorizationOutcome.fail();
+        }
+        return senderCanAccess(action, notification);
+    }
+
+    private AuthorizationOutcome senderCanAccess(ReadAccessAuth action, InternalNotification notification) {
         String senderId = action.getCxId();
-        log.debug( "Check if senderId={} can access iun={}", senderId, notification.getIun() );
+        log.debug( "Check if senderId={} cxType={} can access iun={}", senderId, action.getCxType(), notification.getIun() );
         boolean authorized = senderId.equals( notification.getSenderPaId() );
         AuthorizationOutcome result;
         if ( authorized ) {
             Integer recipientIdx = action.getRecipientIdx();
+            if ( recipientIdx != null && recipientIdx >= notification.getRecipients().size() ) {
+                log.warn( "senderCanAccess recipientIdx={} out of bounds (recipients size={}) iun={}", recipientIdx, notification.getRecipients().size(), notification.getIun() );
+                return AuthorizationOutcome.fail();
+            }
             NotificationRecipient effectiveRecipient = null;
             if ( recipientIdx != null && recipientIdx >= 0 ) {
                 effectiveRecipient = notification.getRecipients().get(recipientIdx);
