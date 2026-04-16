@@ -32,6 +32,9 @@ tags:
     description: >-
       Invocazioni utilizzabili dai mittenti per verificare lo stato delle richieste 
       di notifica inviate e delle notifiche accettate.
+  - name: InformalNotificationTermination
+    description: >-
+      Invocazioni per interrompere il workflow di una notifica non legale in stato di attesa o accettata
 
 paths:
     ###########################################################################################
@@ -325,14 +328,26 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        '500':
-          description: Internal error
+        '401':
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
         '404':
           description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
           content:
             application/problem+json:
               schema:
@@ -368,14 +383,88 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        '500':
-          description: Internal error
+        '401':
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
         '404':
           description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+    ###########################################################################################
+    ###                             INTERRUZIONE DEL WORKFLOW                               ###
+    ###########################################################################################
+  "/delivery/v1/notifications/informal/terminate":
+    post:
+      tags:
+        - InformalNotificationTermination
+      summary: Interruzione workflow notifica per coppia (CF, campagna)
+      description: >-
+        Permette all\'Ente di interrompere il workflow di una comunicazione non 
+        legale per un determinato destinatario all'interno di una specifica campagna. 
+        La notifica passerà allo stato COMPLETED.
+      operationId: terminateInformalWorkflow
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet' # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet' # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet' # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet' # NO EXTERNAL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TerminateWorkflowRequest'
+      responses:
+        '202':
+          description: Accepted - Richiesta interruzione presa in carico
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TerminationRequestStatus"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
           content:
             application/problem+json:
               schema:
@@ -593,6 +682,59 @@ components:
               description: Index destinatario notifica digitale
               type: integer
               format: int32
+
+    ###########################################################################################
+    ###                       DTO RICHIESTE DI TERMINAZIONE WORKFLOW                        ###
+    ###########################################################################################
+
+    TerminateWorkflowRequest:
+      type: object
+      required: [ recipientTaxId, campaignId ]
+      properties:
+        recipientTaxId:
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/TaxId'
+        campaignId:
+          type: string
+          description: ID della campagna associata alla notifica
+
+    TerminationRequestStatus:
+      description: Risposta alla richiesta di interruzione del workflow di una notifica non legale.
+      type: object
+      required: [ status ]
+      properties:
+        status:
+          description: >
+            Termination request status:
+              - OK
+          type: string
+        details:
+          type: array
+          maxItems: 9999
+          items:
+            $ref: '#/components/schemas/StatusDetail'
+
+    StatusDetail:
+      description: >-
+        Informazione di dettaglio sullo stato di una richiesta
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          description: Codice interno di errore o avvertimento, in formato leggibile
+          example: NOTIFICATION_TERMINATION_ACCEPTED, NOTIFICATION_ALREADY_TERMINATED, etc.
+          type: string
+        level:
+          description: |
+            livello informativo del dettaglio di stato: INFO,WARN, ERR
+            ERR (error) di default
+          example: INFO
+          type: string
+        detail:
+          description: >-
+            Spiegazione specifica per questa occorrenza del problema.
+          example: Parametro non valido
+          type: string
 
     Problem:
       $ref: './remote-refs.yaml#/components/schemas/Problem'
