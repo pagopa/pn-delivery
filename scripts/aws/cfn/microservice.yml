@@ -117,6 +117,17 @@ Parameters:
     AllowedValues: [ true, false ]
     Default: false
 
+  EnableSenderTaxIdCongruence:
+    Type: String
+    Description: "Flag to enable sender tax id congruence validation"
+    AllowedValues: [ true, false ]
+    Default: true
+
+  InfoPaCacheDuration:
+    Type: String
+    Description: "Duration of info PA cache"
+    Default: "2h"
+
   ECSClusterName:
     Type: String
     Description: "The name of the ECS cluster where the microservice is going to be deployed"
@@ -912,14 +923,16 @@ Resources:
         ContainerEnvEntry57: !Sub "PN_DELIVERY_LATESTNOTIFICATIONVERSION=${LatestNotificationVersion}"
         ContainerEnvEntry58: !Sub "LOLLIPOP_EXPECTED_LC_ORIGINAL_METHOD=${LollipopExpectedLcOriginalMethod}"
         ContainerEnvEntry59: !Sub "LOLLIPOP_WHITE_LIST=${LollipopWhiteList}"
-        ContainerEnvEntry60: !Sub "PN_DELIVERY_TIMELINESERVICEBASEURL=http://${ApplicationLoadBalancerDomain}:8080"
-        ContainerEnvEntry61: !Sub "PN_DELIVERY_NOTIFICATIONCOSTSERVICEBASEURL=http://${ApplicationLoadBalancerDomain}:8080"
-        ContainerEnvEntry62: !Sub 'PN_DELIVERY_NEWCOSTSERVICENOTIFICATIONPROCESSINGSTARTDATE={{resolve:ssm:/config/notification-cost-service/notification-processing-start-date}}'
-        ContainerEnvEntry63: !Sub 'PN_DELIVERY_NEWCOSTSERVICEACTIVATIONDATE={{resolve:ssm:/config/pn-delivery/new-cost-service-activation-date}}'
-        ContainerEnvEntry64: !Sub 'PN_DELIVERY_NEWCOSTSERVICEMONITORINGENABLED={{resolve:ssm:/config/pn-delivery/new-cost-service-monitoring-enabled}}'
-        ContainerEnvEntry65: !Sub 'METRIC_FORMAT_TYPE=${MetricFormatType}'
-        ContainerEnvEntry66: !Sub 'PN_DELIVERY_NOTIFICATION_COST_SERVICE_READ_TIMEOUT_MILLIS=${NotificationCostServiceReadTimeoutMillis}'
-        ContainerEnvEntry67: !Sub 'PN_DELIVERY_NOTIFICATION_COST_SERVICE_RETRY_MAX_ATTEMPTS=${NotificationCostServiceMaxRetryAttempts}'
+        ContainerEnvEntry60: !Sub "PN_DELIVERY_ENABLE_SENDER_TAX_ID_CONGRUENCE=${EnableSenderTaxIdCongruence}"
+        ContainerEnvEntry61: !Sub "PN_DELIVERY_INFO_PA_CACHE_DURATION=${InfoPaCacheDuration}"
+        ContainerEnvEntry62: !Sub "PN_DELIVERY_TIMELINESERVICEBASEURL=http://${ApplicationLoadBalancerDomain}:8080"
+        ContainerEnvEntry63: !Sub "PN_DELIVERY_NOTIFICATIONCOSTSERVICEBASEURL=http://${ApplicationLoadBalancerDomain}:8080"
+        ContainerEnvEntry64: !Sub 'PN_DELIVERY_NEWCOSTSERVICENOTIFICATIONPROCESSINGSTARTDATE={{resolve:ssm:/config/notification-cost-service/notification-processing-start-date}}'
+        ContainerEnvEntry65: !Sub 'PN_DELIVERY_NEWCOSTSERVICEACTIVATIONDATE={{resolve:ssm:/config/pn-delivery/new-cost-service-activation-date}}'
+        ContainerEnvEntry66: !Sub 'PN_DELIVERY_NEWCOSTSERVICEMONITORINGENABLED={{resolve:ssm:/config/pn-delivery/new-cost-service-monitoring-enabled}}'
+        ContainerEnvEntry67: !Sub 'METRIC_FORMAT_TYPE=${MetricFormatType}'
+        ContainerEnvEntry68: !Sub 'PN_DELIVERY_NOTIFICATION_COST_SERVICE_READ_TIMEOUT_MILLIS=${NotificationCostServiceReadTimeoutMillis}'
+        ContainerEnvEntry69: !Sub 'PN_DELIVERY_NOTIFICATION_COST_SERVICE_RETRY_MAX_ATTEMPTS=${NotificationCostServiceMaxRetryAttempts}'
         ContainerSecret1: !Sub "ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:"
         MicroServiceSecretPrefix: pn-Delivery-Secrets
         JavaToolOptions: "-Dreactor.netty.ioWorkerCount=120 -XX:MaxMetaspaceSize=512M"
@@ -2432,3 +2445,4 @@ Resources:
         OncallDatapointsToAlarm: !Ref OncallIONotificationViewFailureAlarmDatapointsToAlarm
         OncallComparisonOperator: GreaterThanOrEqualToThreshold
         OncallStatistic: Sum
+        HasAlarm: false

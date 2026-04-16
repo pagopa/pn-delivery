@@ -115,6 +115,10 @@ public class PnDeliveryConfigs {
 
     private String documentNumberOfPagesTagKey;
 
+    private boolean enableSenderTaxIdCongruence;
+
+    private Duration infoPaCacheDuration;
+
     @PostConstruct
     public void init(){
         log.info("CONFIGURATION {}",this);

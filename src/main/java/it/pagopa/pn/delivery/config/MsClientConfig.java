@@ -7,6 +7,7 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.api.Notific
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.api.RecipientsApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.api.NotificationProcessCostApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.api.TimelineAndStatusApi;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.InfoPaApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.InternalOnlyApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.PaymentInfoApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.RootSenderIdApi;
@@ -36,57 +37,65 @@ public class MsClientConfig {
         @Bean
         @Primary
         RecipientsApi recipientsApi(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryConfigs cfg) {
-            ApiClient newApiClient = new ApiClient( restTemplate );
-            newApiClient.setBasePath( cfg.getDataVaultBaseUrl() );
+            ApiClient newApiClient = new ApiClient(restTemplate);
+            newApiClient.setBasePath(cfg.getDataVaultBaseUrl());
             return new RecipientsApi(newApiClient);
         }
 
         @Bean
         @Primary
         NotificationsApi notificationsApi(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryConfigs cfg) {
-            ApiClient newApiClient = new ApiClient( restTemplate );
-            newApiClient.setBasePath( cfg.getDataVaultBaseUrl() );
+            ApiClient newApiClient = new ApiClient(restTemplate);
+            newApiClient.setBasePath(cfg.getDataVaultBaseUrl());
             return new NotificationsApi(newApiClient);
         }
 
         @Bean
         @Primary
-        TimelineAndStatusApi timelineAndStatusApi(@Qualifier("withTracing")RestTemplate restTemplate, PnDeliveryConfigs cfg) {
-            it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.ApiClient newApiClient = new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.ApiClient( restTemplate );
+        TimelineAndStatusApi timelineAndStatusApi(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryConfigs cfg) {
+            it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.ApiClient newApiClient = new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.ApiClient(restTemplate);
             newApiClient.setBasePath(cfg.getDeliveryPushBaseUrl());
             return new TimelineAndStatusApi(newApiClient);
         }
 
         @Bean
         @Primary
-        NotificationProcessCostApi notificationProcessCostApi(@Qualifier("withTracing")RestTemplate restTemplate, PnDeliveryConfigs cfg) {
-            it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.ApiClient processCostApiClient = new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.ApiClient(  restTemplate );
-            processCostApiClient.setBasePath( cfg.getDeliveryPushBaseUrl() );
+        NotificationProcessCostApi notificationProcessCostApi(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryConfigs cfg) {
+            it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.ApiClient processCostApiClient = new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.ApiClient(restTemplate);
+            processCostApiClient.setBasePath(cfg.getDeliveryPushBaseUrl());
             return new NotificationProcessCostApi(processCostApiClient);
         }
 
         @Bean
         @Primary
         PaymentInfoApi paymentInfoApi(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryConfigs cfg) {
-            it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.ApiClient newApiClient = new it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.ApiClient( restTemplate );
-            newApiClient.setBasePath( cfg.getExternalRegistriesBaseUrl() );
+            it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.ApiClient newApiClient = new it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.ApiClient(restTemplate);
+            newApiClient.setBasePath(cfg.getExternalRegistriesBaseUrl());
             return new PaymentInfoApi(newApiClient);
         }
 
         @Bean
         @Primary
         InternalOnlyApi internalOnlyApi(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryConfigs cfg) {
-            it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.ApiClient newApiClient = new it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.ApiClient( restTemplate );
-            newApiClient.setBasePath( cfg.getExternalRegistriesBaseUrl() );
+            it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.ApiClient newApiClient = new it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.ApiClient(restTemplate);
+            newApiClient.setBasePath(cfg.getExternalRegistriesBaseUrl());
             return new InternalOnlyApi(newApiClient);
         }
 
         @Bean
         @Primary
         RootSenderIdApi rootSenderIdApi(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryConfigs cfg) {
-            it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.ApiClient newApiClient = new it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.ApiClient( restTemplate );
-            newApiClient.setBasePath( cfg.getExternalRegistriesBaseUrl() );
+            it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.ApiClient newApiClient = new it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.ApiClient(restTemplate);
+            newApiClient.setBasePath(cfg.getExternalRegistriesBaseUrl());
             return new RootSenderIdApi(newApiClient);
+        }
+
+        @Bean
+        @Primary
+        InfoPaApi infoPaApi(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryConfigs cfg) {
+            it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.ApiClient newApiClient = new it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.ApiClient(restTemplate);
+            newApiClient.setBasePath(cfg.getExternalRegistriesBaseUrl());
+            return new InfoPaApi(newApiClient);
         }
 
         @Bean
@@ -116,24 +125,24 @@ public class MsClientConfig {
         @Bean
         @Primary
         FileDownloadApi fileDownloadApi(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryConfigs cfg) {
-            it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.ApiClient newApiClient = new it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.ApiClient( restTemplate );
-            newApiClient.setBasePath( cfg.getSafeStorageBaseUrl() );
+            it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.ApiClient newApiClient = new it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.ApiClient(restTemplate);
+            newApiClient.setBasePath(cfg.getSafeStorageBaseUrl());
             return new FileDownloadApi(newApiClient);
         }
 
         @Bean
         @Primary
         FileUploadApi fileUploadApi(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryConfigs cfg) {
-            it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.ApiClient newApiClient = new it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.ApiClient( restTemplate );
-            newApiClient.setBasePath( cfg.getSafeStorageBaseUrl() );
+            it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.ApiClient newApiClient = new it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.ApiClient(restTemplate);
+            newApiClient.setBasePath(cfg.getSafeStorageBaseUrl());
             return new FileUploadApi(newApiClient);
         }
 
         @Bean
         @Primary
         AgenziaEntrateApi agenziaEntrateApi(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryConfigs cfg) {
-            it.pagopa.pn.delivery.generated.openapi.msclient.nationalregistries.v1.ApiClient newApiClient = new it.pagopa.pn.delivery.generated.openapi.msclient.nationalregistries.v1.ApiClient( restTemplate );
-            newApiClient.setBasePath( cfg.getNationalRegistriesBaseUrl() );
+            it.pagopa.pn.delivery.generated.openapi.msclient.nationalregistries.v1.ApiClient newApiClient = new it.pagopa.pn.delivery.generated.openapi.msclient.nationalregistries.v1.ApiClient(restTemplate);
+            newApiClient.setBasePath(cfg.getNationalRegistriesBaseUrl());
             return new AgenziaEntrateApi(newApiClient);
         }
 

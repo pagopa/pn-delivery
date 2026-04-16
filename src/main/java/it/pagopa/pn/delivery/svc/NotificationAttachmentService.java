@@ -31,6 +31,7 @@ import it.pagopa.pn.delivery.pnclient.pnf24.PnF24ClientImpl;
 import it.pagopa.pn.delivery.pnclient.safestorage.PnSafeStorageClientImpl;
 import it.pagopa.pn.delivery.svc.authorization.AuthorizationOutcome;
 import it.pagopa.pn.delivery.svc.authorization.CheckAuthComponent;
+import it.pagopa.pn.delivery.svc.authorization.ReadAccessAction;
 import it.pagopa.pn.delivery.svc.authorization.ReadAccessAuth;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -236,7 +237,7 @@ public class NotificationAttachmentService {
         Boolean markNotificationAsViewed = inputDownloadDto.getMarkNotificationAsViewed();
         log.info("downloadDocumentWithRedirect for cxType={} iun={} documentIndex={} recipientIdx={} xPagopaPnCxId={} attachmentName={} mandateId={} markNotificationAsViewed={} attachmentIndex={}", cxType, iun, documentIndex, recipientIdx, cxId, attachmentName, mandateId, markNotificationAsViewed, attachmentIdx);
 
-        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, cxGroups, iun, recipientIdx);
+        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, cxGroups, iun, recipientIdx, ReadAccessAction.DOWNLOAD_DOCUMENTS);
 
         Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(iun, false);
         if (optNotification.isPresent()) {

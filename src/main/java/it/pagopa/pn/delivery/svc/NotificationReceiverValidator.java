@@ -9,12 +9,15 @@ import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.config.PhysicalAddressLookupParameterConsumer;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
+import it.pagopa.pn.delivery.exception.PnInvalidTaxIdException;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaInfo;
 import it.pagopa.pn.delivery.generated.openapi.msclient.nationalregistries.v1.api.AgenziaEntrateApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.nationalregistries.v1.model.CheckTaxIdOK;
 import it.pagopa.pn.delivery.generated.openapi.msclient.nationalregistries.v1.model.CheckTaxIdRequestBody;
 import it.pagopa.pn.delivery.generated.openapi.msclient.nationalregistries.v1.model.CheckTaxIdRequestBodyFilter;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
 import it.pagopa.pn.delivery.svc.search.AllowedAdditionalLanguages;
 import it.pagopa.pn.delivery.utils.DenominationValidationUtils;
@@ -45,6 +48,7 @@ public class NotificationReceiverValidator {
     private final PnDeliveryConfigs pnDeliveryConfigs;
     private final AgenziaEntrateApi agenziaEntrateApi;
     private final PhysicalAddressLookupParameterConsumer physicalAddressLookupParameter;
+    private final PnExternalRegistriesClientImpl pnExternalRegistriesClient;
 
     private final FeatureFlagUtils featureFlagUtils;
     public static final String REQUIRED_ADDITIONAL_LANG_SIZE = "È obbligatorio fornire una sola lingua aggiuntiva.";
@@ -56,13 +60,14 @@ public class NotificationReceiverValidator {
     public static final String PN_F24_META = "PN_F24_META";
 
     public NotificationReceiverValidator(Validator validator, MVPParameterConsumer mvpParameterConsumer, ValidateUtils validateUtils, PnDeliveryConfigs pnDeliveryConfigs,
-                                         AgenziaEntrateApi agenziaEntrateApi, PhysicalAddressLookupParameterConsumer physicalAddressLookupParameter, FeatureFlagUtils featureFlagUtils) {
+                                         AgenziaEntrateApi agenziaEntrateApi, PhysicalAddressLookupParameterConsumer physicalAddressLookupParameter, PnExternalRegistriesClientImpl pnExternalRegistriesClient, FeatureFlagUtils featureFlagUtils) {
         this.validator = validator;
         this.mvpParameterConsumer = mvpParameterConsumer;
         this.validateUtils = validateUtils;
         this.pnDeliveryConfigs = pnDeliveryConfigs;
         this.agenziaEntrateApi = agenziaEntrateApi;
         this.physicalAddressLookupParameter = physicalAddressLookupParameter;
+        this.pnExternalRegistriesClient = pnExternalRegistriesClient;
         this.featureFlagUtils = featureFlagUtils;
 
         log.info("Validation enabled={}", pnDeliveryConfigs.isPhysicalAddressValidation());
@@ -94,6 +99,22 @@ public class NotificationReceiverValidator {
         }
 
         checkAdditionalLanguages(newNotificationRequestV2.getAdditionalLanguages());
+
+        checkSenderTaxIdCongruence(newNotificationRequestV2,paId);
+    }
+
+    private void checkSenderTaxIdCongruence(NewNotificationRequestV25 newNotificationRequestV2, String paId){
+        if(pnDeliveryConfigs.isEnableSenderTaxIdCongruence()){
+            PaInfo paInfo = pnExternalRegistriesClient.getOnePa(paId);
+            if (paInfo == null || !StringUtils.hasText(paInfo.getTaxId())) {
+                throw new PnInternalException("Unable to retrieve PA taxId from external registries", 500, ERROR_CODE_DELIVERY_PA_NOT_FOUND);
+            }
+
+            String taxId = paInfo.getTaxId();
+            if(!newNotificationRequestV2.getSenderTaxId().equals(taxId)){
+                throw new PnInvalidTaxIdException(ERROR_CODE_DELIVERY_INVALID_SENDER_TAX_ID);
+            }
+        }
     }
 
     protected void checkAdditionalLanguages(List<String> additionalLanguages) {
@@ -545,3 +566,4 @@ public class NotificationReceiverValidator {
         return errors;
     }
 }
+
