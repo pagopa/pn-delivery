@@ -26,7 +26,7 @@ function isRecordToSend(record) {
 function mapMessage(record) {
   const senderPaId = record.dynamodb.NewImage.senderPaId.S;
   const iun = record.dynamodb.Keys.iun.S;
-  communicationType = record.dynamodb.NewImage.communicationType?.S;
+  const communicationType = record.dynamodb.NewImage.communicationType?.S;
 
   const message = {
     Id: iun + "_start",

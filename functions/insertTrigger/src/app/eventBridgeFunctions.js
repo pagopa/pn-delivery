@@ -4,7 +4,6 @@ const {
 } = require("@aws-sdk/client-eventbridge");
 
 const DESTINATION_ID = "pn-delivery-push";
-const MESSAGE_DETAIL = "PnDeliveryValidationOutcomeEvent";
 const EVENT_SOURCE = "eventbridge.pn-delivery.insertTrigger";
 
 const EVENT_BUS_ARN = process.env.EVENT_BUS_ENDPOINT
