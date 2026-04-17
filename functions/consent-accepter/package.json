@@ -10,8 +10,8 @@
     "coverage": "nyc report --reporter=lcov",
     "sonar": "node sonarqube-scanner.js"
   },
-  "devDependencies": {    
-    "@aws-sdk/credential-providers": "^3.590.0",
+  "devDependencies": {
+    "@aws-sdk/credential-providers": "^3.1004.0",
     "@aws-sdk/hash-node": "^3.374.0",
     "@aws-sdk/signature-v4": "^3.374.0",
     "@aws-sdk/util-format-url": "^3.577.0",
