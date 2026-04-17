@@ -8,7 +8,10 @@ function isRecordToSend(record) {
   );
   const iun = record.dynamodb.Keys.iun.S;
 
-  if (iun.match(/^\S\S\S\S-\S\S\S\S-\S\S\S\S-\d\d\d\d\d\d-\S-\d$/) == null) {
+  const legal = /^\S\S\S\S-\S\S\S\S-\S\S\S\S-\d\d\d\d\d\d-\S-\d$/;
+  const informal = /^\S\S\S\S-\S\S\S\S-\S\S\S\S-\d\d\d\d\d\d-\S-[A-Z]$/;
+
+  if (iun.match(legal) == null && iun.match(informal) == null) {
     console.debug(
       "[PN-DELIVERY-INSERT-TRIGGER]",
       "Record is not a notification, skipping"
@@ -23,6 +26,7 @@ function isRecordToSend(record) {
 function mapMessage(record) {
   const senderPaId = record.dynamodb.NewImage.senderPaId.S;
   const iun = record.dynamodb.Keys.iun.S;
+  communicationType = record.dynamodb.NewImage.communicationType?.S;
 
   const message = {
     Id: iun + "_start",
@@ -51,7 +55,7 @@ function mapMessage(record) {
         StringValue: "DELIVERY",
       },
     },
-    MessageBody: JSON.stringify({ paId: senderPaId }),
+    MessageBody: JSON.stringify({ paId: senderPaId, communicationType: communicationType }),
   };
   return message;
 }

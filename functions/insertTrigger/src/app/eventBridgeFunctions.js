@@ -37,7 +37,7 @@ const sendMessages = async (messages = []) => {
         MessageDeduplicationId: messages[i].MessageDeduplicationId,
         MessageAttributes: messages[i].MessageAttributes,
       }),
-      DetailType: MESSAGE_DETAIL,
+      DetailType: getDetailTypeByNotification(oldBody.communicationType),
       Resources: [],
       Source: EVENT_SOURCE,
       EventBusName: EVENT_BUS_ARN,
@@ -60,5 +60,12 @@ const sendMessages = async (messages = []) => {
 
   return response;
 };
+
+function getDetailTypeByNotification(communicationType) {
+  if (!communicationType) {
+    return "PnDeliveryValidationOutcomeEvent";
+  }
+  return "PnDeliveryInformalValidationOutcomeEvent";
+}
 
 module.exports = { sendMessages };
