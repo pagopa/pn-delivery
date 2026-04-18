@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.models;
 
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.models.internal.notification.CommunicationType;
 import it.pagopa.pn.delivery.models.internal.notification.InternalUsedService;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
@@ -52,6 +53,9 @@ public class InternalNotification {
     private String version;
     private List<String> additionalLanguages;
     private InternalUsedService usedServices;
+    private String campaignId;
+    private CommunicationType communicationType;
+
 
     public InternalNotification idempotenceToken(String idempotenceToken) {
         this.idempotenceToken = idempotenceToken;
@@ -436,6 +440,19 @@ public class InternalNotification {
 
     public void setVersion(String version) { this.version = version; }
 
+    public String getCampaignId() {
+        return campaignId;
+    }
 
+    public void setCampaignId(String campaignId) {
+        this.campaignId = campaignId;
+    }
 
+    public CommunicationType getCommunicationType() {
+        return communicationType;
+    }
+
+    public void setCommunicationType(CommunicationType communicationType) {
+        this.communicationType = communicationType;
+    }
 }
