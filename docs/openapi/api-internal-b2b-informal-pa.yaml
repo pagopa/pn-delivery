@@ -411,7 +411,7 @@ paths:
     ###########################################################################################
     ###                             INTERRUZIONE DEL WORKFLOW                               ###
     ###########################################################################################
-  "/delivery/v1/notifications/informal/terminate":
+  "/delivery/v1/notifications/informal/{iun}/terminate":
     post:
       tags:
         - InformalNotificationTermination
@@ -426,12 +426,7 @@ paths:
         - $ref: '#/components/parameters/cxTypeAuthFleet' # NO EXTERNAL
         - $ref: '#/components/parameters/cxIdAuthFleet' # NO EXTERNAL
         - $ref: '#/components/parameters/cxGroupsAuthFleet' # NO EXTERNAL
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TerminateWorkflowRequest'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
       responses:
         '202':
           description: Accepted - Richiesta interruzione presa in carico
@@ -686,16 +681,6 @@ components:
     ###########################################################################################
     ###                       DTO RICHIESTE DI TERMINAZIONE WORKFLOW                        ###
     ###########################################################################################
-
-    TerminateWorkflowRequest:
-      type: object
-      required: [ recipientTaxId, campaignId ]
-      properties:
-        recipientTaxId:
-          $ref: 'schemas-pn-notification.yaml#/components/schemas/TaxId'
-        campaignId:
-          type: string
-          description: ID della campagna associata alla notifica
 
     TerminationRequestStatus:
       description: Risposta alla richiesta di interruzione del workflow di una notifica non legale.
