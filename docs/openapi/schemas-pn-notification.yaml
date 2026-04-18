@@ -286,11 +286,6 @@ components:
         campaignId:
           type: string
           description: ID della campagna che definisce il workflow di invio
-        messageId:
-          type: string
-          format: uuid
-          description: >-
-            Opzionale. Sovrascrive il messaggio di default della campagna
         additionalLanguages:
           description: >-
             In questo campo è possibile definire la lingua addizionale (oltre a quella italiana) da utilizzare per l'invio del messaggio sui canali configurati.<br/>
@@ -370,6 +365,11 @@ components:
           properties:
             payments:
               $ref: '#/components/schemas/InformalNotificationPayments'
+            messageId:
+              type: string
+              format: uuid
+              description: >-
+                Opzionale. Sovrascrive il messaggio di default della campagna
 
     InformalNotificationPayments:
       description: Pagamenti collegati alla notifica per il destinatario.

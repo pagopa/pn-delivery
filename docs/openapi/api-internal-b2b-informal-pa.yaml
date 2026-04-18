@@ -353,7 +353,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
 
-  "/delivery/v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{pathAttachmentName}":
+  "/delivery/v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}":
     get:
       description: Download allegato per pagamento
       summary: Download allegato per pagamento
