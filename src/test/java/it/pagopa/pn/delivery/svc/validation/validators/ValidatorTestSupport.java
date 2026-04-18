@@ -41,14 +41,11 @@ public final class ValidatorTestSupport {
         return context;
     }
 
-    public static InformalNotificationContext informalContext(InternalNotification payload, List<String> additionalLanguages, Campaign campaign) {
+    public static InformalNotificationContext informalContext(InternalNotification payload, Campaign campaign) {
         InformalNotificationContext context = new InformalNotificationContext();
         context.setPayload(payload);
         context.setCxId(DEFAULT_CX_ID);
         context.setCampaign(campaign);
-        context.setAdditionalLanguages(additionalLanguages);
-        context.setMessageId("messageId");
-        context.setContentType("text/plain");
         return context;
     }
 
@@ -133,7 +130,7 @@ public final class ValidatorTestSupport {
                 .build();
     }
 
-    public static Campaign campaign(Message.AdditionalLanguage... languages) {
+    public static Campaign campaign(Message.AdditionalLanguage... additionalLanguages) {
         return Campaign.builder()
                 .campaignId("campaignId")
                 .senderId(DEFAULT_CX_ID)
@@ -142,7 +139,7 @@ public final class ValidatorTestSupport {
                 .startDate(Instant.now())
                 .endDate(Instant.now().plusSeconds(3600))
                 .serviceId("serviceId")
-                .messagesId(Arrays.stream(languages).map(ValidatorTestSupport::message).toList())
+                .messages(Arrays.stream(additionalLanguages).map(ValidatorTestSupport::message).toList())
                 .workflow(List.of(new WorkflowEntity()))
                 .build();
     }
@@ -150,6 +147,7 @@ public final class ValidatorTestSupport {
     public static Message message(Message.AdditionalLanguage additionalLanguage) {
         return Message.builder()
                 .messageId("message-" + additionalLanguage.name())
+                .primaryLanguage(Message.PrimaryLanguage.IT)
                 .additionalLanguage(additionalLanguage)
                 .build();
     }
