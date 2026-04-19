@@ -42,11 +42,11 @@ public final class ValidatorTestSupport {
     }
 
     public static InformalNotificationContext informalContext(InternalNotification payload, Campaign campaign) {
-        InformalNotificationContext context = new InformalNotificationContext();
-        context.setPayload(payload);
-        context.setCxId(DEFAULT_CX_ID);
-        context.setCampaign(campaign);
-        return context;
+        return InformalNotificationContext.builder()
+                .payload(payload)
+                .cxId(DEFAULT_CX_ID)
+                .campaign(campaign)
+                .build();
     }
 
     public static InternalNotification notification(List<NotificationRecipient> recipients, List<NotificationDocument> documents) {

@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.svc.validation.validators.formal;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.dto.ProblemError;
+import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.svc.validation.ErrorCodes;
 import it.pagopa.pn.delivery.svc.validation.ValidationResult;
 import it.pagopa.pn.delivery.svc.validation.context.InformalNotificationContext;
@@ -11,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 
+import static it.pagopa.pn.delivery.utils.InformalNotificationUtils.findMessageIdInCampaign;
+
 @Slf4j
 @RequiredArgsConstructor
 public class CampaignMessageLanguageValidator implements FormalValidator<InformalNotificationContext> {
@@ -19,6 +22,10 @@ public class CampaignMessageLanguageValidator implements FormalValidator<Informa
 
     @Override
     public ValidationResult validate(InformalNotificationContext context) {
+        if(Objects.isNull(context.getCampaign())) {
+            throw new PnInternalException("Campaign is required in the context for CampaignMessageLanguageValidator", ErrorCodes.ERROR_CODE_INVALID_CONTEXT.getValue());
+        }
+
         ArrayList<ProblemError> errors = new ArrayList<>();
 
         checkCongruenceBetweenAdditionalLanguageRequestedAndCampaign(context, errors);
@@ -27,21 +34,22 @@ public class CampaignMessageLanguageValidator implements FormalValidator<Informa
     }
 
     private void checkCongruenceBetweenAdditionalLanguageRequestedAndCampaign(InformalNotificationContext context, ArrayList<ProblemError> errors) {
-
         if (!isInformalNotificationCheckCampaignLangActive) {
             log.debug("Informal notification - check campaign language is disabled, skipping validation");
             return;
         }
 
-        if(Objects.isNull(context.getCampaign())) {
-            throw new PnInternalException("Campaign is required in the context for CampaignMessageLanguageValidator", ErrorCodes.ERROR_CODE_INVALID_CONTEXT.getValue());
+        InternalNotification notification = context.getPayload();
+        boolean existsRecipientWithoutMessageId = notification.getRecipients().stream().anyMatch(recipient -> recipient.getMessageId() == null);
+
+        if(!existsRecipientWithoutMessageId) {
+            log.debug("Informal notification - all recipients have messageId, skipping campaign language validation");
+            return;
         }
 
-        List<String> languagesInCampaign = context.getCampaign().getMessages().stream().map(message -> message.getAdditionalLanguage().name()).toList();
-        List<String> requestedAdditionalLanguages = context.getPayload().getAdditionalLanguages() != null ? context.getPayload().getAdditionalLanguages() : Collections.emptyList();
-
-        if (!new HashSet<>(languagesInCampaign).containsAll(requestedAdditionalLanguages)) {
-            errors.add( ProblemError.builder().element("additionalLanguages").code(ErrorCodes.ERROR_CODE_ADDITIONAL_LANG_UNSUPPORTED_VALUE.getValue()).detail("All requested additional languages must be present in the selected campaign.").build());
+        Optional<String> messageIdOpt = findMessageIdInCampaign(notification.getAdditionalLanguages(), context.getCampaign().getMessages());
+        if (messageIdOpt.isEmpty()) {
+            errors.add( ProblemError.builder().element("additionalLanguages").code(ErrorCodes.ERROR_CODE_ADDITIONAL_LANG_UNSUPPORTED_VALUE.getValue()).detail("The referenced campaign contains no messages matching the selected language configuration.").build());
         }
     }
 

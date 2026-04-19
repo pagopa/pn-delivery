@@ -35,6 +35,6 @@ class SendInformalNotificationActiveValidatorTest {
         SendInformalNotificationActiveValidator validator = new SendInformalNotificationActiveValidator(parameterConsumer);
         ValidationResult result = validator.validate(legalContext(new InternalNotification()));
 
-        assertSingleError(result, ErrorCodes.ERROR_CODE_SEND_IS_DISABLED.getValue(), "non è abilitato alle notifiche informali");
+        assertSingleError(result, ErrorCodes.ERROR_CODE_SEND_IS_DISABLED.getValue(), "non é abilitata alla comunicazione di notifiche bonarie");
     }
 }
