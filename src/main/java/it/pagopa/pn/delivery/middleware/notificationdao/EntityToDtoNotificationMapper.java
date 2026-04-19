@@ -39,7 +39,7 @@ public class EntityToDtoNotificationMapper {
                 .senderDenomination(entity.getSenderDenomination())
                 ._abstract(entity.getNotificationAbstract())
                 .senderTaxId(entity.getSenderTaxId())
-                .notificationFeePolicy(NotificationFeePolicy.fromValue(entity.getNotificationFeePolicy().getValue()))
+                .notificationFeePolicy(entity.getNotificationFeePolicy() != null ? NotificationFeePolicy.fromValue(entity.getNotificationFeePolicy().getValue()) : null)
                 .iun(entity.getIun())
                 .subject(entity.getSubject())
                 .sentAt(entity.getSentAt().atOffset(ZoneOffset.UTC))
