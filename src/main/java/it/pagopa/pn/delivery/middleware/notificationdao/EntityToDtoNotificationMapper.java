@@ -4,7 +4,6 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV25;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV24;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.UsedServices;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.NotificationLang;
@@ -40,7 +39,7 @@ public class EntityToDtoNotificationMapper {
                 .senderDenomination(entity.getSenderDenomination())
                 ._abstract(entity.getNotificationAbstract())
                 .senderTaxId(entity.getSenderTaxId())
-                .notificationFeePolicy(NotificationFeePolicy.fromValue(entity.getNotificationFeePolicy().getValue()))
+                .notificationFeePolicy(entity.getNotificationFeePolicy() != null ? NotificationFeePolicy.fromValue(entity.getNotificationFeePolicy().getValue()) : null)
                 .iun(entity.getIun())
                 .subject(entity.getSubject())
                 .sentAt(entity.getSentAt().atOffset(ZoneOffset.UTC))
@@ -64,7 +63,9 @@ public class EntityToDtoNotificationMapper {
                 .pagoPaIntMode(entity.getPagoPaIntMode() != null ? NewNotificationRequestV25.PagoPaIntModeEnum.fromValue(entity.getPagoPaIntMode()) : null)
                 .version(entity.getVersion())
                 .additionalLanguages(removeITLanguageFromDto(entity.getLanguages()))
-                .usedServices(entity.getUsedServices() != null ? getUsedServicesDto(entity.getUsedServices()) : null);
+                .usedServices(entity.getUsedServices() != null ? getUsedServicesDto(entity.getUsedServices()) : null)
+                .communicationType(entity.getCommunicationType() != null ? entity.getCommunicationType() : null)
+                .campaignId(entity.getCampaignId());
 
         return builder.build();
     }
@@ -97,6 +98,7 @@ public class EntityToDtoNotificationMapper {
                 .internalId(entity.getRecipientId())
                 .recipientType(NotificationRecipientV24.RecipientTypeEnum.valueOf(entity.getRecipientType().getValue()))
                 .payments(entity2PaymentInfo(entity.getPayments()))
+                .messageId(entity.getMessageId())
                 .build();
     }
 

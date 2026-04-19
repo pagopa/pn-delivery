@@ -1,7 +1,6 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.UsedServices;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.NotificationLang;
@@ -11,7 +10,6 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Component
 public class DtoToEntityNotificationMapper {
@@ -34,19 +32,21 @@ public class DtoToEntityNotificationMapper {
                 .recipients( dto2RecipientsEntity( dto.getRecipients() ) )
                 .documents( convertDocuments( dto.getDocuments() ))
                 .physicalCommunicationType ( dto.getPhysicalCommunicationType() )
-                .notificationFeePolicy( NotificationFeePolicy.fromValue( dto.getNotificationFeePolicy().getValue() ))
+                .notificationFeePolicy( dto.getNotificationFeePolicy() != null ? NotificationFeePolicy.fromValue( dto.getNotificationFeePolicy().getValue() ) : null)
                 .group( dto.getGroup() )
                 .amount(dto.getAmount())
                 .paymentExpirationDate(dto.getPaymentExpirationDate())
                 .taxonomyCode(dto.getTaxonomyCode())
-                .pagoPaIntMode( dto.getPagoPaIntMode().getValue() )
+                .pagoPaIntMode( dto.getPagoPaIntMode() != null ? dto.getPagoPaIntMode().getValue() : null )
                 .sourceChannel( dto.getSourceChannel() )
                 .sourceChannelDetails( dto.getSourceChannelDetails() )
                 .paFee(dto.getPaFee())
                 .vat(dto.getVat())
                 .version( dto.getVersion() )
                 .languages( addITLanguageToEntity(dto.getAdditionalLanguages()) )
-                .usedServices(dto.getUsedServices() != null ? getUsedServicesEntity(dto.getUsedServices()) : null);
+                .usedServices(dto.getUsedServices() != null ? getUsedServicesEntity(dto.getUsedServices()) : null)
+                .campaignId(dto.getCampaignId())
+                .communicationType(dto.getCommunicationType());
 
         return builder.build();
     }
@@ -87,6 +87,7 @@ public class DtoToEntityNotificationMapper {
                 .recipientId( recipient.getTaxId() )
                 .recipientType( RecipientTypeEntity.valueOf( recipient.getRecipientType().getValue() ) )
                 .payments( dto2PaymentList( recipient.getPayments() ) )
+                .messageId(recipient.getMessageId() )
                 .build();
     }
 

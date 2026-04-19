@@ -21,6 +21,7 @@ public class NotificationRecipient {
     private NotificationDigitalAddress digitalDomicile;
     private NotificationPhysicalAddress physicalAddress;
     private List<NotificationPaymentInfo> payments = null;
+    private String messageId;
 
     public NotificationRecipient recipientType(NotificationRecipientV24.RecipientTypeEnum recipientType) {
         this.recipientType = recipientType;
@@ -116,6 +117,14 @@ public class NotificationRecipient {
 
     public void setPayment(List<NotificationPaymentInfo> payments) {
         this.payments = payments;
+    }
+
+    public String getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
     }
 
 }

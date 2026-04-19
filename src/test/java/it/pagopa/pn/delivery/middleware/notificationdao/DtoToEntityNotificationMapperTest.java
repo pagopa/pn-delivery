@@ -150,6 +150,8 @@ class DtoToEntityNotificationMapperTest {
         actualInternalNotification.sourceChannel("Source Channel");
         actualInternalNotification.subject("Hello from the Dreaming Spires");
         actualInternalNotification.taxonomyCode("Taxonomy Code");
+        actualInternalNotification.setCommunicationType(CommunicationType.INFORMAL);
+        actualInternalNotification.setCampaignId("campaignId");
         testingInternalNotification(actualInternalNotification);
     }
 
@@ -178,6 +180,8 @@ class DtoToEntityNotificationMapperTest {
         assertEquals("Hello from the Dreaming Spires", actualInternalNotification.getSubject());
         assertEquals("Taxonomy Code", actualInternalNotification.getTaxonomyCode());
         assertSame(timeline2, timeline3);
+        assertEquals("campaignId", actualInternalNotification.getCampaignId());
+        assertEquals(CommunicationType.INFORMAL, actualInternalNotification.getCommunicationType());
     }
 
     private InternalNotification newInternalNotification() {
@@ -239,10 +243,13 @@ class DtoToEntityNotificationMapperTest {
                                 .build())
                         )
                         .recipientType(NotificationRecipientV24.RecipientTypeEnum.PF)
+                        .messageId("messageId")
                         .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
                                 .type( NotificationDigitalAddress.TypeEnum.PEC )
                                 .address("account@dominio.it")
                                 .build()).build()));
+        internalNotification.setCampaignId("campaignId");
+        internalNotification.setCommunicationType(CommunicationType.INFORMAL);
         return internalNotification;
     }
 }
