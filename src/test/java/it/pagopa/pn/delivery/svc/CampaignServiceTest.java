@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.delivery.config.MVPCampaignsParameterConsumer;
-import it.pagopa.pn.delivery.exception.PnCampaignException;
+import it.pagopa.pn.delivery.exception.PnCampaignNotFoundException;
 import it.pagopa.pn.delivery.models.campaign.Campaign;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,16 +40,15 @@ class CampaignServiceTest {
 
     @Test
     void getCampaignByCampaignIdAndSenderIdPropagatesConsumerException() {
-        PnCampaignException expectedException = new PnCampaignException(
+        PnCampaignNotFoundException expectedException = new PnCampaignNotFoundException(
                 "Campaign not found",
-                "Campaign with campaignId=campaign-id and senderId=sender-id not found",
-                "campaign_not_found"
+                "Campaign with campaignId=campaign-id and senderId=sender-id not found"
         );
 
         when(mvpCampaignsParameterConsumer.getCampaignByCampaignIdAndSenderId(CAMPAIGN_ID, SENDER_ID))
                 .thenThrow(expectedException);
 
-        PnCampaignException exception = assertThrows(PnCampaignException.class,
+        PnCampaignNotFoundException exception = assertThrows(PnCampaignNotFoundException.class,
                 () -> campaignService.getCampaignByCampaignIdAndSenderId(CAMPAIGN_ID, SENDER_ID));
 
         assertSame(expectedException, exception);

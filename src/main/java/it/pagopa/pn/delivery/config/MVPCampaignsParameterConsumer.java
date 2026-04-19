@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.config;
 
 import it.pagopa.pn.commons.abstractions.ParameterConsumer;
-import it.pagopa.pn.delivery.exception.PnCampaignException;
+import it.pagopa.pn.delivery.exception.PnCampaignNotFoundException;
 import it.pagopa.pn.delivery.models.campaign.Campaign;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +32,6 @@ public class MVPCampaignsParameterConsumer {
             }
         }
 
-        throw new PnCampaignException("Campaign not found", String.format("Campaign with campaignId=%s and senderId=%s not found", campaignId, senderId), "campaign_not_found");
+        throw new PnCampaignNotFoundException("Campaign not found", String.format("Campaign with campaignId=%s and senderId=%s not found", campaignId, senderId));
     }
 }

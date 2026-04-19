@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.config;
 
 import it.pagopa.pn.commons.abstractions.ParameterConsumer;
-import it.pagopa.pn.delivery.exception.PnCampaignException;
+import it.pagopa.pn.delivery.exception.PnCampaignNotFoundException;
 import it.pagopa.pn.delivery.models.campaign.Campaign;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,7 +48,7 @@ class MVPCampaignsParameterConsumerTest {
         when(parameterConsumer.getParameterValue("MVPCampaigns", Campaign[].class))
                 .thenReturn(Optional.empty());
 
-        PnCampaignException exception = assertThrows(PnCampaignException.class,
+        PnCampaignNotFoundException exception = assertThrows(PnCampaignNotFoundException.class,
                 () -> mvpCampaignsParameterConsumer.getCampaignByCampaignIdAndSenderId(CAMPAIGN_ID, SENDER_ID));
 
         assertEquals("Campaign not found", exception.getMessage());
@@ -60,7 +60,7 @@ class MVPCampaignsParameterConsumerTest {
         when(parameterConsumer.getParameterValue("MVPCampaigns", Campaign[].class))
                 .thenReturn(Optional.of(new Campaign[]{buildCampaign("other-campaign", SENDER_ID)}));
 
-        PnCampaignException exception = assertThrows(PnCampaignException.class,
+        PnCampaignNotFoundException exception = assertThrows(PnCampaignNotFoundException.class,
                 () -> mvpCampaignsParameterConsumer.getCampaignByCampaignIdAndSenderId(CAMPAIGN_ID, SENDER_ID));
 
         assertEquals("Campaign not found", exception.getMessage());
