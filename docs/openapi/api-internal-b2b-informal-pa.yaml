@@ -152,7 +152,7 @@ paths:
         La restituzione di uno stato HTTP 202 significa solo che la richiesta è sintatticamente
         valida, non che la richiesta sia stata validata ed accettata. <br/>
         Per conoscere lo stato di accettazione della richiesta di notifica bisogna utilizzare l'operazione
-        _getNotificationRequestStatus_ oppure utilizzare la modalità push prevista dai webhook. <br/>
+        getInformalNotificationRequestStatusV1 oppure utilizzare la modalità push prevista dai webhook. <br/>
 
         <details no-external>
         <summary><b> Attributi progettazione di alto livello </b></summary>
@@ -233,7 +233,7 @@ paths:
       description: >-
         Questa operazione serve per verificare se la richiesta di notifica è stata accettata e ottenere
         lo IUN associato a tale richiesta. <br/>
-        Bisogna specificare il parametro _requestId_ oppure la coppia costituita dai parametri 
+        Bisogna specificare il parametro _notificationRequestId_  oppure la coppia costituita dai parametri 
         _paProtocolNumber_ e _idempotenceToken_. <br/>
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
@@ -413,11 +413,10 @@ paths:
     post:
       tags:
         - InformalNotificationTermination
-      summary: Interruzione workflow notifica per coppia (CF, campagna)
+      summary: Interruzione workflow notifica per IUN
       description: >-
         Permette all\'Ente di interrompere il workflow di una comunicazione non 
-        legale per un determinato destinatario all'interno di una specifica campagna. 
-        La notifica passerà allo stato COMPLETED.
+        legale identificata dallo IUN specificato nel path. La notifica passerà allo stato COMPLETED.
       operationId: terminateInformalWorkflow
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet' # NO EXTERNAL
@@ -638,9 +637,7 @@ components:
             - notificationRequestStatus
           properties:
             notificationRequestId:
-              description: >-
-                identificativo univoco di una richiesta di invio notifica, non è lo IUN
-              type: string
+              $ref: "./schemas-pn-notification.yaml#/components/schemas/NotificationRequestId"
             notificationRequestStatus:
               description: >-
                 - __WAITING__: in attesa di essere valutata

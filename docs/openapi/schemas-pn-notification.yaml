@@ -12,7 +12,7 @@ components:
       type: string
       minLength: 25
       maxLength: 25
-      pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+      pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[A-Z0-9]{1}$
 
 # La denomination prevede max 44 caratteri, codifica isolatin 1, senza | e senza i caratteri di controllo.
 # Si veda la classe DenominationValidationUtils e la property denominationValidationExcludedCharacter che rappresenta i caratteri
@@ -299,9 +299,9 @@ components:
             **Coerenza con messageId:** Se viene fornito un `messageId`, il messaggio identificato deve essere associato alla lingua indicata in questo campo. <br/>
             **Coerenza con campaignId:** Se `messageId` non è presente, il sistema utilizzerà il messaggio della campagna (`campaignId`) corrispondente alla lingua indicata. Assicurarsi che tale traduzione sia stata configurata nella campagna.
           type: array
+          maxItems: 1
           items:
             type: string
-            maxItems: 1
         subject:
           type: string
           description: Oggetto della comunicazione (visibile nel riepilogo)
@@ -826,10 +826,6 @@ components:
         notificationRequestId:
           $ref: '#/components/schemas/NotificationRequestId'
         paProtocolNumber:
-          type: string
-          description: Identificativo inviato dalla pubblica amministrazione
+          $ref: '#/components/schemas/PaProtocolNumber'
         idempotenceToken:
-          description: >-
-            Ripetizione del token usato per disambiguare "richieste di notificazione" 
-            effettuate con lo stesso numero di protocollo (campo _paProtocolNumber_).
-          type: string
+          $ref: '#/components/schemas/IdempotenceToken'
