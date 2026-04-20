@@ -12,7 +12,7 @@ components:
       type: string
       minLength: 25
       maxLength: 25
-      pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+      pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[A-Z0-9]{1}$
 
 # La denomination prevede max 44 caratteri, codifica isolatin 1, senza | e senza i caratteri di controllo.
 # Si veda la classe DenominationValidationUtils e la property denominationValidationExcludedCharacter che rappresenta i caratteri
@@ -89,11 +89,37 @@ components:
       enum:
         - FLAT_RATE
         - DELIVERY_MODE
+
+    IdempotenceToken:
+      description: >-
+        Identificativo utilizzabile dal chiamante per disambiguare differenti 
+        "richieste di notificazione" effettuate con lo stesso numero di protocollo 
+        (campo _paProtocolNumber_). Questo può essere necessario in caso di 
+        "richiesta di notifica" rifiutata per errori nei codici di verifica degli
+        allegati.
+      type: string
+      # ASCII printable characters
+      pattern: ^[ -~]*$
+      maxLength: 256
+
+    PaProtocolNumber:
+      description: >-
+        Numero di protocollo che la PA mittente assegna alla notifica stessa
+      type: string
+      # wide range of characters
+      pattern: ^.*$
+      maxLength: 256
+
+    NotificationRequestId:
+      type: string
+      description: >-
+        identificativo univoco di una richiesta di invio notifica, non è lo IUN
+      maxLength: 36
+      pattern: ^[A-Za-z0-9+/=]{36}$
+
     ############################################################################################
     ###                                 DTO DELLE NOTIFICHE                                  ###
     ############################################################################################
-
-
 
     SentNotificationV25:
       description: >-
@@ -143,23 +169,9 @@ components:
         - taxonomyCode
       properties:
         idempotenceToken:
-          description: >-
-            Identificativo utilizzabile dal chiamante per disambiguare differenti 
-            "richieste di notificazione" effettuate con lo stesso numero di protocollo 
-            (campo _paProtocolNumber_). Questo può essere necessario in caso di 
-            "richiesta di notifica" rifiutata per errori nei codici di verifica degli
-            allegati.
-          type: string
-          # ASCII printable characters
-          pattern: ^[ -~]*$
-          maxLength: 256
+          $ref: '#/components/schemas/IdempotenceToken'
         paProtocolNumber:
-          description: >-
-            Numero di protocollo che la PA mittente assegna alla notifica stessa
-          type: string
-          # wide range of characters
-          pattern: ^.*$
-          maxLength: 256
+          $ref: '#/components/schemas/PaProtocolNumber'
         subject:
           type: string
           description: titolo della notifica, NON inserire dati personali/sensibili
@@ -259,6 +271,57 @@ components:
         physicalAddressLookup:
           type: boolean
 
+    InformalNotificationRequestV1:
+      type: object
+      required: [ senderDenomination, senderTaxId, paProtocolNumber, subject, campaignId, recipients ]
+      properties:
+        senderDenomination:
+          $ref: '#/components/schemas/Denomination'
+        senderTaxId:
+          $ref: '#/components/schemas/paTaxId'
+        paProtocolNumber:
+          $ref: '#/components/schemas/PaProtocolNumber'
+        idempotenceToken:
+          $ref: '#/components/schemas/IdempotenceToken'
+        campaignId:
+          type: string
+          description: ID della campagna che definisce il workflow di invio
+        additionalLanguages:
+          description: >-
+            In questo campo è possibile definire la lingua addizionale (oltre a quella italiana) da utilizzare per l'invio del messaggio sui canali configurati.<br/>
+            Le lingue accettate e dunque i valori possibili degli item dell'array sono: <br/>
+            - DE <br/>
+            - SI <br/>
+            - FR <br/>
+            DE (tedesco), SI (sloveno), FR (francese)
+            Attualmente è possibile indicare un solo item e dunque una sola lingua aggiuntiva. Se non vengono indicate lingue aggiuntive la lingua utilizzata <br/>
+            per l'invio del messaggio sui canali configurati sarà quella italiana. <br />
+            **Coerenza con messageId:** Se viene fornito un `messageId`, il messaggio identificato deve essere associato alla lingua indicata in questo campo. <br/>
+            **Coerenza con campaignId:** Se `messageId` non è presente, il sistema utilizzerà il messaggio della campagna (`campaignId`) corrispondente alla lingua indicata. Assicurarsi che tale traduzione sia stata configurata nella campagna.
+          type: array
+          maxItems: 1
+          items:
+            type: string
+        subject:
+          type: string
+          description: Oggetto della comunicazione (visibile nel riepilogo)
+        recipients:
+          type: array
+          description: Informazioni sui destinatari
+          items:
+            $ref: '#/components/schemas/InformalNotificationRecipientV1'
+          minItems: 1
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationDocument'
+        group:
+          type: string
+          description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 1024
+
     ############################################################################################
     ###                                ELEMENTI DI DETTAGLIO                                 ###
     ############################################################################################
@@ -293,6 +356,34 @@ components:
           $ref: "#/components/schemas/NotificationPhysicalAddress"
         payments:
           $ref: "#/components/schemas/NotificationPayments"
+
+    InformalNotificationRecipientV1:
+      description: Informazioni sui destinatari delle notifiche informali.
+      allOf:
+        - $ref: '#/components/schemas/NotificationRecipientV24'
+        - type: object
+          properties:
+            payments:
+              $ref: '#/components/schemas/InformalNotificationPayments'
+            messageId:
+              type: string
+              format: uuid
+              description: >-
+                Opzionale. Sovrascrive il messaggio di default della campagna
+
+    InformalNotificationPayments:
+      description: Pagamenti collegati alla notifica per il destinatario.
+      type: array
+      items:
+        $ref: '#/components/schemas/InformalNotificationPaymentItem'
+
+    InformalNotificationPaymentItem:
+      type: object
+      additionalProperties: false
+      required: [ pagoPa ]
+      properties:
+        pagoPa:
+          $ref: '#/components/schemas/PagoPaPayment'
 
     NotificationAttachment:
       description: >-
@@ -717,3 +808,24 @@ components:
       type: object
       additionalProperties:
         type: string
+
+    ###########################################################################################
+    ###                              DTO RICHIESTE DI NOTIFICA                              ###
+    ###########################################################################################
+
+    NewNotificationResponse:
+      title: Identificativi della richiesta di notifica
+      description: >-
+        Contiene le informazioni per identificare una richiesta di invio notifica
+        che non è ancora stata accettata da Piattaforma notifiche.
+      type: object
+      required:
+        - notificationRequestId
+        - paProtocolNumber
+      properties:
+        notificationRequestId:
+          $ref: '#/components/schemas/NotificationRequestId'
+        paProtocolNumber:
+          $ref: '#/components/schemas/PaProtocolNumber'
+        idempotenceToken:
+          $ref: '#/components/schemas/IdempotenceToken'

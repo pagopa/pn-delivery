@@ -254,6 +254,38 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>pn-delivery-server-internal-b2b-informal-pa</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <inputSpec>${project.basedir}/docs/openapi/api-internal-b2b-informal-pa.yaml</inputSpec>
+                            <generatorName>spring</generatorName>
+                            <library>spring-boot</library>
+                            <modelNameSuffix />
+                            <generateApiTests>false</generateApiTests>
+                            <generateModelTests>false</generateModelTests>
+                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/server</templateDirectory>
+                            <configOptions>
+                                <basePackage>${project.groupId}.delivery.generated.openapi.server.v1</basePackage>
+                                <modelPackage>${project.groupId}.delivery.generated.openapi.server.v1.dto</modelPackage>
+                                <apiPackage>${project.groupId}.delivery.generated.openapi.server.v1.api</apiPackage>
+                                <configPackage>${project.groupId}.delivery.generated.openapi.server.v1.config</configPackage>
+                                <additionalModelTypeAnnotations>@lombok.Builder; @lombok.NoArgsConstructor; @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
+                                <dateLibrary>java8</dateLibrary>
+                                <delegatePattern>true</delegatePattern>
+                                <interfaceOnly>true</interfaceOnly>
+                                <annotationLibrary>none</annotationLibrary>
+                                <documentationProvider>source</documentationProvider>
+                                <openApiNullable>false</openApiNullable>
+                                <reactive>false</reactive>
+                                <skipDefaultInterface>false</skipDefaultInterface>
+                                <useTags>true</useTags>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>pn-delivery-server-private</id>
                         <goals>
                             <goal>generate</goal>
