@@ -29,6 +29,7 @@ import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.Base64Utils;
@@ -78,6 +79,7 @@ class PnSentReceivedNotificationControllerTest {
 	private static final String RECIPIENT_ID = "CGNNMO80A01H501M";
 	public static final List<String> GROUPS = List.of("Group1", "Group2");
 	public static final String DELIVERY_REQUESTS_PATH = "/delivery/v2.5/requests";
+	public static final String DELIVERY_INFORMAL_REQUESTS_PATH = "/delivery/v1/notifications/informal";
 	public static final String DELIVERY_RECEIVED_PATH = "/delivery/v2.7/notifications/received/";
 	public static final String DELIVERY_SENT_PATH = "/delivery/v2.8/notifications/sent/";
 
@@ -1405,6 +1407,64 @@ class PnSentReceivedNotificationControllerTest {
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF")
 				.exchange()
 				.expectStatus().isNotFound();
+	}
+
+	@Test
+	void getInformalNotificationRequestStatusV1NotImplemented() {
+		webTestClient.get()
+				.uri(uriBuilder ->
+						uriBuilder
+								.path(DELIVERY_INFORMAL_REQUESTS_PATH)
+								.queryParam("notificationRequestId", REQUEST_ID)
+								.build())
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+				.exchange()
+				.expectStatus()
+				.isEqualTo(HttpStatus.NOT_IMPLEMENTED);
+	}
+
+	@Test
+	void getSentInformalNotificationAttachmentNotImplemented() {
+		webTestClient.get()
+				.uri(uriBuilder -> uriBuilder
+						.path("/delivery/v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{pathAttachmentName}")
+						.build(IUN, 0, PAGOPA))
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PA)
+				.exchange()
+				.expectStatus()
+				.isEqualTo(HttpStatus.NOT_IMPLEMENTED);
+	}
+
+	@Test
+	void getSentInformalNotificationDocumentNotImplemented() {
+		webTestClient.get()
+				.uri(uriBuilder -> uriBuilder
+						.path("/delivery/v1/notifications/informal/sent/{iun}/attachments/documents/{docIdx}")
+						.build(IUN, 0))
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PA)
+				.exchange()
+				.expectStatus()
+				.isEqualTo(HttpStatus.NOT_IMPLEMENTED);
+	}
+
+	@Test
+	void terminateInformalWorkflow() {
+		webTestClient.post()
+				.uri(uriBuilder -> uriBuilder
+						.path("/delivery/v1/notifications/informal/{iun}/terminate")
+						.build(IUN))
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PA)
+				.exchange()
+				.expectStatus()
+				.isEqualTo(HttpStatus.NOT_IMPLEMENTED);
 	}
 
 }

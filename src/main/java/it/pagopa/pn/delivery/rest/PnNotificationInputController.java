@@ -6,19 +6,23 @@ import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.api.NewInformalNotificationApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.NewNotificationApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.notificationdao.TaxonomyCodeDaoDynamo;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.NativeWebRequest;
 
 import javax.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Optional;
 
 import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.*;
 import static it.pagopa.pn.commons.utils.MDCUtils.MDC_PN_IUN_KEY;
@@ -26,7 +30,7 @@ import static it.pagopa.pn.commons.utils.MDCUtils.MDC_PN_IUN_KEY;
 
 @Slf4j
 @RestController
-public class PnNotificationInputController implements NewNotificationApi {
+public class PnNotificationInputController implements NewNotificationApi, NewInformalNotificationApi {
 
     private static final String DEFAULT_PAID = "default";
     private final PnDeliveryConfigs cfgs;
@@ -103,5 +107,15 @@ public class PnNotificationInputController implements NewNotificationApi {
             logEvent.generateFailure("" + e.getProblem()).log();
             throw e;
         }
+    }
+
+    @Override
+    public Optional<NativeWebRequest> getRequest() {
+        return NewNotificationApi.super.getRequest();
+    }
+
+    @Override
+    public ResponseEntity<NewInformalNotificationResponse> sendNewInformalNotificationV1(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String xPagopaPnSrcCh, InformalNotificationRequestV1 informalNotificationRequestV1, List<String> xPagopaPnCxGroups, String xPagopaPnSrcChDetails, String xPagopaPnNotificationVersion) {
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 }
