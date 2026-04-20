@@ -30,14 +30,14 @@ public class PhysicalAddressValidator implements FormalValidator<NotificationCon
 
         for (NotificationRecipient recipient : context.getPayload().getRecipients()) {
             NotificationPhysicalAddress physicalAddress = recipient.getPhysicalAddress();
-            checkPhysicalAddressIsForamllyCorrect(physicalAddress, recIdx, context, errors);
+            checkPhysicalAddressIsFormallyCorrect(physicalAddress, recIdx, errors);
             recIdx++;
         }
 
         return new ValidationResult(errors);
     }
 
-    private void checkPhysicalAddressIsForamllyCorrect(NotificationPhysicalAddress physicalAddress, int recIdx, NotificationContext context, ArrayList<ProblemError> errors) {
+    private void checkPhysicalAddressIsFormallyCorrect(NotificationPhysicalAddress physicalAddress, int recIdx, ArrayList<ProblemError> errors) {
 
         if(physicalAddress == null){
             errors.add(ProblemError.builder().element("physicalAddress").code(ErrorCodes.ERROR_CODE_PHYSICAL_ADDRESS_NULL.getValue()).detail("PhysicalAddress cannot be null").build());
