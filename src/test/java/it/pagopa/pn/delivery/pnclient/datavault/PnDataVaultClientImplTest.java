@@ -7,14 +7,18 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.api.MessagesApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.api.NotificationsApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.api.RecipientsApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.BaseRecipientDto;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.MessageRequestDto;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.MessageResponseDto;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.NotificationRecipientAddressesDto;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,6 +40,9 @@ class PnDataVaultClientImplTest {
 
     @MockBean(name = "it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.api.RecipientsApi")
     private RecipientsApi recipientsApi;
+
+    @MockBean(name = "it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.api.MessagesApi")
+    private MessagesApi messagesApi;
 
     /**
      * Method under test: {@link PnDataVaultClientImpl#ensureRecipientByExternalId(RecipientType, String)}
@@ -101,5 +108,31 @@ class PnDataVaultClientImplTest {
         assertTrue(actualNotificationAddressesByIun.isEmpty());
         verify(notificationsApi).getNotificationAddressesByIun(Mockito.<String>any(), Mockito.<Boolean>any());
     }
-}
 
+    /**
+     * Method under test: {@link PnDataVaultClientImpl#createInformalMessage(MessageRequestDto)}
+     */
+    @Test
+    void testCreateInformalMessage() {
+        MessageRequestDto request = new MessageRequestDto();
+        MessageResponseDto response = new MessageResponseDto();
+        when(messagesApi.createMessage(Mockito.any())).thenReturn(response);
+        MessageResponseDto result = pnDataVaultClientImpl.createInformalMessage(request);
+        assertSame(response, result);
+        verify(messagesApi).createMessage(Mockito.any());
+    }
+
+    /**
+     * Method under test: {@link PnDataVaultClientImpl#getInformalMessageById(UUID, UUID)}
+     */
+    @Test
+    void testGetInformalMessageById() {
+        UUID messageId = UUID.randomUUID();
+        UUID senderId = UUID.randomUUID();
+        MessageResponseDto response = new MessageResponseDto();
+        when(messagesApi.getMessageById(Mockito.eq(messageId), Mockito.eq(senderId))).thenReturn(response);
+        MessageResponseDto result = pnDataVaultClientImpl.getInformalMessageById(messageId, senderId);
+        assertSame(response, result);
+        verify(messagesApi).getMessageById(Mockito.eq(messageId), Mockito.eq(senderId));
+    }
+}

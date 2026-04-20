@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.config;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.msclient.F24.v1.api.F24ControllerApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.ApiClient;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.api.MessagesApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.api.NotificationsApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.api.RecipientsApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.api.NotificationProcessCostApi;
@@ -29,6 +30,14 @@ public class MsClientConfig {
 
     @Configuration
     static class BaseClients {
+
+        @Bean
+        @Primary
+        MessagesApi MessagesApi(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryConfigs cfg) {
+            ApiClient newApiClient = new ApiClient(restTemplate);
+            newApiClient.setBasePath(cfg.getDataVaultBaseUrl());
+            return new MessagesApi(newApiClient);
+        }
 
         @Bean
         @Primary
