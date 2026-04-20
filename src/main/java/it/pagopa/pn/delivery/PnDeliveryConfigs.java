@@ -39,6 +39,19 @@ public class PnDeliveryConfigs {
 
     private String externalRegistriesBaseUrl;
 
+    private String timelineServiceBaseUrl;
+
+    private String notificationCostServiceBaseUrl;
+
+    /** Soglia temporale discriminante per l'instradamento delle notifiche al microservizio notification-cost-service **/
+    private Instant newCostServiceNotificationProcessingStartDate;
+
+    /** Data abilitazione integrazione con nuovo servizio costi per attualizzazione (api delivery/v2.3/price/{paTaxId}/{noticeCode}) **/
+    private Instant newCostServiceActivationDate;
+
+    /** Abilitazione monitoraggio API nuovo servizio costi **/
+    private boolean newCostServiceMonitoringEnabled;
+
     private Topics topics;
 
     private Duration preloadUrlDuration;
@@ -109,6 +122,14 @@ public class PnDeliveryConfigs {
     @PostConstruct
     public void init(){
         log.info("CONFIGURATION {}",this);
+
+        if(newCostServiceActivationDate != null && newCostServiceNotificationProcessingStartDate == null) {
+            throw new IllegalArgumentException("newCostServiceNotificationProcessingStartDate and newCostServiceActivationDate must be both set or both null");
+        }
+
+        if(this.newCostServiceActivationDate != null && this.newCostServiceActivationDate.isBefore(newCostServiceNotificationProcessingStartDate)) {
+            throw new IllegalArgumentException("newCostServiceActivationDate must not be before newCostServiceNotificationProcessingStartDate");
+        }
     }
 
     @Data

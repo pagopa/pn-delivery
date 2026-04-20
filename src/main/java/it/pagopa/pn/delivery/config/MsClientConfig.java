@@ -14,11 +14,15 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.ap
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.api.MandatePrivateServiceApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.api.MandatePrivateServiceV2Api;
 import it.pagopa.pn.delivery.generated.openapi.msclient.nationalregistries.v1.api.AgenziaEntrateApi;
+import it.pagopa.pn.delivery.generated.openapi.msclient.notificationcostservice.v1.api.NotificationCostRecipientApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.api.FileDownloadApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.api.FileUploadApi;
+import it.pagopa.pn.delivery.generated.openapi.msclient.timelineservice.v1.api.TimelineControllerApi;
+import it.pagopa.pn.delivery.springbootcfg.RestTemplateFactoryActivation;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -140,6 +144,36 @@ public class MsClientConfig {
             it.pagopa.pn.delivery.generated.openapi.msclient.nationalregistries.v1.ApiClient newApiClient = new it.pagopa.pn.delivery.generated.openapi.msclient.nationalregistries.v1.ApiClient(restTemplate);
             newApiClient.setBasePath(cfg.getNationalRegistriesBaseUrl());
             return new AgenziaEntrateApi(newApiClient);
+        }
+
+        @Bean
+        @Primary
+        TimelineControllerApi timelineControllerApi (@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryConfigs cfg) {
+            it.pagopa.pn.delivery.generated.openapi.msclient.timelineservice.v1.ApiClient newApiClient = new it.pagopa.pn.delivery.generated.openapi.msclient.timelineservice.v1.ApiClient(restTemplate);
+            newApiClient.setBasePath(cfg.getTimelineServiceBaseUrl());
+            return new it.pagopa.pn.delivery.generated.openapi.msclient.timelineservice.v1.api.TimelineControllerApi(newApiClient);
+        }
+
+        @Bean
+        @Primary
+        NotificationCostRecipientApi notificationCostRecipientApi(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryConfigs cfg) {
+            it.pagopa.pn.delivery.generated.openapi.msclient.notificationcostservice.v1.ApiClient newApiClient = new it.pagopa.pn.delivery.generated.openapi.msclient.notificationcostservice.v1.ApiClient( restTemplate );
+            newApiClient.setBasePath( cfg.getNotificationCostServiceBaseUrl() );
+            return new NotificationCostRecipientApi(newApiClient);
+        }
+
+        @Bean
+        NotificationCostRecipientApi monitoringNotificationCostRecipientApi(
+                @Value("${pn.commons.connection-timeout-millis}") int connectionTimeout,
+                @Value("${pn.delivery.notification-cost-service.retry.max-attempts}") int customRetryMaxAttempts,
+                @Value("${pn.delivery.notification-cost-service.read-timeout-millis}") int customReadTimeout,
+                RestTemplateFactoryActivation restTemplateFactoryActivation,
+                PnDeliveryConfigs cfg
+        ) {
+            RestTemplate restTemplate = restTemplateFactoryActivation.customizableRestTemplate(customRetryMaxAttempts, connectionTimeout, customReadTimeout);
+            it.pagopa.pn.delivery.generated.openapi.msclient.notificationcostservice.v1.ApiClient newApiClient = new it.pagopa.pn.delivery.generated.openapi.msclient.notificationcostservice.v1.ApiClient( restTemplate );
+            newApiClient.setBasePath( cfg.getNotificationCostServiceBaseUrl() );
+            return new NotificationCostRecipientApi(newApiClient);
         }
     }
 }

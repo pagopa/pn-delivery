@@ -820,6 +820,21 @@ Parameters:
     Description: "Maximum record age in seconds for NotificationRefusedDispatcherLambdaKinesisSource"
     Default: 604800 # 7 days
 
+  MetricFormatType:
+    Type: String
+    Description: "Metric format type"
+    Default: 'EMF'
+
+  NotificationCostServiceReadTimeoutMillis:
+    Type: Number
+    Description: "Read timeout in milliseconds for Notification Cost Service APIs"
+    Default: '1500'
+
+  NotificationCostServiceMaxRetryAttempts:
+    Type: Number
+    Description: "Max retry attempts for Notification Cost Service APIs"
+    Default: 0
+
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
 
@@ -910,6 +925,14 @@ Resources:
         ContainerEnvEntry59: !Sub "LOLLIPOP_WHITE_LIST=${LollipopWhiteList}"
         ContainerEnvEntry60: !Sub "PN_DELIVERY_ENABLE_SENDER_TAX_ID_CONGRUENCE=${EnableSenderTaxIdCongruence}"
         ContainerEnvEntry61: !Sub "PN_DELIVERY_INFO_PA_CACHE_DURATION=${InfoPaCacheDuration}"
+        ContainerEnvEntry62: !Sub "PN_DELIVERY_TIMELINESERVICEBASEURL=http://${ApplicationLoadBalancerDomain}:8080"
+        ContainerEnvEntry63: !Sub "PN_DELIVERY_NOTIFICATIONCOSTSERVICEBASEURL=http://${ApplicationLoadBalancerDomain}:8080"
+        ContainerEnvEntry64: !Sub "PN_DELIVERY_NEWCOSTSERVICENOTIFICATIONPROCESSINGSTARTDATE={{resolve:ssm:/config/notification-cost-service/notification-processing-start-date}}"
+        ContainerEnvEntry65: !Sub "PN_DELIVERY_NEWCOSTSERVICEACTIVATIONDATE={{resolve:ssm:/config/pn-delivery/new-cost-service-activation-date}}"
+        ContainerEnvEntry66: !Sub "PN_DELIVERY_NEWCOSTSERVICEMONITORINGENABLED={{resolve:ssm:/config/pn-delivery/new-cost-service-monitoring-enabled}}"
+        ContainerEnvEntry67: !Sub "METRIC_FORMAT_TYPE=${MetricFormatType}"
+        ContainerEnvEntry68: !Sub "PN_DELIVERY_NOTIFICATION_COST_SERVICE_READ_TIMEOUT_MILLIS=${NotificationCostServiceReadTimeoutMillis}"
+        ContainerEnvEntry69: !Sub "PN_DELIVERY_NOTIFICATION_COST_SERVICE_RETRY_MAX_ATTEMPTS=${NotificationCostServiceMaxRetryAttempts}"
         ContainerSecret1: !Sub "ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:"
         MicroServiceSecretPrefix: pn-Delivery-Secrets
         JavaToolOptions: "-Dreactor.netty.ioWorkerCount=120 -XX:MaxMetaspaceSize=512M"

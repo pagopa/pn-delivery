@@ -40,7 +40,7 @@
         <dependency>
             <groupId>it.pagopa.pn</groupId>
             <artifactId>pn-commons</artifactId>
-            <version>2.17.2</version>
+            <version>2.18.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>it.pagopa.pn</groupId>
@@ -597,6 +597,58 @@
                             <configOptions>
                                 <apiPackage>${project.groupId}.delivery.generated.openapi.msclient.nationalregistries.v1.api</apiPackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.msclient.nationalregistries.v1.model</modelPackage>
+                                <dateLibrary>java8</dateLibrary>
+                                <annotationLibrary>none</annotationLibrary>
+                                <documentationProvider>source</documentationProvider>
+                                <openApiNullable>false</openApiNullable>
+                                <reactive>false</reactive>
+                                <useAbstractionForFiles>true</useAbstractionForFiles>
+                                <useBeanValidation>false</useBeanValidation>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>pn-notification-cost-service-private</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-notification-cost-service/8dcb6dce5edbd31081f906681ba33c563651d5fd/docs/openapi/api-private.yaml</inputSpec>
+                            <generatorName>java</generatorName>
+                            <library>resttemplate</library>
+                            <generateApiTests>false</generateApiTests>
+                            <generateModelTests>false</generateModelTests>
+                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
+                            <configOptions>
+                                <apiPackage>${project.groupId}.delivery.generated.openapi.msclient.notificationcostservice.v1.api</apiPackage>
+                                <modelPackage>${project.groupId}.delivery.generated.openapi.msclient.notificationcostservice.v1.model</modelPackage>
+                                <dateLibrary>java8</dateLibrary>
+                                <annotationLibrary>none</annotationLibrary>
+                                <documentationProvider>source</documentationProvider>
+                                <openApiNullable>false</openApiNullable>
+                                <reactive>false</reactive>
+                                <useAbstractionForFiles>true</useAbstractionForFiles>
+                                <useBeanValidation>false</useBeanValidation>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>pn-timeline-service-private</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-timeline-service/9123174b4ab53b369533abae03acee793ce85d51/docs/openapi/pn-timeline-service-private.yaml</inputSpec>
+                            <generatorName>java</generatorName>
+                            <library>resttemplate</library>
+                            <generateApiTests>false</generateApiTests>
+                            <generateModelTests>false</generateModelTests>
+                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
+                            <configOptions>
+                                <apiPackage>${project.groupId}.delivery.generated.openapi.msclient.timelineservice.v1.api</apiPackage>
+                                <modelPackage>${project.groupId}.delivery.generated.openapi.msclient.timelineservice.v1.model</modelPackage>
                                 <dateLibrary>java8</dateLibrary>
                                 <annotationLibrary>none</annotationLibrary>
                                 <documentationProvider>source</documentationProvider>
