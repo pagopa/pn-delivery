@@ -23,6 +23,7 @@ class InformalMessageServiceTest {
     private PnDataVaultClientImpl pnDataVaultClient;
     @Mock
     private PnDeliveryConfigs pnDeliveryConfigs;
+
     private InformalMessageService service;
 
     @BeforeEach
@@ -37,8 +38,6 @@ class InformalMessageServiceTest {
         primary.setLanguage(LocalizedContent.LanguageEnum.FR);
         primary.setLongBody("test");
         req.setPrimaryContent(primary);
-        when(pnDeliveryConfigs.getMaxMessageLongBodyLength()).thenReturn(100);
-        when(pnDeliveryConfigs.getMaxMessageShortBodyLength()).thenReturn(100);
         ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> service.createInformalMessage(req));
         assertEquals(400, ex.getStatus().value());
     }
@@ -54,8 +53,6 @@ class InformalMessageServiceTest {
         secondary.setLanguage(LocalizedContent.LanguageEnum.IT);
         secondary.setLongBody("test");
         req.setSecondaryContent(secondary);
-        when(pnDeliveryConfigs.getMaxMessageLongBodyLength()).thenReturn(100);
-        when(pnDeliveryConfigs.getMaxMessageShortBodyLength()).thenReturn(100);
         ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> service.createInformalMessage(req));
         assertEquals(400, ex.getStatus().value());
     }
@@ -67,8 +64,6 @@ class InformalMessageServiceTest {
         primary.setLanguage(LocalizedContent.LanguageEnum.IT);
         primary.setLongBody("a".repeat(101));
         req.setPrimaryContent(primary);
-        when(pnDeliveryConfigs.getMaxMessageLongBodyLength()).thenReturn(100);
-        when(pnDeliveryConfigs.getMaxMessageShortBodyLength()).thenReturn(100);
         ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> service.createInformalMessage(req));
         assertEquals(400, ex.getStatus().value());
     }
