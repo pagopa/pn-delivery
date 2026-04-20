@@ -14,8 +14,8 @@ import java.util.Optional;
 @Configuration
 public class InformalNotificationSendPaParameterConsumer {
 
-    @Value("${pn.delivery.features.is-informal-default-value}")
-    private Boolean isInformalDefaultValue;
+    @Value("${pn.delivery.features.is-send-informal-active-default-value}")
+    private Boolean isSendInformalActiveDefaultValue;
 
     private final ParameterConsumer parameterConsumer;
 
@@ -41,8 +41,8 @@ public class InformalNotificationSendPaParameterConsumer {
             }
         }
 
-        log.debug("cxId={} configuration not found, isInformalDefaultValue={}", cxId, isInformalDefaultValue);
-        return isInformalDefaultValue;
+        log.debug("cxId={} configuration not found, isSendInformalActiveDefaultValue={}", cxId, isSendInformalActiveDefaultValue);
+        return isSendInformalActiveDefaultValue;
     }
 
 
