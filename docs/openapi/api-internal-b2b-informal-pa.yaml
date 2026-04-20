@@ -162,7 +162,7 @@ components:
             DE (tedesco), SI (sloveno), FR (francese).
     NewMessageRequest:
       type: object
-      required: [ subject, body ]
+      required: [ primaryMessage ]
       properties:
         primaryMessage:
           description: Contenuto principale del messaggio, deve essere in lingua italiana
