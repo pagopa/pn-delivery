@@ -22,6 +22,8 @@ servers:
   - url: https://api.uat.notifichedigitali.it
     description: Ambiente di collaudo
 tags:
+  - name: Messages
+    description: Gestione dei template dei messaggi per notifiche bonarie
   - name: NewInformalNotification
     description: >-
       Invocazioni per effettuare il pre-caricamento dei documenti della notifica e inviare notifiche
@@ -34,6 +36,109 @@ tags:
       Invocazioni per interrompere il workflow di una notifica non legale in stato di attesa o accettata
 
 paths:
+  ###########################################################################################
+  ###                          GESTIONE MESSAGGI                                          ###
+  ###########################################################################################
+
+  "/delivery/v1/messages":
+    post:
+      tags:
+        - Messages
+      summary: Crea un nuovo template di messaggio
+      description: |
+        Salva il contenuto del messaggio in modo sicuro e ottiene un messageId da utilizzare per creare una notifica bonaria.
+      operationId: newMessage
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'
+        - $ref: '#/components/parameters/cxTypeAuthFleet'
+        - $ref: '#/components/parameters/cxIdAuthFleet'
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewMessageRequest'
+      responses:
+        '201':
+          description: Message created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  "/delivery/v1/messages/{messageId}":
+    get:
+      tags:
+        - Messages
+      summary: Recupera i dati di un messaggio
+      description: Recupera il contenuto di un messaggio precedentemente creato dato il suo id.
+      operationId: getMessageById
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/uidAuthFleet'
+        - $ref: '#/components/parameters/cxTypeAuthFleet'
+        - $ref: '#/components/parameters/cxIdAuthFleet'
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'
+      responses:
+        '200':
+          description: Message details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Message not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
 
     ###########################################################################################
     ###                          CREAZIONE RICHIESTE DI NOTIFICA                            ###
@@ -48,7 +153,7 @@ paths:
         valida, non che la richiesta sia stata validata ed accettata. <br/>
         Per conoscere lo stato di accettazione della richiesta di notifica bisogna utilizzare l'operazione
         _getNotificationRequestStatus_ oppure utilizzare la modalità push prevista dai webhook. <br/>
-        
+
         <details no-external>
         <summary><b> Attributi progettazione di alto livello </b></summary>
         | Proprietà                | Valore             |
@@ -121,7 +226,7 @@ paths:
     ###########################################################################################
     get:
       operationId: getInformalNotificationRequestStatusV1                       # NO EXTERNAL
-#      operationId: retrieveInformalNotificationRequestStatusV1                # ONLY EXTERNAL
+      #      operationId: retrieveInformalNotificationRequestStatusV1                # ONLY EXTERNAL
       tags:
         - SenderReadInformalNotificationB2B
       summary: Verifica accettazione richiesta notifica
@@ -359,9 +464,7 @@ paths:
                 $ref: '#/components/schemas/Problem'
 
 components:
-
   parameters:
-
     ############################################################################################
     ###                     PARAMETRO VERSIONE CREAZIONE NOTIFICA                            ###
     ############################################################################################
@@ -393,73 +496,65 @@ components:
       $ref: './remote-refs.yaml#/components/parameters/cxGroupsAuthFleet'           # NO EXTERNAL
     uidAuthFleet:                                                                   # NO EXTERNAL
       $ref: './remote-refs.yaml#/components/parameters/uidAuthFleet'                # NO EXTERNAL
-
-    ############################################################################################
-    ###                       PARAMETRI RICERCA RICHIESTA DI NOTIFICA                        ###
-    ############################################################################################
-    notificationRequestId:
-      in: query
-      required: false
-      name: notificationRequestId
-      schema:
-        $ref: './schemas-pn-notification.yaml#/components/schemas/NotificationRequestId'
-
-    paProtocolNumber:
-      name: paProtocolNumber
-      in: query
-      required: false
-      schema:
-        $ref: './schemas-pn-notification.yaml#/components/schemas/PaProtocolNumber'
-
-    idempotenceToken:
-      name: idempotenceToken
-      in: query
-      required: false
-      schema:
-        $ref: './schemas-pn-notification.yaml#/components/schemas/IdempotenceToken'
-
-    ############################################################################################
-    ###                             PARAMETRI DOWNLOAD DOCUMENTI                             ###
-    ############################################################################################
-    pathDocumentIdx:
-      name: docIdx
-      description: indice del documento nella lista partendo da 0.
-      in: path
-      required: true
-      schema:
-        type: integer
-        format: int32
-
-    pathRecipientIdx:
-      name: recipientIdx
-      description: indice del destinatario nella lista partendo da 0.
-      in: path
-      required: true
-      schema:
-        type: integer
-        format: int32
-
-    pathAttachmentName:
-      name: attachmentName
-      description: Tipologia del pagamento allegato alla notifica. Valore possibile PAGOPA
-      in: path
-      required: true
-      schema:
-        type: string
-        minLength: 3
-        maxLength: 6
-        pattern: "PAGOPA"
-
-    attachmentIdx:
-      in: query
-      name: attachmentIdx
-      description: indice del documento di pagamento partendo da 0
-      required: false
-      schema:
-        type: integer
-        format: int32
-
   schemas:
+    ###########################################################################################
+    ###                              DTO MESSAGGI                                           ###
+    ###########################################################################################
+
+    LocalizedContent:
+      type: object
+      required: [ subject, longBody, language ]
+      properties:
+        subject:
+          type: string
+          maxLength: 256
+          description: "Titolo del messaggio (es. Oggetto della mail o intestazione IO)"
+          example: "Sollecito di pagamento Tari 2023"
+        longBody:
+          type: string
+          maxLength: 10000
+          description: "Corpo esteso del messaggio in formato Markdown"
+          example: "Gentile cittadino, la informiamo che..."
+        shortBody:
+          type: string
+          maxLength: 160
+          description: "Versione breve per SMS o anteprime"
+          example: "Sollecito Tari: hai una nuova comunicazione da SEND."
+        language:
+          type: string
+          description: >-
+            Lingua del messaggio. Valori accettati:
+            - IT <br/>
+            - DE <br/>
+            - SI <br/>
+            - FR <br/>
+            DE (tedesco), SI (sloveno), FR (francese).
+
+    NewMessageRequest:
+      type: object
+      required: [ primaryMessage ]
+      properties:
+        primaryMessage:
+          description: Contenuto principale del messaggio, deve essere in lingua italiana
+          $ref: '#/components/schemas/LocalizedContent'
+        additionalMessage:
+          description: Contenuto aggiuntivo del messaggio, opzionale, può essere in una lingua diversa dall'italiano
+          $ref: '#/components/schemas/LocalizedContent'
+
+    MessageResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/NewMessageRequest'
+        - type: object
+          properties:
+            messageId:
+              description: Identificativo univoco del messaggio, da utilizzare per creare una notifica bonaria
+              type: string
+              format: uuid
+            createdAt:
+              description: Data e ora di creazione del messaggio
+              type: string
+              format: date-time
 
     ###########################################################################################
     ###                              DTO RICHIESTE DI NOTIFICA                              ###
@@ -569,6 +664,7 @@ components:
 
 #security:                 # ONLY EXTERNAL
 #  - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
+
 
 
 
