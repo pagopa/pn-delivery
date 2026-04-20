@@ -10,6 +10,10 @@ public class InformalNotificationUtils {
     }
 
     public static Optional<String> findMessageIdInCampaign(List<String> additionalLanguages, List<Message> campaignMessages) {
+        if(campaignMessages == null || campaignMessages.isEmpty()) {
+            return Optional.empty();
+        }
+
         String requestedAdditionalLanguage = additionalLanguages != null && !additionalLanguages.isEmpty() ? additionalLanguages.get(0) : null;
 
         return campaignMessages.stream()

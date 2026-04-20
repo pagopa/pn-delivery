@@ -34,7 +34,7 @@ public class CampaignMessageLanguageValidator implements FormalValidator<Informa
     }
 
     private void checkCongruenceBetweenAdditionalLanguageRequestedAndCampaign(InformalNotificationContext context, ArrayList<ProblemError> errors) {
-        if (!isInformalNotificationCheckCampaignLangActive) {
+        if (Boolean.FALSE.equals(isInformalNotificationCheckCampaignLangActive)) {
             log.debug("Informal notification - check campaign language is disabled, skipping validation");
             return;
         }
