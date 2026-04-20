@@ -33,7 +33,7 @@ public class MsClientConfig {
 
         @Bean
         @Primary
-        MessagesApi MessagesApi(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryConfigs cfg) {
+        MessagesApi messagesApi(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryConfigs cfg) {
             ApiClient newApiClient = new ApiClient(restTemplate);
             newApiClient.setBasePath(cfg.getDataVaultBaseUrl());
             return new MessagesApi(newApiClient);

@@ -7,9 +7,9 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.Local
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.UUID;
@@ -17,17 +17,16 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class InformalMessageServiceTest {
     @Mock
     private PnDataVaultClientImpl pnDataVaultClient;
     @Mock
     private PnDeliveryConfigs pnDeliveryConfigs;
-    @InjectMocks
     private InformalMessageService service;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
         service = new InformalMessageService(pnDataVaultClient, pnDeliveryConfigs);
     }
 
