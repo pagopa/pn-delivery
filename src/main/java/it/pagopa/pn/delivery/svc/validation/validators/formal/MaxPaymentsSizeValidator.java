@@ -24,6 +24,10 @@ public class MaxPaymentsSizeValidator implements FormalValidator<NotificationCon
     }
 
     private void checkMaxNumberOfPayments(NotificationContext context, ArrayList<ProblemError> errors) {
+        if (maxPayments == -1) {
+            return;
+        }
+
         context.getPayload().getRecipients()
                 .forEach(
                         recipient -> {

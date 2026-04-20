@@ -43,4 +43,37 @@ class MaxPaymentsSizeValidatorTest {
                 "Max payment count reached"
         );
     }
+
+    @Test
+    void shouldSkipValidationWhenPaymentsLimitIsMinusOne() {
+        MaxPaymentsSizeValidator validator = new MaxPaymentsSizeValidator(-1);
+        NotificationRecipient recipient = pfRecipient(
+                "AAAAAA00A00A000A",
+                "Mario Rossi",
+                physicalAddress(),
+                List.of(
+                        f24Payment("PN_F24_META-1.json", "sha-1", "application/json"),
+                        f24Payment("PN_F24_META-2.json", "sha-2", "application/json")
+                )
+        );
+
+        assertSuccess(validator.validate(legalContext(notification(List.of(recipient), List.of()))));
+    }
+
+    @Test
+    void shouldTreatZeroAsAnActivePaymentsLimit() {
+        MaxPaymentsSizeValidator validator = new MaxPaymentsSizeValidator(0);
+        NotificationRecipient recipient = pfRecipient(
+                "AAAAAA00A00A000A",
+                "Mario Rossi",
+                physicalAddress(),
+                List.of(f24Payment("PN_F24_META-1.json", "sha-1", "application/json"))
+        );
+
+        assertSingleError(
+                validator.validate(legalContext(notification(List.of(recipient), List.of()))),
+                ErrorCodes.ERROR_CODE_MAX_PAYMENT.getValue(),
+                "Max payment count reached"
+        );
+    }
 }

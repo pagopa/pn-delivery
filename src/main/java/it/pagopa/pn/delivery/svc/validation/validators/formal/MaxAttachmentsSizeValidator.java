@@ -25,7 +25,11 @@ public class MaxAttachmentsSizeValidator implements FormalValidator<Notification
     }
 
     private void checkMaxAttachments(NotificationContext context, ArrayList<ProblemError> errors) {
-        if (maxAttachments > 0 && context.getPayload().getDocuments().size() > maxAttachments) {
+        if (maxAttachments == -1) {
+            return;
+        }
+
+        if (context.getPayload().getDocuments().size() > maxAttachments) {
             errors.add(ProblemError.builder().element("documents").code(ErrorCodes.ERROR_CODE_MAX_ATTACHMENT.getValue()).detail("Max attachment count reached").build());
         }
     }

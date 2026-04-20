@@ -35,5 +35,27 @@ class MaxAttachmentsSizeValidatorTest {
                 "Max attachment count reached"
         );
     }
+
+    @Test
+    void shouldSkipValidationWhenAttachmentsLimitIsMinusOne() {
+        MaxAttachmentsSizeValidator validator = new MaxAttachmentsSizeValidator(-1);
+        NotificationRecipient recipient = pfRecipient("AAAAAA00A00A000A", "Mario Rossi", physicalAddress(), List.of());
+
+        assertSuccess(
+                validator.validate(legalContext(notification(List.of(recipient), List.of(document("key-1", "sha-1"), document("key-2", "sha-2")))))
+        );
+    }
+
+    @Test
+    void shouldTreatZeroAsAnActiveAttachmentsLimit() {
+        MaxAttachmentsSizeValidator validator = new MaxAttachmentsSizeValidator(0);
+        NotificationRecipient recipient = pfRecipient("AAAAAA00A00A000A", "Mario Rossi", physicalAddress(), List.of());
+
+        assertSingleError(
+                validator.validate(legalContext(notification(List.of(recipient), List.of(document("key-1", "sha-1"))))),
+                ErrorCodes.ERROR_CODE_MAX_ATTACHMENT.getValue(),
+                "Max attachment count reached"
+        );
+    }
 }
 

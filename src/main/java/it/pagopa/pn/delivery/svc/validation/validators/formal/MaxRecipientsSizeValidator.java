@@ -24,7 +24,11 @@ public class MaxRecipientsSizeValidator implements FormalValidator<NotificationC
     }
 
     private void checkMaxRecipients(NotificationContext context, ArrayList<ProblemError> errors) {
-        if (maxRecipients > 0 && context.getPayload().getRecipients().size() > maxRecipients) {
+        if (maxRecipients == -1) {
+            return;
+        }
+
+        if (context.getPayload().getRecipients().size() > maxRecipients) {
             errors.add(ProblemError.builder().element("recipients").code(ErrorCodes.ERROR_CODE_MAX_RECIPIENT.getValue()).detail("Max recipient count reached").build());
         }
     }
