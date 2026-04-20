@@ -48,11 +48,11 @@ paths:
       description: |
         Salva il contenuto del messaggio in modo sicuro e ottiene un messageId da utilizzare per creare una notifica bonaria.
       operationId: newMessage
-      parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'
-        - $ref: '#/components/parameters/cxTypeAuthFleet'
-        - $ref: '#/components/parameters/cxIdAuthFleet'
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'
+      parameters:                                             # NO EXTERNAL
+        - $ref: '#/components/parameters/uidAuthFleet'        # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'     # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'       # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'   # NO EXTERNAL
       requestBody:
         required: true
         content:
@@ -104,10 +104,10 @@ paths:
           schema:
             type: string
             format: uuid
-        - $ref: '#/components/parameters/uidAuthFleet'
-        - $ref: '#/components/parameters/cxTypeAuthFleet'
-        - $ref: '#/components/parameters/cxIdAuthFleet'
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'
+        - $ref: '#/components/parameters/uidAuthFleet'      # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'   # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'     # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet' # NO EXTERNAL
       responses:
         '200':
           description: Message details
@@ -168,7 +168,7 @@ paths:
       tags:
         - NewInformalNotification
       operationId: sendNewInformalNotificationV1
-      parameters:                                                     # NO EXTERNAL
+      parameters: # NO EXTERNAL
         - $ref: '#/components/parameters/uidAuthFleet'                # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'             # NO EXTERNAL
         - $ref: '#/components/parameters/cxIdAuthFleet'               # NO EXTERNAL
@@ -496,6 +496,72 @@ components:
       $ref: './remote-refs.yaml#/components/parameters/cxGroupsAuthFleet'           # NO EXTERNAL
     uidAuthFleet:                                                                   # NO EXTERNAL
       $ref: './remote-refs.yaml#/components/parameters/uidAuthFleet'                # NO EXTERNAL
+
+    ############################################################################################
+    ###                       PARAMETRI RICERCA RICHIESTA DI NOTIFICA                        ###
+    ############################################################################################
+    notificationRequestId:
+      in: query
+      required: false
+      name: notificationRequestId
+      schema:
+        $ref: './schemas-pn-notification.yaml#/components/schemas/NotificationRequestId'
+
+    paProtocolNumber:
+      name: paProtocolNumber
+      in: query
+      required: false
+      schema:
+        $ref: './schemas-pn-notification.yaml#/components/schemas/PaProtocolNumber'
+
+    idempotenceToken:
+      name: idempotenceToken
+      in: query
+      required: false
+      schema:
+        $ref: './schemas-pn-notification.yaml#/components/schemas/IdempotenceToken'
+
+    ############################################################################################
+    ###                             PARAMETRI DOWNLOAD DOCUMENTI                             ###
+    ############################################################################################
+    pathDocumentIdx:
+      name: docIdx
+      description: indice del documento nella lista partendo da 0.
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+
+    pathRecipientIdx:
+      name: recipientIdx
+      description: indice del destinatario nella lista partendo da 0.
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+
+    pathAttachmentName:
+      name: attachmentName
+      description: Tipologia del pagamento allegato alla notifica. Valore possibile PAGOPA
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 3
+        maxLength: 6
+        pattern: "PAGOPA"
+
+    attachmentIdx:
+      in: query
+      name: attachmentIdx
+      description: indice del documento di pagamento partendo da 0
+      required: false
+      schema:
+        type: integer
+        format: int32
+
   schemas:
     ###########################################################################################
     ###                              DTO MESSAGGI                                           ###
