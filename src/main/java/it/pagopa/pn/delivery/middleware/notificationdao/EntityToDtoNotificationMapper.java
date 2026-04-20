@@ -64,7 +64,7 @@ public class EntityToDtoNotificationMapper {
                 .version(entity.getVersion())
                 .additionalLanguages(removeITLanguageFromDto(entity.getLanguages()))
                 .usedServices(entity.getUsedServices() != null ? getUsedServicesDto(entity.getUsedServices()) : null)
-                .communicationType(entity.getCommunicationType() != null ? entity.getCommunicationType() : null)
+                .communicationType(entity.getCommunicationType())
                 .campaignId(entity.getCampaignId());
 
         return builder.build();

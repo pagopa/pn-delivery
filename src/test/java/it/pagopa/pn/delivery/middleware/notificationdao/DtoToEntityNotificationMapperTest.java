@@ -68,6 +68,9 @@ class DtoToEntityNotificationMapperTest {
         Assertions.assertEquals( NOTICE_CODE , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getNoticeCode() );
         Assertions.assertEquals( CREDITOR_TAX_ID , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getCreditorTaxId() );
         Assertions.assertEquals(List.of(NotificationLang.builder().lang("IT").build()), notificationEntity.getLanguages());
+        Assertions.assertEquals("messageId", internalNotification.getRecipients().get(0).getMessageId());
+        Assertions.assertEquals("campaignId", internalNotification.getCampaignId());
+        Assertions.assertEquals(CommunicationType.INFORMAL, internalNotification.getCommunicationType());
         assertEquals( VAT, notificationEntity.getVat() );
     }
 
