@@ -263,7 +263,36 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
 
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentInformalNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer recipientIdx, String attachmentName, List<String> xPagopaPnCxGroups, Integer attachmentIdx) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        InternalAttachmentWithFileKey internalAttachmentWithFileKey = new InternalAttachmentWithFileKey();
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(PnAuditLogEventType.AUD_COM_DOCOPEN_SND, "getSentNotificationAttachment attachment name={} attachment index={}", attachmentName, attachmentIdx)
+                .iun(iun)
+                .build();
+        logEvent.log();
+        try {
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
+            internalAttachmentWithFileKey = notificationAttachmentService.downloadAttachmentWithRedirectWithFileKey(
+                    iun,
+                    internalAuthHeader,
+                    null,
+                    recipientIdx,
+                    attachmentName,
+                    attachmentIdx,
+                    false
+            );
+            if(internalAttachmentWithFileKey == null || internalAttachmentWithFileKey.getFileKey() == null){
+                logEvent.generateSuccess().log();
+            }else{
+                logEvent.getMdc().put(MDC_PN_CTX_SAFESTORAGE_FILEKEY, internalAttachmentWithFileKey.getFileKey());
+                logEvent.generateSuccess().log();
+            }
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("" + exc.getProblem()).log();
+            throw exc;
+        }
+
+        return ResponseEntity.ok( internalAttachmentWithFileKey == null ? null : internalAttachmentWithFileKey.getDownloadMetadataResponse() );
     }
 
     @Override
