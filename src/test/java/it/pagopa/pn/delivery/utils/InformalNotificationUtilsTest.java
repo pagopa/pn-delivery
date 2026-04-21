@@ -61,6 +61,15 @@ class InformalNotificationUtilsTest {
     }
 
     @Test
+    void findMessageIdWhenCampaignMessagesIsNull() {
+        List<String> additionalLanguages = List.of("FR");
+
+        Optional<String> result = InformalNotificationUtils.findMessageIdInCampaign(additionalLanguages, null);
+
+        assertFalse(result.isPresent());
+    }
+
+    @Test
     void findMessageIdWhenAdditionalLanguagesIsEmpty() {
         List<String> additionalLanguages = List.of();
         List<Message> campaignMessages = List.of(

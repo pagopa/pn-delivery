@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.svc.validation.validators.formal;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.campaign.Campaign;
 import it.pagopa.pn.delivery.models.campaign.Message;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.svc.validation.ErrorCodes;
@@ -49,6 +50,17 @@ class CampaignMessageLanguageValidatorTest {
         ValidationResult result = validator.validate(informalContext(notification, campaign(Message.AdditionalLanguage.DE, Message.AdditionalLanguage.FR)));
 
         assertSuccess(result);
+    }
+
+    @Test
+    void shouldReturnErrorWhenRecipientHasNotMessageIdButCampaignHasNoMessages() {
+        CampaignMessageLanguageValidator validator = new CampaignMessageLanguageValidator(true);
+        InternalNotification notification = buildNotification(List.of("SL"), buildRecipients(false));
+        ValidationResult result = validator.validate(informalContext(notification, new Campaign()));
+
+        assertThat(result.getErrors()).hasSize(1);
+        assertThat(result.getErrors().get(0).getCode()).isEqualTo(ErrorCodes.ERROR_CODE_ADDITIONAL_LANG_UNSUPPORTED_VALUE.getValue());
+        assertThat(result.getErrors().get(0).getDetail()).contains("The referenced campaign contains no messages matching the selected language configuration");
     }
 
     @Test
