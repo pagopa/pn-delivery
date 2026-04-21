@@ -1,14 +1,14 @@
 package it.pagopa.pn.delivery.svc.validation;
 
 import it.pagopa.pn.commons.exceptions.dto.ProblemError;
-import lombok.Data;
+import lombok.Getter;
 
 import java.util.List;
 
-@Data
+@Getter
 public final class ValidationResult {
 
-    private List<ProblemError> errors;
+    private final List<ProblemError> errors;
 
     public ValidationResult(List<ProblemError> errors) {
         this.errors = List.copyOf(errors);

@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AdditionalLanguageFormalValidator implements FormalValidator<NotificationContext> {
 
-    private static final String REQUIRED_ADDITIONAL_LANG_SIZE = "È obbligatorio fornire una sola lingua aggiuntiva.";
+    private static final String REQUIRED_ADDITIONAL_LANG_SIZE = "È consentito fornire al massimo una lingua aggiuntiva.";
 
     @Override
     public ValidationResult validate(NotificationContext context) {

@@ -28,7 +28,7 @@ public class SendInformalNotificationActiveValidator implements AuthorizationVal
 
     private void checkIfCxIdIsMvp(NotificationContext context, ArrayList<ProblemError> errors) {
         if ( Boolean.FALSE.equals(parameterConsumer.isSenderActiveForInformalNotification(context.getCxId())) ) {
-            errors.add( ProblemError.builder().code(ErrorCodes.ERROR_CODE_SEND_IS_DISABLED.getValue()).detail("Piattaforma Notifiche non é abilitata alla comunicazione di notifiche bonarie").build());
+            errors.add( ProblemError.builder().code(ErrorCodes.ERROR_CODE_SEND_IS_DISABLED.getValue()).detail("Piattaforma Notifiche non è abilitata alla comunicazione di notifiche bonarie").build());
         }
     }
 }

@@ -11,6 +11,6 @@ import lombok.*;
 @NoArgsConstructor
 public class WorkflowEntity {
     private String channel;
-    private String deisredFeedback;
+    private String desiredFeedback;
     private boolean includeAttachment;
 }
