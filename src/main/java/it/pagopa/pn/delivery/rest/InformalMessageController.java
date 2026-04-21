@@ -1,5 +1,8 @@
 package it.pagopa.pn.delivery.rest;
 
+import it.pagopa.pn.commons.log.PnAuditLogBuilder;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.MessageRequestDto;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.MessageResponseDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.MessagesApi;
@@ -44,8 +47,19 @@ public class InformalMessageController implements MessagesApi {
             NewMessageRequest newMessageRequest,
             List<String> xPagopaPnCxGroups
     ) {
-        MessageRequestDto dto = InformalMessageMapper.toMs(newMessageRequest, xPagopaPnCxId);
-        MessageResponseDto result = informalMessageService.createInformalMessage(dto);
-        return ResponseEntity.status(201).body(InformalMessageMapper.toApi(result));
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(PnAuditLogEventType.AUD_COM_MSG_INSERT, "createInformalMessage senderId={}", xPagopaPnCxId)
+                .build();
+        logEvent.log();
+        try {
+            MessageRequestDto dto = InformalMessageMapper.toMs(newMessageRequest, xPagopaPnCxId);
+            MessageResponseDto result = informalMessageService.createInformalMessage(dto);
+            logEvent.generateSuccess("createInformalMessage", PnAuditLogEventType.AUD_COM_MSG_INSERT);
+            return ResponseEntity.status(201).body(InformalMessageMapper.toApi(result));
+        } catch (Exception ex) {
+            logEvent.generateFailure(ex.getMessage(), PnAuditLogEventType.AUD_COM_MSG_INSERT);
+            throw ex;
+        }
     }
 }
