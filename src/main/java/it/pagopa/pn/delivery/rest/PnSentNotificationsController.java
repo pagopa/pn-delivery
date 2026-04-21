@@ -267,12 +267,45 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
     }
 
     @Override
-    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentInformalNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer docIdx, List<String> xPagopaPnCxGroups) {
+    public ResponseEntity<TerminationRequestStatus> terminateInformalWorkflow(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 
     @Override
-    public ResponseEntity<TerminationRequestStatus> terminateInformalWorkflow(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentInformalNotificationDocument(
+            String xPagopaPnUid,
+            CxTypeAuthFleet xPagopaPnCxType,
+            String xPagopaPnCxId,
+            String iun,
+            Integer docIdx,
+            List<String> xPagopaPnCxGroups
+    ) {
+        InternalAttachmentWithFileKey internalAttachmentWithFileKey = new InternalAttachmentWithFileKey();
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(PnAuditLogEventType.AUD_COM_DOCOPEN_SND, "getSentInformalNotificationDocument docIdx={}", docIdx)
+                .iun(iun)
+                .build();
+        logEvent.log();
+        try {
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
+            internalAttachmentWithFileKey = notificationAttachmentService.downloadDocumentWithRedirectWithFileKey(
+                    iun,
+                    internalAuthHeader,
+                    null,
+                    docIdx,
+                    false // non produrre evento di visualizzazione
+            );
+            if (internalAttachmentWithFileKey == null || internalAttachmentWithFileKey.getFileKey() == null) {
+                logEvent.generateSuccess().log();
+            } else {
+                logEvent.getMdc().put(MDC_PN_CTX_SAFESTORAGE_FILEKEY, internalAttachmentWithFileKey.getFileKey());
+                logEvent.generateSuccess().log();
+            }
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("" + exc.getProblem()).log();
+            throw exc;
+        }
+        return ResponseEntity.ok(internalAttachmentWithFileKey == null ? null : internalAttachmentWithFileKey.getDownloadMetadataResponse());
     }
 }
