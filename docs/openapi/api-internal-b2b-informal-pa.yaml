@@ -23,8 +23,7 @@ servers:
     description: Ambiente di collaudo
 tags:
   - name: Messages
-    description: >-
-      Invocazioni per la gestione dei template dei messaggi da utilizzare per le notifiche bonarie
+    description: Gestione dei template dei messaggi per notifiche bonarie
   - name: NewInformalNotification
     description: >-
       Invocazioni per effettuare il pre-caricamento dei documenti della notifica e inviare notifiche
@@ -46,13 +45,13 @@ paths:
         - Messages
       summary: Crea un nuovo template di messaggio
       description: |
-        Salva il contenuto del messaggio in modo sicuro e ottiene un messageId da utilizzare per creare una notifica bonaria. <br/>
+        Salva il contenuto del messaggio in modo sicuro e ottiene un messageId da utilizzare per creare una notifica bonaria.
       operationId: newMessage
-      parameters: # NO EXTERNAL
-        - $ref: '#/components/parameters/uidAuthFleet'                # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'             # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'               # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'           # NO EXTERNAL
+      parameters:                                             # NO EXTERNAL
+        - $ref: '#/components/parameters/uidAuthFleet'        # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'     # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'       # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'   # NO EXTERNAL
       requestBody:
         required: true
         content:
@@ -105,10 +104,10 @@ paths:
           schema:
             type: string
             format: uuid
-        - $ref: '#/components/parameters/uidAuthFleet'                # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'             # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'               # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'           # NO EXTERNAL
+        - $ref: '#/components/parameters/uidAuthFleet'      # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'   # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'     # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet' # NO EXTERNAL
       responses:
         '200':
           description: Message details
@@ -154,8 +153,8 @@ paths:
         La restituzione di uno stato HTTP 202 significa solo che la richiesta è sintatticamente
         valida, non che la richiesta sia stata validata ed accettata. <br/>
         Per conoscere lo stato di accettazione della richiesta di notifica bisogna utilizzare l'operazione
-        _getNotificationRequestStatus_ oppure utilizzare la modalità push prevista dai webhook. <br/>
-        
+        getInformalNotificationRequestStatusV1 oppure utilizzare la modalità push prevista dai webhook. <br/>
+
         <details no-external>
         <summary><b> Attributi progettazione di alto livello </b></summary>
         | Proprietà                | Valore             |
@@ -170,7 +169,7 @@ paths:
       tags:
         - NewInformalNotification
       operationId: sendNewInformalNotificationV1
-      parameters:                                                     # NO EXTERNAL
+      parameters: # NO EXTERNAL
         - $ref: '#/components/parameters/uidAuthFleet'                # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'             # NO EXTERNAL
         - $ref: '#/components/parameters/cxIdAuthFleet'               # NO EXTERNAL
@@ -235,7 +234,7 @@ paths:
       description: >-
         Questa operazione serve per verificare se la richiesta di notifica è stata accettata e ottenere
         lo IUN associato a tale richiesta. <br/>
-        Bisogna specificare il parametro _requestId_ oppure la coppia costituita dai parametri 
+        Bisogna specificare il parametro _notificationRequestId_  oppure la coppia costituita dai parametri 
         _paProtocolNumber_ e _idempotenceToken_. <br/>
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
@@ -602,12 +601,13 @@ components:
       required: [ primaryMessage ]
       properties:
         primaryMessage:
-          description: Contenuto principale del messaggio, deve essere in lingua italiana
-          $ref: '#/components/schemas/LocalizedContent'
+          allOf:
+            - $ref: '#/components/schemas/LocalizedContent'
+            - description: Contenuto principale del messaggio, deve essere in lingua italiana
         additionalMessage:
-          description: Contenuto aggiuntivo del messaggio, opzionale, può essere in una lingua diversa dall'italiano
-          $ref: '#/components/schemas/LocalizedContent'
-
+          allOf:
+            - $ref: '#/components/schemas/LocalizedContent'
+            - description: Contenuto aggiuntivo del messaggio, opzionale, può essere in una lingua diversa dall'italiano
     MessageResponse:
       type: object
       allOf:
