@@ -2,7 +2,6 @@ package it.pagopa.pn.delivery.svc.validation.pipeline;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.svc.validation.context.InformalNotificationContext;
-import it.pagopa.pn.delivery.svc.validation.context.ValidationContext;
 import it.pagopa.pn.delivery.svc.validation.validators.authorization.SendInformalNotificationActiveValidator;
 import it.pagopa.pn.delivery.svc.validation.validators.authorization.SenderTaxIdCongruenceValidator;
 import it.pagopa.pn.delivery.svc.validation.validators.formal.*;
@@ -26,6 +25,7 @@ public class ValidationPipelineFactory {
     private final PaymentAttachmentValidator paymentAttachmentValidator;
     private final ProvinceRequiredValidator provinceRequiredValidator;
     private final UniqueAttachmentsValidator uniqueAttachmentsValidator;
+    private final PhysicalAddressValidator physicalAddressValidator;
 
     @Bean
     public ValidationPipeline<InformalNotificationContext> informalPipeline() {
@@ -41,14 +41,11 @@ public class ValidationPipelineFactory {
                 .formal(recipientTaxIdSyntaxValidator)
                 .formal(new MaxPaymentsSizeValidator(cfg.getInformalNotificationMaxPayments()))
                 .formal(paymentAttachmentValidator)
-                .formal(new PhysicalAddressValidator(cfg.isPhysicalAddressValidation(), cfg.getPhysicalAddressValidationLength(), cfg.getPhysicalAddressValidationPattern()))
+                .formal(physicalAddressValidator)
                 .formal(provinceRequiredValidator)
                 .formal(new DenominationAndAtValidator(cfg.getDenominationLength(), cfg.getDenominationValidationTypeValue(), cfg.getDenominationValidationRegexValue(), cfg.getDenominationValidationExcludedCharacter()))
                 .formal(uniqueAttachmentsValidator)
                 .build();
     }
 
-    public static <C extends ValidationContext<?>> ValidationPipelineBuilder<C> builder() {
-        return new ValidationPipelineBuilder<>();
-    }
 }

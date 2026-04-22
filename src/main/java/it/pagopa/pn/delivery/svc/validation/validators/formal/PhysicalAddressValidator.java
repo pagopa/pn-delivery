@@ -1,37 +1,50 @@
 package it.pagopa.pn.delivery.svc.validation.validators.formal;
 
 import it.pagopa.pn.commons.exceptions.dto.ProblemError;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
+import it.pagopa.pn.delivery.svc.util.PhysicalAddressLookupUtil;
 import it.pagopa.pn.delivery.svc.validation.ErrorCodes;
 import it.pagopa.pn.delivery.svc.validation.ValidationResult;
 import it.pagopa.pn.delivery.svc.validation.context.NotificationContext;
 import it.pagopa.pn.delivery.svc.validation.validators.FormalValidator;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
 @Slf4j
-@RequiredArgsConstructor
+@Component
 public class PhysicalAddressValidator implements FormalValidator<NotificationContext> {
 
     public static final String PHYSICAL_ADDRESS_FIELD = "physicalAddress";
+    private final PhysicalAddressLookupUtil physicalAddressLookupUtil;
     private final boolean physicalValidationActivated;
     private final Integer length;
     private final String pattern;
+
+    public PhysicalAddressValidator(PhysicalAddressLookupUtil physicalAddressLookupUtil, PnDeliveryConfigs cfg) {
+        this.physicalAddressLookupUtil = physicalAddressLookupUtil;
+        this.physicalValidationActivated = cfg.isPhysicalAddressValidation();
+        this.length = cfg.getPhysicalAddressValidationLength();
+        this.pattern = cfg.getPhysicalAddressValidationPattern();
+    }
 
     @Override
     public ValidationResult validate(NotificationContext context) {
         int recIdx = 0;
         ArrayList<ProblemError> errors = new ArrayList<>();
 
+        boolean isPhysicalAddressLookupEnabled = physicalAddressLookupUtil.checkPhysicalAddressLookupIsEnabled(context.getCxId());
         for (NotificationRecipient recipient : context.getPayload().getRecipients()) {
             NotificationPhysicalAddress physicalAddress = recipient.getPhysicalAddress();
-            checkPhysicalAddressIsFormallyCorrect(physicalAddress, recIdx, errors);
+            if(!isPhysicalAddressLookupEnabled || physicalAddress != null){
+                checkPhysicalAddressIsFormallyCorrect(physicalAddress, recIdx, errors);
+            }
             recIdx++;
         }
 

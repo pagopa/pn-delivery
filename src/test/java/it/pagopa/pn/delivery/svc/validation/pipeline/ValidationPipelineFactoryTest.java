@@ -53,6 +53,7 @@ class ValidationPipelineFactoryTest {
     private PaymentAttachmentValidator paymentAttachmentValidator;
     private ProvinceRequiredValidator provinceRequiredValidator;
     private UniqueAttachmentsValidator uniqueAttachmentsValidator;
+    private PhysicalAddressValidator physicalAddressValidator;
 
     private ValidationPipelineFactory factory;
 
@@ -68,6 +69,7 @@ class ValidationPipelineFactoryTest {
         paymentAttachmentValidator = mock(PaymentAttachmentValidator.class);
         provinceRequiredValidator = mock(ProvinceRequiredValidator.class);
         uniqueAttachmentsValidator = mock(UniqueAttachmentsValidator.class);
+        physicalAddressValidator = mock(PhysicalAddressValidator.class);
 
         when(cfg.getDenominationLength()).thenReturn(DENOMINATION_LENGTH);
         when(cfg.getDenominationValidationTypeValue()).thenReturn(DENOMINATION_VALIDATION_TYPE);
@@ -91,7 +93,8 @@ class ValidationPipelineFactoryTest {
                 groupValidator,
                 paymentAttachmentValidator,
                 provinceRequiredValidator,
-                uniqueAttachmentsValidator
+                uniqueAttachmentsValidator,
+                physicalAddressValidator
         );
     }
 
@@ -117,7 +120,7 @@ class ValidationPipelineFactoryTest {
         assertThat(formalValidators.get(6)).isSameAs(recipientTaxIdSyntaxValidator);
         assertThat(formalValidators.get(7)).isInstanceOf(MaxPaymentsSizeValidator.class);
         assertThat(formalValidators.get(8)).isSameAs(paymentAttachmentValidator);
-        assertThat(formalValidators.get(9)).isInstanceOf(PhysicalAddressValidator.class);
+        assertThat(formalValidators.get(9)).isSameAs(physicalAddressValidator);
         assertThat(formalValidators.get(10)).isSameAs(provinceRequiredValidator);
         assertThat(formalValidators.get(11)).isInstanceOf(DenominationAndAtValidator.class);
         assertThat(formalValidators.get(12)).isSameAs(uniqueAttachmentsValidator);
@@ -139,6 +142,7 @@ class ValidationPipelineFactoryTest {
         assertThat(formalValidators.get(5)).isSameAs(pgTaxIdValidator);
         assertThat(formalValidators.get(6)).isSameAs(recipientTaxIdSyntaxValidator);
         assertThat(formalValidators.get(8)).isSameAs(paymentAttachmentValidator);
+        assertThat(formalValidators.get(9)).isSameAs(physicalAddressValidator);
         assertThat(formalValidators.get(10)).isSameAs(provinceRequiredValidator);
         assertThat(formalValidators.get(12)).isSameAs(uniqueAttachmentsValidator);
 
@@ -174,23 +178,6 @@ class ValidationPipelineFactoryTest {
                 .isEqualTo(MAX_PAYMENT_NUMBER);
         assertThat(ReflectionTestUtils.getField(maxRecipientsSizeValidator, "maxRecipients"))
                 .isEqualTo(MAX_RECIPIENTS_COUNT);
-
-        assertThat(ReflectionTestUtils.getField(physicalAddressValidator, "physicalValidationActivated"))
-                .isEqualTo(PHYSICAL_ADDRESS_VALIDATION_ACTIVE);
-        assertThat(ReflectionTestUtils.getField(physicalAddressValidator, "length"))
-                .isEqualTo(PHYSICAL_ADDRESS_VALIDATION_LENGTH);
-        assertThat(ReflectionTestUtils.getField(physicalAddressValidator, "pattern"))
-                .isEqualTo(PHYSICAL_ADDRESS_VALIDATION_PATTERN);
-    }
-
-    @Test
-    void builderShouldReturnAnEmptyPipelineBuilder() {
-        ValidationPipelineBuilder<?> builder = ValidationPipelineFactory.builder();
-        ValidationPipeline<?> pipeline = builder.build();
-
-        assertThat(getValidators(pipeline, "authorizationValidators")).isEmpty();
-        assertThat(getValidators(pipeline, "formalValidators")).isEmpty();
-        assertThat(getValidators(pipeline, "businessValidators")).isEmpty();
     }
 
     @SuppressWarnings("unchecked")

@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.svc.validation.validators.formal;
 import it.pagopa.pn.commons.exceptions.dto.ProblemError;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
+import it.pagopa.pn.delivery.svc.util.PhysicalAddressLookupUtil;
 import it.pagopa.pn.delivery.svc.validation.ErrorCodes;
 import it.pagopa.pn.delivery.svc.validation.ValidationResult;
 import it.pagopa.pn.delivery.svc.validation.context.NotificationContext;
@@ -19,15 +20,18 @@ import java.util.Objects;
 @Slf4j
 @RequiredArgsConstructor
 public class ProvinceRequiredValidator implements FormalValidator<NotificationContext> {
-
+    private final PhysicalAddressLookupUtil physicalAddressLookupUtil;
 
     @Override
     public ValidationResult validate(NotificationContext context) {
         ArrayList<ProblemError> errors = new ArrayList<>();
 
+        boolean isPhysicalAddressLookupEnabled = physicalAddressLookupUtil.checkPhysicalAddressLookupIsEnabled(context.getCxId());
         for (NotificationRecipient recipient : context.getPayload().getRecipients()) {
             NotificationPhysicalAddress physicalAddress = recipient.getPhysicalAddress();
-            checkIfProvinceIsRequired(physicalAddress, errors);
+            if(!isPhysicalAddressLookupEnabled || physicalAddress != null){
+                checkIfProvinceIsRequired(physicalAddress, errors);
+            }
         }
 
         return new ValidationResult(errors);

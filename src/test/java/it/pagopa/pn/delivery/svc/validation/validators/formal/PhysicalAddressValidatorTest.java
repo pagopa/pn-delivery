@@ -1,10 +1,15 @@
 package it.pagopa.pn.delivery.svc.validation.validators.formal;
 
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
+import it.pagopa.pn.delivery.svc.util.PhysicalAddressLookupUtil;
 import it.pagopa.pn.delivery.svc.validation.ErrorCodes;
 import it.pagopa.pn.delivery.svc.validation.ValidationResult;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.util.List;
 
@@ -14,12 +19,33 @@ import static it.pagopa.pn.delivery.svc.validation.validators.ValidatorTestSuppo
 import static it.pagopa.pn.delivery.svc.validation.validators.ValidatorTestSupport.notification;
 import static it.pagopa.pn.delivery.svc.validation.validators.ValidatorTestSupport.pfRecipient;
 import static it.pagopa.pn.delivery.svc.validation.validators.ValidatorTestSupport.physicalAddress;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 class PhysicalAddressValidatorTest {
 
+    @Mock
+    private PhysicalAddressLookupUtil physicalAddressLookupUtil;
+
+    @Mock
+    private PnDeliveryConfigs cfg;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    private PhysicalAddressValidator validator(boolean validationActivated, int length, String pattern) {
+        when(cfg.isPhysicalAddressValidation()).thenReturn(validationActivated);
+        when(cfg.getPhysicalAddressValidationLength()).thenReturn(length);
+        when(cfg.getPhysicalAddressValidationPattern()).thenReturn(pattern);
+        return new PhysicalAddressValidator(physicalAddressLookupUtil, cfg);
+    }
+
     @Test
     void shouldReturnSuccessWhenValidationIsDisabledAndAddressIsPresent() {
-        PhysicalAddressValidator validator = new PhysicalAddressValidator(false, 10, "a-zA-Z");
+        PhysicalAddressValidator validator = validator(false, 10, "a-zA-Z");
+        when(physicalAddressLookupUtil.checkPhysicalAddressLookupIsEnabled(anyString())).thenReturn(false);
         NotificationRecipient recipient = pfRecipient("AAAAAA00A00A000A", "Mario Rossi", physicalAddress(), List.of());
 
         assertSuccess(validator.validate(legalContext(notification(List.of(recipient), List.of()))));
@@ -27,7 +53,8 @@ class PhysicalAddressValidatorTest {
 
     @Test
     void shouldReturnErrorWhenPhysicalAddressIsNull() {
-        PhysicalAddressValidator validator = new PhysicalAddressValidator(true, 10, "a-zA-Z0-9 ");
+        PhysicalAddressValidator validator = validator(true, 10, "a-zA-Z0-9 ");
+        when(physicalAddressLookupUtil.checkPhysicalAddressLookupIsEnabled(anyString())).thenReturn(false);
         NotificationRecipient recipient = pfRecipient("AAAAAA00A00A000A", "Mario Rossi", null, List.of());
 
         assertSingleError(
@@ -38,8 +65,18 @@ class PhysicalAddressValidatorTest {
     }
 
     @Test
+    void shouldSkipNullAddressValidationWhenPhysicalAddressLookupIsEnabled() {
+        PhysicalAddressValidator validator = validator(true, 10, "a-zA-Z0-9 ");
+        when(physicalAddressLookupUtil.checkPhysicalAddressLookupIsEnabled(anyString())).thenReturn(true);
+        NotificationRecipient recipient = pfRecipient("AAAAAA00A00A000A", "Mario Rossi", null, List.of());
+
+        assertSuccess(validator.validate(legalContext(notification(List.of(recipient), List.of()))));
+    }
+
+    @Test
     void shouldReturnErrorWhenFieldContainsInvalidCharacters() {
-        PhysicalAddressValidator validator = new PhysicalAddressValidator(true, 100, "a-zA-Z0-9 ");
+        PhysicalAddressValidator validator = validator(true, 100, "a-zA-Z0-9 ");
+        when(physicalAddressLookupUtil.checkPhysicalAddressLookupIsEnabled(anyString())).thenReturn(false);
         NotificationPhysicalAddress address = physicalAddress();
         address.setAddress("via@roma");
         NotificationRecipient recipient = pfRecipient("AAAAAA00A00A000A", "Mario Rossi", address, List.of());
@@ -53,7 +90,8 @@ class PhysicalAddressValidatorTest {
 
     @Test
     void shouldReturnErrorWhenRowLengthExceedsConfiguredLimit() {
-        PhysicalAddressValidator validator = new PhysicalAddressValidator(true, 5, "a-zA-Z0-9 ");
+        PhysicalAddressValidator validator = validator(true, 5, "a-zA-Z0-9 ");
+        when(physicalAddressLookupUtil.checkPhysicalAddressLookupIsEnabled(anyString())).thenReturn(false);
         NotificationPhysicalAddress address = physicalAddress("abc", "abc", "abc", "12345", "abc", "abc", "AA", "FR");
         NotificationRecipient recipient = pfRecipient("AAAAAA00A00A000A", "Mario Rossi", address, List.of());
 
