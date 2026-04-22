@@ -1426,7 +1426,7 @@ class PnSentReceivedNotificationControllerTest {
 	}
 
 	@Test
-	void getSentInformalNotificationAttachmentNotImplemented() {
+	void getSentInformalNotificationAttachmentSuccess() {
 		//Given
 		InternalAttachmentWithFileKey response = InternalAttachmentWithFileKey.of(NotificationAttachmentDownloadMetadataResponse.builder()
 				.url( REDIRECT_URL )
