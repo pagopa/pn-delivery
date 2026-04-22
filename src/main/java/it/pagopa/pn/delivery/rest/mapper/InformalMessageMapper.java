@@ -43,9 +43,7 @@ public class InformalMessageMapper {
         ms.setSubject(api.getSubject());
         ms.setLongBody(api.getLongBody());
         ms.setShortBody(api.getShortBody());
-        if (api.getLanguage() != null) {
-            ms.setLanguage(LocalizedContent.LanguageEnum.fromValue(api.getLanguage()));
-        }
+        ms.setLanguage(LocalizedContent.LanguageEnum.fromValue(api.getLanguage()));
         return ms;
     }
 }

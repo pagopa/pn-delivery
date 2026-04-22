@@ -130,7 +130,7 @@ class PnDataVaultClientImplTest {
         UUID messageId = UUID.randomUUID();
         UUID senderId = UUID.randomUUID();
         MessageResponseDto response = new MessageResponseDto();
-        when(messagesApi.getMessageById(Mockito.eq(messageId), Mockito.eq(senderId))).thenReturn(response);
+        when(messagesApi.getMessageById(messageId, senderId)).thenReturn(response);
         MessageResponseDto result = pnDataVaultClientImpl.getInformalMessageById(messageId, senderId);
         assertSame(response, result);
         verify(messagesApi).getMessageById(Mockito.eq(messageId), Mockito.eq(senderId));

@@ -5,7 +5,6 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.Messa
 import it.pagopa.pn.delivery.svc.InformalMessageService;
 import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -32,7 +31,7 @@ class InformalMessageControllerTest {
         UUID senderId = UUID.randomUUID();
         MessageResponseDto responseDto = new MessageResponseDto();
         responseDto.setMessageId(messageId);
-        when(informalMessageService.getInformalMessageById(Mockito.eq(messageId), Mockito.eq(senderId))).thenReturn(responseDto);
+        when(informalMessageService.getInformalMessageById(messageId, senderId)).thenReturn(responseDto);
 
         webTestClient.get()
                 .uri(uriBuilder -> uriBuilder.path("/delivery/v1/messages/{messageId}").build(messageId))
@@ -96,7 +95,7 @@ class InformalMessageControllerTest {
     void testGetMessageById_NotFound() {
         UUID messageId = UUID.randomUUID();
         UUID senderId = UUID.randomUUID();
-        when(informalMessageService.getInformalMessageById(Mockito.eq(messageId), Mockito.eq(senderId))).thenThrow(new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Message not found"));
+        when(informalMessageService.getInformalMessageById(messageId, senderId)).thenThrow(new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Message not found"));
 
         webTestClient.get()
                 .uri(uriBuilder -> uriBuilder.path("/delivery/v1/messages/{messageId}").build(messageId))
