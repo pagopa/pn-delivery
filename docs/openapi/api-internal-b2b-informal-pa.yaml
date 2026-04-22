@@ -600,12 +600,13 @@ components:
       required: [ primaryMessage ]
       properties:
         primaryMessage:
-          description: Contenuto principale del messaggio, deve essere in lingua italiana
-          $ref: '#/components/schemas/LocalizedContent'
+          allOf:
+            - $ref: '#/components/schemas/LocalizedContent'
+            - description: Contenuto principale del messaggio, deve essere in lingua italiana
         additionalMessage:
-          description: Contenuto aggiuntivo del messaggio, opzionale, può essere in una lingua diversa dall'italiano
-          $ref: '#/components/schemas/LocalizedContent'
-
+          allOf:
+            - $ref: '#/components/schemas/LocalizedContent'
+            - description: Contenuto aggiuntivo del messaggio, opzionale, può essere in una lingua diversa dall'italiano
     MessageResponse:
       type: object
       allOf:
