@@ -415,11 +415,10 @@ paths:
     post:
       tags:
         - InformalNotificationTermination
-      summary: Interruzione workflow notifica per coppia (CF, campagna)
+      summary: Interruzione workflow notifica per IUN
       description: >-
         Permette all\'Ente di interrompere il workflow di una comunicazione non 
-        legale per un determinato destinatario all'interno di una specifica campagna. 
-        La notifica passerà allo stato COMPLETED.
+        legale identificata dallo IUN specificato nel path. La notifica passerà allo stato COMPLETED.
       operationId: terminateInformalWorkflow
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet' # NO EXTERNAL
@@ -466,9 +465,7 @@ paths:
                 $ref: '#/components/schemas/Problem'
 
 components:
-
   parameters:
-
     ############################################################################################
     ###                     PARAMETRO VERSIONE CREAZIONE NOTIFICA                            ###
     ############################################################################################
@@ -568,8 +565,9 @@ components:
 
   schemas:
     ###########################################################################################
-    ###                              DTO RICHIESTE DI MESSAGGI                              ###
+    ###                              DTO MESSAGGI                                           ###
     ###########################################################################################
+
     LocalizedContent:
       type: object
       required: [ subject, longBody, language ]
@@ -577,8 +575,7 @@ components:
         subject:
           type: string
           maxLength: 256
-          description: "Titolo del messaggio (es. Oggetto della mail o 
-                            intestazione IO)"
+          description: "Titolo del messaggio (es. Oggetto della mail o intestazione IO)"
           example: "Sollecito di pagamento Tari 2023"
         longBody:
           type: string
@@ -602,7 +599,7 @@ components:
 
     NewMessageRequest:
       type: object
-      required: [ subject, body ]
+      required: [ primaryMessage ]
       properties:
         primaryMessage:
           description: Contenuto principale del messaggio, deve essere in lingua italiana
@@ -614,17 +611,17 @@ components:
     MessageResponse:
       type: object
       allOf:
-          - $ref: '#/components/schemas/NewMessageRequest'
-          - type: object
-            properties:
-              messageId:
-                description: Identificativo univoco del messaggio, da utilizzare per creare una notifica bonaria
-                type: string
-                format: uuid
-              createdAt:
-                description: Data e ora di creazione del messaggio
-                type: string
-                format: date-time
+        - $ref: '#/components/schemas/NewMessageRequest'
+        - type: object
+          properties:
+            messageId:
+              description: Identificativo univoco del messaggio, da utilizzare per creare una notifica bonaria
+              type: string
+              format: uuid
+            createdAt:
+              description: Data e ora di creazione del messaggio
+              type: string
+              format: date-time
 
     ###########################################################################################
     ###                              DTO RICHIESTE DI NOTIFICA                              ###
@@ -642,9 +639,7 @@ components:
             - notificationRequestStatus
           properties:
             notificationRequestId:
-              description: >-
-                identificativo univoco di una richiesta di invio notifica, non è lo IUN
-              type: string
+              $ref: "./schemas-pn-notification.yaml#/components/schemas/NotificationRequestId"
             notificationRequestStatus:
               description: >-
                 - __WAITING__: in attesa di essere valutata
