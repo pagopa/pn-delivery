@@ -37,6 +37,6 @@ public class PnDeliveryExceptionCodes extends PnExceptionsCodes {
     public static final String ERROR_CODE_DELIVERY_DYNAMO_EXCEPTION = "PN_DELIVERY_DYNAMO_EXCEPTION";
     public static final String ERROR_CODE_DELIVERY_SEARCH_TIMEOUT = "PN_DELIVERY_TIMEOUT_ERROR";
     public static final String ERROR_CODE_DELIVERY_INVALID_SENDER_TAX_ID = "PN_DELIVERY_INVALID_SENDER_TAX_ID";
-
+    public static final String ERROR_CODE_DELIVERY_GENERIC_ERROR = "PN_DELIVERY_GENERIC_ERROR";
 
 }

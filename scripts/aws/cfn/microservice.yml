@@ -825,6 +825,11 @@ Parameters:
     Default: ''
     Description: 'Applicative environment variable file checksum'
 
+  LatestInformalNotificationVersion:
+    Type: String
+    Description: "latest informal notification version without v ex. 2.4"
+    AllowedPattern: '^\d\.\d$'
+
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
 
@@ -915,6 +920,7 @@ Resources:
         ContainerEnvEntry59: !Sub "LOLLIPOP_WHITE_LIST=${LollipopWhiteList}"
         ContainerEnvEntry60: !Sub "PN_DELIVERY_ENABLE_SENDER_TAX_ID_CONGRUENCE=${EnableSenderTaxIdCongruence}"
         ContainerEnvEntry61: !Sub "PN_DELIVERY_INFO_PA_CACHE_DURATION=${InfoPaCacheDuration}"
+        ContainerEnvEntry62: !Sub "PN_DELIVERY_LATESTINFORMALNOTIFICATIONVERSION=${LatestInformalNotificationVersion}"
         ContainerSecret1: !Sub "ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:"
         ApplicativeEnvFileChecksum: !Ref ApplicativeEnvFileChecksum
         MicroServiceSecretPrefix: pn-Delivery-Secrets

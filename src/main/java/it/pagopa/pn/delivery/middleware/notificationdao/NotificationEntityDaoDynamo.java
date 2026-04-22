@@ -81,6 +81,7 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
         NotificationEntity controlIdempotenceToken = NotificationEntity.builder()
                 .iun( getControlIdempotenceToken(notificationEntity) )
                 .requestId( Base64Utils.encodeToString( notificationEntity.getIun().getBytes(StandardCharsets.UTF_8) ) )
+                .communicationType( notificationEntity.getCommunicationType() )
                 .build();
 
         notificationRequestList.add( TransactPutItemEnhancedRequest.builder( NotificationEntity.class )

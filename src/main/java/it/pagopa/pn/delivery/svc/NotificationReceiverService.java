@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
@@ -11,16 +12,20 @@ import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.F24.v1.model.SaveF24Item;
 import it.pagopa.pn.delivery.generated.openapi.msclient.F24.v1.model.SaveF24Request;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationRequestV1;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewInformalNotificationResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV25;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationResponse;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.UsedServices;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.campaign.Campaign;
 import it.pagopa.pn.delivery.models.internal.notification.InternalUsedService;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.pnclient.pnf24.PnF24ClientImpl;
+import it.pagopa.pn.delivery.svc.validation.context.InformalNotificationContext;
+import it.pagopa.pn.delivery.svc.validation.pipeline.ValidationPipeline;
 import lombok.CustomLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,13 +41,14 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static it.pagopa.pn.commons.utils.MDCUtils.MDC_PN_CTX_TOPIC;
-import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_INVALIDPARAMETER_GROUP;
-import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_SEND_IS_DISABLED;
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.*;
 import static it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy.DELIVERY_MODE;
+import static it.pagopa.pn.delivery.utils.InformalNotificationUtils.findMessageIdInCampaign;
 
 @Service
 @CustomLog
@@ -61,10 +67,13 @@ public class NotificationReceiverService {
 	private final PnF24ClientImpl f24Client;
 
 	private final IunGenerator iunGenerator = new IunGenerator();
+	private final InformalIunGenerator informalIunGenerator = new InformalIunGenerator();
 
 	private final PnDeliveryConfigs cfg;
 
 	private final PaNotificationLimitService paNotificationLimitService;
+	private final CampaignService campaignService;
+	private final ValidationPipeline<InformalNotificationContext> informalNotificationValidationPipeline;
 
 	@Autowired
 	public NotificationReceiverService(
@@ -76,7 +85,9 @@ public class NotificationReceiverService {
             PnExternalRegistriesClientImpl pnExternalRegistriesClient,
             PnF24ClientImpl f24Client,
             PnDeliveryConfigs cfg,
-			PaNotificationLimitService paNotificationLimitService) {
+            PaNotificationLimitService paNotificationLimitService,
+            CampaignService campaignService, ValidationPipeline<InformalNotificationContext> informalNotificationValidationPipeline
+    ) {
 		this.clock = clock;
 		this.notificationDao = notificationDao;
 		this.validator = validator;
@@ -86,6 +97,8 @@ public class NotificationReceiverService {
 		this.f24Client = f24Client;
 		this.cfg = cfg;
         this.paNotificationLimitService = paNotificationLimitService;
+        this.campaignService = campaignService;
+        this.informalNotificationValidationPipeline = informalNotificationValidationPipeline;
     }
 
 	/**
@@ -157,7 +170,7 @@ public class NotificationReceiverService {
 				})
 				.toList();
 
-		String iun = generateIun(internalNotification);
+		String iun = generateIun(internalNotification, iunGenerator);
 		saveF24Request.setF24Items(saveF24Items);
 		saveF24Request.setId(internalNotification.getIun());
 
@@ -290,7 +303,7 @@ public class NotificationReceiverService {
 				.build();
 	}
 
-	private String generateIun(InternalNotification internalNotification){
+	private String generateIun(InternalNotification internalNotification, IunGenerator iunGenerator){
 		Instant createdAt = clock.instant();
 		String iun = iunGenerator.generatePredictedIun( createdAt );
 		log.debug( "Generated iun={}", iun );
@@ -309,6 +322,76 @@ public class NotificationReceiverService {
 	private void doSave(InternalNotification internalNotification) throws PnIdConflictException {
 		log.info("Store the notification metadata for iun={}", internalNotification.getIun());
 		notificationDao.addNotification(internalNotification);
+	}
+
+	public NewInformalNotificationResponse receiveInformalNotification(
+			String xPagopaPnCxId,
+			InformalNotificationRequestV1 newInformalNotificationRequest,
+			String xPagopaPnSrcCh,
+			String xPagopaPnSrcChDetails,
+			List<String> xPagopaPnCxGroups,
+			String xPagopaPnNotificationVersion
+	) throws PnIdConflictException {
+		log.info("New informal notification storing START");
+		log.debug("New informal notification storing START paProtocolNumber={} idempotenceToken={}",
+				newInformalNotificationRequest.getPaProtocolNumber(), newInformalNotificationRequest.getIdempotenceToken());
+		log.logChecking("New notification request validation process");
+		Campaign campaign = campaignService.getCampaignByCampaignIdAndSenderId(newInformalNotificationRequest.getCampaignId(), xPagopaPnCxId);
+
+		InternalNotification internalNotification = modelMapper.map(newInformalNotificationRequest, InternalNotification.class);
+		internalNotification.setSenderPaId( xPagopaPnCxId );
+		internalNotification.setSourceChannel( xPagopaPnSrcCh );
+		internalNotification.setSourceChannelDetails(xPagopaPnSrcChDetails);
+		internalNotification.setVersion( StringUtils.hasText( xPagopaPnNotificationVersion ) ? xPagopaPnNotificationVersion : cfg.getLatestInformalNotificationVersion() );
+
+		InformalNotificationContext context = InformalNotificationContext.builder()
+				.payload(internalNotification)
+				.cxId(xPagopaPnCxId)
+				.cxGroups(xPagopaPnCxGroups)
+				.campaign(campaign)
+				.build();
+
+
+		informalNotificationValidationPipeline.execute(context);
+		log.debug("New informal notification validation OK for paProtocolNumber={}", newInformalNotificationRequest.getPaProtocolNumber() );
+		log.logCheckingOutcome("New informal notification request validation process", true, "");
+
+		setPhysicalAddressLookup(internalNotification);
+		setMessageIdIfAbsent(internalNotification, campaign);
+		String iun = generateIun(internalNotification, informalIunGenerator);
+
+		doSaveWithRethrow(internalNotification);
+		NewInformalNotificationResponse response = generateInformalResponse(internalNotification, iun);
+
+		log.info("New informal notification storing END {}", response);
+		return response;
+	}
+
+	private void setMessageIdIfAbsent(InternalNotification internalNotification, Campaign campaign) {
+		Optional<String> messageIdOptional = findMessageIdInCampaign(internalNotification.getAdditionalLanguages(), campaign.getMessages());
+
+		for(int i=0; i<internalNotification.getRecipients().size(); i++){
+			NotificationRecipient recipient = internalNotification.getRecipients().get(i);
+			if(!StringUtils.hasText(recipient.getMessageId()) && messageIdOptional.isEmpty()){
+				// In teoria non dovrebbe mai capitare, visto che in fase di validazione di una notifica esiste un controllo
+				// che verifica in caso non siano stati forniti messageId, la presenza di un messaggio
+				// con la lingua richiesta dalla notifica, aggiungiamo comunque un controllo di sicurezza per evitare di salvare notifiche senza messageId
+				throw new PnInternalException("messageId not found in campaign", ERROR_CODE_DELIVERY_GENERIC_ERROR);
+			} else if (!StringUtils.hasText(recipient.getMessageId()) && messageIdOptional.isPresent()) {
+				recipient.setMessageId(messageIdOptional.get());
+				log.info("Set messageId={} for recipient index={} from campaignId={}", messageIdOptional.get(), i, campaign.getCampaignId());
+			}
+		}
+	}
+
+	private NewInformalNotificationResponse generateInformalResponse(InternalNotification internalNotification, String iun) {
+		String notificationId = Base64Utils.encodeToString(iun.getBytes(StandardCharsets.UTF_8));
+
+		return NewInformalNotificationResponse.builder()
+				.notificationRequestId(notificationId)
+				.paProtocolNumber( internalNotification.getPaProtocolNumber() )
+				.idempotenceToken( internalNotification.getIdempotenceToken() )
+				.build();
 	}
 
 }
