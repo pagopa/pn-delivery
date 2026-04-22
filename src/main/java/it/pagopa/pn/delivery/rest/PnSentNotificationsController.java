@@ -229,7 +229,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer docIdx, List<String> xPagopaPnCxGroups) {
         DocumentDownloadRequest request = new DocumentDownloadRequest(xPagopaPnUid, xPagopaPnCxType, xPagopaPnCxId, iun, docIdx, xPagopaPnCxGroups);
         LogConfig logConfig = new LogConfig(PnAuditLogEventType.AUD_NT_DOCOPEN_SND, "getSentNotificationDocument={}");
-        return getNotificationDocumentInternal(request, logConfig, false);
+        return getNotificationDocumentInternal(request, logConfig);
     }
 
     @Override
@@ -258,7 +258,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
     ) {
         DocumentDownloadRequest request = new DocumentDownloadRequest(xPagopaPnUid, xPagopaPnCxType, xPagopaPnCxId, iun, docIdx, xPagopaPnCxGroups);
         LogConfig logConfig = new LogConfig(PnAuditLogEventType.AUD_COM_DOCOPEN_SND, "getSentInformalNotificationDocument docIdx={}");
-        return getNotificationDocumentInternal(request, logConfig, false);
+        return getNotificationDocumentInternal(request, logConfig);
     }
 
     /**
@@ -266,8 +266,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
      */
     private ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getNotificationDocumentInternal(
             DocumentDownloadRequest request,
-            LogConfig logConfig,
-            boolean produceViewEvent
+            LogConfig logConfig
     ) {
         InternalAttachmentWithFileKey internalAttachmentWithFileKey = new InternalAttachmentWithFileKey();
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
@@ -283,7 +282,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
                     internalAuthHeader,
                     null,
                     request.docIdx,
-                    produceViewEvent
+                    false
             );
             if (internalAttachmentWithFileKey == null || internalAttachmentWithFileKey.getFileKey() == null) {
                 logEvent.generateSuccess().log();
@@ -299,36 +298,15 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
     }
 
     /**
-     * DTO per raggruppare i parametri della richiesta di download documento
-     */
-    private static class DocumentDownloadRequest {
-        private final String xPagopaPnUid;
-        private final CxTypeAuthFleet xPagopaPnCxType;
-        private final String xPagopaPnCxId;
-        private final String iun;
-        private final Integer docIdx;
-        private final List<String> xPagopaPnCxGroups;
-
-        public DocumentDownloadRequest(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer docIdx, List<String> xPagopaPnCxGroups) {
-            this.xPagopaPnUid = xPagopaPnUid;
-            this.xPagopaPnCxType = xPagopaPnCxType;
-            this.xPagopaPnCxId = xPagopaPnCxId;
-            this.iun = iun;
-            this.docIdx = docIdx;
-            this.xPagopaPnCxGroups = xPagopaPnCxGroups;
-        }
+         * DTO per raggruppare i parametri della richiesta di download documento
+         */
+        private record DocumentDownloadRequest(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId,
+                                               String iun, Integer docIdx, List<String> xPagopaPnCxGroups) {
     }
 
     /**
-     * DTO per raggruppare i parametri di logging
-     */
-    private static class LogConfig {
-        private final PnAuditLogEventType logEventType;
-        private final String logMsg;
-
-        public LogConfig(PnAuditLogEventType logEventType, String logMsg) {
-            this.logEventType = logEventType;
-            this.logMsg = logMsg;
-        }
+         * DTO per raggruppare i parametri di logging
+         */
+        private record LogConfig(PnAuditLogEventType logEventType, String logMsg) {
     }
 }
