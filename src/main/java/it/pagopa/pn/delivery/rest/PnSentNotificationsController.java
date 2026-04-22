@@ -193,36 +193,10 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
 
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer recipientIdx, String attachmentName, List<String> xPagopaPnCxGroups, Integer attachmentIdx) {
-        InternalAttachmentWithFileKey internalAttachmentWithFileKey = new InternalAttachmentWithFileKey();
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_ATCHOPEN_SND, "getSentNotificationAttachment attachment name={} attachment index={}", attachmentName, attachmentIdx)
-                .iun(iun)
-                .build();
-        logEvent.log();
-        try {
-            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
-            internalAttachmentWithFileKey = notificationAttachmentService.downloadAttachmentWithRedirectWithFileKey(
-                    iun,
-                    internalAuthHeader,
-                    null,
-                    recipientIdx,
-                    attachmentName,
-                    attachmentIdx,
-                    false
-            );
-            if(internalAttachmentWithFileKey == null || internalAttachmentWithFileKey.getFileKey() == null){
-                logEvent.generateSuccess().log();
-            }else{
-                logEvent.getMdc().put(MDC_PN_CTX_SAFESTORAGE_FILEKEY, internalAttachmentWithFileKey.getFileKey());
-                logEvent.generateSuccess().log();
-            }
-        } catch (PnRuntimeException exc) {
-            logEvent.generateFailure("" + exc.getProblem()).log();
-            throw exc;
-        }
-     
-        return ResponseEntity.ok( internalAttachmentWithFileKey == null ? null : internalAttachmentWithFileKey.getDownloadMetadataResponse() );
+        AttachmentDownloadRequest attachmentDownloadRequest = new AttachmentDownloadRequest(xPagopaPnUid, xPagopaPnCxType, xPagopaPnCxId, xPagopaPnCxGroups, iun, recipientIdx, attachmentName, attachmentIdx);
+        LogConfig logConfig = new LogConfig(PnAuditLogEventType.AUD_NT_ATCHOPEN_SND, "getSentNotificationAttachment attachment name={} attachment index={}");
+        return getInternalNotificationAttachment(attachmentDownloadRequest, logConfig);
+
     }
 
     @Override
@@ -263,22 +237,41 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
 
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentInformalNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer recipientIdx, String attachmentName, List<String> xPagopaPnCxGroups, Integer attachmentIdx) {
-        InternalAttachmentWithFileKey internalAttachmentWithFileKey = new InternalAttachmentWithFileKey();
+        AttachmentDownloadRequest attachmentDownloadRequest = new AttachmentDownloadRequest(xPagopaPnUid, xPagopaPnCxType, xPagopaPnCxId, xPagopaPnCxGroups, iun, recipientIdx, attachmentName, attachmentIdx);
+        LogConfig logConfig = new LogConfig(PnAuditLogEventType.AUD_COM_DOCOPEN_SND, "getSentInformalNotificationAttachment attachment name={} attachment index={}");
+        return getInternalNotificationAttachment(attachmentDownloadRequest, logConfig);
+    }
+
+    @Override
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentInformalNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer docIdx, List<String> xPagopaPnCxGroups) {
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+    }
+
+    @Override
+    public ResponseEntity<TerminationRequestStatus> terminateInformalWorkflow(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+    }
+
+    private ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getInternalNotificationAttachment(
+            AttachmentDownloadRequest request,
+            LogConfig logConfig
+    ) {
+        InternalAttachmentWithFileKey internalAttachmentWithFileKey;
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_COM_DOCOPEN_SND, "getSentInformalNotificationAttachment attachment name={} attachment index={}", attachmentName, attachmentIdx)
-                .iun(iun)
+                .before(logConfig.logEventType, logConfig.logMsg, request.attachmentName, request.attachmentIdx)
+                .iun(request.iun)
                 .build();
         logEvent.log();
         try {
-            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(request.xPagopaPnCxType.getValue(), request.xPagopaPnCxId, request.xPagopaPnUid, request.xPagopaPnCxGroups);
             internalAttachmentWithFileKey = notificationAttachmentService.downloadAttachmentWithRedirectWithFileKey(
-                    iun,
+                    request.iun,
                     internalAuthHeader,
                     null,
-                    recipientIdx,
-                    attachmentName,
-                    attachmentIdx,
+                    request.recipientIdx,
+                    request.attachmentName,
+                    request.attachmentIdx,
                     false
             );
             if(internalAttachmentWithFileKey == null || internalAttachmentWithFileKey.getFileKey() == null){
@@ -293,15 +286,14 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
         }
 
         return ResponseEntity.ok( internalAttachmentWithFileKey == null ? null : internalAttachmentWithFileKey.getDownloadMetadataResponse() );
+
     }
 
-    @Override
-    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentInformalNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer docIdx, List<String> xPagopaPnCxGroups) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+    private record AttachmentDownloadRequest(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups,
+                                           String iun, Integer recipientIdx, String attachmentName, Integer attachmentIdx) {
     }
 
-    @Override
-    public ResponseEntity<TerminationRequestStatus> terminateInformalWorkflow(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+
+    private record LogConfig(PnAuditLogEventType logEventType, String logMsg) {
     }
 }
