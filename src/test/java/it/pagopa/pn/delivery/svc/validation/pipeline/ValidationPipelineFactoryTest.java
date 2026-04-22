@@ -54,7 +54,7 @@ class ValidationPipelineFactoryTest {
     private ProvinceRequiredValidator provinceRequiredValidator;
     private UniqueAttachmentsValidator uniqueAttachmentsValidator;
 
-    private ValidationPipelineFactory<?> factory;
+    private ValidationPipelineFactory factory;
 
     @BeforeEach
     void setUp() {
@@ -81,7 +81,7 @@ class ValidationPipelineFactoryTest {
         when(cfg.getPhysicalAddressValidationLength()).thenReturn(PHYSICAL_ADDRESS_VALIDATION_LENGTH);
         when(cfg.getPhysicalAddressValidationPattern()).thenReturn(PHYSICAL_ADDRESS_VALIDATION_PATTERN);
 
-        factory = new ValidationPipelineFactory<>(
+        factory = new ValidationPipelineFactory(
                 cfg,
                 senderTaxIdCongruenceValidator,
                 recipientTaxIdSyntaxValidator,

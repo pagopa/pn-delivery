@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @RequiredArgsConstructor
-public class ValidationPipelineFactory<C extends ValidationContext<?>> {
+public class ValidationPipelineFactory {
 
     private final PnDeliveryConfigs cfg;
 

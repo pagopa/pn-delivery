@@ -7,6 +7,7 @@ import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.svc.validation.ErrorCodes;
 import it.pagopa.pn.delivery.svc.validation.ValidationResult;
+import it.pagopa.pn.delivery.svc.validation.context.NotificationContext;
 import org.junit.jupiter.api.Test;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_PA_NOT_FOUND;
@@ -58,8 +59,9 @@ class SenderTaxIdCongruenceValidatorTest {
         when(client.getOnePa(DEFAULT_CX_ID)).thenReturn(new PaInfo());
 
         SenderTaxIdCongruenceValidator validator = new SenderTaxIdCongruenceValidator(cfg, client);
+        NotificationContext context = legalContext(new InternalNotification());
         PnInternalException exception = assertThrows(PnInternalException.class,
-                () -> validator.validate(legalContext(new InternalNotification())));
+                () -> validator.validate(context));
 
         assertThat(exception.getProblem().getErrors()).hasSize(1);
         assertThat(exception.getProblem().getErrors().get(0).getCode()).isEqualTo(ERROR_CODE_DELIVERY_PA_NOT_FOUND);

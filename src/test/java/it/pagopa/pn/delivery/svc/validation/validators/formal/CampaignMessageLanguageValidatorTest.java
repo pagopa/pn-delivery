@@ -7,12 +7,14 @@ import it.pagopa.pn.delivery.models.campaign.Message;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.svc.validation.ErrorCodes;
 import it.pagopa.pn.delivery.svc.validation.ValidationResult;
+import it.pagopa.pn.delivery.svc.validation.context.InformalNotificationContext;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static it.pagopa.pn.delivery.svc.validation.validators.ValidatorTestSupport.*;
+import static it.pagopa.pn.delivery.svc.validation.validators.ValidatorTestSupport.informalContext;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class CampaignMessageLanguageValidatorTest {
@@ -29,8 +31,9 @@ class CampaignMessageLanguageValidatorTest {
     @Test
     void shouldThrowExceptionWhenCampaignIsMissing() {
         CampaignMessageLanguageValidator validator = new CampaignMessageLanguageValidator(true);
-
-        Assertions.assertThrows(PnInternalException.class, () -> validator.validate(informalContext(buildNotification(List.of("SL"), null), null)));
+        InternalNotification notification = buildNotification(List.of("SL"), null);
+        InformalNotificationContext context = informalContext(notification, null);
+        Assertions.assertThrows(PnInternalException.class, () -> validator.validate(context));
     }
 
     @Test

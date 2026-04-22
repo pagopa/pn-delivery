@@ -19,6 +19,7 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class PhysicalAddressValidator implements FormalValidator<NotificationContext> {
 
+    public static final String PHYSICAL_ADDRESS_FIELD = "physicalAddress";
     private final boolean physicalValidationActivated;
     private final Integer length;
     private final String pattern;
@@ -40,7 +41,7 @@ public class PhysicalAddressValidator implements FormalValidator<NotificationCon
     private void checkPhysicalAddressIsFormallyCorrect(NotificationPhysicalAddress physicalAddress, int recIdx, ArrayList<ProblemError> errors) {
 
         if(physicalAddress == null){
-            errors.add(ProblemError.builder().element("physicalAddress").code(ErrorCodes.ERROR_CODE_PHYSICAL_ADDRESS_NULL.getValue()).detail("PhysicalAddress cannot be null").build());
+            errors.add(ProblemError.builder().element(PHYSICAL_ADDRESS_FIELD).code(ErrorCodes.ERROR_CODE_PHYSICAL_ADDRESS_NULL.getValue()).detail("PhysicalAddress cannot be null").build());
             return;
         }
 
@@ -61,12 +62,12 @@ public class PhysicalAddressValidator implements FormalValidator<NotificationCon
             Stream.of(address, addressDetails, province, foreignState, at, zip, municipality, municipalityDetails)
                     .filter(field -> field.getValue() != null &&
                             (!field.getValue().matches("[" + pattern + "]*")))
-                    .map(field -> ProblemError.builder().element("physicalAddress").code(ErrorCodes.ERROR_CODE_PHYSICAL_ADDRESS_INVALID_CHARACTERS.getValue()).detail(String.format("Field %s in recipient %s contains invalid characters.", field.getKey(), recIdx)).build())
+                    .map(field -> ProblemError.builder().element(PHYSICAL_ADDRESS_FIELD+"."+field).code(ErrorCodes.ERROR_CODE_PHYSICAL_ADDRESS_INVALID_CHARACTERS.getValue()).detail(String.format("Field %s in recipient %s contains invalid characters.", field.getKey(), recIdx)).build())
                     .forEach(errors::add);
 
             Stream.of(row2, addressDetails, address, row5, foreignState)
                     .filter(field -> field.getValue() != null && field.getValue().trim().length() > length )
-                    .map(field -> ProblemError.builder().element("physicalAddress").code(ErrorCodes.ERROR_CODE_PHYSICAL_ADDRESS_LENGTH_EXCEEDED.getValue()).detail(String.format("Field %s in recipient %s exceed max length of %s chars", field.getKey(), recIdx, length)).build())
+                    .map(field -> ProblemError.builder().element(PHYSICAL_ADDRESS_FIELD+"."+field).code(ErrorCodes.ERROR_CODE_PHYSICAL_ADDRESS_LENGTH_EXCEEDED.getValue()).detail(String.format("Field %s in recipient %s exceed max length of %s chars", field.getKey(), recIdx, length)).build())
                     .forEach(errors::add);
 
         }

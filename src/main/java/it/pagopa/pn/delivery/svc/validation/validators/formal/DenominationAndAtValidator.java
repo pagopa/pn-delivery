@@ -25,6 +25,8 @@ public class DenominationAndAtValidator implements FormalValidator<NotificationC
     private final String denominationValidationRegexValue;
     private final String denominationValidationExcludedCharacter;
 
+    private static final String DENOMINATION_FIELD = "denomination";
+
     @Override
     public ValidationResult validate(NotificationContext context) {
         ArrayList<ProblemError> errors = new ArrayList<>();
@@ -42,7 +44,7 @@ public class DenominationAndAtValidator implements FormalValidator<NotificationC
 
     private void checkDenomination(NotificationRecipient recipient, int recIdx, ArrayList<ProblemError> errors) {
 
-        Pair<String, String> denomination = Pair.of("denomination", recipient.getDenomination());
+        Pair<String, String> denomination = Pair.of(DENOMINATION_FIELD, recipient.getDenomination());
         ArrayList<Pair<String, String>> fieldsToCheck = new ArrayList<>();
         fieldsToCheck.add(denomination);
 
@@ -56,7 +58,12 @@ public class DenominationAndAtValidator implements FormalValidator<NotificationC
         if(denominationLength != null && denominationLength != 0){
             fieldsToCheck.stream()
                     .filter(field -> field.getValue() != null && field.getValue().trim().length() > denominationLength )
-                    .map(field -> ProblemError.builder().detail(String.format("Field %s in recipient %s exceed max length of %s chars", field.getKey(), recIdx, denominationLength)).element("denomination").code(ErrorCodes.ERROR_CODE_DENOMINATION_LENGTH_EXCEEDED.getValue()).build())
+                    .map(field -> ProblemError.builder()
+                            .detail(String.format("Field %s in recipient %s exceed max length of %s chars", field.getKey(), recIdx, denominationLength))
+                            .element(DENOMINATION_FIELD)
+                            .code(ErrorCodes.ERROR_CODE_DENOMINATION_LENGTH_EXCEEDED.getValue())
+                            .build()
+                    )
                     .forEach(errors::add);
         }
 
@@ -71,7 +78,7 @@ public class DenominationAndAtValidator implements FormalValidator<NotificationC
             log.info("Check denomination/at with validation type {}",denominationValidationType);
             fieldsToCheck.stream()
                     .filter(field -> filterDenomination(field,regex,excludeCharacterRegex))
-                    .map(field -> ProblemError.builder().element("denomination").detail(String.format("Field %s in recipient %s contains invalid characters.", field.getKey(), recIdx)).code(ErrorCodes.ERROR_CODE_DENOMINATION_INVALID_CHARACTERS.getValue()).build())
+                    .map(field -> ProblemError.builder().element(DENOMINATION_FIELD).detail(String.format("Field %s in recipient %s contains invalid characters.", field.getKey(), recIdx)).code(ErrorCodes.ERROR_CODE_DENOMINATION_INVALID_CHARACTERS.getValue()).build())
                     .forEach(errors::add);
         }
     }
