@@ -38,6 +38,10 @@ public class PaymentAttachmentValidator implements FormalValidator<NotificationC
     }
 
     private void checkCongruenceBetweenContentTypeAndFileKey(List<NotificationPaymentInfo> payments, ArrayList<ProblemError> errors) {
+        if(payments == null){
+            return;
+        }
+
         for (NotificationPaymentInfo paymentItem : payments) {
             // Verifica per pagamenti F24
             if (paymentItem.getF24() != null && paymentItem.getF24().getMetadataAttachment() != null) {

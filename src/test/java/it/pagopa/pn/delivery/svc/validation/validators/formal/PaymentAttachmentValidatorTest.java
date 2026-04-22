@@ -65,4 +65,16 @@ class PaymentAttachmentValidatorTest {
                 "does not conform to the expected content type"
         );
     }
+
+    @Test
+    void shouldReturnSuccessWhenPaymentsAreNull() {
+        NotificationRecipient recipient = pfRecipient(
+                "AAAAAA00A00A000A",
+                "Mario Rossi",
+                physicalAddress(),
+                null
+        );
+
+        assertSuccess(validator.validate(legalContext(notification(List.of(recipient), List.of()))));
+    }
 }
