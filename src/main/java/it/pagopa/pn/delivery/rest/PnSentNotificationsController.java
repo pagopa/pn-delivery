@@ -227,17 +227,9 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
 
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer docIdx, List<String> xPagopaPnCxGroups) {
-        return getNotificationDocumentInternal(
-                xPagopaPnUid,
-                xPagopaPnCxType,
-                xPagopaPnCxId,
-                iun,
-                docIdx,
-                xPagopaPnCxGroups,
-                PnAuditLogEventType.AUD_NT_DOCOPEN_SND,
-                "getSentNotificationDocument={}",
-                false
-        );
+        DocumentDownloadRequest request = new DocumentDownloadRequest(xPagopaPnUid, xPagopaPnCxType, xPagopaPnCxId, iun, docIdx, xPagopaPnCxGroups);
+        LogConfig logConfig = new LogConfig(PnAuditLogEventType.AUD_NT_DOCOPEN_SND, "getSentNotificationDocument={}");
+        return getNotificationDocumentInternal(request, logConfig, false);
     }
 
     @Override
@@ -264,47 +256,33 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
             Integer docIdx,
             List<String> xPagopaPnCxGroups
     ) {
-        return getNotificationDocumentInternal(
-                xPagopaPnUid,
-                xPagopaPnCxType,
-                xPagopaPnCxId,
-                iun,
-                docIdx,
-                xPagopaPnCxGroups,
-                PnAuditLogEventType.AUD_COM_DOCOPEN_SND,
-                "getSentInformalNotificationDocument docIdx={}",
-                false // non produrre evento di visualizzazione
-        );
+        DocumentDownloadRequest request = new DocumentDownloadRequest(xPagopaPnUid, xPagopaPnCxType, xPagopaPnCxId, iun, docIdx, xPagopaPnCxGroups);
+        LogConfig logConfig = new LogConfig(PnAuditLogEventType.AUD_COM_DOCOPEN_SND, "getSentInformalNotificationDocument docIdx={}");
+        return getNotificationDocumentInternal(request, logConfig, false);
     }
 
     /**
-     * Metodo privato per gestire la logica comune di download documento con log parametrizzabile
+     * Metodo privato per gestire la logica comune di download documento con log parametrizzabile e parametri raggruppati
      */
     private ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getNotificationDocumentInternal(
-            String xPagopaPnUid,
-            CxTypeAuthFleet xPagopaPnCxType,
-            String xPagopaPnCxId,
-            String iun,
-            Integer docIdx,
-            List<String> xPagopaPnCxGroups,
-            PnAuditLogEventType logEventType,
-            String logMsg,
+            DocumentDownloadRequest request,
+            LogConfig logConfig,
             boolean produceViewEvent
     ) {
         InternalAttachmentWithFileKey internalAttachmentWithFileKey = new InternalAttachmentWithFileKey();
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(logEventType, logMsg, docIdx)
-                .iun(iun)
+                .before(logConfig.logEventType, logConfig.logMsg, request.docIdx)
+                .iun(request.iun)
                 .build();
         logEvent.log();
         try {
-            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(request.xPagopaPnCxType.getValue(), request.xPagopaPnCxId, request.xPagopaPnUid, request.xPagopaPnCxGroups);
             internalAttachmentWithFileKey = notificationAttachmentService.downloadDocumentWithRedirectWithFileKey(
-                    iun,
+                    request.iun,
                     internalAuthHeader,
                     null,
-                    docIdx,
+                    request.docIdx,
                     produceViewEvent
             );
             if (internalAttachmentWithFileKey == null || internalAttachmentWithFileKey.getFileKey() == null) {
@@ -318,5 +296,39 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
             throw exc;
         }
         return ResponseEntity.ok(internalAttachmentWithFileKey == null ? null : internalAttachmentWithFileKey.getDownloadMetadataResponse());
+    }
+
+    /**
+     * DTO per raggruppare i parametri della richiesta di download documento
+     */
+    private static class DocumentDownloadRequest {
+        private final String xPagopaPnUid;
+        private final CxTypeAuthFleet xPagopaPnCxType;
+        private final String xPagopaPnCxId;
+        private final String iun;
+        private final Integer docIdx;
+        private final List<String> xPagopaPnCxGroups;
+
+        public DocumentDownloadRequest(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer docIdx, List<String> xPagopaPnCxGroups) {
+            this.xPagopaPnUid = xPagopaPnUid;
+            this.xPagopaPnCxType = xPagopaPnCxType;
+            this.xPagopaPnCxId = xPagopaPnCxId;
+            this.iun = iun;
+            this.docIdx = docIdx;
+            this.xPagopaPnCxGroups = xPagopaPnCxGroups;
+        }
+    }
+
+    /**
+     * DTO per raggruppare i parametri di logging
+     */
+    private static class LogConfig {
+        private final PnAuditLogEventType logEventType;
+        private final String logMsg;
+
+        public LogConfig(PnAuditLogEventType logEventType, String logMsg) {
+            this.logEventType = logEventType;
+            this.logMsg = logMsg;
+        }
     }
 }
