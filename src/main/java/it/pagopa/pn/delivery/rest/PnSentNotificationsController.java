@@ -227,33 +227,17 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
 
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer docIdx, List<String> xPagopaPnCxGroups) {
-        InternalAttachmentWithFileKey internalAttachmentWithFileKey = new InternalAttachmentWithFileKey();
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_DOCOPEN_SND, "getSentNotificationDocument={}", docIdx)
-                .iun(iun)
-                .build();
-        logEvent.log();
-        try {
-            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
-            internalAttachmentWithFileKey = notificationAttachmentService.downloadDocumentWithRedirectWithFileKey(
-                    iun,
-                    internalAuthHeader,
-                    null,
-                    docIdx,
-                    false
-            );
-            if(internalAttachmentWithFileKey == null || internalAttachmentWithFileKey.getFileKey() == null){
-                logEvent.generateSuccess().log();
-            }else{
-                logEvent.getMdc().put(MDC_PN_CTX_SAFESTORAGE_FILEKEY, internalAttachmentWithFileKey.getFileKey());
-                logEvent.generateSuccess().log();
-            }
-        } catch (PnRuntimeException exc) {
-            logEvent.generateFailure("" + exc.getProblem()).log();
-            throw exc;
-        }
-        return ResponseEntity.ok( internalAttachmentWithFileKey == null ? null : internalAttachmentWithFileKey.getDownloadMetadataResponse() );
+        return getNotificationDocumentInternal(
+                xPagopaPnUid,
+                xPagopaPnCxType,
+                xPagopaPnCxId,
+                iun,
+                docIdx,
+                xPagopaPnCxGroups,
+                PnAuditLogEventType.AUD_NT_DOCOPEN_SND,
+                "getSentNotificationDocument={}",
+                false
+        );
     }
 
     @Override
@@ -280,10 +264,37 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
             Integer docIdx,
             List<String> xPagopaPnCxGroups
     ) {
+        return getNotificationDocumentInternal(
+                xPagopaPnUid,
+                xPagopaPnCxType,
+                xPagopaPnCxId,
+                iun,
+                docIdx,
+                xPagopaPnCxGroups,
+                PnAuditLogEventType.AUD_COM_DOCOPEN_SND,
+                "getSentInformalNotificationDocument docIdx={}",
+                false // non produrre evento di visualizzazione
+        );
+    }
+
+    /**
+     * Metodo privato per gestire la logica comune di download documento con log parametrizzabile
+     */
+    private ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getNotificationDocumentInternal(
+            String xPagopaPnUid,
+            CxTypeAuthFleet xPagopaPnCxType,
+            String xPagopaPnCxId,
+            String iun,
+            Integer docIdx,
+            List<String> xPagopaPnCxGroups,
+            PnAuditLogEventType logEventType,
+            String logMsg,
+            boolean produceViewEvent
+    ) {
         InternalAttachmentWithFileKey internalAttachmentWithFileKey = new InternalAttachmentWithFileKey();
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_COM_DOCOPEN_SND, "getSentInformalNotificationDocument docIdx={}", docIdx)
+                .before(logEventType, logMsg, docIdx)
                 .iun(iun)
                 .build();
         logEvent.log();
@@ -294,7 +305,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
                     internalAuthHeader,
                     null,
                     docIdx,
-                    false // non produrre evento di visualizzazione
+                    produceViewEvent
             );
             if (internalAttachmentWithFileKey == null || internalAttachmentWithFileKey.getFileKey() == null) {
                 logEvent.generateSuccess().log();
