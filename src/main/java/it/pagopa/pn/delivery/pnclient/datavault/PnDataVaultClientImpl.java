@@ -1,16 +1,20 @@
 package it.pagopa.pn.delivery.pnclient.datavault;
 
 import it.pagopa.pn.commons.log.PnLogger;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.api.MessagesApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.api.NotificationsApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.api.RecipientsApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.BaseRecipientDto;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.NotificationRecipientAddressesDto;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.MessageRequestDto;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.MessageResponseDto;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.UUID;
 
 @Component
 @CustomLog
@@ -19,7 +23,7 @@ public class PnDataVaultClientImpl {
 
     private final RecipientsApi recipientsApi;
     private final NotificationsApi notificationsApi;
-
+    private final MessagesApi messagesApi;
 
     public String ensureRecipientByExternalId(RecipientType recipientType, String taxId ){
         log.logInvokingExternalService(PnLogger.EXTERNAL_SERVICES.PN_DATA_VAULT, "ensureRecipientByExternalId");
@@ -41,4 +45,13 @@ public class PnDataVaultClientImpl {
         return notificationsApi.getNotificationAddressesByIun( iun, null );
     }
 
+    public MessageResponseDto createInformalMessage(MessageRequestDto messageRequestDto) {
+        log.logInvokingExternalService(PnLogger.EXTERNAL_SERVICES.PN_DATA_VAULT, "createInformalMessage");
+        return messagesApi.createMessage(messageRequestDto);
+    }
+
+    public MessageResponseDto getInformalMessageById(UUID messageId, UUID senderId) {
+        log.logInvokingExternalService(PnLogger.EXTERNAL_SERVICES.PN_DATA_VAULT, "getInformalMessageById");
+        return messagesApi.getMessageById(messageId, senderId);
+    }
 }

@@ -106,6 +106,12 @@ public class PnDeliveryConfigs {
 
     private Duration infoPaCacheDuration;
 
+    private Integer maxMessageLongBodyLength;
+
+    private Integer maxMessageShortBodyLength;
+
+
+
     @PostConstruct
     public void init(){
         log.info("CONFIGURATION {}",this);
