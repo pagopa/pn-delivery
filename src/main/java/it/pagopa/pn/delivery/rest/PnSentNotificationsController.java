@@ -266,7 +266,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
         InternalAttachmentWithFileKey internalAttachmentWithFileKey = new InternalAttachmentWithFileKey();
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_COM_DOCOPEN_SND, "getSentNotificationAttachment attachment name={} attachment index={}", attachmentName, attachmentIdx)
+                .before(PnAuditLogEventType.AUD_COM_DOCOPEN_SND, "getSentInformalNotificationAttachment attachment name={} attachment index={}", attachmentName, attachmentIdx)
                 .iun(iun)
                 .build();
         logEvent.log();
