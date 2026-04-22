@@ -133,6 +133,6 @@ class PnDataVaultClientImplTest {
         when(messagesApi.getMessageById(messageId, senderId)).thenReturn(response);
         MessageResponseDto result = pnDataVaultClientImpl.getInformalMessageById(messageId, senderId);
         assertSame(response, result);
-        verify(messagesApi).getMessageById(Mockito.eq(messageId), Mockito.eq(senderId));
+        verify(messagesApi).getMessageById(messageId, senderId);
     }
 }
