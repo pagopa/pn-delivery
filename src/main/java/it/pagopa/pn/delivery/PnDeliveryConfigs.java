@@ -112,6 +112,10 @@ public class PnDeliveryConfigs {
 
     private Duration infoPaCacheDuration;
 
+    private Integer maxMessageLongBodyLength;
+
+    private Integer maxMessageShortBodyLength;
+
     private boolean informalNotificationCheckCampaignLangActive;
 
     @PostConstruct
