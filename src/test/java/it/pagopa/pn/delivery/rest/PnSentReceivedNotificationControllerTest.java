@@ -1464,13 +1464,24 @@ class PnSentReceivedNotificationControllerTest {
         when(attachmentService.downloadDocumentWithRedirectWithFileKey(anyString(), any(InternalAuthHeader.class), isNull(), anyInt(), eq(false)))
                 .thenReturn(null);
 
+        InternalAuthHeader expectedAuthHeader = new InternalAuthHeader(CX_TYPE_PA, PA_ID, UID, null);
+
         webTestClient.get()
                 .uri("/delivery/v1/notifications/informal/sent/{iun}/attachments/documents/{docIdx}", IUN, 1)
                 .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
                 .header(PnDeliveryRestConstants.UID_HEADER, UID)
                 .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PA)
                 .exchange()
-                .expectStatus().isOk();
+                .expectStatus().isOk()
+                .expectBody().isEmpty();
+
+        Mockito.verify(attachmentService).downloadDocumentWithRedirectWithFileKey(
+                eq(IUN),
+                eq(expectedAuthHeader),
+                isNull(),
+                eq(1),
+                eq(false)
+        );
     }
 
     @Test
@@ -1490,7 +1501,7 @@ class PnSentReceivedNotificationControllerTest {
                 .header(PnDeliveryRestConstants.UID_HEADER, UID)
                 .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PA)
                 .exchange()
-                .expectStatus().is5xxServerError();
+                .expectStatus().isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Test
@@ -1505,12 +1516,27 @@ class PnSentReceivedNotificationControllerTest {
         when(attachmentService.downloadDocumentWithRedirectWithFileKey(anyString(), any(InternalAuthHeader.class), isNull(), anyInt(), eq(false)))
                 .thenReturn(new NotificationAttachmentService.InternalAttachmentWithFileKey(response, "fileKey"));
 
+        InternalAuthHeader expectedAuthHeader = new InternalAuthHeader(CX_TYPE_PA, PA_ID, UID, null);
+
         webTestClient.get()
                 .uri("/delivery/v1/notifications/informal/sent/{iun}/attachments/documents/{docIdx}", IUN, 1)
                 .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
                 .header(PnDeliveryRestConstants.UID_HEADER, UID)
                 .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PA)
                 .exchange()
-                .expectStatus().isOk();
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.url").isEqualTo(REDIRECT_URL)
+                .jsonPath("$.contentType").isEqualTo("application/pdf")
+                .jsonPath("$.sha256").isEqualTo(SHA256_BODY)
+                .jsonPath("$.filename").isEqualTo(FILENAME);
+
+        Mockito.verify(attachmentService).downloadDocumentWithRedirectWithFileKey(
+                eq(IUN),
+                eq(expectedAuthHeader),
+                isNull(),
+                eq(1),
+                eq(false)
+        );
     }
 }
