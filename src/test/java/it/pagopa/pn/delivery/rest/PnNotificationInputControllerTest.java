@@ -46,6 +46,7 @@ class PnNotificationInputControllerTest {
 	private static final String X_PAGOPA_PN_SRC_CH_DETAILS = "sourceChannelDetails";
 	private static final String FILE_SHA_256 = "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=";
 	public static final String DELIVERY_REQUESTS_PATH = "/delivery/v2.5/requests";
+	public static final String DELIVERY_INFORMAL_REQUESTS_PATH = "/delivery/v1/notifications/informal";
 
 	@Autowired
     WebTestClient webTestClient;
@@ -627,5 +628,59 @@ class PnNotificationInputControllerTest {
 				.expectStatus().isBadRequest();
 
 	}
+
+	@Test
+	void postInformalNotificationIsNotImplemented() {
+		InformalNotificationRequestV1 request = newInformalNotificationRequest();
+
+		webTestClient.post()
+				.uri(DELIVERY_INFORMAL_REQUESTS_PATH)
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+				.body(Mono.just(request), InformalNotificationRequestV1.class)
+				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
+				.header( PnDeliveryRestConstants.UID_HEADER, "uid" )
+				.header( PnDeliveryRestConstants.CX_TYPE_HEADER, "PF" )
+				.header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
+				.exchange()
+				.expectStatus().isEqualTo(HttpStatus.NOT_IMPLEMENTED);
+	}
+
+	private InformalNotificationRequestV1 newInformalNotificationRequest() {
+		return InformalNotificationRequestV1.builder()
+				.group( "group" )
+				.senderDenomination( "Comune di Milano" )
+				.senderTaxId( "01199250158" )
+				.paProtocolNumber( "protocol_number" )
+				.campaignId( "campaignId" )
+				.recipients( Collections.singletonList( InformalNotificationRecipientV1.builder()
+						.recipientType( InformalNotificationRecipientV1.RecipientTypeEnum.PF )
+						.taxId( "LVLDAA85T50G702B" )
+						.denomination( "Ada Lovelace" )
+						.digitalDomicile( NotificationDigitalAddress.builder()
+								.type( NotificationDigitalAddress.TypeEnum.PEC )
+								.address( "address@domain.it" )
+								.build() )
+						.physicalAddress( NotificationPhysicalAddress.builder()
+								.zip( "83100" )
+								.municipality( "municipality" )
+								.address( "address" )
+								.build() )
+						.messageId(UUID.randomUUID())
+						.build() ) )
+				.documents( Collections.singletonList( NotificationDocument.builder()
+						.digests( NotificationAttachmentDigests.builder()
+								.sha256( FILE_SHA_256 )
+								.build() )
+						.contentType( "application/pdf" )
+						.ref( NotificationAttachmentBodyRef.builder()
+								.key( "safestorage://PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG" )
+								.versionToken( "version_token" )
+								.build() )
+						.build() ) )
+				.subject( "subject_length" )
+				.build();
+	}
+
 
 }
