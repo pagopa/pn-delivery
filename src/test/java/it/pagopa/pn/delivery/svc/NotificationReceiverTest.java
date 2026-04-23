@@ -46,7 +46,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.*;
 
-import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_SEND_IS_DISABLED;
 import static it.pagopa.pn.delivery.svc.NotificationReceiverService.PA_FEE_DEFAULT_VALUE;
 import static it.pagopa.pn.delivery.svc.NotificationReceiverService.VAT_DEFAULT_VALUE;
 import static org.junit.jupiter.api.Assertions.*;
