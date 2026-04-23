@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 const sinon = require('sinon');
-const { getUserInfoFromEvent, retrieveHeadersToForward, removeCxPrefix } = require('../app/utils');
+const { getUserInfoFromEvent, retrieveHeadersToForward, removeCxPrefix, retrieveAuthorizerHeaders } = require('../app/utils');
 
 describe('utils', () => {
 
@@ -377,4 +377,66 @@ describe('utils', () => {
       }
     });
   });
+
+  describe('retrieveAuthorizerHeaders', () => {
+
+      it('should return the 3 headers with correct values when authorizer is fully populated', () => {
+        const authorizer = {
+          name: 'Mario',
+          familyName: 'Rossi',
+          resultCode: 'OK'
+        };
+
+        const result = retrieveAuthorizerHeaders(authorizer);
+
+        expect(result).to.deep.equal({
+          'x-pagopa-pn-name': 'Mario',
+          'x-pagopa-pn-family-name': 'Rossi',
+          'x-pagopa-pn-result-code': 'OK'
+        });
+      });
+
+      it('should return the 3 headers as empty string when authorizer fields are empty strings', () => {
+        const authorizer = {
+          name: '',
+          familyName: '',
+          resultCode: ''
+        };
+
+        const result = retrieveAuthorizerHeaders(authorizer);
+
+        expect(result).to.deep.equal({
+          'x-pagopa-pn-name': '',
+          'x-pagopa-pn-family-name': '',
+          'x-pagopa-pn-result-code': ''
+        });
+      });
+
+      it('should return the 3 headers as empty string when authorizer fields are undefined', () => {
+        const authorizer = {
+          name: undefined,
+          familyName: undefined,
+          resultCode: undefined
+        };
+
+        const result = retrieveAuthorizerHeaders(authorizer);
+
+        expect(result).to.deep.equal({
+          'x-pagopa-pn-name': '',
+          'x-pagopa-pn-family-name': '',
+          'x-pagopa-pn-result-code': ''
+        });
+      });
+
+      it('should return the 3 headers as empty string when authorizer is an empty object', () => {
+        const result = retrieveAuthorizerHeaders({});
+
+        expect(result).to.deep.equal({
+          'x-pagopa-pn-name': '',
+          'x-pagopa-pn-family-name': '',
+          'x-pagopa-pn-result-code': ''
+        });
+      });
+
+    });
 });
