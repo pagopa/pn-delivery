@@ -6,6 +6,7 @@ import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.api.NewInformalNotificationApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.NewNotificationApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.notificationdao.TaxonomyCodeDaoDynamo;
@@ -15,10 +16,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.NativeWebRequest;
 
 import javax.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Optional;
 
 import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.*;
 import static it.pagopa.pn.commons.utils.MDCUtils.MDC_PN_IUN_KEY;
@@ -26,7 +29,7 @@ import static it.pagopa.pn.commons.utils.MDCUtils.MDC_PN_IUN_KEY;
 
 @Slf4j
 @RestController
-public class PnNotificationInputController implements NewNotificationApi {
+public class PnNotificationInputController implements NewNotificationApi, NewInformalNotificationApi {
 
     private static final String DEFAULT_PAID = "default";
     private final PnDeliveryConfigs cfgs;
@@ -103,5 +106,36 @@ public class PnNotificationInputController implements NewNotificationApi {
             logEvent.generateFailure("" + e.getProblem()).log();
             throw e;
         }
+    }
+
+    @Override
+    public Optional<NativeWebRequest> getRequest() {
+        return NewNotificationApi.super.getRequest();
+    }
+
+    @Override
+    public ResponseEntity<NewInformalNotificationResponse> sendNewInformalNotificationV1(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String xPagopaPnSrcCh, InformalNotificationRequestV1 informalNotificationRequestV1, List<String> xPagopaPnCxGroups, String xPagopaPnSrcChDetails, String xPagopaPnNotificationVersion) {
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        @NotNull String paProtocolNumber = informalNotificationRequestV1.getPaProtocolNumber();
+        String paIdempotenceToken = informalNotificationRequestV1.getIdempotenceToken();
+
+        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_COM_INSERT, "sendNewInformalNotification for protocolNumber={}, idempotenceToken={}", paProtocolNumber, paIdempotenceToken)
+                .build();
+        logEvent.log();
+        NewInformalNotificationResponse svcRes;
+
+        try {
+            svcRes = svc.receiveInformalNotification(xPagopaPnCxId, informalNotificationRequestV1, xPagopaPnSrcCh, xPagopaPnSrcChDetails, xPagopaPnCxGroups, xPagopaPnNotificationVersion);
+        } catch (PnRuntimeException ex) {
+            logEvent.generateFailure("[protocolNumber={}, idempotenceToken={}] " + ex.getProblem(),
+                    informalNotificationRequestV1.getPaProtocolNumber(), paIdempotenceToken).log();
+            throw ex;
+        }
+        @NotNull String requestId = svcRes.getNotificationRequestId();
+        @NotNull String protocolNumber = svcRes.getPaProtocolNumber();
+        String iun = new String(Base64Utils.decodeFromString(requestId), StandardCharsets.UTF_8);
+        logEvent.getMdc().put(MDC_PN_IUN_KEY, iun);
+        logEvent.generateSuccess("sendNewInformalNotification requestId={}, protocolNumber={}, idempotenceToken={}", requestId, protocolNumber, paIdempotenceToken).log();
+        return ResponseEntity.accepted().body( svcRes );
     }
 }

@@ -9,6 +9,7 @@ public class IunGenerator {
     private static final char[] IUN_CHARS = new char[] {'A','D','E','G','H','J','K','L','M','N','P','Q','R','T','U','V','W','X','Y','Z'};
     private static final List<String> INVALID_PAIRS = List.of("UV", "VU", "HN", "NH", "LJ");
     private static final String SEPARATOR = "-";
+    private static final String VERSION_CHAR = "1";
 
     private final SecureRandom randomNumberGenerator = new SecureRandom();
 
@@ -18,7 +19,12 @@ public class IunGenerator {
         String randStringPart = generateRandomString(4, 3, '-');
         String monthPart = creationDateSplit[0] + creationDateSplit[1];
         char controlChar = generateControlChar( randStringPart, monthPart );
-        return randStringPart + SEPARATOR + monthPart + SEPARATOR + controlChar + SEPARATOR + "1";
+        String versionChar = getVersionChar();
+        return randStringPart + SEPARATOR + monthPart + SEPARATOR + controlChar + SEPARATOR + versionChar;
+    }
+
+    protected String getVersionChar() {
+        return VERSION_CHAR;
     }
 
     protected char generateControlChar(String randStringPart, String monthPart) {

@@ -6,6 +6,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePoli
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.NotificationLang;
+import it.pagopa.pn.delivery.models.internal.notification.CommunicationType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,6 +53,9 @@ class EntityToDtoNotificationMapperTest {
         Assertions.assertNull(internalNotification.getRecipients().get(0).getPayments().get(0).getPagoPa().getAttachment());
         Assertions.assertNotNull(internalNotification.getRecipients().get(1).getPayments().get(0).getPagoPa().getAttachment());
         Assertions.assertEquals(List.of("FR"), internalNotification.getAdditionalLanguages());
+        Assertions.assertEquals("messageId", internalNotification.getRecipients().get(0).getMessageId());
+        Assertions.assertEquals("campaignId", internalNotification.getCampaignId());
+        Assertions.assertNull(internalNotification.getCommunicationType());
         assertEquals( VAT, internalNotification.getVat() );
     }
 
@@ -60,6 +64,7 @@ class EntityToDtoNotificationMapperTest {
         // Given
         NotificationEntity notificationEntity = newNotificationEntity();
         notificationEntity.setLanguages(List.of(NotificationLang.builder().lang("IT").build()));
+        notificationEntity.setCommunicationType(CommunicationType.INFORMAL);
 
         // When
         InternalNotification internalNotification = mapper.entity2Dto(notificationEntity);
@@ -72,6 +77,7 @@ class EntityToDtoNotificationMapperTest {
         Assertions.assertNull(internalNotification.getRecipients().get(0).getPayments().get(0).getPagoPa().getAttachment());
         Assertions.assertNotNull(internalNotification.getRecipients().get(1).getPayments().get(0).getPagoPa().getAttachment());
         Assertions.assertEquals(0, internalNotification.getAdditionalLanguages().size());
+        Assertions.assertEquals(CommunicationType.INFORMAL, internalNotification.getCommunicationType());
         assertEquals( VAT, internalNotification.getVat() );
     }
 
@@ -141,6 +147,7 @@ class EntityToDtoNotificationMapperTest {
                         .build())
                 .denomination("recipientDenomination")
                 .payments(List.of(notificationPaymentInfoEntity))
+                .messageId("messageId")
                 .physicalAddress(NotificationPhysicalAddressEntity.builder()
                         .address("address")
                         .addressDetails("addressDetail")
@@ -220,6 +227,7 @@ class EntityToDtoNotificationMapperTest {
                 .vat(VAT)
                 .languages(additionalLangs)
                 .usedServices(usedServices)
+                .campaignId("campaignId")
                 .build();
     }
 
