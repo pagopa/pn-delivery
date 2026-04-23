@@ -55,10 +55,10 @@ public class InformalMessageController implements MessagesApi {
         try {
             MessageRequestDto dto = InformalMessageMapper.toMs(newMessageRequest, xPagopaPnCxId);
             MessageResponseDto result = informalMessageService.createInformalMessage(dto);
-            logEvent.generateSuccess("createInformalMessage", PnAuditLogEventType.AUD_COM_MSG_INSERT);
+            logEvent.generateSuccess("createInformalMessage", PnAuditLogEventType.AUD_COM_MSG_INSERT).log();
             return ResponseEntity.status(201).body(InformalMessageMapper.toApi(result));
         } catch (Exception ex) {
-            logEvent.generateFailure(ex.getMessage(), PnAuditLogEventType.AUD_COM_MSG_INSERT);
+            logEvent.generateFailure(ex.getMessage(), PnAuditLogEventType.AUD_COM_MSG_INSERT).log();
             throw ex;
         }
     }

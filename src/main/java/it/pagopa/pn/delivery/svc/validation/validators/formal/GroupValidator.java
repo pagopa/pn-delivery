@@ -40,13 +40,13 @@ public class GroupValidator implements FormalValidator<NotificationContext> {
         if( StringUtils.hasText( notificationGroup ) ) {
 
             List<PaGroup> paGroups = pnExternalRegistriesClient.getGroups( senderId, true );
-            PaGroup paGroup = paGroups.stream().filter(elem -> {
-                assert elem.getId() != null;
-                return elem.getId().equals(notificationGroup);
-            }).findAny().orElse(null);
+            PaGroup paGroup = paGroups.stream().filter(
+                    elem -> elem.getId() != null && elem.getId().equals(notificationGroup))
+                    .findAny()
+                    .orElse(null);
 
             if( paGroup == null ){
-                String detailMessage = String.format("Group=%s not present or suspended/deleted in pa_groups=%s", notificationGroup, paGroup);
+                String detailMessage = String.format("Group=%s not present or suspended/deleted in pa_groups=%s", notificationGroup, paGroups);
                 errors.add(ProblemError.builder().element(FIELD_NAME).detail(detailMessage).code(ERROR_CODE_DELIVERY_INVALIDPARAMETER_GROUP).build());
             }
 
