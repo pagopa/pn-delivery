@@ -169,9 +169,23 @@ components:
         - taxonomyCode
       properties:
         idempotenceToken:
-          $ref: '#/components/schemas/IdempotenceToken'
+          description: >-
+            Identificativo utilizzabile dal chiamante per disambiguare differenti 
+            "richieste di notificazione" effettuate con lo stesso numero di protocollo 
+            (campo _paProtocolNumber_). Questo può essere necessario in caso di 
+            "richiesta di notifica" rifiutata per errori nei codici di verifica degli
+            allegati.
+          type: string
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 256
         paProtocolNumber:
-          $ref: '#/components/schemas/PaProtocolNumber'
+          description: >-
+            Numero di protocollo che la PA mittente assegna alla notifica stessa
+          type: string
+          # wide range of characters
+          pattern: ^.*$
+          maxLength: 256
         subject:
           type: string
           description: titolo della notifica, NON inserire dati personali/sensibili
@@ -506,13 +520,13 @@ components:
 
     PagoPaPaymentBase:
       title: Informazioni per effettuare il pagamento con sistema pagoPA
-      description: >- 
+      description: >-
         Informazioni utili per effettuare il pagamento di una notifica, sono associate al
         destinatario perché le spese di notifica possono differire a seconda del canale di
         notifica utilizzato. <br/>
           - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
           - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
-          - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
+          - _attachment_: riferimento al PDF contenete il bollettino pagoPA<br/>
       type: object
       required:
         - noticeCode
@@ -525,17 +539,33 @@ components:
         attachment:
           $ref: "#/components/schemas/NotificationPaymentAttachment"
 
+
     PagoPaPayment:
-      allOf:
-        - $ref: '#/components/schemas/PagoPaPaymentBase'
-        - type: object
-          required:
-            - applyCost
-          properties:
-            applyCost:
-              type: boolean
-              nullable: false
-              description: Flag per indicare se l'avviso pagoPa deve contenere i costi di notifica
+      title: Informazioni per effettuare il pagamento con sistema pagoPA
+      description: >-
+        Informazioni utili per effettuare il pagamento di una notifica, sono associate al
+        destinatario perché le spese di notifica possono differire a seconda del canale di
+        notifica utilizzato. <br/>
+          - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
+          - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
+          - _applyCost_: flag per indicare se l'avviso pagoPA deve contenere i costi di notifica. <br/>
+          - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
+      type: object
+      required:
+        - noticeCode
+        - creditorTaxId
+        - applyCost
+      properties:
+        noticeCode:
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'
+        creditorTaxId:
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxId'
+        applyCost:
+          type: boolean
+          nullable: false
+          description: Flag per indicare se l'avviso pagoPa deve contenere i costi di notifica
+        attachment:
+          $ref: "#/components/schemas/NotificationPaymentAttachment"
 
     F24Payment:
       title: Informazioni per effettuare il pagamento tramite modello F24

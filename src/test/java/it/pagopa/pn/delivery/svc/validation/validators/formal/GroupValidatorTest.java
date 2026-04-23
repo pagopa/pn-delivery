@@ -55,7 +55,7 @@ class GroupValidatorTest {
         when(pnExternalRegistriesClient.getGroups(DEFAULT_SENDER_ID, true))
                 .thenReturn(List.of(new PaGroup().id("validGroup")));
 
-        assertSingleErrorContaining(groupValidator.validate(context), "Group=invalidGroup not present or suspended/deleted in pa_groups=null");
+        assertSingleErrorContaining(groupValidator.validate(context), "Group=invalidGroup not present or suspended/deleted in pa_groups=[PaGroup(id=validGroup, name=null, description=null, status=null)]");
     }
 
     @Test

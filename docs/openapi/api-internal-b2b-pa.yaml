@@ -1207,7 +1207,10 @@ components:
         - amount
       properties:
         iun:
-          $ref: 'schemas-pn-notification.yaml#/components/schemas/IUN'
+          type: string
+          minLength: 25
+          maxLength: 25
+          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
         paymentDate:
           type: string
           format: date-time
