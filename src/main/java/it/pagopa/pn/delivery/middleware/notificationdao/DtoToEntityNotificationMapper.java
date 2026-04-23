@@ -10,6 +10,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 public class DtoToEntityNotificationMapper {
@@ -83,12 +84,16 @@ public class DtoToEntityNotificationMapper {
     }
 
     private NotificationRecipientEntity dto2RecipientEntity( NotificationRecipient recipient ) {
-        return NotificationRecipientEntity.builder()
+        NotificationRecipientEntity.NotificationRecipientEntityBuilder recipientEBuilder = NotificationRecipientEntity.builder()
                 .recipientId( recipient.getTaxId() )
                 .recipientType( RecipientTypeEntity.valueOf( recipient.getRecipientType().getValue() ) )
-                .payments( dto2PaymentList( recipient.getPayments() ) )
-                .messageId(recipient.getMessageId() )
-                .build();
+                .payments( dto2PaymentList( recipient.getPayments() ) );
+
+        if(Objects.nonNull(recipient.getMessageId())) {
+            recipientEBuilder.messageId(recipient.getMessageId() );
+        }
+
+        return recipientEBuilder.build();
     }
 
     private List<NotificationPaymentInfoEntity> dto2PaymentList(List<NotificationPaymentInfo> notificationPaymentInfos) {
