@@ -12,6 +12,7 @@ import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.config.PhysicalAddressLookupParameterConsumer;
 import it.pagopa.pn.delivery.config.SendActiveParameterConsumer;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
+import it.pagopa.pn.delivery.exception.PnCampaignNotFoundException;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroupStatus;
@@ -257,7 +258,7 @@ class NotificationReceiverTest {
         deliveryService.receiveNotification(PAID, notificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY, null);
 
         // Then
-		Mockito.verify( notificationDao ).addNotification( savedNotification.capture()  );
+		Mockito.verify( notificationDao ).addNotification( savedNotification.capture() );
 	}
 
 	@Test
@@ -886,7 +887,7 @@ class NotificationReceiverTest {
 		request.setCampaignId("invalidCampaignId");
 
 		when(campaignService.getCampaignByCampaignIdAndSenderId("invalidCampaignId", PAID))
-				.thenThrow(new PnBadRequestException("Campaign not found", "Campaign not found", ERROR_CODE_DELIVERY_SEND_IS_DISABLED));
+				.thenThrow(new PnCampaignNotFoundException("Campaign not found", String.format("Campaign with campaignId=%s and senderId=%s not found", "invalidCampaignId", PAID)));
 
 		// When
 		Executable todo = () -> deliveryService.receiveInformalNotification(
@@ -899,7 +900,7 @@ class NotificationReceiverTest {
 		);
 
 		// Then
-		Assertions.assertThrows(PnBadRequestException.class, todo);
+		Assertions.assertThrows(PnCampaignNotFoundException.class, todo);
 	}
 
 	@Test
