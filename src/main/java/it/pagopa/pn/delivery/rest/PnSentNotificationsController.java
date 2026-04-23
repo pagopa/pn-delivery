@@ -326,8 +326,4 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
     private record AttachmentDownloadRequest(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups,
                                            String iun, Integer recipientIdx, String attachmentName, Integer attachmentIdx) {
     }
-
-
-    private record LogConfig(PnAuditLogEventType logEventType, String logMsg) {
-    }
 }
