@@ -82,6 +82,7 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
                 .requestId( Base64Utils.encodeToString( notificationEntity.getIun().getBytes(StandardCharsets.UTF_8) ) );
 
 
+        // This field will be populated only for informal communications (comunicazioni bonarie)
         if(Objects.nonNull(notificationEntity.getCommunicationType())) {
             controlIdempotenceTokenBuilder.communicationType(notificationEntity.getCommunicationType());
         }
