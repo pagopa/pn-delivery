@@ -25,7 +25,7 @@ public class EntityToDtoNotificationMapper {
     private static final String IT_LANGUAGE = "IT";
 
     public InternalNotification entity2Dto(NotificationEntity entity) {
-        if (entity.getPhysicalCommunicationType() == null) {
+        if (entity.getPhysicalCommunicationType() == null && entity.getCommunicationType() == null) {
             throw new PnInternalException(" Notification entity with iun "
                     + entity.getIun()
                     + " hash invalid physicalCommunicationType value",
