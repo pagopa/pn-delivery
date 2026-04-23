@@ -226,7 +226,7 @@ paths:
     ###########################################################################################
     get:
       operationId: getInformalNotificationRequestStatusV1                       # NO EXTERNAL
-      #      operationId: retrieveInformalNotificationRequestStatusV1                # ONLY EXTERNAL
+#      operationId: retrieveInformalNotificationRequestStatusV1                # ONLY EXTERNAL
       tags:
         - SenderReadInformalNotificationB2B
       summary: Verifica accettazione richiesta notifica
@@ -305,7 +305,7 @@ paths:
       tags:
         - SenderReadInformalNotificationB2B
       operationId: getSentInformalNotificationDocument                                      # NO EXTERNAL
-      #      operationId: retrieveSentInformalNotificationDocument                                # ONLY EXTERNAL
+#      operationId: retrieveSentInformalNotificationDocument                                # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'           # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'        # NO EXTERNAL
@@ -358,7 +358,7 @@ paths:
       tags:
         - SenderReadInformalNotificationB2B
       operationId: getSentInformalNotificationAttachment                                      # NO EXTERNAL
-      #      operationId: retrieveSentInformalNotificationAttachment                                # ONLY EXTERNAL
+#      operationId: retrieveSentInformalNotificationAttachment                                # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
@@ -600,12 +600,13 @@ components:
       required: [ primaryMessage ]
       properties:
         primaryMessage:
-          description: Contenuto principale del messaggio, deve essere in lingua italiana
-          $ref: '#/components/schemas/LocalizedContent'
+          allOf:
+            - $ref: '#/components/schemas/LocalizedContent'
+            - description: Contenuto principale del messaggio, deve essere in lingua italiana
         additionalMessage:
-          description: Contenuto aggiuntivo del messaggio, opzionale, può essere in una lingua diversa dall'italiano
-          $ref: '#/components/schemas/LocalizedContent'
-
+          allOf:
+            - $ref: '#/components/schemas/LocalizedContent'
+            - description: Contenuto aggiuntivo del messaggio, opzionale, può essere in una lingua diversa dall'italiano
     MessageResponse:
       type: object
       allOf:
