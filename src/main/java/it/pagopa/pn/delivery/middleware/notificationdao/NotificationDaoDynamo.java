@@ -70,7 +70,7 @@ public class NotificationDaoDynamo implements NotificationDao {
 					.recIndex(recIndex);
 
 			recipientAddressesDtoList.add( recipientAddressesDto );
-			cleanedRecipientList.add( removeConfidantialInfo( recipient ) );
+			cleanedRecipientList.add( removeConfidentialInfo( recipient ) );
 			recIndex++;
 		}
 
@@ -83,11 +83,12 @@ public class NotificationDaoDynamo implements NotificationDao {
 		entityDao.putIfAbsent( entity );
 	}
 
-	private NotificationRecipient removeConfidantialInfo(NotificationRecipient recipient) {
+	private NotificationRecipient removeConfidentialInfo(NotificationRecipient recipient) {
 		return NotificationRecipient.builder()
 				.recipientType( recipient.getRecipientType() )
 				.taxId( recipient.getTaxId() )
 				.payments( recipient.getPayments() )
+				.messageId( recipient.getMessageId() )
 				.build();
 	}
 

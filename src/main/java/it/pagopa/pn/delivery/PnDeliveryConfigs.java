@@ -106,6 +106,8 @@ public class PnDeliveryConfigs {
 
     private String latestNotificationVersion;
 
+    private String latestInformalNotificationVersion;
+
     private String documentNumberOfPagesTagKey;
 
     private boolean enableSenderTaxIdCongruence;

@@ -13,7 +13,6 @@ import it.pagopa.pn.delivery.middleware.notificationdao.TaxonomyCodeDaoDynamo;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.RestController;
@@ -116,6 +115,27 @@ public class PnNotificationInputController implements NewNotificationApi, NewInf
 
     @Override
     public ResponseEntity<NewInformalNotificationResponse> sendNewInformalNotificationV1(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String xPagopaPnSrcCh, InformalNotificationRequestV1 informalNotificationRequestV1, List<String> xPagopaPnCxGroups, String xPagopaPnSrcChDetails, String xPagopaPnNotificationVersion) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        @NotNull String paProtocolNumber = informalNotificationRequestV1.getPaProtocolNumber();
+        String paIdempotenceToken = informalNotificationRequestV1.getIdempotenceToken();
+
+        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_COM_INSERT, "sendNewInformalNotification for protocolNumber={}, idempotenceToken={}", paProtocolNumber, paIdempotenceToken)
+                .build();
+        logEvent.log();
+        NewInformalNotificationResponse svcRes;
+
+        try {
+            svcRes = svc.receiveInformalNotification(xPagopaPnCxId, informalNotificationRequestV1, xPagopaPnSrcCh, xPagopaPnSrcChDetails, xPagopaPnCxGroups, xPagopaPnNotificationVersion);
+        } catch (PnRuntimeException ex) {
+            logEvent.generateFailure("[protocolNumber={}, idempotenceToken={}] " + ex.getProblem(),
+                    informalNotificationRequestV1.getPaProtocolNumber(), paIdempotenceToken).log();
+            throw ex;
+        }
+        @NotNull String requestId = svcRes.getNotificationRequestId();
+        @NotNull String protocolNumber = svcRes.getPaProtocolNumber();
+        String iun = new String(Base64Utils.decodeFromString(requestId), StandardCharsets.UTF_8);
+        logEvent.getMdc().put(MDC_PN_IUN_KEY, iun);
+        logEvent.generateSuccess("sendNewInformalNotification requestId={}, protocolNumber={}, idempotenceToken={}", requestId, protocolNumber, paIdempotenceToken).log();
+        return ResponseEntity.accepted().body( svcRes );
     }
 }

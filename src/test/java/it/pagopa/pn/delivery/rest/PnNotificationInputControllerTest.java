@@ -630,21 +630,80 @@ class PnNotificationInputControllerTest {
 	}
 
 	@Test
-	void postInformalNotificationIsNotImplemented() {
+	void postInformalNotificationSuccess() {
+		// Given
 		InformalNotificationRequestV1 request = newInformalNotificationRequest();
 
+		NewInformalNotificationResponse savedNotification = NewInformalNotificationResponse.builder()
+				.notificationRequestId( Base64Utils.encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) )
+				.paProtocolNumber("protocol_number").build();
+
+		Mockito.when(deliveryService.receiveInformalNotification(
+				Mockito.anyString(),
+				any( InformalNotificationRequestV1.class ),
+				Mockito.anyString(),
+				Mockito.isNull(),
+				Mockito.anyList(),
+				Mockito.isNull())
+		).thenReturn( savedNotification );
+
+		// Then
 		webTestClient.post()
 				.uri(DELIVERY_INFORMAL_REQUESTS_PATH)
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
 				.body(Mono.just(request), InformalNotificationRequestV1.class)
 				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
-				.header( PnDeliveryRestConstants.UID_HEADER, "uid" )
-				.header( PnDeliveryRestConstants.CX_TYPE_HEADER, "PF" )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(0) +","+GROUPS.get(1) )
 				.header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
 				.exchange()
-				.expectStatus().isEqualTo(HttpStatus.NOT_IMPLEMENTED);
+				.expectStatus().isAccepted();
+
+		Mockito.verify( deliveryService ).receiveInformalNotification(
+				PA_ID,
+				request,
+				X_PAGOPA_PN_SRC_CH,
+				null,
+				GROUPS,
+				null);
 	}
+
+	@Test
+	void postInformalNotificationFailure() {
+		// Given
+		InformalNotificationRequestV1 request = newInformalNotificationRequest();
+		Map<String,String> conflictMap = new HashMap<>();
+		conflictMap.put( "noticeCode", "duplicatedNoticeCode" );
+		PnIdConflictException exception = new PnIdConflictException( conflictMap );
+
+		// When
+		Mockito.when( deliveryService.receiveInformalNotification(
+				Mockito.anyString(),
+				any( InformalNotificationRequestV1.class ),
+				Mockito.anyString(),
+				Mockito.isNull(),
+				Mockito.anyList(),
+				Mockito.isNull())
+		).thenThrow( exception );
+
+		//Then
+		webTestClient.post()
+				.uri(DELIVERY_INFORMAL_REQUESTS_PATH)
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+				.body(Mono.just(request), InformalNotificationRequestV1.class)
+				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(0) +","+GROUPS.get(1) )
+				.header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
+				.exchange()
+				.expectStatus()
+				.isEqualTo(HttpStatus.CONFLICT);
+	}
+
 
 	private InformalNotificationRequestV1 newInformalNotificationRequest() {
 		return InformalNotificationRequestV1.builder()
