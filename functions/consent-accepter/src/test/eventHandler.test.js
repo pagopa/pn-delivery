@@ -21,7 +21,7 @@ describe('Consent Handler Tests', () => {
     utilsStub = {
       getUserInfoFromEvent: sinon.stub(),
       retrieveHeadersToForward: sinon.stub(),
-      retrieveAuthorizerHeaders: sinon.stub()
+      retrieveAuthorizerHeaders: sinon.stub().returns({})
     };
 
     mockCacheManagerInstance = {

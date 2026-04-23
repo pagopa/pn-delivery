@@ -380,14 +380,14 @@ describe('utils', () => {
 
   describe('retrieveAuthorizerHeaders', () => {
 
-      it('should return the 3 headers with correct values when authorizer is fully populated', () => {
-        const authorizer = {
-          name: 'Mario',
-          familyName: 'Rossi',
-          resultCode: 'OK'
+     it('should return the 3 headers with correct values when authorizer is fully populated', () => {
+       const authorizer = {
+         name: 'Mario',
+         familyName: 'Rossi',
+         resultCode: 'OK'
         };
 
-        const result = retrieveAuthorizerHeaders(authorizer);
+       const result = retrieveAuthorizerHeaders(authorizer);
 
         expect(result).to.deep.equal({
           'x-pagopa-pn-name': 'Mario',
@@ -396,47 +396,47 @@ describe('utils', () => {
         });
       });
 
-      it('should return the 3 headers as empty string when authorizer fields are empty strings', () => {
-        const authorizer = {
-          name: '',
-          familyName: '',
-          resultCode: ''
-        };
+     it('should return the 3 headers as empty string when authorizer fields are empty strings', () => {
+       const authorizer = {
+         name: '',
+         familyName: '',
+         resultCode: ''
+       };
 
-        const result = retrieveAuthorizerHeaders(authorizer);
+       const result = retrieveAuthorizerHeaders(authorizer);
 
-        expect(result).to.deep.equal({
-          'x-pagopa-pn-name': '',
-          'x-pagopa-pn-family-name': '',
-          'x-pagopa-pn-result-code': ''
-        });
-      });
+       expect(result).to.deep.equal({
+         'x-pagopa-pn-name': '',
+         'x-pagopa-pn-family-name': '',
+         'x-pagopa-pn-result-code': ''
+       });
+     });
 
-      it('should return the 3 headers as empty string when authorizer fields are undefined', () => {
-        const authorizer = {
-          name: undefined,
-          familyName: undefined,
-          resultCode: undefined
-        };
+     it('should return the 3 headers as empty string when authorizer fields are undefined', () => {
+       const authorizer = {
+         name: undefined,
+         familyName: undefined,
+         resultCode: undefined
+       };
 
-        const result = retrieveAuthorizerHeaders(authorizer);
+       const result = retrieveAuthorizerHeaders(authorizer);
 
-        expect(result).to.deep.equal({
-          'x-pagopa-pn-name': '',
-          'x-pagopa-pn-family-name': '',
-          'x-pagopa-pn-result-code': ''
-        });
-      });
+       expect(result).to.deep.equal({
+         'x-pagopa-pn-name': '',
+         'x-pagopa-pn-family-name': '',
+         'x-pagopa-pn-result-code': ''
+       });
+     });
 
-      it('should return the 3 headers as empty string when authorizer is an empty object', () => {
-        const result = retrieveAuthorizerHeaders({});
+     it('should return the 3 headers as empty string when authorizer is an empty object', () => {
+       const result = retrieveAuthorizerHeaders({});
 
-        expect(result).to.deep.equal({
-          'x-pagopa-pn-name': '',
-          'x-pagopa-pn-family-name': '',
-          'x-pagopa-pn-result-code': ''
-        });
-      });
+       expect(result).to.deep.equal({
+         'x-pagopa-pn-name': '',
+         'x-pagopa-pn-family-name': '',
+         'x-pagopa-pn-result-code': ''
+       });
+     });
 
-    });
+  });
 });

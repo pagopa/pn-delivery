@@ -20,10 +20,10 @@ exports.handle = async (event) => {
     const promiseList = consentsToAccept.map(consent => acceptConsent(consent, userInfo));
     await Promise.all(promiseList);
     logger.info("All consents accepted successfully.");
-   const headersToForward = {
+    const headersToForward = {
        ...retrieveHeadersToForward(event.headers || {}),
-       ...retrieveAuthorizerHeaders((event.requestContext || {}).authorizer || {})
-       };
+       ...retrieveAuthorizerHeaders((event.requestContext || {}).authorizer || {}  || {}))
+    };
     return deliveryResponse = await RestClient.checkQrCode(event.body, headersToForward, userInfo);
   } catch (error) {
     logger.error("Error: ", error.message);
