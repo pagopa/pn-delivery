@@ -29,6 +29,6 @@ public class NotificationRecipientEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_DIGITAL_DOMICILE)})) private NotificationDigitalAddressEntity digitalDomicile;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PHYSICAL_ADDRESS)})) private NotificationPhysicalAddressEntity physicalAddress;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PAYMENTS),  @DynamoDbIgnoreNulls})) private List<NotificationPaymentInfoEntity> payments;
-    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_MESSAGE_ID)})) private String messageId;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_MESSAGE_ID), @DynamoDbIgnoreNulls})) private String messageId;
 
 }
