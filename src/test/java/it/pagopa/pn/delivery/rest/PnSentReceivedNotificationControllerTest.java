@@ -1429,19 +1429,107 @@ class PnSentReceivedNotificationControllerTest {
                 .isEqualTo(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    @Test
-    void getSentInformalNotificationAttachmentNotImplemented() {
-        webTestClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/delivery/v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{pathAttachmentName}")
-                        .build(IUN, 0, PAGOPA))
-                .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
-                .header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
-                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PA)
-                .exchange()
-                .expectStatus()
-                .isEqualTo(HttpStatus.NOT_IMPLEMENTED);
-    }
+	@Test
+	void getSentInformalNotificationAttachmentSuccess() {
+		//Given
+		InternalAttachmentWithFileKey response = InternalAttachmentWithFileKey.of(NotificationAttachmentDownloadMetadataResponse.builder()
+				.url( REDIRECT_URL )
+				.contentType( "application/pdf" )
+				.sha256( SHA256_BODY )
+				.filename( FILENAME )
+				.build(), "MockFileFey");
+
+		InternalAuthHeader internalAuthHeader = new InternalAuthHeader(CX_TYPE_PA, CX_ID, UID, List.of("asdasd"));
+
+		// When
+		//Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
+		Mockito.when( attachmentService.downloadAttachmentWithRedirectWithFileKey(
+				anyString(),
+				any(InternalAuthHeader.class),
+				isNull(),
+				Mockito.anyInt(),
+				anyString(),
+				any(),
+				Mockito.anyBoolean()
+		)).thenReturn( response );
+
+		// Then
+		webTestClient.get()
+				.uri( "/delivery/v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}".replace("{iun}",IUN).replace("{recipientIdx}","0").replace("{attachmentName}",PAGOPA))
+				.accept( MediaType.ALL )
+				.header(HttpHeaders.ACCEPT, "application/json")
+				.header(PnDeliveryRestConstants.CX_ID_HEADER, CX_ID)
+				.header(PnDeliveryRestConstants.UID_HEADER, UID)
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PA)
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
+				.header(PnDeliveryRestConstants.SOURCE_CHANNEL_DETAILS_HEADER, X_PAGOPA_PN_SRC_CH_DET)
+				.exchange()
+				.expectStatus()
+				.isOk();
+
+		Mockito.verify( attachmentService ).downloadAttachmentWithRedirectWithFileKey( IUN, internalAuthHeader, null,  0, PAGOPA, null,false);
+	}
+
+	@Test
+	void getSentInformalNotificationAttachmentSuccessFileKeyNull() {
+		//Given
+		InternalAttachmentWithFileKey response = InternalAttachmentWithFileKey.of(NotificationAttachmentDownloadMetadataResponse.builder()
+				.url( REDIRECT_URL )
+				.contentType( "application/pdf" )
+				.sha256( SHA256_BODY )
+				.filename( FILENAME )
+				.build(), null);
+
+		InternalAuthHeader internalAuthHeader = new InternalAuthHeader(CX_TYPE_PA, CX_ID, UID, List.of("asdasd"));
+
+		// When
+		//Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
+		Mockito.when( attachmentService.downloadAttachmentWithRedirectWithFileKey(
+				anyString(),
+				any(InternalAuthHeader.class),
+				isNull(),
+				Mockito.anyInt(),
+				anyString(),
+				any(),
+				Mockito.anyBoolean()
+		)).thenReturn( response );
+
+		// Then
+		webTestClient.get()
+				.uri( "/delivery/v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}".replace("{iun}",IUN).replace("{recipientIdx}","0").replace("{attachmentName}",PAGOPA))
+				.accept( MediaType.ALL )
+				.header(HttpHeaders.ACCEPT, "application/json")
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, CX_ID)
+				.header(PnDeliveryRestConstants.UID_HEADER, UID)
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PA)
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
+				.header(PnDeliveryRestConstants.SOURCE_CHANNEL_DETAILS_HEADER, X_PAGOPA_PN_SRC_CH_DET)
+				.exchange()
+				.expectStatus()
+				.isOk();
+
+		Mockito.verify( attachmentService ).downloadAttachmentWithRedirectWithFileKey( IUN, internalAuthHeader, null,  0, PAGOPA, null,false);
+	}
+
+	@Test
+	void getSentInformalNotificationAttachmentFailure() {
+		// When
+		Mockito.doThrow( new PnNotificationNotFoundException("Simulated Error") )
+				.when( attachmentService )
+				.downloadAttachmentWithRedirectWithFileKey( IUN, new InternalAuthHeader(CX_TYPE_PF, PA_ID, UID, List.of("asdasd")), null, 0, PAGOPA, null,false );
+
+		webTestClient.get()
+				.uri( "/delivery/v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}".replace("{iun}",IUN).replace("{recipientIdx}","0").replace("{attachmentName}",PAGOPA))
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, UID)
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.exchange()
+				.expectStatus()
+				.isNotFound();
+	}
 
 
     @Test
