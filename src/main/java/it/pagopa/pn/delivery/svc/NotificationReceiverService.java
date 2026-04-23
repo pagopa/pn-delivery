@@ -335,7 +335,7 @@ public class NotificationReceiverService {
 		log.info("New informal notification storing START");
 		log.debug("New informal notification storing START paProtocolNumber={} idempotenceToken={}",
 				newInformalNotificationRequest.getPaProtocolNumber(), newInformalNotificationRequest.getIdempotenceToken());
-		log.logChecking("New notification request validation process");
+		log.logChecking("New informal notification request validation process");
 		Campaign campaign = campaignService.getCampaignByCampaignIdAndSenderId(newInformalNotificationRequest.getCampaignId(), xPagopaPnCxId);
 
 		InternalNotification internalNotification = modelMapper.map(newInformalNotificationRequest, InternalNotification.class);

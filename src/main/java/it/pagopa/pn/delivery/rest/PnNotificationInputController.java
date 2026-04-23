@@ -135,7 +135,7 @@ public class PnNotificationInputController implements NewNotificationApi, NewInf
         @NotNull String protocolNumber = svcRes.getPaProtocolNumber();
         String iun = new String(Base64Utils.decodeFromString(requestId), StandardCharsets.UTF_8);
         logEvent.getMdc().put(MDC_PN_IUN_KEY, iun);
-        logEvent.generateSuccess("sendNewNotification requestId={}, protocolNumber={}, idempotenceToken={}", requestId, protocolNumber, paIdempotenceToken).log();
+        logEvent.generateSuccess("sendNewInformalNotification requestId={}, protocolNumber={}, idempotenceToken={}", requestId, protocolNumber, paIdempotenceToken).log();
         return ResponseEntity.accepted().body( svcRes );
     }
 }

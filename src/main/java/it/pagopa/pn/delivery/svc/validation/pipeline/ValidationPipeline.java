@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
-public class ValidationPipeline<C extends ValidationContext<?>> {
+public final class ValidationPipeline<C extends ValidationContext<?>> {
 
     private final List<AuthorizationValidator<? super C>> authorizationValidators;
     private final List<FormalValidator<? super C>> formalValidators;
