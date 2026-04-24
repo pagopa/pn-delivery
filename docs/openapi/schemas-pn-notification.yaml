@@ -89,11 +89,37 @@ components:
       enum:
         - FLAT_RATE
         - DELIVERY_MODE
+
+    IdempotenceToken:
+      description: >-
+        Identificativo utilizzabile dal chiamante per disambiguare differenti 
+        "richieste di notificazione" effettuate con lo stesso numero di protocollo 
+        (campo _paProtocolNumber_). Questo può essere necessario in caso di 
+        "richiesta di notifica" rifiutata per errori nei codici di verifica degli
+        allegati.
+      type: string
+      # ASCII printable characters
+      pattern: ^[ -~]*$
+      maxLength: 256
+
+    PaProtocolNumber:
+      description: >-
+        Numero di protocollo che la PA mittente assegna alla notifica stessa
+      type: string
+      # wide range of characters
+      pattern: ^.*$
+      maxLength: 256
+
+    NotificationRequestId:
+      type: string
+      description: >-
+        identificativo univoco di una richiesta di invio notifica, non è lo IUN
+      maxLength: 36
+      pattern: ^[A-Za-z0-9+/=]{36}$
+
     ############################################################################################
     ###                                 DTO DELLE NOTIFICHE                                  ###
     ############################################################################################
-
-
 
     SentNotificationV25:
       description: >-
@@ -259,6 +285,57 @@ components:
         physicalAddressLookup:
           type: boolean
 
+    InformalNotificationRequestV1:
+      type: object
+      required: [ senderDenomination, senderTaxId, paProtocolNumber, subject, campaignId, recipients ]
+      properties:
+        senderDenomination:
+          $ref: '#/components/schemas/Denomination'
+        senderTaxId:
+          $ref: '#/components/schemas/paTaxId'
+        paProtocolNumber:
+          $ref: '#/components/schemas/PaProtocolNumber'
+        idempotenceToken:
+          $ref: '#/components/schemas/IdempotenceToken'
+        campaignId:
+          type: string
+          description: ID della campagna che definisce il workflow di invio
+        additionalLanguages:
+          description: >-
+            In questo campo è possibile definire la lingua addizionale (oltre a quella italiana) da utilizzare per l'invio del messaggio sui canali configurati.<br/>
+            Le lingue accettate e dunque i valori possibili degli item dell'array sono: <br/>
+            - DE <br/>
+            - SL <br/>
+            - FR <br/>
+            DE (tedesco), SL (sloveno), FR (francese)
+            Attualmente è possibile indicare un solo item e dunque una sola lingua aggiuntiva. Se non vengono indicate lingue aggiuntive la lingua utilizzata <br/>
+            per l'invio del messaggio sui canali configurati sarà quella italiana. <br />
+            **Coerenza con messageId:** Se viene fornito un `messageId`, il messaggio identificato deve essere associato alla lingua indicata in questo campo. <br/>
+            **Coerenza con campaignId:** Se `messageId` non è presente, il sistema utilizzerà il messaggio della campagna (`campaignId`) corrispondente alla lingua indicata. Assicurarsi che tale traduzione sia stata configurata nella campagna.
+          type: array
+          maxItems: 1
+          items:
+            type: string
+        subject:
+          type: string
+          description: Oggetto della comunicazione (visibile nel riepilogo)
+        recipients:
+          type: array
+          description: Informazioni sui destinatari
+          items:
+            $ref: '#/components/schemas/InformalNotificationRecipientV1'
+          minItems: 1
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationDocument'
+        group:
+          type: string
+          description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 1024
+
     ############################################################################################
     ###                                ELEMENTI DI DETTAGLIO                                 ###
     ############################################################################################
@@ -293,6 +370,34 @@ components:
           $ref: "#/components/schemas/NotificationPhysicalAddress"
         payments:
           $ref: "#/components/schemas/NotificationPayments"
+
+    InformalNotificationRecipientV1:
+      description: Informazioni sui destinatari delle notifiche informali.
+      allOf:
+        - $ref: '#/components/schemas/NotificationRecipientV24'
+        - type: object
+          properties:
+            payments:
+              $ref: '#/components/schemas/InformalNotificationPayments'
+            messageId:
+              type: string
+              format: uuid
+              description: >-
+                Opzionale. Sovrascrive il messaggio di default della campagna
+
+    InformalNotificationPayments:
+      description: Pagamenti collegati alla notifica per il destinatario.
+      type: array
+      items:
+        $ref: '#/components/schemas/InformalNotificationPaymentItem'
+
+    InformalNotificationPaymentItem:
+      type: object
+      additionalProperties: false
+      required: [ pagoPa ]
+      properties:
+        pagoPa:
+          $ref: '#/components/schemas/PagoPaPaymentBase'
 
     NotificationAttachment:
       description: >-
@@ -412,6 +517,28 @@ components:
           $ref: '#/components/schemas/PagoPaPayment'
         f24:
           $ref: '#/components/schemas/F24Payment'
+
+    PagoPaPaymentBase:
+      title: Informazioni per effettuare il pagamento con sistema pagoPA
+      description: >-
+        Informazioni utili per effettuare il pagamento di una notifica, sono associate al
+        destinatario perché le spese di notifica possono differire a seconda del canale di
+        notifica utilizzato. <br/>
+          - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
+          - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
+          - _attachment_: riferimento al PDF contenete il bollettino pagoPA<br/>
+      type: object
+      required:
+        - noticeCode
+        - creditorTaxId
+      properties:
+        noticeCode:
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'
+        creditorTaxId:
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxId'
+        attachment:
+          $ref: "#/components/schemas/NotificationPaymentAttachment"
+
 
     PagoPaPayment:
       title: Informazioni per effettuare il pagamento con sistema pagoPA
@@ -717,3 +844,24 @@ components:
       type: object
       additionalProperties:
         type: string
+
+    ###########################################################################################
+    ###                              DTO RICHIESTE DI NOTIFICA                              ###
+    ###########################################################################################
+
+    NewNotificationResponse:
+      title: Identificativi della richiesta di notifica
+      description: >-
+        Contiene le informazioni per identificare una richiesta di invio notifica
+        che non è ancora stata accettata da Piattaforma notifiche.
+      type: object
+      required:
+        - notificationRequestId
+        - paProtocolNumber
+      properties:
+        notificationRequestId:
+          $ref: '#/components/schemas/NotificationRequestId'
+        paProtocolNumber:
+          $ref: '#/components/schemas/PaProtocolNumber'
+        idempotenceToken:
+          $ref: '#/components/schemas/IdempotenceToken'

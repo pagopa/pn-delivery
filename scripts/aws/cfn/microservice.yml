@@ -835,6 +835,16 @@ Parameters:
     Description: "Max retry attempts for Notification Cost Service APIs"
     Default: 0
 
+  ApplicativeEnvFileChecksum:
+    Type: String
+    Default: ''
+    Description: 'Applicative environment variable file checksum'
+
+  LatestInformalNotificationVersion:
+    Type: String
+    Description: "latest informal notification version without v ex. 2.4"
+    AllowedPattern: '^\d\.\d$'
+
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
 
@@ -933,7 +943,9 @@ Resources:
         ContainerEnvEntry67: !Sub "METRIC_FORMAT_TYPE=${MetricFormatType}"
         ContainerEnvEntry68: !Sub "PN_DELIVERY_NOTIFICATION_COST_SERVICE_READ_TIMEOUT_MILLIS=${NotificationCostServiceReadTimeoutMillis}"
         ContainerEnvEntry69: !Sub "PN_DELIVERY_NOTIFICATION_COST_SERVICE_RETRY_MAX_ATTEMPTS=${NotificationCostServiceMaxRetryAttempts}"
+        ContainerEnvEntry70: !Sub "PN_DELIVERY_LATESTINFORMALNOTIFICATIONVERSION=${LatestInformalNotificationVersion}"
         ContainerSecret1: !Sub "ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:"
+        ApplicativeEnvFileChecksum: !Ref ApplicativeEnvFileChecksum
         MicroServiceSecretPrefix: pn-Delivery-Secrets
         JavaToolOptions: "-Dreactor.netty.ioWorkerCount=120 -XX:MaxMetaspaceSize=512M"
         MappedPaths: "/delivery/*,/delivery-private/*"
@@ -1017,6 +1029,8 @@ Resources:
               - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapPaSendActive"
               - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/PaActiveForPhysicalAddressLookup"
               - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/AARQrUrlConfigs'
+              - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/InformalNotificationSendPaWhiteList'
+              - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MVPCampaigns'
 
   # Expose PN-Delivery microservice public API with API-GW for B2B usage
   DeliveryMicroservicePublicAPI:

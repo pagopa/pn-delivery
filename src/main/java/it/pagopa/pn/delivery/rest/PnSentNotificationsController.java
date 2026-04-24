@@ -6,7 +6,9 @@ import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.api.InformalNotificationTerminationApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadB2BApi;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadInformalNotificationB2BApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadWebApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
@@ -19,6 +21,7 @@ import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.InternalFieldsCleaner;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
@@ -38,7 +41,7 @@ import static it.pagopa.pn.commons.utils.MDCUtils.MDC_PN_IUN_KEY;
 
 @RestController
 @Slf4j
-public class PnSentNotificationsController implements SenderReadB2BApi,SenderReadWebApi {
+public class PnSentNotificationsController implements SenderReadB2BApi, SenderReadWebApi, SenderReadInformalNotificationB2BApi, InformalNotificationTerminationApi {
 
     private final NotificationRetrieverService retrieveSvc;
     private final NotificationAttachmentService notificationAttachmentService;
@@ -190,54 +193,119 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
 
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer recipientIdx, String attachmentName, List<String> xPagopaPnCxGroups, Integer attachmentIdx) {
-        InternalAttachmentWithFileKey internalAttachmentWithFileKey = new InternalAttachmentWithFileKey();
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_ATCHOPEN_SND, "getSentNotificationAttachment attachment name={} attachment index={}", attachmentName, attachmentIdx)
-                .iun(iun)
-                .build();
-        logEvent.log();
-        try {
-            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
-            internalAttachmentWithFileKey = notificationAttachmentService.downloadAttachmentWithRedirectWithFileKey(
-                    iun,
-                    internalAuthHeader,
-                    null,
-                    recipientIdx,
-                    attachmentName,
-                    attachmentIdx,
-                    false
-            );
-            if(internalAttachmentWithFileKey == null || internalAttachmentWithFileKey.getFileKey() == null){
-                logEvent.generateSuccess().log();
-            }else{
-                logEvent.getMdc().put(MDC_PN_CTX_SAFESTORAGE_FILEKEY, internalAttachmentWithFileKey.getFileKey());
-                logEvent.generateSuccess().log();
-            }
-        } catch (PnRuntimeException exc) {
-            logEvent.generateFailure("" + exc.getProblem()).log();
-            throw exc;
-        }
-     
-        return ResponseEntity.ok( internalAttachmentWithFileKey == null ? null : internalAttachmentWithFileKey.getDownloadMetadataResponse() );
+        AttachmentDownloadRequest attachmentDownloadRequest = new AttachmentDownloadRequest(xPagopaPnUid, xPagopaPnCxType, xPagopaPnCxId, xPagopaPnCxGroups, iun, recipientIdx, attachmentName, attachmentIdx);
+        LogConfig logConfig = new LogConfig(PnAuditLogEventType.AUD_NT_ATCHOPEN_SND, "getSentNotificationAttachment attachment name={} attachment index={}");
+        return getInternalNotificationAttachment(attachmentDownloadRequest, logConfig);
+
     }
 
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer docIdx, List<String> xPagopaPnCxGroups) {
+        DocumentDownloadRequest request = new DocumentDownloadRequest(xPagopaPnUid, xPagopaPnCxType, xPagopaPnCxId, iun, docIdx, xPagopaPnCxGroups);
+        LogConfig logConfig = new LogConfig(PnAuditLogEventType.AUD_NT_DOCOPEN_SND, "getSentNotificationDocument={}");
+        return getNotificationDocumentInternal(request, logConfig);
+    }
+
+    @Override
+    public ResponseEntity<NewInformalNotificationRequestStatusResponseV1> getInformalNotificationRequestStatusV1(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String notificationRequestId, String paProtocolNumber, String idempotenceToken) {
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+    }
+
+    @Override
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentInformalNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer recipientIdx, String attachmentName, List<String> xPagopaPnCxGroups, Integer attachmentIdx) {
+        AttachmentDownloadRequest attachmentDownloadRequest = new AttachmentDownloadRequest(xPagopaPnUid, xPagopaPnCxType, xPagopaPnCxId, xPagopaPnCxGroups, iun, recipientIdx, attachmentName, attachmentIdx);
+        LogConfig logConfig = new LogConfig(PnAuditLogEventType.AUD_COM_DOCOPEN_SND, "getSentInformalNotificationAttachment attachment name={} attachment index={}");
+        return getInternalNotificationAttachment(attachmentDownloadRequest, logConfig);
+    }
+
+    @Override
+    public ResponseEntity<TerminationRequestStatus> terminateInformalWorkflow(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+    }
+
+    @Override
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentInformalNotificationDocument(
+            String xPagopaPnUid,
+            CxTypeAuthFleet xPagopaPnCxType,
+            String xPagopaPnCxId,
+            String iun,
+            Integer docIdx,
+            List<String> xPagopaPnCxGroups
+    ) {
+        DocumentDownloadRequest request = new DocumentDownloadRequest(xPagopaPnUid, xPagopaPnCxType, xPagopaPnCxId, iun, docIdx, xPagopaPnCxGroups);
+        LogConfig logConfig = new LogConfig(PnAuditLogEventType.AUD_COM_DOCOPEN_SND, "getSentInformalNotificationDocument docIdx={}");
+        return getNotificationDocumentInternal(request, logConfig);
+    }
+
+    /**
+     * Metodo privato per gestire la logica comune di download documento con log parametrizzabile e parametri raggruppati
+     */
+    private ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getNotificationDocumentInternal(
+            DocumentDownloadRequest request,
+            LogConfig logConfig
+    ) {
         InternalAttachmentWithFileKey internalAttachmentWithFileKey = new InternalAttachmentWithFileKey();
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_DOCOPEN_SND, "getSentNotificationDocument={}", docIdx)
-                .iun(iun)
+                .before(logConfig.logEventType, logConfig.logMsg, request.docIdx)
+                .iun(request.iun)
                 .build();
         logEvent.log();
         try {
-            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(request.xPagopaPnCxType.getValue(), request.xPagopaPnCxId, request.xPagopaPnUid, request.xPagopaPnCxGroups);
             internalAttachmentWithFileKey = notificationAttachmentService.downloadDocumentWithRedirectWithFileKey(
-                    iun,
+                    request.iun,
                     internalAuthHeader,
                     null,
-                    docIdx,
+                    request.docIdx,
+                    false
+            );
+            if (internalAttachmentWithFileKey == null || internalAttachmentWithFileKey.getFileKey() == null) {
+                logEvent.generateSuccess().log();
+            } else {
+                logEvent.getMdc().put(MDC_PN_CTX_SAFESTORAGE_FILEKEY, internalAttachmentWithFileKey.getFileKey());
+                logEvent.generateSuccess().log();
+            }
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("" + exc.getProblem()).log();
+            throw exc;
+        }
+        return ResponseEntity.ok(internalAttachmentWithFileKey == null ? null : internalAttachmentWithFileKey.getDownloadMetadataResponse());
+    }
+
+    /**
+         * DTO per raggruppare i parametri della richiesta di download documento
+         */
+        private record DocumentDownloadRequest(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId,
+                                               String iun, Integer docIdx, List<String> xPagopaPnCxGroups) {
+    }
+
+    /**
+         * DTO per raggruppare i parametri di logging
+         */
+        private record LogConfig(PnAuditLogEventType logEventType, String logMsg) {
+    }
+
+    private ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getInternalNotificationAttachment(
+            AttachmentDownloadRequest request,
+            LogConfig logConfig
+    ) {
+        InternalAttachmentWithFileKey internalAttachmentWithFileKey;
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(logConfig.logEventType, logConfig.logMsg, request.attachmentName, request.attachmentIdx)
+                .iun(request.iun)
+                .build();
+        logEvent.log();
+        try {
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(request.xPagopaPnCxType.getValue(), request.xPagopaPnCxId, request.xPagopaPnUid, request.xPagopaPnCxGroups);
+            internalAttachmentWithFileKey = notificationAttachmentService.downloadAttachmentWithRedirectWithFileKey(
+                    request.iun,
+                    internalAuthHeader,
+                    null,
+                    request.recipientIdx,
+                    request.attachmentName,
+                    request.attachmentIdx,
                     false
             );
             if(internalAttachmentWithFileKey == null || internalAttachmentWithFileKey.getFileKey() == null){
@@ -250,6 +318,12 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;
         }
+
         return ResponseEntity.ok( internalAttachmentWithFileKey == null ? null : internalAttachmentWithFileKey.getDownloadMetadataResponse() );
+
+    }
+
+    private record AttachmentDownloadRequest(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups,
+                                           String iun, Integer recipientIdx, String attachmentName, Integer attachmentIdx) {
     }
 }

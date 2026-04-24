@@ -14,10 +14,12 @@ import java.util.stream.IntStream;
 class IunGeneratorTest {
 
     private IunGenerator iunGenerator;
+    private InformalIunGenerator informalIunGenerator;
 
     @BeforeEach
     public void setup() {
         iunGenerator = new IunGenerator();
+        informalIunGenerator = new InformalIunGenerator();
     }
 
     public long generatePredictedIun(long numberOfTest) {
@@ -51,5 +53,11 @@ class IunGeneratorTest {
         IntStream.range(0, months ).parallel().forEach( m -> collisions.add( generatePredictedIun( notificationsByMonth ) ));
         System.out.println( collisions );
         Assertions.assertTrue( collisions.stream().reduce(0L, Long::sum) < 1 );
+    }
+
+    @Test
+    void informalVersionEndsWithCharA() {
+        String informalIun = informalIunGenerator.generatePredictedIun(Instant.now());
+        Assertions.assertTrue(informalIun.endsWith("A"));
     }
 }

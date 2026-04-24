@@ -1,9 +1,12 @@
 package it.pagopa.pn.delivery.utils;
 
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV28;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationRequestV1;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusHistoryElementV26;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementV28;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationRecipientEntity;
+import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.internal.notification.CommunicationType;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
@@ -40,6 +43,13 @@ public class ModelMapperConfig {
             return destination;
         };
 
+    static Converter<InformalNotificationRequestV1, InternalNotification> informalNotificationConverter =
+        context -> {
+            InternalNotification destination = context.getDestination();
+            destination.setCommunicationType(CommunicationType.INFORMAL);
+            return destination;
+        };
+
     @Bean
     public ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
@@ -52,6 +62,8 @@ public class ModelMapperConfig {
                 .addMapping( NotificationRecipient::getTaxId, NotificationRecipientEntity::setRecipientId );
         modelMapper.createTypeMap( NotificationRecipientEntity.class, NotificationRecipient.class )
                 .addMapping( NotificationRecipientEntity::getRecipientId, NotificationRecipient::setInternalId );
+        modelMapper.createTypeMap(InformalNotificationRequestV1.class, InternalNotification.class)
+                .setPostConverter(ModelMapperConfig.informalNotificationConverter);
         return modelMapper;
     }
 
