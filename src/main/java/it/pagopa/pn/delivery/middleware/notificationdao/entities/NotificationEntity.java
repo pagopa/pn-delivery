@@ -8,6 +8,7 @@ import it.pagopa.pn.delivery.models.internal.notification.CommunicationType;
 import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbIgnoreNulls;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
 import java.time.Instant;
@@ -63,7 +64,7 @@ public class NotificationEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_CANCELLED_IUN)})) private String cancelledIun;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_CANCELLED_BY_IUN)})) private String cancelledByIun;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SENDER_PA_ID)})) private String senderPaId;
-    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_RECIPIENTS)})) private List<NotificationRecipientEntity> recipients;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_RECIPIENTS),@DynamoDbIgnoreNulls})) private List<NotificationRecipientEntity> recipients;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_DOCUMENTS)})) private List<DocumentAttachmentEntity> documents;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_NOTIFICATION_FEE_POLICY)})) private NotificationFeePolicy notificationFeePolicy;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PHYSICAL_COMMUNICATION_TYPE)})) private FullSentNotificationV28.PhysicalCommunicationTypeEnum physicalCommunicationType;
