@@ -22,7 +22,7 @@ exports.handle = async (event) => {
     logger.info("All consents accepted successfully.");
     const headersToForward = {
        ...retrieveHeadersToForward(event.headers || {}),
-       ...retrieveAuthorizerHeaders((event.requestContext || {}).authorizer || {}  || {}))
+       ...retrieveAuthorizerHeaders((event.requestContext || {}).authorizer || {}  || {})
     };
     return deliveryResponse = await RestClient.checkQrCode(event.body, headersToForward, userInfo);
   } catch (error) {
