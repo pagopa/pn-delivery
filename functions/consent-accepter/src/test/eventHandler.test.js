@@ -20,7 +20,8 @@ describe('Consent Handler Tests', () => {
 
     utilsStub = {
       getUserInfoFromEvent: sinon.stub(),
-      retrieveHeadersToForward: sinon.stub()
+      retrieveHeadersToForward: sinon.stub(),
+      retrieveAuthorizerHeaders: sinon.stub().returns({})
     };
 
     mockCacheManagerInstance = {
@@ -52,6 +53,43 @@ describe('Consent Handler Tests', () => {
     delete process.env.CONSENTS_TO_ACCEPT;
     delete process.env.CACHE_ITEM_TTL_SECONDS;
   });
+
+  it('should merge headers from retrieveHeadersToForward and retrieveAuthorizerHeaders when calling checkQrCode', async () => {
+        const mockEvent = {
+          body: 'qrCodeData',
+          headers: { 'x-pagopa-lollipop-auth-jwt': 'jwt-token' },
+          requestContext: {
+            authorizer: {
+              name: 'Mario',
+              familyName: 'Rossi',
+              resultCode: 'L1'
+            }
+          }
+        };
+
+        const mockUserInfo = { uid: 'user123', cxType: 'PF' };
+        utilsStub.getUserInfoFromEvent.returns(mockUserInfo);
+        utilsStub.retrieveHeadersToForward.returns({ 'x-pagopa-lollipop-auth-jwt': 'jwt-token' });
+        utilsStub.retrieveAuthorizerHeaders.returns({
+          'x-pagopa-pn-name': 'Mario',
+          'x-pagopa-pn-family-name': 'Rossi',
+          'x-pagopa-pn-result-code': 'L1'
+        });
+        RestClientStub.putConsents.resolves({});
+        RestClientStub.checkQrCode.resolves({ statusCode: 200 });
+        mockCacheManagerInstance.get.returns('v1');
+
+        await handler.handle(mockEvent);
+
+        expect(utilsStub.retrieveAuthorizerHeaders.calledOnce).to.be.true;
+        expect(RestClientStub.checkQrCode.calledOnce).to.be.true;
+        expect(RestClientStub.checkQrCode.firstCall.args[1]).to.deep.equal({
+          'x-pagopa-lollipop-auth-jwt': 'jwt-token',
+          'x-pagopa-pn-name': 'Mario',
+          'x-pagopa-pn-family-name': 'Rossi',
+          'x-pagopa-pn-result-code': 'L1'
+        });
+      });
 
   describe('handle function', () => {
     it('should successfully process consents and return delivery response', async () => {
