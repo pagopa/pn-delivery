@@ -84,12 +84,16 @@ public class NotificationDaoDynamo implements NotificationDao {
 	}
 
 	private NotificationRecipient removeConfidentialInfo(NotificationRecipient recipient) {
-		return NotificationRecipient.builder()
+		NotificationRecipient.NotificationRecipientBuilder recipientEBuilder = NotificationRecipient.builder()
 				.recipientType( recipient.getRecipientType() )
 				.taxId( recipient.getTaxId() )
-				.payments( recipient.getPayments() )
-				.messageId( recipient.getMessageId() )
-				.build();
+				.payments( recipient.getPayments() );
+
+		if(Objects.nonNull(recipient.getMessageId())) {
+			recipientEBuilder.messageId( recipient.getMessageId() );
+		}
+
+		return recipientEBuilder.build();
 	}
 
 	private AnalogDomicile createAnalogDomicile(NotificationPhysicalAddress notificationPhysicalAddress ) {
