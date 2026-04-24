@@ -12,6 +12,7 @@ import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.config.PhysicalAddressLookupParameterConsumer;
 import it.pagopa.pn.delivery.config.SendActiveParameterConsumer;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
+import it.pagopa.pn.delivery.exception.PnCampaignNotFoundException;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroupStatus;
@@ -19,8 +20,12 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.nationalregistries.v1.ap
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.campaign.Campaign;
+import it.pagopa.pn.delivery.models.campaign.Message;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.pnclient.pnf24.PnF24ClientImpl;
+import it.pagopa.pn.delivery.svc.validation.context.InformalNotificationContext;
+import it.pagopa.pn.delivery.svc.validation.pipeline.ValidationPipeline;
 import it.pagopa.pn.delivery.utils.FeatureFlagUtils;
 import it.pagopa.pn.delivery.utils.NotificationDaoMock;
 import org.junit.jupiter.api.Assertions;
@@ -43,9 +48,7 @@ import java.util.*;
 
 import static it.pagopa.pn.delivery.svc.NotificationReceiverService.PA_FEE_DEFAULT_VALUE;
 import static it.pagopa.pn.delivery.svc.NotificationReceiverService.VAT_DEFAULT_VALUE;
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -92,6 +95,9 @@ class NotificationReceiverTest {
 	private AgenziaEntrateApi agenziaEntrateApi;
     private PaNotificationLimitService paNotificationLimitService;
 	private PhysicalAddressLookupParameterConsumer physicalAddressLookupParameter;
+	private CampaignService campaignService;
+	private ValidationPipeline<InformalNotificationContext> informalNotificationValidationPipeline;
+
 
 	private FeatureFlagUtils featureFlagUtils;
 
@@ -113,6 +119,8 @@ class NotificationReceiverTest {
 		paNotificationLimitService = Mockito.mock(PaNotificationLimitService.class);
 		physicalAddressLookupParameter = Mockito.mock(PhysicalAddressLookupParameterConsumer.class);
 		featureFlagUtils = Mockito.mock(FeatureFlagUtils.class);
+		campaignService = Mockito.mock(CampaignService.class);
+		informalNotificationValidationPipeline = Mockito.mock(ValidationPipeline.class);
 		// - Separate Tests
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
 		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator(), mvpParameterConsumer, validateUtils, pnDeliveryConfigs, agenziaEntrateApi, physicalAddressLookupParameter, pnExternalRegistriesClient, featureFlagUtils);
@@ -129,7 +137,10 @@ class NotificationReceiverTest {
 				pnExternalRegistriesClient,
 				pnF24Client,
 				cfg,
-				paNotificationLimitService);
+				paNotificationLimitService,
+				campaignService,
+				informalNotificationValidationPipeline
+		);
 	}
 
 	private void defaultMockConfigAndParameterForVas(){
@@ -246,7 +257,7 @@ class NotificationReceiverTest {
         deliveryService.receiveNotification(PAID, notificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY, null);
 
         // Then
-		Mockito.verify( notificationDao ).addNotification( savedNotification.capture()  );
+		Mockito.verify( notificationDao ).addNotification( savedNotification.capture() );
 	}
 
 	@Test
@@ -840,6 +851,178 @@ class NotificationReceiverTest {
 		InternalNotification capturedNotification = captor.getValue();
 		assertNotNull(capturedNotification.getUsedServices());
 		assertTrue(capturedNotification.getUsedServices().getPhysicalAddressLookup());
+	}
+
+	@Test
+	void receiveInformalNotification_success() {
+		// Given
+		InformalNotificationRequestV1 request = new InformalNotificationRequestV1();
+		request.setPaProtocolNumber("paProtocolNumber");
+		request.setCampaignId("campaignId");
+
+		Campaign campaign = Mockito.mock(Campaign.class);
+		when(campaignService.getCampaignByCampaignIdAndSenderId("campaignId", PAID)).thenReturn(campaign);
+
+		// When
+		NewInformalNotificationResponse response = deliveryService.receiveInformalNotification(
+				PAID,
+				request,
+				X_PAGOPA_PN_SRC_CH,
+				null,
+				X_PAGOPA_PN_CX_GROUPS_EMPTY,
+				null
+		);
+
+		// Then
+		assertNotNull(response);
+		verify(campaignService).getCampaignByCampaignIdAndSenderId("campaignId", PAID);
+	}
+
+	@Test
+	void receiveInformalNotification_campaignNotFound_throwsException() {
+		// Given
+		InformalNotificationRequestV1 request = new InformalNotificationRequestV1();
+		request.setPaProtocolNumber("paProtocolNumber");
+		request.setCampaignId("invalidCampaignId");
+
+		when(campaignService.getCampaignByCampaignIdAndSenderId("invalidCampaignId", PAID))
+				.thenThrow(new PnCampaignNotFoundException("Campaign not found", String.format("Campaign with campaignId=%s and senderId=%s not found", "invalidCampaignId", PAID)));
+
+		// When
+		Executable todo = () -> deliveryService.receiveInformalNotification(
+				PAID,
+				request,
+				X_PAGOPA_PN_SRC_CH,
+				null,
+				X_PAGOPA_PN_CX_GROUPS_EMPTY,
+				null
+		);
+
+		// Then
+		Assertions.assertThrows(PnCampaignNotFoundException.class, todo);
+	}
+
+	@Test
+	void receiveInformalNotification_verifySenderPaIdIsSet() {
+		// Given
+		InformalNotificationRequestV1 request = new InformalNotificationRequestV1();
+		request.setPaProtocolNumber("paProtocolNumber");
+		request.setCampaignId("campaignId");
+
+		Campaign campaign = Mockito.mock(Campaign.class);
+		when(campaignService.getCampaignByCampaignIdAndSenderId("campaignId", PAID)).thenReturn(campaign);
+
+		// When
+		deliveryService.receiveInformalNotification(
+				PAID,
+				request,
+				X_PAGOPA_PN_SRC_CH,
+				null,
+				X_PAGOPA_PN_CX_GROUPS_EMPTY,
+				null
+		);
+
+		// Then
+		ArgumentCaptor<InternalNotification> captor = ArgumentCaptor.forClass(InternalNotification.class);
+		verify(notificationDao).addNotification(captor.capture());
+		assertEquals(PAID, captor.getValue().getSenderPaId());
+		assertEquals(X_PAGOPA_PN_SRC_CH, captor.getValue().getSourceChannel());
+	}
+
+	@Test
+	void receiveInformalNotification_setMessageIdFromCampaignWhenAbsent() {
+		// Given
+		InformalNotificationRequestV1 request = new InformalNotificationRequestV1();
+		request.setPaProtocolNumber("paProtocolNumber");
+		request.setCampaignId("campaignId");
+		InformalNotificationRecipientV1 recipient = new InformalNotificationRecipientV1();
+		recipient.setTaxId("LVLDAA85T50G702B");
+		request.setRecipients(List.of(recipient));
+		// messageId not set on request
+
+		Campaign campaign = Mockito.mock(Campaign.class);
+
+		Mockito.when(campaign.getMessages()).thenReturn(List.of(Message.builder().messageId("messageFromCampaign").primaryLanguage(Message.PrimaryLanguage.IT).build()));
+		when(campaignService.getCampaignByCampaignIdAndSenderId("campaignId", PAID)).thenReturn(campaign);
+
+		// When
+		NewInformalNotificationResponse response = deliveryService.receiveInformalNotification(
+				PAID,
+				request,
+				X_PAGOPA_PN_SRC_CH,
+				null,
+				X_PAGOPA_PN_CX_GROUPS_EMPTY,
+				null
+		);
+
+		// Then
+		assertNotNull(response);
+		ArgumentCaptor<InternalNotification> captor = ArgumentCaptor.forClass(InternalNotification.class);
+		verify(notificationDao).addNotification(captor.capture());
+		String persistedMessageId = captor.getValue().getRecipients().get(0).getMessageId();
+		assertNotNull(persistedMessageId);
+		assertEquals("messageFromCampaign", persistedMessageId);
+	}
+
+	@Test
+	void receiveInformalNotification_keepExistingMessageIdWhenPresent() {
+		// Given
+		InformalNotificationRequestV1 request = new InformalNotificationRequestV1();
+		request.setPaProtocolNumber("paProtocolNumber");
+		request.setCampaignId("campaignId");
+		InformalNotificationRecipientV1 recipient = new InformalNotificationRecipientV1();
+		recipient.setTaxId("LVLDAA85T50G702B");
+		UUID messageId = UUID.randomUUID();
+		recipient.setMessageId(messageId);
+		request.setRecipients(List.of(recipient));
+
+		Campaign campaign = Mockito.mock(Campaign.class);
+		when(campaignService.getCampaignByCampaignIdAndSenderId("campaignId", PAID)).thenReturn(campaign);
+
+		// When
+		NewInformalNotificationResponse response = deliveryService.receiveInformalNotification(
+				PAID,
+				request,
+				X_PAGOPA_PN_SRC_CH,
+				null,
+				X_PAGOPA_PN_CX_GROUPS_EMPTY,
+				null
+		);
+
+		// Then
+		assertNotNull(response);
+		ArgumentCaptor<InternalNotification> captor = ArgumentCaptor.forClass(InternalNotification.class);
+		verify(notificationDao).addNotification(captor.capture());
+		String persistedMessageId = captor.getValue().getRecipients().get(0).getMessageId();
+		assertNotNull(persistedMessageId);
+		assertEquals(messageId.toString(), persistedMessageId);
+	}
+
+	@Test
+	void receiveInformalNotification_throwsErrorWhenSetMessageIdNullAndCampaignHasNoMessageId() {
+		// Given
+		InformalNotificationRequestV1 request = new InformalNotificationRequestV1();
+		request.setPaProtocolNumber("paProtocolNumber");
+		request.setCampaignId("campaignId");
+		InformalNotificationRecipientV1 recipient = new InformalNotificationRecipientV1();
+		recipient.setTaxId("LVLDAA85T50G702B");
+		request.setRecipients(List.of(recipient));
+
+		Campaign campaign = Mockito.mock(Campaign.class);
+		Mockito.when(campaign.getMessages()).thenReturn(Collections.emptyList());
+		when(campaignService.getCampaignByCampaignIdAndSenderId("campaignId", PAID)).thenReturn(campaign);
+
+		// When
+		assertThrows(PnInternalException.class, () -> deliveryService.receiveInformalNotification(
+				PAID,
+				request,
+				X_PAGOPA_PN_SRC_CH,
+				null,
+				X_PAGOPA_PN_CX_GROUPS_EMPTY,
+				null
+		));
+
+		verify(notificationDao, Mockito.never()).addNotification(Mockito.any(InternalNotification.class));
 	}
 
 	private NewNotificationRequestV25 newNotificationRequest() {

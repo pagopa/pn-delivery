@@ -4,9 +4,11 @@ package it.pagopa.pn.delivery.middleware.notificationdao.entities;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV28;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.delivery.models.NotificationLang;
+import it.pagopa.pn.delivery.models.internal.notification.CommunicationType;
 import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbIgnoreNulls;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
 import java.time.Instant;
@@ -49,6 +51,8 @@ public class NotificationEntity {
     public static final String FIELD_VAT = "vat";
     public static final String FIELD_LANG = "languages";
     public static final String USED_SERVICES = "usedServices";
+    public static final String FIELD_CAMPAIGN_ID = "campaignId";
+    public static final String FIELD_COMMUNICATION_TYPE = "communicationType";
 
 
     @Getter(onMethod=@__({@DynamoDbPartitionKey, @DynamoDbAttribute(FIELD_IUN)})) private String iun;
@@ -60,7 +64,7 @@ public class NotificationEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_CANCELLED_IUN)})) private String cancelledIun;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_CANCELLED_BY_IUN)})) private String cancelledByIun;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SENDER_PA_ID)})) private String senderPaId;
-    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_RECIPIENTS)})) private List<NotificationRecipientEntity> recipients;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_RECIPIENTS),@DynamoDbIgnoreNulls})) private List<NotificationRecipientEntity> recipients;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_DOCUMENTS)})) private List<DocumentAttachmentEntity> documents;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_NOTIFICATION_FEE_POLICY)})) private NotificationFeePolicy notificationFeePolicy;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PHYSICAL_COMMUNICATION_TYPE)})) private FullSentNotificationV28.PhysicalCommunicationTypeEnum physicalCommunicationType;
@@ -80,4 +84,6 @@ public class NotificationEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_VAT)})) private Integer vat;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_LANG)})) private List<NotificationLang> languages;
     @Getter(onMethod=@__({@DynamoDbAttribute(USED_SERVICES)})) private UsedServicesEntity usedServices;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_CAMPAIGN_ID)})) private String campaignId;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_COMMUNICATION_TYPE)})) private CommunicationType communicationType;
 }

@@ -88,6 +88,12 @@ public class PnDeliveryConfigs {
 
     private Integer maxRecipientsCount;
 
+    private Integer informalNotificationMaxRecipients;
+
+    private Integer informalNotificationMaxAttachments;
+
+    private Integer informalNotificationMaxPayments;
+
     private Integer maxAttachmentsCount;
 
     private Integer searchTimeoutSeconds;
@@ -113,11 +119,19 @@ public class PnDeliveryConfigs {
 
     private String latestNotificationVersion;
 
+    private String latestInformalNotificationVersion;
+
     private String documentNumberOfPagesTagKey;
 
     private boolean enableSenderTaxIdCongruence;
 
     private Duration infoPaCacheDuration;
+
+    private Integer maxMessageLongBodyLength;
+
+    private Integer maxMessageShortBodyLength;
+
+    private boolean informalNotificationCheckCampaignLangActive;
 
     @PostConstruct
     public void init(){

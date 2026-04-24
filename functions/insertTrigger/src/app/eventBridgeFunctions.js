@@ -4,7 +4,6 @@ const {
 } = require("@aws-sdk/client-eventbridge");
 
 const DESTINATION_ID = "pn-delivery-push";
-const MESSAGE_DETAIL = "PnDeliveryValidationOutcomeEvent";
 const EVENT_SOURCE = "eventbridge.pn-delivery.insertTrigger";
 
 const EVENT_BUS_ARN = process.env.EVENT_BUS_ENDPOINT
@@ -37,7 +36,7 @@ const sendMessages = async (messages = []) => {
         MessageDeduplicationId: messages[i].MessageDeduplicationId,
         MessageAttributes: messages[i].MessageAttributes,
       }),
-      DetailType: MESSAGE_DETAIL,
+      DetailType: getDetailTypeByNotification(oldBody.communicationType),
       Resources: [],
       Source: EVENT_SOURCE,
       EventBusName: EVENT_BUS_ARN,
@@ -60,5 +59,12 @@ const sendMessages = async (messages = []) => {
 
   return response;
 };
+
+function getDetailTypeByNotification(communicationType) {
+  if (!communicationType) {
+    return "PnDeliveryValidationOutcomeEvent";
+  }
+  return "PnDeliveryInformalValidationOutcomeEvent";
+}
 
 module.exports = { sendMessages };

@@ -63,6 +63,7 @@
     "InfoPaCacheDuration": "5m",
     "NotificationCostServiceReadTimeoutMillis": "1500",
     "NotificationCostServiceMaxRetryAttempts": "0",
-    "MetricFormatType": "EMF"
+    "MetricFormatType": "EMF",
+    "LatestInformalNotificationVersion": "1.0"
   }
 }
