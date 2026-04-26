@@ -312,7 +312,7 @@ paths:
         - $ref: '#/components/parameters/cxTypeAuthFleet'        # NO EXTERNAL
         - $ref: '#/components/parameters/cxIdAuthFleet'          # NO EXTERNAL
         - $ref: '#/components/parameters/cxGroupsAuthFleet'      # NO EXTERNAL
-        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathInformalIun'
         - $ref: '#/components/parameters/pathDocumentIdx'
       responses:
         '200':
@@ -424,7 +424,7 @@ paths:
         - $ref: '#/components/parameters/cxTypeAuthFleet' # NO EXTERNAL
         - $ref: '#/components/parameters/cxIdAuthFleet' # NO EXTERNAL
         - $ref: '#/components/parameters/cxGroupsAuthFleet' # NO EXTERNAL
-        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathInformalIun'
       responses:
         '202':
           description: Accepted - Richiesta interruzione presa in carico

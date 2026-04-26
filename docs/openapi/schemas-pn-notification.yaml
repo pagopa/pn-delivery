@@ -169,9 +169,23 @@ components:
         - taxonomyCode
       properties:
         idempotenceToken:
-          $ref: '#/components/schemas/IdempotenceToken'
+          description: >-
+            Identificativo utilizzabile dal chiamante per disambiguare differenti 
+            "richieste di notificazione" effettuate con lo stesso numero di protocollo 
+            (campo _paProtocolNumber_). Questo può essere necessario in caso di 
+            "richiesta di notifica" rifiutata per errori nei codici di verifica degli
+            allegati.
+          type: string
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 256
         paProtocolNumber:
-          $ref: '#/components/schemas/PaProtocolNumber'
+          description: >-
+            Numero di protocollo che la PA mittente assegna alla notifica stessa
+          type: string
+          # wide range of characters
+          pattern: ^.*$
+          maxLength: 256
         subject:
           type: string
           description: titolo della notifica, NON inserire dati personali/sensibili
@@ -291,17 +305,17 @@ components:
             In questo campo è possibile definire la lingua addizionale (oltre a quella italiana) da utilizzare per l'invio del messaggio sui canali configurati.<br/>
             Le lingue accettate e dunque i valori possibili degli item dell'array sono: <br/>
             - DE <br/>
-            - SI <br/>
+            - SL <br/>
             - FR <br/>
-            DE (tedesco), SI (sloveno), FR (francese)
+            DE (tedesco), SL (sloveno), FR (francese)
             Attualmente è possibile indicare un solo item e dunque una sola lingua aggiuntiva. Se non vengono indicate lingue aggiuntive la lingua utilizzata <br/>
             per l'invio del messaggio sui canali configurati sarà quella italiana. <br />
             **Coerenza con messageId:** Se viene fornito un `messageId`, il messaggio identificato deve essere associato alla lingua indicata in questo campo. <br/>
             **Coerenza con campaignId:** Se `messageId` non è presente, il sistema utilizzerà il messaggio della campagna (`campaignId`) corrispondente alla lingua indicata. Assicurarsi che tale traduzione sia stata configurata nella campagna.
           type: array
+          maxItems: 1
           items:
             type: string
-            maxItems: 1
         subject:
           type: string
           description: Oggetto della comunicazione (visibile nel riepilogo)
@@ -383,7 +397,7 @@ components:
       required: [ pagoPa ]
       properties:
         pagoPa:
-          $ref: '#/components/schemas/PagoPaPayment'
+          $ref: '#/components/schemas/PagoPaPaymentBase'
 
     NotificationAttachment:
       description: >-
@@ -503,6 +517,28 @@ components:
           $ref: '#/components/schemas/PagoPaPayment'
         f24:
           $ref: '#/components/schemas/F24Payment'
+
+    PagoPaPaymentBase:
+      title: Informazioni per effettuare il pagamento con sistema pagoPA
+      description: >-
+        Informazioni utili per effettuare il pagamento di una notifica, sono associate al
+        destinatario perché le spese di notifica possono differire a seconda del canale di
+        notifica utilizzato. <br/>
+          - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
+          - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
+          - _attachment_: riferimento al PDF contenete il bollettino pagoPA<br/>
+      type: object
+      required:
+        - noticeCode
+        - creditorTaxId
+      properties:
+        noticeCode:
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'
+        creditorTaxId:
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxId'
+        attachment:
+          $ref: "#/components/schemas/NotificationPaymentAttachment"
+
 
     PagoPaPayment:
       title: Informazioni per effettuare il pagamento con sistema pagoPA
@@ -826,10 +862,6 @@ components:
         notificationRequestId:
           $ref: '#/components/schemas/NotificationRequestId'
         paProtocolNumber:
-          type: string
-          description: Identificativo inviato dalla pubblica amministrazione
+          $ref: '#/components/schemas/PaProtocolNumber'
         idempotenceToken:
-          description: >-
-            Ripetizione del token usato per disambiguare "richieste di notificazione" 
-            effettuate con lo stesso numero di protocollo (campo _paProtocolNumber_).
-          type: string
+          $ref: '#/components/schemas/IdempotenceToken'
