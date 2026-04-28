@@ -32,12 +32,12 @@ public class InformalMessageValidator {
         var primary = request.getPrimaryMessage();
         int longBodyLen = 0;
         int shortBodyLen = 0;
-        longBodyLen += (primary.getLongBody() != null && !primary.getLongBody().isEmpty()) ? primary.getLongBody().length() : 0;
-        shortBodyLen += (primary.getShortBody() != null && !primary.getShortBody().isEmpty()) ? primary.getShortBody().length() : 0;
+        longBodyLen += primary.getLongBody().length();
+        shortBodyLen += primary.getShortBody() != null ? primary.getShortBody().length() : 0;
         if (request.getAdditionalMessage() != null) {
             var secondary = request.getAdditionalMessage();
-            longBodyLen += (secondary.getLongBody() != null && !secondary.getLongBody().isEmpty()) ? secondary.getLongBody().length() : 0;
-            shortBodyLen += (secondary.getShortBody() != null && !secondary.getShortBody().isEmpty()) ? secondary.getShortBody().length() : 0;
+            longBodyLen += secondary.getLongBody().length();
+            shortBodyLen += secondary.getShortBody() != null ? secondary.getShortBody().length() : 0;
         }
         if ((pnDeliveryConfigs.getMaxMessageLongBodyLength() != null && longBodyLen > pnDeliveryConfigs.getMaxMessageLongBodyLength()) ||
             (pnDeliveryConfigs.getMaxMessageShortBodyLength() != null && shortBodyLen > pnDeliveryConfigs.getMaxMessageShortBodyLength())) {
