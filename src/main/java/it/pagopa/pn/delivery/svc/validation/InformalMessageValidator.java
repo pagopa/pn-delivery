@@ -17,11 +17,19 @@ public class InformalMessageValidator {
             throw new PnBadRequestException("Primary message is required", "Primary message is required", PnDeliveryExceptionCodes.ERROR_CODE_INFORMAL_PRIMARY_MESSAGE_REQUIRED);
         }
         var primary = request.getPrimaryMessage();
+        validatePrimaryLanguage(primary);
+        validateAdditionalLanguage(request);
+        validateBodyLengths(request, pnDeliveryConfigs);
+    }
+
+    private static void validatePrimaryLanguage(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.LocalizedContent primary) {
         if (!"IT".equalsIgnoreCase(primary.getLanguage())) {
             throw new PnBadRequestException("Primary message language must be IT", "Primary message language must be IT", PnDeliveryExceptionCodes.ERROR_CODE_INFORMAL_PRIMARY_LANGUAGE_NOT_IT);
         }
-        validateAdditionalLanguage(request);
-        // Validazione: somma lunghezze body
+    }
+
+    private static void validateBodyLengths(NewMessageRequest request, PnDeliveryConfigs pnDeliveryConfigs) {
+        var primary = request.getPrimaryMessage();
         int longBodyLen = 0;
         int shortBodyLen = 0;
         longBodyLen += (primary.getLongBody() != null && !primary.getLongBody().isEmpty()) ? primary.getLongBody().length() : 0;
