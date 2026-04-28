@@ -118,4 +118,30 @@ class InformalMessageValidatorTest {
         req.setAdditionalMessage(secondary);
         assertDoesNotThrow(() -> InformalMessageValidator.validate(req, pnDeliveryConfigs));
     }
+
+    @Test
+    void validate_primaryShortBodyNotNull_shouldNotThrow() {
+        NewMessageRequest req = new NewMessageRequest();
+        LocalizedContent primary = new LocalizedContent();
+        primary.setLanguage("IT");
+        primary.setLongBody("test");
+        primary.setShortBody("short");
+        req.setPrimaryMessage(primary);
+        assertDoesNotThrow(() -> InformalMessageValidator.validate(req, pnDeliveryConfigs));
+    }
+
+    @Test
+    void validate_secondaryShortBodyNotNull_shouldNotThrow() {
+        NewMessageRequest req = new NewMessageRequest();
+        LocalizedContent primary = new LocalizedContent();
+        primary.setLanguage("IT");
+        primary.setLongBody("test");
+        req.setPrimaryMessage(primary);
+        LocalizedContent secondary = new LocalizedContent();
+        secondary.setLanguage("DE");
+        secondary.setLongBody("test");
+        secondary.setShortBody("short");
+        req.setAdditionalMessage(secondary);
+        assertDoesNotThrow(() -> InformalMessageValidator.validate(req, pnDeliveryConfigs));
+    }
 }
