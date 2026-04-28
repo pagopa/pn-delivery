@@ -38,7 +38,7 @@ public class InformalMessageValidator {
             shortBodyLen += primary.getShortBody().length();
         if (request.getAdditionalMessage() != null) {
             var secondary = request.getAdditionalMessage();
-            longBodyLen += secondary.getLongBody() != null ? secondary.getLongBody().length() : 0;
+            longBodyLen += (secondary.getLongBody() != null && !secondary.getLongBody().isEmpty()) ? secondary.getLongBody().length() : 0;
             if (secondary.getShortBody() != null)
                 shortBodyLen += secondary.getShortBody().length();
         }
