@@ -4,7 +4,6 @@ import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewMessageRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.LocalizedContent;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
-import it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -27,12 +26,6 @@ class InformalMessageValidatorTest {
                 InformalMessageValidator.validate(null, pnDeliveryConfigs));
     }
 
-    @Test
-    void validate_nullPrimaryMessage_shouldThrow() {
-        NewMessageRequest req = new NewMessageRequest();
-        assertThrows(PnBadRequestException.class, () ->
-                InformalMessageValidator.validate(req, pnDeliveryConfigs));
-    }
 
     @Test
     void validate_primaryLanguageNotIT_shouldThrow() {

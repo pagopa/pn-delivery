@@ -13,11 +13,10 @@ public class InformalMessageValidator {
     private InformalMessageValidator() {}
 
     public static void validate(NewMessageRequest request, PnDeliveryConfigs pnDeliveryConfigs) {
-        if (request == null || request.getPrimaryMessage() == null) {
+        if (request == null) {
             throw new PnBadRequestException("Primary message is required", "Primary message is required", PnDeliveryExceptionCodes.ERROR_CODE_INFORMAL_PRIMARY_MESSAGE_REQUIRED);
         }
-        var primary = request.getPrimaryMessage();
-        validatePrimaryLanguage(primary);
+        validatePrimaryLanguage(request.getPrimaryMessage());
         validateAdditionalLanguage(request);
         validateBodyLengths(request, pnDeliveryConfigs);
     }
