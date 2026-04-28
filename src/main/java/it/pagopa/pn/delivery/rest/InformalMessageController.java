@@ -3,7 +3,6 @@ package it.pagopa.pn.delivery.rest;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
-import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.MessageRequestDto;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.MessageResponseDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.MessagesApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CxTypeAuthFleet;
@@ -53,8 +52,7 @@ public class InformalMessageController implements MessagesApi {
                 .build();
         logEvent.log();
         try {
-            MessageRequestDto dto = InformalMessageMapper.toMs(newMessageRequest, xPagopaPnCxId);
-            MessageResponseDto result = informalMessageService.createInformalMessage(dto);
+            MessageResponseDto result = informalMessageService.createInformalMessage(newMessageRequest, xPagopaPnCxId);
             logEvent.generateSuccess("createInformalMessage", PnAuditLogEventType.AUD_COM_MSG_INSERT).log();
             return ResponseEntity.status(201).body(InformalMessageMapper.toApi(result));
         } catch (Exception ex) {

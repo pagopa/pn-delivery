@@ -1,6 +1,6 @@
 package it.pagopa.pn.delivery.rest;
 
-import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.MessageRequestDto;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewMessageRequest;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.MessageResponseDto;
 import it.pagopa.pn.delivery.svc.InformalMessageService;
 import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
@@ -50,7 +50,7 @@ class InformalMessageControllerTest {
         UUID senderId = UUID.randomUUID();
         MessageResponseDto responseDto = new MessageResponseDto();
         responseDto.setMessageId(UUID.randomUUID());
-        when(informalMessageService.createInformalMessage(any(MessageRequestDto.class))).thenReturn(responseDto);
+        when(informalMessageService.createInformalMessage(any(NewMessageRequest.class), any(String.class))).thenReturn(responseDto);
 
         String validBody = "{" +
                 "\"primaryMessage\": {" +
@@ -75,7 +75,7 @@ class InformalMessageControllerTest {
     @Test
     void testNewMessage_BadRequest() {
         UUID senderId = UUID.randomUUID();
-        when(informalMessageService.createInformalMessage(any(MessageRequestDto.class)))
+        when(informalMessageService.createInformalMessage(any(NewMessageRequest.class), any(String.class)))
                 .thenThrow(new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Primary message language must be IT"));
 
         webTestClient.post()
