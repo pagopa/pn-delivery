@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.rest;
 
+import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewMessageRequest;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.MessageResponseDto;
 import it.pagopa.pn.delivery.svc.InformalMessageService;
@@ -76,7 +77,7 @@ class InformalMessageControllerTest {
     void testNewMessage_BadRequest() {
         UUID senderId = UUID.randomUUID();
         when(informalMessageService.createInformalMessage(any(NewMessageRequest.class), any(String.class)))
-                .thenThrow(new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Primary message language must be IT"));
+                .thenThrow(new PnBadRequestException("Primary message language must be IT", "Primary message language must be IT", "PRIMARY_LANGUAGE_NOT_IT"));
 
         webTestClient.post()
                 .uri("/delivery/v1/messages")

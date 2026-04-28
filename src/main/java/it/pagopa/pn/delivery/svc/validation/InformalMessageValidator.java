@@ -22,6 +22,9 @@ public class InformalMessageValidator {
         }
         if (request.getAdditionalMessage() != null) {
             String addLang = request.getAdditionalMessage().getLanguage();
+            if (addLang != null) {
+                addLang = addLang.trim().toUpperCase();
+            }
             if (addLang == null || !LanguageUtils.isValidAdditionalLanguage(addLang)) {
                 String accepted = String.join(", ", Arrays.stream(AllowedAdditionalLanguages.values()).map(Enum::name).toArray(String[]::new));
                 throw new PnBadRequestException("Additional message language must be one of: " + accepted, "Additional message language must be one of: " + accepted, PnDeliveryExceptionCodes.ERROR_CODE_INFORMAL_INVALID_ADDITIONAL_LANGUAGE);
@@ -30,7 +33,7 @@ public class InformalMessageValidator {
         // Validazione: somma lunghezze body
         int longBodyLen = 0;
         int shortBodyLen = 0;
-        longBodyLen += primary.getLongBody() != null ? primary.getLongBody().length() : 0;
+        longBodyLen += (primary.getLongBody() != null && !primary.getLongBody().isEmpty()) ? primary.getLongBody().length() : 0;
         if (primary.getShortBody() != null)
             shortBodyLen += primary.getShortBody().length();
         if (request.getAdditionalMessage() != null) {

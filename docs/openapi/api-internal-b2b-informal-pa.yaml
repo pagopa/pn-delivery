@@ -591,9 +591,9 @@ components:
             Lingua del messaggio. Valori accettati:
             - IT <br/>
             - DE <br/>
-            - SI <br/>
+            - SL <br/>
             - FR <br/>
-            DE (tedesco), SI (sloveno), FR (francese).
+            DE (tedesco), SL (sloveno), FR (francese).
 
     NewMessageRequest:
       type: object
