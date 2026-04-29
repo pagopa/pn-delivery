@@ -21,7 +21,8 @@ public class InformalNotificationUtils {
                     if (requestedAdditionalLanguage == null) {
                         return msg.getAdditionalLanguage() == null;
                     } else {
-                        return requestedAdditionalLanguage.equals(msg.getAdditionalLanguage().name());
+                        return msg.getAdditionalLanguage() != null &&
+                                requestedAdditionalLanguage.equals(msg.getAdditionalLanguage().name());
                     }
                 })
                 .map(Message::getMessageId)
