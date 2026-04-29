@@ -1,16 +1,15 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.MessageRequestDto;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewMessageRequest;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.MessageResponseDto;
-import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.LocalizedContent;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
+import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.UUID;
 
@@ -33,55 +32,53 @@ class InformalMessageServiceTest {
 
     @Test
     void createInformalMessage_primaryLanguageNotIT_shouldThrow() {
-        MessageRequestDto req = new MessageRequestDto();
-        LocalizedContent primary = new LocalizedContent();
-        primary.setLanguage(LocalizedContent.LanguageEnum.FR);
+        NewMessageRequest req = new NewMessageRequest();
+        var primary = new it.pagopa.pn.delivery.generated.openapi.server.v1.dto.LocalizedContent();
+        primary.setLanguage("FR");
         primary.setLongBody("test");
-        req.setPrimaryContent(primary);
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> service.createInformalMessage(req));
-        assertEquals(400, ex.getStatus().value());
+        req.setPrimaryMessage(primary);
+        assertThrows(PnBadRequestException.class, () -> service.createInformalMessage(req, "senderId"));
     }
 
     @Test
     void createInformalMessage_additionalLanguageInvalid_shouldThrow() {
-        MessageRequestDto req = new MessageRequestDto();
-        LocalizedContent primary = new LocalizedContent();
-        primary.setLanguage(LocalizedContent.LanguageEnum.IT);
+        NewMessageRequest req = new NewMessageRequest();
+        var primary = new it.pagopa.pn.delivery.generated.openapi.server.v1.dto.LocalizedContent();
+        primary.setLanguage("IT");
         primary.setLongBody("test");
-        req.setPrimaryContent(primary);
-        LocalizedContent secondary = new LocalizedContent();
-        secondary.setLanguage(LocalizedContent.LanguageEnum.IT);
+        req.setPrimaryMessage(primary);
+        var secondary = new it.pagopa.pn.delivery.generated.openapi.server.v1.dto.LocalizedContent();
+        secondary.setLanguage("IT");
         secondary.setLongBody("test");
-        req.setSecondaryContent(secondary);
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> service.createInformalMessage(req));
-        assertEquals(400, ex.getStatus().value());
+        req.setAdditionalMessage(secondary);
+        assertThrows(PnBadRequestException.class, () -> service.createInformalMessage(req, "senderId"));
     }
 
     @Test
     void createInformalMessage_bodyLengthExceeded_shouldThrow() {
-        MessageRequestDto req = new MessageRequestDto();
-        LocalizedContent primary = new LocalizedContent();
-        primary.setLanguage(LocalizedContent.LanguageEnum.IT);
+        NewMessageRequest req = new NewMessageRequest();
+        var primary = new it.pagopa.pn.delivery.generated.openapi.server.v1.dto.LocalizedContent();
+        primary.setLanguage("IT");
         primary.setLongBody("a".repeat(101));
-        req.setPrimaryContent(primary);
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> service.createInformalMessage(req));
-        assertEquals(400, ex.getStatus().value());
+        req.setPrimaryMessage(primary);
+        assertThrows(PnBadRequestException.class, () -> service.createInformalMessage(req, "senderId"));
     }
 
     @Test
     void createInformalMessage_validRequest_shouldCallClient() {
-        MessageRequestDto req = new MessageRequestDto();
-        LocalizedContent primary = new LocalizedContent();
-        primary.setLanguage(LocalizedContent.LanguageEnum.IT);
+        NewMessageRequest req = new NewMessageRequest();
+        var primary = new it.pagopa.pn.delivery.generated.openapi.server.v1.dto.LocalizedContent();
+        primary.setLanguage("IT");
         primary.setLongBody("test");
-        req.setPrimaryContent(primary);
+        req.setPrimaryMessage(primary);
         when(pnDeliveryConfigs.getMaxMessageLongBodyLength()).thenReturn(100);
         when(pnDeliveryConfigs.getMaxMessageShortBodyLength()).thenReturn(100);
         MessageResponseDto resp = new MessageResponseDto();
-        when(pnDataVaultClient.createInformalMessage(req)).thenReturn(resp);
-        MessageResponseDto result = service.createInformalMessage(req);
+        // Il mock del client va fatto su qualsiasi MessageRequestDto
+        when(pnDataVaultClient.createInformalMessage(any())).thenReturn(resp);
+        MessageResponseDto result = service.createInformalMessage(req, "senderId");
         assertSame(resp, result);
-        verify(pnDataVaultClient).createInformalMessage(req);
+        verify(pnDataVaultClient).createInformalMessage(any());
     }
 
     @Test
