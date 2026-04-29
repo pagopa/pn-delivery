@@ -137,4 +137,21 @@ class InformalMessageValidatorTest {
         req.setAdditionalMessage(secondary);
         assertDoesNotThrow(() -> InformalMessageValidator.validate(req, pnDeliveryConfigs));
     }
+
+    @Test
+    void validate_primaryShortBodyPresentButSecondaryMissing_shouldThrow() {
+        NewMessageRequest req = new NewMessageRequest();
+        LocalizedContent primary = new LocalizedContent();
+        primary.setLanguage("IT");
+        primary.setLongBody("test");
+        primary.setShortBody("short");
+        req.setPrimaryMessage(primary);
+        LocalizedContent secondary = new LocalizedContent();
+        secondary.setLanguage("DE");
+        secondary.setLongBody("test");
+        secondary.setShortBody(null);
+        req.setAdditionalMessage(secondary);
+        assertThrows(PnBadRequestException.class, () ->
+        InformalMessageValidator.validate(req, pnDeliveryConfigs));
+    }
 }
