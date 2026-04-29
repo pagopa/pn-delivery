@@ -83,6 +83,20 @@ class InformalNotificationUtilsTest {
         assertEquals("message001", result.get());
     }
 
+    @Test
+    void findMessageIdWhenAdditionalLanguagesIsGivenButCampaignMessagesContainMessageWithAdditionalLanguageNull() {
+        List<String> additionalLanguages = List.of("DE");
+        List<Message> campaignMessages = List.of(
+                buildMessage("message001", null),
+                buildMessage("message002", "DE")
+        );
+
+        Optional<String> result = InformalNotificationUtils.findMessageIdInCampaign(additionalLanguages, campaignMessages);
+
+        assertTrue(result.isPresent());
+        assertEquals("message002", result.get());
+    }
+
     private Message buildMessage(String messageId, String additionalLanguage) {
         return Message.builder()
                 .messageId(messageId)
