@@ -32,11 +32,20 @@ public class InformalMessageValidator {
         int longBodyLen = 0;
         int shortBodyLen = 0;
         longBodyLen += primary.getLongBody().length();
-        shortBodyLen += primary.getShortBody() != null ? primary.getShortBody().length() : 0;
+        boolean primaryShortBodyPresent = primary.getShortBody() != null && !primary.getShortBody().isEmpty();
+        shortBodyLen += primaryShortBodyPresent ? primary.getShortBody().length() : 0;
         if (request.getAdditionalMessage() != null) {
             var secondary = request.getAdditionalMessage();
             longBodyLen += secondary.getLongBody().length();
-            shortBodyLen += secondary.getShortBody() != null ? secondary.getShortBody().length() : 0;
+            boolean secondaryShortBodyPresent = secondary.getShortBody() != null && !secondary.getShortBody().isEmpty();
+            shortBodyLen += secondaryShortBodyPresent ? secondary.getShortBody().length() : 0;
+            if (primaryShortBodyPresent && !secondaryShortBodyPresent) {
+                throw new PnBadRequestException(
+                    "Secondary message shortBody must be provided if primary shortBody is present",
+                    "Secondary message shortBody must be provided if primary shortBody is present",
+                    PnDeliveryExceptionCodes.ERROR_CODE_INFORMAL_SECONDARY_SHORT_BODY_REQUIRED
+                );
+            }
         }
         if ((pnDeliveryConfigs.getMaxMessageLongBodyLength() != null && longBodyLen > pnDeliveryConfigs.getMaxMessageLongBodyLength()) ||
             (pnDeliveryConfigs.getMaxMessageShortBodyLength() != null && shortBodyLen > pnDeliveryConfigs.getMaxMessageShortBodyLength())) {
