@@ -575,25 +575,28 @@ components:
           maxLength: 256
           description: "Titolo del messaggio (es. Oggetto della mail o intestazione IO)"
           example: "Sollecito di pagamento Tari 2023"
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
         longBody:
           type: string
           maxLength: 10000
           description: "Corpo esteso del messaggio in formato Markdown"
           example: "Gentile cittadino, la informiamo che..."
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
         shortBody:
           type: string
           maxLength: 160
           description: "Versione breve per SMS o anteprime"
           example: "Sollecito Tari: hai una nuova comunicazione da SEND."
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
         language:
           type: string
           description: >-
             Lingua del messaggio. Valori accettati:
             - IT <br/>
             - DE <br/>
-            - SI <br/>
+            - SL <br/>
             - FR <br/>
-            DE (tedesco), SI (sloveno), FR (francese).
+            DE (tedesco), SL (sloveno), FR (francese).
 
     NewMessageRequest:
       type: object
