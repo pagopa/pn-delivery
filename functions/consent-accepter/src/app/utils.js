@@ -10,7 +10,8 @@ const HEADERS_TO_RETRIEVE = [
     "x-pagopa-lollipop-user-id",
     "x-pagopa-pn-src-ch",
     "signature",
-    "signature-input"
+    "signature-input",
+    "x-pagopa-pn-result-code"
 ];
 
 function retrieveHeadersToForward(headers) {
@@ -52,7 +53,15 @@ function removeCxPrefix(cxId) {
   return cxId.replace(/^(PF|PG|PA)-/, "");
 }
 
+function retrieveAuthorizerHeaders(authorizer) {
+    return {
+        "x-pagopa-pn-name":        authorizer.name        || '',
+        "x-pagopa-pn-family-name": authorizer.familyName  || '',
+        "x-pagopa-pn-result-code": authorizer.resultCode  || ''
+    };
+}
 
 exports.getUserInfoFromEvent = getUserInfoFromEvent;
 exports.retrieveHeadersToForward = retrieveHeadersToForward;
 exports.removeCxPrefix = removeCxPrefix;
+exports.retrieveAuthorizerHeaders = retrieveAuthorizerHeaders;
