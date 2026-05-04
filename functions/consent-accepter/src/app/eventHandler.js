@@ -1,5 +1,5 @@
 const RestClient = require("./services");
-const { getUserInfoFromEvent, retrieveHeadersToForward } = require("./utils");
+const { getUserInfoFromEvent, retrieveHeadersToForward, retrieveAuthorizerHeaders } = require("./utils");
 const defaultProblem = "Error executing request";
 const CacheManager = require('./cache/CacheManager');
 const logger = require("./logger");
@@ -20,7 +20,10 @@ exports.handle = async (event) => {
     const promiseList = consentsToAccept.map(consent => acceptConsent(consent, userInfo));
     await Promise.all(promiseList);
     logger.info("All consents accepted successfully.");
-    const headersToForward = retrieveHeadersToForward(event.headers || {});
+    const headersToForward = {
+       ...retrieveHeadersToForward(event.headers || {}),
+       ...retrieveAuthorizerHeaders((event.requestContext || {}).authorizer || {}  || {})
+    };
     return deliveryResponse = await RestClient.checkQrCode(event.body, headersToForward, userInfo);
   } catch (error) {
     logger.error("Error: ", error.message);
