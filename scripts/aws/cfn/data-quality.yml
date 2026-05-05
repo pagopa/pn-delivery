@@ -20,13 +20,24 @@ Parameters:
       DynamoDb table name for pn-delivery, valorized by the related output
       in the storage.yaml template, used also for identifying the S3 bucket
       directory where related CDC files are stored.
-  
+  NotificationsCostDynamoTableName:
+    Type: String
+    Description: |
+      DynamoDb table name for pn-notifications-cost, valorized by the related output
+      in the storage.yaml template, used also for identifying the S3 bucket
+      directory where related CDC files are stored.
   NotificationsGlueTableName:
     Type: String
     AllowedPattern: '^[a-z_]+$'
     ConstraintDescription: | 
        Glue table name for pn-notifications, accept only lowercase values and underscores.
     Default: pn_nofifications
+  NotificationsCostGlueTableName:
+    Type: String
+    AllowedPattern: '^[a-z_]+$'
+    ConstraintDescription: |
+      Glue table name for pn-notifications-cost, accept only lowercase values and underscores.
+    Default: pn_notifications_cost
     
 Resources:
   PnNotificationDataQualityStack:
@@ -111,4 +122,23 @@ Resources:
             vat:struct<N:string>,
             version:struct<N:string,S:string>,
             usedServices:struct<M:struct<physicalAddressLookup:struct<BOOL:boolean>>>
+          >
+  PnNotificationsCostDataQualityStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub ${TemplateBucketBaseUrl}/fragments/cdc-glue.yaml
+      Parameters:
+        DynamoTableName: !Ref NotificationsCostDynamoTableName
+        GlueTableName: !Ref NotificationsCostGlueTableName
+        GlueServiceRoleArn: !Ref GlueServiceRoleArn
+        LogsBucketName: !Ref LogsBucketName
+        GlueDatabaseName: !Ref GlueDatabaseName
+        DynamoDBKeysStructure: |
+          struct<creditorTaxId_noticeCode:struct<S:string>>
+        DynamoDBNewImageStructure: |
+          struct<
+            creditorTaxId_noticeCode:struct<S:string>,
+            iun:struct<S:string>,
+            recipientIdx:struct<N:string>,
+            recipientType:struct<S:string>
           >
