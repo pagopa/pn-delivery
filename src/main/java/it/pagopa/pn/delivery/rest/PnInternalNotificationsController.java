@@ -124,6 +124,13 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     }
 
     @Override
+    public ResponseEntity<InformalSentNotificationV1> getSentInformalNotificationPrivateV1(String iun) {
+        InternalNotification notification = retrieveSvc.getNotificationInformation(iun, false, true);
+        InformalSentNotificationV1 informalNotification = modelMapper.map(notification, InformalSentNotificationV1.class);
+        return ResponseEntity.ok(informalNotification);
+    }
+
+    @Override
     public  ResponseEntity<NotificationSearchResponse> searchNotificationsPrivate(OffsetDateTime startDate, OffsetDateTime endDate,
                                                                                   String recipientId, Boolean recipientIdOpaque,
                                                                                   String senderId, List<NotificationStatusV26> status,
