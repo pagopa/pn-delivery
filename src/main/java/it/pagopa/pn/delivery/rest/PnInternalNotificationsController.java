@@ -127,6 +127,11 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     public ResponseEntity<InformalSentNotificationV1> getSentInformalNotificationPrivateV1(String iun) {
         InternalNotification notification = retrieveSvc.getNotificationInformation(iun, false, true);
         InformalSentNotificationV1 informalNotification = modelMapper.map(notification, InformalSentNotificationV1.class);
+        int recIdx = 0;
+        for (InformalNotificationRecipientV1 rec : informalNotification.getRecipients()) {
+            rec.setInternalId(notification.getRecipientIds().get(recIdx));
+            recIdx += 1;
+        }
         return ResponseEntity.ok(informalNotification);
     }
 

@@ -326,6 +326,19 @@ class PnInternalNotificationsControllerTest {
     }
 
     @Test
+    void getSentInformalNotificationPrivateWithInvalidIunPatternValidation() {
+        // IUN non valido rispetto al pattern OpenAPI informal
+        String invalidIun = "INVALID-IUN";
+        webTestClient.get()
+                .uri("/delivery-private/v1/notifications/informal/{iun}", invalidIun)
+                .accept(MediaType.ALL)
+                .exchange()
+                .expectStatus().isBadRequest();
+        Mockito.verify(retrieveSvc, Mockito.never())
+                .getNotificationInformation(anyString(), anyBoolean(), anyBoolean());
+    }
+
+    @Test
     void getNotificationCostSuccess(){
 
         //Given
