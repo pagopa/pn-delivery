@@ -1,4 +1,5 @@
 // converte la risposta V2.x a V1
+const { transformFromV29ToV28 } = require('./mapper/mapperV29ToV28.js');
 const { transformFromV28ToV27 } = require('./mapper/mapperV28ToV27.js');
 const { transformFromV27ToV26 } = require('./mapper/mapperV27ToV26.js');
 const { transformFromV26ToV25 } = require('./mapper/mapperV26ToV25.js');
@@ -230,7 +231,10 @@ function applyMappings(version, response) {
       transformedObject = transformFromV27ToV26(applyMappings(27, response));
       break;
     case 27:
-      transformedObject = transformFromV28ToV27(response.data);
+      transformedObject = transformFromV28ToV27(applyMappings(28, response));
+      break;
+    case 28:
+      transformedObject = transformFromV29ToV28(response.data);
       break;
   }
   return transformedObject;

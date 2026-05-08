@@ -448,13 +448,14 @@ describe("eventHandler tests", function () {
     expect(requestAcceptedElement.details.idempotenceToken).to.be.undefined;
 
 
-    // check che NON sia presente un oggetto usedServices
+    // check che NON siano presenti oggetti usedServices e priority
     expect(resJson.usedServices).to.be.undefined;
   });
 
   it("statusCode 200 v2.7", async () => {
     const notificationJSON = fs.readFileSync("./src/test/notification_reworked.json");
     let notification = JSON.parse(notificationJSON);
+    notification.priority = "HIGH";
 
     process.env = Object.assign(process.env, {
       PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
@@ -495,11 +496,13 @@ describe("eventHandler tests", function () {
       expect(el.details.legalFactId).to.be.undefined;
       expect(el.details.legalfactId).to.be.not.undefined;
     });
+    expect(resJson.priority).to.be.undefined;
   });
 
   it("statusCode 200 v1", async () => {
     const notificationJSON = fs.readFileSync("./src/test/notification.json");
     let notification = JSON.parse(notificationJSON);
+    notification.priority = "HIGH";
 
     process.env = Object.assign(process.env, {
       PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
@@ -543,6 +546,7 @@ describe("eventHandler tests", function () {
     expect(isNotificationCancelledPresent).to.be.false;
 
     expect(resJson.additionalLanguages).to.be.undefined;
+    expect(resJson.priority).to.be.undefined;
 
   });
 
