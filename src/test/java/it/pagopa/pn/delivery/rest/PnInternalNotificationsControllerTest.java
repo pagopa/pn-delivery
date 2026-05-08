@@ -32,8 +32,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 
 @WebFluxTest(controllers = {PnInternalNotificationsController.class})
 class PnInternalNotificationsControllerTest {
@@ -51,8 +50,8 @@ class PnInternalNotificationsControllerTest {
     public static final String ATTACHMENT_BODY_STR = "Body";
     public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
     private static final String FILENAME = "filename.pdf";
-    private static final String PA_TAX_ID = "77777777777";
-    private static final String NOTICE_CODE = "302000100000019421";
+    private static final String PA_TAX_ID = "77777777777"; // valore generico
+    private static final String NOTICE_CODE = "302000100000019421"; // valore generico
     private static final String ATTACHMENT_NAME = "PAGOPA";
     private static final int DOCUMENT_IDX = 0;
     public static final String AAR_QR_CODE_VALUE = "WFFNVS1ETFFILVRWTVotMjAyMjA5LVYtMV9GUk1UVFI3Nk0wNkI3MTVFXzc5ZTA3NWMwLWIzY2MtNDc0MC04MjExLTllNTBjYTU4NjIzOQ";
@@ -309,6 +308,34 @@ class PnInternalNotificationsControllerTest {
                 .exchange()
                 .expectStatus()
                 .isOk();
+    }
+
+    @Test
+    void getSentInformalNotificationPrivateWithIunPatternValidation() {
+        // IUN valido secondo pattern OpenAPI informal: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[A-Z]{1}$
+        String validIun = "ABCD-EFGH-IJKL-123456-M-N";
+        InternalNotification notification = newNotification();
+
+        Mockito.when(retrieveSvc.getNotificationInformation(anyString(), anyBoolean(), anyBoolean())).thenReturn(notification);
+
+        webTestClient.get()
+                .uri("/delivery-private/v1/notifications/informal/{iun}", validIun)
+                .accept(MediaType.ALL)
+                .exchange()
+                .expectStatus().isOk();
+    }
+
+    @Test
+    void getSentInformalNotificationPrivateWithInvalidIunPatternValidation() {
+        // IUN non valido rispetto al pattern OpenAPI informal
+        String invalidIun = "INVALID-IUN";
+        webTestClient.get()
+                .uri("/delivery-private/v1/notifications/informal/{iun}", invalidIun)
+                .accept(MediaType.ALL)
+                .exchange()
+                .expectStatus().isBadRequest();
+        Mockito.verify(retrieveSvc, Mockito.never())
+                .getNotificationInformation(anyString(), anyBoolean(), anyBoolean());
     }
 
     @Test

@@ -2,6 +2,36 @@ info:
   version: v1.0
 components:
   schemas:
+    ############################################################################################
+    ###                           COMUNICAZIONE BONARIA                                      ###
+    ############################################################################################
+    InformalSentNotificationV1:
+      description: >-
+        Le informazioni riguardanti una richiesta di notifica accettata
+      allOf:
+        - $ref: '#/components/schemas/InformalNotificationRequestV1'
+        - type: object
+          required:
+            - iun
+            - sentAt
+          properties:
+            senderPaId:
+              type: string
+              description: Identificativo (non IPA) della PA mittente che ha eseguito l'onboarding su SelfCare.
+              # wide range of characters
+              pattern: ^.*$
+              maxLength: 256
+            iun:
+              $ref: '#/components/schemas/IUN'
+            sentAt:
+              type: string
+              description: Momento di ricezione della notifica da parte di PN
+              format: date-time
+            version: # NO EXTERNAL
+              type: string                                              # NO EXTERNAL
+              description: Indica la versione della notifica            # NO EXTERNAL
+            usedServices:
+              $ref: '#/components/schemas/UsedServices'
 
     ############################################################################################
     ###                           IDENTIFICATIVI DELLE NOTIFICHE                             ###
