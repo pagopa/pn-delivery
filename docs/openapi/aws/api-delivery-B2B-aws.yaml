@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: NEP5pNQNJEMNL7VfPKtJ204GJD7wx6ibH7E+nl+5WGI=
+  version: 92La2AD9yrURhO+fcUVXq+pgFUHMp8zsR2xJb1gLjWw=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2761,7 +2761,12 @@ components:
         senderDenomination:
           $ref: '#/components/schemas/Denomination'
         senderTaxId:
-          $ref: '#/components/schemas/paTaxId'
+          description: Sender PA fiscal code
+          example: '77777777777'
+          type: string
+          maxLength: 11
+          minLength: 11
+          pattern: ^\d+$
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
