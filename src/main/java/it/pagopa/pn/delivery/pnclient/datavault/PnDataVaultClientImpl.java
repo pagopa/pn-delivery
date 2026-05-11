@@ -1,6 +1,9 @@
 package it.pagopa.pn.delivery.pnclient.datavault;
 
+import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.log.PnLogger;
+import it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes;
+import it.pagopa.pn.delivery.exception.PnDeliveryMessageNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.api.MessagesApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.api.NotificationsApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.api.RecipientsApi;
@@ -11,6 +14,7 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.Messa
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.MessageResponseDto;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -52,6 +56,17 @@ public class PnDataVaultClientImpl {
 
     public MessageResponseDto getInformalMessageById(UUID messageId, UUID senderId) {
         log.logInvokingExternalService(PnLogger.EXTERNAL_SERVICES.PN_DATA_VAULT, "getInformalMessageById");
-        return messagesApi.getMessageById(messageId, senderId);
+        try {
+            return messagesApi.getMessageById(messageId, senderId);
+        } catch (Exception exception) {
+            if (exception instanceof PnHttpResponseException pnHttpResponseException
+                    && pnHttpResponseException.getStatusCode() == HttpStatus.NOT_FOUND.value()) {
+                log.error("Message with messageId {} and senderId {} not mismatch or does not exist", messageId, senderId);
+                throw new PnDeliveryMessageNotFoundException("Mismatch fields or is not existent"
+                        , "MessageId does not belong to the requesting senderId or does not exist",
+                        PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_MESSAGE_NOT_FOUND);
+            }
+            throw exception;
+        }
     }
 }

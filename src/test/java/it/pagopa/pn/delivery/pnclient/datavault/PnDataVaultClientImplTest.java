@@ -7,6 +7,8 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
+import it.pagopa.pn.delivery.exception.PnDeliveryMessageNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.api.MessagesApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.api.NotificationsApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.api.RecipientsApi;
@@ -133,6 +135,53 @@ class PnDataVaultClientImplTest {
         when(messagesApi.getMessageById(messageId, senderId)).thenReturn(response);
         MessageResponseDto result = pnDataVaultClientImpl.getInformalMessageById(messageId, senderId);
         assertSame(response, result);
+        verify(messagesApi).getMessageById(messageId, senderId);
+    }
+
+    /**
+     * Method under test: {@link PnDataVaultClientImpl#getInformalMessageById(UUID, UUID)} when 404 is thrown
+     */
+    @Test
+    void testGetInformalMessageById_Throws404Exception() {
+        UUID messageId = UUID.randomUUID();
+        UUID senderId = UUID.randomUUID();
+
+        PnHttpResponseException httpException = new PnHttpResponseException(
+                "Not Found",
+                404
+        );
+
+        when(messagesApi.getMessageById(messageId, senderId))
+                .thenThrow(httpException);
+
+        PnDeliveryMessageNotFoundException exception = org.junit.jupiter.api.Assertions.assertThrows(
+                PnDeliveryMessageNotFoundException.class,
+                () -> pnDataVaultClientImpl.getInformalMessageById(messageId, senderId)
+        );
+
+        assertEquals("Mismatch fields or is not existent", exception.getMessage());
+        verify(messagesApi).getMessageById(messageId, senderId);
+    }
+
+    /**
+     * Method under test: {@link PnDataVaultClientImpl#getInformalMessageById(UUID, UUID)} when non-404 exception is thrown
+     */
+    @Test
+    void testGetInformalMessageById_ThrowsGenericException() {
+        UUID messageId = UUID.randomUUID();
+        UUID senderId = UUID.randomUUID();
+
+        RuntimeException genericException = new RuntimeException("Generic error");
+
+        when(messagesApi.getMessageById(messageId, senderId))
+                .thenThrow(genericException);
+
+        RuntimeException exception = org.junit.jupiter.api.Assertions.assertThrows(
+                RuntimeException.class,
+                () -> pnDataVaultClientImpl.getInformalMessageById(messageId, senderId)
+        );
+
+        assertEquals("Generic error", exception.getMessage());
         verify(messagesApi).getMessageById(messageId, senderId);
     }
 }
