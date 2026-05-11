@@ -147,7 +147,7 @@ describe("eventHandler tests", function () {
         let notificationRequestStatusV21 = JSON.parse(notificationRequestStatusJSON);
 
         process.env = Object.assign(process.env, {
-            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery/v2.1/",
+            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery/v2.1",
         });
         
         let url = `${process.env.PN_DELIVERY_URL}/requests?`;
@@ -184,7 +184,7 @@ describe("eventHandler tests", function () {
         let notificationRequestStatusV24 = JSON.parse(notificationRequestStatusJSON);
 
         process.env = Object.assign(process.env, {
-            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery/v2.3/",
+            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery/v2.3",
         });
         
         let url = `${process.env.PN_DELIVERY_URL}/requests?`;
@@ -220,7 +220,7 @@ describe("eventHandler tests", function () {
         let notificationRequestStatusV24 = JSON.parse(notificationRequestStatusJSON);
 
         process.env = Object.assign(process.env, {
-            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery/v2.4/",
+            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery/v2.4",
         });
         
         let url = `${process.env.PN_DELIVERY_URL}/requests?`;
@@ -256,7 +256,7 @@ describe("eventHandler tests", function () {
         let notificationRequestStatusV26 = JSON.parse(notificationRequestStatusJSON);
 
         process.env = Object.assign(process.env, {
-            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery/v2.6/",
+            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery/v2.6",
         });
 
         let url = `${process.env.PN_DELIVERY_URL}/requests?`;
@@ -290,7 +290,7 @@ describe("eventHandler tests", function () {
         let notificationRequestStatusV26 = JSON.parse(notificationRequestStatusJSON);
 
         process.env = Object.assign(process.env, {
-            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery/v2.6/",
+            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery/v2.6",
         });
 
         let url = `${process.env.PN_DELIVERY_URL}/requests?`;
@@ -325,7 +325,7 @@ describe("eventHandler tests", function () {
             let notificationRequestStatusV25 = JSON.parse(notificationRequestStatusJSON);
 
             process.env = Object.assign(process.env, {
-                PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery/v2.5/",
+                PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery/v2.5",
             });
 
             let url = `${process.env.PN_DELIVERY_URL}/requests?`;
