@@ -48,6 +48,7 @@ public class NotificationEntity {
     public static final String FIELD_SOURCE_CHANNEL_DETAILS = "sourceChannelDetails";
     public static final String FIELD_VERSION = "version";
     public static final String FIELD_PA_FEE = "paFee";
+    public static final String PRIORITY = "priority";
     public static final String FIELD_VAT = "vat";
     public static final String FIELD_LANG = "languages";
     public static final String USED_SERVICES = "usedServices";
@@ -81,6 +82,7 @@ public class NotificationEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SOURCE_CHANNEL_DETAILS)})) private String sourceChannelDetails;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_VERSION)})) private String version;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PA_FEE)})) private Integer paFee;
+    @Getter(onMethod=@__({@DynamoDbAttribute(PRIORITY)})) private Integer priority;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_VAT)})) private Integer vat;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_LANG)})) private List<NotificationLang> languages;
     @Getter(onMethod=@__({@DynamoDbAttribute(USED_SERVICES)})) private UsedServicesEntity usedServices;
