@@ -55,6 +55,12 @@ public class InformalMessageValidator {
                     "Secondary shortBody required if primary present",
                     PnDeliveryExceptionCodes.ERROR_CODE_INFORMAL_SECONDARY_SHORT_BODY_REQUIRED
                 );
+            } else if (!primaryShortBodyPresent && secondaryShortBodyPresent) {
+                throw new PnBadRequestException(
+                        "Primary message shortBody must be provided if secondary shortBody is present",
+                        "Primary shortBody required if secondary present",
+                        PnDeliveryExceptionCodes.ERROR_CODE_INFORMAL_PRIMARY_SHORT_BODY_REQUIRED
+                );
             }
         }
         if ((pnDeliveryConfigs.getMaxMessageLongBodyLength() != null && longBodyLen > pnDeliveryConfigs.getMaxMessageLongBodyLength()) ||
