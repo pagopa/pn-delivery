@@ -159,7 +159,7 @@ class PnDataVaultClientImplTest {
                 () -> pnDataVaultClientImpl.getInformalMessageById(messageId, senderId)
         );
 
-        assertEquals("Mismatch fields or is not existent", exception.getMessage());
+        assertEquals("Message does not match the senderId or was not found", exception.getMessage());
         verify(messagesApi).getMessageById(messageId, senderId);
     }
 
