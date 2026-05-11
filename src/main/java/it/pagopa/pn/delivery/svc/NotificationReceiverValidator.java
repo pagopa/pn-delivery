@@ -88,8 +88,8 @@ public class NotificationReceiverValidator {
     }
 
 
-    public void checkNewNotificationRequestBeforeInsertAndThrow(NewNotificationRequestV25 newNotificationRequestV2, String paId) {
-        Set<ConstraintViolation<NewNotificationRequestV25>> errors = checkNewNotificationRequestBeforeInsert(newNotificationRequestV2, paId);
+    public void checkNewNotificationRequestBeforeInsertAndThrow(NewNotificationRequestV26 newNotificationRequestV2, String paId) {
+        Set<ConstraintViolation<NewNotificationRequestV26>> errors = checkNewNotificationRequestBeforeInsert(newNotificationRequestV2, paId);
         if (Boolean.TRUE.equals(mvpParameterConsumer.isMvp(newNotificationRequestV2.getSenderTaxId())) && errors.isEmpty()) {
             errors = checkNewNotificationRequestForMVP(newNotificationRequestV2);
         }
@@ -103,7 +103,7 @@ public class NotificationReceiverValidator {
         checkSenderTaxIdCongruence(newNotificationRequestV2,paId);
     }
 
-    private void checkSenderTaxIdCongruence(NewNotificationRequestV25 newNotificationRequestV2, String paId){
+    private void checkSenderTaxIdCongruence(NewNotificationRequestV26 newNotificationRequestV2, String paId){
         if(pnDeliveryConfigs.isEnableSenderTaxIdCongruence()){
             PaInfo paInfo = pnExternalRegistriesClient.getOnePa(paId);
             if (paInfo == null || !StringUtils.hasText(paInfo.getTaxId())) {
@@ -133,36 +133,36 @@ public class NotificationReceiverValidator {
                 .anyMatch(lang::equals);
     }
 
-    protected Set<ConstraintViolation<NewNotificationRequestV25>> checkNewNotificationRequestBeforeInsert(NewNotificationRequestV25 newNotificationRequestV25, String paId) {
-        Set<ConstraintViolation<NewNotificationRequestV25>> errors = new HashSet<>();
+    protected Set<ConstraintViolation<NewNotificationRequestV26>> checkNewNotificationRequestBeforeInsert(NewNotificationRequestV26 NewNotificationRequestV26, String paId) {
+        Set<ConstraintViolation<NewNotificationRequestV26>> errors = new HashSet<>();
 
         boolean physicalAddressLookup = checkPhysicalAddressLookupIsEnabled(paId);
 
         // check del numero massimo di documenti allegati
-        if (pnDeliveryConfigs.getMaxAttachmentsCount() > 0 && newNotificationRequestV25.getDocuments().size() > pnDeliveryConfigs.getMaxAttachmentsCount()) {
-            ConstraintViolationImpl<NewNotificationRequestV25> constraintViolation = new ConstraintViolationImpl<>("Max attachment count reached");
+        if (pnDeliveryConfigs.getMaxAttachmentsCount() > 0 && NewNotificationRequestV26.getDocuments().size() > pnDeliveryConfigs.getMaxAttachmentsCount()) {
+            ConstraintViolationImpl<NewNotificationRequestV26> constraintViolation = new ConstraintViolationImpl<>("Max attachment count reached");
             errors.add(constraintViolation);
             return errors;
         }
 
         // check del numero massimo di recipient
-        if (pnDeliveryConfigs.getMaxRecipientsCount() > 0 && newNotificationRequestV25.getRecipients().size() > pnDeliveryConfigs.getMaxRecipientsCount()) {
-            ConstraintViolationImpl<NewNotificationRequestV25> constraintViolation = new ConstraintViolationImpl<>("Max recipient count reached");
+        if (pnDeliveryConfigs.getMaxRecipientsCount() > 0 && NewNotificationRequestV26.getRecipients().size() > pnDeliveryConfigs.getMaxRecipientsCount()) {
+            ConstraintViolationImpl<NewNotificationRequestV26> constraintViolation = new ConstraintViolationImpl<>("Max recipient count reached");
             errors.add(constraintViolation);
             return errors;
         }
 
         // check campi paFee e vat per notifiche DELIVERY_MODE
-        if ( newNotificationRequestV25.getNotificationFeePolicy().equals(NotificationFeePolicy.DELIVERY_MODE) &&
-                (Objects.isNull(newNotificationRequestV25.getPaFee()) || Objects.isNull(newNotificationRequestV25.getVat()))) {
-            ConstraintViolationImpl<NewNotificationRequestV25> constraintViolation = new ConstraintViolationImpl<>("paFee or vat field not filled in for notification with notificationFeePolicy DELIVERY_MODE");
+        if ( NewNotificationRequestV26.getNotificationFeePolicy().equals(NotificationFeePolicy.DELIVERY_MODE) &&
+                (Objects.isNull(NewNotificationRequestV26.getPaFee()) || Objects.isNull(NewNotificationRequestV26.getVat()))) {
+            ConstraintViolationImpl<NewNotificationRequestV26> constraintViolation = new ConstraintViolationImpl<>("paFee or vat field not filled in for notification with notificationFeePolicy DELIVERY_MODE");
             errors.add( constraintViolation );
         }
 
         int recIdx = 0;
         Set<String> distinctTaxIds = new HashSet<>();
         Set<String> distinctIuvs = new HashSet<>();
-        for (NotificationRecipientV24 recipient : newNotificationRequestV25.getRecipients()) {
+        for (NotificationRecipientV24 recipient : NewNotificationRequestV26.getRecipients()) {
 
             // limitazione temporanea: destinatari PG possono avere solo TaxId numerico
             onlyNumericalTaxIdForPGV2(errors, recIdx, recipient);
@@ -170,7 +170,7 @@ public class NotificationReceiverValidator {
             //Check taxId
             errors.addAll(checkTaxId(recipient, distinctTaxIds, recIdx));
 
-            boolean isNotificationFeePolicyDeliveryMode = newNotificationRequestV25.getNotificationFeePolicy().equals(NotificationFeePolicy.DELIVERY_MODE);
+            boolean isNotificationFeePolicyDeliveryMode = NewNotificationRequestV26.getNotificationFeePolicy().equals(NotificationFeePolicy.DELIVERY_MODE);
             if(recipient.getPayments() != null) {
                 errors.addAll(checkApplyCost(isNotificationFeePolicyDeliveryMode, recipient.getPayments()));
                 errors.addAll(checkIuvs(recipient.getPayments(), distinctIuvs, recIdx));
@@ -188,17 +188,17 @@ public class NotificationReceiverValidator {
             recIdx++;
         }
 
-        if (!hasDistinctAttachments(newNotificationRequestV25)) {
-            ConstraintViolationImpl<NewNotificationRequestV25> constraintViolation = new ConstraintViolationImpl<>("Same attachment compares more then once in the same request");
+        if (!hasDistinctAttachments(NewNotificationRequestV26)) {
+            ConstraintViolationImpl<NewNotificationRequestV26> constraintViolation = new ConstraintViolationImpl<>("Same attachment compares more then once in the same request");
             errors.add(constraintViolation);
         }
 
-        errors.addAll(validator.validate( newNotificationRequestV25 ));
+        errors.addAll(validator.validate( NewNotificationRequestV26 ));
         return errors;
     }
 
-    private Set <ConstraintViolation<NewNotificationRequestV25>> checkPaymentAttachmentExtension(List<NotificationPaymentItem> payments) {
-        Set<ConstraintViolation<NewNotificationRequestV25>> violations = new HashSet<>();
+    private Set <ConstraintViolation<NewNotificationRequestV26>> checkPaymentAttachmentExtension(List<NotificationPaymentItem> payments) {
+        Set<ConstraintViolation<NewNotificationRequestV26>> violations = new HashSet<>();
         for (NotificationPaymentItem paymentItem : payments) {
             // Verifica per pagamenti F24
             if (paymentItem.getF24() != null) {
@@ -214,40 +214,40 @@ public class NotificationReceiverValidator {
         return violations;
     }
 
-    private void checkContentType(String contentType, String key, Set<ConstraintViolation<NewNotificationRequestV25>> violations) {
+    private void checkContentType(String contentType, String key, Set<ConstraintViolation<NewNotificationRequestV26>> violations) {
         if (APPLICATION_PDF_CONTENT_TYPE.equalsIgnoreCase(contentType) && (!key.contains(PN_NOTIFICATION_ATTACHMENTS) || key.endsWith(EXTENSION_JSON) )) {
-            ConstraintViolationImpl<NewNotificationRequestV25> violation = new ConstraintViolationImpl<>(String.format("Key: %s does not conform to the expected content type: %s", key, contentType));
+            ConstraintViolationImpl<NewNotificationRequestV26> violation = new ConstraintViolationImpl<>(String.format("Key: %s does not conform to the expected content type: %s", key, contentType));
             violations.add(violation);
         }
         if (APPLICATION_JSON_CONTENT_TYPE.equalsIgnoreCase(contentType) && (!key.contains(PN_F24_META) || key.endsWith(EXTENSION_PDF))) {
-            ConstraintViolationImpl<NewNotificationRequestV25> violation = new ConstraintViolationImpl<>(String.format("Key: %s does not conform to the expected content type: %s", key, contentType));
+            ConstraintViolationImpl<NewNotificationRequestV26> violation = new ConstraintViolationImpl<>(String.format("Key: %s does not conform to the expected content type: %s", key, contentType));
             violations.add(violation);
         }
     }
 
     /**
-     * Validazio di NotificationRecipientV24 per verificare il taxId e la sua univocità
+     * Validazione di NotificationRecipientV24 per verificare il taxId e la sua univocità
      * @param recipient
      * @return
      */
-    protected Set<ConstraintViolation<NewNotificationRequestV25>> checkTaxId(NotificationRecipientV24 recipient, Set<String> distinctTaxIds, int recIdx){
+    protected Set<ConstraintViolation<NewNotificationRequestV26>> checkTaxId(NotificationRecipientV24 recipient, Set<String> distinctTaxIds, int recIdx){
 
-        Set<ConstraintViolation<NewNotificationRequestV25>> errors = new HashSet<>();
+        Set<ConstraintViolation<NewNotificationRequestV26>> errors = new HashSet<>();
         boolean isPF = NotificationRecipientV24.RecipientTypeEnum.PF.getValue().equals(recipient.getRecipientType().getValue());
         boolean skipCheckTaxIdInBlackList = pnDeliveryConfigs.isSkipCheckTaxIdInBlackList();
 
         if( !validateUtils.validate(recipient.getTaxId(), isPF, false, skipCheckTaxIdInBlackList)) {
-            ConstraintViolationImpl<NewNotificationRequestV25> constraintViolation = new ConstraintViolationImpl<>( "Invalid taxId for recipient " + recIdx );
+            ConstraintViolationImpl<NewNotificationRequestV26> constraintViolation = new ConstraintViolationImpl<>( "Invalid taxId for recipient " + recIdx );
             errors.add(constraintViolation);
         }else{
             if(pnDeliveryConfigs.isEnableTaxIdExternalValidation() && !callAdeCheckTaxId(recipient.getTaxId(), recIdx)){
-                ConstraintViolationImpl<NewNotificationRequestV25> constraintViolation = new ConstraintViolationImpl<>("Invalid taxId for recipient " + recIdx);
+                ConstraintViolationImpl<NewNotificationRequestV26> constraintViolation = new ConstraintViolationImpl<>("Invalid taxId for recipient " + recIdx);
                 errors.add(constraintViolation);
             }
         }
 
         if ( !distinctTaxIds.add( recipient.getTaxId() )){
-            ConstraintViolationImpl<NewNotificationRequestV25> constraintViolation = new ConstraintViolationImpl<>( "Duplicated recipient taxId" );
+            ConstraintViolationImpl<NewNotificationRequestV26> constraintViolation = new ConstraintViolationImpl<>( "Duplicated recipient taxId" );
             errors.add(constraintViolation);
         }
 
@@ -256,11 +256,11 @@ public class NotificationReceiverValidator {
 
 
     /**
-     * Validazio di NewNotificationRequestV25 per verificare l'assenza di duplicati tra gli allegati
+     * Validazione di NewNotificationRequestV26 per verificare l'assenza di duplicati tra gli allegati
      * @param newNotificationRequest
      * @return
      */
-    protected boolean hasDistinctAttachments(NewNotificationRequestV25 newNotificationRequest){
+    protected boolean hasDistinctAttachments(NewNotificationRequestV26 newNotificationRequest){
         Set<String> uniqueIds = new HashSet<>();
 
         for (NotificationDocument doc : emptyIfNull(newNotificationRequest.getDocuments())) {
@@ -306,12 +306,12 @@ public class NotificationReceiverValidator {
         return list == null ? Collections.<T>emptyList() : list;
     }
 
-    protected Set<ConstraintViolation<NewNotificationRequestV25>> checkPhysicalAddress(NotificationPhysicalAddress physicalAddress, int recIdx) {
+    protected Set<ConstraintViolation<NewNotificationRequestV26>> checkPhysicalAddress(NotificationPhysicalAddress physicalAddress, int recIdx) {
 
-        Set<ConstraintViolation<NewNotificationRequestV25>> errors = new HashSet<>();
+        Set<ConstraintViolation<NewNotificationRequestV26>> errors = new HashSet<>();
 
         if(physicalAddress == null){
-            ConstraintViolationImpl<NewNotificationRequestV25> constraintViolation = new ConstraintViolationImpl<>("PhysicalAddress cannot be null");
+            ConstraintViolationImpl<NewNotificationRequestV26> constraintViolation = new ConstraintViolationImpl<>("PhysicalAddress cannot be null");
             errors.add(constraintViolation);
             return errors;
         }
@@ -333,12 +333,12 @@ public class NotificationReceiverValidator {
             Stream.of(address, addressDetails, province, foreignState, at, zip, municipality, municipalityDetails)
                     .filter(field -> field.getValue() != null &&
                             (!field.getValue().matches("[" + this.pnDeliveryConfigs.getPhysicalAddressValidationPattern() + "]*")))
-                    .map(field -> new ConstraintViolationImpl<NewNotificationRequestV25>(String.format("Field %s in recipient %s contains invalid characters.", field.getKey(), recIdx)))
+                    .map(field -> new ConstraintViolationImpl<NewNotificationRequestV26>(String.format("Field %s in recipient %s contains invalid characters.", field.getKey(), recIdx)))
                     .forEach(errors::add);
 
             Stream.of(row2, addressDetails, address, row5, foreignState)
                     .filter(field -> field.getValue() != null && field.getValue().trim().length() > this.pnDeliveryConfigs.getPhysicalAddressValidationLength() )
-                    .map(field -> new ConstraintViolationImpl<NewNotificationRequestV25>(String.format("Field %s in recipient %s exceed max length of %s chars", field.getKey(), recIdx, this.pnDeliveryConfigs.getPhysicalAddressValidationLength())))
+                    .map(field -> new ConstraintViolationImpl<NewNotificationRequestV26>(String.format("Field %s in recipient %s exceed max length of %s chars", field.getKey(), recIdx, this.pnDeliveryConfigs.getPhysicalAddressValidationLength())))
                     .forEach(errors::add);
 
         }
@@ -347,9 +347,9 @@ public class NotificationReceiverValidator {
 
     }
 
-    protected Set<ConstraintViolation<NewNotificationRequestV25>> checkDenomination(NotificationRecipientV24 recipient, int recIdx) {
+    protected Set<ConstraintViolation<NewNotificationRequestV26>> checkDenomination(NotificationRecipientV24 recipient, int recIdx) {
 
-        Set<ConstraintViolation<NewNotificationRequestV25>> errors = new HashSet<>();
+        Set<ConstraintViolation<NewNotificationRequestV26>> errors = new HashSet<>();
 
         Pair<String, String> denomination = Pair.of("denomination", recipient.getDenomination());
         ArrayList<Pair<String, String>> fieldsToCheck = new ArrayList<>();
@@ -365,7 +365,7 @@ public class NotificationReceiverValidator {
         if(this.pnDeliveryConfigs.getDenominationLength() != null && this.pnDeliveryConfigs.getDenominationLength() != 0){
             fieldsToCheck.stream()
                     .filter(field -> field.getValue() != null && field.getValue().trim().length() > this.pnDeliveryConfigs.getDenominationLength() )
-                    .map(field -> new ConstraintViolationImpl<NewNotificationRequestV25>(String.format("Field %s in recipient %s exceed max length of %s chars", field.getKey(), recIdx, this.pnDeliveryConfigs.getDenominationLength())))
+                    .map(field -> new ConstraintViolationImpl<NewNotificationRequestV26>(String.format("Field %s in recipient %s exceed max length of %s chars", field.getKey(), recIdx, this.pnDeliveryConfigs.getDenominationLength())))
                     .forEach(errors::add);
         }
 
@@ -380,7 +380,7 @@ public class NotificationReceiverValidator {
             log.info("Check denomination/at with validation type {}",denominationValidationType);
             fieldsToCheck.stream()
                     .filter(field -> filterDenomination(field,regex,excludeCharacterRegex))
-                    .map(field -> new ConstraintViolationImpl<NewNotificationRequestV25>(String.format("Field %s in recipient %s contains invalid characters.", field.getKey(), recIdx)))
+                    .map(field -> new ConstraintViolationImpl<NewNotificationRequestV26>(String.format("Field %s in recipient %s contains invalid characters.", field.getKey(), recIdx)))
                     .forEach(errors::add);
         }
 
@@ -412,9 +412,9 @@ public class NotificationReceiverValidator {
                 || (excludeCharacterRegex != null && (!field.getValue().matches(excludeCharacterRegex))));
     }
 
-    private Set<ConstraintViolation<NewNotificationRequestV25>> checkApplyCost(boolean isNotificationFeePolicyDeliveryMode, List<NotificationPaymentItem> payments){
+    private Set<ConstraintViolation<NewNotificationRequestV26>> checkApplyCost(boolean isNotificationFeePolicyDeliveryMode, List<NotificationPaymentItem> payments){
 
-        Set<ConstraintViolation<NewNotificationRequestV25>> errors = new HashSet<>();
+        Set<ConstraintViolation<NewNotificationRequestV26>> errors = new HashSet<>();
 
         int pagoPAPaymentsCounter = 0;
         int f24PaymentsCounter = 0;
@@ -436,7 +436,7 @@ public class NotificationReceiverValidator {
                 }
 
                 if(!StringUtils.hasText(paymentInfo.getF24().getTitle())){
-                    ConstraintViolationImpl<NewNotificationRequestV25> constraintViolation = new ConstraintViolationImpl<>("F24 description is mandatory");
+                    ConstraintViolationImpl<NewNotificationRequestV26> constraintViolation = new ConstraintViolationImpl<>("F24 description is mandatory");
                     errors.add(constraintViolation);
                 }
             }
@@ -448,30 +448,30 @@ public class NotificationReceiverValidator {
         return errors;
     }
 
-    private void checkApplyCost(int pagoPAApplyCostFlgCount, int f24ApplyCostFlgCount, boolean notificationHasPagoPaPayments, boolean notificationHasF24Payments, boolean isNotificationFeePolicyDeliveryMode, Set<ConstraintViolation<NewNotificationRequestV25>> errors) {
+    private void checkApplyCost(int pagoPAApplyCostFlgCount, int f24ApplyCostFlgCount, boolean notificationHasPagoPaPayments, boolean notificationHasF24Payments, boolean isNotificationFeePolicyDeliveryMode, Set<ConstraintViolation<NewNotificationRequestV26>> errors) {
         if (isNotificationFeePolicyDeliveryMode) {
             if (notificationHasPagoPaPayments && pagoPAApplyCostFlgCount == 0) {
-                ConstraintViolationImpl<NewNotificationRequestV25> constraintViolation = new ConstraintViolationImpl<>("PagoPA applyCostFlg must be valorized for at least one payment");
+                ConstraintViolationImpl<NewNotificationRequestV26> constraintViolation = new ConstraintViolationImpl<>("PagoPA applyCostFlg must be valorized for at least one payment");
                 errors.add(constraintViolation);
             }
             if (notificationHasF24Payments && f24ApplyCostFlgCount == 0) {
-                ConstraintViolationImpl<NewNotificationRequestV25> constraintViolation = new ConstraintViolationImpl<>("F24 applyCostFlg must be valorized for at least one payment");
+                ConstraintViolationImpl<NewNotificationRequestV26> constraintViolation = new ConstraintViolationImpl<>("F24 applyCostFlg must be valorized for at least one payment");
                 errors.add(constraintViolation);
             }
         } else {
             if (pagoPAApplyCostFlgCount != 0) {
-                ConstraintViolationImpl<NewNotificationRequestV25> constraintViolation = new ConstraintViolationImpl<>("PagoPA applyCostFlg must not be valorized for any payment");
+                ConstraintViolationImpl<NewNotificationRequestV26> constraintViolation = new ConstraintViolationImpl<>("PagoPA applyCostFlg must not be valorized for any payment");
                 errors.add(constraintViolation);
             }
             if (f24ApplyCostFlgCount != 0) {
-                ConstraintViolationImpl<NewNotificationRequestV25> constraintViolation = new ConstraintViolationImpl<>("F24 applyCostFlg must not be valorized for any payment");
+                ConstraintViolationImpl<NewNotificationRequestV26> constraintViolation = new ConstraintViolationImpl<>("F24 applyCostFlg must not be valorized for any payment");
                 errors.add(constraintViolation);
             }
         }
     }
 
-    public Set<ConstraintViolation<NewNotificationRequestV25>> checkIuvs(List<NotificationPaymentItem> payments, Set<String> iuvSet, int recIdx) {
-        Set<ConstraintViolation<NewNotificationRequestV25>> errors = new HashSet<>();
+    public Set<ConstraintViolation<NewNotificationRequestV26>> checkIuvs(List<NotificationPaymentItem> payments, Set<String> iuvSet, int recIdx) {
+        Set<ConstraintViolation<NewNotificationRequestV26>> errors = new HashSet<>();
         int paymIdx = 0;
         for (NotificationPaymentItem payment : payments) {
             if(payment.getPagoPa() != null) {
@@ -479,7 +479,7 @@ public class NotificationReceiverValidator {
 
                 if ( !iuvSet.add( iuv ) ) {
                     String errorMsg = String.format("Duplicated iuv { %s } on recipient with index %s in payment with index %s", iuv, recIdx, paymIdx);
-                    ConstraintViolationImpl<NewNotificationRequestV25> constraintViolation = new ConstraintViolationImpl<>(errorMsg);
+                    ConstraintViolationImpl<NewNotificationRequestV26> constraintViolation = new ConstraintViolationImpl<>(errorMsg);
                     errors.add(constraintViolation);
                 }
             }
@@ -503,10 +503,10 @@ public class NotificationReceiverValidator {
     }
 
 
-    private static void onlyNumericalTaxIdForPGV2(Set<ConstraintViolation<NewNotificationRequestV25>> errors, int recIdx, NotificationRecipientV24 recipient) {
+    private static void onlyNumericalTaxIdForPGV2(Set<ConstraintViolation<NewNotificationRequestV26>> errors, int recIdx, NotificationRecipientV24 recipient) {
         if (NotificationRecipientV24.RecipientTypeEnum.PG.equals(recipient.getRecipientType()) &&
                 (!recipient.getTaxId().matches("^\\d+$"))) {
-            ConstraintViolationImpl<NewNotificationRequestV25> constraintViolation = new ConstraintViolationImpl<>("SEND accepts only numerical taxId for PG recipient " + recIdx);
+            ConstraintViolationImpl<NewNotificationRequestV26> constraintViolation = new ConstraintViolationImpl<>("SEND accepts only numerical taxId for PG recipient " + recIdx);
             errors.add(constraintViolation);
         }
     }
@@ -533,11 +533,11 @@ public class NotificationReceiverValidator {
     }
 
 
-    private static void checkProvinceV2(Set<ConstraintViolation<NewNotificationRequestV25>> errors, NotificationPhysicalAddress physicalAddress) {
+    private static void checkProvinceV2(Set<ConstraintViolation<NewNotificationRequestV26>> errors, NotificationPhysicalAddress physicalAddress) {
         if (Objects.nonNull(physicalAddress) &&
                 (!StringUtils.hasText(physicalAddress.getForeignState()) || physicalAddress.getForeignState().toUpperCase().trim().startsWith("ITAL")) &&
                 !StringUtils.hasText(physicalAddress.getProvince())) {
-            ConstraintViolationImpl<NewNotificationRequestV25> constraintViolation = new ConstraintViolationImpl<>("No province provided in physical address");
+            ConstraintViolationImpl<NewNotificationRequestV26> constraintViolation = new ConstraintViolationImpl<>("No province provided in physical address");
             errors.add(constraintViolation);
         }
     }
@@ -550,17 +550,17 @@ public class NotificationReceiverValidator {
                         activePAsForPhysicalAddressLookup.contains(paId));
     }
 
-    public Set<ConstraintViolation<NewNotificationRequestV25>> checkNewNotificationRequestForMVP(NewNotificationRequestV25 newNotificationRequestV2) {
-        Set<ConstraintViolation<NewNotificationRequestV25>> errors = new HashSet<>();
+    public Set<ConstraintViolation<NewNotificationRequestV26>> checkNewNotificationRequestForMVP(NewNotificationRequestV26 newNotificationRequestV2) {
+        Set<ConstraintViolation<NewNotificationRequestV26>> errors = new HashSet<>();
 
         if (newNotificationRequestV2.getRecipients().size() > 1) {
-            ConstraintViolationImpl<NewNotificationRequestV25> constraintViolation = new ConstraintViolationImpl<>("Max one recipient");
+            ConstraintViolationImpl<NewNotificationRequestV26> constraintViolation = new ConstraintViolationImpl<>("Max one recipient");
             errors.add(constraintViolation);
         }
 
         List<NotificationPaymentItem> payment = newNotificationRequestV2.getRecipients().get(0).getPayments();
         if (Objects.isNull(payment) || payment.isEmpty()) {
-            ConstraintViolationImpl<NewNotificationRequestV25> constraintViolation = new ConstraintViolationImpl<>("No recipient payment");
+            ConstraintViolationImpl<NewNotificationRequestV26> constraintViolation = new ConstraintViolationImpl<>("No recipient payment");
             errors.add(constraintViolation);
         }
         return errors;
