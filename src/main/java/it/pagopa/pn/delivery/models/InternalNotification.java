@@ -254,6 +254,16 @@ public class InternalNotification {
         return this;
     }
 
+    /**
+     * @return priority
+     */
+    public Integer getPriority() {
+        return priority;
+    }
+    public void setPriority(Integer priority) {
+        this.priority = priority;
+    }
+
     public InternalNotification paymentExpirationDate(String paymentExpirationDate) {
         this.paymentExpirationDate = paymentExpirationDate;
         return this;

@@ -48,7 +48,7 @@ public class NotificationEntity {
     public static final String FIELD_SOURCE_CHANNEL_DETAILS = "sourceChannelDetails";
     public static final String FIELD_VERSION = "version";
     public static final String FIELD_PA_FEE = "paFee";
-    public static final String PRIORITY = "priority";
+    public static final String FIELD_PRIORITY = "priority";
     public static final String FIELD_VAT = "vat";
     public static final String FIELD_LANG = "languages";
     public static final String USED_SERVICES = "usedServices";
