@@ -61,8 +61,8 @@ public class PnDataVaultClientImpl {
         } catch (Exception exception) {
             if (exception instanceof PnHttpResponseException pnHttpResponseException
                     && pnHttpResponseException.getStatusCode() == HttpStatus.NOT_FOUND.value()) {
-                log.error("Message with messageId {} and senderId {} not mismatch or does not exist", messageId, senderId);
-                throw new PnDeliveryMessageNotFoundException("Mismatch fields or is not existent"
+                log.error("Message with messageId {} and senderId {} does not match the senderId or was not found", messageId, senderId);
+                throw new PnDeliveryMessageNotFoundException("Message does not match the senderId or was not found"
                         , "MessageId does not belong to the requesting senderId or does not exist",
                         PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_MESSAGE_NOT_FOUND);
             }
