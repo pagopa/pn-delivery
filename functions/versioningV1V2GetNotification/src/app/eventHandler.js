@@ -93,6 +93,10 @@ exports.versioning = async (event, context) => {
     version = 27;
   }
 
+  if (event["path"].startsWith("/delivery/v2.8/")) {
+    version = 28;
+  }
+
   const headers = JSON.parse(JSON.stringify(event["headers"]));
   headers["x-pagopa-pn-src-ch"] = "B2B";
 
