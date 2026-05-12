@@ -24,11 +24,9 @@ public class SendInformalNotificationActiveValidator {
     }
 
     private void checkErrorList(ArrayList<ProblemError> errors) {
-        errors.stream()
-                .findFirst()
-                .ifPresent(r -> {
-                    throw new ValidationException(errors, "Validazione authorization non riuscita", HttpStatus.FORBIDDEN);
-                });
+        if (!errors.isEmpty()) {
+            throw new ValidationException(errors, "Validazione authorization non riuscita", HttpStatus.FORBIDDEN);
+        }
     }
 
     private void checkIfCxIdIsMvp(String xPagopaPnCxId, ArrayList<ProblemError> errors) {
