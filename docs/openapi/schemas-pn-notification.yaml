@@ -291,8 +291,6 @@ components:
       properties:
         senderDenomination:
           $ref: '#/components/schemas/Denomination'
-        senderTaxId:
-          $ref: '#/components/schemas/paTaxId'
         paProtocolNumber:
           $ref: '#/components/schemas/PaProtocolNumber'
         idempotenceToken:

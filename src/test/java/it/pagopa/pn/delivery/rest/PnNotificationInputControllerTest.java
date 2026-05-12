@@ -709,7 +709,6 @@ class PnNotificationInputControllerTest {
 		return InformalNotificationRequestV1.builder()
 				.group( "group" )
 				.senderDenomination( "Comune di Milano" )
-				.senderTaxId( "01199250158" )
 				.paProtocolNumber( "protocol_number" )
 				.campaignId( "campaignId" )
 				.recipients( Collections.singletonList( InformalNotificationRecipientV1.builder()
