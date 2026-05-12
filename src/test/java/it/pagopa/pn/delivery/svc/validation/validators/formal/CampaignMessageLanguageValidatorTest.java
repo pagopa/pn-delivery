@@ -18,19 +18,9 @@ import static it.pagopa.pn.delivery.svc.validation.validators.ValidatorTestSuppo
 import static org.assertj.core.api.Assertions.assertThat;
 
 class CampaignMessageLanguageValidatorTest {
-
-    @Test
-    void shouldReturnSuccessWhenFeatureIsDisabled() {
-        CampaignMessageLanguageValidator validator = new CampaignMessageLanguageValidator(false);
-
-        ValidationResult result = validator.validate(informalContext(buildNotification(List.of("SL"), null), campaign(Message.AdditionalLanguage.DE)));
-
-        assertSuccess(result);
-    }
-
     @Test
     void shouldThrowExceptionWhenCampaignIsMissing() {
-        CampaignMessageLanguageValidator validator = new CampaignMessageLanguageValidator(true);
+        CampaignMessageLanguageValidator validator = new CampaignMessageLanguageValidator();
         InternalNotification notification = buildNotification(List.of("SL"), null);
         InformalNotificationContext context = informalContext(notification, null);
         Assertions.assertThrows(PnInternalException.class, () -> validator.validate(context));
@@ -38,7 +28,7 @@ class CampaignMessageLanguageValidatorTest {
 
     @Test
     void shouldReturnSuccessWhenNotificationHasAllRecipientsWithMessageId() {
-        CampaignMessageLanguageValidator validator = new CampaignMessageLanguageValidator(true);
+        CampaignMessageLanguageValidator validator = new CampaignMessageLanguageValidator();
         InternalNotification notification = buildNotification(List.of("DE"), buildRecipients(true));
         ValidationResult result = validator.validate(informalContext(notification, campaign(Message.AdditionalLanguage.DE, Message.AdditionalLanguage.FR)));
 
@@ -47,7 +37,7 @@ class CampaignMessageLanguageValidatorTest {
 
     @Test
     void shouldReturnSuccessWhenRequestedLanguageIsPresentInCampaign() {
-        CampaignMessageLanguageValidator validator = new CampaignMessageLanguageValidator(true);
+        CampaignMessageLanguageValidator validator = new CampaignMessageLanguageValidator();
         InternalNotification notification = buildNotification(List.of("DE"), buildRecipients(false));
 
         ValidationResult result = validator.validate(informalContext(notification, campaign(Message.AdditionalLanguage.DE, Message.AdditionalLanguage.FR)));
@@ -57,7 +47,7 @@ class CampaignMessageLanguageValidatorTest {
 
     @Test
     void shouldReturnErrorWhenRecipientHasNotMessageIdButCampaignHasNoMessages() {
-        CampaignMessageLanguageValidator validator = new CampaignMessageLanguageValidator(true);
+        CampaignMessageLanguageValidator validator = new CampaignMessageLanguageValidator();
         InternalNotification notification = buildNotification(List.of("SL"), buildRecipients(false));
         ValidationResult result = validator.validate(informalContext(notification, new Campaign()));
 
@@ -68,7 +58,7 @@ class CampaignMessageLanguageValidatorTest {
 
     @Test
     void shouldReturnErrorWhenRequestedLanguageIsMissingFromCampaign() {
-        CampaignMessageLanguageValidator validator = new CampaignMessageLanguageValidator(true);
+        CampaignMessageLanguageValidator validator = new CampaignMessageLanguageValidator();
         InternalNotification notification = buildNotification(List.of("SL"), buildRecipients(false));
         ValidationResult result = validator.validate(informalContext(notification, campaign(Message.AdditionalLanguage.DE, Message.AdditionalLanguage.FR)));
 

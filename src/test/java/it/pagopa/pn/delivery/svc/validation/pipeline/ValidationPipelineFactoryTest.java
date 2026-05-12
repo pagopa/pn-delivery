@@ -6,19 +6,7 @@ import it.pagopa.pn.delivery.svc.validation.validators.BusinessValidator;
 import it.pagopa.pn.delivery.svc.validation.validators.FormalValidator;
 import it.pagopa.pn.delivery.svc.validation.validators.authorization.SendInformalNotificationActiveValidator;
 import it.pagopa.pn.delivery.svc.validation.validators.authorization.SenderTaxIdCongruenceValidator;
-import it.pagopa.pn.delivery.svc.validation.validators.formal.AdditionalLanguageFormalValidator;
-import it.pagopa.pn.delivery.svc.validation.validators.formal.CampaignMessageLanguageValidator;
-import it.pagopa.pn.delivery.svc.validation.validators.formal.DenominationAndAtValidator;
-import it.pagopa.pn.delivery.svc.validation.validators.formal.GroupValidator;
-import it.pagopa.pn.delivery.svc.validation.validators.formal.MaxAttachmentsSizeValidator;
-import it.pagopa.pn.delivery.svc.validation.validators.formal.MaxPaymentsSizeValidator;
-import it.pagopa.pn.delivery.svc.validation.validators.formal.MaxRecipientsSizeValidator;
-import it.pagopa.pn.delivery.svc.validation.validators.formal.PaymentAttachmentValidator;
-import it.pagopa.pn.delivery.svc.validation.validators.formal.PgTaxIdValidator;
-import it.pagopa.pn.delivery.svc.validation.validators.formal.PhysicalAddressValidator;
-import it.pagopa.pn.delivery.svc.validation.validators.formal.ProvinceRequiredValidator;
-import it.pagopa.pn.delivery.svc.validation.validators.formal.RecipientTaxIdSyntaxValidator;
-import it.pagopa.pn.delivery.svc.validation.validators.formal.UniqueAttachmentsValidator;
+import it.pagopa.pn.delivery.svc.validation.validators.formal.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -38,7 +26,6 @@ class ValidationPipelineFactoryTest {
     private static final Integer MAX_ATTACHMENTS_COUNT = 5;
     private static final Integer MAX_PAYMENT_NUMBER = 3;
     private static final Integer MAX_RECIPIENTS_COUNT = 2;
-    private static final boolean CAMPAIGN_LANG_CHECK_ACTIVE = true;
     private static final boolean PHYSICAL_ADDRESS_VALIDATION_ACTIVE = true;
     private static final Integer PHYSICAL_ADDRESS_VALIDATION_LENGTH = 44;
     private static final String PHYSICAL_ADDRESS_VALIDATION_PATTERN = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ./ '-";
@@ -78,7 +65,6 @@ class ValidationPipelineFactoryTest {
         when(cfg.getInformalNotificationMaxAttachments()).thenReturn(MAX_ATTACHMENTS_COUNT);
         when(cfg.getInformalNotificationMaxPayments()).thenReturn(MAX_PAYMENT_NUMBER);
         when(cfg.getInformalNotificationMaxRecipients()).thenReturn(MAX_RECIPIENTS_COUNT);
-        when(cfg.isInformalNotificationCheckCampaignLangActive()).thenReturn(CAMPAIGN_LANG_CHECK_ACTIVE);
         when(cfg.isPhysicalAddressValidation()).thenReturn(PHYSICAL_ADDRESS_VALIDATION_ACTIVE);
         when(cfg.getPhysicalAddressValidationLength()).thenReturn(PHYSICAL_ADDRESS_VALIDATION_LENGTH);
         when(cfg.getPhysicalAddressValidationPattern()).thenReturn(PHYSICAL_ADDRESS_VALIDATION_PATTERN);
@@ -146,8 +132,6 @@ class ValidationPipelineFactoryTest {
         assertThat(formalValidators.get(10)).isSameAs(provinceRequiredValidator);
         assertThat(formalValidators.get(12)).isSameAs(uniqueAttachmentsValidator);
 
-        CampaignMessageLanguageValidator campaignMessageLanguageValidator =
-                (CampaignMessageLanguageValidator) formalValidators.get(3);
         DenominationAndAtValidator denominationAndAtValidator =
                 (DenominationAndAtValidator) formalValidators.get(11);
         MaxAttachmentsSizeValidator maxAttachmentsSizeValidator =
@@ -156,12 +140,6 @@ class ValidationPipelineFactoryTest {
                 (MaxPaymentsSizeValidator) formalValidators.get(7);
         MaxRecipientsSizeValidator maxRecipientsSizeValidator =
                 (MaxRecipientsSizeValidator) formalValidators.get(1);
-        PhysicalAddressValidator physicalAddressValidator =
-                (PhysicalAddressValidator) formalValidators.get(9);
-
-
-        assertThat(ReflectionTestUtils.getField(campaignMessageLanguageValidator, "isInformalNotificationCheckCampaignLangActive"))
-                .isEqualTo(CAMPAIGN_LANG_CHECK_ACTIVE);
 
         assertThat(ReflectionTestUtils.getField(denominationAndAtValidator, "denominationLength"))
                 .isEqualTo(DENOMINATION_LENGTH);
