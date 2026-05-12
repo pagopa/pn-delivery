@@ -363,6 +363,7 @@ paths:
 
   "/delivery/v2.4/requests":
     post:
+      deprecated: true
       summary: Richiesta invio notifica
       description: |-
         Operazione utilizzata dalla Pubblica Amministrazione per richiedere l'invio di una notifica.
@@ -434,6 +435,7 @@ paths:
     ###########################################################################################
 
     get:
+      deprecated: true
       operationId: getNotificationRequestStatusV24                       # NO EXTERNAL
 #      operationId: retrieveNotificationRequestStatusV24                 # ONLY EXTERNAL
       x-pagopa-lambda-name: 'pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live'
@@ -461,6 +463,128 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/NewNotificationRequestStatusResponseV24"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  "/delivery/v2.5/requests":
+    post:
+      deprecated: true
+      summary: EXPERIMENTAL - Richiesta invio notifica
+      description: |-
+        (EXPERIMENTAL)
+        Operazione utilizzata dalla Pubblica Amministrazione per richiedere l'invio di una notifica.
+
+        La restituzione di uno stato HTTP 202 significa solo che la richiesta è sintatticamente
+        valida, non che la richiesta sia stata validata ed accettata. <br/>
+        Per conoscere lo stato di accettazione della richiesta di notifica bisogna utilizzare l'operazione
+        _getNotificationRequestStatus_ oppure utilizzare la modalità push prevista dai webhook. <br/>
+
+        <details no-external>
+        <summary><b> Attributi progettazione di alto livello </b></summary>
+        | Proprietà                | Valore             |
+        | -----------------------: | :----------------- |
+        | __Intended usage__       | B2B, WEB           |
+        | __Modalità interazione__ | Sincrona           |
+        | __TPS (stimato)__        | 5 richieste/sec    |
+        | __Idempotenza__          | No                 |
+        | __Read/Write intensive__ | Write              |
+        | __Cachable__             | No                 |
+        </details>
+      tags:
+        - NewNotification
+      operationId: sendNewNotificationV25
+      x-pagopa-lambda-name: 'pn-delivery-versioning-v1v21-sendnewnotification-lambda:live'
+      x-pagopa-lambda-account: core
+      parameters: # NO EXTERNAL
+        - $ref: '#/components/parameters/uidAuthFleet'                # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'             # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'               # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'           # NO EXTERNAL
+        - $ref: '#/components/parameters/headerSourceChannel'         # NO EXTERNAL
+        - $ref: '#/components/parameters/headerSourceChannelDetails'  # NO EXTERNAL
+        - $ref: '#/components/parameters/headerNotificationVersion'   # NO EXTERNAL
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas-pn-notification-older-version.yaml#/components/schemas/NewNotificationRequestV25"
+        required: true
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewNotificationResponse"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+    ###########################################################################################
+    ###                        VERIFICA STATO RICHIESTE DI NOTIFICA                         ###
+    ###########################################################################################
+
+    get:
+      deprecated: true
+      operationId: getNotificationRequestStatusV25                       # NO EXTERNAL
+#      operationId: retrieveNotificationRequestStatusV25                 # ONLY EXTERNAL
+      x-pagopa-lambda-name: 'pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live'
+      x-pagopa-lambda-account: core
+      tags:
+        - SenderReadB2B
+      summary: EXPERIMENTAL - Verifica accettazione richiesta notifica
+      description: >-
+        (EXPERIMENTAL)
+        Questa operazione serve per verificare se la richiesta di notifica è stata accettata e ottenere
+        lo IUN associato a tale richiesta. <br/>
+        Bisogna specificare il parametro _requestId_ oppure la coppia costituita dai parametri 
+        _paProtocolNumber_ e _idempotenceToken_. <br/>
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'             # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
+        - $ref: '#/components/parameters/notificationRequestId'
+        - $ref: '#/components/parameters/paProtocolNumber'
+        - $ref: '#/components/parameters/idempotenceToken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas-pn-notification-older-version.yaml#/components/schemas/NewNotificationRequestStatusResponseV25"
         '400':
           description: Bad request
           content:
@@ -875,6 +999,56 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/FullSentNotificationV27"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  "/delivery/v2.8/notifications/sent/{iun}":
+    get:
+      deprecated: true
+      summary: 'Mittente: lettura dettagli notifica versione 2'
+      description: |-
+        Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
+        
+        <details no-external>
+        <summary><b> Attributi progettazione di alto livello </b></summary>
+        | Proprietà                | Valore             |
+        | -----------------------: | :----------------- |
+        | __Intended usage__       | B2B, WEB           |
+        | __Modalità interazione__ | Sincrona           |
+        | __TPS (stimato)__        |                    |
+        | __Idempotenza__          | Si                 |
+        | __Read/Write intensive__ | Read               |
+        | __Cachable__             | No                 |
+        </details>
+      tags:
+        - SenderReadB2B
+      operationId: getSentNotificationV28                                    # NO EXTERNAL
+#      operationId: retrieveSentNotificationV28                                # ONLY EXTERNAL
+      x-pagopa-lambda-name: 'pn-delivery-versioning-v1v2-getnotification-lambda:live'
+      x-pagopa-lambda-account: core
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'           # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'       # NO EXTERNAL
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
+      responses:
+        '200':
+          description: OK
+          content:
+            "application/json":
+              schema:
+                $ref: "./schemas-pn-notification-older-version.yaml#/components/schemas/FullSentNotificationV28"
         '400':
           description: Bad request
           content:
