@@ -115,8 +115,13 @@ class ValidationPipelineFactoryTest {
     void buildInformalPipelineShouldPropagateDependenciesAndConfigurationToCreatedValidators() {
         ValidationPipeline<?> pipeline = buildInformalPipeline();
 
-        getValidators(pipeline, "authorizationValidators");
+        List<AuthorizationValidator<?>> authorizationValidators = getValidators(pipeline, "authorizationValidators");
         List<FormalValidator<?>> formalValidators = getValidators(pipeline, "formalValidators");
+
+        assertThat(authorizationValidators)
+                .hasSize(1)
+                .first()
+                .isInstanceOf(SenderTaxIdCongruenceValidator.class);
 
         assertThat(formalValidators.get(2)).isSameAs(additionalLanguageFormalValidator);
         assertThat(formalValidators.get(4)).isSameAs(groupValidator);
