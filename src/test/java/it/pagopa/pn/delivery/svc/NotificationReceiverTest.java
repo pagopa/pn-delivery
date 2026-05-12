@@ -26,6 +26,7 @@ import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesCli
 import it.pagopa.pn.delivery.pnclient.pnf24.PnF24ClientImpl;
 import it.pagopa.pn.delivery.svc.validation.context.InformalNotificationContext;
 import it.pagopa.pn.delivery.svc.validation.pipeline.ValidationPipeline;
+import it.pagopa.pn.delivery.svc.validation.validators.authorization.SendInformalNotificationActiveValidator;
 import it.pagopa.pn.delivery.utils.FeatureFlagUtils;
 import it.pagopa.pn.delivery.utils.NotificationDaoMock;
 import org.junit.jupiter.api.Assertions;
@@ -97,6 +98,7 @@ class NotificationReceiverTest {
 	private PhysicalAddressLookupParameterConsumer physicalAddressLookupParameter;
 	private CampaignService campaignService;
 	private ValidationPipeline<InformalNotificationContext> informalNotificationValidationPipeline;
+	private SendInformalNotificationActiveValidator sendInformalNotificationActiveValidator;
 
 
 	private FeatureFlagUtils featureFlagUtils;
@@ -121,6 +123,7 @@ class NotificationReceiverTest {
 		featureFlagUtils = Mockito.mock(FeatureFlagUtils.class);
 		campaignService = Mockito.mock(CampaignService.class);
 		informalNotificationValidationPipeline = Mockito.mock(ValidationPipeline.class);
+		sendInformalNotificationActiveValidator = Mockito.mock(SendInformalNotificationActiveValidator.class);
 		// - Separate Tests
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
 		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator(), mvpParameterConsumer, validateUtils, pnDeliveryConfigs, agenziaEntrateApi, physicalAddressLookupParameter, pnExternalRegistriesClient, featureFlagUtils);
@@ -139,7 +142,8 @@ class NotificationReceiverTest {
 				cfg,
 				paNotificationLimitService,
 				campaignService,
-				informalNotificationValidationPipeline
+				informalNotificationValidationPipeline,
+				sendInformalNotificationActiveValidator
 		);
 	}
 
@@ -861,8 +865,8 @@ class NotificationReceiverTest {
 		request.setCampaignId("campaignId");
 
 		Campaign campaign = Mockito.mock(Campaign.class);
+		doNothing().when(sendInformalNotificationActiveValidator).validate(PAID);
 		when(campaignService.getCampaignByCampaignIdAndSenderId("campaignId", PAID)).thenReturn(campaign);
-
 		// When
 		NewInformalNotificationResponse response = deliveryService.receiveInformalNotification(
 				PAID,
@@ -875,9 +879,46 @@ class NotificationReceiverTest {
 
 		// Then
 		assertNotNull(response);
+		verify(sendInformalNotificationActiveValidator).validate(PAID);
 		verify(campaignService).getCampaignByCampaignIdAndSenderId("campaignId", PAID);
 	}
 
+	@Test
+	void receiveInformalNotification_senderNotEnabled_throwsException() {
+		// Given
+		InformalNotificationRequestV1 request = new InformalNotificationRequestV1();
+		request.setPaProtocolNumber("paProtocolNumber");
+		request.setCampaignId("campaignId");
+
+		doThrow(new it.pagopa.pn.delivery.exception.ValidationException(
+				List.of(it.pagopa.pn.commons.exceptions.dto.ProblemError.builder()
+						.code("PN_DELIVERY_SEND_IS_DISABLED")
+						.detail("Piattaforma Notifiche non è abilitata alla comunicazione di notifiche bonarie")
+						.build()),
+				"Validazione authorization non riuscita",
+				org.springframework.http.HttpStatus.FORBIDDEN
+		)).when(sendInformalNotificationActiveValidator).validate(PAID);
+
+		// When & Then
+		it.pagopa.pn.delivery.exception.ValidationException exception = assertThrows(
+				it.pagopa.pn.delivery.exception.ValidationException.class,
+				() -> deliveryService.receiveInformalNotification(
+						PAID,
+						request,
+						X_PAGOPA_PN_SRC_CH,
+						null,
+						X_PAGOPA_PN_CX_GROUPS_EMPTY,
+						null
+				)
+		);
+
+		assertEquals(1, exception.getProblem().getErrors().size());
+		assertEquals("PN_DELIVERY_SEND_IS_DISABLED", exception.getProblem().getErrors().get(0).getCode());
+		assertEquals("Piattaforma Notifiche non è abilitata alla comunicazione di notifiche bonarie",
+				exception.getProblem().getErrors().get(0).getDetail());
+		verify(sendInformalNotificationActiveValidator).validate(PAID);
+		verify(campaignService, never()).getCampaignByCampaignIdAndSenderId(anyString(), anyString());
+	}
 	@Test
 	void receiveInformalNotification_campaignNotFound_throwsException() {
 		// Given
@@ -885,6 +926,7 @@ class NotificationReceiverTest {
 		request.setPaProtocolNumber("paProtocolNumber");
 		request.setCampaignId("invalidCampaignId");
 
+		doNothing().when(sendInformalNotificationActiveValidator).validate(PAID);
 		when(campaignService.getCampaignByCampaignIdAndSenderId("invalidCampaignId", PAID))
 				.thenThrow(new PnCampaignNotFoundException("Campaign not found", String.format("Campaign with campaignId=%s and senderId=%s not found", "invalidCampaignId", PAID)));
 
@@ -900,6 +942,7 @@ class NotificationReceiverTest {
 
 		// Then
 		Assertions.assertThrows(PnCampaignNotFoundException.class, todo);
+		verify(sendInformalNotificationActiveValidator).validate(PAID);
 	}
 
 	@Test
@@ -910,6 +953,7 @@ class NotificationReceiverTest {
 		request.setCampaignId("campaignId");
 
 		Campaign campaign = Mockito.mock(Campaign.class);
+		doNothing().when(sendInformalNotificationActiveValidator).validate(PAID);
 		when(campaignService.getCampaignByCampaignIdAndSenderId("campaignId", PAID)).thenReturn(campaign);
 
 		// When
@@ -927,6 +971,7 @@ class NotificationReceiverTest {
 		verify(notificationDao).addNotification(captor.capture());
 		assertEquals(PAID, captor.getValue().getSenderPaId());
 		assertEquals(X_PAGOPA_PN_SRC_CH, captor.getValue().getSourceChannel());
+		verify(sendInformalNotificationActiveValidator).validate(PAID);
 	}
 
 	@Test
@@ -941,7 +986,7 @@ class NotificationReceiverTest {
 		// messageId not set on request
 
 		Campaign campaign = Mockito.mock(Campaign.class);
-
+		doNothing().when(sendInformalNotificationActiveValidator).validate(PAID);
 		Mockito.when(campaign.getMessages()).thenReturn(List.of(Message.builder().messageId("messageFromCampaign").primaryLanguage(Message.PrimaryLanguage.IT).build()));
 		when(campaignService.getCampaignByCampaignIdAndSenderId("campaignId", PAID)).thenReturn(campaign);
 
@@ -962,6 +1007,7 @@ class NotificationReceiverTest {
 		String persistedMessageId = captor.getValue().getRecipients().get(0).getMessageId();
 		assertNotNull(persistedMessageId);
 		assertEquals("messageFromCampaign", persistedMessageId);
+		verify(sendInformalNotificationActiveValidator).validate(PAID);
 	}
 
 	@Test
@@ -977,6 +1023,7 @@ class NotificationReceiverTest {
 		request.setRecipients(List.of(recipient));
 
 		Campaign campaign = Mockito.mock(Campaign.class);
+		doNothing().when(sendInformalNotificationActiveValidator).validate(PAID);
 		when(campaignService.getCampaignByCampaignIdAndSenderId("campaignId", PAID)).thenReturn(campaign);
 
 		// When
@@ -996,6 +1043,7 @@ class NotificationReceiverTest {
 		String persistedMessageId = captor.getValue().getRecipients().get(0).getMessageId();
 		assertNotNull(persistedMessageId);
 		assertEquals(messageId.toString(), persistedMessageId);
+		verify(sendInformalNotificationActiveValidator).validate(PAID);
 	}
 
 	@Test
@@ -1009,6 +1057,7 @@ class NotificationReceiverTest {
 		request.setRecipients(List.of(recipient));
 
 		Campaign campaign = Mockito.mock(Campaign.class);
+		doNothing().when(sendInformalNotificationActiveValidator).validate(PAID);
 		Mockito.when(campaign.getMessages()).thenReturn(Collections.emptyList());
 		when(campaignService.getCampaignByCampaignIdAndSenderId("campaignId", PAID)).thenReturn(campaign);
 
@@ -1023,6 +1072,7 @@ class NotificationReceiverTest {
 		));
 
 		verify(notificationDao, Mockito.never()).addNotification(Mockito.any(InternalNotification.class));
+		verify(sendInformalNotificationActiveValidator).validate(PAID);
 	}
 
 	private NewNotificationRequestV25 newNotificationRequest() {

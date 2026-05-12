@@ -26,6 +26,7 @@ import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesCli
 import it.pagopa.pn.delivery.pnclient.pnf24.PnF24ClientImpl;
 import it.pagopa.pn.delivery.svc.validation.context.InformalNotificationContext;
 import it.pagopa.pn.delivery.svc.validation.pipeline.ValidationPipeline;
+import it.pagopa.pn.delivery.svc.validation.validators.authorization.SendInformalNotificationActiveValidator;
 import lombok.CustomLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +75,7 @@ public class NotificationReceiverService {
 	private final PaNotificationLimitService paNotificationLimitService;
 	private final CampaignService campaignService;
 	private final ValidationPipeline<InformalNotificationContext> informalNotificationValidationPipeline;
+	private final SendInformalNotificationActiveValidator sendInformalNotificationActiveValidator;
 
 	@Autowired
 	public NotificationReceiverService(
@@ -86,7 +88,7 @@ public class NotificationReceiverService {
             PnF24ClientImpl f24Client,
             PnDeliveryConfigs cfg,
             PaNotificationLimitService paNotificationLimitService,
-            CampaignService campaignService, ValidationPipeline<InformalNotificationContext> informalNotificationValidationPipeline
+            CampaignService campaignService, ValidationPipeline<InformalNotificationContext> informalNotificationValidationPipeline, SendInformalNotificationActiveValidator sendInformalNotificationActiveValidator
     ) {
 		this.clock = clock;
 		this.notificationDao = notificationDao;
@@ -99,6 +101,7 @@ public class NotificationReceiverService {
         this.paNotificationLimitService = paNotificationLimitService;
         this.campaignService = campaignService;
         this.informalNotificationValidationPipeline = informalNotificationValidationPipeline;
+        this.sendInformalNotificationActiveValidator = sendInformalNotificationActiveValidator;
     }
 
 	/**
@@ -336,6 +339,7 @@ public class NotificationReceiverService {
 		log.debug("New informal notification storing START paProtocolNumber={} idempotenceToken={}",
 				newInformalNotificationRequest.getPaProtocolNumber(), newInformalNotificationRequest.getIdempotenceToken());
 		log.logChecking("New informal notification request validation process");
+		sendInformalNotificationActiveValidator.validate(xPagopaPnCxId);
 		Campaign campaign = campaignService.getCampaignByCampaignIdAndSenderId(newInformalNotificationRequest.getCampaignId(), xPagopaPnCxId);
 
 		InternalNotification internalNotification = modelMapper.map(newInformalNotificationRequest, InternalNotification.class);

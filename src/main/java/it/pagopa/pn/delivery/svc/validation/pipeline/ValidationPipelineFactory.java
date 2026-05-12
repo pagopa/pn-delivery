@@ -2,7 +2,6 @@ package it.pagopa.pn.delivery.svc.validation.pipeline;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.svc.validation.context.InformalNotificationContext;
-import it.pagopa.pn.delivery.svc.validation.validators.authorization.SendInformalNotificationActiveValidator;
 import it.pagopa.pn.delivery.svc.validation.validators.authorization.SenderTaxIdCongruenceValidator;
 import it.pagopa.pn.delivery.svc.validation.validators.formal.*;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,6 @@ public class ValidationPipelineFactory {
     //Validators
     private final SenderTaxIdCongruenceValidator senderTaxIdCongruenceValidator;
     private final RecipientTaxIdSyntaxValidator recipientTaxIdSyntaxValidator;
-    private final SendInformalNotificationActiveValidator sendInformalNotificationActiveValidator;
     private final AdditionalLanguageFormalValidator additionalLanguageFormalValidator;
     private final PgTaxIdValidator pgTaxIdValidator;
     private final GroupValidator groupValidator;
@@ -30,7 +28,6 @@ public class ValidationPipelineFactory {
     @Bean
     public ValidationPipeline<InformalNotificationContext> informalPipeline() {
         return new ValidationPipelineBuilder<InformalNotificationContext>()
-                .authorization(sendInformalNotificationActiveValidator)
                 .authorization(senderTaxIdCongruenceValidator)
                 .formal(new MaxAttachmentsSizeValidator(cfg.getInformalNotificationMaxAttachments()))
                 .formal(new MaxRecipientsSizeValidator(cfg.getInformalNotificationMaxRecipients()))

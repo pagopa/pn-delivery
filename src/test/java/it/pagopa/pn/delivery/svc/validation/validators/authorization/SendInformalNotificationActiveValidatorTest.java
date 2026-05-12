@@ -1,16 +1,13 @@
 package it.pagopa.pn.delivery.svc.validation.validators.authorization;
 
 import it.pagopa.pn.delivery.config.InformalNotificationSendPaParameterConsumer;
-import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.svc.validation.ValidationResult;
-import it.pagopa.pn.delivery.svc.validation.ErrorCodes;
+import it.pagopa.pn.delivery.exception.ValidationException;
 import org.junit.jupiter.api.Test;
 
 import static it.pagopa.pn.delivery.svc.validation.validators.ValidatorTestSupport.DEFAULT_CX_ID;
-import static it.pagopa.pn.delivery.svc.validation.validators.ValidatorTestSupport.assertSingleError;
-import static it.pagopa.pn.delivery.svc.validation.validators.ValidatorTestSupport.assertSuccess;
-import static it.pagopa.pn.delivery.svc.validation.validators.ValidatorTestSupport.legalContext;
-import static it.pagopa.pn.delivery.svc.validation.validators.ValidatorTestSupport.notification;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -22,9 +19,8 @@ class SendInformalNotificationActiveValidatorTest {
         when(parameterConsumer.isSenderActiveForInformalNotification(DEFAULT_CX_ID)).thenReturn(true);
 
         SendInformalNotificationActiveValidator validator = new SendInformalNotificationActiveValidator(parameterConsumer);
-        ValidationResult result = validator.validate(legalContext(notification(java.util.List.of(), java.util.List.of())));
 
-        assertSuccess(result);
+        assertDoesNotThrow(() -> validator.validate(DEFAULT_CX_ID));
     }
 
     @Test
@@ -33,8 +29,13 @@ class SendInformalNotificationActiveValidatorTest {
         when(parameterConsumer.isSenderActiveForInformalNotification(DEFAULT_CX_ID)).thenReturn(false);
 
         SendInformalNotificationActiveValidator validator = new SendInformalNotificationActiveValidator(parameterConsumer);
-        ValidationResult result = validator.validate(legalContext(new InternalNotification()));
 
-        assertSingleError(result, ErrorCodes.ERROR_CODE_SEND_IS_DISABLED.getValue(), "non è abilitata alla comunicazione di notifiche bonarie");
+        ValidationException exception = assertThrows(ValidationException.class,
+                () -> validator.validate(DEFAULT_CX_ID));
+
+        assertEquals(1, exception.getProblem().getErrors().size());
+        assertEquals("PN_DELIVERY_SEND_IS_DISABLED", exception.getProblem().getErrors().get(0).getCode());
+        assertEquals("Piattaforma Notifiche non è abilitata alla comunicazione di notifiche bonarie",
+                exception.getProblem().getErrors().get(0).getDetail());
     }
 }
