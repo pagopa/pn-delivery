@@ -348,6 +348,7 @@ components:
         - recipientType
         - taxId
       type: object
+      additionalProperties: false
       properties:
         recipientType:
           type: string
@@ -384,7 +385,7 @@ components:
               type: string
               format: uuid
               description: >-
-                Identificativo del messaggio da utilizzare per il destinatario. Sovrascrive il messaggio di default della campagna
+                Identificativo del messaggio da fornire e utilizzare per il destinatario.
 
     InformalNotificationPayments:
       description: Pagamenti collegati alla notifica per il destinatario.
