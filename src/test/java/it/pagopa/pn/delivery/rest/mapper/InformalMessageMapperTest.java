@@ -6,7 +6,7 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.Messa
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.MessageResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewMessageRequest;
 import org.junit.jupiter.api.Test;
-
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -64,10 +64,12 @@ class InformalMessageMapperTest {
         msDto.setMessageId(messageId);
         msDto.setPrimaryContent(msContent);
         msDto.setSecondaryContent(null);
+        msDto.setCreatedAt(OffsetDateTime.now());
         MessageResponse api = InformalMessageMapper.toApi(msDto);
         assertEquals(messageId, api.getMessageId());
         assertNotNull(api.getPrimaryMessage());
         assertNull(api.getAdditionalMessage());
+        assertEquals(msDto.getCreatedAt(), api.getCreatedAt());
         assertEquals("subj", api.getPrimaryMessage().getSubject());
         assertEquals("FR", api.getPrimaryMessage().getLanguage());
     }
