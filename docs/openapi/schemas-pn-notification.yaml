@@ -14,9 +14,9 @@ components:
       maxLength: 25
       pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
 
-    # La denomination prevede max 44 caratteri, codifica isolatin 1, senza | e senza i caratteri di controllo.
-    # Si veda la classe DenominationValidationUtils e la property denominationValidationExcludedCharacter che rappresenta i caratteri
-    # da togliere. Si modifica solo la configurazione,  Si lasciano quindi con ONLY EXTERNAL per continuare ad avere che la logica di filtro è governata dalla configurazione del ms
+# La denomination prevede max 44 caratteri, codifica isolatin 1, senza | e senza i caratteri di controllo.
+# Si veda la classe DenominationValidationUtils e la property denominationValidationExcludedCharacter che rappresenta i caratteri
+# da togliere. Si modifica solo la configurazione,  Si lasciano quindi con ONLY EXTERNAL per continuare ad avere che la logica di filtro è governata dalla configurazione del ms
 
     Denomination:
       description: >-
@@ -25,7 +25,7 @@ components:
       type: string
       x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
       minLength: 1
-      #      maxLength: 88                     # ONLY EXTERNAL
+#      maxLength: 88                     # ONLY EXTERNAL
       pattern: ^.*$
 
 
@@ -148,11 +148,11 @@ components:
             documentsAvailable:
               type: boolean
               description: Indica se i documenti notificati sono ancora disponibili.
-            version: # NO EXTERNAL
+            version:                                                    # NO EXTERNAL
               type: string                                              # NO EXTERNAL
               description: Indica la versione della notifica            # NO EXTERNAL
             usedServices:
-              $ref: '#/components/schemas/UsedServices'
+                $ref: '#/components/schemas/UsedServices'
 
     NewNotificationRequestV25:
       description: I campi utilizzati per la creazione di una nuova Notifica.
@@ -359,7 +359,7 @@ components:
             - PG
         taxId:
           $ref: '#/components/schemas/TaxId'
-        internalId: # NO EXTERNAL
+        internalId:  # NO EXTERNAL
           type: string # NO EXTERNAL
           description: id interno anonimizzato # NO EXTERNAL
         denomination:
@@ -598,12 +598,12 @@ components:
     NotificationPaymentInfo:
       title: Informazioni per effettuare il pagamento
       description: >-
-        Informazioni utili per effettuare il pagamento di una notifica, sono associate al
-        destinatario perché le spese di notifica possono differire a seconda del canale di
-        notifica utilizzato. <br/>
-          - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
-          - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
-          - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
+       Informazioni utili per effettuare il pagamento di una notifica, sono associate al
+       destinatario perché le spese di notifica possono differire a seconda del canale di
+       notifica utilizzato. <br/>
+         - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
+         - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
+         - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
       type: object
       required:
         - noticeCode
@@ -661,7 +661,7 @@ components:
           description: Campo "presso" dell'indirizzo
           # wide range of characters
           pattern: ^.*$
-        #          maxLength: 44                                        # ONLY EXTERNAL
+#          maxLength: 44                                        # ONLY EXTERNAL
         address:
           type: string
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
@@ -835,7 +835,7 @@ components:
           description: >-
             Stima del numero di secondi da aspettare prima che il contenuto del 
             documento sia disponibile per il download.
-        numberOfPages: # NO EXTERNAL
+        numberOfPages:  # NO EXTERNAL
           type: integer # NO EXTERNAL
           format: int32 # NO EXTERNAL
           description: numero di pagine del documento. Valorizzato solo se il documento è di tipo PDF # NO EXTERNAL
