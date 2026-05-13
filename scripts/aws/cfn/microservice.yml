@@ -1030,7 +1030,6 @@ Resources:
               - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/PaActiveForPhysicalAddressLookup"
               - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/AARQrUrlConfigs'
               - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/InformalNotificationSendPaWhiteList'
-              - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MVPCampaigns'
 
   # Expose PN-Delivery microservice public API with API-GW for B2B usage
   DeliveryMicroservicePublicAPI:
