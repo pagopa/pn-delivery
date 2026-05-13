@@ -45,7 +45,7 @@ class PnNotificationInputControllerTest {
 	private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
 	private static final String X_PAGOPA_PN_SRC_CH_DETAILS = "sourceChannelDetails";
 	private static final String FILE_SHA_256 = "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=";
-	public static final String DELIVERY_REQUESTS_PATH = "/delivery/v2.5/requests";
+	public static final String DELIVERY_REQUESTS_PATH = "/delivery/v2.6/requests";
 	public static final String DELIVERY_INFORMAL_REQUESTS_PATH = "/delivery/v1/notifications/informal";
 
 	@Autowired
@@ -70,7 +70,7 @@ class PnNotificationInputControllerTest {
 	@ValueSource(booleans = {true, false})
 	void postSuccess(boolean isCheckEnabled) throws PnIdConflictException {
 		// Given
-		NewNotificationRequestV25 notificationRequest = newNotificationRequest();
+		NewNotificationRequestV26 notificationRequest = newNotificationRequest();
 
 		NewNotificationResponse savedNotification = NewNotificationResponse.builder()
 						.notificationRequestId( Base64Utils.encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) )
@@ -83,7 +83,7 @@ class PnNotificationInputControllerTest {
 		Mockito.when(taxonomyCodeDaoDynamo.getTaxonomyCodeByKeyAndPaId(notificationRequest.getTaxonomyCode(), PA_ID_DEFAULT)).thenReturn(Optional.of(taxonomyCodeDto));
 		Mockito.when(deliveryService.receiveNotification(
 						Mockito.anyString(),
-						any( NewNotificationRequestV25.class ),
+						any( NewNotificationRequestV26.class ),
 						Mockito.anyString(),
 						Mockito.isNull(),
 						Mockito.anyList(),
@@ -95,7 +95,7 @@ class PnNotificationInputControllerTest {
                 .uri(DELIVERY_REQUESTS_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .body(Mono.just(notificationRequest), NewNotificationRequestV25.class)
+                .body(Mono.just(notificationRequest), NewNotificationRequestV26.class)
                 .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
@@ -170,7 +170,7 @@ class PnNotificationInputControllerTest {
 	@ValueSource(booleans = {true, false})
 	void postSuccessWithSourceChannelDetails(boolean isCheckEnabled) throws PnIdConflictException {
 		// Given
-		NewNotificationRequestV25 notificationRequest = newNotificationRequest();
+		NewNotificationRequestV26 notificationRequest = newNotificationRequest();
 
 		NewNotificationResponse savedNotification = NewNotificationResponse.builder()
 				.notificationRequestId( Base64Utils.encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) )
@@ -183,7 +183,7 @@ class PnNotificationInputControllerTest {
 		Mockito.when(taxonomyCodeDaoDynamo.getTaxonomyCodeByKeyAndPaId(notificationRequest.getTaxonomyCode(), PA_ID_DEFAULT)).thenReturn(Optional.of(taxonomyCodeDto));
 		Mockito.when(deliveryService.receiveNotification(
 				Mockito.anyString(),
-				any( NewNotificationRequestV25.class ),
+				any( NewNotificationRequestV26.class ),
 				Mockito.anyString(),
 				Mockito.anyString(),
 				Mockito.anyList(),
@@ -195,7 +195,7 @@ class PnNotificationInputControllerTest {
 				.uri(DELIVERY_REQUESTS_PATH)
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
-				.body(Mono.just(notificationRequest), NewNotificationRequestV25.class)
+				.body(Mono.just(notificationRequest), NewNotificationRequestV26.class)
 				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
@@ -224,7 +224,7 @@ class PnNotificationInputControllerTest {
 	@ValueSource(booleans = {true, false})
 	void postSuccessWithNotificationVersion(boolean isCheckEnabled) throws PnIdConflictException {
 		// Given
-		NewNotificationRequestV25 notificationRequest = newNotificationRequest();
+		NewNotificationRequestV26 notificationRequest = newNotificationRequest();
 
 		NewNotificationResponse savedNotification = NewNotificationResponse.builder()
 				.notificationRequestId( Base64Utils.encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) )
@@ -237,7 +237,7 @@ class PnNotificationInputControllerTest {
 		Mockito.when(taxonomyCodeDaoDynamo.getTaxonomyCodeByKeyAndPaId(notificationRequest.getTaxonomyCode(), PA_ID_DEFAULT)).thenReturn(Optional.of(taxonomyCodeDto));
 		Mockito.when(deliveryService.receiveNotification(
 				Mockito.anyString(),
-				any( NewNotificationRequestV25.class ),
+				any( NewNotificationRequestV26.class ),
 				Mockito.anyString(),
 				Mockito.anyString(),
 				Mockito.anyList(),
@@ -249,7 +249,7 @@ class PnNotificationInputControllerTest {
 				.uri(DELIVERY_REQUESTS_PATH)
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
-				.body(Mono.just(notificationRequest), NewNotificationRequestV25.class)
+				.body(Mono.just(notificationRequest), NewNotificationRequestV26.class)
 				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
@@ -275,8 +275,8 @@ class PnNotificationInputControllerTest {
 		}
 	}
 
-	private NewNotificationRequestV25 newNotificationRequest() {
-		return NewNotificationRequestV25.builder()
+	private NewNotificationRequestV26 newNotificationRequest() {
+		return NewNotificationRequestV26.builder()
 				.group( "group" )
 				.senderDenomination( "Comune di Milano" )
 				.senderTaxId( "01199250158" )
@@ -308,9 +308,10 @@ class PnNotificationInputControllerTest {
 										.versionToken( "version_token" )
 										.build() )
 						.build() ) )
-				.physicalCommunicationType( NewNotificationRequestV25.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
+				.physicalCommunicationType( NewNotificationRequestV26.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
 				.subject( "subject_length" )
 				.taxonomyCode( "010101P" )
+				.senderPriority(0)
 				.build();
 	}
 
@@ -318,7 +319,7 @@ class PnNotificationInputControllerTest {
 	@ValueSource(booleans = {true, false})
 	void postFailure(boolean isCheckEnabled) {
 		// Given
-		NewNotificationRequestV25 request = newNotificationRequest();
+		NewNotificationRequestV26 request = newNotificationRequest();
 		Map<String,String> conflictMap = new HashMap<>();
 		conflictMap.put( "noticeCode", "duplicatedNoticeCode" );
 		PnIdConflictException exception = new PnIdConflictException( conflictMap );
@@ -330,7 +331,7 @@ class PnNotificationInputControllerTest {
 		Mockito.when(taxonomyCodeDaoDynamo.getTaxonomyCodeByKeyAndPaId(request.getTaxonomyCode(), PA_ID_DEFAULT)).thenReturn(Optional.of(taxonomyCodeDto));
 		Mockito.when( deliveryService.receiveNotification(
 						Mockito.anyString(),
-						any( NewNotificationRequestV25.class ),
+						any( NewNotificationRequestV26.class ),
 						Mockito.anyString(),
 						Mockito.isNull(),
 						Mockito.isNull(),
@@ -342,7 +343,7 @@ class PnNotificationInputControllerTest {
 				.uri(DELIVERY_REQUESTS_PATH)
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
-				.body(Mono.just(request), NewNotificationRequestV25.class)
+				.body(Mono.just(request), NewNotificationRequestV26.class)
 				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PA"  )
@@ -363,7 +364,7 @@ class PnNotificationInputControllerTest {
 	@ValueSource(booleans = {true, false})
 	void postFailureWithTaxonomyCode(boolean isCheckEnabled) {
 		// Given
-		NewNotificationRequestV25 request = newNotificationRequest();
+		NewNotificationRequestV26 request = newNotificationRequest();
 
 		PnInvalidInputException exception = new PnInvalidInputException(ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_TAXONOMYCODE, "Invalid taxonomyCode exception");
 		// When
@@ -371,7 +372,7 @@ class PnNotificationInputControllerTest {
 		Mockito.when(taxonomyCodeDaoDynamo.getTaxonomyCodeByKeyAndPaId("TEST_FAIL", PA_ID_DEFAULT)).thenThrow(exception);
 		Mockito.when( deliveryService.receiveNotification(
 				Mockito.anyString(),
-				any( NewNotificationRequestV25.class ),
+				any( NewNotificationRequestV26.class ),
 				Mockito.anyString(),
 				Mockito.isNull(),
 				Mockito.isNull(),
@@ -381,10 +382,10 @@ class PnNotificationInputControllerTest {
 
 		//Then
 		webTestClient.post()
-				.uri("/delivery/v2.5/requests")
+				.uri("/delivery/v2.6/requests")
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
-				.body(Mono.just(request), NewNotificationRequestV25.class)
+				.body(Mono.just(request), NewNotificationRequestV26.class)
 				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PA"  )
@@ -403,14 +404,14 @@ class PnNotificationInputControllerTest {
 	@Test
 	void postFailureBindExc() {
 		// Given
-		NewNotificationRequestV25 request = newNotificationRequest();
+		NewNotificationRequestV26 request = newNotificationRequest();
 		request.setPaProtocolNumber( null );
 
 		webTestClient.post()
 				.uri(DELIVERY_REQUESTS_PATH)
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
-				.body(Mono.just(request), NewNotificationRequestV25.class)
+				.body(Mono.just(request), NewNotificationRequestV26.class)
 				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PA"  )
@@ -423,7 +424,7 @@ class PnNotificationInputControllerTest {
 	@ValueSource(booleans = {true, false})
 	void postFailureRuntimeExc(boolean isCheckEnabled) {
 		// Given
-		NewNotificationRequestV25 request = newNotificationRequest();
+		NewNotificationRequestV26 request = newNotificationRequest();
 
 		TaxonomyCodeDto taxonomyCodeDto = new TaxonomyCodeDto();
 		Mockito.when(cfg.isCheckTaxonomyCodeEnabled()).thenReturn(isCheckEnabled);
@@ -434,7 +435,7 @@ class PnNotificationInputControllerTest {
 				.uri(DELIVERY_REQUESTS_PATH)
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
-				.body(Mono.just(request), NewNotificationRequestV25.class)
+				.body(Mono.just(request), NewNotificationRequestV26.class)
 				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PA"  )
@@ -454,7 +455,7 @@ class PnNotificationInputControllerTest {
 	@ValueSource(booleans = {true, false})
 	void postSuccessWithAmount(boolean isCheckEnabled) throws PnIdConflictException {
 		// Given
-		NewNotificationRequestV25 notificationRequest = NewNotificationRequestV25.builder()
+		NewNotificationRequestV26 notificationRequest = NewNotificationRequestV26.builder()
 				.group( "group" )
 				.senderDenomination( "Comune di Milano" )
 				.senderTaxId( "01199250158" )
@@ -488,7 +489,7 @@ class PnNotificationInputControllerTest {
 								.versionToken( "version_token" )
 								.build() )
 						.build() ) )
-				.physicalCommunicationType( NewNotificationRequestV25.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
+				.physicalCommunicationType( NewNotificationRequestV26.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
 				.subject( "subject_length" )
 				.build();
 
@@ -502,7 +503,7 @@ class PnNotificationInputControllerTest {
 		Mockito.when(taxonomyCodeDaoDynamo.getTaxonomyCodeByKeyAndPaId(notificationRequest.getTaxonomyCode(), PA_ID_DEFAULT)).thenReturn(Optional.of(taxonomyCodeDto));
 		Mockito.when(deliveryService.receiveNotification(
 						Mockito.anyString(),
-						any( NewNotificationRequestV25.class ),
+						any( NewNotificationRequestV26.class ),
 						Mockito.anyString(),
 						Mockito.isNull(),
 						Mockito.anyList(),
@@ -514,7 +515,7 @@ class PnNotificationInputControllerTest {
 				.uri(DELIVERY_REQUESTS_PATH)
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
-				.body(Mono.just(notificationRequest), NewNotificationRequestV25.class)
+				.body(Mono.just(notificationRequest), NewNotificationRequestV26.class)
 				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
@@ -525,7 +526,7 @@ class PnNotificationInputControllerTest {
 
 		Mockito.verify( deliveryService ).receiveNotification(
 						Mockito.anyString(),
-						any( NewNotificationRequestV25.class ),
+						any( NewNotificationRequestV26.class ),
 						Mockito.anyString(),
 						Mockito.isNull(),
 						Mockito.anyList(),

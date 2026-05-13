@@ -88,9 +88,10 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
        requestBody:
          content:
            application/json:
-@@ -1351,8 +1337,6 @@
+@@ -1351,9 +1337,7 @@
                  $ref: '#/components/schemas/Problem'
      get:
+       deprecated: true
        operationId: retrieveNotificationRequestStatusV24
 -      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live
 -      x-pagopa-lambda-account: core

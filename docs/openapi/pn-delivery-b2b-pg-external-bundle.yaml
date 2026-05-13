@@ -168,7 +168,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery/v2.7/notifications/received/{iun}:
+  /delivery/v2.8/notifications/received/{iun}:
     get:
       summary: Dettaglio di una notifica ricevuta.
       description: >-
@@ -182,7 +182,7 @@ paths:
                   - eventuali documenti di pagamento (campo payments reperibile nel dettaglio del destinatario)
       tags:
         - RecipientReadB2B
-      operationId: getReceivedNotificationV27
+      operationId: getReceivedNotificationV28
       x-api-permissions:
         - REFINEMENT
       parameters:
@@ -194,7 +194,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FullReceivedNotificationV27'
+                $ref: '#/components/schemas/FullReceivedNotificationV28'
         '400':
           description: Bad request
           content:
@@ -478,13 +478,13 @@ components:
     UnauthorizedError:
       description: Access token is missing or invalid
   schemas:
-    FullReceivedNotificationV27:
+    FullReceivedNotificationV28:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata e il
         processo di  inoltro della notifica verso i destinatari (Persone Fisiche
         o Giuridiche).
       allOf:
-        - $ref: '#/components/schemas/SentNotificationV25'
+        - $ref: '#/components/schemas/SentNotificationV26'
         - type: object
           required:
             - notificationStatus
@@ -1041,7 +1041,7 @@ components:
       format: int32
       minimum: 0
       maximum: 100
-    NewNotificationRequestV25:
+    NewNotificationRequestV26:
       description: I campi utilizzati per la creazione di una nuova Notifica.
       type: object
       required:
@@ -1164,16 +1164,30 @@ components:
           items:
             type: string
             maxItems: 1
+        senderPriority:
+          type: integer
+          format: int32
+          description: >-
+            Valore opzionale che indica la priorità di postalizzazione
+            desiderata dall'ente, dove 100 rappresenta la priorità massima e 0
+            la minima.  Il sistema utilizza questo parametro per ottimizzare
+            l'ordine di affidamento al recapitista esclusivamente all'interno
+            delle quote riservate al mittente stesso, dando precedenza alle
+            urgenze senza alterare l'equità globale verso gli altri enti.
+          minimum: 0
+          maximum: 100
+          default: 0
+          example: 0
     UsedServices:
       description: Servizi utilizzati per la creazione della notifica
       type: object
       properties:
         physicalAddressLookup:
           type: boolean
-    SentNotificationV25:
+    SentNotificationV26:
       description: Le informazioni riguardanti una richiesta di notifica accettata
       allOf:
-        - $ref: '#/components/schemas/NewNotificationRequestV25'
+        - $ref: '#/components/schemas/NewNotificationRequestV26'
         - type: object
           required:
             - iun

@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV25;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV26;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV24;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
@@ -60,7 +60,7 @@ public class EntityToDtoNotificationMapper {
                 .paFee(entity.getPaFee())
                 .vat(entity.getVat())
                 .sourceChannelDetails(entity.getSourceChannelDetails())
-                .pagoPaIntMode(entity.getPagoPaIntMode() != null ? NewNotificationRequestV25.PagoPaIntModeEnum.fromValue(entity.getPagoPaIntMode()) : null)
+                .pagoPaIntMode(entity.getPagoPaIntMode() != null ? NewNotificationRequestV26.PagoPaIntModeEnum.fromValue(entity.getPagoPaIntMode()) : null)
                 .version(entity.getVersion())
                 .additionalLanguages(removeITLanguageFromDto(entity.getLanguages()))
                 .usedServices(entity.getUsedServices() != null ? getUsedServicesDto(entity.getUsedServices()) : null)
