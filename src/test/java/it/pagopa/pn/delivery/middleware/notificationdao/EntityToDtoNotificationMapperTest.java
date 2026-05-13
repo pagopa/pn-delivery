@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 class EntityToDtoNotificationMapperTest {
+    public static final Integer PRIORITY = 5;
     public static final Integer VAT = 22;
 
     private EntityToDtoNotificationMapper mapper;
@@ -56,6 +57,7 @@ class EntityToDtoNotificationMapperTest {
         Assertions.assertEquals("messageId", internalNotification.getRecipients().get(0).getMessageId());
         Assertions.assertEquals("campaignId", internalNotification.getCampaignId());
         Assertions.assertNull(internalNotification.getCommunicationType());
+        assertEquals(PRIORITY, internalNotification.getPriority());
         assertEquals( VAT, internalNotification.getVat() );
     }
 
@@ -78,6 +80,7 @@ class EntityToDtoNotificationMapperTest {
         Assertions.assertNotNull(internalNotification.getRecipients().get(1).getPayments().get(0).getPagoPa().getAttachment());
         Assertions.assertEquals(0, internalNotification.getAdditionalLanguages().size());
         Assertions.assertEquals(CommunicationType.INFORMAL, internalNotification.getCommunicationType());
+        assertEquals(PRIORITY, internalNotification.getPriority());
         assertEquals( VAT, internalNotification.getVat() );
     }
 
@@ -101,6 +104,7 @@ class EntityToDtoNotificationMapperTest {
         Assertions.assertNull(internalNotification.getRecipients().get(0).getPayments().get(0).getPagoPa().getAttachment());
         Assertions.assertNotNull(internalNotification.getRecipients().get(1).getPayments().get(0).getPagoPa().getAttachment());
         Assertions.assertEquals(0, internalNotification.getAdditionalLanguages().size());
+        assertEquals(PRIORITY, internalNotification.getPriority());
         assertEquals( VAT, internalNotification.getVat() );
     }
 
@@ -224,6 +228,7 @@ class EntityToDtoNotificationMapperTest {
                 .notificationFeePolicy(NotificationFeePolicy.FLAT_RATE)
                 .recipients(List.of(notificationRecipientEntity, notificationRecipientEntity1))
                 .version("1")
+                .priority(PRIORITY)
                 .vat(VAT)
                 .languages(additionalLangs)
                 .usedServices(usedServices)

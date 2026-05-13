@@ -78,6 +78,7 @@ Resources:
             pagoPaIntMode:struct<S:string>,
             paymentExpirationDate:struct<S:string>,
             physicalCommunicationType:struct<S:string>,
+            priority:struct<N:string>,
             recipients:struct<L:array<struct<M:struct<
               denomination:struct<NULL:boolean>,
               digitalDomicile:struct<NULL:boolean>,
