@@ -147,7 +147,7 @@ describe("eventHandler tests", function () {
         let notificationRequestStatusV21 = JSON.parse(notificationRequestStatusJSON);
 
         process.env = Object.assign(process.env, {
-            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery/v2.1/",
+            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery/v2.1",
         });
         
         let url = `${process.env.PN_DELIVERY_URL}/requests?`;
@@ -184,7 +184,7 @@ describe("eventHandler tests", function () {
         let notificationRequestStatusV24 = JSON.parse(notificationRequestStatusJSON);
 
         process.env = Object.assign(process.env, {
-            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery/v2.3/",
+            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery/v2.3",
         });
         
         let url = `${process.env.PN_DELIVERY_URL}/requests?`;
@@ -220,7 +220,7 @@ describe("eventHandler tests", function () {
         let notificationRequestStatusV24 = JSON.parse(notificationRequestStatusJSON);
 
         process.env = Object.assign(process.env, {
-            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery/v2.4/",
+            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery/v2.4",
         });
         
         let url = `${process.env.PN_DELIVERY_URL}/requests?`;
@@ -251,12 +251,81 @@ describe("eventHandler tests", function () {
         expect(resJson.additionalLanguages).to.be.contain("DE")
     });
 
+    it("should return 200 for v2.6 keeping priority", async () => {
+        const notificationRequestStatusJSON = fs.readFileSync("./src/test/notificationRequestStatusV26.json");
+        let notificationRequestStatusV26 = JSON.parse(notificationRequestStatusJSON);
+
+        process.env = Object.assign(process.env, {
+            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery/v2.6",
+        });
+
+        let url = `${process.env.PN_DELIVERY_URL}/requests?`;
+        const params = new URLSearchParams({
+            notificationRequestId: 'validNotificationRequestId'
+        });
+
+        mock.onGet(url, { params: params }).reply(200, notificationRequestStatusV26, { "Content-Type": "application/json" });
+
+        const event = {
+            path: '/delivery/v2.6/requests',
+            httpMethod: "GET",
+            headers: {},
+            requestContext: {
+                authorizer: {},
+            },
+            queryStringParameters: {
+                notificationRequestId: 'validNotificationRequestId'
+            }
+        }
+
+        const res = await handleEvent(event)
+        let resJson = JSON.parse(res.body);
+
+        expect(res.statusCode).to.equal(200);
+        expect(resJson.priority).to.be.equal("STANDARD");
+    });
+
+    it("should return 200 for v2.5 removing priority", async () => {
+        const notificationRequestStatusJSON = fs.readFileSync("./src/test/notificationRequestStatusV26.json");
+        let notificationRequestStatusV26 = JSON.parse(notificationRequestStatusJSON);
+
+        process.env = Object.assign(process.env, {
+            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery/v2.6",
+        });
+
+        let url = `${process.env.PN_DELIVERY_URL}/requests?`;
+        const params = new URLSearchParams({
+            notificationRequestId: 'validNotificationRequestId'
+        });
+
+        mock.onGet(url, { params: params }).reply(200, notificationRequestStatusV26, { "Content-Type": "application/json" });
+
+        const event = {
+            path: '/delivery/v2.5/requests',
+            httpMethod: "GET",
+            headers: {},
+            requestContext: {
+                authorizer: {},
+            },
+            queryStringParameters: {
+                notificationRequestId: 'validNotificationRequestId'
+            }
+        }
+
+        const res = await handleEvent(event)
+        let resJson = JSON.parse(res.body);
+
+        expect(res.statusCode).to.equal(200);
+        expect(resJson.priority).to.be.undefined;
+        expect(resJson.additionalLanguages).to.be.contain("DE");
+    });
+
     it("should return 200 for v2.4 - Request refused", async () => {
             const notificationRequestStatusJSON = fs.readFileSync("./src/test/notificationRequestStatusV25.json");
             let notificationRequestStatusV25 = JSON.parse(notificationRequestStatusJSON);
 
             process.env = Object.assign(process.env, {
-                PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery/v2.5/",
+                PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery/v2.5",
             });
 
             let url = `${process.env.PN_DELIVERY_URL}/requests?`;
@@ -282,6 +351,7 @@ describe("eventHandler tests", function () {
             let resJson = JSON.parse(res.body);
 
             expect(resJson.errors[0].recIndex).to.be.undefined;
+            expect(resJson.priority).to.be.undefined;
         });
 
     it("should return 200 with paProtocolNumber and idempotenceToken", async () => {
