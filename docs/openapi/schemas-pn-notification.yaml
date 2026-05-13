@@ -376,6 +376,8 @@ components:
       allOf:
         - $ref: '#/components/schemas/NotificationRecipientV24'
         - type: object
+          required:
+            - messageId
           properties:
             payments:
               $ref: '#/components/schemas/InformalNotificationPayments'
