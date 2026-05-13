@@ -342,7 +342,7 @@ public class NotificationReceiverService {
 		InternalNotification internalNotification = modelMapper.map(newInformalNotificationRequest, InternalNotification.class);
 		internalNotification.setSenderPaId( xPagopaPnCxId );
 		internalNotification.setSourceChannel( xPagopaPnSrcCh );
-		String senderTaxId = getSenderTaxIdFromExternalRegistriesAndSetToInternalNotification(xPagopaPnCxId);
+		String senderTaxId = retrieveSenderTaxIdFromExternalRegistries(xPagopaPnCxId);
 		internalNotification.setSenderTaxId(senderTaxId);
 		internalNotification.setSourceChannelDetails(xPagopaPnSrcChDetails);
 		internalNotification.setVersion( StringUtils.hasText( xPagopaPnNotificationVersion ) ? xPagopaPnNotificationVersion : cfg.getLatestInformalNotificationVersion() );
@@ -370,8 +370,7 @@ public class NotificationReceiverService {
 		return response;
 	}
 
-	private String getSenderTaxIdFromExternalRegistriesAndSetToInternalNotification(String cxId) {
-		if (StringUtils.hasText(cxId)) {
+	private String retrieveSenderTaxIdFromExternalRegistries(String cxId) {
 			log.debug("Retrieving PA taxId from external registries for cxId={}", cxId);
 			PaInfo paInfo = pnExternalRegistriesClient.getOnePa(cxId);
 			if (Objects.isNull(paInfo) || !StringUtils.hasText(paInfo.getTaxId())) {
@@ -380,9 +379,6 @@ public class NotificationReceiverService {
 			}
 			log.debug("Retrieved PA taxId={} from external registries for cxId={}", paInfo.getTaxId(), cxId);
 			return paInfo.getTaxId();
-		}
-		log.error("cxId is required and cannot be empty");
-		throw new PnBadRequestException("cxId is required and cannot be empty", "cxId is required and cannot be empty", ERROR_CODE_DELIVERY_INVALIDPARAMETER_CX_ID, "cxId is required and cannot be empty");
 	}
 
 	private void setMessageIdIfAbsent(InternalNotification internalNotification, Campaign campaign) {

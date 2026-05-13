@@ -909,7 +909,7 @@ class NotificationReceiverTest {
 		verify(notificationDao).addNotification(captor.capture());
 		assertEquals(PAID, captor.getValue().getSenderPaId());
 		assertEquals(X_PAGOPA_PN_SRC_CH, captor.getValue().getSourceChannel());
-		assertEquals("01199250158", captor.getValue().getSenderTaxId()); // Aggiungere verifica
+		assertEquals("01199250158", captor.getValue().getSenderTaxId());
 	}
 
 	@Test
@@ -1032,49 +1032,6 @@ class NotificationReceiverTest {
 				null
 		));
 	}
-
-	@Test
-	void receiveInformalNotification_throwsExceptionWhenCxIdIsNull() {
-		// Given
-		InformalNotificationRequestV1 request = new InformalNotificationRequestV1();
-		request.setPaProtocolNumber("paProtocolNumber");
-		request.setCampaignId("campaignId");
-
-		Campaign campaign = Mockito.mock(Campaign.class);
-		when(campaignService.getCampaignByCampaignIdAndSenderId("campaignId", null)).thenReturn(campaign);
-
-		// When & Then
-		assertThrows(PnBadRequestException.class, () -> deliveryService.receiveInformalNotification(
-				null, // cxId is null
-				request,
-				X_PAGOPA_PN_SRC_CH,
-				null,
-				X_PAGOPA_PN_CX_GROUPS_EMPTY,
-				null
-		));
-	}
-
-	@Test
-	void receiveInformalNotification_throwsExceptionWhenCxIdIsEmpty() {
-		// Given
-		InformalNotificationRequestV1 request = new InformalNotificationRequestV1();
-		request.setPaProtocolNumber("paProtocolNumber");
-		request.setCampaignId("campaignId");
-
-		Campaign campaign = Mockito.mock(Campaign.class);
-		when(campaignService.getCampaignByCampaignIdAndSenderId("campaignId", "")).thenReturn(campaign);
-
-		// When & Then
-		assertThrows(PnBadRequestException.class, () -> deliveryService.receiveInformalNotification(
-				"", // cxId is empty
-				request,
-				X_PAGOPA_PN_SRC_CH,
-				null,
-				X_PAGOPA_PN_CX_GROUPS_EMPTY,
-				null
-		));
-	}
-
 	@Test
 	void receiveInformalNotification_throwsErrorWhenSetMessageIdNullAndCampaignHasNoMessageId() {
 		// Given
