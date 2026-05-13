@@ -88,7 +88,7 @@ paths:
       description: >-
         Questa operazione serve per verificare se la richiesta di notifica è stata accettata e ottenere
         lo IUN associato a tale richiesta. <br/>
-        Bisogna specificare il parametro _requestId_ oppure la coppia costituita dai parametri 
+        Bisogna specificare il parametro _requestId_ oppure la coppia costituita dai parametri
         _paProtocolNumber_ e _idempotenceToken_. <br/>
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
@@ -135,7 +135,7 @@ paths:
         valida, non che la richiesta sia stata validata ed accettata. <br/>
         Per conoscere lo stato di accettazione della richiesta di notifica bisogna utilizzare l'operazione
         _getNotificationRequestStatus_ oppure utilizzare la modalità push prevista dai webhook. <br/>
-        
+
         <details no-external>
         <summary><b> Attributi progettazione di alto livello </b></summary>
         | Proprietà                | Valore             |
@@ -568,7 +568,7 @@ paths:
         (EXPERIMENTAL)
         Questa operazione serve per verificare se la richiesta di notifica è stata accettata e ottenere
         lo IUN associato a tale richiesta. <br/>
-        Bisogna specificare il parametro _requestId_ oppure la coppia costituita dai parametri 
+        Bisogna specificare il parametro _requestId_ oppure la coppia costituita dai parametri
         _paProtocolNumber_ e _idempotenceToken_. <br/>
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
@@ -667,7 +667,7 @@ paths:
       summary: 'Mittente: lettura dettagli notifica versione 2'
       description: |-
         Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
-        
+
         <details no-external>
         <summary><b> Attributi progettazione di alto livello </b></summary>
         | Proprietà                | Valore             |
@@ -1018,7 +1018,7 @@ paths:
       summary: 'Mittente: lettura dettagli notifica versione 2'
       description: |-
         Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
-        
+
         <details no-external>
         <summary><b> Attributi progettazione di alto livello </b></summary>
         | Proprietà                | Valore             |
@@ -2251,6 +2251,3 @@ components:
 
 #security:                 # ONLY EXTERNAL
 #  - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
-
-
-

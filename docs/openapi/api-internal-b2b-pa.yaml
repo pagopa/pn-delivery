@@ -345,9 +345,8 @@ paths:
 
   "/delivery/v2.6/requests":
     post:
-      summary: EXPERIMENTAL - Richiesta invio notifica
+      summary: Richiesta invio notifica
       description: |-
-        (EXPERIMENTAL)
         Operazione utilizzata dalla Pubblica Amministrazione per richiedere l'invio di una notifica.
 
         La restituzione di uno stato HTTP 202 significa solo che la richiesta è sintatticamente
@@ -418,9 +417,8 @@ paths:
 #      operationId: retrieveNotificationRequestStatusV26                 # ONLY EXTERNAL
       tags:
         - SenderReadB2B
-      summary: EXPERIMENTAL - Verifica accettazione richiesta notifica
+      summary: Verifica accettazione richiesta notifica
       description: >-
-        (EXPERIMENTAL)
         Questa operazione serve per verificare se la richiesta di notifica è stata accettata e ottenere
         lo IUN associato a tale richiesta. <br/>
         Bisogna specificare il parametro _requestId_ oppure la coppia costituita dai parametri 
