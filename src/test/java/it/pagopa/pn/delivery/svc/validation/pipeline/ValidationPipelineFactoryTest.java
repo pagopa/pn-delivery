@@ -6,7 +6,18 @@ import it.pagopa.pn.delivery.svc.validation.validators.BusinessValidator;
 import it.pagopa.pn.delivery.svc.validation.validators.FormalValidator;
 import it.pagopa.pn.delivery.svc.validation.validators.authorization.SendInformalNotificationActiveValidator;
 import it.pagopa.pn.delivery.svc.validation.validators.authorization.SenderTaxIdCongruenceValidator;
-import it.pagopa.pn.delivery.svc.validation.validators.formal.*;
+import it.pagopa.pn.delivery.svc.validation.validators.formal.AdditionalLanguageFormalValidator;
+import it.pagopa.pn.delivery.svc.validation.validators.formal.DenominationAndAtValidator;
+import it.pagopa.pn.delivery.svc.validation.validators.formal.GroupValidator;
+import it.pagopa.pn.delivery.svc.validation.validators.formal.MaxAttachmentsSizeValidator;
+import it.pagopa.pn.delivery.svc.validation.validators.formal.MaxPaymentsSizeValidator;
+import it.pagopa.pn.delivery.svc.validation.validators.formal.MaxRecipientsSizeValidator;
+import it.pagopa.pn.delivery.svc.validation.validators.formal.PaymentAttachmentValidator;
+import it.pagopa.pn.delivery.svc.validation.validators.formal.PgTaxIdValidator;
+import it.pagopa.pn.delivery.svc.validation.validators.formal.PhysicalAddressValidator;
+import it.pagopa.pn.delivery.svc.validation.validators.formal.ProvinceRequiredValidator;
+import it.pagopa.pn.delivery.svc.validation.validators.formal.RecipientTaxIdSyntaxValidator;
+import it.pagopa.pn.delivery.svc.validation.validators.formal.UniqueAttachmentsValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -96,20 +107,19 @@ class ValidationPipelineFactoryTest {
         assertThat(authorizationValidators.get(0)).isSameAs(sendInformalNotificationActiveValidator);
         assertThat(authorizationValidators.get(1)).isSameAs(senderTaxIdCongruenceValidator);
 
-        assertThat(formalValidators).hasSize(13);
+        assertThat(formalValidators).hasSize(12);
         assertThat(formalValidators.get(0)).isInstanceOf(MaxAttachmentsSizeValidator.class);
         assertThat(formalValidators.get(1)).isInstanceOf(MaxRecipientsSizeValidator.class);
         assertThat(formalValidators.get(2)).isSameAs(additionalLanguageFormalValidator);
-        assertThat(formalValidators.get(3)).isInstanceOf(CampaignMessageLanguageValidator.class);
-        assertThat(formalValidators.get(4)).isSameAs(groupValidator);
-        assertThat(formalValidators.get(5)).isSameAs(pgTaxIdValidator);
-        assertThat(formalValidators.get(6)).isSameAs(recipientTaxIdSyntaxValidator);
-        assertThat(formalValidators.get(7)).isInstanceOf(MaxPaymentsSizeValidator.class);
-        assertThat(formalValidators.get(8)).isSameAs(paymentAttachmentValidator);
-        assertThat(formalValidators.get(9)).isSameAs(physicalAddressValidator);
-        assertThat(formalValidators.get(10)).isSameAs(provinceRequiredValidator);
-        assertThat(formalValidators.get(11)).isInstanceOf(DenominationAndAtValidator.class);
-        assertThat(formalValidators.get(12)).isSameAs(uniqueAttachmentsValidator);
+        assertThat(formalValidators.get(3)).isSameAs(groupValidator);
+        assertThat(formalValidators.get(4)).isSameAs(pgTaxIdValidator);
+        assertThat(formalValidators.get(5)).isSameAs(recipientTaxIdSyntaxValidator);
+        assertThat(formalValidators.get(6)).isInstanceOf(MaxPaymentsSizeValidator.class);
+        assertThat(formalValidators.get(7)).isSameAs(paymentAttachmentValidator);
+        assertThat(formalValidators.get(8)).isSameAs(physicalAddressValidator);
+        assertThat(formalValidators.get(9)).isSameAs(provinceRequiredValidator);
+        assertThat(formalValidators.get(10)).isInstanceOf(DenominationAndAtValidator.class);
+        assertThat(formalValidators.get(11)).isSameAs(uniqueAttachmentsValidator);
 
         assertThat(businessValidators).isEmpty();
     }
@@ -124,22 +134,25 @@ class ValidationPipelineFactoryTest {
         assertThat(authorizationValidators.get(0)).isSameAs(sendInformalNotificationActiveValidator);
         assertThat(authorizationValidators.get(1)).isSameAs(senderTaxIdCongruenceValidator);
         assertThat(formalValidators.get(2)).isSameAs(additionalLanguageFormalValidator);
-        assertThat(formalValidators.get(4)).isSameAs(groupValidator);
-        assertThat(formalValidators.get(5)).isSameAs(pgTaxIdValidator);
-        assertThat(formalValidators.get(6)).isSameAs(recipientTaxIdSyntaxValidator);
-        assertThat(formalValidators.get(8)).isSameAs(paymentAttachmentValidator);
-        assertThat(formalValidators.get(9)).isSameAs(physicalAddressValidator);
-        assertThat(formalValidators.get(10)).isSameAs(provinceRequiredValidator);
-        assertThat(formalValidators.get(12)).isSameAs(uniqueAttachmentsValidator);
+        assertThat(formalValidators.get(3)).isSameAs(groupValidator);
+        assertThat(formalValidators.get(4)).isSameAs(pgTaxIdValidator);
+        assertThat(formalValidators.get(5)).isSameAs(recipientTaxIdSyntaxValidator);
+        assertThat(formalValidators.get(7)).isSameAs(paymentAttachmentValidator);
+        assertThat(formalValidators.get(8)).isSameAs(physicalAddressValidator);
+        assertThat(formalValidators.get(9)).isSameAs(provinceRequiredValidator);
+        assertThat(formalValidators.get(11)).isSameAs(uniqueAttachmentsValidator);
 
         DenominationAndAtValidator denominationAndAtValidator =
-                (DenominationAndAtValidator) formalValidators.get(11);
+                (DenominationAndAtValidator) formalValidators.get(10);
         MaxAttachmentsSizeValidator maxAttachmentsSizeValidator =
                 (MaxAttachmentsSizeValidator) formalValidators.get(0);
         MaxPaymentsSizeValidator maxPaymentsSizeValidator =
-                (MaxPaymentsSizeValidator) formalValidators.get(7);
+                (MaxPaymentsSizeValidator) formalValidators.get(6);
         MaxRecipientsSizeValidator maxRecipientsSizeValidator =
                 (MaxRecipientsSizeValidator) formalValidators.get(1);
+        PhysicalAddressValidator physicalAddressValidator =
+                (PhysicalAddressValidator) formalValidators.get(8);
+
 
         assertThat(ReflectionTestUtils.getField(denominationAndAtValidator, "denominationLength"))
                 .isEqualTo(DENOMINATION_LENGTH);
