@@ -32,7 +32,7 @@ public class ValidationPipelineFactory {
                 .formal(new MaxAttachmentsSizeValidator(cfg.getInformalNotificationMaxAttachments()))
                 .formal(new MaxRecipientsSizeValidator(cfg.getInformalNotificationMaxRecipients()))
                 .formal(additionalLanguageFormalValidator)
-                .formal(new CampaignMessageLanguageValidator(cfg.isInformalNotificationCheckCampaignLangActive()))
+                .formal(new CampaignMessageLanguageValidator())
                 .formal(groupValidator)
                 .formal(pgTaxIdValidator)
                 .formal(recipientTaxIdSyntaxValidator)
