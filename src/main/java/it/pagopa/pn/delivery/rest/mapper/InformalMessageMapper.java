@@ -24,6 +24,7 @@ public class InformalMessageMapper {
         api.setMessageId(ms.getMessageId());
         api.setPrimaryMessage(toApi(ms.getPrimaryContent()));
         api.setAdditionalMessage(toApi(ms.getSecondaryContent()));
+        api.setCreatedAt(ms.getCreatedAt());
         return api;
     }
 
