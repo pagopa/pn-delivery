@@ -548,7 +548,7 @@ components:
       required: true
       schema:
         type: string
-        minLength: 3
+        minLength: 6
         maxLength: 6
         pattern: "PAGOPA"
 
