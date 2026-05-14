@@ -18,8 +18,6 @@ import static it.pagopa.pn.delivery.utils.InformalNotificationUtils.findMessageI
 @RequiredArgsConstructor
 public class CampaignMessageLanguageValidator implements FormalValidator<InformalNotificationContext> {
 
-    private final Boolean isInformalNotificationCheckCampaignLangActive;
-
     @Override
     public ValidationResult validate(InformalNotificationContext context) {
         if(Objects.isNull(context.getCampaign())) {
@@ -34,11 +32,6 @@ public class CampaignMessageLanguageValidator implements FormalValidator<Informa
     }
 
     private void checkCongruenceBetweenAdditionalLanguageRequestedAndCampaign(InformalNotificationContext context, ArrayList<ProblemError> errors) {
-        if (Boolean.FALSE.equals(isInformalNotificationCheckCampaignLangActive)) {
-            log.debug("Informal notification - check campaign language is disabled, skipping validation");
-            return;
-        }
-
         InternalNotification notification = context.getPayload();
         boolean existsRecipientWithoutMessageId = notification.getRecipients().stream().anyMatch(recipient -> recipient.getMessageId() == null);
 
