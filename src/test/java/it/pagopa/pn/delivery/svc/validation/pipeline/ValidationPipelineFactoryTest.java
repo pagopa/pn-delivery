@@ -5,7 +5,6 @@ import it.pagopa.pn.delivery.svc.validation.validators.AuthorizationValidator;
 import it.pagopa.pn.delivery.svc.validation.validators.BusinessValidator;
 import it.pagopa.pn.delivery.svc.validation.validators.FormalValidator;
 import it.pagopa.pn.delivery.svc.validation.validators.authorization.SendInformalNotificationActiveValidator;
-import it.pagopa.pn.delivery.svc.validation.validators.authorization.SenderTaxIdCongruenceValidator;
 import it.pagopa.pn.delivery.svc.validation.validators.formal.AdditionalLanguageFormalValidator;
 import it.pagopa.pn.delivery.svc.validation.validators.formal.DenominationAndAtValidator;
 import it.pagopa.pn.delivery.svc.validation.validators.formal.GroupValidator;
