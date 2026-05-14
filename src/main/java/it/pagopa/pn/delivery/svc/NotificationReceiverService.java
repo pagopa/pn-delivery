@@ -12,6 +12,7 @@ import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.F24.v1.model.SaveF24Item;
 import it.pagopa.pn.delivery.generated.openapi.msclient.F24.v1.model.SaveF24Request;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaInfo;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationRequestV1;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewInformalNotificationResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV25;
@@ -341,6 +342,8 @@ public class NotificationReceiverService {
 		InternalNotification internalNotification = modelMapper.map(newInformalNotificationRequest, InternalNotification.class);
 		internalNotification.setSenderPaId( xPagopaPnCxId );
 		internalNotification.setSourceChannel( xPagopaPnSrcCh );
+		String senderTaxId = retrieveSenderTaxIdFromExternalRegistries(xPagopaPnCxId);
+		internalNotification.setSenderTaxId(senderTaxId);
 		internalNotification.setSourceChannelDetails(xPagopaPnSrcChDetails);
 		internalNotification.setVersion( StringUtils.hasText( xPagopaPnNotificationVersion ) ? xPagopaPnNotificationVersion : cfg.getLatestInformalNotificationVersion() );
 
@@ -365,6 +368,17 @@ public class NotificationReceiverService {
 
 		log.info("New informal notification storing END {}", response);
 		return response;
+	}
+
+	private String retrieveSenderTaxIdFromExternalRegistries(String cxId) {
+			log.debug("Retrieving PA taxId from external registries for cxId={}", cxId);
+			PaInfo paInfo = pnExternalRegistriesClient.getOnePa(cxId);
+			if (Objects.isNull(paInfo) || !StringUtils.hasText(paInfo.getTaxId())) {
+				log.error("Unable to retrieve PA taxId from external registries for cxId={}", cxId);
+				throw new PnInternalException("Unable to retrieve PA taxId from external registries", 500, ERROR_CODE_DELIVERY_PA_NOT_FOUND);
+			}
+			log.debug("Retrieved PA taxId={} from external registries for cxId={}", paInfo.getTaxId(), cxId);
+			return paInfo.getTaxId();
 	}
 
 	private void setMessageIdIfAbsent(InternalNotification internalNotification, Campaign campaign) {
