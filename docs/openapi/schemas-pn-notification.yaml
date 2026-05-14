@@ -374,6 +374,8 @@ components:
       allOf:
         - $ref: '#/components/schemas/NotificationRecipientV24'
         - type: object
+          required:
+            - messageId
           properties:
             payments:
               $ref: '#/components/schemas/InformalNotificationPayments'
@@ -381,7 +383,7 @@ components:
               type: string
               format: uuid
               description: >-
-                Opzionale. Sovrascrive il messaggio di default della campagna
+                Identificativo del messaggio da fornire e utilizzare per il destinatario.
 
     InformalNotificationPayments:
       description: Pagamenti collegati alla notifica per il destinatario.
