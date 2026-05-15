@@ -309,7 +309,6 @@ components:
             Attualmente è possibile indicare un solo item e dunque una sola lingua aggiuntiva. Se non vengono indicate lingue aggiuntive la lingua utilizzata <br/>
             per l'invio del messaggio sui canali configurati sarà quella italiana. <br />
             **Coerenza con messageId:** Se viene fornito un `messageId`, il messaggio identificato deve essere associato alla lingua indicata in questo campo. <br/>
-            **Coerenza con campaignId:** Se `messageId` non è presente, il sistema utilizzerà il messaggio della campagna (`campaignId`) corrispondente alla lingua indicata. Assicurarsi che tale traduzione sia stata configurata nella campagna.
           type: array
           maxItems: 1
           items:
