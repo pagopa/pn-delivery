@@ -206,7 +206,8 @@ public class NotificationDaoDynamo implements NotificationDao {
 			} else {
 				log.error( "Unable to find any recipient addresses from data-vault for recipient={}", opaqueTaxId );
 			}
-        }
+			recipientIndex += 1;
+		}
 	}
 
 	private NotificationRecipientAddressesDto getNotificationRecipientAddressesDtoByRecIndex(int recipientIndex, List<NotificationRecipientAddressesDto> notificationRecipientAddressesDtoList) {

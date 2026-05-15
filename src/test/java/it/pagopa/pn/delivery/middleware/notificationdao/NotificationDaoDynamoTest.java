@@ -254,6 +254,7 @@ class NotificationDaoDynamoTest {
                 .state( "state" ));
         notificationRecipientAddressesDto.setEmails(List.of(new EmailDto().value("test@example.com")));
         notificationRecipientAddressesDto.setPhoneNumbers(List.of(new PhoneNumberDto().value("+393001234567")));
+        notificationRecipientAddressesDto.setRecIndex(0);
 
         NotificationRecipientAddressesDto notificationRecipientAddressesDto1 = new NotificationRecipientAddressesDto();
         notificationRecipientAddressesDto1.setDenomination( "recipientDenomination1" );
@@ -268,6 +269,7 @@ class NotificationDaoDynamoTest {
                 .state( "state1" ));
         notificationRecipientAddressesDto1.setEmails(List.of(new EmailDto().value("test1@example.com")));
         notificationRecipientAddressesDto1.setPhoneNumbers(List.of(new PhoneNumberDto().value("+393001234568")));
+        notificationRecipientAddressesDto1.setRecIndex(1);
 
         when( pnDataVaultClient.getNotificationAddressesByIun( "IUN_01" ) ).thenReturn( List.of( notificationRecipientAddressesDto ,notificationRecipientAddressesDto1 ) );
         // THEN
