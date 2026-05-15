@@ -397,7 +397,12 @@ components:
               type: string
               x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
               example: +3900000000
+              description: >-
+                Numero di telefono che il mittente della notifica intende utilizzare per
+                raggiungere il destinatario, espresso in formato internazionale con prefisso
+                `+` oppure `00`.
               pattern: ^(\+|00)[1-9]\d{0,3}[\s.-]?\d{1,4}[\s.-]?\d{1,4}[\s.-]?\d{1,9}$
+              maxLength: 30
 
     InformalNotificationPayments:
       description: Pagamenti collegati alla notifica per il destinatario.
