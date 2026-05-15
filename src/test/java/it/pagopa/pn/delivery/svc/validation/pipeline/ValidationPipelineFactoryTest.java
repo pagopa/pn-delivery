@@ -5,9 +5,7 @@ import it.pagopa.pn.delivery.svc.validation.validators.AuthorizationValidator;
 import it.pagopa.pn.delivery.svc.validation.validators.BusinessValidator;
 import it.pagopa.pn.delivery.svc.validation.validators.FormalValidator;
 import it.pagopa.pn.delivery.svc.validation.validators.authorization.SendInformalNotificationActiveValidator;
-import it.pagopa.pn.delivery.svc.validation.validators.authorization.SenderTaxIdCongruenceValidator;
 import it.pagopa.pn.delivery.svc.validation.validators.formal.AdditionalLanguageFormalValidator;
-import it.pagopa.pn.delivery.svc.validation.validators.formal.CampaignMessageLanguageValidator;
 import it.pagopa.pn.delivery.svc.validation.validators.formal.DenominationAndAtValidator;
 import it.pagopa.pn.delivery.svc.validation.validators.formal.GroupValidator;
 import it.pagopa.pn.delivery.svc.validation.validators.formal.MaxAttachmentsSizeValidator;
@@ -38,13 +36,11 @@ class ValidationPipelineFactoryTest {
     private static final Integer MAX_ATTACHMENTS_COUNT = 5;
     private static final Integer MAX_PAYMENT_NUMBER = 3;
     private static final Integer MAX_RECIPIENTS_COUNT = 2;
-    private static final boolean CAMPAIGN_LANG_CHECK_ACTIVE = true;
     private static final boolean PHYSICAL_ADDRESS_VALIDATION_ACTIVE = true;
     private static final Integer PHYSICAL_ADDRESS_VALIDATION_LENGTH = 44;
     private static final String PHYSICAL_ADDRESS_VALIDATION_PATTERN = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ./ '-";
 
     private PnDeliveryConfigs cfg;
-    private SenderTaxIdCongruenceValidator senderTaxIdCongruenceValidator;
     private RecipientTaxIdSyntaxValidator recipientTaxIdSyntaxValidator;
     private SendInformalNotificationActiveValidator sendInformalNotificationActiveValidator;
     private AdditionalLanguageFormalValidator additionalLanguageFormalValidator;
@@ -60,7 +56,6 @@ class ValidationPipelineFactoryTest {
     @BeforeEach
     void setUp() {
         cfg = mock(PnDeliveryConfigs.class);
-        senderTaxIdCongruenceValidator = mock(SenderTaxIdCongruenceValidator.class);
         recipientTaxIdSyntaxValidator = mock(RecipientTaxIdSyntaxValidator.class);
         sendInformalNotificationActiveValidator = mock(SendInformalNotificationActiveValidator.class);
         additionalLanguageFormalValidator = mock(AdditionalLanguageFormalValidator.class);
@@ -78,14 +73,12 @@ class ValidationPipelineFactoryTest {
         when(cfg.getInformalNotificationMaxAttachments()).thenReturn(MAX_ATTACHMENTS_COUNT);
         when(cfg.getInformalNotificationMaxPayments()).thenReturn(MAX_PAYMENT_NUMBER);
         when(cfg.getInformalNotificationMaxRecipients()).thenReturn(MAX_RECIPIENTS_COUNT);
-        when(cfg.isInformalNotificationCheckCampaignLangActive()).thenReturn(CAMPAIGN_LANG_CHECK_ACTIVE);
         when(cfg.isPhysicalAddressValidation()).thenReturn(PHYSICAL_ADDRESS_VALIDATION_ACTIVE);
         when(cfg.getPhysicalAddressValidationLength()).thenReturn(PHYSICAL_ADDRESS_VALIDATION_LENGTH);
         when(cfg.getPhysicalAddressValidationPattern()).thenReturn(PHYSICAL_ADDRESS_VALIDATION_PATTERN);
 
         factory = new ValidationPipelineFactory(
                 cfg,
-                senderTaxIdCongruenceValidator,
                 recipientTaxIdSyntaxValidator,
                 sendInformalNotificationActiveValidator,
                 additionalLanguageFormalValidator,
@@ -106,24 +99,22 @@ class ValidationPipelineFactoryTest {
         List<FormalValidator<?>> formalValidators = getValidators(pipeline, "formalValidators");
         List<BusinessValidator<?>> businessValidators = getValidators(pipeline, "businessValidators");
 
-        assertThat(authorizationValidators).hasSize(2);
+        assertThat(authorizationValidators).hasSize(1);
         assertThat(authorizationValidators.get(0)).isSameAs(sendInformalNotificationActiveValidator);
-        assertThat(authorizationValidators.get(1)).isSameAs(senderTaxIdCongruenceValidator);
 
-        assertThat(formalValidators).hasSize(13);
+        assertThat(formalValidators).hasSize(12);
         assertThat(formalValidators.get(0)).isInstanceOf(MaxAttachmentsSizeValidator.class);
         assertThat(formalValidators.get(1)).isInstanceOf(MaxRecipientsSizeValidator.class);
         assertThat(formalValidators.get(2)).isSameAs(additionalLanguageFormalValidator);
-        assertThat(formalValidators.get(3)).isInstanceOf(CampaignMessageLanguageValidator.class);
-        assertThat(formalValidators.get(4)).isSameAs(groupValidator);
-        assertThat(formalValidators.get(5)).isSameAs(pgTaxIdValidator);
-        assertThat(formalValidators.get(6)).isSameAs(recipientTaxIdSyntaxValidator);
-        assertThat(formalValidators.get(7)).isInstanceOf(MaxPaymentsSizeValidator.class);
-        assertThat(formalValidators.get(8)).isSameAs(paymentAttachmentValidator);
-        assertThat(formalValidators.get(9)).isSameAs(physicalAddressValidator);
-        assertThat(formalValidators.get(10)).isSameAs(provinceRequiredValidator);
-        assertThat(formalValidators.get(11)).isInstanceOf(DenominationAndAtValidator.class);
-        assertThat(formalValidators.get(12)).isSameAs(uniqueAttachmentsValidator);
+        assertThat(formalValidators.get(3)).isSameAs(groupValidator);
+        assertThat(formalValidators.get(4)).isSameAs(pgTaxIdValidator);
+        assertThat(formalValidators.get(5)).isSameAs(recipientTaxIdSyntaxValidator);
+        assertThat(formalValidators.get(6)).isInstanceOf(MaxPaymentsSizeValidator.class);
+        assertThat(formalValidators.get(7)).isSameAs(paymentAttachmentValidator);
+        assertThat(formalValidators.get(8)).isSameAs(physicalAddressValidator);
+        assertThat(formalValidators.get(9)).isSameAs(provinceRequiredValidator);
+        assertThat(formalValidators.get(10)).isInstanceOf(DenominationAndAtValidator.class);
+        assertThat(formalValidators.get(11)).isSameAs(uniqueAttachmentsValidator);
 
         assertThat(businessValidators).isEmpty();
     }
@@ -136,32 +127,23 @@ class ValidationPipelineFactoryTest {
         List<FormalValidator<?>> formalValidators = getValidators(pipeline, "formalValidators");
 
         assertThat(authorizationValidators.get(0)).isSameAs(sendInformalNotificationActiveValidator);
-        assertThat(authorizationValidators.get(1)).isSameAs(senderTaxIdCongruenceValidator);
         assertThat(formalValidators.get(2)).isSameAs(additionalLanguageFormalValidator);
-        assertThat(formalValidators.get(4)).isSameAs(groupValidator);
-        assertThat(formalValidators.get(5)).isSameAs(pgTaxIdValidator);
-        assertThat(formalValidators.get(6)).isSameAs(recipientTaxIdSyntaxValidator);
-        assertThat(formalValidators.get(8)).isSameAs(paymentAttachmentValidator);
-        assertThat(formalValidators.get(9)).isSameAs(physicalAddressValidator);
-        assertThat(formalValidators.get(10)).isSameAs(provinceRequiredValidator);
-        assertThat(formalValidators.get(12)).isSameAs(uniqueAttachmentsValidator);
+        assertThat(formalValidators.get(3)).isSameAs(groupValidator);
+        assertThat(formalValidators.get(4)).isSameAs(pgTaxIdValidator);
+        assertThat(formalValidators.get(5)).isSameAs(recipientTaxIdSyntaxValidator);
+        assertThat(formalValidators.get(7)).isSameAs(paymentAttachmentValidator);
+        assertThat(formalValidators.get(8)).isSameAs(physicalAddressValidator);
+        assertThat(formalValidators.get(9)).isSameAs(provinceRequiredValidator);
+        assertThat(formalValidators.get(11)).isSameAs(uniqueAttachmentsValidator);
 
-        CampaignMessageLanguageValidator campaignMessageLanguageValidator =
-                (CampaignMessageLanguageValidator) formalValidators.get(3);
         DenominationAndAtValidator denominationAndAtValidator =
-                (DenominationAndAtValidator) formalValidators.get(11);
+                (DenominationAndAtValidator) formalValidators.get(10);
         MaxAttachmentsSizeValidator maxAttachmentsSizeValidator =
                 (MaxAttachmentsSizeValidator) formalValidators.get(0);
         MaxPaymentsSizeValidator maxPaymentsSizeValidator =
-                (MaxPaymentsSizeValidator) formalValidators.get(7);
+                (MaxPaymentsSizeValidator) formalValidators.get(6);
         MaxRecipientsSizeValidator maxRecipientsSizeValidator =
                 (MaxRecipientsSizeValidator) formalValidators.get(1);
-        PhysicalAddressValidator physicalAddressValidator =
-                (PhysicalAddressValidator) formalValidators.get(9);
-
-
-        assertThat(ReflectionTestUtils.getField(campaignMessageLanguageValidator, "isInformalNotificationCheckCampaignLangActive"))
-                .isEqualTo(CAMPAIGN_LANG_CHECK_ACTIVE);
 
         assertThat(ReflectionTestUtils.getField(denominationAndAtValidator, "denominationLength"))
                 .isEqualTo(DENOMINATION_LENGTH);

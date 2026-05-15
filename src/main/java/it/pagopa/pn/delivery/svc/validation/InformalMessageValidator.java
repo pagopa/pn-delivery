@@ -49,11 +49,11 @@ public class InformalMessageValidator {
             longBodyLen += secondary.getLongBody().length();
             boolean secondaryShortBodyPresent = StringUtils.hasText(secondary.getShortBody());
             shortBodyLen += secondaryShortBodyPresent ? secondary.getShortBody().length() : 0;
-            if (primaryShortBodyPresent && !secondaryShortBodyPresent) {
+            if (primaryShortBodyPresent != secondaryShortBodyPresent) {
                 throw new PnBadRequestException(
-                    "Secondary message shortBody must be provided if primary shortBody is present",
-                    "Secondary shortBody required if primary present",
-                    PnDeliveryExceptionCodes.ERROR_CODE_INFORMAL_SECONDARY_SHORT_BODY_REQUIRED
+                        "ShortBody must be provided for all messages or for none",
+                        "ShortBody presence mismatch between primary and secondary message",
+                        PnDeliveryExceptionCodes.ERROR_CODE_INFORMAL_SHORT_BODY_REQUIRED
                 );
             }
         }
