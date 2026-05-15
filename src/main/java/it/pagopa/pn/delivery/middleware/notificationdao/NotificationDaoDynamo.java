@@ -67,7 +67,9 @@ public class NotificationDaoDynamo implements NotificationDao {
 					.denomination( recipient.getDenomination() )
 					.digitalAddress( createDigitalDomicile( recipient.getDigitalDomicile() ) )
 					.physicalAddress( createAnalogDomicile( recipient.getPhysicalAddress() ) )
-					.recIndex(recIndex);
+					.recIndex(recIndex)
+					.emails(buildEmailsList(recipient))
+					.phoneNumbers(buildPhoneNumbersList(recipient));
 
 			recipientAddressesDtoList.add( recipientAddressesDto );
 			cleanedRecipientList.add( removeConfidentialInfo( recipient ) );
@@ -81,6 +83,24 @@ public class NotificationDaoDynamo implements NotificationDao {
 		NotificationEntity entity = dto2entityMapper.dto2Entity( internalNotification );
 
 		entityDao.putIfAbsent( entity );
+	}
+
+	private List<EmailDto> buildEmailsList(NotificationRecipient recipient) {
+		if (recipient.getEmail() != null && !recipient.getEmail().isEmpty()) {
+			EmailDto emailDto = new EmailDto();
+			emailDto.setValue(recipient.getEmail());
+			return List.of(emailDto);
+		}
+		return null;
+	}
+
+	private List<PhoneNumberDto> buildPhoneNumbersList(NotificationRecipient recipient) {
+		if (recipient.getPhoneNumber() != null && !recipient.getPhoneNumber().isEmpty()) {
+			PhoneNumberDto phoneNumberDto = new PhoneNumberDto();
+			phoneNumberDto.setValue(recipient.getPhoneNumber());
+			return List.of(phoneNumberDto);
+		}
+		return null;
 	}
 
 	private NotificationRecipient removeConfidentialInfo(NotificationRecipient recipient) {
@@ -149,8 +169,6 @@ public class NotificationDaoDynamo implements NotificationDao {
 				pnDataVaultClient.getNotificationAddressesByIun( daoResult.getIun() );
 
 		int recipientIndex = 0;
-		boolean isAddressHandledByPosition = notificationRecipientAddressesDtoList.stream()
-				.anyMatch( el -> el.getRecIndex() == null );
 
 		for ( NotificationRecipient recipient : daoNotificationRecipientList ) {
 			String opaqueTaxId = recipient.getInternalId();
@@ -160,10 +178,8 @@ public class NotificationDaoDynamo implements NotificationDao {
 					.findAny()
 					.orElse( null );
 
-			//getPositionalNotificationRecipientAddressesDto TO BE REMOVED ONLY FOR THE FIRST PHASE OF VAS DEPLOYMENT
-			NotificationRecipientAddressesDto clearDataAddresses = isAddressHandledByPosition
-					? getPositionalNotificationRecipientAddressesDto( recipientIndex, notificationRecipientAddressesDtoList )
-					: getNotificationRecipientAddressesDtoByRecIndex( recipientIndex, notificationRecipientAddressesDtoList );
+			NotificationRecipientAddressesDto clearDataAddresses =
+					getNotificationRecipientAddressesDtoByRecIndex(recipientIndex, notificationRecipientAddressesDtoList);
 
 
 			if ( baseRec != null) {
@@ -173,20 +189,24 @@ public class NotificationDaoDynamo implements NotificationDao {
 				log.error( "Unable to find any recipient info from data-vault for recipient={}", opaqueTaxId );
 			}
 
+
 			if ( clearDataAddresses != null ) {
 				recipient.setDenomination(clearDataAddresses.getDenomination());
 				recipient.setDigitalDomicile( setNotificationDigitalAddress( clearDataAddresses.getDigitalAddress() ));
 				recipient.setPhysicalAddress( setNotificationPhysicalAddress( clearDataAddresses.getPhysicalAddress() ) );
+                // Recuperiamo solo il primo elemento delle liste emails e phoneNumbers perché attualmente
+                // il modello NotificationRecipient supporta un singolo valore per email e phoneNumber.
+				if (clearDataAddresses.getEmails() != null && !clearDataAddresses.getEmails().isEmpty()) {
+					recipient.setEmail(clearDataAddresses.getEmails().get(0).getValue());
+				}
+
+				if (clearDataAddresses.getPhoneNumbers() != null && !clearDataAddresses.getPhoneNumbers().isEmpty()) {
+					recipient.setPhoneNumber(clearDataAddresses.getPhoneNumbers().get(0).getValue());
+				}
 			} else {
 				log.error( "Unable to find any recipient addresses from data-vault for recipient={}", opaqueTaxId );
 			}
-			recipientIndex += 1;
-		}
-	}
-
-	private NotificationRecipientAddressesDto getPositionalNotificationRecipientAddressesDto(int recipientIndex, List<NotificationRecipientAddressesDto> notificationRecipientAddressesDtoList) {
-		return recipientIndex < notificationRecipientAddressesDtoList.size()
-				? notificationRecipientAddressesDtoList.get( recipientIndex ) : null;
+        }
 	}
 
 	private NotificationRecipientAddressesDto getNotificationRecipientAddressesDtoByRecIndex(int recipientIndex, List<NotificationRecipientAddressesDto> notificationRecipientAddressesDtoList) {
