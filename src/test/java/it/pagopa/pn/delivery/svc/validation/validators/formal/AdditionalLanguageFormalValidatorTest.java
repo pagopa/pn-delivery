@@ -16,14 +16,14 @@ class AdditionalLanguageFormalValidatorTest {
 
     @Test
     void shouldReturnSuccessWhenNoAdditionalLanguageIsRequested() {
-        ValidationResult result = validator.validate(informalContext(buildNotificationWithAdditionalLanguages(null), null));
+        ValidationResult result = validator.validate(informalContext(buildNotificationWithAdditionalLanguages(null)));
 
         assertSuccess(result);
     }
 
     @Test
     void shouldReturnErrorWhenMoreThanOneAdditionalLanguageIsRequested() {
-        ValidationResult result = validator.validate(informalContext(buildNotificationWithAdditionalLanguages(List.of("DE", "FR")), campaign(it.pagopa.pn.delivery.models.campaign.Message.AdditionalLanguage.DE)));
+        ValidationResult result = validator.validate(informalContext(buildNotificationWithAdditionalLanguages(List.of("DE", "FR"))));
 
         assertThat(result.getErrors()).hasSize(1);
         assertThat(result.getErrors().get(0).getCode()).isEqualTo(ErrorCodes.ERROR_CODE_ADDITIONAL_LANG_MAX_SIZE_EXCEEDED.getValue());
@@ -31,7 +31,7 @@ class AdditionalLanguageFormalValidatorTest {
 
     @Test
     void shouldReturnErrorWhenAdditionalLanguageIsNotSupported() {
-        ValidationResult result = validator.validate(informalContext(buildNotificationWithAdditionalLanguages(List.of("EN")), campaign(it.pagopa.pn.delivery.models.campaign.Message.AdditionalLanguage.DE)));
+        ValidationResult result = validator.validate(informalContext(buildNotificationWithAdditionalLanguages(List.of("EN"))));
 
         assertThat(result.getErrors()).hasSize(1);
         assertThat(result.getErrors().get(0).getCode()).isEqualTo(ErrorCodes.ERROR_CODE_ADDITIONAL_LANG_UNSUPPORTED_VALUE.getValue());

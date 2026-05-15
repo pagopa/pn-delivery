@@ -346,7 +346,6 @@ public class NotificationReceiverService {
 				.payload(internalNotification)
 				.cxId(xPagopaPnCxId)
 				.cxGroups(xPagopaPnCxGroups)
-//				.campaign(campaign)
 				.build();
 
 
