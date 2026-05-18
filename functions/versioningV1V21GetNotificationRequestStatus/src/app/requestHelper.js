@@ -56,5 +56,9 @@ exports.findRequestVersion = function(event) {
         version = 24;
     }
 
+    if (event["path"].startsWith("/delivery/v2.5/")) {
+        version = 25;
+    }
+
     return version;
 }
