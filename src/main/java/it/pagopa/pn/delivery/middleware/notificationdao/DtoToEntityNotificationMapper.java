@@ -42,7 +42,7 @@ public class DtoToEntityNotificationMapper {
                 .sourceChannel( dto.getSourceChannel() )
                 .sourceChannelDetails( dto.getSourceChannelDetails() )
                 .paFee(dto.getPaFee())
-                .senderPriority(dto.getSenderPriority())
+                .physicalCommunicationPriority(dto.getPhysicalCommunicationPriority())
                 .vat(dto.getVat())
                 .version( dto.getVersion() )
                 .languages( addITLanguageToEntity(dto.getAdditionalLanguages()) )
