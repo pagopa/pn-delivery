@@ -251,7 +251,7 @@ describe("eventHandler tests", function () {
         expect(resJson.additionalLanguages).to.be.contain("DE")
     });
 
-    it("should return 200 for v2.6 keeping senderPriority", async () => {
+    it("should return 200 for v2.6 keeping physicalCommunicationPriority", async () => {
         const notificationRequestStatusJSON = fs.readFileSync("./src/test/notificationRequestStatusV26.json");
         let notificationRequestStatusV26 = JSON.parse(notificationRequestStatusJSON);
 
@@ -282,10 +282,10 @@ describe("eventHandler tests", function () {
         let resJson = JSON.parse(res.body);
 
         expect(res.statusCode).to.equal(200);
-        expect(resJson.senderPriority).to.be.equal(5);
+        expect(resJson.physicalCommunicationPriority).to.be.equal(5);
     });
 
-    it("should return 200 for v2.5 removing senderPriority", async () => {
+    it("should return 200 for v2.5 removing physicalCommunicationPriority", async () => {
         const notificationRequestStatusJSON = fs.readFileSync("./src/test/notificationRequestStatusV26.json");
         let notificationRequestStatusV26 = JSON.parse(notificationRequestStatusJSON);
 
@@ -316,7 +316,7 @@ describe("eventHandler tests", function () {
         let resJson = JSON.parse(res.body);
 
         expect(res.statusCode).to.equal(200);
-        expect(resJson.senderPriority).to.be.undefined;
+        expect(resJson.physicalCommunicationPriority).to.be.undefined;
         expect(resJson.additionalLanguages).to.be.contain("DE");
     });
 
@@ -351,7 +351,7 @@ describe("eventHandler tests", function () {
             let resJson = JSON.parse(res.body);
 
             expect(resJson.errors[0].recIndex).to.be.undefined;
-            expect(resJson.senderPriority).to.be.undefined;
+            expect(resJson.physicalCommunicationPriority).to.be.undefined;
         });
 
     it("should return 200 with paProtocolNumber and idempotenceToken", async () => {

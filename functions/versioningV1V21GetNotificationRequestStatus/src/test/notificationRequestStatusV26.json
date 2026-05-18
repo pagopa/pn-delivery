@@ -92,7 +92,7 @@
   "iun": "AJMN-TXUA-MHGP-202309-Z-1",
   "paFee": 100,
   "vat": 22,
-  "senderPriority": 5,
+  "physicalCommunicationPriority": 5,
   "additionalLanguages": ["DE"],
   "errors": [
     {

@@ -157,7 +157,7 @@ exports.handleEvent = async (event) => {
     function transformFromV26ToV25(responseV26) {
         console.log("transformFromV26ToV25");
         const responseV25 = { ...responseV26 };
-        delete responseV25.senderPriority;
+        delete responseV25.physicalCommunicationPriority;
         return responseV25;
     }
 
