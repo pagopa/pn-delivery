@@ -29,7 +29,7 @@ public class InternalNotification {
     private List<NotificationDocument> documents;
     private NotificationFeePolicy notificationFeePolicy;
     private String cancelledIun;
-    private FullSentNotificationV28.PhysicalCommunicationTypeEnum physicalCommunicationType;
+    private FullSentNotificationV29.PhysicalCommunicationTypeEnum physicalCommunicationType;
     private String senderDenomination;
     private String senderTaxId;
     private String group;
@@ -49,7 +49,7 @@ public class InternalNotification {
     private List<String> recipientIds;
     private String sourceChannel;
     private String sourceChannelDetails;
-    private NewNotificationRequestV25.PagoPaIntModeEnum pagoPaIntMode;
+    private NewNotificationRequestV26.PagoPaIntModeEnum pagoPaIntMode;
     private String version;
     private List<String> additionalLanguages;
     private InternalUsedService usedServices;
@@ -177,16 +177,16 @@ public class InternalNotification {
         this.cancelledIun = cancelledIun;
     }
 
-    public InternalNotification physicalCommunicationType(FullSentNotificationV28.PhysicalCommunicationTypeEnum physicalCommunicationType) {
+    public InternalNotification physicalCommunicationType(FullSentNotificationV29.PhysicalCommunicationTypeEnum physicalCommunicationType) {
         this.physicalCommunicationType = physicalCommunicationType;
         return this;
     }
 
-    public FullSentNotificationV28.PhysicalCommunicationTypeEnum getPhysicalCommunicationType() {
+    public FullSentNotificationV29.PhysicalCommunicationTypeEnum getPhysicalCommunicationType() {
         return physicalCommunicationType;
     }
 
-    public void setPhysicalCommunicationType(FullSentNotificationV28.PhysicalCommunicationTypeEnum physicalCommunicationType) {
+    public void setPhysicalCommunicationType(FullSentNotificationV29.PhysicalCommunicationTypeEnum physicalCommunicationType) {
         this.physicalCommunicationType = physicalCommunicationType;
     }
 
