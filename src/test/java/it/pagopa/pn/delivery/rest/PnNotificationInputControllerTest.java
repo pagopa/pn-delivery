@@ -311,7 +311,7 @@ class PnNotificationInputControllerTest {
 				.physicalCommunicationType( NewNotificationRequestV26.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
 				.subject( "subject_length" )
 				.taxonomyCode( "010101P" )
-				.senderPriority(0)
+				.physicalCommunicationPriority(0)
 				.build();
 	}
 
