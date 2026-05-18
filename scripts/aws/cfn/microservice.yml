@@ -2066,7 +2066,7 @@ Resources:
       EventSourceArn: !Ref CdcKinesisSourceStreamArn
       FilterCriteria:
         Filters:
-          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "dynamodb" : { "NewImage" : { "statusInfo": { "M": { "statusChanged": { "BOOL": [ true ]}}}}}}}'
+          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "dynamodb" : { "NewImage" : { "statusInfo": { "M": { "statusChanged": { "BOOL": [ true ]}} }, "communicationType": {"S": [{ "exists": false }]}}} }}'
       FunctionName: !Ref MetadataStatusUpdaterLambda
       FunctionResponseTypes:
         - ReportBatchItemFailures
@@ -2198,7 +2198,7 @@ Resources:
         - ReportBatchItemFailures
       FilterCriteria:
         Filters:
-          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName": [ "INSERT" ], "dynamodb" : { "NewImage" : { "category" : { "S" : [ "REQUEST_REFUSED" ] } }}}}'
+          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName": [ "INSERT" ], "dynamodb" : { "NewImage" : { "category" : { "S" : [ "REQUEST_REFUSED" ] }, "communicationType": {"S": [{ "exists": false }]} }}}}'
       MaximumBatchingWindowInSeconds: !Sub ${NotificationRefusedDispatcherLambdaMaximumBatchingWindowInSeconds}
       MaximumRecordAgeInSeconds: !Ref NotificationRefusedDispatcherLambdaMaximumRecordAge
       StartingPosition: TRIM_HORIZON
