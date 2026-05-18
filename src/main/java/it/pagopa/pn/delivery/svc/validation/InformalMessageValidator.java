@@ -13,6 +13,7 @@ import java.util.Arrays;
 public class InformalMessageValidator {
 
     public static final String ACCEPTED_LANGUAGES = String.join(", ", Arrays.stream(AllowedAdditionalLanguages.values()).map(Enum::name).toArray(String[]::new));
+    public static final String SHORT_BODY_PRESENCE_MISMATCH_BETWEEN_PRIMARY_AND_SECONDARY_MESSAGE = "ShortBody presence mismatch between primary and secondary message";
 
     private InformalMessageValidator() {}
 
@@ -52,8 +53,9 @@ public class InformalMessageValidator {
             if (primaryShortBodyPresent != secondaryShortBodyPresent) {
                 throw new PnBadRequestException(
                         "ShortBody must be provided for all messages or for none",
-                        "ShortBody presence mismatch between primary and secondary message",
-                        PnDeliveryExceptionCodes.ERROR_CODE_INFORMAL_SHORT_BODY_REQUIRED
+                        SHORT_BODY_PRESENCE_MISMATCH_BETWEEN_PRIMARY_AND_SECONDARY_MESSAGE,
+                        PnDeliveryExceptionCodes.ERROR_CODE_INFORMAL_SHORT_BODY_REQUIRED,
+                        SHORT_BODY_PRESENCE_MISMATCH_BETWEEN_PRIMARY_AND_SECONDARY_MESSAGE
                 );
             }
         }
