@@ -12,7 +12,7 @@ exports.transformFromV29ToV28 = function (responseV29) {
     responseV28.timeline = adjustedTimelineAndHistory.timeline;
     responseV28.notificationStatusHistory = adjustedTimelineAndHistory.history;
 
-    delete responseV28.priority;
+    delete responseV28.physicalCommunicationPriority;
     return responseV28;
 }
 

@@ -448,15 +448,15 @@ describe("eventHandler tests", function () {
     expect(requestAcceptedElement.details.idempotenceToken).to.be.undefined;
 
 
-    // check che NON siano presenti oggetti usedServices e priority
+    // check che NON siano presenti oggetti usedServices e physicalCommunicationPriority
     expect(resJson.usedServices).to.be.undefined;
-    expect(resJson.priority).to.be.undefined;
+    expect(resJson.physicalCommunicationPriority).to.be.undefined;
   });
 
   it("statusCode 200 v2.7", async () => {
     const notificationJSON = fs.readFileSync("./src/test/notification_reworked.json");
     let notification = JSON.parse(notificationJSON);
-    notification.priority = "HIGH";
+    notification.physicalCommunicationPriority = 0;
 
     process.env = Object.assign(process.env, {
       PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
@@ -497,13 +497,13 @@ describe("eventHandler tests", function () {
       expect(el.details.legalFactId).to.be.undefined;
       expect(el.details.legalfactId).to.be.not.undefined;
     });
-    expect(resJson.priority).to.be.undefined;
+    expect(resJson.physicalCommunicationPriority).to.be.undefined;
   });
 
 it("statusCode 200 v2.8", async () => {
      const notificationJSON = fs.readFileSync("./src/test/notification_reworked.json");
      let notification = JSON.parse(notificationJSON);
-     notification.priority = "HIGH";
+     notification.physicalCommunicationPriority = 0;
      process.env = Object.assign(process.env, {
        PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
        ENABLE_DECEASED_WORKFLOW: true,
@@ -525,7 +525,7 @@ it("statusCode 200 v2.8", async () => {
      const response = await versioning(event, context);
      expect(response.statusCode).to.equal(200);
      let resJson = JSON.parse(response.body);
-     expect(resJson.priority).to.be.undefined;
+     expect(resJson.physicalCommunicationPriority).to.be.undefined;
 
      const creationRequestElements = resJson.timeline.filter((tl) => tl.category == "NOTIFICATION_VIEWED_CREATION_REQUEST");
      expect(creationRequestElements.length).to.be.greaterThan(0);
@@ -539,7 +539,7 @@ it("statusCode 200 v2.8", async () => {
   it("statusCode 200 v1", async () => {
     const notificationJSON = fs.readFileSync("./src/test/notification.json");
     let notification = JSON.parse(notificationJSON);
-    notification.priority = "HIGH";
+    notification.physicalCommunicationPriority = 0;
 
     process.env = Object.assign(process.env, {
       PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
@@ -583,7 +583,7 @@ it("statusCode 200 v2.8", async () => {
     expect(isNotificationCancelledPresent).to.be.false;
 
     expect(resJson.additionalLanguages).to.be.undefined;
-    expect(resJson.priority).to.be.undefined;
+    expect(resJson.physicalCommunicationPriority).to.be.undefined;
 
   });
 
