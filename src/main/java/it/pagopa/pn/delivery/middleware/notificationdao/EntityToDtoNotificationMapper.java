@@ -58,6 +58,7 @@ public class EntityToDtoNotificationMapper {
                 .sourceChannel(entity.getSourceChannel())
                 .recipientIds(recipientIds)
                 .paFee(entity.getPaFee())
+                .physicalCommunicationPriority(entity.getPhysicalCommunicationPriority())
                 .vat(entity.getVat())
                 .sourceChannelDetails(entity.getSourceChannelDetails())
                 .pagoPaIntMode(entity.getPagoPaIntMode() != null ? NewNotificationRequestV26.PagoPaIntModeEnum.fromValue(entity.getPagoPaIntMode()) : null)

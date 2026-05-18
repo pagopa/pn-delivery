@@ -34,6 +34,7 @@ public class InternalNotification {
     private String senderTaxId;
     private String group;
     private Integer amount;
+    private Integer physicalCommunicationPriority;
     private String paymentExpirationDate;
     private String taxonomyCode;
     private Integer paFee;
@@ -246,6 +247,22 @@ public class InternalNotification {
 
     public void setAmount(Integer amount) {
         this.amount = amount;
+    }
+
+    public InternalNotification physicalCommunicationPriority (Integer physicalCommunicationPriority) {
+        this.physicalCommunicationPriority = physicalCommunicationPriority;
+        return this;
+    }
+
+    /**
+     * @return physicalCommunicationPriority
+     */
+    public Integer getPhysicalCommunicationPriority() {
+        return physicalCommunicationPriority;
+    }
+
+    public void setPhysicalCommunicationPriority(Integer physicalCommunicationPriority) {
+        this.physicalCommunicationPriority = physicalCommunicationPriority;
     }
 
     public InternalNotification paymentExpirationDate(String paymentExpirationDate) {
