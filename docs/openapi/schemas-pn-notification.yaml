@@ -277,7 +277,7 @@ components:
           items:
             type: string
             maxItems: 1
-        senderPriority:
+        physicalCommunicationPriority:
           type: integer
           format: int32
           description: >-
