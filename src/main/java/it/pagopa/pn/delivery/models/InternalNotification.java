@@ -34,7 +34,7 @@ public class InternalNotification {
     private String senderTaxId;
     private String group;
     private Integer amount;
-    private Integer priority;
+    private Integer senderPriority;
     private String paymentExpirationDate;
     private String taxonomyCode;
     private Integer paFee;
@@ -249,19 +249,20 @@ public class InternalNotification {
         this.amount = amount;
     }
 
-    public InternalNotification priority(Integer priority) {
-        this.priority = priority;
+    public InternalNotification senderPriority(Integer senderPriority) {
+        this.senderPriority = senderPriority;
         return this;
     }
 
     /**
-     * @return priority
+     * @return senderPpriority
      */
-    public Integer getPriority() {
-        return priority;
+    public Integer getSenderPriority() {
+        return senderPriority;
     }
-    public void setPriority(Integer priority) {
-        this.priority = priority;
+
+    public void setSenderPriority(Integer senderPriority) {
+        this.senderPriority = senderPriority;
     }
 
     public InternalNotification paymentExpirationDate(String paymentExpirationDate) {
