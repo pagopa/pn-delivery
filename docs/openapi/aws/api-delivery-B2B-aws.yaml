@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: JlkU2gtVoixiDHYDEf+2fMQJ73k1EzE+lHITUpN3Xak=
+  version: TyJM0V1oc6rm8ZM8IyjgJXy2GBD7BaTdJYUwGJ8c7WE=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -3011,7 +3011,7 @@ components:
           items:
             type: string
             maxItems: 1
-        senderPriority:
+        physicalCommunicationPriority:
           type: number
           description: >-
             Valore opzionale che indica la priorità di postalizzazione
