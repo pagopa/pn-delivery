@@ -13,7 +13,6 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.F24.v1.model.SaveF24Item
 import it.pagopa.pn.delivery.generated.openapi.msclient.F24.v1.model.SaveF24Request;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaInfo;
-import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaInfo;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationRequestV1;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewInformalNotificationResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV25;
