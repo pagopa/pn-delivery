@@ -8,13 +8,13 @@ import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.internal.notification.*;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService.InternalAttachmentWithFileKey;
 import it.pagopa.pn.delivery.svc.NotificationQRService;
@@ -23,6 +23,9 @@ import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +47,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_FILEINFONOTFOUND;
 import static org.junit.jupiter.api.Assertions.*;
@@ -494,8 +498,17 @@ class PnSentReceivedNotificationControllerTest {
         Assertions.assertNotNull(timelineElementDetails.getOldAddress());
     }
 
-    @Test
-    void getNotificationRequestStatusByRequestIdREFUSED() {
+
+    private static Stream<Arguments> provideNotificationRequestStatusArgs() {
+        return Stream.of(
+                Arguments.of(DELIVERY_REQUESTS_PATH, NewNotificationRequestStatusResponseV25.class),
+                Arguments.of(DELIVERY_INFORMAL_REQUESTS_PATH, NewInformalNotificationRequestStatusResponseV1.class)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideNotificationRequestStatusArgs")
+    void getNotificationRequestStatusByRequestIdREFUSED(String path, Class<?> responseClass) {
         // Given
 
         InternalNotification notification = newNotification();
@@ -517,7 +530,7 @@ class PnSentReceivedNotificationControllerTest {
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
-                                .path(DELIVERY_REQUESTS_PATH)
+                                .path(path)
                                 .queryParam("notificationRequestId", REQUEST_ID)
                                 .build())
                 .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
@@ -528,13 +541,14 @@ class PnSentReceivedNotificationControllerTest {
                 .exchange()
                 .expectStatus()
                 .isOk()
-                .expectBody(NewNotificationRequestStatusResponseV25.class);
+                .expectBody(responseClass);
 
         Mockito.verify(svc).getNotificationInformationWithSenderIdCheck(new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS);
     }
 
-    @Test
-    void getNotificationRequestStatusByRequestIdSuccess() {
+    @ParameterizedTest
+    @MethodSource("provideNotificationRequestStatusArgs")
+    void getNotificationRequestStatusByRequestIdSuccess(String path, Class<?> responseClass) {
         // Given
         InternalNotification notification = newNotification();
 
@@ -543,7 +557,7 @@ class PnSentReceivedNotificationControllerTest {
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
-                                .path(DELIVERY_REQUESTS_PATH)
+                                .path(path)
                                 .queryParam("notificationRequestId", REQUEST_ID)
                                 .build())
                 .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
@@ -554,17 +568,50 @@ class PnSentReceivedNotificationControllerTest {
                 .exchange()
                 .expectStatus()
                 .isOk()
-                .expectBody(NewNotificationRequestStatusResponseV25.class);
+                .expectBody(responseClass);
 
         Mockito.verify(svc).getNotificationInformationWithSenderIdCheck(new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS);
     }
 
-    @Test
-    void getNotificationRequestStatusByProtocolOnlyFailure() {
+    @ParameterizedTest
+    @MethodSource("provideNotificationRequestStatusArgs")
+    void getNotificationRequestStatusByRequestIdAccepted(String path, Class<?> responseClass) {
+        // Given
+
+        InternalNotification notification = newNotification();
+        notification.setNotificationStatusHistory(Collections.singletonList(NotificationStatusHistoryElementV26.builder()
+                .status(NotificationStatusV26.ACCEPTED)
+                .build()));
+        notification.setTimeline(Collections.emptyList());
+
+        Mockito.when(svc.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList())).thenReturn(notification);
+
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
-                                .path(DELIVERY_REQUESTS_PATH)
+                                .path(path)
+                                .queryParam("notificationRequestId", REQUEST_ID)
+                                .build())
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(0))
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(1))
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(responseClass);
+
+        Mockito.verify(svc).getNotificationInformationWithSenderIdCheck(new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS);
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideNotificationRequestStatusArgs")
+    void getNotificationRequestStatusByProtocolOnlyFailure(String path) {
+        webTestClient.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path(path)
                                 .queryParam("paProtocolNumber", PA_PROTOCOL_NUMBER)
                                 .build())
                 .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
@@ -576,12 +623,13 @@ class PnSentReceivedNotificationControllerTest {
                 .isBadRequest();
     }
 
-    @Test
-    void getNotificationRequestStatusWithoutProtocol() {
+    @ParameterizedTest
+    @MethodSource("provideNotificationRequestStatusArgs")
+    void getNotificationRequestStatusWithoutProtocol(String path) {
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
-                                .path(DELIVERY_REQUESTS_PATH)
+                                .path(path)
                                 .build())
                 .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
                 .header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
@@ -592,8 +640,9 @@ class PnSentReceivedNotificationControllerTest {
                 .isBadRequest();
     }
 
-    @Test
-    void getNotificationRequestStatusByProtocolAndIdempotenceSuccess() {
+    @ParameterizedTest
+    @MethodSource("provideNotificationRequestStatusArgs")
+    void getNotificationRequestStatusByProtocolAndIdempotenceSuccess(String path, Class<?> responseClass) {
         // Given
         InternalNotification notification = newNotification();
 
@@ -602,7 +651,7 @@ class PnSentReceivedNotificationControllerTest {
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
-                                .path(DELIVERY_REQUESTS_PATH)
+                                .path(path)
                                 .queryParam("paProtocolNumber", PA_PROTOCOL_NUMBER)
                                 .queryParam("idempotenceToken", IDEMPOTENCE_TOKEN)
                                 .build())
@@ -614,7 +663,7 @@ class PnSentReceivedNotificationControllerTest {
                 .exchange()
                 .expectStatus()
                 .isOk()
-                .expectBody(NewNotificationRequestStatusResponseV25.class);
+                .expectBody(responseClass);
 
         Mockito.verify(svc).getNotificationInformation(PA_ID, PA_PROTOCOL_NUMBER, IDEMPOTENCE_TOKEN, GROUPS);
     }
@@ -1412,22 +1461,6 @@ class PnSentReceivedNotificationControllerTest {
                 .header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF")
                 .exchange()
                 .expectStatus().isNotFound();
-    }
-
-    @Test
-    void getInformalNotificationRequestStatusV1NotImplemented() {
-        webTestClient.get()
-                .uri(uriBuilder ->
-                        uriBuilder
-                                .path(DELIVERY_INFORMAL_REQUESTS_PATH)
-                                .queryParam("notificationRequestId", REQUEST_ID)
-                                .build())
-                .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
-                .header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
-                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
-                .exchange()
-                .expectStatus()
-                .isEqualTo(HttpStatus.NOT_IMPLEMENTED);
     }
 
 	@Test

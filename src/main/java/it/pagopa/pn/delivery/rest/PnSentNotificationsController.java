@@ -118,46 +118,17 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
     @Override
     public ResponseEntity<NewNotificationRequestStatusResponseV25> getNotificationRequestStatusV25(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String notificationRequestId, String paProtocolNumber, String idempotenceToken) {
         InternalNotification internalNotification;
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        PnAuditLogEvent logEvent = auditLogBuilder
-                .before( PnAuditLogEventType.AUD_NT_CHECK, "getNotificationRequestStatus notificationRequestId={} paProtocolNumber={} idempotenceToken={}",
-                        notificationRequestId,
-                        paProtocolNumber,
-                        idempotenceToken)
-                .build();
+        PnAuditLogEvent logEvent = buildLogEventForRequestStatus(PnAuditLogEventType.AUD_NT_CHECK, "getNotificationRequestStatus", notificationRequestId, paProtocolNumber, idempotenceToken);
+
         logEvent.log();
-        if (StringUtils.hasText( notificationRequestId )) {
-            String iun = new String(Base64Utils.decodeFromString(notificationRequestId), StandardCharsets.UTF_8);
-            logEvent.getMdc().put(MDC_PN_IUN_KEY, iun);
-            internalNotification = retrieveSvc.getNotificationInformationWithSenderIdCheck( iun, xPagopaPnCxId, xPagopaPnCxGroups );
-        } else {
-            if ( !StringUtils.hasText( paProtocolNumber ) ) {
-                PnInvalidInputException e = new PnInvalidInputException(ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_REQUIRED, "paProtocolNumber");
-                logEvent.generateFailure("[notificationRequestId={} idempotenceToken={}]" + e.getProblem(), notificationRequestId, idempotenceToken);
-                throw e;
-            }
-            if (!StringUtils.hasText( idempotenceToken ) ) {
-                PnInvalidInputException e = new PnInvalidInputException(ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_REQUIRED, "idempotenceToken");
-                logEvent.generateFailure("[notificationRequestId={} paProtocolNumber={}]" + e.getProblem(), notificationRequestId, paProtocolNumber);
-                throw e;
-            }
-            internalNotification = retrieveSvc.getNotificationInformation( xPagopaPnCxId, paProtocolNumber, idempotenceToken, xPagopaPnCxGroups);
-        }
-        InternalFieldsCleaner.cleanInternalFields( internalNotification );
+        internalNotification = retrieveNotificationForRequestStatus(notificationRequestId, paProtocolNumber, idempotenceToken, xPagopaPnCxId, xPagopaPnCxGroups, logEvent);
         NewNotificationRequestStatusResponseV25 response = modelMapper.map(
                 internalNotification,
                 NewNotificationRequestStatusResponseV25.class
         );
         response.setNotificationRequestId( Base64Utils.encodeToString( internalNotification.getIun().getBytes(StandardCharsets.UTF_8) ));
 
-        NotificationStatusV26 lastStatus;
-        if ( !CollectionUtils.isEmpty( internalNotification.getNotificationStatusHistory() )) {
-            lastStatus = internalNotification.getNotificationStatusHistory().get(
-                    internalNotification.getNotificationStatusHistory().size() - 1 ).getStatus();
-        } else {
-            log.debug( "No status history for notificationRequestId={}", notificationRequestId );
-            lastStatus = NotificationStatusV26.IN_VALIDATION;
-        }
+        NotificationStatusV26 lastStatus = getNotificationLastStatus(notificationRequestId, internalNotification);
 
         switch (lastStatus) {
             case IN_VALIDATION -> {
@@ -170,7 +141,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
                 response.setIun(null);
                 Optional<TimelineElementV28> timelineElement = internalNotification.getTimeline().stream().filter(
                         tle -> TimelineElementCategoryV28.REQUEST_REFUSED.equals(tle.getCategory())).findFirst();
-                timelineElement.ifPresent(element -> setRefusedErrors(response, element));
+                timelineElement.ifPresent(element -> response.setErrors(getRefusedErrors(element)));
             }
             default -> response.setNotificationRequestStatus("ACCEPTED");
         }
@@ -179,16 +150,61 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
         return ResponseEntity.ok( response );
     }
 
-    private void setRefusedErrors(NewNotificationRequestStatusResponseV25 response, TimelineElementV28 timelineElement) {
+    private PnAuditLogEvent buildLogEventForRequestStatus(PnAuditLogEventType pnAuditLogEventType, String methodName, String notificationRequestId, String paProtocolNumber, String idempotenceToken) {
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        return auditLogBuilder
+                .before( pnAuditLogEventType, "{} notificationRequestId={} paProtocolNumber={} idempotenceToken={}",
+                        methodName,
+                        notificationRequestId,
+                        paProtocolNumber,
+                        idempotenceToken)
+                .build();
+    }
+
+    private InternalNotification retrieveNotificationForRequestStatus(String notificationRequestId, String paProtocolNumber, String idempotenceToken, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, PnAuditLogEvent logEvent) {
+        InternalNotification internalNotification;
+        if (StringUtils.hasText( notificationRequestId )) {
+            String iun = new String(Base64Utils.decodeFromString(notificationRequestId), StandardCharsets.UTF_8);
+            logEvent.getMdc().put(MDC_PN_IUN_KEY, iun);
+            internalNotification = retrieveSvc.getNotificationInformationWithSenderIdCheck( iun, xPagopaPnCxId, xPagopaPnCxGroups );
+        } else {
+            if ( !StringUtils.hasText( paProtocolNumber ) ) {
+                PnInvalidInputException e = new PnInvalidInputException(ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_REQUIRED, "paProtocolNumber");
+                logEvent.generateFailure("[notificationRequestId={} idempotenceToken={}]" + e.getProblem(), notificationRequestId, idempotenceToken).log();
+                throw e;
+            }
+            if (!StringUtils.hasText( idempotenceToken ) ) {
+                PnInvalidInputException e = new PnInvalidInputException(ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_REQUIRED, "idempotenceToken");
+                logEvent.generateFailure("[notificationRequestId={} paProtocolNumber={}]" + e.getProblem(), notificationRequestId, paProtocolNumber).log();
+                throw e;
+            }
+            internalNotification = retrieveSvc.getNotificationInformation( xPagopaPnCxId, paProtocolNumber, idempotenceToken, xPagopaPnCxGroups);
+        }
+        InternalFieldsCleaner.cleanInternalFields( internalNotification );
+        return internalNotification;
+    }
+
+    private static NotificationStatusV26 getNotificationLastStatus(String notificationRequestId, InternalNotification internalNotification) {
+        NotificationStatusV26 lastStatus;
+        if ( !CollectionUtils.isEmpty( internalNotification.getNotificationStatusHistory() )) {
+            lastStatus = internalNotification.getNotificationStatusHistory().get(
+                    internalNotification.getNotificationStatusHistory().size() - 1 ).getStatus();
+        } else {
+            log.debug( "No status history for notificationRequestId={}", notificationRequestId);
+            lastStatus = NotificationStatusV26.IN_VALIDATION;
+        }
+        return lastStatus;
+    }
+
+    private List<NotificationRequestRefusedProblemError> getRefusedErrors(TimelineElementV28 timelineElement) {
         List<NotificationRefusedErrorV27> refusalReasons = timelineElement.getDetails().getRefusalReasons();
-        List<NotificationRequestRefusedProblemError> problemErrorList = refusalReasons.stream().map(
+        return refusalReasons.stream().map(
                 reason -> NotificationRequestRefusedProblemError.builder()
                         .code( reason.getErrorCode() )
                         .detail( reason.getDetail() )
                         .recIndex( reason.getRecIndex() )
                         .build()
         ).toList();
-        response.setErrors( problemErrorList );
     }
 
     @Override
@@ -208,7 +224,37 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
 
     @Override
     public ResponseEntity<NewInformalNotificationRequestStatusResponseV1> getInformalNotificationRequestStatusV1(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String notificationRequestId, String paProtocolNumber, String idempotenceToken) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        InternalNotification internalNotification;
+        PnAuditLogEvent logEvent = buildLogEventForRequestStatus(PnAuditLogEventType.AUD_COM_CHECK, "getInformalNotificationRequestStatusV1", notificationRequestId, paProtocolNumber, idempotenceToken);
+        logEvent.log();
+
+        internalNotification = retrieveNotificationForRequestStatus(notificationRequestId, paProtocolNumber, idempotenceToken, xPagopaPnCxId, xPagopaPnCxGroups, logEvent);
+        NewInformalNotificationRequestStatusResponseV1 response = modelMapper.map(
+                internalNotification,
+                NewInformalNotificationRequestStatusResponseV1.class
+        );
+        response.setNotificationRequestId( Base64Utils.encodeToString( internalNotification.getIun().getBytes(StandardCharsets.UTF_8) ));
+
+        NotificationStatusV26 lastStatus = getNotificationLastStatus(notificationRequestId, internalNotification);
+
+        switch (lastStatus) {
+            case IN_VALIDATION -> {
+                response.setNotificationRequestStatus("WAITING");
+                response.retryAfter(10);
+                response.setIun(null);
+            }
+            case REFUSED -> {
+                response.setNotificationRequestStatus("REFUSED");
+                response.setIun(null);
+                Optional<TimelineElementV28> timelineElement = internalNotification.getTimeline().stream().filter(
+                        tle -> TimelineElementCategoryV28.REQUEST_REFUSED.equals(tle.getCategory())).findFirst();
+                timelineElement.ifPresent(element -> response.setErrors(getRefusedErrors(element)));
+            }
+            default -> response.setNotificationRequestStatus("ACCEPTED");
+        }
+
+        logEvent.generateSuccess().log();
+        return ResponseEntity.ok( response );
     }
 
     @Override
