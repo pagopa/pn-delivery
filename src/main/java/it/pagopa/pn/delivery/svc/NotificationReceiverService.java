@@ -363,14 +363,14 @@ public class NotificationReceiverService {
 	}
 
 	private String retrieveSenderTaxIdFromExternalRegistries(String cxId) {
-			log.debug("Retrieving PA taxId from external registries for cxId={}", cxId);
-			PaInfo paInfo = pnExternalRegistriesClient.getOnePa(cxId);
-			if (Objects.isNull(paInfo) || !StringUtils.hasText(paInfo.getTaxId())) {
-				log.error("Unable to retrieve PA taxId from external registries for cxId={}", cxId);
-				throw new PnInternalException("Unable to retrieve PA taxId from external registries", 500, ERROR_CODE_DELIVERY_PA_NOT_FOUND);
-			}
-			log.debug("Retrieved PA taxId={} from external registries for cxId={}", paInfo.getTaxId(), cxId);
-			return paInfo.getTaxId();
+		log.debug("Retrieving PA taxId from external registries for cxId={}", cxId);
+		PaInfo paInfo = pnExternalRegistriesClient.getOnePa(cxId);
+		if (Objects.isNull(paInfo) || !StringUtils.hasText(paInfo.getTaxId())) {
+			log.error("Unable to retrieve PA taxId from external registries for cxId={}", cxId);
+			throw new PnInternalException("Unable to retrieve PA taxId from external registries", 500, ERROR_CODE_DELIVERY_PA_NOT_FOUND);
+		}
+		log.debug("Retrieved PA taxId={} from external registries for cxId={}", paInfo.getTaxId(), cxId);
+		return paInfo.getTaxId();
 	}
 	private NewInformalNotificationResponse generateInformalResponse(InternalNotification internalNotification, String iun) {
 		String notificationId = Base64Utils.encodeToString(iun.getBytes(StandardCharsets.UTF_8));

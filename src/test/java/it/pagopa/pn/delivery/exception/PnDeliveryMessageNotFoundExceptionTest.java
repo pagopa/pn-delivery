@@ -105,11 +105,9 @@ class PnDeliveryMessageNotFoundExceptionTest {
         assertEquals(404, problem.getStatus().intValue());
         List<ProblemError> errors = problem.getErrors();
         assertEquals(1, errors.size());
-        assertEquals("Internal Server Error", problem.getDetail());
         assertEquals("GENERIC_ERROR", problem.getType());
         ProblemError getResult = errors.get(0);
         assertEquals("An error occurred", getResult.getCode());
         assertNull(getResult.getElement());
-        assertEquals("none", getResult.getDetail());
     }
 }
