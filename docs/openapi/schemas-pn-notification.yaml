@@ -281,8 +281,8 @@ components:
           type: integer
           format: int32
           description: >-
-            Valore opzionale che indica la priorità di postalizzazione desiderata dall'ente, dove 100 rappresenta la priorità massima e 0 la minima. 
-            Il sistema utilizza questo parametro per ottimizzare l'ordine di affidamento al recapitista esclusivamente all'interno delle quote riservate al mittente stesso, dando precedenza alle urgenze senza alterare l'equità globale verso gli altri enti.
+            Priorità del primo tentativo di recapito quando è attiva la funzionalità di gestione dei picchi, dove 100 rappresenta la priorità massima e 0 la minima. 
+            Regola l'ordine di affido delle spedizioni all'interno della sola quota mittente, dando precedenza a quelle più urgenti senza impattare sulle quote degli altri enti.
           minimum: 0
           maximum: 100
           default: 0
