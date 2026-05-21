@@ -22,6 +22,10 @@ public class NotificationRecipient {
     private NotificationPhysicalAddress physicalAddress;
     private List<NotificationPaymentInfo> payments = null;
     private String messageId;
+    @ToString.Exclude
+    private String email;
+    @ToString.Exclude
+    private String phoneNumber;
 
     public NotificationRecipient recipientType(NotificationRecipientV24.RecipientTypeEnum recipientType) {
         this.recipientType = recipientType;
