@@ -122,9 +122,9 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
 
         logEvent.log();
         internalNotification = retrieveNotificationForRequestStatus(notificationRequestId, paProtocolNumber, idempotenceToken, xPagopaPnCxId, xPagopaPnCxGroups, logEvent);
-        NewNotificationRequestStatusResponseV25 response = modelMapper.map(
+        NewNotificationRequestStatusResponseV26 response = modelMapper.map(
                 internalNotification,
-                NewNotificationRequestStatusResponseV25.class
+                NewNotificationRequestStatusResponseV26.class
         );
         response.setNotificationRequestId( Base64Utils.encodeToString( internalNotification.getIun().getBytes(StandardCharsets.UTF_8) ));
 

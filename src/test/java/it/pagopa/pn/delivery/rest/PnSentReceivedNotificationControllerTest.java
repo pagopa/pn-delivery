@@ -501,7 +501,7 @@ class PnSentReceivedNotificationControllerTest {
 
     private static Stream<Arguments> provideNotificationRequestStatusArgs() {
         return Stream.of(
-                Arguments.of(DELIVERY_REQUESTS_PATH, NewNotificationRequestStatusResponseV25.class),
+                Arguments.of(DELIVERY_REQUESTS_PATH, NewNotificationRequestStatusResponseV26.class),
                 Arguments.of(DELIVERY_INFORMAL_REQUESTS_PATH, NewInformalNotificationRequestStatusResponseV1.class)
         );
     }
