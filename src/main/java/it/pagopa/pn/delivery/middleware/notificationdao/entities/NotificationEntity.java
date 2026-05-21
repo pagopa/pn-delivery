@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.middleware.notificationdao.entities;
 
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV28;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV29;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.delivery.models.NotificationLang;
 import it.pagopa.pn.delivery.models.internal.notification.CommunicationType;
@@ -48,6 +48,7 @@ public class NotificationEntity {
     public static final String FIELD_SOURCE_CHANNEL_DETAILS = "sourceChannelDetails";
     public static final String FIELD_VERSION = "version";
     public static final String FIELD_PA_FEE = "paFee";
+    public static final String FIELD_PHYSICAL_COMMUNICATION_PRIORITY = "physicalCommunicationPriority";
     public static final String FIELD_VAT = "vat";
     public static final String FIELD_LANG = "languages";
     public static final String USED_SERVICES = "usedServices";
@@ -67,7 +68,7 @@ public class NotificationEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_RECIPIENTS),@DynamoDbIgnoreNulls})) private List<NotificationRecipientEntity> recipients;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_DOCUMENTS)})) private List<DocumentAttachmentEntity> documents;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_NOTIFICATION_FEE_POLICY)})) private NotificationFeePolicy notificationFeePolicy;
-    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PHYSICAL_COMMUNICATION_TYPE)})) private FullSentNotificationV28.PhysicalCommunicationTypeEnum physicalCommunicationType;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PHYSICAL_COMMUNICATION_TYPE)})) private FullSentNotificationV29.PhysicalCommunicationTypeEnum physicalCommunicationType;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_GROUP)})) private String group;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SENDER_DENOMINATION)})) private String senderDenomination;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SENDER_TAX_ID)})) private String senderTaxId;
@@ -81,6 +82,7 @@ public class NotificationEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SOURCE_CHANNEL_DETAILS)})) private String sourceChannelDetails;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_VERSION)})) private String version;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PA_FEE)})) private Integer paFee;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PHYSICAL_COMMUNICATION_PRIORITY)})) private Integer physicalCommunicationPriority;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_VAT)})) private Integer vat;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_LANG)})) private List<NotificationLang> languages;
     @Getter(onMethod=@__({@DynamoDbAttribute(USED_SERVICES)})) private UsedServicesEntity usedServices;

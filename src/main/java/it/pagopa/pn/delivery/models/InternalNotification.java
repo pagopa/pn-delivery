@@ -29,11 +29,12 @@ public class InternalNotification {
     private List<NotificationDocument> documents;
     private NotificationFeePolicy notificationFeePolicy;
     private String cancelledIun;
-    private FullSentNotificationV28.PhysicalCommunicationTypeEnum physicalCommunicationType;
+    private FullSentNotificationV29.PhysicalCommunicationTypeEnum physicalCommunicationType;
     private String senderDenomination;
     private String senderTaxId;
     private String group;
     private Integer amount;
+    private Integer physicalCommunicationPriority;
     private String paymentExpirationDate;
     private String taxonomyCode;
     private Integer paFee;
@@ -49,7 +50,7 @@ public class InternalNotification {
     private List<String> recipientIds;
     private String sourceChannel;
     private String sourceChannelDetails;
-    private NewNotificationRequestV25.PagoPaIntModeEnum pagoPaIntMode;
+    private NewNotificationRequestV26.PagoPaIntModeEnum pagoPaIntMode;
     private String version;
     private List<String> additionalLanguages;
     private InternalUsedService usedServices;
@@ -177,16 +178,16 @@ public class InternalNotification {
         this.cancelledIun = cancelledIun;
     }
 
-    public InternalNotification physicalCommunicationType(FullSentNotificationV28.PhysicalCommunicationTypeEnum physicalCommunicationType) {
+    public InternalNotification physicalCommunicationType(FullSentNotificationV29.PhysicalCommunicationTypeEnum physicalCommunicationType) {
         this.physicalCommunicationType = physicalCommunicationType;
         return this;
     }
 
-    public FullSentNotificationV28.PhysicalCommunicationTypeEnum getPhysicalCommunicationType() {
+    public FullSentNotificationV29.PhysicalCommunicationTypeEnum getPhysicalCommunicationType() {
         return physicalCommunicationType;
     }
 
-    public void setPhysicalCommunicationType(FullSentNotificationV28.PhysicalCommunicationTypeEnum physicalCommunicationType) {
+    public void setPhysicalCommunicationType(FullSentNotificationV29.PhysicalCommunicationTypeEnum physicalCommunicationType) {
         this.physicalCommunicationType = physicalCommunicationType;
     }
 
@@ -246,6 +247,22 @@ public class InternalNotification {
 
     public void setAmount(Integer amount) {
         this.amount = amount;
+    }
+
+    public InternalNotification physicalCommunicationPriority (Integer physicalCommunicationPriority) {
+        this.physicalCommunicationPriority = physicalCommunicationPriority;
+        return this;
+    }
+
+    /**
+     * @return physicalCommunicationPriority
+     */
+    public Integer getPhysicalCommunicationPriority() {
+        return physicalCommunicationPriority;
+    }
+
+    public void setPhysicalCommunicationPriority(Integer physicalCommunicationPriority) {
+        this.physicalCommunicationPriority = physicalCommunicationPriority;
     }
 
     public InternalNotification paymentExpirationDate(String paymentExpirationDate) {

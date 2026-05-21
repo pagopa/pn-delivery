@@ -85,10 +85,10 @@ class PnSentReceivedNotificationControllerTest {
     private static final NotificationStatusV26 STATUS = NotificationStatusV26.IN_VALIDATION;
     private static final String RECIPIENT_ID = "CGNNMO80A01H501M";
     public static final List<String> GROUPS = List.of("Group1", "Group2");
-    public static final String DELIVERY_REQUESTS_PATH = "/delivery/v2.5/requests";
+    public static final String DELIVERY_REQUESTS_PATH = "/delivery/v2.6/requests";
     public static final String DELIVERY_INFORMAL_REQUESTS_PATH = "/delivery/v1/notifications/informal";
-    public static final String DELIVERY_RECEIVED_PATH = "/delivery/v2.7/notifications/received/";
-    public static final String DELIVERY_SENT_PATH = "/delivery/v2.8/notifications/sent/";
+    public static final String DELIVERY_RECEIVED_PATH = "/delivery/v2.8/notifications/received/";
+    public static final String DELIVERY_SENT_PATH = "/delivery/v2.9/notifications/sent/";
 
     @Autowired
     WebTestClient webTestClient;
@@ -129,7 +129,7 @@ class PnSentReceivedNotificationControllerTest {
                 .exchange()
                 .expectStatus()
                 .isOk()
-                .expectBody(FullSentNotificationV28.class);
+                .expectBody(FullSentNotificationV29.class);
 
         Mockito.verify(svc).getNotificationInformationWithSenderIdCheck(IUN, PA_ID, GROUPS);
     }
@@ -210,7 +210,7 @@ class PnSentReceivedNotificationControllerTest {
                 .exchange()
                 .expectStatus()
                 .isOk()
-                .expectBody(NewNotificationRequestStatusResponseV25.class);
+                .expectBody(NewNotificationRequestStatusResponseV26.class);
 
         Mockito.verify(svc).getNotificationInformationWithSenderIdCheck(new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS);
     }
@@ -691,7 +691,7 @@ class PnSentReceivedNotificationControllerTest {
                 .exchange()
                 .expectStatus()
                 .isOk()
-                .expectBody(FullReceivedNotificationV27.class);
+                .expectBody(FullReceivedNotificationV28.class);
 
         Mockito.verify(svc).getNotificationAndNotifyViewedEvent(Mockito.eq(IUN), Mockito.eq(INTERNAL_AUTH_HEADER), Mockito.eq(null), Mockito.any(PnAuditLogEvent.class));
     }
@@ -743,7 +743,7 @@ class PnSentReceivedNotificationControllerTest {
                 .exchange()
                 .expectStatus()
                 .isOk()
-                .expectBody(FullReceivedNotificationV27.class);
+                .expectBody(FullReceivedNotificationV28.class);
 
         Mockito.verify(svc).getNotificationAndNotifyViewedEvent(Mockito.eq(IUN), Mockito.eq(INTERNAL_AUTH_HEADER), Mockito.eq(MANDATE_ID), Mockito.any(PnAuditLogEvent.class));
     }

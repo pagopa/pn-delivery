@@ -54,7 +54,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
     }
 
     @Override
-    public ResponseEntity<FullSentNotificationV28> getSentNotificationV28(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
+    public ResponseEntity<FullSentNotificationV29> getSentNotificationV29(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
         InternalNotification internalNotification = retrieveSvc.getNotificationInformationWithSenderIdCheck( iun, xPagopaPnCxId, xPagopaPnCxGroups );
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
@@ -68,7 +68,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
             throw new PnNotificationNotFoundException( "Unable to find notification with iun="+ internalNotification.getIun() );
         }
         InternalFieldsCleaner.cleanInternalFields( internalNotification );
-        FullSentNotificationV28 result = modelMapper.map( internalNotification, FullSentNotificationV28.class );
+        FullSentNotificationV29 result = modelMapper.map( internalNotification, FullSentNotificationV29.class );
         logEvent.generateSuccess().log();
         return ResponseEntity.ok( result );
     }
@@ -116,7 +116,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
     }
 
     @Override
-    public ResponseEntity<NewNotificationRequestStatusResponseV25> getNotificationRequestStatusV25(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String notificationRequestId, String paProtocolNumber, String idempotenceToken) {
+    public ResponseEntity<NewNotificationRequestStatusResponseV26> getNotificationRequestStatusV26(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String notificationRequestId, String paProtocolNumber, String idempotenceToken) {
         InternalNotification internalNotification;
         PnAuditLogEvent logEvent = buildLogEventForRequestStatus(PnAuditLogEventType.AUD_NT_CHECK, "getNotificationRequestStatus", notificationRequestId, paProtocolNumber, idempotenceToken);
 
