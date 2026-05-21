@@ -21,7 +21,6 @@ class ModelMapperConfigTest {
     @Test
     void mapsInformalNotificationRequestAndSetsCommunicationTypeToInformal() {
         InformalNotificationRequestV1 request = InformalNotificationRequestV1.builder()
-                .senderTaxId("12345678901")
                 .senderDenomination("Comune di Test")
                 .paProtocolNumber("protocol-1")
                 .idempotenceToken("idem-1")
@@ -32,7 +31,6 @@ class ModelMapperConfigTest {
 
         InternalNotification result = modelMapper.map(request, InternalNotification.class);
 
-        assertEquals("12345678901", result.getSenderTaxId());
         assertEquals("Comune di Test", result.getSenderDenomination());
         assertEquals("protocol-1", result.getPaProtocolNumber());
         assertEquals("idem-1", result.getIdempotenceToken());
