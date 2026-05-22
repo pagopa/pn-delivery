@@ -548,8 +548,6 @@ components:
       required: true
       schema:
         type: string
-        minLength: 6
-        maxLength: 6
         pattern: "PAGOPA"
 
     attachmentIdx:
