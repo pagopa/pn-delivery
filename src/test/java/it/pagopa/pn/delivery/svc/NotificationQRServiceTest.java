@@ -120,6 +120,21 @@ class NotificationQRServiceTest {
         Assertions.assertThrows(PnNotFoundException.class, todo);
     }
 
+    @Test
+    void getNotificationByQRWithSanitizedAarQrCodeFailure() {
+        String aarQrCodeWithParams = AAR_QR_CODE_VALUE + "&utm_campaign=nuova_notifica&utm_source=pec_notifica";
+        RequestCheckAarDto requestCheckAarDto = RequestCheckAarDto.builder()
+                .recipientType(RECIPIENT_TYPE)
+                .recipientInternalId("recipientInternalId")
+                .aarQrCodeValue(aarQrCodeWithParams)
+                .build();
+
+        Mockito.when(notificationQREntityDao.getNotificationByQR(AAR_QR_CODE_VALUE)).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(PnNotFoundException.class, () -> svc.getNotificationByQR(requestCheckAarDto));
+        Mockito.verify(notificationQREntityDao).getNotificationByQR(AAR_QR_CODE_VALUE);
+    }
+
     @ExtendWith(MockitoExtension.class)
     @Test
     void getNotificationByQRInvalidURINoQueryFailure() {
@@ -605,6 +620,43 @@ class NotificationQRServiceTest {
     }
 
     @Test
+    void getAarQrCodeToDecodeWithSanitizedTokenSuccess() {
+        String sanitizedQrCodeValue = "qrCodeValue";
+        String aarQrCodeValue = sanitizedQrCodeValue + "&utm_campaign=nuova_notifica&utm_source=pec_notifica";
+        String iun = "iun";
+        String recipientInternalId = "recipientId";
+        RequestDecodeQrDto request = RequestDecodeQrDto.builder().aarTokenValue(aarQrCodeValue).build();
+
+        InternalNotificationQR internalNotificationQR = InternalNotificationQR.builder()
+                .aarQRCodeValue(sanitizedQrCodeValue)
+                .iun(iun)
+                .recipientInternalId(recipientInternalId)
+                .build();
+
+        NotificationRecipient recipient = NotificationRecipient.builder()
+                .internalId(recipientInternalId)
+                .taxId("taxId")
+                .denomination("denomination")
+                .build();
+
+        InternalNotification internalNotification = InternalNotification.builder()
+                .iun(iun)
+                .recipients(List.of(recipient))
+                .build();
+
+        Mockito.when(notificationQREntityDao.getNotificationByQR(sanitizedQrCodeValue))
+                .thenReturn(Optional.of(internalNotificationQR));
+        Mockito.when(notificationDao.getNotificationByIun(iun, true))
+                .thenReturn(Optional.of(internalNotification));
+
+        UserInfoQrCode result = svc.getAarQrCodeToDecode(request);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(iun, result.getIun());
+        Mockito.verify(notificationQREntityDao).getNotificationByQR(sanitizedQrCodeValue);
+    }
+
+    @Test
     void getAarQrCodeToDecodeNotFound() {
         String aarQrCodeValue = "qrCodeValue";
         String iun = "iun";
@@ -634,6 +686,86 @@ class NotificationQRServiceTest {
                 .thenReturn(Optional.of(internalNotification));
 
         Assertions.assertThrows(NoSuchElementException.class, () -> svc.getAarQrCodeToDecode(request));
+    }
+
+    @Test
+    void getNotificationByQRWithMandateWithSanitizedAarQrCodeSuccess() {
+        String userId = "recipientInternalId";
+        String sanitizedQrCodeValue = AAR_QR_CODE_VALUE;
+        String aarQrCodeWithParams = sanitizedQrCodeValue + "&utm_campaign=nuova_notifica&utm_source=pec_notifica";
+        RequestCheckAarMandateDto request = new RequestCheckAarMandateDto(aarQrCodeWithParams);
+
+        InternalNotificationQR internalNotificationQR = InternalNotificationQR.builder()
+                .aarQRCodeValue(sanitizedQrCodeValue)
+                .iun("iun")
+                .recipientType(NotificationRecipientV24.RecipientTypeEnum.PF)
+                .recipientInternalId(userId)
+                .build();
+
+        InternalNotification internalNotification = InternalNotification.builder()
+                .iun("iun")
+                .senderPaId("senderPaId")
+                .build();
+
+        Mockito.when(notificationQREntityDao.getNotificationByQR(sanitizedQrCodeValue))
+                .thenReturn(Optional.of(internalNotificationQR));
+        Mockito.when(notificationDao.getNotificationByIun("iun", false))
+                .thenReturn(Optional.of(internalNotification));
+
+        ResponseCheckAarMandateDto result = svc.getNotificationByQRWithMandate(request, RECIPIENT_TYPE, userId, null);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals("iun", result.getIun());
+        Assertions.assertNull(result.getMandateId());
+        Mockito.verify(notificationQREntityDao).getNotificationByQR(sanitizedQrCodeValue);
+    }
+
+    @Test
+    void getNotificationByQRWithMandateWithSanitizedAarQrCodeFailsWhenThereIsNoNotification() {
+        String userId = "recipientInternalId";
+        String sanitizedQrCodeValue = AAR_QR_CODE_VALUE;
+        String aarQrCodeWithParams = sanitizedQrCodeValue + "&utm_campaign=nuova_notifica&utm_source=pec_notifica";
+        RequestCheckAarMandateDto request = new RequestCheckAarMandateDto(aarQrCodeWithParams);
+
+        InternalNotificationQR internalNotificationQR = InternalNotificationQR.builder()
+                .aarQRCodeValue(sanitizedQrCodeValue)
+                .iun("iun")
+                .recipientType(NotificationRecipientV24.RecipientTypeEnum.PF)
+                .recipientInternalId(userId)
+                .build();
+
+        Mockito.when(notificationQREntityDao.getNotificationByQR(sanitizedQrCodeValue))
+                .thenReturn(Optional.of(internalNotificationQR));
+        Mockito.when(notificationDao.getNotificationByIun("iun", false)).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(PnNotificationNotFoundException.class,
+                () -> svc.getNotificationByQRWithMandate(request, RECIPIENT_TYPE, userId, null));
+        Mockito.verify(notificationQREntityDao).getNotificationByQR(sanitizedQrCodeValue);
+    }
+
+    @Test
+    void getNotificationByQRFromIOWithMandateWithSanitizedAarQrCodeFailsWhenThereIsNoNotification() {
+        String userId = "recipientInternalId";
+        String sanitizedQrCodeValue = AAR_QR_CODE_VALUE;
+        String aarQrCodeWithParams = sanitizedQrCodeValue + "&utm_campaign=nuova_notifica&utm_source=pec_notifica";
+        RequestCheckQrMandateDto request = new RequestCheckQrMandateDto(aarQrCodeWithParams);
+
+        Mockito.when(qrUrlCodecService.decode(Mockito.anyString())).thenReturn(aarQrCodeWithParams);
+
+        InternalNotificationQR internalNotificationQR = InternalNotificationQR.builder()
+                .aarQRCodeValue(sanitizedQrCodeValue)
+                .iun("iun")
+                .recipientType(NotificationRecipientV24.RecipientTypeEnum.PF)
+                .recipientInternalId(userId)
+                .build();
+
+        Mockito.when(notificationQREntityDao.getNotificationByQR(sanitizedQrCodeValue))
+                .thenReturn(Optional.of(internalNotificationQR));
+        Mockito.when(notificationDao.getNotificationByIun("iun", true)).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(PnNotificationNotFoundException.class,
+                () -> svc.getNotificationByQRFromIOWithMandate(request, RECIPIENT_TYPE, userId, null));
+        Mockito.verify(notificationQREntityDao).getNotificationByQR(sanitizedQrCodeValue);
     }
 
 
