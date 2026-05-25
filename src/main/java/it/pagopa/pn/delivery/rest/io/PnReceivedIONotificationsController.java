@@ -76,12 +76,7 @@ public class PnReceivedIONotificationsController implements AppIoPnNotificationA
     public ResponseEntity<ResponseCheckQrMandateDto> checkAarQrCodeIO(CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String xPagopaCxTaxid, RequestCheckQrMandateDto requestCheckQrMandateDto, List<String> xPagopaPnCxGroups)  {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         String aarQrCodeValue = requestCheckQrMandateDto.getAarQrCodeValue();
-        if (aarQrCodeValue != null) {
-            int ampIdx = aarQrCodeValue.indexOf('&');
-            if (ampIdx != -1) {
-                aarQrCodeValue = aarQrCodeValue.substring(0, ampIdx);
-            }
-        }
+
         String recipientType = xPagopaPnCxType.getValue();
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before( PnAuditLogEventType.AUD_NT_REQQR, "checkAarQrCodeIO aarQrCodeValue={} recipientType={} customerId={}",
