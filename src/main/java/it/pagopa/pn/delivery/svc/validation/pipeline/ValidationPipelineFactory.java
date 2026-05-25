@@ -24,6 +24,7 @@ public class ValidationPipelineFactory {
     private final ProvinceRequiredValidator provinceRequiredValidator;
     private final UniqueAttachmentsValidator uniqueAttachmentsValidator;
     private final PhysicalAddressValidator physicalAddressValidator;
+    private final DocumentAttachmentsKeyValidator documentAttachmentsKeyValidator;
 
     @Bean
     public ValidationPipeline<InformalNotificationContext> informalPipeline() {
@@ -41,6 +42,7 @@ public class ValidationPipelineFactory {
                 .formal(provinceRequiredValidator)
                 .formal(new DenominationAndAtValidator(cfg.getDenominationLength(), cfg.getDenominationValidationTypeValue(), cfg.getDenominationValidationRegexValue(), cfg.getDenominationValidationExcludedCharacter()))
                 .formal(uniqueAttachmentsValidator)
+                .formal(documentAttachmentsKeyValidator)
                 .build();
     }
 
