@@ -5,18 +5,7 @@ import it.pagopa.pn.delivery.svc.validation.validators.AuthorizationValidator;
 import it.pagopa.pn.delivery.svc.validation.validators.BusinessValidator;
 import it.pagopa.pn.delivery.svc.validation.validators.FormalValidator;
 import it.pagopa.pn.delivery.svc.validation.validators.authorization.SendInformalNotificationActiveValidator;
-import it.pagopa.pn.delivery.svc.validation.validators.formal.AdditionalLanguageFormalValidator;
-import it.pagopa.pn.delivery.svc.validation.validators.formal.DenominationAndAtValidator;
-import it.pagopa.pn.delivery.svc.validation.validators.formal.GroupValidator;
-import it.pagopa.pn.delivery.svc.validation.validators.formal.MaxAttachmentsSizeValidator;
-import it.pagopa.pn.delivery.svc.validation.validators.formal.MaxPaymentsSizeValidator;
-import it.pagopa.pn.delivery.svc.validation.validators.formal.MaxRecipientsSizeValidator;
-import it.pagopa.pn.delivery.svc.validation.validators.formal.PaymentAttachmentValidator;
-import it.pagopa.pn.delivery.svc.validation.validators.formal.PgTaxIdValidator;
-import it.pagopa.pn.delivery.svc.validation.validators.formal.PhysicalAddressValidator;
-import it.pagopa.pn.delivery.svc.validation.validators.formal.ProvinceRequiredValidator;
-import it.pagopa.pn.delivery.svc.validation.validators.formal.RecipientTaxIdSyntaxValidator;
-import it.pagopa.pn.delivery.svc.validation.validators.formal.UniqueAttachmentsValidator;
+import it.pagopa.pn.delivery.svc.validation.validators.formal.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -50,6 +39,7 @@ class ValidationPipelineFactoryTest {
     private ProvinceRequiredValidator provinceRequiredValidator;
     private UniqueAttachmentsValidator uniqueAttachmentsValidator;
     private PhysicalAddressValidator physicalAddressValidator;
+    private DocumentAttachmentsKeyValidator documentAttachmentsKeyValidator;
 
     private ValidationPipelineFactory factory;
 
@@ -65,6 +55,7 @@ class ValidationPipelineFactoryTest {
         provinceRequiredValidator = mock(ProvinceRequiredValidator.class);
         uniqueAttachmentsValidator = mock(UniqueAttachmentsValidator.class);
         physicalAddressValidator = mock(PhysicalAddressValidator.class);
+        documentAttachmentsKeyValidator = mock(DocumentAttachmentsKeyValidator.class);
 
         when(cfg.getDenominationLength()).thenReturn(DENOMINATION_LENGTH);
         when(cfg.getDenominationValidationTypeValue()).thenReturn(DENOMINATION_VALIDATION_TYPE);
@@ -87,7 +78,8 @@ class ValidationPipelineFactoryTest {
                 paymentAttachmentValidator,
                 provinceRequiredValidator,
                 uniqueAttachmentsValidator,
-                physicalAddressValidator
+                physicalAddressValidator,
+                documentAttachmentsKeyValidator
         );
     }
 
@@ -102,7 +94,7 @@ class ValidationPipelineFactoryTest {
         assertThat(authorizationValidators).hasSize(1);
         assertThat(authorizationValidators.get(0)).isSameAs(sendInformalNotificationActiveValidator);
 
-        assertThat(formalValidators).hasSize(12);
+        assertThat(formalValidators).hasSize(13);
         assertThat(formalValidators.get(0)).isInstanceOf(MaxAttachmentsSizeValidator.class);
         assertThat(formalValidators.get(1)).isInstanceOf(MaxRecipientsSizeValidator.class);
         assertThat(formalValidators.get(2)).isSameAs(additionalLanguageFormalValidator);
@@ -115,6 +107,7 @@ class ValidationPipelineFactoryTest {
         assertThat(formalValidators.get(9)).isSameAs(provinceRequiredValidator);
         assertThat(formalValidators.get(10)).isInstanceOf(DenominationAndAtValidator.class);
         assertThat(formalValidators.get(11)).isSameAs(uniqueAttachmentsValidator);
+        assertThat(formalValidators.get(12)).isSameAs(documentAttachmentsKeyValidator);
 
         assertThat(businessValidators).isEmpty();
     }
@@ -135,6 +128,7 @@ class ValidationPipelineFactoryTest {
         assertThat(formalValidators.get(8)).isSameAs(physicalAddressValidator);
         assertThat(formalValidators.get(9)).isSameAs(provinceRequiredValidator);
         assertThat(formalValidators.get(11)).isSameAs(uniqueAttachmentsValidator);
+        assertThat(formalValidators.get(12)).isSameAs(documentAttachmentsKeyValidator);
 
         DenominationAndAtValidator denominationAndAtValidator =
                 (DenominationAndAtValidator) formalValidators.get(10);
