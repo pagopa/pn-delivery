@@ -1925,6 +1925,260 @@ class NotificationReceiverValidationTest {
         assertDoesNotThrow(() -> validator.checkNewNotificationRequestBeforeInsertAndThrow(validRequest, validRequest.getSenderTaxId()));
     }
 
+    @Test
+    void checkDocumentAttachmentsKey_ValidKey_NoErrors() {
+        // Given
+        NewNotificationRequestV26 n = newNotificationWithoutPayments();
+        n.setDocuments(Collections.singletonList(NotificationDocument.builder()
+                .contentType(APPLICATION_PDF)
+                .ref(NotificationAttachmentBodyRef.builder()
+                        .key("PN_NOTIFICATION_ATTACHMENTS-af041e27d83d4c34bc36aae3b2451be8.pdf")
+                        .versionToken(VERSION_TOKEN)
+                        .build())
+                .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
+                .build()));
+
+        n.setTaxonomyCode("123456A");
+        n.setPhysicalCommunicationType(NewNotificationRequestV26.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
+
+        when(validateUtils.validate(anyString(), anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(true);
+        defaultMockConfigAndParameterForVas();
+
+        // When
+        Set<ConstraintViolation<NewNotificationRequestV26>> errors;
+        errors = validator.checkNewNotificationRequestBeforeInsert(n, n.getSenderTaxId());
+
+        // Then
+        // Verifica che non ci siano errori relativi alla chiave del documento
+        Assertions.assertTrue(errors.stream()
+                .noneMatch(e -> e.getMessage().contains("does not contain the expected value")));
+    }
+
+    @Test
+    void checkDocumentAttachmentsKey_InvalidKey_ReturnsError() {
+        // Given
+        NewNotificationRequestV26 n = newNotificationWithoutPayments();
+        String invalidKey = "INVALID_KEY-af041e27d83d4c34bc36aae3b2451be8.pdf";
+        n.setDocuments(Collections.singletonList(NotificationDocument.builder()
+                .contentType(APPLICATION_PDF)
+                .ref(NotificationAttachmentBodyRef.builder()
+                        .key(invalidKey)
+                        .versionToken(VERSION_TOKEN)
+                        .build())
+                .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
+                .build()));
+
+        // Aggiungi i campi mancanti richiesti dalla validazione
+        n.setTaxonomyCode("123456A");
+        n.setPhysicalCommunicationType(NewNotificationRequestV26.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
+
+        when(validateUtils.validate(anyString(), anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(true);
+        defaultMockConfigAndParameterForVas();
+
+        // When
+        Set<ConstraintViolation<NewNotificationRequestV26>> errors;
+        errors = validator.checkNewNotificationRequestBeforeInsert(n, n.getSenderTaxId());
+
+        // Then
+        String expectedMessage = String.format("Document Attachments key %s does not contain the expected value: %s",
+                invalidKey, "PN_NOTIFICATION_ATTACHMENTS");
+        assertConstraintViolationPresentByMessage(errors, expectedMessage);
+    }
+
+    @Test
+    void checkDocumentAttachmentsKey_MultipleDocuments_SomeInvalid() {
+        // Given
+        NewNotificationRequestV26 n = newNotificationWithoutPayments();
+        String validKey = "PN_NOTIFICATION_ATTACHMENTS-valid.pdf";
+        String invalidKey1 = "WRONG_PREFIX-doc1.pdf";
+        String invalidKey2 = "ANOTHER_INVALID-doc2.pdf";
+
+        List<NotificationDocument> documents = Arrays.asList(
+                NotificationDocument.builder()
+                        .contentType(APPLICATION_PDF)
+                        .ref(NotificationAttachmentBodyRef.builder().key(validKey).versionToken(VERSION_TOKEN).build())
+                        .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
+                        .build(),
+                NotificationDocument.builder()
+                        .contentType(APPLICATION_PDF)
+                        .ref(NotificationAttachmentBodyRef.builder().key(invalidKey1).versionToken(VERSION_TOKEN).build())
+                        .digests(NotificationAttachmentDigests.builder().sha256("sha256-2").build())
+                        .build(),
+                NotificationDocument.builder()
+                        .contentType(APPLICATION_PDF)
+                        .ref(NotificationAttachmentBodyRef.builder().key(invalidKey2).versionToken(VERSION_TOKEN).build())
+                        .digests(NotificationAttachmentDigests.builder().sha256("sha256-3").build())
+                        .build()
+        );
+        n.setDocuments(documents);
+
+        // Aggiungi i campi mancanti richiesti dalla validazione
+        n.setTaxonomyCode("123456A");
+        n.setPhysicalCommunicationType(NewNotificationRequestV26.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
+
+        when(validateUtils.validate(anyString(), anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(true);
+        defaultMockConfigAndParameterForVas();
+
+        // When
+        Set<ConstraintViolation<NewNotificationRequestV26>> errors;
+        errors = validator.checkNewNotificationRequestBeforeInsert(n, n.getSenderTaxId());
+
+        // Then
+        String expectedMessage1 = String.format("Document Attachments key %s does not contain the expected value: %s",
+                invalidKey1, "PN_NOTIFICATION_ATTACHMENTS");
+        String expectedMessage2 = String.format("Document Attachments key %s does not contain the expected value: %s",
+                invalidKey2, "PN_NOTIFICATION_ATTACHMENTS");
+
+        assertConstraintViolationPresentByMessage(errors, expectedMessage1);
+        assertConstraintViolationPresentByMessage(errors, expectedMessage2);
+    }
+
+    @Test
+    void checkDocumentAttachmentsKey_KeyWithPrefixInMiddle_Valid() {
+        // Given
+        NewNotificationRequestV26 n = newNotificationWithoutPayments();
+        String keyWithPrefixInMiddle = "prefix-PN_NOTIFICATION_ATTACHMENTS-suffix.pdf";
+        n.setDocuments(Collections.singletonList(NotificationDocument.builder()
+                .contentType(APPLICATION_PDF)
+                .ref(NotificationAttachmentBodyRef.builder()
+                        .key(keyWithPrefixInMiddle)
+                        .versionToken(VERSION_TOKEN)
+                        .build())
+                .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
+                .build()));
+
+        // Aggiungi i campi mancanti richiesti dalla validazione
+        n.setTaxonomyCode("123456A");
+        n.setPhysicalCommunicationType(NewNotificationRequestV26.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
+
+        when(validateUtils.validate(anyString(), anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(true);
+        defaultMockConfigAndParameterForVas();
+
+        // When
+        Set<ConstraintViolation<NewNotificationRequestV26>> errors;
+        errors = validator.checkNewNotificationRequestBeforeInsert(n, n.getSenderTaxId());
+
+        // Then
+        // Deve essere valido perché il metodo usa contains(), non startsWith()
+        Assertions.assertTrue(errors.stream()
+                .noneMatch(e -> e.getMessage().contains("does not contain the expected value")));
+    }
+
+    @Test
+    void checkDocumentAttachmentsKey_EmptyDocumentsList_NoErrors() {
+        // Given
+        NewNotificationRequestV26 n = newNotificationWithoutPayments();
+        n.setDocuments(Collections.emptyList());
+
+        // Aggiungi i campi mancanti richiesti dalla validazione
+        n.setTaxonomyCode("123456A");
+        n.setPhysicalCommunicationType(NewNotificationRequestV26.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
+
+        when(validateUtils.validate(anyString(), anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(true);
+        defaultMockConfigAndParameterForVas();
+
+        // When
+        Set<ConstraintViolation<NewNotificationRequestV26>> errors;
+        errors = validator.checkNewNotificationRequestBeforeInsert(n, n.getSenderTaxId());
+
+        // Then
+        Assertions.assertTrue(errors.stream()
+                .noneMatch(e -> e.getMessage().contains("does not contain the expected value")));
+    }
+
+    @Test
+    void checkDocumentAttachmentsKey_NullDocumentsList_NoErrors() {
+        // Given
+        NewNotificationRequestV26 n = newNotificationWithoutPayments();
+        n.setDocuments(null);
+
+        // Aggiungi i campi mancanti richiesti dalla validazione
+        n.setTaxonomyCode("123456A");
+        n.setPhysicalCommunicationType(NewNotificationRequestV26.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
+
+        when(validateUtils.validate(anyString(), anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(true);
+        defaultMockConfigAndParameterForVas();
+
+        // When
+        Set<ConstraintViolation<NewNotificationRequestV26>> errors;
+        errors = validator.checkNewNotificationRequestBeforeInsert(n, n.getSenderTaxId());
+
+        // Then
+        Assertions.assertTrue(errors.stream()
+                .noneMatch(e -> e.getMessage().contains("does not contain the expected value")));
+    }
+
+    @Test
+    void checkDocumentAttachmentsKeyMethod_Valid() {
+        // Test diretto del metodo protected checkDocumentAttachmentsKey
+        // Given
+        String validKey = "PN_NOTIFICATION_ATTACHMENTS-12345.pdf";
+
+        // When
+        boolean result = validator.checkDocumentAttachmentsKey(validKey);
+
+        // Then
+        Assertions.assertTrue(result);
+    }
+
+    @Test
+    void checkDocumentAttachmentsKeyMethod_Invalid() {
+        // Test diretto del metodo protected checkDocumentAttachmentsKey
+        // Given
+        String invalidKey = "WRONG_PREFIX-12345.pdf";
+
+        // When
+        boolean result = validator.checkDocumentAttachmentsKey(invalidKey);
+
+        // Then
+        Assertions.assertFalse(result);
+    }
+
+    @Test
+    void checkDocumentAttachmentsKeyMethod_Null() {
+        // Test diretto del metodo protected checkDocumentAttachmentsKey
+        // Given
+        String nullKey = null;
+
+        // When
+        boolean result = validator.checkDocumentAttachmentsKey(nullKey);
+
+        // Then
+        Assertions.assertFalse(result);
+    }
+
+    @Test
+    void checkDocumentAttachmentsKey_CaseSensitive() {
+        // Given
+        NewNotificationRequestV26 n = newNotificationWithoutPayments();
+        String lowercaseKey = "pn_notification_attachments-12345.pdf"; // lowercase
+        n.setDocuments(Collections.singletonList(NotificationDocument.builder()
+                .contentType(APPLICATION_PDF)
+                .ref(NotificationAttachmentBodyRef.builder()
+                        .key(lowercaseKey)
+                        .versionToken(VERSION_TOKEN)
+                        .build())
+                .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
+                .build()));
+
+        // Aggiungi i campi mancanti richiesti dalla validazione
+        n.setTaxonomyCode("123456A");
+        n.setPhysicalCommunicationType(NewNotificationRequestV26.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
+
+        when(validateUtils.validate(anyString(), anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(true);
+        defaultMockConfigAndParameterForVas();
+
+        // When
+        Set<ConstraintViolation<NewNotificationRequestV26>> errors;
+        errors = validator.checkNewNotificationRequestBeforeInsert(n, n.getSenderTaxId());
+
+        // Then
+        // Dovrebbe fallire perché è case-sensitive
+        String expectedMessage = String.format("Document Attachments key %s does not contain the expected value: %s",
+                lowercaseKey, "PN_NOTIFICATION_ATTACHMENTS");
+        assertConstraintViolationPresentByMessage(errors, expectedMessage);
+    }
+
     @NotNull
     private static NewNotificationRequestV26 getNewNotificationRequestV24(String sha256) {
         NewNotificationRequestV26 validRequest = new NewNotificationRequestV26();
@@ -1953,7 +2207,7 @@ class NotificationReceiverValidationTest {
                 .build();
 
         NotificationDocument document = NotificationDocument.builder()
-                .ref(NotificationAttachmentBodyRef.builder().key("key1").versionToken("token").build())
+                .ref(NotificationAttachmentBodyRef.builder().key("PN_NOTIFICATION_ATTACHMENTS-12345.pdf").versionToken("token").build())
                 .digests(NotificationAttachmentDigests.builder().sha256(sha256).build())
                 .contentType(APPLICATION_PDF)
                 .build();

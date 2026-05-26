@@ -192,6 +192,15 @@ public class NotificationReceiverValidator {
             ConstraintViolationImpl<NewNotificationRequestV26> constraintViolation = new ConstraintViolationImpl<>("Same attachment compares more then once in the same request");
             errors.add(constraintViolation);
         }
+        //check document attachments key
+        for (NotificationDocument doc : emptyIfNull(newNotificationRequestV26.getDocuments())) {
+            if (!checkDocumentAttachmentsKey(doc.getRef().getKey())) {
+                ConstraintViolationImpl<NewNotificationRequestV26> violation = new ConstraintViolationImpl<>(
+                        String.format("Document Attachments key %s does not contain the expected value: %s",
+                                doc.getRef().getKey(), PN_NOTIFICATION_ATTACHMENTS));
+                errors.add(violation);
+            }
+        }
 
         errors.addAll(validator.validate( newNotificationRequestV26 ));
         return errors;
@@ -278,6 +287,16 @@ public class NotificationReceiverValidator {
             .filter(res -> !res).count();
 
         return duplicates==0;
+    }
+
+    /**
+     * Validazione della key del documento dell'allegato
+     *
+     * @param key la chiave da verificare
+     * @return true se la chiave contiene il prefisso atteso, false altrimenti
+     */
+    protected boolean checkDocumentAttachmentsKey(String key) {
+        return key != null && key.contains(NotificationReceiverValidator.PN_NOTIFICATION_ATTACHMENTS);
     }
 
     private boolean hasRecipientDistinctAttachments(NotificationRecipientV24 recipient, Set<String> docIds){

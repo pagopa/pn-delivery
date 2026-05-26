@@ -56,7 +56,7 @@ class NotificationReceiverTest {
 	public static final String SHA256_BODY2 = "X8Q//3XIf4MXiE6LsTYQpkqj4xaPNHXhNkW/iqo1UCo=";
 	private static final String VERSION_TOKEN = "VERSION_TOKEN";
 	private static final String CONTENT_TYPE = "application/pdf";
-	private static final String PN_NOTIFICATION_ATTACHMENT_KEY = "PN_NOTIFICATION_ATTACHMENT-key.pdf";
+	private static final String PN_NOTIFICATION_ATTACHMENTS_KEY = "PN_NOTIFICATION_ATTACHMENTS-key.pdf";
 	private static final String PN_F24_META_KEY = "PN_F24_META-key.json";
 	private static final String PAID = "PAID";
 	private static final String IUN = "FAKE-FAKE-FAKE-202209-F-1";
@@ -64,7 +64,7 @@ class NotificationReceiverTest {
 		return NotificationDocument.builder()
 				.ref( NotificationAttachmentBodyRef.builder()
 						.versionToken( VERSION_TOKEN )
-						.key( PN_NOTIFICATION_ATTACHMENT_KEY )
+						.key(PN_NOTIFICATION_ATTACHMENTS_KEY)
 						.build() )
 				.digests( NotificationAttachmentDigests.builder()
 						.sha256(SHA256_BODY)
@@ -391,17 +391,17 @@ class NotificationReceiverTest {
 
 		NewNotificationRequestV26 newNotificationRequest = newNotificationRequest();
 		newNotificationRequest.setDocuments(List.of(NotificationDocument.builder()
-						.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID()).versionToken("v1").build())
+						.ref( NotificationAttachmentBodyRef.builder().key("PN_NOTIFICATION_ATTACHMENTS-"+ UUID.randomUUID()).versionToken("v1").build())
 						.contentType("application/pdf")
 						.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
 						.build(),
 				NotificationDocument.builder()
-						.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID()).versionToken("v1").build())
+						.ref( NotificationAttachmentBodyRef.builder().key("PN_NOTIFICATION_ATTACHMENTS-"+ UUID.randomUUID()).versionToken("v1").build())
 						.contentType("application/pdf")
 						.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
 						.build(),
 				NotificationDocument.builder()
-						.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID()).versionToken("v1").build())
+						.ref( NotificationAttachmentBodyRef.builder().key("PN_NOTIFICATION_ATTACHMENTS-"+ UUID.randomUUID()).versionToken("v1").build())
 						.contentType("application/pdf")
 						.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
 						.build()));
@@ -620,7 +620,16 @@ class NotificationReceiverTest {
 								.physicalAddress(NotificationPhysicalAddress.builder().build())
 								.recipientType(NotificationRecipientV24.RecipientTypeEnum.PF)
 						.build() ) )
-				.documents( Collections.singletonList( NotificationDocument.builder().build() ) )
+				.documents( Collections.singletonList( NotificationDocument.builder()
+						.contentType( "application/pdf" )
+						.digests( NotificationAttachmentDigests.builder()
+								.sha256( SHA256_BODY )
+								.build() )
+						.ref( NotificationAttachmentBodyRef.builder()
+								.versionToken( VERSION_TOKEN )
+								.key(PN_NOTIFICATION_ATTACHMENTS_KEY)
+								.build() )
+						.build() ) )
 				.build();
 
 		defaultMockConfigAndParameterForVas();
@@ -1014,7 +1023,7 @@ class NotificationReceiverTest {
 								.build() )
 						.ref( NotificationAttachmentBodyRef.builder()
 								.versionToken( VERSION_TOKEN )
-								.key( PN_NOTIFICATION_ATTACHMENT_KEY )
+								.key(PN_NOTIFICATION_ATTACHMENTS_KEY)
 								.build() )
 						.build() ) )
 				.notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
