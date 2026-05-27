@@ -329,7 +329,7 @@ paths:
 
   "/delivery/v2.5/requests":
     post:
-      summary: EXPERIMENTAL - Richiesta invio notifica
+      summary: EXPERIMENTAL - Richiesta invio notifica v2.5
       description: |-
         (EXPERIMENTAL)
         Operazione utilizzata dalla Pubblica Amministrazione per richiedere l'invio di una notifica.

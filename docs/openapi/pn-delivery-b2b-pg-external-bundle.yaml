@@ -1107,7 +1107,12 @@ components:
         senderDenomination:
           $ref: '#/components/schemas/Denomination'
         senderTaxId:
-          $ref: '#/components/schemas/paTaxId'
+          description: Sender PA fiscal code
+          example: '77777777777'
+          type: string
+          maxLength: 11
+          minLength: 11
+          pattern: ^\d+$
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica

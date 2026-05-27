@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: NEP5pNQNJEMNL7VfPKtJ204GJD7wx6ibH7E+nl+5WGI=
+  version: eRADH7W0Bk8NzuumzHhgPWIV/DCdoZ0wR/qhqHio/TI=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -88,7 +88,7 @@ paths:
         type: http_proxy
   /v2.5/requests:
     post:
-      summary: EXPERIMENTAL - Richiesta invio notifica
+      summary: EXPERIMENTAL - Richiesta invio notifica v2.5
       description: >-
         (EXPERIMENTAL)
 
@@ -684,7 +684,7 @@ paths:
   /requests:
     post:
       deprecated: true
-      summary: Richiesta invio notifica
+      summary: Richiesta invio notifica v1
       description: >-
         Operazione utilizzata dalla Pubblica Amministrazione per richiedere
         l'invio di una notifica.
@@ -822,7 +822,7 @@ paths:
   /v2.1/requests:
     post:
       deprecated: true
-      summary: Richiesta invio notifica
+      summary: Richiesta invio notifica v2.1
       description: >-
         Operazione utilizzata dalla Pubblica Amministrazione per richiedere
         l'invio di una notifica.
@@ -960,7 +960,7 @@ paths:
   /v2.3/requests:
     post:
       deprecated: true
-      summary: Richiesta invio notifica
+      summary: Richiesta invio notifica v2.3
       description: >-
         Operazione utilizzata dalla Pubblica Amministrazione per richiedere
         l'invio di una notifica.
@@ -1097,7 +1097,7 @@ paths:
         type: aws_proxy
   /v2.4/requests:
     post:
-      summary: Richiesta invio notifica
+      summary: Richiesta invio notifica v2.4
       description: >-
         Operazione utilizzata dalla Pubblica Amministrazione per richiedere
         l'invio di una notifica.
@@ -2761,7 +2761,12 @@ components:
         senderDenomination:
           $ref: '#/components/schemas/Denomination'
         senderTaxId:
-          $ref: '#/components/schemas/paTaxId'
+          description: Sender PA fiscal code
+          example: '77777777777'
+          type: string
+          maxLength: 11
+          minLength: 11
+          pattern: ^\d+$
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
@@ -5035,7 +5040,12 @@ components:
         senderDenomination:
           $ref: '#/components/schemas/Denomination'
         senderTaxId:
-          $ref: '#/components/schemas/paTaxId'
+          description: Sender PA fiscal code
+          example: '77777777777'
+          type: string
+          maxLength: 11
+          minLength: 11
+          pattern: ^\d+$
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
@@ -5163,7 +5173,12 @@ components:
         senderDenomination:
           $ref: '#/components/schemas/Denomination'
         senderTaxId:
-          $ref: '#/components/schemas/paTaxId'
+          description: Sender PA fiscal code
+          example: '77777777777'
+          type: string
+          maxLength: 11
+          minLength: 11
+          pattern: ^\d+$
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
@@ -5269,7 +5284,12 @@ components:
         senderDenomination:
           $ref: '#/components/schemas/Denomination'
         senderTaxId:
-          $ref: '#/components/schemas/paTaxId'
+          description: Sender PA fiscal code
+          example: '77777777777'
+          type: string
+          maxLength: 11
+          minLength: 11
+          pattern: ^\d+$
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
