@@ -387,6 +387,39 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
 
+  "/delivery-private/v1/notifications/informal/{iun}":
+    get:
+      summary: servizio per cercare una notifica bonaria dato <iun>
+      tags:
+        - internal-only
+      operationId: getSentInformalNotificationPrivateV1
+      parameters:
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathInformalIun'
+      responses:
+        '200':
+          description: OK
+          content:
+            "application/json":
+              schema:
+                $ref: "schemas-pn-notification.yaml#/components/schemas/InformalSentNotificationV1"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
 
 
 components:

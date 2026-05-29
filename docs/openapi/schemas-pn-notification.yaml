@@ -2,6 +2,36 @@ info:
   version: v1.0
 components:
   schemas:
+    ############################################################################################
+    ###                           COMUNICAZIONE BONARIA                                      ###
+    ############################################################################################
+    InformalSentNotificationV1:
+      description: >-
+        Le informazioni riguardanti una richiesta di notifica accettata
+      allOf:
+        - $ref: '#/components/schemas/InformalNotificationRequestV1'
+        - type: object
+          required:
+            - iun
+            - sentAt
+          properties:
+            senderPaId:
+              type: string
+              description: Identificativo (non IPA) della PA mittente che ha eseguito l'onboarding su SelfCare.
+              # wide range of characters
+              pattern: ^.*$
+              maxLength: 256
+            iun:
+              $ref: '#/components/schemas/IUN'
+            sentAt:
+              type: string
+              description: Momento di ricezione della notifica da parte di PN
+              format: date-time
+            version: # NO EXTERNAL
+              type: string                                              # NO EXTERNAL
+              description: Indica la versione della notifica            # NO EXTERNAL
+            usedServices:
+              $ref: '#/components/schemas/UsedServices'
 
     ############################################################################################
     ###                           IDENTIFICATIVI DELLE NOTIFICHE                             ###
@@ -393,6 +423,25 @@ components:
               format: uuid
               description: >-
                 Identificativo del messaggio da fornire e utilizzare per il destinatario.
+            email:
+              type: string
+              x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+              example: account@domain.it
+              description: >-
+                Indirizzo email che il mittente della notifica intende utilizzare per 
+                raggiungere il destinatario.
+              pattern: ^(?:[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?|\[(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?|[a-zA-Z0-9-]*[a-zA-Z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])$
+              maxLength: 320
+            phoneNumber:
+              type: string
+              x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+              example: +3900000000
+              description: >-
+                Numero di telefono che il mittente della notifica intende utilizzare per
+                raggiungere il destinatario, espresso in formato internazionale con prefisso
+                `+` oppure `00`.
+              pattern: ^(\+|00)[1-9]\d{0,3}[\s.-]?\d{1,4}[\s.-]?\d{1,4}[\s.-]?\d{1,9}$
+              maxLength: 30
 
     InformalNotificationPayments:
       description: Pagamenti collegati alla notifica per il destinatario.

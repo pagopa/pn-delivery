@@ -1,9 +1,7 @@
 package it.pagopa.pn.delivery.utils;
 
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV28;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationRequestV1;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusHistoryElementV26;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementV28;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationRecipientEntity;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.CommunicationType;
@@ -13,6 +11,8 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.UUID;
 
 @Configuration
 public class ModelMapperConfig {
@@ -50,6 +50,10 @@ public class ModelMapperConfig {
             return destination;
         };
 
+    static Converter<String, UUID> stringToUuid = ctx ->
+            ctx.getSource() != null ? UUID.fromString(ctx.getSource()) : null;
+
+
     @Bean
     public ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
@@ -64,6 +68,11 @@ public class ModelMapperConfig {
                 .addMapping( NotificationRecipientEntity::getRecipientId, NotificationRecipient::setInternalId );
         modelMapper.createTypeMap(InformalNotificationRequestV1.class, InternalNotification.class)
                 .setPostConverter(ModelMapperConfig.informalNotificationConverter);
+        modelMapper.createTypeMap(NotificationRecipient.class, InformalNotificationRecipientV1.class)
+                .addMappings(mapper ->
+                        mapper.using(stringToUuid)
+                                .map(NotificationRecipient::getMessageId, InformalNotificationRecipientV1::setMessageId)
+                );
         return modelMapper;
     }
 
