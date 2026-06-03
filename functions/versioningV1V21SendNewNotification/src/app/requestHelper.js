@@ -35,7 +35,11 @@ exports.findRequestVersion = function(event) {
 
   if (event["path"].startsWith("/delivery/v2.4/")) {
     version = "2.4";
-}
+  }
+
+  if (event["path"].startsWith("/delivery/v2.5/")) {
+      version = "2.5";
+  }
   return version;
 }
 
@@ -47,6 +51,7 @@ exports.validateNewNotification = function(newNotificationRequest, requestVersio
       return validateNewNotificationV21(newNotificationRequest);
     case "2.3":
     case "2.4":
+    case "2.5":
       return validateNewNotificationV24(newNotificationRequest);
     default:
       return newNotificationRequest;
