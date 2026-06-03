@@ -14,7 +14,11 @@ components:
           required:
             - iun
             - sentAt
+            - senderTaxId
+            - senderPaId
           properties:
+            senderTaxId:
+              $ref: '#/components/schemas/paTaxId'
             senderPaId:
               type: string
               description: Identificativo (non IPA) della PA mittente che ha eseguito l'onboarding su SelfCare.
@@ -327,7 +331,7 @@ components:
 
     InformalNotificationRequestV1:
       type: object
-      required: [ senderDenomination, senderTaxId, paProtocolNumber, subject, campaignId, recipients ]
+      required: [ senderDenomination, paProtocolNumber, subject, campaignId, recipients ]
       properties:
         senderDenomination:
           $ref: '#/components/schemas/Denomination'
