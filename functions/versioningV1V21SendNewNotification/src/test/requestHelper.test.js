@@ -110,9 +110,16 @@ describe('RequestHelper Testing', () => {
             expect(errors).to.be.an("array").that.is.empty;
         });
         it('shoud return validation OK for newNotificationRequestV25 without physicalCommunicationPriority', async () => {
+           const newNotificationRequestV25JSON = fs.readFileSync("./src/test/newNotificationRequestV25.json");
+           let newNotificationRequestV25 = JSON.parse(newNotificationRequestV25JSON);
+           delete newNotificationRequestV25.physicalCommunicationPriority; // non required
+           const errors = validateNewNotification(newNotificationRequestV25, "2.5");
+           expect(errors).to.be.an("array").that.is.empty;
+        });
+        it('shoud return validation OK for newNotificationRequestV25 even without physicalAddress', async () => {
             const newNotificationRequestV25JSON = fs.readFileSync("./src/test/newNotificationRequestV25.json");
             let newNotificationRequestV25 = JSON.parse(newNotificationRequestV25JSON);
-            delete newNotificationRequestV25.physicalCommunicationPriority; // non required
+            newNotificationRequestV25.recipients[0].physicalAddress = null;
             const errors = validateNewNotification(newNotificationRequestV25, "2.5");
             expect(errors).to.be.an("array").that.is.empty;
         });

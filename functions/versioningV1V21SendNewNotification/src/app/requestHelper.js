@@ -51,8 +51,9 @@ exports.validateNewNotification = function(newNotificationRequest, requestVersio
       return validateNewNotificationV21(newNotificationRequest);
     case "2.3":
     case "2.4":
-    case "2.5":
       return validateNewNotificationV24(newNotificationRequest);
+    case "2.5":
+      return validateNewNotificationV25(newNotificationRequest);
     default:
       return newNotificationRequest;
   }
@@ -118,6 +119,10 @@ function validateNewNotificationV24(newNotificationRequestV24) {
   const errors = []
   checkPhysicalAddress(newNotificationRequestV24, errors);
   return errors;
+}
+
+function validateNewNotificationV25(newNotificationRequestV25) {
+  return [];
 }
 
 function haveF24Payment(newNotificationRequestV21) {
