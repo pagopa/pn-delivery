@@ -260,7 +260,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentInformalNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer recipientIdx, String attachmentName, List<String> xPagopaPnCxGroups, Integer attachmentIdx) {
         AttachmentDownloadRequest attachmentDownloadRequest = new AttachmentDownloadRequest(xPagopaPnUid, xPagopaPnCxType, xPagopaPnCxId, xPagopaPnCxGroups, iun, recipientIdx, attachmentName, attachmentIdx);
-        LogConfig logConfig = new LogConfig(PnAuditLogEventType.AUD_COM_DOCOPEN_SND, "getSentInformalNotificationAttachment attachment name={} attachment index={}");
+        LogConfig logConfig = new LogConfig(PnAuditLogEventType.AUD_COM_ATCHOPEN_SND, "getSentInformalNotificationAttachment attachment name={} attachment index={}");
         return getInternalNotificationAttachment(attachmentDownloadRequest, logConfig);
     }
 
