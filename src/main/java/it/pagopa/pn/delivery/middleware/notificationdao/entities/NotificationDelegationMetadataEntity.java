@@ -36,7 +36,7 @@ public class NotificationDelegationMetadataEntity {
     public static final String INDEX_DELEGATE_ID_GROUP_ID = "delegateId_groupId";
     public static final String INDEX_MANDATE_ID = "mandateId";
 
-    @Getter(onMethod = @__({
+    @Getter(onMethod = @ __({
             @DynamoDbPartitionKey,
             @DynamoDbAttribute(value = FIELD_IUN_RECIPIENT_ID_DELEGATE_ID_GROUP_ID)
     }))
