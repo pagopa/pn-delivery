@@ -361,6 +361,7 @@ components:
             - PG
         taxId:
           format: password # NO EXTERNAL
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           $ref: '#/components/schemas/TaxId'
         internalId:  # NO EXTERNAL
           type: string # NO EXTERNAL
