@@ -22,7 +22,7 @@ public class InformalNotificationSendPaParameterConsumer {
     @Value("${pn.delivery.features.is-send-informal-active-default-value}")
     private Boolean isSendInformalActiveDefaultValue;
 
-    private final Map<String, Boolean> cxIdIsInformalActiveMap = new HashMap<>();
+    private final Map<String, Boolean> informalActiveConfigMap = new HashMap<>();
     private final ParameterConsumer parameterConsumer;
 
     private static final String PARAMETER_STORE_MAP_CXID_IS_INFORMAL = "InformalNotificationSendPaWhiteList";
@@ -34,10 +34,10 @@ public class InformalNotificationSendPaParameterConsumer {
     public Boolean isSenderActiveForInformalNotification(String cxId) {
         log.debug("Start isSendActive for cxId={}", cxId);
 
-        Boolean isInformalActive = cxIdIsInformalActiveMap.get(cxId);
-        if (isInformalActive != null) {
-            log.debug("cxId={} isInformalActive={}", cxId, isInformalActive);
-            return isInformalActive;
+        Boolean isInformalEnabledForCxId = informalActiveConfigMap.get(cxId);
+        if (isInformalEnabledForCxId != null) {
+            log.debug("cxId={} isInformalActive={}", cxId, isInformalEnabledForCxId);
+            return isInformalEnabledForCxId;
         }
 
         log.debug("cxId={} configuration not found, isSendInformalActiveDefaultValue={}", cxId, isSendInformalActiveDefaultValue);
@@ -51,22 +51,22 @@ public class InformalNotificationSendPaParameterConsumer {
 
         if (optionalCxIdIsInformalActives.isPresent()) {
             for (CxIdIsInformalActive cxIdIsInformalActive : optionalCxIdIsInformalActives.get()) {
-                addToMapIsInformalId(cxIdIsInformalActive);
+                addConfig(cxIdIsInformalActive);
             }
-            log.info("Loaded informal sender whitelist in memory with {} entries", cxIdIsInformalActiveMap.size());
+            log.info("Loaded informal sender whitelist in memory with {} entries", informalActiveConfigMap.size());
         } else {
             log.info("No informal sender whitelist found. Using default value={}", isSendInformalActiveDefaultValue);
         }
     }
 
-    private void addToMapIsInformalId(CxIdIsInformalActive cxIdIsInformalActive) {
+    private void addConfig(CxIdIsInformalActive cxIdIsInformalActive) {
         if (Objects.isNull(cxIdIsInformalActive)
                 || StringUtils.isBlank(cxIdIsInformalActive.getCxId())
                 || Objects.isNull(cxIdIsInformalActive.getIsActive())) {
             log.warn("Invalid informal whitelist entry: {}", cxIdIsInformalActive);
             return;
         }
-        cxIdIsInformalActiveMap.put(cxIdIsInformalActive.getCxId(), cxIdIsInformalActive.getIsActive());
+        informalActiveConfigMap.put(cxIdIsInformalActive.getCxId(), cxIdIsInformalActive.getIsActive());
     }
 
     @Data
