@@ -187,16 +187,6 @@ paths:
 
 components:
   parameters:
-    ############################################################################################
-    ###                     PARAMETRO VERSIONE CREAZIONE NOTIFICA                            ###
-    ############################################################################################
-    headerNotificationVersion:                                                      # NO EXTERNAL
-      name: x-pagopa-pn-notification-version                                        # NO EXTERNAL
-      in: header                                                                    # NO EXTERNAL
-      description: Notification creation version                                    # NO EXTERNAL
-      required: false                                                               # NO EXTERNAL
-      schema:                                                                       # NO EXTERNAL
-        type: string                                                                # NO EXTERNAL
 
     ############################################################################################
     ###                     PARAMETRO SORGENTE CREAZIONE NOTIFICA                            ###
@@ -220,44 +210,11 @@ components:
       $ref: './remote-refs.yaml#/components/parameters/uidAuthFleet'                # NO EXTERNAL
 
     ############################################################################################
-    ###                       PARAMETRI RICERCA RICHIESTA DI NOTIFICA                        ###
-    ############################################################################################
-    notificationRequestId:
-      in: query
-      required: false
-      name: notificationRequestId
-      schema:
-        $ref: './schemas-pn-notification.yaml#/components/schemas/NotificationRequestId'
-
-    paProtocolNumber:
-      name: paProtocolNumber
-      in: query
-      required: false
-      schema:
-        $ref: './schemas-pn-notification.yaml#/components/schemas/PaProtocolNumber'
-
-    idempotenceToken:
-      name: idempotenceToken
-      in: query
-      required: false
-      schema:
-        $ref: './schemas-pn-notification.yaml#/components/schemas/IdempotenceToken'
-
-    ############################################################################################
     ###                             PARAMETRI DOWNLOAD DOCUMENTI                             ###
     ############################################################################################
     pathDocumentIdx:
       name: docIdx
       description: indice del documento nella lista partendo da 0.
-      in: path
-      required: true
-      schema:
-        type: integer
-        format: int32
-
-    pathRecipientIdx:
-      name: recipientIdx
-      description: indice del destinatario nella lista partendo da 0.
       in: path
       required: true
       schema:
