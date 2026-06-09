@@ -705,7 +705,6 @@ components:
             __N.B:__ campo da utilizzare solo per visualizzazione.
           type: array
           items:
-
             type: string
         requestAcceptedAt:
           description: Data accettazione notifica

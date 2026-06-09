@@ -360,6 +360,7 @@ components:
             - PF
             - PG
         taxId:
+          format: password # NO EXTERNAL
           $ref: '#/components/schemas/TaxId'
         internalId:  # NO EXTERNAL
           type: string # NO EXTERNAL
