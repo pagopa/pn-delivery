@@ -779,7 +779,6 @@ components:
             __N.B:__ campo da utilizzare solo per visualizzazione.
           type: array
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
-          format: password # NO EXTERNAL
           items:
             type: string
             x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
