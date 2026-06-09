@@ -203,6 +203,8 @@ components:
         recipients:
           type: array
           description: Informazioni sui destinatari
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          format: password # NO EXTERNAL
           items:
             $ref: "#/components/schemas/NotificationRecipientV24"
           minItems: 1
@@ -360,8 +362,6 @@ components:
             - PF
             - PG
         taxId:
-          format: password # NO EXTERNAL
-          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           $ref: '#/components/schemas/TaxId'
         internalId:  # NO EXTERNAL
           type: string # NO EXTERNAL
