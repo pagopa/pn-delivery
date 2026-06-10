@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: yiC5kA47H4G4d9oiLvG6qoRKmK7shl/FgsZ6m5r2H4E=
+  version: X3i6qxrjjWArh3ow9V69KpXyNsytZU9vsjO4jUPIJJM=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -597,49 +597,22 @@ components:
         - status
         - errors
     TimelineElementV28:
-      type: object
-      additionalProperties: false
-      properties:
-        elementId:
-          type: string
-          maxLength: 512
-          description: >-
-            Identificativo dell'elemento di timeline: insieme allo IUN della
-            notifica definisce in maniera univoca l'elemento di timeline
-        timestamp:
-          type: string
-          deprecated: true
-          description: >-
-            Istante in cui avviene l'evento descritto in questo elemento di
-            timeline (deprecato, fare riferimento al campo eventTimestamp)
-          format: date-time
-        ingestionTimestamp:
-          type: string
-          description: >-
-            Istante in cui l'evento descritto in questo elemento di timeline è
-            gestito da SEND
-          format: date-time
-        eventTimestamp:
-          type: string
-          description: >-
-            Istante in cui avviene l'evento descritto in questo elemento di
-            timeline
-          format: date-time
-        notificationSentAt:
-          type: string
-          description: Momento di ricezione della richiesta di notifica da parte di SEND
-          format: date-time
-        legalFactsIds:
-          type: array
-          items:
-            $ref: '#/components/schemas/LegalFactsIdV20'
-          description: >-
-            Chiavi dei documenti che provano l'effettivo accadimento dell'evento
-            descritto in timeline. Questo elemento
-        category:
-          $ref: '#/components/schemas/TimelineElementCategoryV28'
-        details:
-          $ref: '#/components/schemas/TimelineElementDetailsV28'
+      allOf:
+        - $ref: '#/components/schemas/TimelineElementBase'
+        - type: object
+          additionalProperties: false
+          properties:
+            legalFactsIds:
+              type: array
+              items:
+                $ref: '#/components/schemas/LegalFactsIdV20'
+              description: >-
+                Chiavi dei documenti che provano l'effettivo accadimento
+                dell'evento descritto in timeline. Questo elemento
+            category:
+              $ref: '#/components/schemas/TimelineElementCategoryV28'
+            details:
+              $ref: '#/components/schemas/TimelineElementDetailsV28'
     NotificationStatusV26:
       type: string
       description: |
@@ -1277,6 +1250,39 @@ components:
           description: Eventi avvenuti nello stato
           items:
             $ref: '#/components/schemas/TimelineElementId'
+    TimelineElementBase:
+      type: object
+      additionalProperties: false
+      properties:
+        elementId:
+          type: string
+          maxLength: 512
+          description: >-
+            Identificativo dell'elemento di timeline: insieme allo IUN della
+            notifica definisce in maniera univoca l'elemento di timeline
+        timestamp:
+          type: string
+          deprecated: true
+          description: >-
+            Istante in cui avviene l'evento descritto in questo elemento di
+            timeline (deprecato, fare riferimento al campo eventTimestamp)
+          format: date-time
+        ingestionTimestamp:
+          type: string
+          description: >-
+            Istante in cui l'evento descritto in questo elemento di timeline è
+            gestito da SEND
+          format: date-time
+        eventTimestamp:
+          type: string
+          description: >-
+            Istante in cui avviene l'evento descritto in questo elemento di
+            timeline
+          format: date-time
+        notificationSentAt:
+          type: string
+          description: Momento di ricezione della richiesta di notifica da parte di SEND
+          format: date-time
     LegalFactCategoryV20:
       title: Tipi di atti opponibili a terzi
       description: >-
