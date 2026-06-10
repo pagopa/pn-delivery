@@ -782,9 +782,7 @@ components:
           type: array
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           items:
-            type: string
-            x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
-            format: password # NO EXTERNAL
+            $ref: '#/components/schemas/RecipientString'
         requestAcceptedAt:
           description: Data accettazione notifica
           type: string
@@ -799,6 +797,10 @@ components:
         mandateId:
           type: string
           description: Id delega (per notifiche delegate)
+
+    RecipientString:
+      type: string
+      format: password
 
       #NotificationStatus:
       #$ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
