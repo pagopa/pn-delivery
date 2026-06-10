@@ -6,6 +6,7 @@ import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.RecipientReadApi;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.api.RecipientReadInformalNotificationApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
 import it.pagopa.pn.delivery.models.*;
@@ -18,17 +19,19 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.NativeWebRequest;
 
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static it.pagopa.pn.commons.utils.MDCUtils.*;
 
 @Slf4j
 @RestController
-public class PnReceivedNotificationsController implements RecipientReadApi {
+public class PnReceivedNotificationsController implements RecipientReadApi, RecipientReadInformalNotificationApi {
     private final NotificationRetrieverService retrieveSvc;
     private final NotificationAttachmentService notificationAttachmentService;
     private final NotificationQRService notificationQRService;
@@ -276,5 +279,91 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         }
 
         return ResponseEntity.ok( responseCheckAarMandateDto );
+    }
+
+
+    @Override
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedInformalNotificationAttachmentV1(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String xPagopaPnSrcCh, String iun, String attachmentName, List<String> xPagopaPnCxGroups, String xPagopaPnSrcChDetails, Integer attachmentIdx) {
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEventType eventType = PnAuditLogEventType.AUD_COM_ATCHOPEN_RCP;
+        String logMsg = "getReceivedInformalNotificationAttachmentV1 attachment name={}, attachment index={}";
+        NotificationAttachmentDownloadMetadataResponse response;
+        PnAuditLogEvent logEvent = auditLogBuilder.before(eventType, logMsg, attachmentName, attachmentIdx)
+                .iun(iun)
+                .build();
+        logEvent.log();
+        try {
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(
+                    xPagopaPnCxType.getValue(),
+                    xPagopaPnCxId,
+                    xPagopaPnUid,
+                    xPagopaPnCxGroups,
+                    xPagopaPnSrcCh,
+                    xPagopaPnSrcChDetails
+            );
+            response = notificationAttachmentService.downloadAttachmentWithRedirect(
+                    iun,
+                    internalAuthHeader,
+                    null,
+                    null,
+                    attachmentName,
+                    attachmentIdx,
+                    true
+            );
+            String fileName = response.getFilename();
+            String url = response.getUrl();
+            String retryAfter = String.valueOf( response.getRetryAfter() );
+            String message = LogUtils.createAuditLogMessageForDownloadDocument(fileName, url, retryAfter);
+            logEvent.generateSuccess("getReceivedInformalNotificationAttachmentV1 attachment name={} attachment index={}, {}",
+                    attachmentName, attachmentIdx, message).log();
+            return ResponseEntity.ok(response);
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("" + exc.getProblem()).log();
+            throw exc;
+        }
+    }
+
+    @Override
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedInformalNotificationDocumentV1(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String xPagopaPnSrcCh, String iun, Integer docIdx, List<String> xPagopaPnCxGroups, String xPagopaPnSrcChDetails) {
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEventType eventType = PnAuditLogEventType.AUD_COM_DOCOPEN_RCP;
+        String logMsg = "getReceivedInformalNotificationDocumentV1 from documents array with index={}";
+        NotificationAttachmentDownloadMetadataResponse response;
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(eventType, logMsg, docIdx)
+                .iun(iun)
+                .build();
+        logEvent.log();
+        try {
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(
+                    xPagopaPnCxType.getValue(),
+                    xPagopaPnCxId,
+                    xPagopaPnUid,
+                    xPagopaPnCxGroups,
+                    xPagopaPnSrcCh,
+                    xPagopaPnSrcChDetails
+            );
+            response = notificationAttachmentService.downloadDocumentWithRedirect(
+                    iun,
+                    internalAuthHeader,
+                    null,
+                    docIdx,
+                    true
+            );
+            String fileName = response.getFilename();
+            String url = response.getUrl();
+            String retryAfter = String.valueOf( response.getRetryAfter() );
+            String message = LogUtils.createAuditLogMessageForDownloadDocument(fileName, url, retryAfter);
+            logEvent.generateSuccess("getReceivedInformalNotificationDocumentV1 {}", message).log();
+            return ResponseEntity.ok(response);
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("" + exc.getProblem()).log();
+            throw exc;
+        }
+    }
+
+    @Override
+    public Optional<NativeWebRequest> getRequest() {
+        return RecipientReadApi.super.getRequest();
     }
 }
