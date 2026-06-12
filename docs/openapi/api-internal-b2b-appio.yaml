@@ -371,12 +371,14 @@ components:
           type: string
           description: Nome + cognome __oppure__ ragione sociale
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          format: password # NO EXTERNAL
           example: Nome Cognome
         taxId:
           title: Codice Fiscale
           description: Codice Fiscale
           type: string
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          format: password # NO EXTERNAL
           example: CGNNMO01T10A944Q
 
     Problem:
