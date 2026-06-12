@@ -45,7 +45,7 @@
         <dependency>
             <groupId>it.pagopa.pn</groupId>
             <artifactId>pn-lollipop-client</artifactId>
-            <version>1.3.1-SB2</version>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>it.pagopa.pn</groupId>
@@ -325,6 +325,38 @@
                         <phase>process-resources</phase>
                         <configuration>
                             <inputSpec>${project.basedir}/docs/openapi/api-internal-web-pa.yaml</inputSpec>
+                            <generatorName>spring</generatorName>
+                            <library>spring-boot</library>
+                            <modelNameSuffix />
+                            <generateApiTests>false</generateApiTests>
+                            <generateModelTests>false</generateModelTests>
+                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/server</templateDirectory>
+                            <configOptions>
+                                <basePackage>${project.groupId}.delivery.generated.openapi.server.v1</basePackage>
+                                <modelPackage>${project.groupId}.delivery.generated.openapi.server.v1.dto</modelPackage>
+                                <apiPackage>${project.groupId}.delivery.generated.openapi.server.v1.api</apiPackage>
+                                <configPackage>${project.groupId}.delivery.generated.openapi.server.v1.config</configPackage>
+                                <additionalModelTypeAnnotations>@lombok.Builder; @lombok.NoArgsConstructor; @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
+                                <dateLibrary>java8</dateLibrary>
+                                <delegatePattern>true</delegatePattern>
+                                <interfaceOnly>true</interfaceOnly>
+                                <annotationLibrary>none</annotationLibrary>
+                                <documentationProvider>source</documentationProvider>
+                                <openApiNullable>false</openApiNullable>
+                                <reactive>false</reactive>
+                                <skipDefaultInterface>false</skipDefaultInterface>
+                                <useTags>true</useTags>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>pn-delivery-server-internal-web-campaign</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <inputSpec>${project.basedir}/docs/openapi/api-internal-web-campaign.yaml</inputSpec>
                             <generatorName>spring</generatorName>
                             <library>spring-boot</library>
                             <modelNameSuffix />
