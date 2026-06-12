@@ -1,0 +1,279 @@
+openapi: 3.0.3
+info:
+  termsOfService: https://termofservice.it
+  x-api-id: api-internal-web-campaign
+  title: 'Piattaforma Notifiche: API campagne interne'
+  x-summary: 'Piattaforma Notifiche: API campagne interne'
+  version: '1.0.0'
+  description: >-
+    API interne per recuperare la configurazione campagne usata nelle comunicazioni bonarie.
+  contact:
+    email: pn@pagopa.it
+  license:
+    name: Licenza di PN
+    url: 'https://da-definire/'
+servers:
+  - url: https://webapi.pn.pagopa.it
+    description: Ambiente di produzione
+  - url: https://webapi.uat.pn.pagopa.it
+    description: Ambiente di test
+  - url: https://webapi.dev.pn.pagopa.it
+    description: Ambiente di sviluppo
+tags:
+  - name: Campaigns
+    description: API per la consultazione delle campagne
+paths:
+  "/delivery-private/v1/campaigns":
+    get:
+      tags:
+        - Campaigns
+      summary: Elenca le campagne dell'Ente
+      description: Recupera la lista delle campagne del mittente con supporto alla paginazione.
+      operationId: listCampaigns
+      parameters:
+        - $ref: '#/components/parameters/SenderIdParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+        - $ref: '#/components/parameters/NextPagesKeyParam'
+      responses:
+        '200':
+          description: Lista campagne paginata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignSearchResponse'
+        '400':
+          description: Parametri non validi
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Errore interno
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  "/delivery-private/v1/campaigns/{campaignId}":
+    get:
+      tags:
+        - Campaigns
+      summary: Dettaglio singola campagna
+      description: Recupera il dettaglio completo della campagna richiesta.
+      operationId: getCampaign
+      parameters:
+        - $ref: '#/components/parameters/CampaignIdParam'
+        - $ref: '#/components/parameters/SenderIdParam'
+      responses:
+        '200':
+          description: Dettaglio della campagna
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignDetail'
+        '400':
+          description: Parametri non validi
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Campagna non trovata
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Errore interno
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+components:
+  parameters:
+    SenderIdParam:
+      name: senderId
+      in: query
+      required: true
+      description: Identificativo dell'Ente mittente.
+      schema:
+        type: string
+        format: uuid
+    CampaignIdParam:
+      name: campaignId
+      in: path
+      required: true
+      description: Identificativo univoco della campagna.
+      schema:
+        type: string
+    PageSizeParam:
+      name: size
+      in: query
+      required: false
+      description: Numero massimo di elementi da restituire nella pagina corrente.
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 50
+        default: 10
+    NextPagesKeyParam:
+      name: nextPagesKey
+      in: query
+      required: false
+      description: Chiave della pagina successiva ritornata dalla precedente invocazione.
+      schema:
+        type: string
+
+  schemas:
+    CampaignSearchResponse:
+      type: object
+      description: Risposta paginata della ricerca campagne.
+      required:
+        - resultsPage
+        - moreResult
+      properties:
+        resultsPage:
+          type: array
+          description: Campagne appartenenti alla pagina corrente.
+          items:
+            $ref: '#/components/schemas/CampaignSummary'
+        moreResult:
+          type: boolean
+          description: Indica se sono presenti ulteriori pagine di risultati.
+        nextPagesKey:
+          type: array
+          description: Elenco delle chiavi utilizzabili per richiedere le pagine successive.
+          items:
+            type: string
+
+    CampaignSummary:
+      type: object
+      description: Modello minimale usato nella risposta di listing campagne.
+      required:
+        - campaignId
+        - senderId
+        - title
+        - closed
+        - startDate
+        - endDate
+      properties:
+        campaignId:
+          type: string
+          description: Identificativo univoco della campagna.
+          example: campaign-1
+        senderId:
+          type: string
+          format: uuid
+          description: Identificativo UUID dell'Ente mittente.
+          example: 5b994d4a-0fa8-47ac-9c7b-354f1d44a1ce
+        title:
+          type: string
+          description: Titolo sintetico della campagna.
+          example: First campaign
+        closed:
+          type: boolean
+          description: Stato di chiusura della campagna.
+          example: false
+        startDate:
+          type: string
+          format: date-time
+          description: Data e ora di inizio campagna in formato UTC.
+          example: 2026-02-01T00:00:00Z
+        endDate:
+          type: string
+          format: date-time
+          description: Data e ora di fine campagna in formato UTC.
+          example: 2026-12-31T23:59:59Z
+
+    CampaignDetail:
+      type: object
+      description: Modello completo di una campagna.
+      required:
+        - campaignId
+        - senderId
+        - title
+        - descriptionScope
+        - startDate
+        - endDate
+        - closed
+        - serviceId
+        - sensitiveContent
+        - stopOnViewed
+        - workflow
+      properties:
+        campaignId:
+          type: string
+          description: Identificativo univoco della campagna.
+        senderId:
+          type: string
+          format: uuid
+          description: Identificativo UUID dell'Ente mittente.
+        title:
+          type: string
+          description: Titolo della campagna.
+        descriptionScope:
+          type: string
+          description: Descrizione estesa dello scopo della campagna.
+        startDate:
+          type: string
+          format: date-time
+          description: Data e ora di inizio campagna in formato UTC.
+        endDate:
+          type: string
+          format: date-time
+          description: Data e ora di fine campagna in formato UTC.
+        closed:
+          type: boolean
+          description: Stato di chiusura della campagna.
+        senderContact:
+          type: string
+          description: Recapito del mittente associato alla campagna.
+          example: contact@example.com
+        serviceId:
+          type: string
+          description: Identificativo del servizio applicativo associato.
+        sensitiveContent:
+          type: boolean
+          description: Indica se la campagna tratta contenuti sensibili.
+        stopOnViewed:
+          type: boolean
+          description: Se true, il workflow si interrompe al primo evento di visualizzazione.
+        workflow:
+          type: array
+          description: Configurazione del workflow di invio previsto per la campagna.
+          items:
+            $ref: '#/components/schemas/WorkflowEntity'
+
+    WorkflowEntity:
+      type: object
+      description: Definizione di uno step del workflow campagna.
+      required:
+        - channel
+        - desiredFeedback
+        - includeAttachment
+      properties:
+        channel:
+          type: string
+          description: Canale utilizzato nello step di invio.
+          enum:
+            - IO
+            - PEC
+            - ANALOG
+          example: IO
+        desiredFeedback:
+          type: string
+          description: Tipo di feedback richiesto per considerare completato lo step.
+          enum:
+            - READ
+            - RECEIVED
+          example: READ
+        includeAttachment:
+          type: boolean
+          description: Indica se nello step vanno inclusi gli allegati.
+          example: false
+
+    Problem:
+      $ref: './remote-refs.yaml#/components/schemas/Problem'
+
