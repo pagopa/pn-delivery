@@ -44,15 +44,13 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_FILEINFONOTFOUND;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @WebFluxTest(controllers = {PnSentNotificationsController.class, PnReceivedNotificationsController.class})
 class PnSentReceivedNotificationControllerTest {
@@ -1660,5 +1658,337 @@ class PnSentReceivedNotificationControllerTest {
                 eq(1),
                 eq(false)
         );
+    }
+
+    @Test
+    void getReceivedInformalNotificationDocumentSuccess() {
+
+        NotificationAttachmentDownloadMetadataResponse response = NotificationAttachmentDownloadMetadataResponse.builder()
+                .url(REDIRECT_URL)
+                .contentType("application/pdf")
+                .sha256(SHA256_BODY)
+                .filename(FILENAME)
+                .build();
+
+        Mockito.when(attachmentService.downloadDocumentWithRedirect(
+                anyString(),
+                any(InternalAuthHeader.class),
+                Mockito.isNull(),
+                Mockito.anyInt(),
+                Mockito.anyBoolean()
+        )).thenReturn(response);
+
+        webTestClient.get()
+                .uri("/delivery/v1/notifications/informal/received/" + INFORMAL_IUN + "/attachments/documents/" + DOCUMENT_INDEX)
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, CX_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, UID)
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd")
+                .header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
+                .header(PnDeliveryRestConstants.SOURCE_CHANNEL_DETAILS_HEADER, X_PAGOPA_PN_SRC_CH_DET)
+                .exchange()
+                .expectStatus()
+                .isOk();
+
+        Mockito.verify(attachmentService).downloadDocumentWithRedirect(
+                INFORMAL_IUN,
+                INTERNAL_AUTH_HEADER,
+                null,
+                DOCUMENT_INDEX,
+                true
+        );
+    }
+
+    @Test
+    void getReceivedInformalNotificationDocumentFailure() {
+        InternalAuthHeader internalAuthHeader = new InternalAuthHeader(
+                CX_TYPE_PF,
+                CX_ID,
+                UID,
+                List.of("asdasd"),
+                X_PAGOPA_PN_SRC_CH,
+                X_PAGOPA_PN_SRC_CH_DET
+        );
+
+        Mockito.when(attachmentService.downloadDocumentWithRedirect(
+                INFORMAL_IUN,
+                internalAuthHeader,
+                null,
+                DOCUMENT_INDEX,
+                true
+        )).thenThrow(new PnNotificationNotFoundException("Simulated Error"));
+
+        webTestClient.get()
+                .uri("/delivery/v1/notifications/informal/received/{iun}/attachments/documents/{docIdx}", INFORMAL_IUN, DOCUMENT_INDEX)
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, CX_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, UID)
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd")
+                .header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
+                .header(PnDeliveryRestConstants.SOURCE_CHANNEL_DETAILS_HEADER, X_PAGOPA_PN_SRC_CH_DET)
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+    }
+
+    @Test
+    void getReceivedInformalNotificationAttachmentSuccess() {
+        NotificationAttachmentDownloadMetadataResponse response = NotificationAttachmentDownloadMetadataResponse.builder()
+                .url(REDIRECT_URL)
+                .contentType("application/pdf")
+                .sha256(SHA256_BODY)
+                .filename(FILENAME)
+                .build();
+
+        Mockito.when(attachmentService.downloadAttachmentWithRedirect(
+                anyString(),
+                any(InternalAuthHeader.class),
+                Mockito.isNull(),
+                Mockito.isNull(),
+                anyString(),
+                Mockito.any(),
+                Mockito.anyBoolean()
+        )).thenReturn(response);
+
+        webTestClient.get()
+                .uri("/delivery/v1/notifications/informal/received/{iun}/attachments/payment/{attachmentName}", INFORMAL_IUN, PAGOPA)
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, CX_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, UID)
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd")
+                .header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
+                .header(PnDeliveryRestConstants.SOURCE_CHANNEL_DETAILS_HEADER, X_PAGOPA_PN_SRC_CH_DET)
+                .exchange()
+                .expectStatus()
+                .isOk();
+
+        Mockito.verify(attachmentService).downloadAttachmentWithRedirect(
+                INFORMAL_IUN,
+                INTERNAL_AUTH_HEADER,
+                null,
+                null,
+                PAGOPA,
+                null,
+                true
+        );
+    }
+
+    @Test
+    void getReceivedInformalNotificationAttachmentFailure() {
+        InternalAuthHeader internalAuthHeader = new InternalAuthHeader(
+                CX_TYPE_PF,
+                CX_ID,
+                UID,
+                null,
+                X_PAGOPA_PN_SRC_CH,
+                X_PAGOPA_PN_SRC_CH_DET
+        );
+
+        Mockito.doThrow(new PnNotificationNotFoundException("Simulated Error"))
+                .when(attachmentService)
+                .downloadAttachmentWithRedirect(
+                        INFORMAL_IUN,
+                        internalAuthHeader,
+                        null,
+                        null,
+                        PAGOPA,
+                        null,
+                        true
+                );
+
+        webTestClient.get()
+                .uri("/delivery/v1/notifications/informal/received/{iun}/attachments/payment/{attachmentName}", INFORMAL_IUN, PAGOPA)
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, CX_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, UID)
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+                .header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
+                .header(PnDeliveryRestConstants.SOURCE_CHANNEL_DETAILS_HEADER, X_PAGOPA_PN_SRC_CH_DET)
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+    }
+
+    @Test
+    void getReceivedInformalNotificationDocumentWithRetryAfterSuccess() {
+
+        NotificationAttachmentDownloadMetadataResponse response = NotificationAttachmentDownloadMetadataResponse.builder()
+                .url(null)
+                .contentType("application/pdf")
+                .sha256(SHA256_BODY)
+                .filename(FILENAME)
+                .retryAfter(3600)
+                .build();
+
+        Mockito.when(attachmentService.downloadDocumentWithRedirect(
+                anyString(),
+                any(InternalAuthHeader.class),
+                Mockito.isNull(),
+                Mockito.anyInt(),
+                Mockito.anyBoolean()
+        )).thenReturn(response);
+
+        webTestClient.get()
+                .uri("/delivery/v1/notifications/informal/received/" + INFORMAL_IUN + "/attachments/documents/" + DOCUMENT_INDEX)
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, CX_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, UID)
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd")
+                .header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
+                .header(PnDeliveryRestConstants.SOURCE_CHANNEL_DETAILS_HEADER, X_PAGOPA_PN_SRC_CH_DET)
+                .exchange()
+                .expectStatus()
+                .isOk();
+
+        Mockito.verify(attachmentService).downloadDocumentWithRedirect(
+                INFORMAL_IUN,
+                INTERNAL_AUTH_HEADER,
+                null,
+                DOCUMENT_INDEX,
+                true
+        );
+    }
+    @Test
+    void getReceivedInformalNotificationSuccess() {
+        // Given
+        InternalNotification notification = newNotification();
+
+        Mockito.when(svc.getNotificationAndNotifyViewedEvent(
+                Mockito.anyString(),
+                Mockito.any(InternalAuthHeader.class),
+                Mockito.eq(null),
+                Mockito.any(PnAuditLogEvent.class)
+        )).thenReturn(notification);
+
+        // Then
+        webTestClient.get()
+                .uri("/delivery/v1/notifications/informal/received/" + INFORMAL_IUN)
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, CX_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, UID)
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd")
+                .header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
+                .header(PnDeliveryRestConstants.SOURCE_CHANNEL_DETAILS_HEADER, X_PAGOPA_PN_SRC_CH_DET)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(FullReceivedInformalNotificationV1.class);
+
+        Mockito.verify(svc).getNotificationAndNotifyViewedEvent(
+                Mockito.eq(INFORMAL_IUN),
+                Mockito.eq(INTERNAL_AUTH_HEADER),
+                Mockito.eq(null),
+                Mockito.any(PnAuditLogEvent.class)
+        );
+    }
+
+    @Test
+    void getReceivedInformalNotificationFailure() {
+        Mockito.when(svc.getNotificationAndNotifyViewedEvent(
+                Mockito.anyString(),
+                Mockito.any(InternalAuthHeader.class),
+                Mockito.eq(null),
+                Mockito.any(PnAuditLogEvent.class)
+        )).thenThrow(new PnNotificationNotFoundException("Simulated Error"));
+
+        webTestClient.get()
+                .uri("/delivery/v1/notifications/informal/received/" + INFORMAL_IUN)
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, CX_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, UID)
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd")
+                .header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
+                .header(PnDeliveryRestConstants.SOURCE_CHANNEL_DETAILS_HEADER, X_PAGOPA_PN_SRC_CH_DET)
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+    }
+
+    @Test
+    void getSentInformalNotificationSuccess() {
+        // Given
+        InternalNotification notification = newNotification();
+        notification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
+
+        Mockito.when(svc.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
+                .thenReturn(notification);
+
+        // Then
+        webTestClient.get()
+                .uri("/delivery/v1/notifications/informal/sent/" + INFORMAL_IUN)
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, UID)
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PA)
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(0))
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(1))
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(FullSentInformalNotificationV1.class);
+
+        Mockito.verify(svc).getNotificationInformationWithSenderIdCheck(INFORMAL_IUN, PA_ID, GROUPS);
+    }
+
+    @Test
+    void getSentInformalNotificationNotFoundCauseInValidation() {
+        // Given
+        InternalNotification notification = newNotification();
+        notification.setNotificationStatus(NotificationStatusV26.IN_VALIDATION);
+
+        Mockito.when(svc.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
+                .thenReturn(notification);
+
+        // Then
+        webTestClient.get()
+                .uri("/delivery/v1/notifications/informal/sent/" + INFORMAL_IUN)
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, UID)
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PA)
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(0))
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(1))
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+
+        Mockito.verify(svc).getNotificationInformationWithSenderIdCheck(INFORMAL_IUN, PA_ID, GROUPS);
+    }
+
+    @Test
+    void getSentInformalNotificationNotFoundCauseRefused() {
+        // Given
+        InternalNotification notification = newNotification();
+        notification.setNotificationStatus(NotificationStatusV26.REFUSED);
+
+        Mockito.when(svc.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
+                .thenReturn(notification);
+
+        // Then
+        webTestClient.get()
+                .uri("/delivery/v1/notifications/informal/sent/" + INFORMAL_IUN)
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, UID)
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PA)
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(0))
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(1))
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+
+        Mockito.verify(svc).getNotificationInformationWithSenderIdCheck(INFORMAL_IUN, PA_ID, GROUPS);
     }
 }

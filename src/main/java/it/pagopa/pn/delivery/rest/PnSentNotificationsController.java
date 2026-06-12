@@ -283,6 +283,26 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
         return getNotificationDocumentInternal(request, logConfig);
     }
 
+    @Override
+    public ResponseEntity<FullSentInformalNotificationV1> getSentInformalNotificationV1(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
+        InternalNotification internalNotification = retrieveSvc.getNotificationInformationWithSenderIdCheck( iun, xPagopaPnCxId, xPagopaPnCxGroups );
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(PnAuditLogEventType.AUD_COM_VIEW_SND, "getSenderInformalNotification")
+                .iun(iun)
+                .build();
+        logEvent.log();
+        if ( NotificationStatusV26.IN_VALIDATION.equals( internalNotification.getNotificationStatus() )
+                || NotificationStatusV26.REFUSED.equals( internalNotification.getNotificationStatus() ) ) {
+            logEvent.generateFailure("Unable to find informal notification with iun={} cause status={}", internalNotification.getIun(), internalNotification.getNotificationStatus()).log();
+            throw new PnNotificationNotFoundException( "Unable to find informal notification with iun="+ internalNotification.getIun() );
+        }
+        InternalFieldsCleaner.cleanInternalFields( internalNotification );
+        FullSentInformalNotificationV1 result = modelMapper.map( internalNotification, FullSentInformalNotificationV1.class );
+        logEvent.generateSuccess().log();
+        return ResponseEntity.ok( result );
+    }
+
     /**
      * Metodo privato per gestire la logica comune di download documento con log parametrizzabile e parametri raggruppati
      */
