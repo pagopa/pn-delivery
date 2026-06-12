@@ -28,8 +28,63 @@ tags:
 
 paths:
   ###########################################################################################
-  ###                     DOWNLOAD DOCUMENTI E ALLEGATI PER PAGAMENTO                     ###
+  ###                          RICERCA NOTIFICHE BONARIE RICEVUTE                         ###
   ###########################################################################################
+
+  "/delivery/v1/notifications/informal/received/{iun}":
+    get:
+      summary: Accesso notifiche bonarie ricevute
+      description: >-
+        Utilizzato da Persone Fisiche e Persone Giuridiche per accedere ai dettagli delle 
+        notifiche bonarie ricevute.
+      tags:
+        - RecipientReadInformalNotification
+      operationId: getReceivedInformalNotificationV1
+      #      security:                                      # ONLY EXTERNAL
+      #        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'           # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'       # NO EXTERNAL
+        - $ref: '#/components/parameters/headerSourceChannel'         # NO EXTERNAL
+        - $ref: '#/components/parameters/headerSourceChannelDetails'  # NO EXTERNAL
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathInformalIun'
+      responses:
+        '200':
+          description: OK
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/FullReceivedInformalNotificationV1"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found - PN_DELIVERY_USER_ID_NOT_RECIPIENT_OR_DELEGATOR
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+    ###########################################################################################
+    ###                     DOWNLOAD DOCUMENTI E ALLEGATI PER PAGAMENTO                     ###
+    ###########################################################################################
 
   "/delivery/v1/notifications/informal/received/{iun}/attachments/documents/{docIdx}":
     get:
@@ -185,6 +240,32 @@ components:
         format: int32
 
   schemas:
+    ###########################################################################################
+    ###                              DTO NOTIFICA CON DETTAGLI                              ###
+    ###########################################################################################
+    FullReceivedInformalNotificationV1:
+      description: >-
+        Le informazioni riguardanti una richiesta di notifica accettata e il processo di 
+        inoltro della notifica verso i destinatari (Persone Fisiche o Giuridiche).
+      allOf:
+        - $ref: './schemas-pn-notification.yaml#/components/schemas/InformalSentNotificationV1'
+        - type: object
+          required:
+            - notificationStatus
+            - notificationStatusHistory
+            - timeline
+          properties:
+            notificationStatus:
+              $ref: '#/components/schemas/NotificationStatusV26'
+            notificationStatusHistory:
+              $ref: '#/components/schemas/NotificationStatusHistoryV26'
+            timeline:
+              description: >-
+                elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica
+              type: array
+              items:
+                $ref: '#/components/schemas/TimelineElementV28'
+
     Problem:
       $ref: './remote-refs.yaml#/components/schemas/Problem'
     ProblemError:

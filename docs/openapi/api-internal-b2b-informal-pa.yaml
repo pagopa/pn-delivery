@@ -461,6 +461,61 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+  ###########################################################################################
+  ###                          RICERCA NOTIFICHE BONARIE INVIATE                          ###
+  ###########################################################################################
+  "/delivery/v1/notifications/informal/sent/{iun}":
+    get:
+      summary: 'Mittente: lettura dettagli notifica versione 1'
+      description: |-
+        Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
+        
+        <details no-external>
+        <summary><b> Attributi progettazione di alto livello </b></summary>
+        | Proprietà                | Valore             |
+        | -----------------------: | :----------------- |
+        | __Intended usage__       | B2B, WEB           |
+        | __Modalità interazione__ | Sincrona           |
+        | __TPS (stimato)__        |                    |
+        | __Idempotenza__          | Si                 |
+        | __Read/Write intensive__ | Read               |
+        | __Cachable__             | No                 |
+        </details>
+      tags:
+        - SenderReadInformalNotificationB2B
+      operationId: getSentInformalNotificationV1                                    # NO EXTERNAL
+      #      operationId: retrieveSentInformalNotificationV1                                # ONLY EXTERNAL
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'           # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'       # NO EXTERNAL
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathInformalIun'
+      responses:
+        '200':
+          description: OK
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/FullSentInformalNotificationV1"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
 
 components:
   parameters:
@@ -716,10 +771,53 @@ components:
           example: Parametro non valido
           type: string
 
+    ###########################################################################################
+    ###                              DTO NOTIFICA CON DETTAGLI                              ###
+    ###########################################################################################
+    FullSentInformalNotificationV1:
+      description: >-
+        Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
+        processo di inoltro della notifica verso il cittadino.
+      allOf:
+        - $ref: './schemas-pn-notification.yaml#/components/schemas/InformalSentNotificationV1'
+        - type: object
+          required:
+            - notificationStatus
+            - notificationStatusHistory
+            - timeline
+          properties:
+            notificationStatus:
+              $ref: '#/components/schemas/NotificationStatusV26'
+            notificationStatusHistory:
+              $ref: '#/components/schemas/NotificationStatusHistoryV26'
+            timeline:
+              description: >-
+                elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
+              type: array
+              items:
+                $ref: '#/components/schemas/TimelineElementV28'
+            recipientIds: # NO EXTERNAL
+              description: Lista degli identificativi anonimizzati dei destinatari      # NO EXTERNAL
+              type: array                                                               # NO EXTERNAL
+              items: # NO EXTERNAL
+                type: string                                                            # NO EXTERNAL
+            sourceChannel: # NO EXTERNAL
+              type: string                                                              # NO EXTERNAL
+              description: Canale sorgente della richiesta di notifica                  # NO EXTERNAL
+            sourceChannelDetails: # NO EXTERNAL
+              type: string                                                              # NO EXTERNAL
+              description: Dettagli del canale sorgente della richiesta di notifica     # NO EXTERNAL
+
     Problem:
       $ref: './remote-refs.yaml#/components/schemas/Problem'
     ProblemError:
       $ref: './remote-refs.yaml#/components/schemas/ProblemError'
+    TimelineElementV28:
+      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV28'
+    NotificationStatusV26:
+      $ref: './remote-refs.yaml#/components/schemas/NotificationStatusV26'
+    NotificationStatusHistoryV26:
+      $ref: './remote-refs.yaml#/components/schemas/NotificationStatusHistoryV26'
 
 #  securitySchemes:        # ONLY EXTERNAL
 #    ApiKeyAuth:           # ONLY EXTERNAL
@@ -729,8 +827,3 @@ components:
 
 #security:                 # ONLY EXTERNAL
 #  - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
-
-
-
-
-
