@@ -38,6 +38,7 @@ public class PnDeliveryExceptionCodes extends PnExceptionsCodes {
     public static final String ERROR_CODE_DELIVERY_SEARCH_TIMEOUT = "PN_DELIVERY_TIMEOUT_ERROR";
     public static final String ERROR_CODE_DELIVERY_INVALID_SENDER_TAX_ID = "PN_DELIVERY_INVALID_SENDER_TAX_ID";
     public static final String ERROR_CODE_DELIVERY_GENERIC_ERROR = "PN_DELIVERY_GENERIC_ERROR";
+    public static final String ERROR_CODE_DELIVERY_CAMPAIGN_NOT_FOUND = "PN_DELIVERY_CAMPAIGN_NOT_FOUND";
 
     // Codici di errore per InformalMessageValidator
     public static final String ERROR_CODE_INFORMAL_PRIMARY_MESSAGE_REQUIRED = "PN_DELIVERY_INFORMAL_PRIMARY_MESSAGE_REQUIRED";
