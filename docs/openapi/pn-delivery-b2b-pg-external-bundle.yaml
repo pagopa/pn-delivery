@@ -448,6 +448,7 @@ components:
       schema:
         type: string
         x-field-extra-annotation: '@lombok.ToString.Exclude'
+        format: password
     notificationSearchGroup:
       name: group
       in: query
