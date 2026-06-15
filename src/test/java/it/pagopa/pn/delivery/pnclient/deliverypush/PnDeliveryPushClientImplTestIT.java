@@ -194,4 +194,28 @@ class PnDeliveryPushClientImplTestIT extends MockAWSObjectsTest {
                 )
         );
     }
+    @Test
+    void getInformalNotificationHistory() {
+        String path = "/delivery-push-private/DHUJ-QYVT-DMVH-202302-P-1/informal-history";
+        OffsetDateTime createdAt = OffsetDateTime.parse("2023-02-22T10:11:12.123Z");
+
+        new MockServerClient("localhost", 9998)
+                .when(request()
+                        .withMethod("GET")
+                        .withPath(path)
+                        .withQueryStringParameter("numberOfRecipients", "2")
+                        .withQueryStringParameter("createdAt", "2023-02-22T10:11:12.123Z")
+                )
+                .respond(response()
+                        .withStatusCode(200)
+                );
+
+        assertDoesNotThrow(() ->
+                deliveryPushClient.getInformalNotificationHistory(
+                        "DHUJ-QYVT-DMVH-202302-P-1",
+                        2,
+                        createdAt
+                )
+        );
+    }
 }
