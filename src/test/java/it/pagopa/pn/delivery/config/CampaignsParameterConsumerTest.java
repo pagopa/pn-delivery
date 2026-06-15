@@ -34,6 +34,7 @@ class CampaignsParameterConsumerTest {
 
         Mockito.when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
                 .thenReturn(Optional.of(campaigns));
+        campaignsParameterConsumer.initialize();
 
         List<Campaign> result = campaignsParameterConsumer.getCampaignsBySenderId("sender-a");
 
@@ -50,6 +51,7 @@ class CampaignsParameterConsumerTest {
 
         Mockito.when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
                 .thenReturn(Optional.of(campaigns));
+        campaignsParameterConsumer.initialize();
 
         List<Campaign> result = campaignsParameterConsumer.getCampaignsBySenderId("sender-a");
 
@@ -60,6 +62,7 @@ class CampaignsParameterConsumerTest {
     void getCampaignsBySenderId_parameterNotFound() {
         Mockito.when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
                 .thenReturn(Optional.empty());
+        campaignsParameterConsumer.initialize();
 
         List<Campaign> result = campaignsParameterConsumer.getCampaignsBySenderId("sender-a");
 
@@ -88,10 +91,9 @@ class CampaignsParameterConsumerTest {
                 ))
                 .build();
 
-        Campaign[] campaigns = new Campaign[] {campaign};
-
         Mockito.when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
-                .thenReturn(Optional.of(campaigns));
+                .thenReturn(Optional.of(new Campaign[] {campaign}));
+        campaignsParameterConsumer.initialize();
 
         Campaign result = campaignsParameterConsumer.getCampaignByCampaignIdAndSenderId("c1", "sender-a");
 
@@ -108,6 +110,7 @@ class CampaignsParameterConsumerTest {
 
         Mockito.when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
                 .thenReturn(Optional.of(campaigns));
+        campaignsParameterConsumer.initialize();
 
         Assertions.assertThrows(PnCampaignNotFoundException.class,
                 () -> campaignsParameterConsumer.getCampaignByCampaignIdAndSenderId("missing", "sender-a"));
@@ -121,6 +124,7 @@ class CampaignsParameterConsumerTest {
 
         Mockito.when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
                 .thenReturn(Optional.of(campaigns));
+        campaignsParameterConsumer.initialize();
 
         Assertions.assertThrows(PnCampaignNotFoundException.class,
                 () -> campaignsParameterConsumer.getCampaignByCampaignIdAndSenderId("c1", "sender-a"));
@@ -130,6 +134,7 @@ class CampaignsParameterConsumerTest {
     void getCampaignByCampaignIdAndSenderId_parameterNotFound() {
         Mockito.when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
                 .thenReturn(Optional.empty());
+        campaignsParameterConsumer.initialize();
 
         Assertions.assertThrows(PnCampaignNotFoundException.class,
                 () -> campaignsParameterConsumer.getCampaignByCampaignIdAndSenderId("c1", "sender-a"));
@@ -145,11 +150,49 @@ class CampaignsParameterConsumerTest {
 
         Mockito.when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
                 .thenReturn(Optional.of(campaigns));
+        campaignsParameterConsumer.initialize();
 
         Campaign result = campaignsParameterConsumer.getCampaignByCampaignIdAndSenderId("c2", "sender-a");
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals("c2", result.getCampaignId());
     }
-}
 
+    @Test
+    void parameterStoreIsReadOnlyAtInitialization() {
+        Campaign[] campaigns = new Campaign[] {
+                Campaign.builder().campaignId("c1").senderId("sender-a").build()
+        };
+
+        Mockito.when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
+                .thenReturn(Optional.of(campaigns));
+
+        campaignsParameterConsumer.initialize();
+
+        campaignsParameterConsumer.getCampaignsBySenderId("sender-a");
+        campaignsParameterConsumer.getCampaignsBySenderId("sender-b");
+        campaignsParameterConsumer.getCampaignByCampaignIdAndSenderId("c1", "sender-a");
+
+        Mockito.verify(parameterConsumer, Mockito.times(1))
+                .getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class));
+    }
+
+    @Test
+    void initialize_skipsInvalidCampaigns() {
+        Campaign[] campaigns = new Campaign[] {
+                Campaign.builder().campaignId("c1").senderId("sender-a").build(),
+                Campaign.builder().campaignId(null).senderId("sender-a").build(),
+                Campaign.builder().campaignId("c3").senderId(null).build(),
+                null
+        };
+
+        Mockito.when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
+                .thenReturn(Optional.of(campaigns));
+        campaignsParameterConsumer.initialize();
+
+        List<Campaign> result = campaignsParameterConsumer.getCampaignsBySenderId("sender-a");
+
+        Assertions.assertEquals(1, result.size());
+        Assertions.assertEquals("c1", result.get(0).getCampaignId());
+    }
+}
