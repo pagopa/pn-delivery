@@ -1,4 +1,4 @@
-package it.pagopa.pn.delivery.svc;
+package it.pagopa.pn.delivery.svc.search;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationHistoryResponse;
@@ -6,7 +6,12 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementCate
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementV28;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.LegalNotificationDetail;
-import it.pagopa.pn.delivery.models.internal.notification.*;
+import it.pagopa.pn.delivery.models.internal.notification.F24Payment;
+import it.pagopa.pn.delivery.models.internal.notification.MetadataAttachment;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
+import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import org.junit.jupiter.api.BeforeEach;
@@ -278,7 +283,7 @@ class LegalTimelineEnricherTest {
         paymentInfo.setF24(f24Payment);
 
         NotificationRecipient recipient = new NotificationRecipient();
-        recipient.setPayment(List.of(paymentInfo));
+        recipient.setPayments(List.of(paymentInfo));
 
         InternalNotification notification = new InternalNotification();
         notification.setIun(iun);

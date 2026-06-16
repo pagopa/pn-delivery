@@ -1,11 +1,11 @@
-package it.pagopa.pn.delivery.svc;
+package it.pagopa.pn.delivery.svc.search;
 
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalNotificationHistoryResponse;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalNotificationStatusHistoryElementV1;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalNotificationStatusV1;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalTimelineElementV1;
+import it.pagopa.pn.delivery.models.InformalNotificationDetail;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.informal.notification.InformalNotificationDetail;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -77,7 +77,7 @@ class InformalTimelineEnricherTest {
     }
 
     @Test
-    void shouldCallProtectedEnrichmentMethodAndPopulateDetail() {
+    void shouldPopulateDetailWhenEnrichNotificationDetailIsCalled() {
         InternalNotification notification = buildNotification("IUN_DIRECT");
         InformalNotificationDetail detail = InformalNotificationDetail.builder()
                 .notification(notification)
@@ -98,7 +98,7 @@ class InformalTimelineEnricherTest {
                 eq(notification.getSentAt())
         )).thenReturn(historyResponse);
 
-        enricher.enrichInformalNotificationWithTimelineAndStatusHistory(detail);
+        enricher.enrichNotificationDetail(detail, false);
 
         assertNotNull(detail.getTimeline());
         assertEquals(1, detail.getTimeline().size());

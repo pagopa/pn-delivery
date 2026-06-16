@@ -1,10 +1,11 @@
-package it.pagopa.pn.delivery.svc;
+package it.pagopa.pn.delivery.svc.search;
 
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalNotificationHistoryResponse;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalNotificationStatusHistoryElementV1;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalNotificationStatusV1;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalTimelineElementV1;
-import it.pagopa.pn.delivery.models.informal.notification.InformalNotificationDetail;
+import it.pagopa.pn.delivery.models.InformalNotificationDetail;
+import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,16 +25,19 @@ public class InformalTimelineEnricher implements TimelineEnricher<InformalNotifi
     private final ModelMapper modelMapper;
 
     @Override
-    public void enrichNotificationDetail(InformalNotificationDetail notificationDetail, boolean requestBySender) {
-        enrichInformalNotificationWithTimelineAndStatusHistory(notificationDetail);
+    public void enrichNotificationDetail(InformalNotificationDetail informalNotificationDetail, boolean requestBySender) {
+        InternalNotification notification = informalNotificationDetail.getNotification();
+        String iun = notification.getIun();
+        enrichWithTimelineAndStatusHistory(iun, informalNotificationDetail);
     }
 
-    protected void enrichInformalNotificationWithTimelineAndStatusHistory(InformalNotificationDetail informalNotificationDetail) {
-        log.debug("Retrieve timeline for iun={}", informalNotificationDetail.getNotification().getIun());
+    private void enrichWithTimelineAndStatusHistory(String iun, InformalNotificationDetail informalNotificationDetail) {
+        log.debug("Retrieve timeline for iun={}", iun);
         int numberOfRecipients = informalNotificationDetail.getNotification().getRecipients().size();
         OffsetDateTime createdAt = informalNotificationDetail.getNotification().getSentAt();
 
-        InformalNotificationHistoryResponse informalNotificationHistory = pnDeliveryPushClient.getInformalNotificationHistory(informalNotificationDetail.getNotification().getIun(),
+        InformalNotificationHistoryResponse informalNotificationHistory = pnDeliveryPushClient.getInformalNotificationHistory(
+                iun,
                 numberOfRecipients, createdAt);
         // la lista arriva già ordinata correttamente
         var timelineList = informalNotificationHistory.getTimeline();
@@ -48,7 +52,11 @@ public class InformalTimelineEnricher implements TimelineEnricher<InformalNotifi
                 Objects.requireNonNull(informalNotificationHistory));
     }
 
-    private void enrichInformalNotification(InformalNotificationDetail informalNotificationDetail, List<InformalTimelineElementV1> timelineList, List<InformalNotificationStatusHistoryElementV1> statusHistory, InformalNotificationHistoryResponse informalNotificationHistory) {
+    private void enrichInformalNotification(InformalNotificationDetail informalNotificationDetail,
+                                            List<InformalTimelineElementV1> timelineList,
+                                            List<InformalNotificationStatusHistoryElementV1> statusHistory,
+                                            InformalNotificationHistoryResponse informalNotificationHistory) {
+
         informalNotificationDetail.setTimeline(timelineList.stream()
                 .map(timelineElement -> modelMapper.map(timelineElement, InformalTimelineElementV1.class))
                 .toList());

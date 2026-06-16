@@ -1,4 +1,4 @@
-package it.pagopa.pn.delivery.svc;
+package it.pagopa.pn.delivery.svc.search;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationHistoryResponse;
@@ -37,16 +37,19 @@ public class LegalTimelineEnricher implements TimelineEnricher<LegalNotification
     private final PnDeliveryConfigs cfg;
 
     @Override
-    public void enrichNotificationDetail(LegalNotificationDetail notificationDetail, boolean requestBySender) {
-        enrichWithTimelineAndStatusHistory(notificationDetail.getNotification().getIun(), notificationDetail);
-        OffsetDateTime refinementDate = findRefinementDate(notificationDetail.getTimeline(), notificationDetail.getNotification().getIun());
-        checkDocumentsAvailability(notificationDetail.getNotification(), refinementDate, requestBySender);
+    public void enrichNotificationDetail(LegalNotificationDetail legalNotificationDetail, boolean requestBySender) {
+        InternalNotification notification = legalNotificationDetail.getNotification();
+        String iun = notification.getIun();
+        enrichWithTimelineAndStatusHistory(iun, legalNotificationDetail);
+        OffsetDateTime refinementDate = findRefinementDate( notification.getTimeline(), notification.getIun() );
+        checkDocumentsAvailability(notification, refinementDate , requestBySender);
     }
 
-    private void enrichWithTimelineAndStatusHistory(String iun, LegalNotificationDetail notification) {
-        log.debug("Retrieve timeline for iun={}", iun);
-        int numberOfRecipients = notification.getNotification().getRecipients().size();
-        OffsetDateTime createdAt = notification.getNotification().getSentAt();
+    private void enrichWithTimelineAndStatusHistory(String iun, LegalNotificationDetail legalNotificationDetail) {
+        log.debug( "Retrieve timeline for iun={}", iun);
+        InternalNotification notification = legalNotificationDetail.getNotification();
+        int numberOfRecipients = notification.getRecipients().size();
+        OffsetDateTime createdAt =  notification.getSentAt();
 
         NotificationHistoryResponse timelineStatusHistoryDto = pnDeliveryPushClient.getTimelineAndStatusHistory(iun, numberOfRecipients, createdAt);
 
@@ -57,22 +60,26 @@ public class LegalTimelineEnricher implements TimelineEnricher<LegalNotification
 
         List<NotificationStatusHistoryElementV26> statusHistory = timelineStatusHistoryDto.getNotificationStatusHistory();
 
-        enrichLegalNotification(notification,
+        enrichLegalNotification(legalNotificationDetail,
                 Objects.requireNonNull(timelineList),
                 Objects.requireNonNull(statusHistory),
                 Objects.requireNonNull(timelineStatusHistoryDto));
     }
 
-    private void enrichLegalNotification(LegalNotificationDetail notification, List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28> timelineList, List<NotificationStatusHistoryElementV26> statusHistory, NotificationHistoryResponse timelineStatusHistoryDto) {
-        notification.setTimeline(timelineList.stream()
+    private void enrichLegalNotification(LegalNotificationDetail legalNotificationDetail,
+                                         List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28> timelineList,
+                                         List<NotificationStatusHistoryElementV26> statusHistory,
+                                         NotificationHistoryResponse timelineStatusHistoryDto) {
+
+        legalNotificationDetail.setTimeline(timelineList.stream()
                         .map(timelineElement -> modelMapper.map(timelineElement, TimelineElementV28.class))
                         .toList());
 
-        notification.setNotificationStatusHistory(statusHistory.stream()
+        legalNotificationDetail.setNotificationStatusHistory(statusHistory.stream()
                 .map(el -> modelMapper.map(el, it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusHistoryElementV26.class))
                 .toList());
 
-        notification.setNotificationStatus(NotificationStatusV26.fromValue(Objects.requireNonNull(timelineStatusHistoryDto.getNotificationStatus()).getValue()));
+        legalNotificationDetail.setNotificationStatus(NotificationStatusV26.fromValue(Objects.requireNonNull(timelineStatusHistoryDto.getNotificationStatus()).getValue()));
     }
 
     protected OffsetDateTime findRefinementDate(List<TimelineElementV28> timeline, String iun) {

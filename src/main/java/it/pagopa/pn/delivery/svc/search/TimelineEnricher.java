@@ -1,4 +1,4 @@
-package it.pagopa.pn.delivery.svc;
+package it.pagopa.pn.delivery.svc.search;
 
 import it.pagopa.pn.delivery.models.NotificationDetail;
 
