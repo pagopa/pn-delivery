@@ -39,7 +39,7 @@ public class LegalTimelineEnricher implements TimelineEnricher<LegalNotification
     @Override
     public void enrichNotificationDetail(LegalNotificationDetail notificationDetail, boolean requestBySender) {
         enrichWithTimelineAndStatusHistory(notificationDetail.getNotification().getIun(), notificationDetail);
-        OffsetDateTime refinementDate = findRefinementDate(notificationDetail.getNotification().getTimeline(), notificationDetail.getNotification().getIun());
+        OffsetDateTime refinementDate = findRefinementDate(notificationDetail.getTimeline(), notificationDetail.getNotification().getIun());
         checkDocumentsAvailability(notificationDetail.getNotification(), refinementDate, requestBySender);
     }
 
@@ -145,7 +145,7 @@ public class LegalTimelineEnricher implements TimelineEnricher<LegalNotification
     public boolean isNotificationCancelled(InternalNotification notification) {
         var cancellationRequestCategory = TimelineElementCategoryV28.NOTIFICATION_CANCELLATION_REQUEST;
         Optional<TimelineElementV28> cancellationRequestTimeline = notification.getTimeline().stream()
-                .filter(timelineElement -> cancellationRequestCategory.toString().equals(timelineElement.getCategory().toString()))
+                .filter(timelineElement -> cancellationRequestCategory.equals(timelineElement.getCategory()))
                 .findFirst();
         boolean cancellationTimelineIsPresent = cancellationRequestTimeline.isPresent();
         if (cancellationTimelineIsPresent) {
