@@ -97,7 +97,8 @@ describe("RestClient", () => {
         "TOS",
         "v1.0",
         "user123",
-        "PF"
+        "PF",
+        "anonymous-123"
       );
 
       expect(result).to.deep.equal(mockResponse);
@@ -110,6 +111,7 @@ describe("RestClient", () => {
         "user123"
       );
       expect(mock.history.put[0].headers["x-pagopa-pn-cx-type"]).to.equal("PF");
+      expect(mock.history.put[0].headers["x-pagopa-pn-cx-id"]).to.equal("anonymous-123");
     });
 
     it("should handle different consent types", async () => {
@@ -119,7 +121,7 @@ describe("RestClient", () => {
         )
         .reply(200, { success: true });
 
-      await RestClient.putConsents("MARKETING", "v3.1", "company789", "PG");
+      await RestClient.putConsents("MARKETING", "v3.1", "company789", "PG", "anonymous-456");
     });
 
     it("should handle API errors and throw them", async () => {
@@ -130,7 +132,7 @@ describe("RestClient", () => {
         .networkError();
 
       try {
-        await RestClient.putConsents("TOS", "v1.0", "user123", "PF");
+        await RestClient.putConsents("TOS", "v1.0", "user123", "PF", "anonymous-123");
         expect.fail("Should have thrown an error");
       } catch (error) {
         expect(error).to.be.an.instanceOf(Error);
@@ -141,7 +143,7 @@ describe("RestClient", () => {
     it("should verify request payload structure", async () => {
       mock.onPut().reply(200, { success: true });
 
-      await RestClient.putConsents("TOS", "v1.0", "user123", "PF");
+      await RestClient.putConsents("TOS", "v1.0", "user123", "PF", "anonymous-123");
 
       const request = mock.history.put[0];
       expect(JSON.parse(request.data)).to.deep.equal({ action: "ACCEPT" });
