@@ -155,6 +155,7 @@ components:
         - campaignId
         - senderId
         - title
+        - channels
         - closed
         - startDate
         - endDate
@@ -172,6 +173,19 @@ components:
           type: string
           description: Titolo sintetico della campagna.
           example: First campaign
+        channels:
+          type: array
+          description: Elenco dei canali previsti per la campagna.
+          items:
+            type: string
+            enum:
+              - IO
+              - EMAIL
+              - SMS
+              - PEC
+          example:
+            - IO
+            - SMS
         closed:
           type: boolean
           description: Stato di chiusura della campagna.
