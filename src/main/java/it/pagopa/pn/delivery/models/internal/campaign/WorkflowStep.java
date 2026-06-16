@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WorkflowStep {
-    private String channel;
-    private String desiredFeedback;
+    private ChannelType channel;
+    private DesiredFeedbackType desiredFeedback;
     private Boolean includeAttachment;
 }
 

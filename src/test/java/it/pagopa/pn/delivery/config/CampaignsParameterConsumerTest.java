@@ -3,6 +3,8 @@ package it.pagopa.pn.delivery.config;
 import it.pagopa.pn.commons.abstractions.ParameterConsumer;
 import it.pagopa.pn.delivery.exception.PnCampaignNotFoundException;
 import it.pagopa.pn.delivery.models.internal.campaign.Campaign;
+import it.pagopa.pn.delivery.models.internal.campaign.ChannelType;
+import it.pagopa.pn.delivery.models.internal.campaign.DesiredFeedbackType;
 import it.pagopa.pn.delivery.models.internal.campaign.WorkflowStep;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -84,8 +86,8 @@ class CampaignsParameterConsumerTest {
                 .stopOnViewed(false)
                 .workflow(List.of(
                         WorkflowStep.builder()
-                                .channel("IO")
-                                .desiredFeedback("READ")
+                                .channel(ChannelType.valueOf("IO"))
+                                .desiredFeedback(DesiredFeedbackType.valueOf("READ"))
                                 .includeAttachment(false)
                                 .build()
                 ))
