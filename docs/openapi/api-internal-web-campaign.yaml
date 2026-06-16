@@ -183,6 +183,7 @@ components:
               - EMAIL
               - SMS
               - PEC
+              - ANALOG
           example:
             - IO
             - SMS
@@ -273,6 +274,8 @@ components:
           description: Canale utilizzato nello step di invio.
           enum:
             - IO
+            - EMAIL
+            - SMS
             - PEC
             - ANALOG
           example: IO
@@ -282,6 +285,8 @@ components:
           enum:
             - READ
             - RECEIVED
+            - PAID
+            - SKIP
           example: READ
         includeAttachment:
           type: boolean
