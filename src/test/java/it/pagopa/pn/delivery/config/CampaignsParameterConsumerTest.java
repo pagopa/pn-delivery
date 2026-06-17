@@ -76,8 +76,11 @@ class CampaignsParameterConsumerTest {
 
     @Test
     void initialize_parameterNotFoundExceptionDoesNotBreakStartup() {
-        PnInternalException exception = new PnInternalException("Internal Server Error");
-        exception.initCause(ParameterNotFoundException.builder().message("Parameter MVPCampaigns not found.").build());
+        PnInternalException exception = new PnInternalException(
+                "Internal Server Error",
+                "GENERIC_ERROR",
+                ParameterNotFoundException.builder().message("Parameter MVPCampaigns not found.").build()
+        );
 
         Mockito.when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
                 .thenThrow(exception);
@@ -88,7 +91,7 @@ class CampaignsParameterConsumerTest {
 
     @Test
     void initialize_unexpectedInternalExceptionIsPropagated() {
-        PnInternalException exception = new PnInternalException("boom");
+        PnInternalException exception = new PnInternalException("boom", "GENERIC_ERROR");
 
         Mockito.when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
                 .thenThrow(exception);
