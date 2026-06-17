@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.config;
 
 import it.pagopa.pn.commons.abstractions.ParameterConsumer;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.exception.PnCampaignNotFoundException;
 import it.pagopa.pn.delivery.models.internal.campaign.Campaign;
 import it.pagopa.pn.delivery.models.internal.campaign.ChannelType;
@@ -14,6 +15,8 @@ import org.mockito.Mockito;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import software.amazon.awssdk.services.ssm.model.ParameterNotFoundException;
 
 class CampaignsParameterConsumerTest {
 
@@ -69,6 +72,28 @@ class CampaignsParameterConsumerTest {
         List<Campaign> result = campaignsParameterConsumer.getCampaignsBySenderId("sender-a");
 
         Assertions.assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void initialize_parameterNotFoundExceptionDoesNotBreakStartup() {
+        PnInternalException exception = new PnInternalException("Internal Server Error");
+        exception.initCause(ParameterNotFoundException.builder().message("Parameter MVPCampaigns not found.").build());
+
+        Mockito.when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
+                .thenThrow(exception);
+
+        Assertions.assertDoesNotThrow(() -> campaignsParameterConsumer.initialize());
+        Assertions.assertTrue(campaignsParameterConsumer.getCampaignsBySenderId("sender-a").isEmpty());
+    }
+
+    @Test
+    void initialize_unexpectedInternalExceptionIsPropagated() {
+        PnInternalException exception = new PnInternalException("boom");
+
+        Mockito.when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
+                .thenThrow(exception);
+
+        Assertions.assertThrows(PnInternalException.class, () -> campaignsParameterConsumer.initialize());
     }
 
     @Test

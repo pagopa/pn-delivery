@@ -1,11 +1,13 @@
 package it.pagopa.pn.delivery.config;
 
 import it.pagopa.pn.commons.abstractions.ParameterConsumer;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.exception.PnCampaignNotFoundException;
 import it.pagopa.pn.delivery.models.internal.campaign.Campaign;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
+import software.amazon.awssdk.services.ssm.model.ParameterNotFoundException;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
@@ -29,10 +31,7 @@ public class CampaignsParameterConsumer {
 
     @PostConstruct
     protected void initialize() {
-        Optional<Campaign[]> maybeCampaigns = parameterConsumer.getParameterValue(
-                PARAMETER_STORE_MVP_CAMPAIGNS,
-                Campaign[].class
-        );
+        Optional<Campaign[]> maybeCampaigns = loadCampaigns();
 
         if (maybeCampaigns.isEmpty()) {
             log.info("No campaign configuration found on parameter store");
@@ -50,6 +49,21 @@ public class CampaignsParameterConsumer {
         campaigns = Collections.unmodifiableList(loaded);
 
         log.info("Loaded {} campaigns in memory", campaigns.size());
+    }
+
+    private Optional<Campaign[]> loadCampaigns() {
+        try {
+            return parameterConsumer.getParameterValue(
+                    PARAMETER_STORE_MVP_CAMPAIGNS,
+                    Campaign[].class
+            );
+        } catch (PnInternalException ex) {
+            if (hasParameterNotFoundCause(ex)) {
+                log.info("Campaign configuration parameter {} not found on parameter store", PARAMETER_STORE_MVP_CAMPAIGNS);
+                return Optional.empty();
+            }
+            throw ex;
+        }
     }
 
     public List<Campaign> getCampaignsBySenderId(String senderId) {
@@ -72,5 +86,16 @@ public class CampaignsParameterConsumer {
         return !Objects.isNull(campaign)
                 && StringUtils.hasText(campaign.getCampaignId())
                 && StringUtils.hasText(campaign.getSenderId());
+    }
+
+    private boolean hasParameterNotFoundCause(Throwable throwable) {
+        Throwable current = throwable;
+        while (current != null) {
+            if (current instanceof ParameterNotFoundException) {
+                return true;
+            }
+            current = current.getCause();
+        }
+        return false;
     }
 }
