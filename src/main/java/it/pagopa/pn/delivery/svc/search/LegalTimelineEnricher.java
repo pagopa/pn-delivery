@@ -41,7 +41,7 @@ public class LegalTimelineEnricher implements TimelineEnricher<LegalNotification
         InternalNotification notification = legalNotificationDetail.getNotification();
         String iun = notification.getIun();
         enrichWithTimelineAndStatusHistory(iun, legalNotificationDetail);
-        OffsetDateTime refinementDate = findRefinementDate( notification.getTimeline(), notification.getIun() );
+        OffsetDateTime refinementDate = findRefinementDate( legalNotificationDetail.getTimeline(), notification.getIun() );
         checkDocumentsAvailability(notification, refinementDate , requestBySender);
     }
 
