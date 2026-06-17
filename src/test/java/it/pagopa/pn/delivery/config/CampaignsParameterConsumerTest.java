@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 
@@ -107,8 +108,8 @@ class CampaignsParameterConsumerTest {
                 .title("Campaign 1")
                 .descriptionScope("Description")
                 .closed(false)
-                .startDate(OffsetDateTime.now())
-                .endDate(OffsetDateTime.now().plusDays(30))
+                .startDate(OffsetDateTime.of(2025, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC))
+                .endDate(OffsetDateTime.of(2025, 1, 31, 0, 0, 0, 0, ZoneOffset.UTC))
                 .serviceId("service-1")
                 .sensitiveContent(false)
                 .stopOnViewed(false)
