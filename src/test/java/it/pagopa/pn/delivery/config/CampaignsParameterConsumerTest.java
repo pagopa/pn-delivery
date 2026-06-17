@@ -6,12 +6,14 @@ import it.pagopa.pn.delivery.exception.PnCampaignNotFoundException;
 import it.pagopa.pn.delivery.models.internal.campaign.Campaign;
 import it.pagopa.pn.delivery.models.internal.campaign.ChannelType;
 import it.pagopa.pn.delivery.models.internal.campaign.DesiredFeedbackType;
-import it.pagopa.pn.delivery.models.internal.campaign.WorkflowStep;
+import it.pagopa.pn.delivery.models.internal.campaign.WorkFlowEntity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import it.pagopa.pn.commons.utils.qr.models.RecipientTypeInt;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -114,8 +116,10 @@ class CampaignsParameterConsumerTest {
                 .sensitiveContent(false)
                 .stopOnViewed(false)
                 .workflow(List.of(
-                        WorkflowStep.builder()
+                        WorkFlowEntity.builder()
                                 .channel(ChannelType.valueOf("IO"))
+                                .recipientType(RecipientTypeInt.PF)
+                                .timeout(Duration.ofDays(1))
                                 .desiredFeedback(DesiredFeedbackType.valueOf("READ"))
                                 .includeAttachment(false)
                                 .build()

@@ -25,6 +25,6 @@ public class Campaign {
     private Boolean sensitiveContent;
     private Boolean stopOnViewed;
     private List<ChannelType> channels;
-    private List<WorkflowStep> workflow;
+    private List<WorkFlowEntity> workflow;
 }
 
