@@ -155,7 +155,8 @@ components:
         - campaignId
         - senderId
         - title
-        - channels
+        - pfChannels
+        - pgChannels
         - closed
         - startDate
         - endDate
@@ -173,14 +174,22 @@ components:
           type: string
           description: Titolo sintetico della campagna.
           example: First campaign
-        channels:
+        pfChannels:
           type: array
-          description: Elenco dei canali previsti per la campagna.
+          description: Elenco dei canali previsti per i destinatari persona fisica della campagna.
           items:
             $ref: '#/components/schemas/ChannelType'
           example:
             - IO
             - SMS
+        pgChannels:
+          type: array
+          description: Elenco dei canali previsti per i destinatari persona giuridica della campagna.
+          items:
+            $ref: '#/components/schemas/ChannelType'
+          example:
+            - PEC
+            - ANALOG
         closed:
           type: boolean
           description: Stato di chiusura della campagna.
