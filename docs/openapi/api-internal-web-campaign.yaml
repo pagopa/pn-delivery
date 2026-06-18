@@ -177,13 +177,7 @@ components:
           type: array
           description: Elenco dei canali previsti per la campagna.
           items:
-            type: string
-            enum:
-              - IO
-              - EMAIL
-              - SMS
-              - PEC
-              - ANALOG
+            $ref: '#/components/schemas/ChannelType'
           example:
             - IO
             - SMS
@@ -216,6 +210,7 @@ components:
         - serviceId
         - sensitiveContent
         - stopOnViewed
+        - channels
         - workflow
       properties:
         campaignId:
@@ -255,6 +250,11 @@ components:
         stopOnViewed:
           type: boolean
           description: Se true, il workflow si interrompe al primo evento di visualizzazione.
+        channels:
+          type: array
+          description: Elenco dei canali previsti per la campagna.
+          items:
+            $ref: '#/components/schemas/ChannelType'
         workflow:
           type: array
           description: Configurazione del workflow di invio previsto per la campagna.
@@ -266,33 +266,54 @@ components:
       description: Definizione di uno step del workflow campagna.
       required:
         - channel
+        - recipientType
+        - timeout
         - desiredFeedback
         - includeAttachment
       properties:
         channel:
+          $ref: '#/components/schemas/ChannelType'
+        recipientType:
+          $ref: '#/components/schemas/RecipientTypeInt'
+        timeout:
           type: string
-          description: Canale utilizzato nello step di invio.
-          enum:
-            - IO
-            - EMAIL
-            - SMS
-            - PEC
-            - ANALOG
-          example: IO
+          description: Durata massima dello step in formato ISO-8601 (es. PT24H).
+          example: PT24H
         desiredFeedback:
-          type: string
-          description: Tipo di feedback richiesto per considerare completato lo step.
-          enum:
-            - READ
-            - RECEIVED
-            - PAID
-            - SKIP
-          example: READ
+          $ref: '#/components/schemas/DesiredFeedbackType'
         includeAttachment:
           type: boolean
           description: Indica se nello step vanno inclusi gli allegati.
           example: false
 
+    ChannelType:
+      type: string
+      description: Canale di invio utilizzabile nella campagna.
+      enum:
+        - IO
+        - EMAIL
+        - SMS
+        - PEC
+        - ANALOG
+      example: IO
+
+    RecipientTypeInt:
+      type: string
+      description: Tipologia di destinatario dello step di workflow.
+      enum:
+        - PF
+        - PG
+      example: PF
+
+    DesiredFeedbackType:
+      type: string
+      description: Tipo di feedback richiesto per considerare completato lo step.
+      enum:
+        - READ
+        - RECEIVED
+        - PAID
+        - SKIP
+      example: READ
+
     Problem:
       $ref: './remote-refs.yaml#/components/schemas/Problem'
-
