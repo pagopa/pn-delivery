@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.utils;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InformalNotificationDetail;
 import it.pagopa.pn.delivery.models.LegalNotificationDetail;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class NotificationUtils {
 
     public static NotificationStatusV26 getNotificationLastStatus(String notificationRequestId,

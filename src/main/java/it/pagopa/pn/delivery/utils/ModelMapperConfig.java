@@ -77,7 +77,7 @@ public class ModelMapperConfig {
                 );
         mapFromLegalNotificationDetailToFullSentNotificationV29(modelMapper);
 
-        mapFromLegalNotificationDetailToFullReceivedInformalNotificationV1(modelMapper);
+        mapFromLegalNotificationDetailToFullReceivedNotificationV28(modelMapper);
 
         mapFromInformalNotificationDetailToFullSentInformalNotificationV1(modelMapper);
 
@@ -138,7 +138,7 @@ public class ModelMapperConfig {
                 });
     }
 
-    private static void mapFromLegalNotificationDetailToFullReceivedInformalNotificationV1(ModelMapper modelMapper) {
+    private static void mapFromLegalNotificationDetailToFullReceivedNotificationV28(ModelMapper modelMapper) {
         // LegalNotificationDetail -> FullReceivedNotificationV28
         modelMapper.createTypeMap(LegalNotificationDetail.class, FullReceivedNotificationV28.class)
                 .setProvider(ctx -> modelMapper.map(
