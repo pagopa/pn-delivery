@@ -167,7 +167,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi, Reci
             LegalNotificationDetail legalNotificationDetail = legalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, mandateId, logEvent);
             InternalNotification internalNotification = legalNotificationDetail.getNotification();
             InternalFieldsCleaner.cleanInternalFields( internalNotification );
-            result = modelMapper.map(internalNotification, FullReceivedNotificationV28.class);
+            result = modelMapper.map(legalNotificationDetail, FullReceivedNotificationV28.class);
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("" + exc.getProblem()).log();
@@ -394,7 +394,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi, Reci
                     logEvent);
             InternalNotification internalNotification = informalNotificationDetail.getNotification();
             InternalFieldsCleaner.cleanInternalFields( internalNotification );
-            result = modelMapper.map(internalNotification, FullReceivedInformalNotificationV1.class);
+            result = modelMapper.map(informalNotificationDetail, FullReceivedInformalNotificationV1.class);
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("" + exc.getProblem()).log();

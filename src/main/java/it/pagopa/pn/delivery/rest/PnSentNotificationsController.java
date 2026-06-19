@@ -313,7 +313,8 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
             throw new PnNotificationNotFoundException( "Unable to find informal notification with iun="+ internalNotification.getIun() );
         }
         InternalFieldsCleaner.cleanInternalFields( internalNotification );
-        FullSentInformalNotificationV1 result = modelMapper.map( internalNotification, FullSentInformalNotificationV1.class );
+        FullSentInformalNotificationV1 result = modelMapper.map( informalNotificationDetail,
+                FullSentInformalNotificationV1.class );
         logEvent.generateSuccess().log();
         return ResponseEntity.ok( result );
     }
