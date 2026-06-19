@@ -10,9 +10,11 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.api.RecipientReadInform
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
 import it.pagopa.pn.delivery.models.*;
+import it.pagopa.pn.delivery.svc.InformalNotificationDetailRetrieverStrategy;
+import it.pagopa.pn.delivery.svc.LegalNotificationDetailRetrieverStrategy;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationQRService;
-import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
+import it.pagopa.pn.delivery.svc.search.NotificationSearchService;
 import it.pagopa.pn.delivery.utils.InternalFieldsCleaner;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -32,15 +34,24 @@ import static it.pagopa.pn.commons.utils.MDCUtils.*;
 @Slf4j
 @RestController
 public class PnReceivedNotificationsController implements RecipientReadApi, RecipientReadInformalNotificationApi {
-    private final NotificationRetrieverService retrieveSvc;
+    private final NotificationSearchService retrieveSvc;
+    private final InformalNotificationDetailRetrieverStrategy informalNotificationDetailRetrieverStrategy;
+    private final LegalNotificationDetailRetrieverStrategy legalNotificationDetailRetrieverStrategy;
     private final NotificationAttachmentService notificationAttachmentService;
     private final NotificationQRService notificationQRService;
 
     private final ModelMapper modelMapper;
 
 
-    public PnReceivedNotificationsController(NotificationRetrieverService retrieveSvc, NotificationAttachmentService notificationAttachmentService, NotificationQRService notificationQRService, ModelMapper modelMapper) {
+    public PnReceivedNotificationsController(NotificationSearchService retrieveSvc,
+                                             InformalNotificationDetailRetrieverStrategy informalNotificationDetailRetrieverStrategy,
+                                             LegalNotificationDetailRetrieverStrategy legalNotificationDetailRetrieverStrategy,
+                                             NotificationAttachmentService notificationAttachmentService,
+                                             NotificationQRService notificationQRService,
+                                             ModelMapper modelMapper) {
         this.retrieveSvc = retrieveSvc;
+        this.informalNotificationDetailRetrieverStrategy = informalNotificationDetailRetrieverStrategy;
+        this.legalNotificationDetailRetrieverStrategy = legalNotificationDetailRetrieverStrategy;
         this.notificationAttachmentService = notificationAttachmentService;
         this.notificationQRService = notificationQRService;
         this.modelMapper = modelMapper;
@@ -153,7 +164,8 @@ public class PnReceivedNotificationsController implements RecipientReadApi, Reci
         logEvent.log();
         try {
             InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups, xPagopaPnSrcCh, xPagopaPnSrcChDetails);
-            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, mandateId, logEvent);
+            LegalNotificationDetail legalNotificationDetail = legalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, mandateId, logEvent);
+            InternalNotification internalNotification = legalNotificationDetail.getNotification();
             InternalFieldsCleaner.cleanInternalFields( internalNotification );
             result = modelMapper.map(internalNotification, FullReceivedNotificationV28.class);
             logEvent.generateSuccess().log();
@@ -180,7 +192,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi, Reci
                 .build();
         logEvent.log();
         try {
-            retrieveSvc.checkIfNotificationIsNotCancelled(iun);
+            legalNotificationDetailRetrieverStrategy.checkIfNotificationIsNotCancelled(iun);
             InternalAuthHeader internalAuthHeader = new InternalAuthHeader(
                     xPagopaPnCxType.getValue(),
                     xPagopaPnCxId,
@@ -224,7 +236,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi, Reci
                 .build();
         logEvent.log();
         try {
-            retrieveSvc.checkIfNotificationIsNotCancelled(iun);
+            legalNotificationDetailRetrieverStrategy.checkIfNotificationIsNotCancelled(iun);
             InternalAuthHeader internalAuthHeader = new InternalAuthHeader(
                     xPagopaPnCxType.getValue(),
                     xPagopaPnCxId,
@@ -371,12 +383,16 @@ public class PnReceivedNotificationsController implements RecipientReadApi, Reci
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(eventType, logMsg)
                 .iun(iun)
-                .mdcEntry("null", "null")
                 .build();
         logEvent.log();
         try {
             InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups, xPagopaPnSrcCh, xPagopaPnSrcChDetails);
-            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, null, logEvent);
+            InformalNotificationDetail informalNotificationDetail = informalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(
+                    iun,
+                    internalAuthHeader,
+                    null,
+                    logEvent);
+            InternalNotification internalNotification = informalNotificationDetail.getNotification();
             InternalFieldsCleaner.cleanInternalFields( internalNotification );
             result = modelMapper.map(internalNotification, FullReceivedInformalNotificationV1.class);
             logEvent.generateSuccess().log();

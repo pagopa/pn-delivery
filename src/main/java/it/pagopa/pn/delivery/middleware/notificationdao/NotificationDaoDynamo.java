@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.*;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewMessageRequest;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
@@ -29,6 +30,8 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static it.pagopa.pn.delivery.models.internal.notification.mapper.LocalizedContentMapper.mapToServerLocalizedContent;
+
 @Component
 @Slf4j
 public class NotificationDaoDynamo implements NotificationDao {
@@ -41,18 +44,18 @@ public class NotificationDaoDynamo implements NotificationDao {
 	private final PnDataVaultClientImpl pnDataVaultClient;
 
 	public NotificationDaoDynamo(NotificationEntityDao entityDao,
-								 NotificationMetadataEntityDao metadataEntityDao,
-								 NotificationDelegationMetadataEntityDao delegationMetadataEntityDao,
-								 DtoToEntityNotificationMapper dto2entityMapper,
-								 EntityToDtoNotificationMapper entity2DtoMapper,
-								 PnDataVaultClientImpl pnDataVaultClient) {
+                                 NotificationMetadataEntityDao metadataEntityDao,
+                                 NotificationDelegationMetadataEntityDao delegationMetadataEntityDao,
+                                 DtoToEntityNotificationMapper dto2entityMapper,
+                                 EntityToDtoNotificationMapper entity2DtoMapper,
+                                 PnDataVaultClientImpl pnDataVaultClient) {
 		this.entityDao = entityDao;
 		this.metadataEntityDao = metadataEntityDao;
 		this.delegationMetadataEntityDao = delegationMetadataEntityDao;
 		this.dto2entityMapper = dto2entityMapper;
 		this.entity2DtoMapper = entity2DtoMapper;
 		this.pnDataVaultClient = pnDataVaultClient;
-	}
+    }
 
 	@Override
 	public void addNotification(InternalNotification internalNotification  ) throws PnIdConflictException {
@@ -189,6 +192,16 @@ public class NotificationDaoDynamo implements NotificationDao {
 				log.error( "Unable to find any recipient info from data-vault for recipient={}", opaqueTaxId );
 			}
 
+			MessageResponseDto messageDto = retrieveInformalMessageById(recipient, daoResult);
+
+			if (Objects.nonNull(messageDto)) {
+				recipient.setMessage(
+						NewMessageRequest.builder()
+								.primaryMessage(mapToServerLocalizedContent(messageDto.getPrimaryContent()))
+								.additionalMessage(mapToServerLocalizedContent(messageDto.getSecondaryContent()))
+								.build()
+				);
+			}
 
 			if ( clearDataAddresses != null ) {
 				recipient.setDenomination(clearDataAddresses.getDenomination());
@@ -208,6 +221,17 @@ public class NotificationDaoDynamo implements NotificationDao {
 			}
 			recipientIndex += 1;
 		}
+	}
+
+	private MessageResponseDto retrieveInformalMessageById(NotificationRecipient recipient, InternalNotification notification) {
+		if (Objects.isNull(recipient.getMessageId()) || Objects.isNull(notification.getSenderPaId())) {
+			log.debug("Message ID or Sender PA ID is null for recipient with internalId={}, skipping message retrieval", recipient.getInternalId());
+			return null;
+		}
+		return pnDataVaultClient.getInformalMessageById(
+				UUID.fromString(recipient.getMessageId()),
+				UUID.fromString(notification.getSenderPaId())
+		);
 	}
 
 	private NotificationRecipientAddressesDto getNotificationRecipientAddressesDtoByRecIndex(int recipientIndex, List<NotificationRecipientAddressesDto> notificationRecipientAddressesDtoList) {

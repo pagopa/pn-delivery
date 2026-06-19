@@ -9,16 +9,15 @@ import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
-import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
-import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
-import it.pagopa.pn.delivery.models.InternalAuthHeader;
-import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.*;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
+import it.pagopa.pn.delivery.svc.InformalNotificationDetailRetrieverStrategy;
+import it.pagopa.pn.delivery.svc.LegalNotificationDetailRetrieverStrategy;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService.InternalAttachmentWithFileKey;
 import it.pagopa.pn.delivery.svc.NotificationQRService;
-import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
+import it.pagopa.pn.delivery.svc.search.NotificationSearchService;
 import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Assertions;
@@ -44,13 +43,15 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_FILEINFONOTFOUND;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @WebFluxTest(controllers = {PnSentNotificationsController.class, PnReceivedNotificationsController.class})
 class PnSentReceivedNotificationControllerTest {
@@ -92,7 +93,13 @@ class PnSentReceivedNotificationControllerTest {
     WebTestClient webTestClient;
 
     @MockBean
-    NotificationRetrieverService svc;
+    private InformalNotificationDetailRetrieverStrategy informalNotificationDetailRetrieverStrategy;
+
+    @MockBean
+    private LegalNotificationDetailRetrieverStrategy legalNotificationDetailRetrieverStrategy;
+
+    @MockBean
+    NotificationSearchService svc;
 
     @MockBean
     NotificationAttachmentService attachmentService;
@@ -109,10 +116,11 @@ class PnSentReceivedNotificationControllerTest {
     @Test
     void getSentNotificationSuccess() {
         // Given
-        InternalNotification notification = newNotification();
+        LegalNotificationDetail legalNotificationDetail = newLegalNotification();
 
         // When
-        Mockito.when(svc.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList())).thenReturn(notification);
+        Mockito.when(legalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
+                .thenReturn(legalNotificationDetail);
 
         // Then
         webTestClient.get()
@@ -129,17 +137,18 @@ class PnSentReceivedNotificationControllerTest {
                 .isOk()
                 .expectBody(FullSentNotificationV29.class);
 
-        Mockito.verify(svc).getNotificationInformationWithSenderIdCheck(IUN, PA_ID, GROUPS);
+        Mockito.verify(legalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(IUN, PA_ID, GROUPS);
     }
 
     @Test
     void getSentNotificationNotFoundCauseIN_VALIDATION() {
         // Given
-        InternalNotification notification = newNotification();
-        notification.setNotificationStatus(NotificationStatusV26.IN_VALIDATION);
+        LegalNotificationDetail legalNotificationDetail = newLegalNotification();
+        legalNotificationDetail.setNotificationStatus(NotificationStatusV26.IN_VALIDATION);
 
         // When
-        Mockito.when(svc.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList())).thenReturn(notification);
+        Mockito.when(legalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
+                .thenReturn(legalNotificationDetail);
 
         // Then
         webTestClient.get()
@@ -155,18 +164,19 @@ class PnSentReceivedNotificationControllerTest {
                 .expectStatus()
                 .isNotFound();
 
-        Mockito.verify(svc).getNotificationInformationWithSenderIdCheck(IUN, PA_ID, GROUPS);
+        Mockito.verify(legalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(IUN, PA_ID, GROUPS);
     }
 
 
     @Test
     void getSentNotificationNotFoundCauseREFUSED() {
         // Given
-        InternalNotification notification = newNotification();
-        notification.setNotificationStatus(NotificationStatusV26.REFUSED);
+        LegalNotificationDetail legalNotificationDetail = newLegalNotification();
+        legalNotificationDetail.setNotificationStatus(NotificationStatusV26.REFUSED);
 
         // When
-        Mockito.when(svc.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList())).thenReturn(notification);
+        Mockito.when(legalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
+                .thenReturn(legalNotificationDetail);
 
         // Then
         webTestClient.get()
@@ -182,17 +192,18 @@ class PnSentReceivedNotificationControllerTest {
                 .expectStatus()
                 .isNotFound();
 
-        Mockito.verify(svc).getNotificationInformationWithSenderIdCheck(IUN, PA_ID, GROUPS);
+        Mockito.verify(legalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(IUN, PA_ID, GROUPS);
     }
 
 
     @Test
     void getNotificationRequestStatusByRequestIdIN_VALIDATION() {
         // Given
-        InternalNotification notification = newNotification();
-        notification.setNotificationStatusHistory(null);
+        LegalNotificationDetail legalNotificationDetail = newLegalNotification();
+        legalNotificationDetail.setNotificationStatusHistory(null);
 
-        Mockito.when(svc.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList())).thenReturn(notification);
+        Mockito.when(legalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
+                .thenReturn(legalNotificationDetail);
 
         webTestClient.get()
                 .uri(uriBuilder ->
@@ -210,7 +221,7 @@ class PnSentReceivedNotificationControllerTest {
                 .isOk()
                 .expectBody(NewNotificationRequestStatusResponseV26.class);
 
-        Mockito.verify(svc).getNotificationInformationWithSenderIdCheck(new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS);
+        Mockito.verify(legalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS);
     }
 
     @Test
@@ -504,31 +515,37 @@ class PnSentReceivedNotificationControllerTest {
         );
     }
 
-    @ParameterizedTest
-    @MethodSource("provideNotificationRequestStatusArgs")
-    void getNotificationRequestStatusByRequestIdREFUSED(String path, Class<?> responseClass) {
+    @Test
+    void getNotificationRequestStatusByRequestIdREFUSED_legal() {
         // Given
+        LegalNotificationDetail legalNotificationDetail = newLegalNotification();
+        legalNotificationDetail.setNotificationStatusHistory(Collections.singletonList(
+                NotificationStatusHistoryElementV26.builder()
+                        .status(NotificationStatusV26.REFUSED)
+                        .build()
+        ));
+        legalNotificationDetail.setTimeline(Collections.singletonList(
+                TimelineElementV28.builder()
+                        .category(TimelineElementCategoryV28.REQUEST_REFUSED)
+                        .details(TimelineElementDetailsV28.builder()
+                                .refusalReasons(Collections.singletonList(
+                                        NotificationRefusedErrorV27.builder()
+                                                .errorCode("FILE_NOTFOUND")
+                                                .detail("Allegato non trovato. fileKey=81dde2a8-9719-4407-b7b3-63e7ea694869")
+                                                .build()
+                                ))
+                                .build())
+                        .build()
+        ));
 
-        InternalNotification notification = newNotification();
-        notification.setNotificationStatusHistory(Collections.singletonList(NotificationStatusHistoryElementV26.builder()
-                .status(NotificationStatusV26.REFUSED)
-                .build()));
-        notification.setTimeline(Collections.singletonList(TimelineElementV28.builder()
-                .category(TimelineElementCategoryV28.REQUEST_REFUSED)
-                .details(TimelineElementDetailsV28.builder()
-                        .refusalReasons(Collections.singletonList(NotificationRefusedErrorV27.builder()
-                                .errorCode("FILE_NOTFOUND")
-                                .detail("Allegato non trovato. fileKey=81dde2a8-9719-4407-b7b3-63e7ea694869")
-                                .build()))
-                        .build())
-                .build()));
+        Mockito.when(legalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
+                .thenReturn(legalNotificationDetail);
 
-        Mockito.when(svc.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList())).thenReturn(notification);
-
+        // When / Then
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
-                                .path(path)
+                                .path(DELIVERY_REQUESTS_PATH)
                                 .queryParam("notificationRequestId", REQUEST_ID)
                                 .build())
                 .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
@@ -539,23 +556,28 @@ class PnSentReceivedNotificationControllerTest {
                 .exchange()
                 .expectStatus()
                 .isOk()
-                .expectBody(responseClass);
+                .expectBody(NewNotificationRequestStatusResponseV26.class);
 
-        Mockito.verify(svc).getNotificationInformationWithSenderIdCheck(new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS);
+        Mockito.verify(legalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(
+                new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8),
+                PA_ID,
+                GROUPS
+        );
     }
 
-    @ParameterizedTest
-    @MethodSource("provideNotificationRequestStatusArgs")
-    void getNotificationRequestStatusByRequestIdSuccess(String path, Class<?> responseClass) {
+    @Test
+    void getNotificationRequestStatusByRequestIdREFUSED_informal() {
         // Given
-        InternalNotification notification = newNotification();
+        InformalNotificationDetail informalNotificationDetail = newInformalNotification();
 
-        Mockito.when(svc.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList())).thenReturn(notification);
+        Mockito.when(informalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
+                .thenReturn(informalNotificationDetail);
 
+        // When / Then
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
-                                .path(path)
+                                .path(DELIVERY_INFORMAL_REQUESTS_PATH)
                                 .queryParam("notificationRequestId", REQUEST_ID)
                                 .build())
                 .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
@@ -566,28 +588,28 @@ class PnSentReceivedNotificationControllerTest {
                 .exchange()
                 .expectStatus()
                 .isOk()
-                .expectBody(responseClass);
+                .expectBody(NewInformalNotificationRequestStatusResponseV1.class);
 
-        Mockito.verify(svc).getNotificationInformationWithSenderIdCheck(new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS);
+        Mockito.verify(informalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(
+                new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8),
+                PA_ID,
+                GROUPS
+        );
     }
 
-    @ParameterizedTest
-    @MethodSource("provideNotificationRequestStatusArgs")
-    void getNotificationRequestStatusByRequestIdAccepted(String path, Class<?> responseClass) {
+    @Test
+    void getNotificationRequestStatusByRequestIdSuccess_legal() {
         // Given
+        LegalNotificationDetail legalNotificationDetail = newLegalNotification();
 
-        InternalNotification notification = newNotification();
-        notification.setNotificationStatusHistory(Collections.singletonList(NotificationStatusHistoryElementV26.builder()
-                .status(NotificationStatusV26.ACCEPTED)
-                .build()));
-        notification.setTimeline(Collections.emptyList());
+        Mockito.when(legalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
+                .thenReturn(legalNotificationDetail);
 
-        Mockito.when(svc.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList())).thenReturn(notification);
-
+        // When / Then
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
-                                .path(path)
+                                .path(DELIVERY_REQUESTS_PATH)
                                 .queryParam("notificationRequestId", REQUEST_ID)
                                 .build())
                 .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
@@ -598,9 +620,116 @@ class PnSentReceivedNotificationControllerTest {
                 .exchange()
                 .expectStatus()
                 .isOk()
-                .expectBody(responseClass);
+                .expectBody(NewNotificationRequestStatusResponseV26.class);
 
-        Mockito.verify(svc).getNotificationInformationWithSenderIdCheck(new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS);
+        Mockito.verify(legalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(
+                new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8),
+                PA_ID,
+                GROUPS
+        );
+    }
+
+    @Test
+    void getNotificationRequestStatusByRequestIdSuccess_informal() {
+        // Given
+        InformalNotificationDetail informalNotificationDetail = newInformalNotification();
+
+        Mockito.when(informalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
+                .thenReturn(informalNotificationDetail);
+
+        // When / Then
+        webTestClient.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path(DELIVERY_INFORMAL_REQUESTS_PATH)
+                                .queryParam("notificationRequestId", REQUEST_ID)
+                                .build())
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(0))
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(1))
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(NewInformalNotificationRequestStatusResponseV1.class);
+
+        Mockito.verify(informalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(
+                new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8),
+                PA_ID,
+                GROUPS
+        );
+    }
+
+    @Test
+    void getNotificationRequestStatusByRequestIdAccepted_legal() {
+        // Given
+        LegalNotificationDetail legalNotificationDetail = newLegalNotification();
+        legalNotificationDetail.setNotificationStatusHistory(Collections.singletonList(
+                NotificationStatusHistoryElementV26.builder()
+                        .status(NotificationStatusV26.ACCEPTED)
+                        .build()
+        ));
+        legalNotificationDetail.setTimeline(Collections.emptyList());
+
+        Mockito.when(legalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
+                .thenReturn(legalNotificationDetail);
+
+        // When / Then
+        webTestClient.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path(DELIVERY_REQUESTS_PATH)
+                                .queryParam("notificationRequestId", REQUEST_ID)
+                                .build())
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(0))
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(1))
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(NewNotificationRequestStatusResponseV26.class);
+
+        Mockito.verify(legalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(
+                new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8),
+                PA_ID,
+                GROUPS
+        );
+    }
+
+    @Test
+    void getNotificationRequestStatusByRequestIdAccepted_informal() {
+        // Given
+        InformalNotificationDetail informalNotificationDetail = newInformalNotification();
+        informalNotificationDetail.setTimeline(Collections.emptyList());
+
+        Mockito.when(informalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
+                .thenReturn(informalNotificationDetail);
+
+        // When / Then
+        webTestClient.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path(DELIVERY_INFORMAL_REQUESTS_PATH)
+                                .queryParam("notificationRequestId", REQUEST_ID)
+                                .build())
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(0))
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(1))
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(NewInformalNotificationRequestStatusResponseV1.class);
+
+        Mockito.verify(informalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(
+                new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8),
+                PA_ID,
+                GROUPS
+        );
     }
 
     @ParameterizedTest
@@ -642,10 +771,16 @@ class PnSentReceivedNotificationControllerTest {
     @MethodSource("provideNotificationRequestStatusArgs")
     void getNotificationRequestStatusByProtocolAndIdempotenceSuccess(String path, Class<?> responseClass) {
         // Given
-        InternalNotification notification = newNotification();
+        LegalNotificationDetail legalNotificationDetail = newLegalNotification();
+        InformalNotificationDetail informalNotificationDetail = newInformalNotification();
 
-        Mockito.when(svc.getNotificationInformation(anyString(), anyString(), anyString(), anyList())).thenReturn(notification);
+        Mockito.when(legalNotificationDetailRetrieverStrategy.getNotificationInformation(anyString(), anyString(), anyString(), anyList()))
+                .thenReturn(legalNotificationDetail);
 
+        Mockito.when(informalNotificationDetailRetrieverStrategy.getNotificationInformation(anyString(), anyString(), anyString(), anyList()))
+                .thenReturn(informalNotificationDetail);
+
+        // When / Then
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
@@ -663,17 +798,27 @@ class PnSentReceivedNotificationControllerTest {
                 .isOk()
                 .expectBody(responseClass);
 
-        Mockito.verify(svc).getNotificationInformation(PA_ID, PA_PROTOCOL_NUMBER, IDEMPOTENCE_TOKEN, GROUPS);
+        if (DELIVERY_REQUESTS_PATH.equals(path)) {
+            Mockito.verify(legalNotificationDetailRetrieverStrategy).getNotificationInformation(PA_ID, PA_PROTOCOL_NUMBER, IDEMPOTENCE_TOKEN, GROUPS);
+        } else {
+            Mockito.verify(informalNotificationDetailRetrieverStrategy).getNotificationInformation(PA_ID, PA_PROTOCOL_NUMBER, IDEMPOTENCE_TOKEN, GROUPS);
+        }
     }
 
     @Test
     void getReceivedNotificationSuccess() {
         // Given
-        InternalNotification notification = newNotification();
+        LegalNotificationDetail legalNotificationDetail = newLegalNotification();
+        legalNotificationDetail.setTimeline(Collections.emptyList());
+        legalNotificationDetail.setNotificationStatusHistory(Collections.emptyList());
 
         // When
-        Mockito.when(svc.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(null), Mockito.any(PnAuditLogEvent.class)))
-                .thenReturn(notification);
+        Mockito.when(legalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(
+                Mockito.anyString(),
+                Mockito.any(InternalAuthHeader.class),
+                eq(null),
+                Mockito.any(PnAuditLogEvent.class))
+        ).thenReturn(legalNotificationDetail);
 
         // Then
         webTestClient.get()
@@ -691,14 +836,23 @@ class PnSentReceivedNotificationControllerTest {
                 .isOk()
                 .expectBody(FullReceivedNotificationV28.class);
 
-        Mockito.verify(svc).getNotificationAndNotifyViewedEvent(Mockito.eq(IUN), Mockito.eq(INTERNAL_AUTH_HEADER), Mockito.eq(null), Mockito.any(PnAuditLogEvent.class));
+        Mockito.verify(legalNotificationDetailRetrieverStrategy).getNotificationAndNotifyViewedEvent(
+                Mockito.eq(IUN),
+                Mockito.eq(INTERNAL_AUTH_HEADER),
+                Mockito.eq(null),
+                Mockito.any(PnAuditLogEvent.class)
+        );
     }
 
     @Test
     void getReceivedNotificationFailure() {
 
         // When
-        Mockito.when(svc.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(null), Mockito.any(PnAuditLogEvent.class)))
+        Mockito.when(legalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(
+                Mockito.anyString(),
+                        Mockito.any(InternalAuthHeader.class),
+                        eq(null),
+                        Mockito.any(PnAuditLogEvent.class)))
                 .thenThrow(new PnNotificationNotFoundException("test"));
 
         // Then
@@ -718,10 +872,17 @@ class PnSentReceivedNotificationControllerTest {
     @Test
     void getReceivedNotificationByDelegateSuccess() {
         // Given
-        InternalNotification notification = newNotification();
+        LegalNotificationDetail legalNotificationDetail = newLegalNotification();
+        legalNotificationDetail.setTimeline(Collections.emptyList());
+        legalNotificationDetail.setNotificationStatusHistory(Collections.emptyList());
+
         // When
-        Mockito.when(svc.getNotificationAndNotifyViewedEvent(anyString(), any(InternalAuthHeader.class), anyString(), Mockito.any(PnAuditLogEvent.class)))
-                .thenReturn(notification);
+        Mockito.when(legalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(
+                anyString(),
+                any(InternalAuthHeader.class),
+                anyString(),
+                Mockito.any(PnAuditLogEvent.class))
+        ).thenReturn(legalNotificationDetail);
 
         // Then
         webTestClient.get()
@@ -743,7 +904,12 @@ class PnSentReceivedNotificationControllerTest {
                 .isOk()
                 .expectBody(FullReceivedNotificationV28.class);
 
-        Mockito.verify(svc).getNotificationAndNotifyViewedEvent(Mockito.eq(IUN), Mockito.eq(INTERNAL_AUTH_HEADER), Mockito.eq(MANDATE_ID), Mockito.any(PnAuditLogEvent.class));
+        Mockito.verify(legalNotificationDetailRetrieverStrategy).getNotificationAndNotifyViewedEvent(
+                Mockito.eq(IUN),
+                Mockito.eq(INTERNAL_AUTH_HEADER),
+                Mockito.eq(MANDATE_ID),
+                Mockito.any(PnAuditLogEvent.class)
+        );
     }
 
     @Test
@@ -1363,39 +1529,6 @@ class PnSentReceivedNotificationControllerTest {
         return headers;
     }
 
-    private InternalNotification newNotification() {
-        InternalNotification internalNotification = new InternalNotification();
-        internalNotification.setSourceChannel(X_PAGOPA_PN_SRC_CH);
-        internalNotification.setSentAt(OffsetDateTime.now());
-        internalNotification.setRecipients(
-                List.of(
-                        NotificationRecipient.builder()
-                                .internalId("internalId")
-                                .recipientType(NotificationRecipientV24.RecipientTypeEnum.PF)
-                                .taxId("taxId")
-                                .physicalAddress(it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress.builder().build())
-                                .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder().build())
-                                .payments(List.of(NotificationPaymentInfo.builder().build()))
-                                .build()));
-        internalNotification.setIun("IUN_01");
-        internalNotification.setPaProtocolNumber("protocol_01");
-        internalNotification.setSubject("Subject 01");
-        internalNotification.setCancelledIun("IUN_05");
-        internalNotification.setCancelledIun("IUN_00");
-        internalNotification.setSenderPaId("PA_ID");
-        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
-        internalNotification.setRecipients(Collections.singletonList(
-                NotificationRecipient.builder()
-                        .taxId("Codice Fiscale 01")
-                        .denomination("Nome Cognome/Ragione Sociale")
-                        .internalId("recipientInternalId")
-                        .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
-                                .type(NotificationDigitalAddress.TypeEnum.PEC)
-                                .address("account@dominio.it")
-                                .build()).build()));
-        return internalNotification;
-    }
-
     @Test
     void searchNotificationDelegatedFailure() {
         // When
@@ -1461,107 +1594,107 @@ class PnSentReceivedNotificationControllerTest {
                 .expectStatus().isNotFound();
     }
 
-	@Test
-	void getSentInformalNotificationAttachmentSuccess() {
-		//Given
-		InternalAttachmentWithFileKey response = InternalAttachmentWithFileKey.of(NotificationAttachmentDownloadMetadataResponse.builder()
-				.url( REDIRECT_URL )
-				.contentType( "application/pdf" )
-				.sha256( SHA256_BODY )
-				.filename( FILENAME )
-				.build(), "MockFileFey");
+    @Test
+    void getSentInformalNotificationAttachmentSuccess() {
+        //Given
+        InternalAttachmentWithFileKey response = InternalAttachmentWithFileKey.of(NotificationAttachmentDownloadMetadataResponse.builder()
+                .url(REDIRECT_URL)
+                .contentType("application/pdf")
+                .sha256(SHA256_BODY)
+                .filename(FILENAME)
+                .build(), "MockFileFey");
 
-		InternalAuthHeader internalAuthHeader = new InternalAuthHeader(CX_TYPE_PA, CX_ID, UID, List.of("asdasd"));
+        InternalAuthHeader internalAuthHeader = new InternalAuthHeader(CX_TYPE_PA, CX_ID, UID, List.of("asdasd"));
 
-		// When
-		//Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
-		Mockito.when( attachmentService.downloadAttachmentWithRedirectWithFileKey(
-				anyString(),
-				any(InternalAuthHeader.class),
-				isNull(),
-				Mockito.anyInt(),
-				anyString(),
-				any(),
-				Mockito.anyBoolean()
-		)).thenReturn( response );
+        // When
+        //Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
+        Mockito.when(attachmentService.downloadAttachmentWithRedirectWithFileKey(
+                anyString(),
+                any(InternalAuthHeader.class),
+                isNull(),
+                Mockito.anyInt(),
+                anyString(),
+                any(),
+                Mockito.anyBoolean()
+        )).thenReturn(response);
 
-		// Then
-		webTestClient.get()
-				.uri( "/delivery/v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}".replace("{iun}",INFORMAL_IUN).replace("{recipientIdx}","0").replace("{attachmentName}",PAGOPA))
-				.accept( MediaType.ALL )
-				.header(HttpHeaders.ACCEPT, "application/json")
-				.header(PnDeliveryRestConstants.CX_ID_HEADER, CX_ID)
-				.header(PnDeliveryRestConstants.UID_HEADER, UID)
-				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PA)
-				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
-				.header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
-				.header(PnDeliveryRestConstants.SOURCE_CHANNEL_DETAILS_HEADER, X_PAGOPA_PN_SRC_CH_DET)
-				.exchange()
-				.expectStatus()
-				.isOk();
+        // Then
+        webTestClient.get()
+                .uri("/delivery/v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}".replace("{iun}", INFORMAL_IUN).replace("{recipientIdx}", "0").replace("{attachmentName}", PAGOPA))
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, CX_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, UID)
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PA)
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd")
+                .header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
+                .header(PnDeliveryRestConstants.SOURCE_CHANNEL_DETAILS_HEADER, X_PAGOPA_PN_SRC_CH_DET)
+                .exchange()
+                .expectStatus()
+                .isOk();
 
-		Mockito.verify( attachmentService ).downloadAttachmentWithRedirectWithFileKey( INFORMAL_IUN, internalAuthHeader, null,  0, PAGOPA, null,false);
-	}
+        Mockito.verify(attachmentService).downloadAttachmentWithRedirectWithFileKey(INFORMAL_IUN, internalAuthHeader, null, 0, PAGOPA, null, false);
+    }
 
-	@Test
-	void getSentInformalNotificationAttachmentSuccessFileKeyNull() {
-		//Given
-		InternalAttachmentWithFileKey response = InternalAttachmentWithFileKey.of(NotificationAttachmentDownloadMetadataResponse.builder()
-				.url( REDIRECT_URL )
-				.contentType( "application/pdf" )
-				.sha256( SHA256_BODY )
-				.filename( FILENAME )
-				.build(), null);
+    @Test
+    void getSentInformalNotificationAttachmentSuccessFileKeyNull() {
+        //Given
+        InternalAttachmentWithFileKey response = InternalAttachmentWithFileKey.of(NotificationAttachmentDownloadMetadataResponse.builder()
+                .url(REDIRECT_URL)
+                .contentType("application/pdf")
+                .sha256(SHA256_BODY)
+                .filename(FILENAME)
+                .build(), null);
 
-		InternalAuthHeader internalAuthHeader = new InternalAuthHeader(CX_TYPE_PA, CX_ID, UID, List.of("asdasd"));
+        InternalAuthHeader internalAuthHeader = new InternalAuthHeader(CX_TYPE_PA, CX_ID, UID, List.of("asdasd"));
 
-		// When
-		//Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
-		Mockito.when( attachmentService.downloadAttachmentWithRedirectWithFileKey(
-				anyString(),
-				any(InternalAuthHeader.class),
-				isNull(),
-				Mockito.anyInt(),
-				anyString(),
-				any(),
-				Mockito.anyBoolean()
-		)).thenReturn( response );
+        // When
+        //Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
+        Mockito.when(attachmentService.downloadAttachmentWithRedirectWithFileKey(
+                anyString(),
+                any(InternalAuthHeader.class),
+                isNull(),
+                Mockito.anyInt(),
+                anyString(),
+                any(),
+                Mockito.anyBoolean()
+        )).thenReturn(response);
 
-		// Then
-		webTestClient.get()
-				.uri( "/delivery/v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}".replace("{iun}",INFORMAL_IUN).replace("{recipientIdx}","0").replace("{attachmentName}",PAGOPA))
-				.accept( MediaType.ALL )
-				.header(HttpHeaders.ACCEPT, "application/json")
-				.header( PnDeliveryRestConstants.CX_ID_HEADER, CX_ID)
-				.header(PnDeliveryRestConstants.UID_HEADER, UID)
-				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PA)
-				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
-				.header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
-				.header(PnDeliveryRestConstants.SOURCE_CHANNEL_DETAILS_HEADER, X_PAGOPA_PN_SRC_CH_DET)
-				.exchange()
-				.expectStatus()
-				.isOk();
+        // Then
+        webTestClient.get()
+                .uri("/delivery/v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}".replace("{iun}", INFORMAL_IUN).replace("{recipientIdx}", "0").replace("{attachmentName}", PAGOPA))
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, CX_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, UID)
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PA)
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd")
+                .header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
+                .header(PnDeliveryRestConstants.SOURCE_CHANNEL_DETAILS_HEADER, X_PAGOPA_PN_SRC_CH_DET)
+                .exchange()
+                .expectStatus()
+                .isOk();
 
-		Mockito.verify( attachmentService ).downloadAttachmentWithRedirectWithFileKey( INFORMAL_IUN, internalAuthHeader, null,  0, PAGOPA, null,false);
-	}
+        Mockito.verify(attachmentService).downloadAttachmentWithRedirectWithFileKey(INFORMAL_IUN, internalAuthHeader, null, 0, PAGOPA, null, false);
+    }
 
-	@Test
-	void getSentInformalNotificationAttachmentFailure() {
-		// When
-		Mockito.doThrow( new PnNotificationNotFoundException("Simulated Error") )
-				.when( attachmentService )
-				.downloadAttachmentWithRedirectWithFileKey( INFORMAL_IUN, new InternalAuthHeader(CX_TYPE_PF, PA_ID, UID, List.of("asdasd")), null, 0, PAGOPA, null,false );
+    @Test
+    void getSentInformalNotificationAttachmentFailure() {
+        // When
+        Mockito.doThrow(new PnNotificationNotFoundException("Simulated Error"))
+                .when(attachmentService)
+                .downloadAttachmentWithRedirectWithFileKey(INFORMAL_IUN, new InternalAuthHeader(CX_TYPE_PF, PA_ID, UID, List.of("asdasd")), null, 0, PAGOPA, null, false);
 
-		webTestClient.get()
-				.uri( "/delivery/v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}".replace("{iun}",INFORMAL_IUN).replace("{recipientIdx}","0").replace("{attachmentName}",PAGOPA))
-				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
-				.header(PnDeliveryRestConstants.UID_HEADER, UID)
-				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
-				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
-				.exchange()
-				.expectStatus()
-				.isNotFound();
-	}
+        webTestClient.get()
+                .uri("/delivery/v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}".replace("{iun}", INFORMAL_IUN).replace("{recipientIdx}", "0").replace("{attachmentName}", PAGOPA))
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, UID)
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd")
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+    }
 
 
     @Test
@@ -1853,17 +1986,19 @@ class PnSentReceivedNotificationControllerTest {
                 true
         );
     }
+
     @Test
     void getReceivedInformalNotificationSuccess() {
         // Given
-        InternalNotification notification = newNotification();
+        InformalNotificationDetail informalNotificationDetail = newInformalNotification();
+        informalNotificationDetail.setTimeline(Collections.emptyList());
 
-        Mockito.when(svc.getNotificationAndNotifyViewedEvent(
+        Mockito.when(informalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(
                 Mockito.anyString(),
                 Mockito.any(InternalAuthHeader.class),
                 Mockito.eq(null),
                 Mockito.any(PnAuditLogEvent.class)
-        )).thenReturn(notification);
+        )).thenReturn(informalNotificationDetail);
 
         // Then
         webTestClient.get()
@@ -1881,7 +2016,7 @@ class PnSentReceivedNotificationControllerTest {
                 .isOk()
                 .expectBody(FullReceivedInformalNotificationV1.class);
 
-        Mockito.verify(svc).getNotificationAndNotifyViewedEvent(
+        Mockito.verify(informalNotificationDetailRetrieverStrategy).getNotificationAndNotifyViewedEvent(
                 Mockito.eq(INFORMAL_IUN),
                 Mockito.eq(INTERNAL_AUTH_HEADER),
                 Mockito.eq(null),
@@ -1891,7 +2026,7 @@ class PnSentReceivedNotificationControllerTest {
 
     @Test
     void getReceivedInformalNotificationFailure() {
-        Mockito.when(svc.getNotificationAndNotifyViewedEvent(
+        Mockito.when(informalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(
                 Mockito.anyString(),
                 Mockito.any(InternalAuthHeader.class),
                 Mockito.eq(null),
@@ -1916,11 +2051,11 @@ class PnSentReceivedNotificationControllerTest {
     @Test
     void getSentInformalNotificationSuccess() {
         // Given
-        InternalNotification notification = newNotification();
-        notification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
+        InformalNotificationDetail informalNotificationDetail = newInformalNotification();
+        informalNotificationDetail.setNotificationStatus(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatusV1.COMPLETED);
 
-        Mockito.when(svc.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
-                .thenReturn(notification);
+        Mockito.when(informalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
+                .thenReturn(informalNotificationDetail);
 
         // Then
         webTestClient.get()
@@ -1937,17 +2072,18 @@ class PnSentReceivedNotificationControllerTest {
                 .isOk()
                 .expectBody(FullSentInformalNotificationV1.class);
 
-        Mockito.verify(svc).getNotificationInformationWithSenderIdCheck(INFORMAL_IUN, PA_ID, GROUPS);
+        Mockito.verify(informalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(INFORMAL_IUN, PA_ID, GROUPS);
     }
 
     @Test
     void getSentInformalNotificationNotFoundCauseInValidation() {
         // Given
-        InternalNotification notification = newNotification();
-        notification.setNotificationStatus(NotificationStatusV26.IN_VALIDATION);
+        InformalNotificationDetail informalNotificationDetail = newInformalNotification();
+        informalNotificationDetail.setNotificationStatus(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatusV1.IN_VALIDATION);
+        informalNotificationDetail.setNotificationStatus(InformalNotificationStatusV1.IN_VALIDATION);
 
-        Mockito.when(svc.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
-                .thenReturn(notification);
+        Mockito.when(informalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
+                .thenReturn(informalNotificationDetail);
 
         // Then
         webTestClient.get()
@@ -1963,32 +2099,53 @@ class PnSentReceivedNotificationControllerTest {
                 .expectStatus()
                 .isNotFound();
 
-        Mockito.verify(svc).getNotificationInformationWithSenderIdCheck(INFORMAL_IUN, PA_ID, GROUPS);
+        Mockito.verify(informalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(INFORMAL_IUN, PA_ID, GROUPS);
     }
 
-    @Test
-    void getSentInformalNotificationNotFoundCauseRefused() {
-        // Given
-        InternalNotification notification = newNotification();
-        notification.setNotificationStatus(NotificationStatusV26.REFUSED);
+    private InternalNotification newNotification() {
+        InternalNotification internalNotification = new InternalNotification();
+        internalNotification.setSourceChannel(X_PAGOPA_PN_SRC_CH);
+        internalNotification.setSentAt(OffsetDateTime.now());
+        internalNotification.setRecipients(
+                List.of(
+                        NotificationRecipient.builder()
+                                .internalId("internalId")
+                                .recipientType(NotificationRecipientV24.RecipientTypeEnum.PF)
+                                .taxId("taxId")
+                                .physicalAddress(it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress.builder().build())
+                                .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder().build())
+                                .payments(List.of(NotificationPaymentInfo.builder().build()))
+                                .build()));
+        internalNotification.setIun("IUN_01");
+        internalNotification.setPaProtocolNumber("protocol_01");
+        internalNotification.setSubject("Subject 01");
+        internalNotification.setCancelledIun("IUN_05");
+        internalNotification.setCancelledIun("IUN_00");
+        internalNotification.setSenderPaId("PA_ID");
+        internalNotification.setRecipients(Collections.singletonList(
+                NotificationRecipient.builder()
+                        .taxId("Codice Fiscale 01")
+                        .denomination("Nome Cognome/Ragione Sociale")
+                        .internalId("recipientInternalId")
+                        .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
+                                .type(NotificationDigitalAddress.TypeEnum.PEC)
+                                .address("account@dominio.it")
+                                .build()).build()));
+        return internalNotification;
+    }
 
-        Mockito.when(svc.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
-                .thenReturn(notification);
+    private LegalNotificationDetail newLegalNotification() {
+        LegalNotificationDetail legalNotificationDetail = new LegalNotificationDetail();
+        legalNotificationDetail.setNotification(newNotification());
+        legalNotificationDetail.setNotificationStatus(NotificationStatusV26.ACCEPTED);
 
-        // Then
-        webTestClient.get()
-                .uri("/delivery/v1/notifications/informal/sent/" + INFORMAL_IUN)
-                .accept(MediaType.ALL)
-                .header(HttpHeaders.ACCEPT, "application/json")
-                .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
-                .header(PnDeliveryRestConstants.UID_HEADER, UID)
-                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PA)
-                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(0))
-                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(1))
-                .exchange()
-                .expectStatus()
-                .isNotFound();
+        return legalNotificationDetail;
+    }
 
-        Mockito.verify(svc).getNotificationInformationWithSenderIdCheck(INFORMAL_IUN, PA_ID, GROUPS);
+
+    private InformalNotificationDetail newInformalNotification() {
+        InformalNotificationDetail informalNotification = new InformalNotificationDetail();
+        informalNotification.setNotification(newNotification());
+        return informalNotification;
     }
 }

@@ -122,9 +122,13 @@ class LegalTimelineEnricherTest {
 
         InternalNotification notification = new InternalNotification();
         notification.setIun("IUN_CANCELLED");
-        notification.setTimeline(List.of(cancellation));
 
-        boolean result = enricher.isNotificationCancelled(notification);
+        LegalNotificationDetail detail = LegalNotificationDetail.builder()
+                .notification(notification)
+                .timeline(List.of(cancellation))
+                .build();
+
+        boolean result = enricher.isNotificationCancelled(detail);
 
         assertTrue(result);
     }
@@ -136,9 +140,13 @@ class LegalTimelineEnricherTest {
 
         InternalNotification notification = new InternalNotification();
         notification.setIun("IUN_NOT_CANCELLED");
-        notification.setTimeline(List.of(timelineElement));
 
-        boolean result = enricher.isNotificationCancelled(notification);
+        LegalNotificationDetail detail = LegalNotificationDetail.builder()
+                .notification(notification)
+                .timeline(List.of(timelineElement))
+                .build();
+
+        boolean result = enricher.isNotificationCancelled(detail);
 
         assertFalse(result);
     }
@@ -148,7 +156,6 @@ class LegalTimelineEnricherTest {
         when(clock.instant()).thenReturn(Instant.parse("2026-06-15T00:00:00Z"));
 
         InternalNotification notification = buildNotificationWithPayments("IUN_NO_REFINEMENT");
-        notification.setTimeline(Collections.emptyList());
 
         LegalNotificationDetail detail = LegalNotificationDetail.builder()
                 .notification(notification)
@@ -187,10 +194,6 @@ class LegalTimelineEnricherTest {
         when(clock.instant()).thenReturn(Instant.parse("2026-06-15T00:00:00Z"));
 
         InternalNotification notification = buildNotificationWithPayments("IUN_EXPIRED");
-        TimelineElementV28 refinement = new TimelineElementV28();
-        refinement.setCategory(TimelineElementCategoryV28.REFINEMENT);
-        refinement.setTimestamp(OffsetDateTime.parse("2026-01-01T10:00:00Z"));
-        notification.setTimeline(List.of(refinement));
 
         LegalNotificationDetail detail = LegalNotificationDetail.builder()
                 .notification(notification)
@@ -236,10 +239,6 @@ class LegalTimelineEnricherTest {
         when(clock.instant()).thenReturn(Instant.parse("2026-06-15T00:00:00Z"));
 
         InternalNotification notification = buildNotificationWithPayments("IUN_CANCELLED");
-        TimelineElementV28 cancellation = new TimelineElementV28();
-        cancellation.setCategory(TimelineElementCategoryV28.NOTIFICATION_CANCELLATION_REQUEST);
-        cancellation.setTimestamp(OffsetDateTime.parse("2026-06-10T10:00:00Z"));
-        notification.setTimeline(List.of(cancellation));
 
         LegalNotificationDetail detail = LegalNotificationDetail.builder()
                 .notification(notification)

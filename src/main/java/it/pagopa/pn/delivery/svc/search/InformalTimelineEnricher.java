@@ -1,8 +1,9 @@
 package it.pagopa.pn.delivery.svc.search;
 
+
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalNotificationHistoryResponse;
+
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalNotificationStatusHistoryElementV1;
-import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalNotificationStatusV1;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalTimelineElementV1;
 import it.pagopa.pn.delivery.models.InformalNotificationDetail;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -44,7 +45,7 @@ public class InformalTimelineEnricher implements TimelineEnricher<InformalNotifi
 
         log.debug("Retrieve status history for informalNotificationDetail created at={}", createdAt);
 
-        List<InformalNotificationStatusHistoryElementV1> statusHistory = informalNotificationHistory.getInformalNotificationStatusHistory();
+        List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalNotificationStatusHistoryElementV1> statusHistory = informalNotificationHistory.getInformalNotificationStatusHistory();
 
         enrichInformalNotification(informalNotificationDetail,
                 Objects.requireNonNull(timelineList),
@@ -58,14 +59,14 @@ public class InformalTimelineEnricher implements TimelineEnricher<InformalNotifi
                                             InformalNotificationHistoryResponse informalNotificationHistory) {
 
         informalNotificationDetail.setTimeline(timelineList.stream()
-                .map(timelineElement -> modelMapper.map(timelineElement, InformalTimelineElementV1.class))
+                .map(timelineElement -> modelMapper.map(timelineElement, it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalTimelineElementV1.class))
                 .toList());
 
         informalNotificationDetail.setNotificationStatusHistory(statusHistory.stream()
-                .map(el -> modelMapper.map(el, InformalNotificationStatusHistoryElementV1.class))
+                .map(el -> modelMapper.map(el, it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatusHistoryElementV1.class))
                 .toList());
 
-        informalNotificationDetail.setNotificationStatus(InformalNotificationStatusV1
+        informalNotificationDetail.setNotificationStatus(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatusV1
                 .fromValue(Objects.requireNonNull(informalNotificationHistory.getInformalNotificationStatus()).getValue()));
     }
 }

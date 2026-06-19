@@ -64,7 +64,10 @@ class InformalTimelineEnricherTest {
         assertNotNull(detail.getNotificationStatusHistory());
         assertEquals(1, detail.getNotificationStatusHistory().size());
 
-        assertEquals(InformalNotificationStatusV1.COMPLETED, detail.getNotificationStatus());
+        assertEquals(
+                it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatusV1.COMPLETED,
+                detail.getNotificationStatus()
+        );
 
         verify(pnDeliveryPushClient).getInformalNotificationHistory(
                 eq("IUN_TEST"),
@@ -72,8 +75,14 @@ class InformalTimelineEnricherTest {
                 eq(notification.getSentAt())
         );
 
-        verify(modelMapper).map(timelineElement, InformalTimelineElementV1.class);
-        verify(modelMapper).map(statusHistoryElement, InformalNotificationStatusHistoryElementV1.class);
+        verify(modelMapper).map(
+                timelineElement,
+                it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalTimelineElementV1.class
+        );
+        verify(modelMapper).map(
+                statusHistoryElement,
+                it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatusHistoryElementV1.class
+        );
     }
 
     @Test
@@ -104,7 +113,10 @@ class InformalTimelineEnricherTest {
         assertEquals(1, detail.getTimeline().size());
         assertNotNull(detail.getNotificationStatusHistory());
         assertEquals(1, detail.getNotificationStatusHistory().size());
-        assertEquals(InformalNotificationStatusV1.COMPLETED, detail.getNotificationStatus());
+        assertEquals(
+                it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatusV1.COMPLETED,
+                detail.getNotificationStatus()
+        );
     }
 
     @Test

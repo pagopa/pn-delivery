@@ -132,6 +132,10 @@ class NotificationDaoDynamoTest {
         notificationRecipientAddressesDto1.setRecIndex(1);
 
         when( pnDataVaultClient.getNotificationAddressesByIun( "IUN_01" ) ).thenReturn( List.of( notificationRecipientAddressesDto ,notificationRecipientAddressesDto1 ) );
+        when(pnDataVaultClient.getInformalMessageById(
+                UUID.fromString("22222222-2222-2222-2222-222222222222"),
+                UUID.fromString("11111111-1111-1111-1111-111111111111")
+        )).thenReturn(newMessageResponseDto());
         Optional<InternalNotification> saved = this.dao.getNotificationByIun( notification.getIun(), true );
         Assertions.assertTrue( saved.isPresent() );
         Assertions.assertEquals(0, saved.get().getAdditionalLanguages().size());
@@ -141,6 +145,11 @@ class NotificationDaoDynamoTest {
         assert notificationRecipientAddressesDto.getDigitalAddress() != null;
         Assertions.assertEquals( saved.get().getRecipients().get(0).getDigitalDomicile().getAddress(), notificationRecipientAddressesDto.getDigitalAddress().getValue() );
         //Assertions.assertEquals( notification, saved.get() );
+        Assertions.assertNotNull(saved.get().getRecipients().get(0).getMessage());
+        Assertions.assertEquals("Oggetto principale", saved.get().getRecipients().get(0).getMessage().getPrimaryMessage().getSubject());
+        Assertions.assertEquals("Testo breve principale", saved.get().getRecipients().get(0).getMessage().getPrimaryMessage().getShortBody());
+        Assertions.assertEquals("Testo lungo principale", saved.get().getRecipients().get(0).getMessage().getPrimaryMessage().getLongBody());
+        Assertions.assertEquals("Oggetto aggiuntivo", saved.get().getRecipients().get(0).getMessage().getAdditionalMessage().getSubject());
     }
 
     @Test
@@ -200,6 +209,10 @@ class NotificationDaoDynamoTest {
         notificationRecipientAddressesDto1.setPhoneNumbers(List.of(new PhoneNumberDto().value("+393001234568")));
         notificationRecipientAddressesDto1.setRecIndex(1);
 
+        when(pnDataVaultClient.getInformalMessageById(
+                UUID.fromString("22222222-2222-2222-2222-222222222222"),
+                UUID.fromString("11111111-1111-1111-1111-111111111111")
+        )).thenReturn(newMessageResponseDto());
         when( pnDataVaultClient.getNotificationAddressesByIun( "IUN_01" ) ).thenReturn( List.of( notificationRecipientAddressesDto ,notificationRecipientAddressesDto1 ) );
         Optional<InternalNotification> saved = this.dao.getNotificationByIun( notification.getIun(), true );
         Assertions.assertTrue( saved.isPresent() );
@@ -210,6 +223,8 @@ class NotificationDaoDynamoTest {
         assert notificationRecipientAddressesDto.getDigitalAddress() != null;
         Assertions.assertEquals( saved.get().getRecipients().get(0).getDigitalDomicile().getAddress(), notificationRecipientAddressesDto.getDigitalAddress().getValue() );
         //Assertions.assertEquals( notification, saved.get() );
+        Assertions.assertNotNull(saved.get().getRecipients().get(0).getMessage());
+        Assertions.assertEquals("Oggetto principale", saved.get().getRecipients().get(0).getMessage().getPrimaryMessage().getSubject());
     }
 
 
@@ -271,11 +286,18 @@ class NotificationDaoDynamoTest {
         notificationRecipientAddressesDto1.setPhoneNumbers(List.of(new PhoneNumberDto().value("+393001234568")));
         notificationRecipientAddressesDto1.setRecIndex(1);
 
+        when(pnDataVaultClient.getInformalMessageById(
+                UUID.fromString("22222222-2222-2222-2222-222222222222"),
+                UUID.fromString("11111111-1111-1111-1111-111111111111")
+        )).thenReturn(newMessageResponseDto());
         when( pnDataVaultClient.getNotificationAddressesByIun( "IUN_01" ) ).thenReturn( List.of( notificationRecipientAddressesDto ,notificationRecipientAddressesDto1 ) );
         // THEN
         Optional<InternalNotification> saved = this.dao.getNotificationByIun( notification.getIun(), true );
         Assertions.assertTrue( saved.isPresent() );
         //Assertions.assertEquals( notification, saved.get() );
+        Assertions.assertTrue(saved.isPresent());
+        Assertions.assertNotNull(saved.get().getRecipients().get(0).getMessage());
+        Assertions.assertEquals("Oggetto principale", saved.get().getRecipients().get(0).getMessage().getPrimaryMessage().getSubject());
     }
 
     @Test
@@ -316,6 +338,10 @@ class NotificationDaoDynamoTest {
         notificationRecipientAddressesDto1.setPhoneNumbers(List.of(new PhoneNumberDto().value("+393001234568")));
         notificationRecipientAddressesDto1.setRecIndex(1);
 
+        when(pnDataVaultClient.getInformalMessageById(
+                UUID.fromString("22222222-2222-2222-2222-222222222222"),
+                UUID.fromString("11111111-1111-1111-1111-111111111111")
+        )).thenReturn(newMessageResponseDto());
         when( pnDataVaultClient.getNotificationAddressesByIun( "IUN_01" ) ).thenReturn( List.of( notificationRecipientAddressesDto ,notificationRecipientAddressesDto1 ) );
 
         List<NotificationRecipientAddressesDto> recipientAddressesDtoList = new ArrayList<>();
@@ -326,6 +352,8 @@ class NotificationDaoDynamoTest {
         pnDataVaultClient.updateNotificationAddressesByIun("Iun", recipientAddressesDtoList);
         Optional<InternalNotification> saved = this.dao.getNotificationByIun( notification.getIun(), true );
         Assertions.assertTrue( saved.isPresent() );
+        Assertions.assertTrue(saved.isPresent());
+        Assertions.assertNotNull(saved.get().getRecipients().get(0).getMessage());
     }
 
     @Test
@@ -603,21 +631,22 @@ class NotificationDaoDynamoTest {
         internalNotification.setSubject("Subject 01");
         internalNotification.setCancelledIun("IUN_05");
         internalNotification.setCancelledIun("IUN_00");
-        internalNotification.setSenderPaId("PA_ID");
-        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
+        internalNotification.setSenderPaId("11111111-1111-1111-1111-111111111111");
         internalNotification.setNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()
                         .taxId("Codice Fiscale 01")
                         .denomination("Nome Cognome/Ragione Sociale")
-                        .internalId( "recipientInternalId" )
+                        .internalId("recipientInternalId")
+                        .messageId("22222222-2222-2222-2222-222222222222")
                         .recipientType(NotificationRecipientV24.RecipientTypeEnum.PF)
                         .email("test@example.com")
                         .phoneNumber("+393001234567")
                         .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
-                                .type( NotificationDigitalAddress.TypeEnum.PEC )
+                                .type(NotificationDigitalAddress.TypeEnum.PEC)
                                 .address("account@dominio.it")
-                                .build()).build()));
+                                .build())
+                        .build()));
         return internalNotification;
     }
 
@@ -632,8 +661,7 @@ class NotificationDaoDynamoTest {
         internalNotification.setSubject("Subject 01");
         internalNotification.setCancelledIun("IUN_05");
         internalNotification.setCancelledIun("IUN_00");
-        internalNotification.setSenderPaId("PA_ID");
-        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
+        internalNotification.setSenderPaId("11111111-1111-1111-1111-111111111111");
         internalNotification.setNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
         internalNotification.setPaFee(0);
         internalNotification.setDocuments(List.of(NotificationDocument
@@ -651,7 +679,8 @@ class NotificationDaoDynamoTest {
                 NotificationRecipient.builder()
                         .taxId("Codice Fiscale 01")
                         .denomination("Nome Cognome/Ragione Sociale")
-                        .internalId( "recipientInternalId" )
+                        .internalId("recipientInternalId")
+                        .messageId("22222222-2222-2222-2222-222222222222")
                         .payments(List.of(NotificationPaymentInfo.builder()
                                 .f24(it.pagopa.pn.delivery.models.internal.notification.F24Payment.builder()
                                         .title("title")
@@ -687,9 +716,35 @@ class NotificationDaoDynamoTest {
                         .email("test@example.com")
                         .phoneNumber("+393001234567")
                         .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
-                                .type( NotificationDigitalAddress.TypeEnum.PEC )
+                                .type(NotificationDigitalAddress.TypeEnum.PEC)
                                 .address("account@dominio.it")
-                                .build()).build()));
+                                .build())
+                        .build()));
         return internalNotification;
+    }
+
+    private MessageResponseDto newMessageResponseDto() {
+        MessageResponseDto messageResponseDto = new MessageResponseDto();
+
+        it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.LocalizedContent primary =
+                new it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.LocalizedContent();
+        primary.setLanguage(it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.LocalizedContent.LanguageEnum.IT);
+        primary.setSubject("Oggetto principale");
+        primary.setShortBody("Testo breve principale");
+        primary.setLongBody("Testo lungo principale");
+
+        it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.LocalizedContent secondary =
+                new it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.LocalizedContent();
+        secondary.setLanguage(it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.LocalizedContent.LanguageEnum.IT);
+        secondary.setSubject("Oggetto aggiuntivo");
+        secondary.setShortBody("Testo breve aggiuntivo");
+        secondary.setLongBody("Testo lungo aggiuntivo");
+
+        messageResponseDto.setPrimaryContent(primary);
+        messageResponseDto.setSecondaryContent(secondary);
+        messageResponseDto.setMessageId(UUID.fromString("22222222-2222-2222-2222-222222222222"));
+        messageResponseDto.setSenderId("11111111-1111-1111-1111-111111111111");
+
+        return messageResponseDto;
     }
 }

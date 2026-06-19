@@ -42,7 +42,7 @@ public class LegalTimelineEnricher implements TimelineEnricher<LegalNotification
         String iun = notification.getIun();
         enrichWithTimelineAndStatusHistory(iun, legalNotificationDetail);
         OffsetDateTime refinementDate = findRefinementDate( legalNotificationDetail.getTimeline(), notification.getIun() );
-        checkDocumentsAvailability(notification, refinementDate , requestBySender);
+        checkDocumentsAvailability(legalNotificationDetail, refinementDate , requestBySender);
     }
 
     private void enrichWithTimelineAndStatusHistory(String iun, LegalNotificationDetail legalNotificationDetail) {
@@ -100,20 +100,22 @@ public class LegalTimelineEnricher implements TimelineEnricher<LegalNotification
         return refinementDate;
     }
 
-    private void checkDocumentsAvailability(InternalNotification notification, OffsetDateTime refinementDate, boolean requestBySender) {
-        log.debug("Check if documents are available for iun={}", notification.getIun());
-        notification.setDocumentsAvailable(true);
-        if (requestBySender || !isNotificationCancelled(notification)) {
-            checkDocumentsRemove(notification, refinementDate);
+    private void checkDocumentsAvailability(LegalNotificationDetail legalNotificationDetail, OffsetDateTime refinementDate, boolean requestBySender) {
+        InternalNotification internalNotification = legalNotificationDetail.getNotification();
+        log.debug("Check if documents are available for iun={}", internalNotification.getIun());
+        internalNotification.setDocumentsAvailable(true);
+        if (requestBySender || !isNotificationCancelled(legalNotificationDetail)) {
+            checkDocumentsRemove(legalNotificationDetail, refinementDate);
         } else {
-            log.debug("Documents not more available for iun={} because is cancelled", notification.getIun());
-            notification.setDocumentsAvailable(false);
+            log.debug("Documents not more available for iun={} because is cancelled", internalNotification.getIun());
+            internalNotification.setDocumentsAvailable(false);
             // i documenti vanno rimossi solo se trascorso il tempo
-            checkDocumentsRemove(notification, refinementDate);
+            checkDocumentsRemove(legalNotificationDetail, refinementDate);
         }
     }
 
-    private void checkDocumentsRemove(InternalNotification notification, OffsetDateTime refinementDate) {
+    private void checkDocumentsRemove(LegalNotificationDetail legalNotificationDetail, OffsetDateTime refinementDate) {
+        InternalNotification notification = legalNotificationDetail.getNotification();
         log.debug("Check if documents should be removed for iun={}", notification.getIun());
         if (refinementDate != null) {
             long daysBetween = ChronoUnit.DAYS.between(refinementDate.toInstant().truncatedTo(ChronoUnit.DAYS),
@@ -149,14 +151,15 @@ public class LegalTimelineEnricher implements TimelineEnricher<LegalNotification
         }
     }
 
-    public boolean isNotificationCancelled(InternalNotification notification) {
+    public boolean isNotificationCancelled(LegalNotificationDetail notification) {
+        InternalNotification internalNotification = notification.getNotification();
         var cancellationRequestCategory = TimelineElementCategoryV28.NOTIFICATION_CANCELLATION_REQUEST;
         Optional<TimelineElementV28> cancellationRequestTimeline = notification.getTimeline().stream()
                 .filter(timelineElement -> cancellationRequestCategory.equals(timelineElement.getCategory()))
                 .findFirst();
         boolean cancellationTimelineIsPresent = cancellationRequestTimeline.isPresent();
         if (cancellationTimelineIsPresent) {
-            log.warn("Notification with iun: {} has a request for cancellation", notification.getIun());
+            log.warn("Notification with iun: {} has a request for cancellation", internalNotification.getIun());
         }
         return cancellationTimelineIsPresent;
     }
