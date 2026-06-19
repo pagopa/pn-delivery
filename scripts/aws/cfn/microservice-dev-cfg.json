@@ -64,6 +64,7 @@
     "NotificationCostServiceReadTimeoutMillis": "1500",
     "NotificationCostServiceMaxRetryAttempts": "0",
     "MetricFormatType": "EMF",
-    "LatestInformalNotificationVersion": "1.0"
+    "LatestInformalNotificationVersion": "1.0",
+    "EnableInformalB2BApiGateway": true
   }
 }
