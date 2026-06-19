@@ -228,10 +228,21 @@ public class NotificationDaoDynamo implements NotificationDao {
 			log.debug("Message ID or Sender PA ID is null for recipient with internalId={}, skipping message retrieval", recipient.getInternalId());
 			return null;
 		}
-		return pnDataVaultClient.getInformalMessageById(
-				UUID.fromString(recipient.getMessageId()),
-				UUID.fromString(notification.getSenderPaId())
-		);
+		try {
+			return pnDataVaultClient.getInformalMessageById(
+					UUID.fromString(recipient.getMessageId()),
+					UUID.fromString(notification.getSenderPaId())
+			);
+		} catch (IllegalArgumentException ex) {
+			log.warn(
+					"Invalid UUID for messageId={} or senderPaId={} (recipient internalId={}); skipping message retrieval",
+					recipient.getMessageId(),
+					notification.getSenderPaId(),
+					recipient.getInternalId(),
+					ex
+			);
+			return null;
+		}
 	}
 
 	private NotificationRecipientAddressesDto getNotificationRecipientAddressesDtoByRecIndex(int recipientIndex, List<NotificationRecipientAddressesDto> notificationRecipientAddressesDtoList) {

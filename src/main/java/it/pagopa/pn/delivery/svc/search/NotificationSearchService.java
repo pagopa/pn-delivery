@@ -1,11 +1,8 @@
 package it.pagopa.pn.delivery.svc.search;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import it.pagopa.pn.commons.exceptions.ExceptionHelper;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.exceptions.dto.ProblemError;
 import it.pagopa.pn.delivery.exception.PnForbiddenException;
-import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
@@ -28,10 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -39,6 +32,8 @@ import java.util.*;
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND;
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_UNSUPPORTED_LAST_EVALUATED_KEY;
 import static it.pagopa.pn.delivery.utils.PgUtils.checkAuthorizationPG;
+import static it.pagopa.pn.delivery.utils.ValidateNotificationUtils.validateInputDelegate;
+import static it.pagopa.pn.delivery.utils.ValidateNotificationUtils.validateInputSenderReceiver;
 
 @Service
 @Slf4j
@@ -87,7 +82,7 @@ public class NotificationSearchService {
 
 		log.info("Start search notification - senderReceiverId={}", searchDto.getSenderReceiverId());
 
-		validateInput(searchDto);
+		validateInputSenderReceiver(searchDto);
 
 		if ( !searchDto.isBySender() ) {
 			log.debug( "Search from receiver" );
@@ -164,7 +159,7 @@ public class NotificationSearchService {
 
 		log.info("start search delegated notification - delegateId={}", searchDto.getDelegateId());
 
-		validateInput(searchDto);
+		validateInputDelegate(searchDto);
 
 		PnLastEvaluatedKey lastEvaluatedKey = null;
 
@@ -294,33 +289,6 @@ public class NotificationSearchService {
 
 		log.debug( "Adjust receiverId={}", delegator );
 		return  true;
-	}
-
-	private void validateInput(InputSearchNotificationDto searchDto) {
-		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-		Validator validator = factory.getValidator();
-
-		Set<ConstraintViolation<InputSearchNotificationDto>> errors = validator.validate(searchDto);
-		if( ! errors.isEmpty() ) {
-			log.error("Validation search input ERROR {} - senderReceiverId {}",errors, searchDto.getSenderReceiverId());
-			List<ProblemError> errorList  = new ExceptionHelper(Optional.empty()).generateProblemErrorsFromConstraintViolation(errors);
-			throw new PnInvalidInputException(searchDto.getSenderReceiverId(), errorList);
-		}
-
-		log.debug("Validation search input OK - senderReceiverId {}",searchDto.getSenderReceiverId());
-	}
-
-	private void validateInput(InputSearchNotificationDelegatedDto searchDto) {
-		try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
-			Validator validator = factory.getValidator();
-			Set<ConstraintViolation<InputSearchNotificationDelegatedDto>> errors = validator.validate(searchDto);
-			if (!errors.isEmpty()) {
-				log.error("validation search input failed - delegateId {} - errors: {}", searchDto.getDelegateId(), errors);
-				List<ProblemError> errorList = new ExceptionHelper(Optional.empty()).generateProblemErrorsFromConstraintViolation(errors);
-				throw new PnInvalidInputException(searchDto.getDelegateId(), errorList);
-			}
-		}
-		log.debug("validation search input succeeded - delegateId {}", searchDto.getDelegateId());
 	}
 
 	protected OffsetDateTime findRefinementDate(List<TimelineElementV28> timeline, String iun) {
