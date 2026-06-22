@@ -43,14 +43,17 @@ public class AdditionalLanguageFormalValidator implements FormalValidator<Notifi
         for (int i = 0; i < recipients.size(); i++) {
             List<String> additionalLanguages = recipients.get(i).getAdditionalLanguages();
             String elementPath = "recipients[" + i + "].additionalLanguages";
+            if (CollectionUtils.isNullOrEmpty(additionalLanguages)) {
+                continue;
+            }
 
-            if (!CollectionUtils.isNullOrEmpty(additionalLanguages) && additionalLanguages.size() > 1) {
+            if (additionalLanguages.size() > 1) {
                 errors.add(ProblemError.builder()
                         .element(elementPath)
                         .code(ErrorCodes.ERROR_CODE_ADDITIONAL_LANG_MAX_SIZE_EXCEEDED.getValue())
                         .detail(REQUIRED_ADDITIONAL_LANG_SIZE)
                         .build());
-            } else if (!CollectionUtils.isNullOrEmpty(additionalLanguages) && !isValidAdditionalLanguage(additionalLanguages.get(0))) {
+            } else if (!isValidAdditionalLanguage(additionalLanguages.get(0))) {
                 String logMessage = String.format("Lingua aggiuntiva non valida, i valori accettati sono %s",
                         Arrays.stream(AllowedAdditionalLanguages.values()).map(Enum::name).collect(Collectors.joining(",")));
                 errors.add(ProblemError.builder()
@@ -65,7 +68,7 @@ public class AdditionalLanguageFormalValidator implements FormalValidator<Notifi
     private boolean isValidAdditionalLanguage(String lang) {
         return Arrays.stream(AllowedAdditionalLanguages.values())
                 .map(AllowedAdditionalLanguages::name)
-                .anyMatch(name ->name.equals(lang));
+                .anyMatch(name -> name.equals(lang));
     }
 
 }

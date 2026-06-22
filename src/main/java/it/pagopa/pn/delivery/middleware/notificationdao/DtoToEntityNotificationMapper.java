@@ -89,7 +89,7 @@ public class DtoToEntityNotificationMapper {
                 .recipientId( recipient.getTaxId() )
                 .recipientType( RecipientTypeEntity.valueOf( recipient.getRecipientType().getValue() ) )
                 .payments( dto2PaymentList( recipient.getPayments() ) )
-                .additionalLanguages( recipient.getAdditionalLanguages() );
+                .languages( addITLanguageToEntity(recipient.getAdditionalLanguages() ));
 
         if(Objects.nonNull(recipient.getMessageId())) {
             recipientEBuilder.messageId(recipient.getMessageId() );
