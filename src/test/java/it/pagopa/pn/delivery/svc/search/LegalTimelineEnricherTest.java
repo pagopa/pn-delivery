@@ -116,39 +116,77 @@ class LegalTimelineEnricherTest {
     }
 
     @Test
-    void shouldReturnTrueWhenNotificationIsCancelled() {
-        TimelineElementV28 cancellation = new TimelineElementV28();
-        cancellation.setCategory(TimelineElementCategoryV28.NOTIFICATION_CANCELLATION_REQUEST);
+    void shouldKeepDocumentsAvailableWhenNotificationIsCancelledAndRequestBySender() {
+        when(clock.instant()).thenReturn(Instant.parse("2026-06-15T00:00:00Z"));
 
-        InternalNotification notification = new InternalNotification();
-        notification.setIun("IUN_CANCELLED");
+        InternalNotification notification = buildNotificationWithPayments("IUN_CANCELLED_BY_SENDER");
 
         LegalNotificationDetail detail = LegalNotificationDetail.builder()
                 .notification(notification)
-                .timeline(List.of(cancellation))
                 .build();
 
-        boolean result = enricher.isNotificationCancelled(detail);
+        it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28 pushCancellation =
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28();
+        pushCancellation.setCategory(
+                it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV28.NOTIFICATION_CANCELLATION_REQUEST
+        );
+        pushCancellation.setTimestamp(OffsetDateTime.parse("2026-06-10T10:00:00Z"));
 
-        assertTrue(result);
+        NotificationHistoryResponse historyResponse = mock(NotificationHistoryResponse.class);
+        when(historyResponse.getTimeline()).thenReturn(List.of(pushCancellation));
+        when(historyResponse.getNotificationStatusHistory()).thenReturn(Collections.emptyList());
+        when(historyResponse.getNotificationStatus()).thenReturn(
+                it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusV26.ACCEPTED
+        );
+
+        when(pnDeliveryPushClient.getTimelineAndStatusHistory(
+                eq("IUN_CANCELLED_BY_SENDER"),
+                eq(notification.getRecipients().size()),
+                eq(notification.getSentAt())
+        )).thenReturn(historyResponse);
+
+        enricher.enrichNotificationDetail(detail, true);
+
+        assertTrue(detail.getNotification().getDocumentsAvailable());
+        assertEquals(TimelineElementCategoryV28.NOTIFICATION_CANCELLATION_REQUEST,
+                detail.getTimeline().get(0).getCategory());
     }
 
     @Test
-    void shouldReturnFalseWhenNotificationIsNotCancelled() {
-        TimelineElementV28 timelineElement = new TimelineElementV28();
-        timelineElement.setCategory(TimelineElementCategoryV28.REQUEST_ACCEPTED);
+    void shouldKeepDocumentsAvailableWhenNotificationIsNotCancelled() {
+        when(clock.instant()).thenReturn(Instant.parse("2026-06-15T00:00:00Z"));
 
-        InternalNotification notification = new InternalNotification();
-        notification.setIun("IUN_NOT_CANCELLED");
+        InternalNotification notification = buildNotificationWithPayments("IUN_NOT_CANCELLED");
 
         LegalNotificationDetail detail = LegalNotificationDetail.builder()
                 .notification(notification)
-                .timeline(List.of(timelineElement))
                 .build();
 
-        boolean result = enricher.isNotificationCancelled(detail);
+        it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28 pushAccepted =
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28();
+        pushAccepted.setCategory(
+                it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV28.REQUEST_ACCEPTED
+        );
+        pushAccepted.setTimestamp(OffsetDateTime.parse("2026-06-10T10:00:00Z"));
 
-        assertFalse(result);
+        NotificationHistoryResponse historyResponse = mock(NotificationHistoryResponse.class);
+        when(historyResponse.getTimeline()).thenReturn(List.of(pushAccepted));
+        when(historyResponse.getNotificationStatusHistory()).thenReturn(Collections.emptyList());
+        when(historyResponse.getNotificationStatus()).thenReturn(
+                it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusV26.ACCEPTED
+        );
+
+        when(pnDeliveryPushClient.getTimelineAndStatusHistory(
+                eq("IUN_NOT_CANCELLED"),
+                eq(notification.getRecipients().size()),
+                eq(notification.getSentAt())
+        )).thenReturn(historyResponse);
+
+        enricher.enrichNotificationDetail(detail, false);
+
+        assertTrue(detail.getNotification().getDocumentsAvailable());
+        assertEquals(TimelineElementCategoryV28.REQUEST_ACCEPTED,
+                detail.getTimeline().get(0).getCategory());
     }
 
     @Test

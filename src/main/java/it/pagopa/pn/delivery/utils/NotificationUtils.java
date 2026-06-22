@@ -62,16 +62,18 @@ public class NotificationUtils {
         ).toList();
     }
 
-    public static boolean isNotificationCancelled(LegalNotificationDetail legalNotificationDetail,String iun) {
+    public static boolean isNotificationCancelled(LegalNotificationDetail legalNotificationDetail) {
         var cancellationRequestCategory = TimelineElementCategoryV28.NOTIFICATION_CANCELLATION_REQUEST;
+        if (CollectionUtils.isEmpty(legalNotificationDetail.getTimeline())) {
+            return false;
+        }
         Optional<TimelineElementV28> cancellationRequestTimeline = legalNotificationDetail.getTimeline().stream()
                 .filter(timelineElement -> cancellationRequestCategory.equals(timelineElement.getCategory()))
                 .findFirst();
         boolean cancellationTimelineIsPresent = cancellationRequestTimeline.isPresent();
         if (cancellationTimelineIsPresent) {
-            log.warn("Notification with iun: {} has a request for cancellation", iun);
+            log.warn("Notification with iun: {} has a request for cancellation", legalNotificationDetail.getNotification().getIun());
         }
         return cancellationTimelineIsPresent;
     }
-
 }

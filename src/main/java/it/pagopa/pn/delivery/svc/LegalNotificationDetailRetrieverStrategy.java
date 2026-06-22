@@ -223,8 +223,7 @@ public class LegalNotificationDetailRetrieverStrategy implements NotificationDet
 	public void checkIfNotificationIsNotCancelled(String iun) {
 		// recuperare tutta la timeline per controllare lo stato di richiesta è inefficente
 		LegalNotificationDetail notificationDetail = getNotificationInformation(iun, true, false, null);
-		InternalNotification notification = notificationDetail.getNotification();
-		if(isNotificationCancelled(notificationDetail,notification.getIun())) {
+        if(isNotificationCancelled(notificationDetail)) {
 			throw new PnNotificationNotFoundException(String.format("Notification with iun: %s has a request for cancellation", iun));
 		}
 	}

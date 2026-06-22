@@ -11,7 +11,6 @@ import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.RequestCheckQ
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ResponseCheckQrMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyMessage;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
-import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.LegalNotificationDetail;
 import it.pagopa.pn.delivery.svc.LegalNotificationDetailRetrieverStrategy;
 import it.pagopa.pn.delivery.svc.NotificationQRService;
@@ -55,8 +54,7 @@ public class PnReceivedIONotificationsController implements AppIoPnNotificationA
         try {
             InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups, xPagopaPnSrcCh, xPagopaPnSrcChDetails);
             LegalNotificationDetail legalNotificationDetail = legalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, mandateId != null ? mandateId.toString() : null, logEvent);
-            InternalNotification internalNotification = legalNotificationDetail.getNotification();
-            boolean isNotificationCancelled = isNotificationCancelled(legalNotificationDetail,internalNotification.getIun());
+            boolean isNotificationCancelled = isNotificationCancelled(legalNotificationDetail);
             result = ioMapper.mapToThirdPartMessage(legalNotificationDetail, isNotificationCancelled);
             logEvent.generateSuccess().log();
         } catch (PnMandateNotFoundException exc) {

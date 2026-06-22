@@ -25,6 +25,8 @@ import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
+import static it.pagopa.pn.delivery.utils.NotificationUtils.isNotificationCancelled;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -149,18 +151,5 @@ public class LegalTimelineEnricher implements TimelineEnricher<LegalNotification
             // rimuovo oggetto di pagamento F24
             notificationPaymentInfo.setF24(null);
         }
-    }
-
-    public boolean isNotificationCancelled(LegalNotificationDetail notification) {
-        InternalNotification internalNotification = notification.getNotification();
-        var cancellationRequestCategory = TimelineElementCategoryV28.NOTIFICATION_CANCELLATION_REQUEST;
-        Optional<TimelineElementV28> cancellationRequestTimeline = notification.getTimeline().stream()
-                .filter(timelineElement -> cancellationRequestCategory.equals(timelineElement.getCategory()))
-                .findFirst();
-        boolean cancellationTimelineIsPresent = cancellationRequestTimeline.isPresent();
-        if (cancellationTimelineIsPresent) {
-            log.warn("Notification with iun: {} has a request for cancellation", internalNotification.getIun());
-        }
-        return cancellationTimelineIsPresent;
     }
 }

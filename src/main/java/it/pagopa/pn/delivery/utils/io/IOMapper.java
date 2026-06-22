@@ -53,7 +53,7 @@ public class IOMapper {
         IOReceivedNotification ioReceivedNotification = IOReceivedNotification.builder()
                 .subject(internalNotification.getSubject())
                 .iun(internalNotification.getIun())
-                .notificationStatusHistory(convertNotificationStatusHistory(Objects.requireNonNull(legalNotificationDetail.getNotificationStatusHistory())))
+                .notificationStatusHistory(convertNotificationStatusHistory(legalNotificationDetail.getNotificationStatusHistory()))
                 ._abstract(internalNotification.get_abstract())
                 .senderDenomination(internalNotification.getSenderDenomination())
                 .build();
