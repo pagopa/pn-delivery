@@ -4,6 +4,6 @@ public enum DesiredFeedbackType {
     READ,
     RECEIVED,
     PAID,
+    SEND,
     SKIP
 }
-
