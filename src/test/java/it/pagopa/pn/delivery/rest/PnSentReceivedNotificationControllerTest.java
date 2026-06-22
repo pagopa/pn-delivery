@@ -1661,4 +1661,198 @@ class PnSentReceivedNotificationControllerTest {
                 eq(false)
         );
     }
+
+    @Test
+    void getReceivedInformalNotificationDocumentSuccess() {
+
+        NotificationAttachmentDownloadMetadataResponse response = NotificationAttachmentDownloadMetadataResponse.builder()
+                .url(REDIRECT_URL)
+                .contentType("application/pdf")
+                .sha256(SHA256_BODY)
+                .filename(FILENAME)
+                .build();
+
+        Mockito.when(attachmentService.downloadDocumentWithRedirect(
+                anyString(),
+                any(InternalAuthHeader.class),
+                Mockito.isNull(),
+                Mockito.anyInt(),
+                Mockito.anyBoolean()
+        )).thenReturn(response);
+
+        webTestClient.get()
+                .uri("/delivery/v1/notifications/informal/received/" + INFORMAL_IUN + "/attachments/documents/" + DOCUMENT_INDEX)
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, CX_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, UID)
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd")
+                .header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
+                .header(PnDeliveryRestConstants.SOURCE_CHANNEL_DETAILS_HEADER, X_PAGOPA_PN_SRC_CH_DET)
+                .exchange()
+                .expectStatus()
+                .isOk();
+
+        Mockito.verify(attachmentService).downloadDocumentWithRedirect(
+                INFORMAL_IUN,
+                INTERNAL_AUTH_HEADER,
+                null,
+                DOCUMENT_INDEX,
+                true
+        );
+    }
+
+    @Test
+    void getReceivedInformalNotificationDocumentFailure() {
+        InternalAuthHeader internalAuthHeader = new InternalAuthHeader(
+                CX_TYPE_PF,
+                CX_ID,
+                UID,
+                List.of("asdasd"),
+                X_PAGOPA_PN_SRC_CH,
+                X_PAGOPA_PN_SRC_CH_DET
+        );
+
+        Mockito.when(attachmentService.downloadDocumentWithRedirect(
+                INFORMAL_IUN,
+                internalAuthHeader,
+                null,
+                DOCUMENT_INDEX,
+                true
+        )).thenThrow(new PnNotificationNotFoundException("Simulated Error"));
+
+        webTestClient.get()
+                .uri("/delivery/v1/notifications/informal/received/{iun}/attachments/documents/{docIdx}", INFORMAL_IUN, DOCUMENT_INDEX)
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, CX_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, UID)
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd")
+                .header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
+                .header(PnDeliveryRestConstants.SOURCE_CHANNEL_DETAILS_HEADER, X_PAGOPA_PN_SRC_CH_DET)
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+    }
+
+    @Test
+    void getReceivedInformalNotificationAttachmentSuccess() {
+        NotificationAttachmentDownloadMetadataResponse response = NotificationAttachmentDownloadMetadataResponse.builder()
+                .url(REDIRECT_URL)
+                .contentType("application/pdf")
+                .sha256(SHA256_BODY)
+                .filename(FILENAME)
+                .build();
+
+        Mockito.when(attachmentService.downloadAttachmentWithRedirect(
+                anyString(),
+                any(InternalAuthHeader.class),
+                Mockito.isNull(),
+                Mockito.isNull(),
+                anyString(),
+                Mockito.any(),
+                Mockito.anyBoolean()
+        )).thenReturn(response);
+
+        webTestClient.get()
+                .uri("/delivery/v1/notifications/informal/received/{iun}/attachments/payment/{attachmentName}", INFORMAL_IUN, PAGOPA)
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, CX_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, UID)
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd")
+                .header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
+                .header(PnDeliveryRestConstants.SOURCE_CHANNEL_DETAILS_HEADER, X_PAGOPA_PN_SRC_CH_DET)
+                .exchange()
+                .expectStatus()
+                .isOk();
+
+        Mockito.verify(attachmentService).downloadAttachmentWithRedirect(
+                INFORMAL_IUN,
+                INTERNAL_AUTH_HEADER,
+                null,
+                null,
+                PAGOPA,
+                null,
+                true
+        );
+    }
+
+    @Test
+    void getReceivedInformalNotificationAttachmentFailure() {
+        InternalAuthHeader internalAuthHeader = new InternalAuthHeader(
+                CX_TYPE_PF,
+                CX_ID,
+                UID,
+                null,
+                X_PAGOPA_PN_SRC_CH,
+                X_PAGOPA_PN_SRC_CH_DET
+        );
+
+        Mockito.doThrow(new PnNotificationNotFoundException("Simulated Error"))
+                .when(attachmentService)
+                .downloadAttachmentWithRedirect(
+                        INFORMAL_IUN,
+                        internalAuthHeader,
+                        null,
+                        null,
+                        PAGOPA,
+                        null,
+                        true
+                );
+
+        webTestClient.get()
+                .uri("/delivery/v1/notifications/informal/received/{iun}/attachments/payment/{attachmentName}", INFORMAL_IUN, PAGOPA)
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, CX_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, UID)
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+                .header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
+                .header(PnDeliveryRestConstants.SOURCE_CHANNEL_DETAILS_HEADER, X_PAGOPA_PN_SRC_CH_DET)
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+    }
+
+    @Test
+    void getReceivedInformalNotificationDocumentWithRetryAfterSuccess() {
+
+        NotificationAttachmentDownloadMetadataResponse response = NotificationAttachmentDownloadMetadataResponse.builder()
+                .url(null)
+                .contentType("application/pdf")
+                .sha256(SHA256_BODY)
+                .filename(FILENAME)
+                .retryAfter(3600)
+                .build();
+
+        Mockito.when(attachmentService.downloadDocumentWithRedirect(
+                anyString(),
+                any(InternalAuthHeader.class),
+                Mockito.isNull(),
+                Mockito.anyInt(),
+                Mockito.anyBoolean()
+        )).thenReturn(response);
+
+        webTestClient.get()
+                .uri("/delivery/v1/notifications/informal/received/" + INFORMAL_IUN + "/attachments/documents/" + DOCUMENT_INDEX)
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, CX_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, UID)
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd")
+                .header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
+                .header(PnDeliveryRestConstants.SOURCE_CHANNEL_DETAILS_HEADER, X_PAGOPA_PN_SRC_CH_DET)
+                .exchange()
+                .expectStatus()
+                .isOk();
+
+        Mockito.verify(attachmentService).downloadDocumentWithRedirect(
+                INFORMAL_IUN,
+                INTERNAL_AUTH_HEADER,
+                null,
+                DOCUMENT_INDEX,
+                true
+        );
+    }
 }
