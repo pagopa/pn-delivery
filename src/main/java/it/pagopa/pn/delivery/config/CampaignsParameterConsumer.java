@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Configuration
@@ -41,6 +42,8 @@ public class CampaignsParameterConsumer {
         List<Campaign> loaded = new ArrayList<>();
         for (Campaign campaign : maybeCampaigns.get()) {
             if (isValid(campaign)) {
+                log.info("Adding campaign configuration to in-memory load list campaignId={}, senderId={}",
+                        campaign.getCampaignId(), campaign.getSenderId());
                 loaded.add(campaign);
             } else {
                 log.warn("Invalid campaign configuration found: {}", campaign);
@@ -85,7 +88,50 @@ public class CampaignsParameterConsumer {
     private boolean isValid(Campaign campaign) {
         return !Objects.isNull(campaign)
                 && StringUtils.hasText(campaign.getCampaignId())
-                && StringUtils.hasText(campaign.getSenderId());
+                && isValidSenderId(campaign.getSenderId())
+                && StringUtils.hasText(campaign.getTitle())
+                && StringUtils.hasText(campaign.getDescriptionScope())
+                && !Objects.isNull(campaign.getStartDate())
+                && !Objects.isNull(campaign.getEndDate())
+                && !Objects.isNull(campaign.getClosed())
+                && StringUtils.hasText(campaign.getServiceId())
+                && !Objects.isNull(campaign.getSensitiveContent())
+                && !Objects.isNull(campaign.getStopOnViewed())
+                && hasValidChannels(campaign.getChannels())
+                && hasValidWorkflow(campaign.getWorkflow());
+    }
+
+    private boolean isValidSenderId(String senderId) {
+        if (!StringUtils.hasText(senderId)) {
+            return false;
+        }
+
+        try {
+            UUID.fromString(senderId);
+            return true;
+        } catch (IllegalArgumentException ex) {
+            return false;
+        }
+    }
+
+    private boolean hasValidChannels(List<it.pagopa.pn.delivery.models.internal.campaign.ChannelType> channels) {
+        return !Objects.isNull(channels)
+                && !channels.isEmpty()
+                && channels.stream().allMatch(Objects::nonNull);
+    }
+
+    private boolean hasValidWorkflow(List<it.pagopa.pn.delivery.models.internal.campaign.WorkFlowEntity> workflow) {
+        return !Objects.isNull(workflow)
+                && workflow.stream().allMatch(this::hasValidWorkflowStep);
+    }
+
+    private boolean hasValidWorkflowStep(it.pagopa.pn.delivery.models.internal.campaign.WorkFlowEntity workflowStep) {
+        return !Objects.isNull(workflowStep)
+                && !Objects.isNull(workflowStep.getChannel())
+                && !Objects.isNull(workflowStep.getRecipientType())
+                && !Objects.isNull(workflowStep.getTimeout())
+                && !Objects.isNull(workflowStep.getDesiredFeedback())
+                && !Objects.isNull(workflowStep.getIncludeAttachment());
     }
 
     private boolean hasParameterNotFoundCause(Throwable throwable) {
