@@ -100,6 +100,7 @@ public class EntityToDtoNotificationMapper {
                 .recipientType(NotificationRecipientV24.RecipientTypeEnum.valueOf(entity.getRecipientType().getValue()))
                 .payments(entity2PaymentInfo(entity.getPayments()))
                 .messageId(entity.getMessageId())
+                .additionalLanguages(entity.getAdditionalLanguages())
                 .build();
     }
 
