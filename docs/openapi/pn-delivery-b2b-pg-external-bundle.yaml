@@ -625,17 +625,30 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/NotificationStatusHistoryElementV26'
-    IUN:
-      description: Identificativo Univoco Notifica
+    UnifiedIUN:
+      description: >-
+        Identificativo Univoco Notifica (valido sia per notifiche legali che
+        bonarie)
       type: string
       minLength: 25
       maxLength: 25
-      pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+      pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9A-Z]{1}$
     NotificationSearchRow:
       type: object
       properties:
+        communicationType:
+          type: string
+          description: Indica la tipologia di comunicazione (LEGAL o INFORMAL)
+          enum:
+            - LEGAL
+            - INFORMAL
+        viewed:
+          type: boolean
+          description: >-
+            Indica se la notifica è stata visualizzata (solo per comunicazioni
+            post-rilascio)
         iun:
-          $ref: '#/components/schemas/IUN'
+          $ref: '#/components/schemas/UnifiedIUN'
         paProtocolNumber:
           type: string
           description: Numero protocollo associato alla notifica da parte della PA
@@ -1017,6 +1030,12 @@ components:
       enum:
         - FLAT_RATE
         - DELIVERY_MODE
+    IUN:
+      description: Identificativo Univoco Notifica
+      type: string
+      minLength: 25
+      maxLength: 25
+      pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
     PaFeeV23:
       type: integer
       description: >-

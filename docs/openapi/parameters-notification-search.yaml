@@ -50,6 +50,17 @@ components:
       schema:
         type: string
         format: date-time
+    notificationSearchCommunicationType:
+      name: communicationType
+      in: query
+      required: false
+      description: Tipologia di notifica (LEGAL o INFORMAL). Se non specificato, di default vengono ricercate le notifiche LEGAL. ALL per cercarle entrambe.
+      schema:
+        type: string
+        enum:
+          - LEGAL
+          - INFORMAL
+          - ALL
     notificationSearchMandateId:
       name: mandateId
       in: query
@@ -108,6 +119,14 @@ components:
       required: false
       schema:
         type: string
+    notificationSearchUnifiedIun:
+      name: iunMatch
+      description: >-
+        Se presente indica che lo IUN dei risultati deve essere uguale al valore di questo parametro. Accetta sia formato legale che bonario.
+      in: query
+      required: false
+      schema:
+        $ref: './schemas-pn-notification.yaml#/components/schemas/UnifiedIUN'
     notificationSearchPageSize:
       name: size
       description: >-
