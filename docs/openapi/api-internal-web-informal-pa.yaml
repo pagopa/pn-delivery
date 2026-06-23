@@ -1,17 +1,17 @@
 openapi: 3.0.3
 info:
   termsOfService: https://termofservice.it
-  x-api-id: api-internal-web-pa
-  title: 'Piattaforma Notifiche: API per il Front End delle PA'
-  x-summary: 'Piattaforma Notifiche: API per il Front End delle PA'
+  x-api-id: api-internal-web-informal-pa
+  title: 'SEND: API per il Front End delle PA per le comunicazioni bonarie'
+  x-summary: 'SEND: API per il Front End delle PA per le comunicazioni bonarie'
   version: '1.0.0'
   description: >- 
     ## Abstract
-      API utilizzate dal portale di Piattaforma Notifiche dedicato alle Pubbliche Amministrazioni
+      API utilizzate dal portale di SEND dedicato alle Pubbliche Amministrazioni per la gestione delle campagne e notifiche bonarie
   contact:
-    email: pn@pagopa.it
+    email: [EMAIL_ADDRESS]'
   license:
-    name: Licenza di PN
+    name: Licenza di SEND
     url: 'https://da-definire/'
 servers:
 - url: https://webapi.pn.pagopa.it
@@ -21,50 +21,31 @@ servers:
 - url: https://webapi.dev.pn.pagopa.it
   description: Ambiente di sviluppo
 tags:
-  - name: HealthCheck
+  - name: SenderInformalReadWeb
     description: >-
-      Invocazioni per sapere lo stato del microservizio
-  - name: SenderReadWeb
-    description: >-
-      Invocazioni utilizzabili dai mittenti per verificare lo stato delle notifiche inviate
+      Invocazioni utilizzabili dai mittenti per verificare lo stato delle notifiche bonarie inviate tramite campagna
 
 
 paths:
-  "/status":
-    get:
-      summary: healthCheck path
-      description: healtCheck path per verificare lo stato del microservizio
-      tags:
-        - HealthCheck
-      operationId: status
-      responses:
-        '200':
-          description: Ok
-        '500':
-          description: Internal Server Error
-    ###########################################################################################
-    ###                                  RICERCA NOTIFICHE                                  ###
-    ###########################################################################################
-  "/delivery/notifications/sent":
+  "/delivery/campaigns/{campaignId}/notifications/sent":
     get:    
-      summary: Ricerca notifiche inviate
+      summary: Ricerca notifiche bonarie inviate per campagna
       description: >-
-        servizio di consultazione dello stato di invio delle notifiche individuate dai parametri 
-        di ricerca specificati
+        Servizio di consultazione dello stato di invio delle notifiche bonarie (informali) individuate dalla campagna e dai parametri di ricerca specificati.
       tags:
-        - SenderReadWeb
-      operationId: searchSentNotification
+        - SenderInformalReadWeb
+      operationId: searchInformalSentNotification
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet' # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet' # NO EXTERNAL
         - $ref: '#/components/parameters/cxIdAuthFleet' # NO EXTERNAL
         - $ref: '#/components/parameters/cxGroupsAuthFleet' # NO EXTERNAL        
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathCampaignId'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchStartDate'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchEndDate'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchRecipientId'
-        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchStatus'
-        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchSubject'
-        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchIun'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchInformalStatus'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchGroup'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchPageSize'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchNextPagesKey'
       responses:
@@ -73,7 +54,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './schemas-pn-notification.yaml#/components/schemas/LegalNotificationSearchResponse'
+                $ref: './schemas-pn-notification.yaml#/components/schemas/InformalNotificationSearchResponse'
         '400':
           description: Bad request       
           content:
@@ -86,7 +67,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  
   
 
 components:
@@ -106,7 +86,3 @@ components:
   schemas:
     Problem:
       $ref: './remote-refs.yaml#/components/schemas/Problem'
-    
-
-
-

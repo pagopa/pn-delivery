@@ -30,6 +30,15 @@ components:
         maxLength: 25
         pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[A-Z]{1}$
 
+    pathCampaignId:
+      description: >-
+        Identificativo della campagna
+      name: campaignId
+      in: path
+      required: true
+      schema:
+        type: string
+
 
     ############################################################################################
     ###                               PARAMETRI RICERCA NOTIFICHE                            ###
@@ -93,6 +102,13 @@ components:
       description: stato della notifica
       schema:
         $ref: './remote-refs.yaml#/components/schemas/NotificationStatusV26'
+    notificationSearchInformalStatus:
+      name: status
+      in: query
+      required: false
+      description: stato della notifica bonaria
+      schema:
+        $ref: './schemas-pn-notification.yaml#/components/schemas/InformalNotificationStatus'
     notificationSearchStatuses:
       name: status
       in: query

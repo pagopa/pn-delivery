@@ -73,6 +73,21 @@ components:
 #      maxLength: 88                     # ONLY EXTERNAL
       pattern: ^.*$
 
+    InformalNotificationStatus:
+      type: string
+      description: Stato della notifica bonaria
+      enum:
+        - READY_TO_SEND
+        - REFUSED
+        - PROCESSING
+        - SUCCESSFUL_SENDING
+        - UNSUCCESSFUL_SENDING
+
+    NotificationStatusV26:
+      # Alias locale allo stato delle notifiche legali definito in pn-delivery-push.
+      # Contiene tutti gli stati del ciclo di vita di una notifica legale (es. ACCEPTED, DELIVERING, DELIVERED, ecc.)
+      $ref: './remote-refs.yaml#/components/schemas/NotificationStatusV26'
+
 
     TaxId:
       description: C.F. persona fisica o persona giuridica
@@ -802,32 +817,10 @@ components:
     ###                             RISULTATO RICERCA NOTIFICHE                              ###
     ############################################################################################
 
-    NotificationSearchResponse:
-      title: Elenco di notifiche
-      description: >-
-        Dto contenente i risultati di una ricerca di notifiche. Ogni risposta conterrà solo 
-        una pagina di risultati relativi a una ricerca e le indicazioni per raggiungere alcune
-        pagine successive.
-      type: object
-      properties:
-        resultsPage:
-          description: Una pagina di risultati della query
-          type: array
-          items:
-            $ref: '#/components/schemas/NotificationSearchRow'
-        moreResult:
-          description: Indica se sono presenti ulteriori pagine di risultati
-          type: boolean
-        nextPagesKey:
-          description: >-
-            Elenco, non esaustivo, delle chiavi da usare per richiedere le 
-            pagine di risultati successive a quella corrente. <br/>
-            Valorizzato solo se il campo __moreResult__ ha valore __true__.
-          type: array
-          items:
-            type: string
-
     NotificationSearchRow:
+      description: >-
+        Oggetto base per le righe di risultato della ricerca notifiche. Contiene tutti i campi
+        comuni sia alle notifiche legali che bonarie
       type: object
       properties:
         communicationType:
@@ -859,8 +852,6 @@ components:
         subject:
           type: string
           description: Oggetto della notifica
-        notificationStatus:
-          $ref: './remote-refs.yaml#/components/schemas/NotificationStatusV26'
         recipients:
           description: >-
             Elenco delle denominazioni dei destinatari della notifica. <br/>
@@ -885,9 +876,113 @@ components:
           type: string
           description: Id delega (per notifiche delegate)
 
-      #NotificationStatus:
-      #$ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
-      #type: string
+    LegalNotificationSearchRow:
+      description: >-
+        Riga di risultato della ricerca di notifiche legali. Estende NotificationSearchRow
+        aggiungendo il campo notificationStatus tipizzato con NotificationStatusV26,
+        che rappresenta il ciclo di vita delle notifiche legali.
+      allOf:
+        - $ref: '#/components/schemas/NotificationSearchRow'
+        - type: object
+          properties:
+            notificationStatus:
+              $ref: '#/components/schemas/NotificationStatusV26'
+
+    InformalNotificationSearchRow:
+      description: >-
+        Riga di risultato della ricerca di notifiche bonarie. Estende NotificationSearchRow
+        aggiungendo il campo notificationStatus tipizzato con InformalNotificationStatus,
+        che rappresenta il ciclo di vita delle notifiche bonarie
+        (READY_TO_SEND, REFUSED, PROCESSING, SUCCESSFUL_SENDING, UNSUCCESSFUL_SENDING).
+      allOf:
+        - $ref: '#/components/schemas/NotificationSearchRow'
+        - type: object
+          properties:
+            notificationStatus:
+              $ref: '#/components/schemas/InformalNotificationStatus'
+
+    NotificationSearchResponse:
+      title: Elenco di notifiche
+      description: >-
+        Dto generico contenente i risultati di una ricerca di notifiche mista (legali e bonarie).
+        Utilizzato dalle API dei destinatari. Gli elementi della pagina sono tipizzati con
+        NotificationSearchRow che è la classe base comune, priva del campo notificationStatus
+        (poiché lo stato può variare a seconda della tipologia di notifica).
+      type: object
+      properties:
+        resultsPage:
+          description: Una pagina di risultati della query
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationSearchRow'
+        moreResult:
+          description: Indica se sono presenti ulteriori pagine di risultati
+          type: boolean
+        nextPagesKey:
+          description: >-
+            Elenco, non esaustivo, delle chiavi da usare per richiedere le 
+            pagine di risultati successive a quella corrente. <br/>
+            Valorizzato solo se il campo __moreResult__ ha valore __true__.
+          type: array
+          items:
+            type: string
+
+    LegalNotificationSearchResponse:
+      title: Elenco di notifiche legali
+      description: >-
+        Dto contenente i risultati di una ricerca di notifiche legali. Ogni risposta conterrà solo
+        una pagina di risultati relativi a una ricerca e le indicazioni per raggiungere alcune
+        pagine successive. Gli elementi della pagina sono tipizzati con LegalNotificationSearchRow
+        il cui campo notificationStatus rispecchia gli stati del ciclo di vita delle notifiche legali
+        (definiti in NotificationStatusV26).
+      type: object
+      properties:
+        resultsPage:
+          description: Una pagina di risultati della query
+          type: array
+          items:
+            $ref: '#/components/schemas/LegalNotificationSearchRow'
+        moreResult:
+          description: Indica se sono presenti ulteriori pagine di risultati
+          type: boolean
+        nextPagesKey:
+          description: >-
+            Elenco, non esaustivo, delle chiavi da usare per richiedere le 
+            pagine di risultati successive a quella corrente. <br/>
+            Valorizzato solo se il campo __moreResult__ ha valore __true__.
+          type: array
+          items:
+            type: string
+
+    InformalNotificationSearchResponse:
+      title: Elenco di notifiche bonarie
+      description: >-
+        Dto contenente i risultati di una ricerca di notifiche bonarie. Ogni risposta conterrà solo
+        una pagina di risultati relativi a una ricerca e le indicazioni per raggiungere alcune
+        pagine successive. Gli elementi della pagina sono tipizzati con InformalNotificationSearchRow
+        il cui campo notificationStatus rispecchia gli stati del ciclo di vita delle comunicazioni bonarie
+        (READY_TO_SEND, REFUSED, PROCESSING, SUCCESSFUL_SENDING, UNSUCCESSFUL_SENDING).
+      type: object
+      properties:
+        resultsPage:
+          description: Una pagina di risultati della query
+          type: array
+          items:
+            $ref: '#/components/schemas/InformalNotificationSearchRow'
+        moreResult:
+          description: Indica se sono presenti ulteriori pagine di risultati
+          type: boolean
+        nextPagesKey:
+          description: >-
+            Elenco, non esaustivo, delle chiavi da usare per richiedere le
+            pagine di risultati successive a quella corrente. <br/>
+            Valorizzato solo se il campo __moreResult__ ha valore __true__.
+          type: array
+          items:
+            type: string
+
+
+
 
 
     ############################################################################################

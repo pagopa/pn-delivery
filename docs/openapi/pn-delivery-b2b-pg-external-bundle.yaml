@@ -634,6 +634,9 @@ components:
       maxLength: 25
       pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9A-Z]{1}$
     NotificationSearchRow:
+      description: >-
+        Oggetto base per le righe di risultato della ricerca notifiche. Contiene
+        tutti i campi comuni sia alle notifiche legali che bonarie
       type: object
       properties:
         communicationType:
@@ -642,11 +645,16 @@ components:
           enum:
             - LEGAL
             - INFORMAL
-        viewed:
-          type: boolean
+        communicationOutcomes:
+          type: array
           description: >-
-            Indica se la notifica è stata visualizzata (solo per comunicazioni
-            post-rilascio)
+            Lista di eventi legati all'esito della comunicazione (solo per
+            comunicazioni post-rilascio)
+          items:
+            type: string
+            enum:
+              - VIEWED
+              - DELIVERED
         iun:
           $ref: '#/components/schemas/UnifiedIUN'
         paProtocolNumber:
@@ -662,8 +670,6 @@ components:
         subject:
           type: string
           description: Oggetto della notifica
-        notificationStatus:
-          $ref: '#/components/schemas/NotificationStatusV26'
         recipients:
           description: >-
             Elenco delle denominazioni dei destinatari della notifica. <br/>
@@ -687,9 +693,11 @@ components:
     NotificationSearchResponse:
       title: Elenco di notifiche
       description: >-
-        Dto contenente i risultati di una ricerca di notifiche. Ogni risposta
-        conterrà solo  una pagina di risultati relativi a una ricerca e le
-        indicazioni per raggiungere alcune pagine successive.
+        Dto generico contenente i risultati di una ricerca di notifiche mista
+        (legali e bonarie). Utilizzato dalle API dei destinatari. Gli elementi
+        della pagina sono tipizzati con NotificationSearchRow che è la classe
+        base comune, priva del campo notificationStatus (poiché lo stato può
+        variare a seconda della tipologia di notifica).
       type: object
       properties:
         resultsPage:
