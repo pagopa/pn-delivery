@@ -836,9 +836,14 @@ components:
           enum:
             - LEGAL
             - INFORMAL
-        viewed:
-          type: boolean
-          description: Indica se la notifica è stata visualizzata (solo per comunicazioni post-rilascio)
+        communicationOutcomes:
+          type: array
+          description: Lista di eventi legati all'esito della comunicazione (solo per comunicazioni post-rilascio)
+          items:
+            type: string
+            enum:
+              - VIEWED
+              - DELIVERED
         iun:
           $ref: '#/components/schemas/UnifiedIUN'
         paProtocolNumber:
