@@ -847,7 +847,7 @@ Parameters:
 
   EnableInformalB2BApiGateway:
     Type: String
-    Description: 'Determina se le risorse API Gateway relative alle API delle notifice bonarie debbano essere create (true/false)'
+    Description: 'Determina se le risorse API Gateway relative alle API delle notifiche bonarie debbano essere create (true/false)'
     AllowedValues:
       - 'true'
       - 'false'
