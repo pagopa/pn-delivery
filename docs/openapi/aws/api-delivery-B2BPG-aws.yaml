@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: R8xGBHZpX2Vp5cM72EfYsV3NQk+3RddLqqbQyYJoj6g=
+  version: N74WF25HsLkOmQGPPLq81zMiRnObzZUIlkkQVwsd2lc=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -694,15 +694,15 @@ components:
             - LEGAL
             - INFORMAL
         communicationOutcomes:
-          type: array
-          description: >-
-            Lista di eventi legati all'esito della comunicazione (solo per
-            comunicazioni post-rilascio)
-          items:
-            type: string
-            enum:
-              - VIEWED
-              - DELIVERED
+          type: object
+          description: Esiti della comunicazione (solo per comunicazioni post-rilascio)
+          properties:
+            viewed:
+              type: boolean
+              description: Indica se la comunicazione è stata visualizzata dal destinatario
+            delivered:
+              type: boolean
+              description: Indica se la comunicazione è stata consegnata al destinatario
         iun:
           $ref: '#/components/schemas/UnifiedIUN'
         paProtocolNumber:
