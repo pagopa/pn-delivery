@@ -645,16 +645,6 @@ components:
           enum:
             - LEGAL
             - INFORMAL
-        communicationOutcomes:
-          type: object
-          description: Esiti della comunicazione (solo per comunicazioni post-rilascio)
-          properties:
-            viewed:
-              type: boolean
-              description: Indica se la comunicazione è stata visualizzata dal destinatario
-            delivered:
-              type: boolean
-              description: Indica se la comunicazione è stata consegnata al destinatario
         iun:
           $ref: '#/components/schemas/UnifiedIUN'
         paProtocolNumber:
@@ -690,21 +680,45 @@ components:
         mandateId:
           type: string
           description: Id delega (per notifiche delegate)
+    CommunicationOutcomes:
+      type: object
+      description: Esiti della comunicazione (solo per comunicazioni post-rilascio)
+      properties:
+        viewed:
+          type: boolean
+          description: Indica se la comunicazione è stata visualizzata dal destinatario
+        delivered:
+          type: boolean
+          description: Indica se la comunicazione è stata consegnata al destinatario
+    RecipientNotificationSearchRow:
+      description: >-
+        Riga di risultato della ricerca notifiche per i destinatari. Estende
+        NotificationSearchRow aggiungendo il campo communicationOutcomes,
+        presente per entrambe le tipologie di notifica (legali e bonarie). Non
+        include il campo notificationStatus poiché lo stato varia a seconda
+        della tipologia di notifica.
+      allOf:
+        - $ref: '#/components/schemas/NotificationSearchRow'
+        - type: object
+          properties:
+            communicationOutcomes:
+              $ref: '#/components/schemas/CommunicationOutcomes'
     NotificationSearchResponse:
       title: Elenco di notifiche
       description: >-
         Dto generico contenente i risultati di una ricerca di notifiche mista
         (legali e bonarie). Utilizzato dalle API dei destinatari. Gli elementi
-        della pagina sono tipizzati con NotificationSearchRow che è la classe
-        base comune, priva del campo notificationStatus (poiché lo stato può
-        variare a seconda della tipologia di notifica).
+        della pagina sono tipizzati con RecipientNotificationSearchRow che
+        estende la classe base con il campo communicationOutcomes, ma senza
+        notificationStatus (poiché lo stato varia a seconda della tipologia di
+        notifica).
       type: object
       properties:
         resultsPage:
           description: Una pagina di risultati della query
           type: array
           items:
-            $ref: '#/components/schemas/NotificationSearchRow'
+            $ref: '#/components/schemas/RecipientNotificationSearchRow'
         moreResult:
           description: Indica se sono presenti ulteriori pagine di risultati
           type: boolean
