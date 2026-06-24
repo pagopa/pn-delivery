@@ -2065,7 +2065,7 @@ Resources:
       EventSourceArn: !Ref CdcKinesisSourceStreamArn
       FilterCriteria:
         Filters:
-          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "dynamodb" : { "NewImage" : { "statusInfo": { "M": { "statusChanged": { "BOOL": [ true ]}} }, "communicationType": {"S": [{ "exists": false }]}}} }}'
+          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "dynamodb" : { "NewImage" : { "statusInfo": { "M": { "statusChanged": { "BOOL": [ true ]}} }, "communicationType": {"S": [{ "exists": false }, "LEGAL"]}}} }}'
       FunctionName: !Ref MetadataStatusUpdaterLambda
       FunctionResponseTypes:
         - ReportBatchItemFailures
