@@ -146,6 +146,7 @@ public class EntityToDtoNotificationMapper {
                     .creditorTaxId(paymentInfo.getCreditorTaxId())
                     .noticeCode(paymentInfo.getNoticeCode())
                     .applyCost(paymentInfo.getApplyCost() == null || paymentInfo.getApplyCost())
+                    .amount(paymentInfo.getAmount())
                     .attachment(buildOptionalMetadataAttachment(paymentInfo.getPagoPaForm()))
                     .build();
         }

@@ -17,10 +17,12 @@ public class NotificationPaymentInfoEntity {
     public static final String FIELD_APPLY_COST = "applyCost";
     public static final String FIELD_PAGO_PA_FORM = "pagoPaForm";
     public static final String FIELD_F24 = "f24";
+    public static final String FIELD_AMOUNT = "amount";
 
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_NOTICE_CODE)})) private String noticeCode;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_CREDITOR_TAX_ID)})) private String creditorTaxId;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_APPLY_COST)})) private Boolean applyCost;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_AMOUNT)})) private Integer amount;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PAGO_PA_FORM)})) private PagoPaPaymentEntity pagoPaForm;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_F24)})) private F24PaymentEntity f24;
 

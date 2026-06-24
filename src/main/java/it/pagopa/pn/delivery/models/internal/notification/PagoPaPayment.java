@@ -13,5 +13,6 @@ public class PagoPaPayment {
     private String noticeCode;
     private String creditorTaxId;
     private boolean applyCost;
+    private Integer amount;
     private MetadataAttachment attachment;
 }

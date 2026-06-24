@@ -597,6 +597,7 @@ components:
       required:
         - noticeCode
         - creditorTaxId
+        - amount
       properties:
         noticeCode:
           $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'
@@ -604,6 +605,11 @@ components:
           $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxId'
         attachment:
           $ref: "#/components/schemas/NotificationPaymentAttachment"
+        amount:
+          type: integer
+          format: int32
+          description: Importo del pagamento in eurocent
+          minimum: 0
 
 
     PagoPaPayment:

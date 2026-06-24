@@ -112,6 +112,7 @@ public class DtoToEntityNotificationMapper {
                 .noticeCode(item.getPagoPa() != null ? item.getPagoPa().getNoticeCode() : null)
                 .applyCost(item.getPagoPa() != null ? item.getPagoPa().isApplyCost() : null)
                 .pagoPaForm(item.getPagoPa() != null ? dto2PagoPaPaymentEntity(item.getPagoPa().getAttachment()) : null)
+                .amount(item.getPagoPa().getAmount())
                 .f24(
                         dto2F24PaymentEntity(item.getF24())
                 ).build();
