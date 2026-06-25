@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: kM4AOgCzUShR9TKSnBpnRL96LaXbUQrkEUSRhI+aRT0=
+  version: /bYMmcR4qQbv/RaZoYjNYvCvvPe6exRFJM8ZGG3Fk/w=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -609,6 +609,76 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
+  /v1/notifications/informal/sent/{iun}:
+    get:
+      summary: 'Mittente: lettura dettagli notifica versione 1'
+      description: >-
+        Questa operazione permette di leggere tutti i dettagli di una notifica
+        accettata. <br/>
+      tags:
+        - SenderReadInformalNotificationB2B
+      parameters:
+        - $ref: '#/components/parameters/pathInformalIun'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FullSentInformalNotificationV1'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_ApiKeyAuthorizerV2_openapi: []
+        - api_key_openapi: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/informal/sent/{iun}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
+          integration.request.path.iun: method.request.path.iun
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+    options:
+      operationId: Options for /v1/notifications/informal/sent/{iun} API CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/informal/sent/{iun}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.path.iun: method.request.path.iun
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
 components:
   parameters:
     notificationRequestId:
@@ -813,6 +883,29 @@ components:
           description: Spiegazione specifica per questa occorrenza del problema.
           example: Parametro non valido
           type: string
+    FullSentInformalNotificationV1:
+      description: >-
+        Le informazioni riguardanti una notifica (richiesta di notifica
+        accettata) e il  processo di inoltro della notifica verso il cittadino.
+      allOf:
+        - $ref: '#/components/schemas/InformalSentNotificationV1'
+        - type: object
+          required:
+            - notificationStatus
+            - notificationStatusHistory
+            - timeline
+          properties:
+            notificationStatus:
+              $ref: '#/components/schemas/InformalNotificationStatusV1'
+            notificationStatusHistory:
+              $ref: '#/components/schemas/InformalNotificationStatusHistoryV1'
+            timeline:
+              description: >-
+                elenco dettagliato di tutto ciò che è accaduto durrante il
+                processo di notifica
+              type: array
+              items:
+                $ref: '#/components/schemas/InformalTimelineElementV1'
     Problem:
       properties:
         type:
@@ -879,6 +972,67 @@ components:
           type: string
       required:
         - code
+    InformalTimelineElementV1:
+      type: object
+      additionalProperties: false
+      properties:
+        elementId:
+          type: string
+          maxLength: 512
+          description: >-
+            Identificativo dell'elemento di timeline: insieme allo IUN della
+            notifica bonaria definisce in maniera univoca l'elemento di timeline
+        timestamp:
+          type: string
+          deprecated: true
+          description: >-
+            Istante in cui avviene l'evento descritto in questo elemento di
+            timeline (deprecato, fare riferimento al campo eventTimestamp)
+          format: date-time
+        ingestionTimestamp:
+          type: string
+          description: >-
+            Istante in cui l'evento descritto in questo elemento di timeline è
+            gestito da SEND
+          format: date-time
+        eventTimestamp:
+          type: string
+          description: >-
+            Istante in cui avviene l'evento descritto in questo elemento di
+            timeline
+          format: date-time
+        notificationSentAt:
+          type: string
+          description: Momento di ricezione della richiesta di notifica da parte di SEND
+          format: date-time
+        category:
+          $ref: '#/components/schemas/InformalTimelineElementCategoryV1'
+        details:
+          $ref: '#/components/schemas/InformalTimelineElementDetailsV1'
+    InformalNotificationStatusV1:
+      type: string
+      description: |
+        stato di avanzamento del processo di notifica bonaria:
+          * `IN_VALIDATION` - Fase di validazione formale, sintattica (sincrona) ed asincrona (verifica allegati e coerenza della campagna)
+          * `PROCESSING` - Stato assunto non appena la validazione ha esito positivo e l'orchestratore avvia il workflow sequenziale di consegna sui canali
+          * `COMPLETED_REACHED` - Stato finale di terminazione positiva; Il destinatario è stato raggiunto alla destinazione più vicina al cittadino, ma non è stato ancora ottenuto il feedback di arresto finale desiderato dall'ente;
+          * `COMPLETED_UNREACHED` - Stato finale di terminazione negativa; Il destinatario non è stato raggiunto alla destinazione più vicina al cittadino;
+          * `UNDELIVERABLE` - Stato di irreperibilità totale; raggiungibile solo se la validazione asincrona consente l'ingresso di notifiche prive di qualsiasi recapito utile o di profilo IO associato
+          * `REFUSED` - Notifica rifiutata a seguito della validazione
+          * `ACCEPTED` - Notifica accettato a seguito della validazione
+      enum:
+        - IN_VALIDATION
+        - PROCESSING
+        - COMPLETED_REACHED
+        - COMPLETED_UNREACHED
+        - UNDELIVERABLE
+        - REFUSED
+        - ACCEPTED
+    InformalNotificationStatusHistoryV1:
+      description: elenco degli avanzamenti effettuati dal processo di notifica bonaria
+      type: array
+      items:
+        $ref: '#/components/schemas/InformalNotificationStatusHistoryElementV1'
     NotificationRequestId:
       type: string
       description: identificativo univoco di una richiesta di invio notifica, non è lo IUN
@@ -1369,6 +1523,332 @@ components:
           description: >-
             Stima del numero di secondi da aspettare prima che il contenuto del 
             documento sia disponibile per il download.
+    UsedServices:
+      description: Servizi utilizzati per la creazione della notifica
+      type: object
+      properties:
+        physicalAddressLookup:
+          type: boolean
+    InformalSentNotificationV1:
+      description: Le informazioni riguardanti una richiesta di notifica accettata
+      allOf:
+        - $ref: '#/components/schemas/InformalNotificationRequestV1'
+        - type: object
+          required:
+            - iun
+            - sentAt
+            - senderTaxId
+            - senderPaId
+          properties:
+            senderTaxId:
+              $ref: '#/components/schemas/paTaxId'
+            senderPaId:
+              type: string
+              description: >-
+                Identificativo (non IPA) della PA mittente che ha eseguito
+                l'onboarding su SelfCare.
+              pattern: ^.*$
+              maxLength: 256
+            iun:
+              $ref: '#/components/schemas/IUN'
+            sentAt:
+              type: string
+              description: Momento di ricezione della notifica da parte di PN
+              format: date-time
+            usedServices:
+              $ref: '#/components/schemas/UsedServices'
+    TimelineElementId:
+      type: string
+    InformalNotificationStatusHistoryElementV1:
+      description: elenco degli avanzamenti effettuati dal processo di notifica bonaria
+      type: object
+      required:
+        - status
+        - activeFrom
+        - relatedTimelineElements
+      properties:
+        status:
+          $ref: '#/components/schemas/InformalNotificationStatusV1'
+        activeFrom:
+          type: string
+          description: data e ora di raggiungimento dello stato di avanzamento
+          format: date-time
+        relatedTimelineElements:
+          type: array
+          description: Eventi avvenuti nello stato
+          items:
+            $ref: '#/components/schemas/TimelineElementId'
+    InformalTimelineElementCategoryV1:
+      type: string
+      description: |
+        categorie di timeline del dominio delle notifiche bonarie:
+          * `VALIDATE_NORMALIZE_ADDRESSES_REQUEST` - Invio della richiesta di validazione e normalizzazione indirizzi fisici presenti nella richiesta di notifica
+          * `NORMALIZED_ADDRESS` - Salvataggio indirizzi normalizzati
+          * `NATIONAL_REGISTRY_VALIDATION_CALL` - Richiesta ai registri nazionali per la validazione degli indirizzi
+          * `NATIONAL_REGISTRY_VALIDATION_RESPONSE` - Risposta dei registri nazionali sulla validazione degli indirizzi
+          * `REQUEST_ACCEPTED` - Richiesta di notifica accettata a seguito dei controlli di validazione
+          * `REQUEST_REFUSED` - Richiesta di notifica rifiutata per fallimento di validazione
+      enum:
+        - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
+        - NORMALIZED_ADDRESS
+        - NATIONAL_REGISTRY_VALIDATION_CALL
+        - NATIONAL_REGISTRY_VALIDATION_RESPONSE
+        - REQUEST_ACCEPTED
+        - REQUEST_REFUSED
+    ValidateNormalizeAddressDetails:
+      x-discriminator-value: VALIDATE_NORMALIZE_ADDRESSES_REQUEST
+      type: object
+      required:
+        - categoryType
+      properties:
+        categoryType:
+          type: string
+    PhysicalAddress:
+      type: object
+      required:
+        - address
+        - municipality
+      properties:
+        at:
+          x-field-extra-annotation: '@lombok.ToString.Exclude'
+          format: password
+          type: string
+          description: Campo "presso" dell'indirizzo
+        address:
+          x-field-extra-annotation: '@lombok.ToString.Exclude'
+          format: password
+          type: string
+          description: Indirizzo del domicilio fisico
+        addressDetails:
+          x-field-extra-annotation: '@lombok.ToString.Exclude'
+          format: password
+          type: string
+          description: Seconda riga dell'indirizzo fisico
+        zip:
+          x-field-extra-annotation: '@lombok.ToString.Exclude'
+          format: password
+          type: string
+          description: >-
+            Codice di avviamento postale. In caso di invio estero diventa
+            facoltativo
+        municipality:
+          x-field-extra-annotation: '@lombok.ToString.Exclude'
+          format: password
+          type: string
+          description: Comune in cui l'indirizzo si trova
+        municipalityDetails:
+          x-field-extra-annotation: '@lombok.ToString.Exclude'
+          format: password
+          type: string
+          description: Frazione o località
+        province:
+          x-field-extra-annotation: '@lombok.ToString.Exclude'
+          format: password
+          type: string
+          description: Provincia in cui si trova l'indirizzo
+        foreignState:
+          x-field-extra-annotation: '@lombok.ToString.Exclude'
+          format: password
+          type: string
+          description: Denominazione paese estero
+      description: Indirizzo fisico scoperto durante fase di consegna
+    NormalizedAddressDetails:
+      x-discriminator-value: NORMALIZED_ADDRESS
+      type: object
+      required:
+        - recIndex
+        - oldAddress
+        - normalizedAddress
+        - categoryType
+      properties:
+        categoryType:
+          type: string
+        recIndex:
+          type: number
+          description: Index destinatario notifica digitale
+        oldAddress:
+          $ref: '#/components/schemas/PhysicalAddress'
+        normalizedAddress:
+          $ref: '#/components/schemas/PhysicalAddress'
+    DeliveryMode:
+      type: string
+      description: Tipologia Domiciliazione
+      enum:
+        - DIGITAL
+        - ANALOG
+    PublicRegistryValidationCallDetails:
+      x-discriminator-value: PUBLIC_REGISTRY_VALIDATION_CALL
+      type: object
+      required:
+        - recIndexes
+        - deliveryMode
+        - sendDate
+        - categoryType
+      properties:
+        categoryType:
+          type: string
+        recIndexes:
+          description: Lista destinatari notifica
+          type: array
+          items:
+            type: number
+        deliveryMode:
+          $ref: '#/components/schemas/DeliveryMode'
+        sendDate:
+          type: string
+          description: Data invio richiesta ai public registry
+          format: date-time
+    DigitalAddress:
+      description: Indirizzo di invio della notifica
+      required:
+        - address
+        - type
+      type: object
+      properties:
+        type:
+          x-field-extra-annotation: '@lombok.ToString.Exclude'
+          format: password
+          type: string
+          description: tipo di indirizzo PEC, REM, SERCQ, SMS, EMAIL, APPIO ...
+        address:
+          x-field-extra-annotation: '@lombok.ToString.Exclude'
+          format: password
+          type: string
+          description: account@domain
+    PublicRegistryResponseDetails:
+      x-discriminator-value: PUBLIC_REGISTRY_RESPONSE
+      type: object
+      required:
+        - recIndex
+        - categoryType
+      properties:
+        categoryType:
+          type: string
+        recIndex:
+          type: number
+          description: Index destinatario notifica digitale
+        digitalAddress:
+          $ref: '#/components/schemas/DigitalAddress'
+        physicalAddress:
+          $ref: '#/components/schemas/PhysicalAddress'
+    PublicRegistryValidationResponseDetails:
+      x-discriminator-value: PUBLIC_REGISTRY_VALIDATION_RESPONSE
+      allOf:
+        - $ref: '#/components/schemas/PublicRegistryResponseDetails'
+        - type: object
+          required:
+            - categoryType
+          properties:
+            categoryType:
+              type: string
+            registry:
+              type: string
+              description: >
+                Rappresenta il registro consultato per ottenere l'indirizzo. Può
+                assumere i seguenti valori:
+                  - ANPR
+                  - REGISTRO_IMPRESE
+              maxLength: 128
+    NotificationRequestAcceptedDetailsV28:
+      x-discriminator-value: REQUEST_ACCEPTED
+      type: object
+      required:
+        - categoryType
+      properties:
+        categoryType:
+          type: string
+        notificationRequestId:
+          type: string
+          description: >-
+            identificativo univoco di una richiesta di invio notifica, non è lo
+            IUN
+        paProtocolNumber:
+          type: string
+          description: >-
+            Numero di protocollo associato alla notifica, può essere
+            riutilizzato per rettifiche.
+          pattern: ^.*$
+          maxLength: 256
+        idempotenceToken:
+          type: string
+          description: >-
+            token usato per disambiguare "richieste di notificazione" effettuate
+            con lo stesso  numero di protocollo.
+          pattern: ^[ -~]*$
+          maxLength: 256
+    NotificationRefusedErrorV27:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          maxLength: 128
+          description: |-
+            Errori di rifiuto della notifica.
+              - FILE_NOTFOUND - I riferimenti dei documenti nella notifica non sono corretti o i documenti non sono stati caricati con successo.
+              - FILE_GONE - Allegato non disponibile: superati i termini di conservazione
+              - FILE_SHA_ERROR - Il digest calcolato con algoritmi sha256 dei documenti inseriti non è corrispondete a quello del file referenziato.
+              - FILE_PDF_INVALID_ERROR - Il file inserito non è in formato pdf.
+              - FILE_PDF_TOOBIG_ERROR - Il file pdf ha una dimensione eccedente il limite di 200MB.
+              - F24_METADATA_NOT_VALID - I dati contenuti del file dei metadati F24 non rispettano lo schema di validazione.
+              - TAXID_NOT_VALID - Codice fiscale del destinatario non corretto (non ancora implementato).
+              - RECIPIENT_ID_NOT_VALID - Destinatario non Valido (utilizzato solo per funzionalità non ancora implementate)
+              - NOT_VALID_ADDRESS - L'indirizzo di invio cartaceo inserito per il destinatario non ha superato i controlli di correttezza.
+              - PAYMENT_NOT_VALID - I dati del pagamento non sono sono registrati sulla piattaforma GPD (modalità asincrona di integrazione pagoPA)
+              - SERVICE_UNAVAILABLE - Il sistema non è attualmente disponibile.
+              - ADDRESS_NOT_FOUND - La ricerca dell’indirizzo effettuata con il servizio di LookupAddress non ha prodotto risultati.
+              - ADDRESS_SEARCH_FAILED - C'è stato un problema con la ricerca dell'indirizzo effettuata con il servizio di LookupAddess.
+              ...
+        detail:
+          type: string
+          maxLength: 2048
+        recIndex:
+          type: number
+          description: >-
+            Index destinatario notifica digitale con errore che ha portato al
+            rifiuto della notifica
+    RequestRefusedDetailsV27:
+      x-discriminator-value: REQUEST_REFUSED
+      type: object
+      required:
+        - categoryType
+      properties:
+        categoryType:
+          type: string
+        refusalReasons:
+          type: array
+          description: Motivazioni che hanno portato al rifiuto della notifica
+          items:
+            $ref: '#/components/schemas/NotificationRefusedErrorV27'
+        notificationRequestId:
+          type: string
+          description: >-
+            identificativo univoco di una richiesta di invio notifica, non è lo
+            IUN
+        paProtocolNumber:
+          type: string
+          description: >-
+            Numero di protocollo associato alla notifica, può essere
+            riutilizzato per rettifiche.
+          pattern: ^.*$
+          maxLength: 256
+        idempotenceToken:
+          type: string
+          description: >-
+            token usato per disambiguare "richieste di notificazione" effettuate
+            con lo stesso  numero di protocollo.
+          pattern: ^[ -~]*$
+          maxLength: 256
+    InformalTimelineElementDetailsV1:
+      description: The raw event payload that will be different based on the event.
+      oneOf:
+        - $ref: '#/components/schemas/ValidateNormalizeAddressDetails'
+        - $ref: '#/components/schemas/NormalizedAddressDetails'
+        - $ref: '#/components/schemas/PublicRegistryValidationCallDetails'
+        - $ref: '#/components/schemas/PublicRegistryValidationResponseDetails'
+        - $ref: '#/components/schemas/NotificationRequestAcceptedDetailsV28'
+        - $ref: '#/components/schemas/RequestRefusedDetailsV27'
+      discriminator:
+        propertyName: categoryType
   responses: {}
   securitySchemes:
     api_key_openapi:
