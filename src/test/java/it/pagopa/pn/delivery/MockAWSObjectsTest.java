@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery;
 
 import io.awspring.cloud.autoconfigure.messaging.SqsAutoConfiguration;
+import it.pagopa.pn.delivery.config.CampaignsParameterConsumer;
 import it.pagopa.pn.delivery.config.InformalNotificationSendPaParameterConsumer;
 import it.pagopa.pn.delivery.middleware.AsseverationEventsProducer;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
@@ -22,4 +23,7 @@ public abstract class MockAWSObjectsTest {
 
     @MockBean
     private InformalNotificationSendPaParameterConsumer informalNotificationSendPaParameterConsumer;
+
+    @MockBean
+    private CampaignsParameterConsumer campaignsParameterConsumer;
 }
