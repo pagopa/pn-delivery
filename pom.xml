@@ -613,7 +613,7 @@
                         </goals>
                         <phase>process-resources</phase>
                         <configuration>
-                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery-push/469fb31cb25da465eb012449b730e3c2c8e739a5/docs/openapi/api-private.yaml</inputSpec>
+                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery-push/0b6d7839b59b7c1927221543aad14ac5917d825b/docs/openapi/api-private.yaml</inputSpec>
                             <generatorName>java</generatorName>
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>
