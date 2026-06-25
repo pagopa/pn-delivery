@@ -5,13 +5,10 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignDetail;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignSummary;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.WorkflowEntity;
 import it.pagopa.pn.delivery.models.internal.campaign.Campaign;
-import it.pagopa.pn.delivery.models.internal.campaign.ChannelType;
 import it.pagopa.pn.delivery.models.internal.campaign.WorkFlowEntity;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public final class CampaignMapper {
 
@@ -77,26 +74,12 @@ public final class CampaignMapper {
 
         return workflow.stream()
                 .filter(Objects::nonNull)
-                .filter(step -> recipientType.equals(step.getRecipientType()))
+                .filter(step -> step.getRecipientType() != null && step.getRecipientType().contains(recipientType))
                 .map(WorkFlowEntity::getChannel)
                 .filter(Objects::nonNull)
-                .filter(channel -> isEligibleChannel(channel, recipientType))
                 .distinct()
                 .map(channel -> it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ChannelType.fromValue(channel.name()))
                 .toList();
-    }
-
-    private static boolean isEligibleChannel(ChannelType channel, RecipientTypeInt recipientType) {
-        return switch (recipientType) {
-            case PF -> channel == ChannelType.IO
-                    || channel == ChannelType.EMAIL
-                    || channel == ChannelType.SMS
-                    || channel == ChannelType.ANALOG;
-            case PG -> channel == ChannelType.PEC
-                    || channel == ChannelType.EMAIL
-                    || channel == ChannelType.SMS
-                    || channel == ChannelType.ANALOG;
-        };
     }
 
     private static WorkflowEntity toWorkflowEntity(WorkFlowEntity step) {
@@ -108,7 +91,12 @@ public final class CampaignMapper {
         }
 
         if (step.getRecipientType() != null) {
-            workflowEntity.recipientType(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RecipientTypeInt.fromValue(step.getRecipientType().name()));
+            Set<it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RecipientTypeInt> mappedRecipientTypes = step.getRecipientType().stream()
+                    .filter(Objects::nonNull)
+                    .map(type -> it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RecipientTypeInt.fromValue(type.name()))
+                    .collect(Collectors.toSet());
+
+            workflowEntity.recipientType(mappedRecipientTypes);
         }
 
         if (step.getTimeout() != null) {

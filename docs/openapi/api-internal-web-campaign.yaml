@@ -283,7 +283,13 @@ components:
         channel:
           $ref: '#/components/schemas/ChannelType'
         recipientType:
-          $ref: '#/components/schemas/RecipientTypeInt'
+          type: array
+          description: Elenco delle tipologie di destinatario associate allo step di workflow.
+          uniqueItems: true
+          items:
+            $ref: '#/components/schemas/RecipientTypeInt'
+          example:
+            - PF
         timeout:
           type: string
           description: Durata massima dello step in formato ISO-8601 (es. PT24H).

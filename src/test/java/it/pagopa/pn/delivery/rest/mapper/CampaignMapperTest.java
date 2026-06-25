@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,42 +37,42 @@ class CampaignMapperTest {
                 .workflow(List.of(
                         WorkFlowEntity.builder()
                                 .channel(ChannelType.IO)
-                                .recipientType(RecipientTypeInt.PF)
+                                .recipientType(Collections.singleton(RecipientTypeInt.PG))
                                 .timeout(Duration.ofHours(24))
                                 .desiredFeedback(DesiredFeedbackType.READ)
                                 .includeAttachment(false)
                                 .build(),
                         WorkFlowEntity.builder()
                                 .channel(ChannelType.SMS)
-                                .recipientType(RecipientTypeInt.PF)
+                                .recipientType(Collections.singleton(RecipientTypeInt.PG))
                                 .timeout(Duration.ofHours(48))
                                 .desiredFeedback(DesiredFeedbackType.RECEIVED)
                                 .includeAttachment(false)
                                 .build(),
                         WorkFlowEntity.builder()
                                 .channel(ChannelType.PEC)
-                                .recipientType(RecipientTypeInt.PF)
+                                .recipientType(Collections.singleton(RecipientTypeInt.PG))
                                 .timeout(Duration.ofHours(72))
                                 .desiredFeedback(DesiredFeedbackType.RECEIVED)
                                 .includeAttachment(false)
                                 .build(),
                         WorkFlowEntity.builder()
                                 .channel(ChannelType.PEC)
-                                .recipientType(RecipientTypeInt.PG)
+                                .recipientType(Collections.singleton(RecipientTypeInt.PG))
                                 .timeout(Duration.ofHours(24))
                                 .desiredFeedback(DesiredFeedbackType.READ)
                                 .includeAttachment(false)
                                 .build(),
                         WorkFlowEntity.builder()
                                 .channel(ChannelType.IO)
-                                .recipientType(RecipientTypeInt.PG)
+                                .recipientType(Collections.singleton(RecipientTypeInt.PG))
                                 .timeout(Duration.ofHours(48))
                                 .desiredFeedback(DesiredFeedbackType.READ)
                                 .includeAttachment(false)
                                 .build(),
                         WorkFlowEntity.builder()
                                 .channel(ChannelType.ANALOG)
-                                .recipientType(RecipientTypeInt.PG)
+                                .recipientType(Collections.singleton(RecipientTypeInt.PG))
                                 .timeout(Duration.ofHours(96))
                                 .desiredFeedback(DesiredFeedbackType.SKIP)
                                 .includeAttachment(true)
@@ -147,7 +148,7 @@ class CampaignMapperTest {
                 .workflow(List.of(
                         WorkFlowEntity.builder()
                                 .channel(ChannelType.IO)
-                                .recipientType(RecipientTypeInt.PF)
+                                .recipientType(Collections.singleton(RecipientTypeInt.PG))
                                 .timeout(Duration.ofHours(24))
                                 .desiredFeedback(DesiredFeedbackType.READ)
                                 .includeAttachment(false)
@@ -257,21 +258,21 @@ class CampaignMapperTest {
                 .workflow(List.of(
                         WorkFlowEntity.builder()
                                 .channel(ChannelType.IO)
-                                .recipientType(RecipientTypeInt.PF)
+                                .recipientType(Collections.singleton(RecipientTypeInt.PG))
                                 .timeout(Duration.ofHours(24))
                                 .desiredFeedback(DesiredFeedbackType.READ)
                                 .includeAttachment(false)
                                 .build(),
                         WorkFlowEntity.builder()
                                 .channel(ChannelType.PEC)
-                                .recipientType(RecipientTypeInt.PG)
+                                .recipientType(Collections.singleton(RecipientTypeInt.PG))
                                 .timeout(Duration.ofHours(48))
                                 .desiredFeedback(DesiredFeedbackType.RECEIVED)
                                 .includeAttachment(true)
                                 .build(),
                         WorkFlowEntity.builder()
                                 .channel(ChannelType.ANALOG)
-                                .recipientType(RecipientTypeInt.PF)
+                                .recipientType(Collections.singleton(RecipientTypeInt.PG))
                                 .timeout(Duration.ofHours(72))
                                 .desiredFeedback(DesiredFeedbackType.READ)
                                 .includeAttachment(false)

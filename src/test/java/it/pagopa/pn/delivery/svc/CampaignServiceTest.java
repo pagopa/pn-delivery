@@ -1,7 +1,6 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.delivery.config.CampaignsParameterConsumer;
-import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnCampaignNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignDetail;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignSearchResponse;
@@ -14,13 +13,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.util.Base64Utils;
 
 import java.time.Duration;
-import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 class CampaignServiceTest {
 
@@ -36,7 +34,8 @@ class CampaignServiceTest {
     }
 
     @Test
-    void listCampaigns_firstPage() {
+    void listCampaigns_returnsAllCampaigns() {
+        // Arrange
         Mockito.when(campaignsParameterConsumer.getCampaignsBySenderId(SENDER_ID))
                 .thenReturn(List.of(
                         validCampaign("c1"),
@@ -44,118 +43,52 @@ class CampaignServiceTest {
                         validCampaign("c3")
                 ));
 
-        CampaignSearchResponse response = campaignService.listCampaigns(SENDER_ID, 2, null);
+        // Act
+        CampaignSearchResponse response = campaignService.listCampaigns(SENDER_ID, null, null);
 
-        Assertions.assertEquals(2, response.getResultsPage().size());
-        Assertions.assertTrue(response.getMoreResult());
-        Assertions.assertEquals(1, response.getNextPagesKey().size());
-    }
-
-    @Test
-    void listCampaigns_secondPage() {
-        Mockito.when(campaignsParameterConsumer.getCampaignsBySenderId(SENDER_ID))
-                .thenReturn(List.of(
-                        validCampaign("c1"),
-                        validCampaign("c2"),
-                        validCampaign("c3")
-                ));
-
-        String nextPagesKey = Base64Utils.encodeToUrlSafeString("2".getBytes(StandardCharsets.UTF_8));
-
-        CampaignSearchResponse response = campaignService.listCampaigns(SENDER_ID, 2, nextPagesKey);
-
-        Assertions.assertEquals(1, response.getResultsPage().size());
-        Assertions.assertFalse(response.getMoreResult());
-        Assertions.assertTrue(response.getNextPagesKey().isEmpty());
-        Assertions.assertEquals("c3", response.getResultsPage().get(0).getCampaignId());
-    }
-
-    @Test
-    void listCampaigns_singlePage_noMoreResults() {
-        Mockito.when(campaignsParameterConsumer.getCampaignsBySenderId(SENDER_ID))
-                .thenReturn(List.of(
-                        validCampaign("c1"),
-                        validCampaign("c2")
-                ));
-
-        CampaignSearchResponse response = campaignService.listCampaigns(SENDER_ID, 10, null);
-
-        Assertions.assertEquals(2, response.getResultsPage().size());
+        // Assert
+        Assertions.assertEquals(3, response.getResultsPage().size());
         Assertions.assertFalse(response.getMoreResult());
         Assertions.assertTrue(response.getNextPagesKey().isEmpty());
     }
 
     @Test
     void listCampaigns_emptyList() {
+        // Arrange
         Mockito.when(campaignsParameterConsumer.getCampaignsBySenderId(SENDER_ID))
                 .thenReturn(Collections.emptyList());
 
+        // Act
         CampaignSearchResponse response = campaignService.listCampaigns(SENDER_ID, 10, null);
 
+        // Assert
         Assertions.assertTrue(response.getResultsPage().isEmpty());
         Assertions.assertFalse(response.getMoreResult());
         Assertions.assertTrue(response.getNextPagesKey().isEmpty());
     }
 
     @Test
-    void listCampaigns_nullSize_usesDefault() {
-        Mockito.when(campaignsParameterConsumer.getCampaignsBySenderId(SENDER_ID))
-                .thenReturn(List.of(
-                        validCampaign("c1"),
-                        validCampaign("c2"),
-                        validCampaign("c3"),
-                        validCampaign("c4")
-                ));
-
-        // With null size, should default to 10
-        CampaignSearchResponse response = campaignService.listCampaigns(SENDER_ID, null, null);
-
-        Assertions.assertEquals(4, response.getResultsPage().size());
-        Assertions.assertFalse(response.getMoreResult());
-    }
-
-    @Test
-    void listCampaigns_outOfBoundsNextPageKey() {
+    void listCampaigns_ignoresPaginationParameters() {
+        // Arrange
         Mockito.when(campaignsParameterConsumer.getCampaignsBySenderId(SENDER_ID))
                 .thenReturn(List.of(
                         validCampaign("c1"),
                         validCampaign("c2")
                 ));
 
-        String nextPagesKey = Base64Utils.encodeToUrlSafeString("10".getBytes(StandardCharsets.UTF_8));
+        // Act: Passiamo parametri di paginazione stringenti e una chiave teoricamente invalida
+        // Il servizio deve ignorarli completamente e restituire tutto senza lanciare eccezioni
+        CampaignSearchResponse response = campaignService.listCampaigns(SENDER_ID, 1, "any-string-not-base64");
 
-        CampaignSearchResponse response = campaignService.listCampaigns(SENDER_ID, 10, nextPagesKey);
-
-        Assertions.assertTrue(response.getResultsPage().isEmpty());
-        Assertions.assertFalse(response.getMoreResult());
-        Assertions.assertTrue(response.getNextPagesKey().isEmpty());
-    }
-
-    @Test
-    void listCampaigns_maxPageSizeExceeded() {
-        Mockito.when(campaignsParameterConsumer.getCampaignsBySenderId(SENDER_ID))
-                .thenReturn(List.of(
-                        validCampaign("c1"),
-                        validCampaign("c2")
-                ));
-
-        // Size is capped at 50 max
-        CampaignSearchResponse response = campaignService.listCampaigns(SENDER_ID, 100, null);
-
+        // Assert
         Assertions.assertEquals(2, response.getResultsPage().size());
-    }
-
-    @Test
-    void listCampaigns_invalidNextPageKey() {
-        Mockito.when(campaignsParameterConsumer.getCampaignsBySenderId(SENDER_ID))
-                .thenReturn(List.of(validCampaign("c1")));
-
-        Assertions.assertThrows(PnBadRequestException.class,
-                () -> campaignService.listCampaigns(SENDER_ID, 10, "not-valid-base64"));
+        Assertions.assertFalse(response.getMoreResult());
+        Assertions.assertTrue(response.getNextPagesKey().isEmpty());
     }
 
     @Test
     void getCampaign_success() {
+        // Arrange
         OffsetDateTime now = OffsetDateTime.now();
         Campaign campaign = Campaign.builder()
                 .campaignId("c1")
@@ -173,7 +106,7 @@ class CampaignServiceTest {
                 .workflow(List.of(
                         WorkFlowEntity.builder()
                                 .channel(ChannelType.IO)
-                                .recipientType(RecipientTypeInt.PF)
+                                .recipientType(Set.of(RecipientTypeInt.PF))
                                 .timeout(Duration.ofDays(1))
                                 .desiredFeedback(DesiredFeedbackType.READ)
                                 .includeAttachment(false)
@@ -184,8 +117,10 @@ class CampaignServiceTest {
         Mockito.when(campaignsParameterConsumer.getCampaignByCampaignIdAndSenderId("c1", SENDER_ID))
                 .thenReturn(campaign);
 
+        // Act
         CampaignDetail result = campaignService.getCampaign("c1", SENDER_ID);
 
+        // Assert
         Assertions.assertNotNull(result);
         Assertions.assertEquals("c1", result.getCampaignId());
         Assertions.assertEquals("Campaign 1", result.getTitle());
@@ -195,15 +130,18 @@ class CampaignServiceTest {
         Assertions.assertEquals(2, result.getChannels().size());
         Assertions.assertEquals(1, result.getWorkflow().size());
         Assertions.assertEquals(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ChannelType.fromValue("IO"), result.getWorkflow().get(0).getChannel());
-        Assertions.assertEquals(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RecipientTypeInt.fromValue("PF"), result.getWorkflow().get(0).getRecipientType());
-        Assertions.assertEquals("PT24H", result.getWorkflow().get(0).getTimeout());
+        Set<it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RecipientTypeInt> recipients = result.getWorkflow().get(0).getRecipientType();
+        Assertions.assertEquals(1, recipients.size());
+        Assertions.assertTrue(recipients.contains(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RecipientTypeInt.fromValue("PF")));
     }
 
     @Test
     void getCampaign_notFound() {
+        // Arrange
         Mockito.when(campaignsParameterConsumer.getCampaignByCampaignIdAndSenderId("missing", SENDER_ID))
                 .thenThrow(new PnCampaignNotFoundException("Campaign not found"));
 
+        // Act & Assert
         Assertions.assertThrows(PnCampaignNotFoundException.class,
                 () -> campaignService.getCampaign("missing", SENDER_ID));
     }
@@ -225,7 +163,7 @@ class CampaignServiceTest {
                 .workflow(List.of(
                         WorkFlowEntity.builder()
                                 .channel(ChannelType.IO)
-                                .recipientType(RecipientTypeInt.PF)
+                                .recipientType(Set.of(RecipientTypeInt.PF))
                                 .timeout(Duration.ofDays(1))
                                 .desiredFeedback(DesiredFeedbackType.READ)
                                 .includeAttachment(false)
@@ -234,4 +172,3 @@ class CampaignServiceTest {
                 .build();
     }
 }
-

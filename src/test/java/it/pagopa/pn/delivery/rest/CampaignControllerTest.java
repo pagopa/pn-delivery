@@ -175,7 +175,7 @@ class CampaignControllerTest {
                 .workflow(List.of(
                         new WorkflowEntity()
                                 .channel(ChannelType.IO)
-                                .recipientType(RecipientTypeInt.PF)
+                                .recipientType(Collections.singleton(RecipientTypeInt.PF))
                                 .timeout("PT24H")
                                 .desiredFeedback(DesiredFeedbackType.READ)
                                 .includeAttachment(false)
@@ -233,13 +233,13 @@ class CampaignControllerTest {
                 .workflow(List.of(
                         new WorkflowEntity()
                                 .channel(ChannelType.IO)
-                                .recipientType(RecipientTypeInt.PF)
+                                .recipientType(Collections.singleton(RecipientTypeInt.PF))
                                 .timeout("PT24H")
                                 .desiredFeedback(DesiredFeedbackType.READ)
                                 .includeAttachment(false),
                         new WorkflowEntity()
                                 .channel(ChannelType.PEC)
-                                .recipientType(RecipientTypeInt.PG)
+                                .recipientType(Collections.singleton(RecipientTypeInt.PG))
                                 .timeout("PT48H")
                                 .desiredFeedback(DesiredFeedbackType.RECEIVED)
                                 .includeAttachment(true)

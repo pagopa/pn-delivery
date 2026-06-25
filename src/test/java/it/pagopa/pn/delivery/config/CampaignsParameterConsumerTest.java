@@ -16,6 +16,7 @@ import it.pagopa.pn.commons.utils.qr.models.RecipientTypeInt;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -235,7 +236,7 @@ class CampaignsParameterConsumerTest {
     private WorkFlowEntity validWorkflowStep() {
         return WorkFlowEntity.builder()
                 .channel(ChannelType.IO)
-                .recipientType(RecipientTypeInt.PF)
+                .recipientType(Collections.singleton(RecipientTypeInt.PF))
                 .timeout(Duration.ofDays(1))
                 .desiredFeedback(DesiredFeedbackType.READ)
                 .includeAttachment(false)

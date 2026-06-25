@@ -129,7 +129,8 @@ public class CampaignsParameterConsumer {
         return !Objects.isNull(workflowStep)
                 && !Objects.isNull(workflowStep.getChannel())
                 && !Objects.isNull(workflowStep.getRecipientType())
-                && !Objects.isNull(workflowStep.getTimeout())
+                && !workflowStep.getRecipientType().isEmpty()
+                && workflowStep.getRecipientType().stream().allMatch(Objects::nonNull)
                 && !Objects.isNull(workflowStep.getDesiredFeedback())
                 && !Objects.isNull(workflowStep.getIncludeAttachment());
     }
