@@ -837,6 +837,28 @@ Parameters:
     Description: "Maximum record age in seconds for InformalMetadataStatusUpdaterLambdaKinesisSource"
     Default: 604800 # 7 days
 
+  MetadataUpdaterLambdaName:
+    Type: String
+    Description: "MetadataUpdaterLambdaName"
+
+  PnDeliveryMetadataUpdaterLambdaBatchSize:
+    Type: String
+    Description: "BatchSize for metadata updater Lambda"
+
+  PnDeliveryMetadataUpdaterLambdaMaxRetryAttempts:
+    Type: Number
+    Description: "MaxRetryAttempts for metadata updater Lambda"
+    Default: 3
+
+  PnDeliveryMetadataUpdaterLambdaMaximumBatchingWindowInSeconds:
+    Type: String
+    Description: "MaximumBatchingWindow for metadata updater Lambda"
+
+  MetadataUpdaterMaximumRecordAge:
+    Type: Number
+    Description: "Maximum record age in seconds for MetadataUpdaterLambdaKinesisSource"
+    Default: 604800 # 7 days
+
   NotificationRefusedDispatcherLambdaMaximumRecordAge:
     Type: Number
     Description: "Maximum record age in seconds for NotificationRefusedDispatcherLambdaKinesisSource"
@@ -2269,6 +2291,160 @@ Resources:
         - !Ref AlarmSNSTopicArn
       Dimensions:
         - Value: !Ref InformalMetadataStatusUpdaterLambda
+          Name: FunctionName
+        - Value: !Ref CdcKinesisSourceStreamName
+          Name: StreamName
+      DatapointsToAlarm: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      EvaluationPeriods: 6
+      Period: 600
+      Namespace: ESM/Kinesis
+      MetricName: ProcessingFailures
+      Statistic: Maximum
+      Threshold: 1
+
+  #########################################################
+  ###              MetadataUpdaterLambda                 ###
+  #########################################################
+  MetadataUpdaterSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub "${MetadataUpdaterLambdaName}-sec-group"
+      VpcId: !Ref VpcId
+
+  # Lambda function
+  MetadataUpdaterLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref MetadataUpdaterLambdaName
+      Runtime: nodejs22.x
+      Handler: "index.handler"
+      Code:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/metadataUpdater.zip"
+      Role: !GetAtt MetadataUpdaterLambdaRole.Arn
+      VpcConfig:
+        SecurityGroupIds:
+          - !GetAtt MetadataUpdaterSecGroup.GroupId
+        SubnetIds: !Ref SubnetsIds
+      Environment:
+        Variables:
+          REGION: !Sub ${AWS::Region}
+      TracingConfig:
+        Mode: Active
+      Timeout: 30
+
+  MetadataUpdaterLambdaAlarms:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
+      Parameters:
+        FunctionName: !Ref MetadataUpdaterLambda
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        FilterPattern: "FATAL"
+        IteratorAgeEvaluationPeriods: 30 # 30 minutes
+        IteratorAgeThreshold: 3600000 # 1 hour
+
+  # Lambda function role
+  MetadataUpdaterLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-metadataUpdaterLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+
+  # Lambda function IAM policy
+  MetadataUpdaterLambdaPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub ${ProjectName}-MetadataUpdaterLambdaPolicy
+      Roles:
+        - !Ref MetadataUpdaterLambdaRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - "dynamodb:GetItem"
+            Resource: !Sub "${NotificationsDynamoTableArn}"
+          - Effect: Allow
+            Action:
+              - "dynamodb:UpdateItem"
+            Resource:
+              - !Sub "${NotificationsMetadataDynamoTableArn}"
+              - !Sub "${NotificationsMetadataDynamoTableArn}/*"
+          - Effect: Allow
+            Action:
+              - kinesis:DescribeStream
+              - kinesis:DescribeStreamSummary
+              - kinesis:GetShardIterator
+              - kinesis:GetRecords
+              - kinesis:ListShards
+              - kinesis:ListStreams
+              - kinesis:SubscribeToShard
+            Resource: !Ref CdcKinesisSourceStreamArn
+          - Action: kms:Decrypt
+            Effect: Allow
+            Resource: !Ref CdcKinesisSourceStreamKeyArn
+          - Effect: Allow
+            Action:
+              - s3:ListBucket
+              - s3:GetBucketLocation
+            Resource: !Sub arn:aws:s3:::${ESMKinesisFailureNotificationsBucketName}
+          - Effect: Allow
+            Action:
+              - s3:PutObject
+            Resource: !Sub arn:aws:s3:::${ESMKinesisFailureNotificationsBucketName}/*
+
+  # CDC to Metadata Updater
+  MetadataUpdaterLambdaKinesisSource:
+    Type: AWS::Lambda::EventSourceMapping
+    DependsOn:
+      - MetadataUpdaterLambdaPolicy
+    Properties:
+      BatchSize: !Sub ${PnDeliveryMetadataUpdaterLambdaBatchSize}
+      BisectBatchOnFunctionError: true
+      EventSourceArn: !Ref CdcKinesisSourceStreamArn
+      FilterCriteria:
+        Filters:
+          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName" : [ "INSERT" ], "dynamodb" : { "NewImage" : { "category" : { "S": [ "NOTIFICATION_VIEWED" ] } } } } }'
+          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName" : [ "INSERT" ], "dynamodb" : { "NewImage" : { "category" : { "S": [ "NOTIFICATION_VIEWED_INFORMAL" ] } } } } }'
+          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName" : [ "INSERT" ], "dynamodb" : { "NewImage" : { "category" : { "S": [ "SEND_DIGITAL_FEEDBACK" ] } } } } }'
+          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName" : [ "INSERT" ], "dynamodb" : { "NewImage" : { "category" : { "S": [ "SEND_ANALOG_FEEDBACK" ] } } } } }'
+          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName" : [ "INSERT" ], "dynamodb" : { "NewImage" : { "category" : { "S": [ "WORKFLOW_DONE" ] } } } } }'
+      FunctionName: !Ref MetadataUpdaterLambda
+      FunctionResponseTypes:
+        - ReportBatchItemFailures
+      MaximumBatchingWindowInSeconds: !Sub ${PnDeliveryMetadataUpdaterLambdaMaximumBatchingWindowInSeconds}
+      MaximumRetryAttempts: !Sub ${PnDeliveryMetadataUpdaterLambdaMaxRetryAttempts}
+      MaximumRecordAgeInSeconds: !Ref MetadataUpdaterMaximumRecordAge
+      StartingPosition: TRIM_HORIZON
+      DestinationConfig:
+        OnFailure:
+          Destination: !Sub arn:aws:s3:::${ESMKinesisFailureNotificationsBucketName}
+
+  MetadataUpdaterKinesisFailuresAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${ProjectName}-MetadataUpdaterLambda-ESM-Alarm"
+      AlarmDescription: "CloudWatch alarm for when MetadataUpdaterLambda has Kinesis stream read failures, which can indicate problems with the function processing or with the stream itself."
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref AlarmSNSTopicArn
+      OKActions:
+        - !Ref AlarmSNSTopicArn
+      Dimensions:
+        - Value: !Ref MetadataUpdaterLambda
           Name: FunctionName
         - Value: !Ref CdcKinesisSourceStreamName
           Name: StreamName
