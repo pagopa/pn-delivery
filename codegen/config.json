@@ -27,6 +27,17 @@
             "mergeBeforeBundleGeneration": true
         },
         {
+            "intendedUsage": "B2B",
+            "commonFiles": [
+                "schemas-pn-notification.yaml"
+            ],
+            "openapiFiles": [
+                "api-internal-b2b-informal-pa.yaml"
+            ],
+            "servicePath": "delivery",
+            "awsApiDiscriminator": "informal"
+        },
+        {
             "intendedUsage": "B2BPG",
             "commonFiles": [
                 "schemas-pn-notification.yaml",

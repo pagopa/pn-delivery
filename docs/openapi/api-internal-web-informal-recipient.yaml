@@ -245,8 +245,8 @@ components:
     ###########################################################################################
     FullReceivedInformalNotificationV1:
       description: >-
-        Le informazioni riguardanti una richiesta di notifica accettata e il processo di 
-        inoltro della notifica verso i destinatari (Persone Fisiche o Giuridiche).
+        Le informazioni riguardanti una richiesta di notifica bonaria accettata e il processo di 
+        inoltro della notifica bonaria verso i destinatari (Persone Fisiche o Giuridiche).
       allOf:
         - $ref: './schemas-pn-notification.yaml#/components/schemas/InformalSentNotificationV1'
         - type: object
@@ -270,10 +270,10 @@ components:
       $ref: './remote-refs.yaml#/components/schemas/Problem'
     ProblemError:
       $ref: './remote-refs.yaml#/components/schemas/ProblemError'
-    InformalNotificationStatusV1:
-      $ref: './remote-refs.yaml#/components/schemas/InformalNotificationStatusV1'
     InformalTimelineElementV1:
       $ref: './remote-refs.yaml#/components/schemas/InformalTimelineElementV1'
+    InformalNotificationStatusV1:
+      $ref: './remote-refs.yaml#/components/schemas/InformalNotificationStatusV1'
     InformalNotificationStatusHistoryV1:
       $ref: './remote-refs.yaml#/components/schemas/InformalNotificationStatusHistoryV1'
 
