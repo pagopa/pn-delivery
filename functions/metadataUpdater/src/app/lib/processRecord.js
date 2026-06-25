@@ -31,16 +31,28 @@ const processRecord = async (record) => {
     return;
   }
 
+  const recIndex = details?.recIndex;
+  if (recIndex === null || recIndex === undefined) {
+    const errMsg = `Missing recIndex in details for category ${category} on notification ${iun}`;
+    console.error(errMsg);
+    throw new Error(errMsg);
+  }
+
   const notification = await dynamo.getItem("pn-Notifications", { iun });
 
-  for (const recipient of notification.recipients) {
-    const iun_recipientId = `${iun}##${recipient.recipientId}`;
-    await dynamo.updateMetadata(
-      "pn-NotificationsMetadata",
-      { iun_recipientId },
-      fieldsToUpdate
-    );
+  const recipient = notification.recipients[recIndex];
+  if (!recipient) {
+    const errMsg = `Recipient at index ${recIndex} not found for notification ${iun}`;
+    console.error(errMsg);
+    throw new Error(errMsg);
   }
+
+  const iun_recipientId = `${iun}##${recipient.recipientId}`;
+  await dynamo.updateMetadata(
+    "pn-NotificationsMetadata",
+    { iun_recipientId },
+    fieldsToUpdate
+  );
 };
 
 module.exports = { processRecord };
