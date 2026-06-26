@@ -76,7 +76,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './schemas-pn-notification.yaml#/components/schemas/NotificationSearchResponse'
+                $ref: './schemas-pn-notification.yaml#/components/schemas/RecipientNotificationSearchResponse'
         '400':
           description: Bad request
           content:
@@ -118,7 +118,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './schemas-pn-notification.yaml#/components/schemas/NotificationSearchResponse'
+                $ref: './schemas-pn-notification.yaml#/components/schemas/RecipientNotificationSearchResponse'
         '400':
           description: Bad request
           content:
