@@ -363,6 +363,31 @@ public class PnReceivedNotificationsController implements RecipientReadApi, Reci
     }
 
     @Override
+    public ResponseEntity<FullReceivedInformalNotificationV1> getReceivedInformalNotificationV1(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String xPagopaPnSrcCh, String iun, List<String> xPagopaPnCxGroups, String xPagopaPnSrcChDetails) {
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        FullReceivedInformalNotificationV1 result = null;
+        PnAuditLogEventType eventType = PnAuditLogEventType.AUD_COM_VIEW_RCP;
+        String logMsg = "getReceivedInformalNotification";
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(eventType, logMsg)
+                .iun(iun)
+                .mdcEntry("null", "null")
+                .build();
+        logEvent.log();
+        try {
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups, xPagopaPnSrcCh, xPagopaPnSrcChDetails);
+            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, null, logEvent);
+            InternalFieldsCleaner.cleanInternalFields( internalNotification );
+            result = modelMapper.map(internalNotification, FullReceivedInformalNotificationV1.class);
+            logEvent.generateSuccess().log();
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("" + exc.getProblem()).log();
+            throw exc;
+        }
+        return ResponseEntity.ok(result);
+    }
+
+    @Override
     public Optional<NativeWebRequest> getRequest() {
         return RecipientReadApi.super.getRequest();
     }

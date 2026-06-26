@@ -4,8 +4,7 @@
 openapi: 3.0.3
 info:
   termsOfService: https://selfcare.notifichedigitali.it/termini-di-servizio
-  x-api-id: api-internal-b2b-informal-pa # NO EXTERNAL
-#  x-api-id: api-internal-b2b-informal-pa # ONLY EXTERNAL
+  x-api-id: api-internal-b2b-informal-pa # ONLY EXTERNAL
   title: 'Piattaforma Notifiche: API B2B per le notifiche bonarie esposte alle Pubbliche Amministrazioni'
   x-summary: 'Piattaforma Notifiche: API B2B per le notifiche bonarie esposte alle Pubbliche Amministrazioni'
   version: '1.0.0'
@@ -48,11 +47,6 @@ paths:
       description: |
         Salva il contenuto del messaggio in modo sicuro e ottiene un messageId da utilizzare per creare una notifica bonaria.
       operationId: newMessage
-      parameters:                                             # NO EXTERNAL
-        - $ref: '#/components/parameters/uidAuthFleet'        # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'     # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'       # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'   # NO EXTERNAL
       requestBody:
         required: true
         content:
@@ -104,10 +98,6 @@ paths:
           schema:
             type: string
             format: uuid
-        - $ref: '#/components/parameters/uidAuthFleet'      # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'   # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'     # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet' # NO EXTERNAL
       responses:
         '200':
           description: Message details
@@ -154,28 +144,9 @@ paths:
         Per conoscere lo stato di accettazione della richiesta di notifica bisogna utilizzare l'operazione
         getInformalNotificationRequestStatusV1 oppure utilizzare la modalità push prevista dai webhook. <br/>
 
-        <details no-external>
-        <summary><b> Attributi progettazione di alto livello </b></summary>
-        | Proprietà                | Valore             |
-        | -----------------------: | :----------------- |
-        | __Intended usage__       | B2B, WEB           |
-        | __Modalità interazione__ | Sincrona           |
-        | __TPS (stimato)__        | 5 richieste/sec    |
-        | __Idempotenza__          | No                 |
-        | __Read/Write intensive__ | Write              |
-        | __Cachable__             | No                 |
-        </details>
       tags:
         - NewInformalNotification
       operationId: sendNewInformalNotificationV1
-      parameters: # NO EXTERNAL
-        - $ref: '#/components/parameters/uidAuthFleet'                # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'             # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'               # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'           # NO EXTERNAL
-        - $ref: '#/components/parameters/headerSourceChannel'         # NO EXTERNAL
-        - $ref: '#/components/parameters/headerSourceChannelDetails'  # NO EXTERNAL
-        - $ref: '#/components/parameters/headerNotificationVersion'   # NO EXTERNAL
       requestBody:
         content:
           application/json:
@@ -225,8 +196,7 @@ paths:
     ###                        VERIFICA STATO RICHIESTE DI NOTIFICA                         ###
     ###########################################################################################
     get:
-      operationId: getInformalNotificationRequestStatusV1                       # NO EXTERNAL
-#      operationId: retrieveInformalNotificationRequestStatusV1                # ONLY EXTERNAL
+      operationId: retrieveInformalNotificationRequestStatusV1                # ONLY EXTERNAL
       tags:
         - SenderReadInformalNotificationB2B
       summary: Verifica accettazione richiesta notifica
@@ -236,10 +206,6 @@ paths:
         Bisogna specificare il parametro _notificationRequestId_  oppure la coppia costituita dai parametri 
         _paProtocolNumber_ e _idempotenceToken_. <br/>
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'             # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
         - $ref: '#/components/parameters/notificationRequestId'
         - $ref: '#/components/parameters/paProtocolNumber'
         - $ref: '#/components/parameters/idempotenceToken'
@@ -290,27 +256,11 @@ paths:
       description: |-
         Download documento notificato
 
-        <details no-external>
-        <summary><b> Attributi progettazione di alto livello </b></summary>
-        | Proprietà                | Valore             |
-        | -----------------------: | :----------------- |
-        | __Intended usage__       | B2B, WEB           |
-        | __Modalità interazione__ | Sincrona           |
-        | __TPS (stimato)__        |                    |
-        | __Idempotenza__          | Si                 |
-        | __Read/Write intensive__ | Read               |
-        | __Cachable__             | No                 |
-        </details>
       summary: Download documento notificato
       tags:
         - SenderReadInformalNotificationB2B
-      operationId: getSentInformalNotificationDocument                                      # NO EXTERNAL
-#      operationId: retrieveSentInformalNotificationDocument                                # ONLY EXTERNAL
+      operationId: retrieveSentInformalNotificationDocument                                # ONLY EXTERNAL
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'           # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'        # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'          # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'      # NO EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathInformalIun'
         - $ref: '#/components/parameters/pathDocumentIdx'
       responses:
@@ -357,13 +307,8 @@ paths:
       summary: Download allegato per pagamento
       tags:
         - SenderReadInformalNotificationB2B
-      operationId: getSentInformalNotificationAttachment                                      # NO EXTERNAL
-#      operationId: retrieveSentInformalNotificationAttachment                                # ONLY EXTERNAL
+      operationId: retrieveSentInformalNotificationAttachment                                # ONLY EXTERNAL
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'             # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathInformalIun'
         - $ref: '#/components/parameters/pathRecipientIdx'
         - $ref: '#/components/parameters/pathAttachmentName'
@@ -419,10 +364,6 @@ paths:
         legale identificata dallo IUN specificato nel path. La notifica passerà allo stato COMPLETED.
       operationId: terminateInformalWorkflow
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet' # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet' # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet' # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet' # NO EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathInformalIun'
       responses:
         '202':
@@ -470,26 +411,10 @@ paths:
       description: |-
         Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
         
-        <details no-external>
-        <summary><b> Attributi progettazione di alto livello </b></summary>
-        | Proprietà                | Valore             |
-        | -----------------------: | :----------------- |
-        | __Intended usage__       | B2B, WEB           |
-        | __Modalità interazione__ | Sincrona           |
-        | __TPS (stimato)__        |                    |
-        | __Idempotenza__          | Si                 |
-        | __Read/Write intensive__ | Read               |
-        | __Cachable__             | No                 |
-        </details>
       tags:
         - SenderReadInformalNotificationB2B
-      operationId: getSentInformalNotificationV1                                    # NO EXTERNAL
       #      operationId: retrieveSentInformalNotificationV1                                # ONLY EXTERNAL
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'           # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'       # NO EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathInformalIun'
       responses:
         '200':
@@ -522,34 +447,15 @@ components:
     ############################################################################################
     ###                     PARAMETRO VERSIONE CREAZIONE NOTIFICA                            ###
     ############################################################################################
-    headerNotificationVersion:                                                      # NO EXTERNAL
-      name: x-pagopa-pn-notification-version                                        # NO EXTERNAL
-      in: header                                                                    # NO EXTERNAL
-      description: Notification creation version                                    # NO EXTERNAL
-      required: false                                                               # NO EXTERNAL
-      schema:                                                                       # NO EXTERNAL
-        type: string                                                                # NO EXTERNAL
 
     ############################################################################################
     ###                     PARAMETRO SORGENTE CREAZIONE NOTIFICA                            ###
     ############################################################################################
-    headerSourceChannel:                                                            # NO EXTERNAL
-      $ref: './remote-refs.yaml#/components/parameters/headerSourceChannel'         # NO EXTERNAL
 
-    headerSourceChannelDetails:                                                     # NO EXTERNAL
-      $ref: './remote-refs.yaml#/components/parameters/headerSourceChannelDetails'  # NO EXTERNAL
 
     ############################################################################################
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
     ############################################################################################
-    cxTypeAuthFleet:                                                                # NO EXTERNAL
-      $ref: './remote-refs.yaml#/components/parameters/cxTypeAuthFleet'             # NO EXTERNAL
-    cxIdAuthFleet:                                                                  # NO EXTERNAL
-      $ref: './remote-refs.yaml#/components/parameters/cxIdAuthFleet'               # NO EXTERNAL
-    cxGroupsAuthFleet:                                                              # NO EXTERNAL
-      $ref: './remote-refs.yaml#/components/parameters/cxGroupsAuthFleet'           # NO EXTERNAL
-    uidAuthFleet:                                                                   # NO EXTERNAL
-      $ref: './remote-refs.yaml#/components/parameters/uidAuthFleet'                # NO EXTERNAL
 
     ############################################################################################
     ###                       PARAMETRI RICERCA RICHIESTA DI NOTIFICA                        ###
@@ -628,22 +534,16 @@ components:
           maxLength: 256
           description: "Titolo del messaggio (es. Oggetto della mail o intestazione IO)"
           example: "Sollecito di pagamento Tari 2023"
-          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
-          format: password # NO EXTERNAL
         longBody:
           type: string
           maxLength: 10000
           description: "Corpo esteso del messaggio in formato Markdown"
           example: "Gentile cittadino, la informiamo che..."
-          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
-          format: password # NO EXTERNAL
         shortBody:
           type: string
           maxLength: 160
           description: "Versione breve per SMS o anteprime"
           example: "Sollecito Tari: hai una nuova comunicazione da SEND."
-          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
-          format: password # NO EXTERNAL
         language:
           type: string
           description: >-
@@ -799,17 +699,6 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/InformalTimelineElementV1'
-            recipientIds: # NO EXTERNAL
-              description: Lista degli identificativi anonimizzati dei destinatari      # NO EXTERNAL
-              type: array                                                               # NO EXTERNAL
-              items: # NO EXTERNAL
-                type: string                                                            # NO EXTERNAL
-            sourceChannel: # NO EXTERNAL
-              type: string                                                              # NO EXTERNAL
-              description: Canale sorgente della richiesta di notifica                  # NO EXTERNAL
-            sourceChannelDetails: # NO EXTERNAL
-              type: string                                                              # NO EXTERNAL
-              description: Dettagli del canale sorgente della richiesta di notifica     # NO EXTERNAL
 
     Problem:
       $ref: './remote-refs.yaml#/components/schemas/Problem'
@@ -822,11 +711,11 @@ components:
     InformalNotificationStatusHistoryV1:
       $ref: './remote-refs.yaml#/components/schemas/InformalNotificationStatusHistoryV1'
 
-#  securitySchemes:        # ONLY EXTERNAL
-#    ApiKeyAuth:           # ONLY EXTERNAL
-#      type: apiKey        # ONLY EXTERNAL
-#      in: header          # ONLY EXTERNAL
-#      name: x-api-key     # ONLY EXTERNAL
+  securitySchemes:        # ONLY EXTERNAL
+    ApiKeyAuth:           # ONLY EXTERNAL
+      type: apiKey        # ONLY EXTERNAL
+      in: header          # ONLY EXTERNAL
+      name: x-api-key     # ONLY EXTERNAL
 
-#security:                 # ONLY EXTERNAL
-#  - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
+security:                 # ONLY EXTERNAL
+  - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
