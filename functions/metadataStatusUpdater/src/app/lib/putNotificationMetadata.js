@@ -19,10 +19,9 @@ const putNotificationMetadata = async (
       rootSenderId,
       recipient
     );
-    await dynamo.putMetadata(
+    await dynamo.putNotificationMetadataRecord(
       "pn-NotificationsMetadata",
-      notificationMetadata,
-      "iun_recipientId"
+      notificationMetadata
     );
 
     const mandates = await RestClient.getMandates(recipient.recipientId);
@@ -85,10 +84,9 @@ const computeDelegationMetadataEntries = async (
         notificationMetadata,
         mandate
       );
-      await dynamo.putMetadata(
+      await dynamo.putDelegationMetadataRecord(
         "pn-NotificationDelegationMetadata",
-        record,
-        "iun_recipientId_delegateId_groupId"
+        record
       );
     }
   }
