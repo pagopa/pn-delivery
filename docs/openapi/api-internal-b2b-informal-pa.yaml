@@ -57,6 +57,13 @@ paths:
                 $ref: "#/components/schemas/InformalPreLoadRequest"
               minItems: 1
               maxItems: 15
+            example:
+              - preloadIdx: "0"
+                contentType: application/pdf
+                sha256: SmHRur4+IVEaMHrYoof4mwzhxh3r2D/+WeVnMQnokgw=
+              - preloadIdx: "1"
+                contentType: application/pdf
+                sha256: 1QKD/Ks6BohyQ+bgMxHf9NrpNhVmGUPxRYE1aerU4JQ=
         required: true
       responses:
         '200':
@@ -67,6 +74,17 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/InformalPreLoadResponse"
+              example:
+                - preloadIdx: "0"
+                  secret: "[secret-token-0]"
+                  httpMethod: PUT
+                  url: "https://pn-safestorage.../PN_NOTIFICATION_ATTACHMENTS-dfe837b7e83e43ec9e9135d989196fd8.pdf?X-Amz-..."
+                  key: "PN_NOTIFICATION_ATTACHMENTS-dfe837b7e83e43ec9e9135d989196fd8.pdf"
+                - preloadIdx: "1"
+                  secret: "[secret-token-1]"
+                  httpMethod: PUT
+                  url: "https://pn-safestorage.../PN_NOTIFICATION_ATTACHMENTS-61997b71a19c4e4e97d4228ee74326e9.pdf?X-Amz-..."
+                  key: "PN_NOTIFICATION_ATTACHMENTS-61997b71a19c4e4e97d4228ee74326e9.pdf"
         '400':
           description: Bad request
           content:
@@ -103,6 +121,12 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/NewMessageRequest'
+            example:
+              primaryMessage:
+                subject: Oggetto IT
+                longBody: Test body IT
+                shortBody: Short IT
+                language: IT
       responses:
         '201':
           description: Message created
@@ -110,6 +134,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
+              example:
+                primaryMessage:
+                  subject: Oggetto IT
+                  longBody: Test body IT
+                  shortBody: Short IT
+                  language: IT
+                messageId: 94484841-57e5-496f-8f2d-eec053c539e3
+                createdAt: "2026-06-26T13:35:00.000Z"
         '400':
           description: Bad request
           content:
@@ -225,6 +257,44 @@ paths:
           application/json:
             schema:
               $ref: "./schemas-pn-notification.yaml#/components/schemas/InformalNotificationRequestV1"
+            example:
+              senderDenomination: Comune di Palermo
+              paProtocolNumber: "302110111988283231"
+              campaignId: campaign-1
+              subject: Test notifica..302070111988283233
+              recipients:
+                - recipientType: PF
+                  taxId: FRMTTR76M06B715E
+                  denomination: Ettore Fieramosca
+                  physicalAddress:
+                    at: presso
+                    address: via Roma
+                    addressDetails: Strega
+                    zip: "82100"
+                    municipality: Benevento
+                    province: BN
+                    foreignState: ITALIA
+                  payments:
+                    - pagoPa:
+                        noticeCode: "302000111988284400"
+                        creditorTaxId: "77777777777"
+                        amount: 1250
+                        attachment:
+                          digests:
+                            sha256: 1QKD/Ks6BohyQ+bgMxHf9NrpNhVmGUPxRYE1aerU4JQ=
+                          contentType: application/pdf
+                          ref:
+                            key: PN_NOTIFICATION_ATTACHMENTS-61997b71a19c4e4e97d4228ee74326e9.pdf
+                            versionToken: v1
+                  messageId: 94484841-57e5-496f-8f2d-eec053c539e3
+              documents:
+                - digests:
+                    sha256: SmHRur4+IVEaMHrYoof4mwzhxh3r2D/+WeVnMQnokgw=
+                  contentType: application/pdf
+                  ref:
+                    key: PN_NOTIFICATION_ATTACHMENTS-dfe837b7e83e43ec9e9135d989196fd8.pdf
+                    versionToken: v1
+              group: 65e0a77228425a43256303eb
         required: true
       responses:
         '202':
@@ -233,6 +303,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/NewInformalNotificationResponse"
+              example:
+                notificationRequestId: TVBNRS1RR1RHLVZNVEUtMjAyNjA2LUgtQQ==
+                paProtocolNumber: "302110111988283231"
         '400':
           description: Bad request
           content:
@@ -602,6 +675,7 @@ components:
       in: query
       required: false
       name: notificationRequestId
+      example: TVBNRS1RR1RHLVZNVEUtMjAyNjA2LUgtQQ==
       schema:
         $ref: './schemas-pn-notification.yaml#/components/schemas/NotificationRequestId'
 
