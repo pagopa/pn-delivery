@@ -364,21 +364,6 @@ components:
         campaignId:
           type: string
           description: ID della campagna che definisce il workflow di invio
-        additionalLanguages:
-          description: >-
-            In questo campo è possibile definire la lingua addizionale (oltre a quella italiana) da utilizzare per l'invio del messaggio sui canali configurati.<br/>
-            Le lingue accettate e dunque i valori possibili degli item dell'array sono: <br/>
-            - DE <br/>
-            - SL <br/>
-            - FR <br/>
-            DE (tedesco), SL (sloveno), FR (francese)
-            Attualmente è possibile indicare un solo item e dunque una sola lingua aggiuntiva. Se non vengono indicate lingue aggiuntive la lingua utilizzata <br/>
-            per l'invio del messaggio sui canali configurati sarà quella italiana. <br />
-            **Coerenza con messageId:** Se viene fornito un `messageId`, il messaggio identificato deve essere associato alla lingua indicata in questo campo. <br/>
-          type: array
-          maxItems: 1
-          items:
-            type: string
         subject:
           type: string
           description: Oggetto della comunicazione (visibile nel riepilogo)
@@ -468,6 +453,21 @@ components:
                 `+` oppure `00`.
               pattern: ^(\+|00)[1-9]\d{0,3}[\s.-]?\d{1,4}[\s.-]?\d{1,4}[\s.-]?\d{1,9}$
               maxLength: 30
+            additionalLanguages:
+              description: >-
+                In questo campo è possibile definire la lingua addizionale (oltre a quella italiana) da utilizzare per l'invio del messaggio sui canali configurati.<br/>
+                Le lingue accettate e dunque i valori possibili degli item dell'array sono: <br/>
+                - DE <br/>
+                - SL <br/>
+                - FR <br/>
+                DE (tedesco), SL (sloveno), FR (francese)
+                Attualmente è possibile indicare un solo item e dunque una sola lingua aggiuntiva. Se non vengono indicate lingue aggiuntive la lingua utilizzata <br/>
+                per l'invio del messaggio sui canali configurati sarà quella italiana. <br />
+                **Coerenza con messageId:** Se viene fornito un `messageId`, il messaggio identificato deve essere associato alla lingua indicata in questo campo. <br/>
+              type: array
+              maxItems: 1
+              items:
+                type: string
 
     InformalNotificationPayments:
       description: Pagamenti collegati alla notifica per il destinatario.
@@ -615,6 +615,7 @@ components:
       required:
         - noticeCode
         - creditorTaxId
+        - amount
       properties:
         noticeCode:
           $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'
@@ -622,6 +623,15 @@ components:
           $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxId'
         attachment:
           $ref: "#/components/schemas/NotificationPaymentAttachment"
+        amount:
+          type: integer
+          format: int32
+          description: Importo del pagamento in eurocent
+          minimum: 0
+        dueDate:
+          type: string
+          format: date-time
+          description: Data di scadenza del pagamento. Il formato data deve essere ISO-8601 e fuso orario UTC
 
 
     PagoPaPayment:
