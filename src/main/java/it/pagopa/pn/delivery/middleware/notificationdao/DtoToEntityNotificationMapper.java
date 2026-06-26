@@ -30,7 +30,7 @@ public class DtoToEntityNotificationMapper {
                 .cancelledIun( dto.getCancelledIun() )
                 .cancelledByIun( dto.getCancelledByIun() )
                 .senderPaId( dto.getSenderPaId() )
-                .recipients( dto2RecipientsEntity( dto.getRecipients() ) )
+                .recipients( dto2RecipientsEntity( dto.getRecipients(), dto.getCommunicationType() ) )
                 .documents( convertDocuments( dto.getDocuments() ))
                 .physicalCommunicationType ( dto.getPhysicalCommunicationType() )
                 .notificationFeePolicy( dto.getNotificationFeePolicy() != null ? NotificationFeePolicy.fromValue( dto.getNotificationFeePolicy().getValue() ) : null)
@@ -45,12 +45,23 @@ public class DtoToEntityNotificationMapper {
                 .physicalCommunicationPriority(dto.getPhysicalCommunicationPriority())
                 .vat(dto.getVat())
                 .version( dto.getVersion() )
-                .languages( addITLanguageToEntity(dto.getAdditionalLanguages()) )
                 .usedServices(dto.getUsedServices() != null ? getUsedServicesEntity(dto.getUsedServices()) : null)
                 .campaignId(dto.getCampaignId())
-                .communicationType(dto.getCommunicationType());
+                .communicationType(mapCommunicationType(dto.getCommunicationType()));
+
+        if(dto.getCommunicationType() == CommunicationType.LEGAL) {
+            builder.languages( addITLanguageToEntity(dto.getAdditionalLanguages()) );
+        }
 
         return builder.build();
+    }
+
+    private CommunicationType mapCommunicationType(CommunicationType communicationType) {
+        if(communicationType == CommunicationType.INFORMAL) {
+            return communicationType;
+        }
+
+        return null; // Return null for LEGAL or any other communication type
     }
 
 
@@ -77,22 +88,26 @@ public class DtoToEntityNotificationMapper {
     }
 
     private List<NotificationRecipientEntity> dto2RecipientsEntity(
-            List<NotificationRecipient> recipients
+            List<NotificationRecipient> recipients,
+            CommunicationType communicationType
     ) {
         return recipients.stream()
-                .map( this::dto2RecipientEntity )
+                .map( rec -> this.dto2RecipientEntity(rec, communicationType) )
                 .toList();
     }
 
-    private NotificationRecipientEntity dto2RecipientEntity( NotificationRecipient recipient ) {
+    private NotificationRecipientEntity dto2RecipientEntity( NotificationRecipient recipient, CommunicationType communicationType ) {
         NotificationRecipientEntity.NotificationRecipientEntityBuilder recipientEBuilder = NotificationRecipientEntity.builder()
                 .recipientId( recipient.getTaxId() )
                 .recipientType( RecipientTypeEntity.valueOf( recipient.getRecipientType().getValue() ) )
-                .payments( dto2PaymentList( recipient.getPayments() ) )
-                .languages( addITLanguageToEntity(recipient.getAdditionalLanguages() ));
+                .payments( dto2PaymentList( recipient.getPayments() ) );
 
         if(Objects.nonNull(recipient.getMessageId())) {
             recipientEBuilder.messageId(recipient.getMessageId() );
+        }
+
+        if(communicationType == CommunicationType.INFORMAL) {
+            recipientEBuilder.languages( addITLanguageToEntity(recipient.getAdditionalLanguages() ));
         }
 
         return recipientEBuilder.build();

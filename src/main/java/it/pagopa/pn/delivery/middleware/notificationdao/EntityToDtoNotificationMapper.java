@@ -65,7 +65,7 @@ public class EntityToDtoNotificationMapper {
                 .version(entity.getVersion())
                 .additionalLanguages(removeITLanguageFromDto(entity.getLanguages()))
                 .usedServices(entity.getUsedServices() != null ? getUsedServicesDto(entity.getUsedServices()) : null)
-                .communicationType(entity.getCommunicationType())
+                .communicationType(mapCommunicationType(entity.getCommunicationType()))
                 .campaignId(entity.getCampaignId());
 
         return builder.build();
@@ -195,5 +195,10 @@ public class EntityToDtoNotificationMapper {
                         .build())
                 .contentType(entity.getContentType())
                 .build();
+    }
+
+    private CommunicationType mapCommunicationType(CommunicationType communicationType) {
+        // Se sull'entity non è presente il campo communicationType si tratta di una notifica LEGAL
+        return Objects.requireNonNullElse(communicationType, CommunicationType.LEGAL);
     }
 }
