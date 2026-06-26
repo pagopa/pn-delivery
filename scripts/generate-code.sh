@@ -9,3 +9,4 @@ if [[ ! -z $1 ]]; then
     echo "Tag from command line ${tag}"
 fi
 docker run --rm -v $(pwd):/usr/local/app/microsvc --name=pn-codegen ghcr.io/pagopa/pn-codegen:${tag}
+
