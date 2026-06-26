@@ -127,7 +127,7 @@ const buildDelegationMetadataPutParams = (tablename, item) => ({
   },
 });
 
-const putNotificationMetadataRecord = async (tablename, item) => {
+const updateNotificationMetadataRecord = async (tablename, item) => {
   const params = buildNotificationMetadataUpdateParams(tablename, item);
   try {
     const command = new UpdateCommand(params);
@@ -137,26 +137,28 @@ const putNotificationMetadataRecord = async (tablename, item) => {
     if (error.name === "ConditionalCheckFailedException") {
       console.log(`update not necessary for item with pk: ${item.iun_recipientId} and status: ${item.notificationStatus} on table: ${tablename}`);
     } else {
-      console.log(`Error ${error.message} during putNotificationMetadataRecord with pk: ${item.iun_recipientId} and status: ${item.notificationStatus} on table: ${tablename}`);
+      console.log(`Error ${error.message} during updateNotificationMetadataRecord with pk: ${item.iun_recipientId} and status: ${item.notificationStatus} on table: ${tablename}`);
       throw error;
     }
   }
 };
 
-const putDelegationMetadataRecord = async (tablename, item) => {
+const putMetadata = async (tablename, item, partitionKeyName) => {
   const params = buildDelegationMetadataPutParams(tablename, item);
   try {
     const command = new PutCommand(params);
-    await docClient.send(command);
-    console.log(`putItem successfully executed with pk: ${item.iun_recipientId_delegateId_groupId} and status: ${item.notificationStatus} on table: ${tablename}`);
+    const result = await docClient.send(command);
+    console.log(`putItem successfully executed with pk: ${item[partitionKeyName]} and status: ${item.notificationStatus} on table: ${tablename}`);
   } catch (error) {
     if (error.name === "ConditionalCheckFailedException") {
-      console.log(`update not necessary for item with pk: ${item.iun_recipientId_delegateId_groupId} and status: ${item.notificationStatus} on table: ${tablename}`);
+      console.log(
+        `update not necessary for item with pk: ${item[partitionKeyName]} and status: ${item.notificationStatus} on table: ${tablename}`
+      );
     } else {
-      console.log(`Error ${error.message} during putDelegationMetadataRecord with pk: ${item.iun_recipientId_delegateId_groupId} and status: ${item.notificationStatus} on table: ${tablename}`);
+      console.log(`Error ${error.message} during putMetadata with pk: ${item[partitionKeyName]} and status: ${item.notificationStatus} on table: ${tablename}`);
       throw error;
     }
   }
 };
 
-module.exports = { getItem, deleteItem, putNotificationMetadataRecord, putDelegationMetadataRecord, buildNotificationMetadataUpdateParams, buildDelegationMetadataPutParams };
+module.exports = { getItem, deleteItem, putMetadata, updateNotificationMetadataRecord, buildNotificationMetadataUpdateParams };

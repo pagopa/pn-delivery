@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 const sinon = require('sinon');
 const { DynamoDBDocumentClient, GetCommand, DeleteCommand, UpdateCommand, PutCommand } = require('@aws-sdk/lib-dynamodb');
-const { getItem, deleteItem, putNotificationMetadataRecord, putDelegationMetadataRecord, buildNotificationMetadataUpdateParams, buildDelegationMetadataPutParams } = require('../app/lib/dynamo');
+const { getItem, deleteItem, putMetadata, updateNotificationMetadataRecord, buildNotificationMetadataUpdateParams } = require('../app/lib/dynamo');
 const { ItemNotFoundException } = require('../app/lib/exceptions');
 
 describe('dynamo.js tests', () => {
@@ -62,12 +62,12 @@ describe('dynamo.js tests', () => {
     });
   });
 
-  describe('putNotificationMetadataRecord', () => {
+  describe('updateNotificationMetadataRecord', () => {
     it('should execute UpdateCommand successfully', async () => {
       docClientStub.resolves({});
 
       const item = { iun_recipientId: 'iun1##rec1', notificationStatusTimestamp: '2025-01-01T00:00:00Z', notificationStatus: 'ACCEPTED' };
-      await putNotificationMetadataRecord('testTable', item);
+      await updateNotificationMetadataRecord('testTable', item);
 
       expect(docClientStub.firstCall.args[0]).to.be.an.instanceof(UpdateCommand);
     });
@@ -78,7 +78,7 @@ describe('dynamo.js tests', () => {
       docClientStub.rejects(error);
 
       const item = { iun_recipientId: 'iun1##rec1', notificationStatus: 'DELIVERING', notificationStatusTimestamp: '2025-01-01T00:00:00Z' };
-      await putNotificationMetadataRecord('testTable', item);
+      await updateNotificationMetadataRecord('testTable', item);
 
       expect(logStub.firstCall.args[0]).to.equal('update not necessary for item with pk: iun1##rec1 and status: DELIVERING on table: testTable');
     });
@@ -89,7 +89,7 @@ describe('dynamo.js tests', () => {
 
       const item = { iun_recipientId: 'iun1##rec1', notificationStatus: 'ACCEPTED', notificationStatusTimestamp: '2025-01-01T00:00:00Z' };
       try {
-        await putNotificationMetadataRecord('testTable', item);
+        await updateNotificationMetadataRecord('testTable', item);
         expect.fail('should have thrown');
       } catch (err) {
         expect(err.message).to.equal('Test error');
@@ -97,12 +97,12 @@ describe('dynamo.js tests', () => {
     });
   });
 
-  describe('putDelegationMetadataRecord', () => {
+  describe('putMetadata', () => {
     it('should execute PutCommand successfully', async () => {
       docClientStub.resolves({});
 
-      const item = { iun_recipientId_delegateId_groupId: 'iun1##rec1##del1##', notificationStatusTimestamp: '2025-01-01T00:00:00Z', notificationStatus: 'ACCEPTED' };
-      await putDelegationMetadataRecord('testTable', item);
+      const item = { notificationStatusTimestamp: '2025-01-01T00:00:00Z', notificationStatus: 'ACCEPTED', testKey: 'key' };
+      await putMetadata('testTable', item, 'testKey');
 
       expect(docClientStub.firstCall.args[0]).to.be.an.instanceof(PutCommand);
     });
@@ -112,19 +112,19 @@ describe('dynamo.js tests', () => {
       error.name = 'ConditionalCheckFailedException';
       docClientStub.rejects(error);
 
-      const item = { iun_recipientId_delegateId_groupId: 'iun1##rec1##del1##', notificationStatus: 'DELIVERING', notificationStatusTimestamp: '2025-01-01T00:00:00Z' };
-      await putDelegationMetadataRecord('testTable', item);
+      const item = { testKey: 'key', notificationStatus: 'DELIVERING', notificationStatusTimestamp: '2025-01-01T00:00:00Z' };
+      await putMetadata('testTable', item, 'testKey');
 
-      expect(logStub.firstCall.args[0]).to.equal('update not necessary for item with pk: iun1##rec1##del1## and status: DELIVERING on table: testTable');
+      expect(logStub.firstCall.args[0]).to.equal('update not necessary for item with pk: key and status: DELIVERING on table: testTable');
     });
 
     it('should throw on other errors', async () => {
       const error = new Error('Test error');
       docClientStub.rejects(error);
 
-      const item = { iun_recipientId_delegateId_groupId: 'iun1##rec1##del1##', notificationStatus: 'ACCEPTED', notificationStatusTimestamp: '2025-01-01T00:00:00Z' };
+      const item = { notificationStatusTimestamp: '2025-01-01T00:00:00Z', notificationStatus: 'ACCEPTED' };
       try {
-        await putDelegationMetadataRecord('testTable', item);
+        await putMetadata('testTable', item, 'testKey');
         expect.fail('should have thrown');
       } catch (err) {
         expect(err.message).to.equal('Test error');
@@ -227,54 +227,6 @@ describe('dynamo.js tests', () => {
     it('should set null for optional field when it is undefined', () => {
       const params = buildNotificationMetadataUpdateParams('testTable', { ...fullItem, communicationType: undefined });
       expect(params.ExpressionAttributeValues[':communicationType']).to.be.null;
-    });
-  });
-
-  describe('buildDelegationMetadataPutParams', () => {
-    const delegationItem = {
-      iun_recipientId_delegateId_groupId: 'iun1##rec1##delegate1##',
-      sentAt: '2025-01-01T00:00:00Z',
-      delegateId_creationMonth: 'delegate1##202501',
-      mandateId: 'mandate1',
-      senderId: 'sender1',
-      rootSenderId: 'rootSender1',
-      recipientId: 'rec1',
-      recipientIds: ['rec1', 'rec2'],
-      notificationStatus: 'ACCEPTED',
-      notificationStatusTimestamp: '2025-01-01T00:00:00Z',
-      senderId_creationMonth: 'sender1##202501',
-      recipientId_creationMonth: 'rec1##202501',
-      senderId_recipientId: 'sender1##rec1',
-      tableRow: {
-        iun: 'iun1',
-        recipientsIds: '[rec1,rec2]',
-        paProtocolNumber: 'proto1',
-        subject: 'subject1',
-        senderDenomination: 'sender name',
-      },
-    };
-
-    it('should set TableName and Item', () => {
-      const params = buildDelegationMetadataPutParams('testTable', delegationItem);
-      expect(params.TableName).to.equal('testTable');
-      expect(params.Item).to.deep.equal(delegationItem);
-    });
-
-    it('should set ConditionExpression for timestamp ordering', () => {
-      const params = buildDelegationMetadataPutParams('testTable', delegationItem);
-      expect(params.ConditionExpression).to.equal(
-        'attribute_not_exists(notificationStatusTimestamp) OR #notificationStatusTimestamp < :statusChangeTimestamp'
-      );
-    });
-
-    it('should set :statusChangeTimestamp to notificationStatusTimestamp', () => {
-      const params = buildDelegationMetadataPutParams('testTable', delegationItem);
-      expect(params.ExpressionAttributeValues[':statusChangeTimestamp']).to.equal('2025-01-01T00:00:00Z');
-    });
-
-    it('should not have a Key property', () => {
-      const params = buildDelegationMetadataPutParams('testTable', delegationItem);
-      expect(params).to.not.have.property('Key');
     });
   });
 })
