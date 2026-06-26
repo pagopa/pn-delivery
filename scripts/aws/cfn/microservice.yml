@@ -2417,10 +2417,7 @@ Resources:
       EventSourceArn: !Ref CdcKinesisSourceStreamArn
       FilterCriteria:
         Filters:
-          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName" : [ "INSERT" ], "dynamodb" : { "NewImage" : { "category" : { "S": [ "NOTIFICATION_VIEWED" ] } } } } }'
           - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName" : [ "INSERT" ], "dynamodb" : { "NewImage" : { "category" : { "S": [ "INFORMAL_NOTIFICATION_VIEWED" ] } } } } }'
-          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName" : [ "INSERT" ], "dynamodb" : { "NewImage" : { "category" : { "S": [ "SEND_DIGITAL_FEEDBACK" ] } } } } }'
-          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName" : [ "INSERT" ], "dynamodb" : { "NewImage" : { "category" : { "S": [ "SEND_ANALOG_FEEDBACK" ] } } } } }'
           - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName" : [ "INSERT" ], "dynamodb" : { "NewImage" : { "category" : { "S": [ "REACHED" ] } } } } }'
           - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName" : [ "INSERT" ], "dynamodb" : { "NewImage" : { "category" : { "S": [ "WORKFLOW_DONE" ] } } } } }'
       FunctionName: !Ref MetadataUpdaterLambda

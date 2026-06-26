@@ -9,16 +9,7 @@ describe('processRecord tests', () => {
     kinesis: { data: 'mockedEncodedData' },
   };
 
-  const legalNotificationMock = {
-    iun: 'mockedIun',
-    communicationType: 'LEGAL',
-    recipients: [
-      { recipientId: 'recipientId1' },
-      { recipientId: 'recipientId2' },
-    ],
-  };
-
-  const informalNotificationMock = {
+  const notificationMock = {
     iun: 'mockedIun',
     communicationType: 'INFORMAL',
     recipients: [
@@ -52,7 +43,7 @@ describe('processRecord tests', () => {
 
   beforeEach(() => {
     decodePayloadStub = sinon.stub(utils, 'decodePayload');
-    getItemStub = sinon.stub(dynamo, 'getItem').resolves(legalNotificationMock);
+    getItemStub = sinon.stub(dynamo, 'getItem').resolves(notificationMock);
     updateMetadataStub = sinon.stub(dynamo, 'updateMetadata').resolves();
     sinon.stub(console, 'log');
     sinon.stub(console, 'error');
@@ -62,9 +53,9 @@ describe('processRecord tests', () => {
     sinon.restore();
   });
 
-  // LEGAL notification tests
-  it('should set viewed=true for NOTIFICATION_VIEWED on the correct recipient', async () => {
-    decodePayloadStub.returns(makeKinesisPayload('NOTIFICATION_VIEWED', { recIndex: 0 }));
+  // INFORMAL notification tests
+  it('should set viewed=true for INFORMAL_NOTIFICATION_VIEWED on the correct recipient', async () => {
+    decodePayloadStub.returns(makeKinesisPayload('INFORMAL_NOTIFICATION_VIEWED', { recIndex: 0 }));
 
     await processRecord(record);
 
@@ -77,8 +68,8 @@ describe('processRecord tests', () => {
     ]);
   });
 
-  it('should use recIndex=1 to target the second recipient for NOTIFICATION_VIEWED', async () => {
-    decodePayloadStub.returns(makeKinesisPayload('NOTIFICATION_VIEWED', { recIndex: 1 }));
+  it('should use recIndex=1 to target the second recipient for INFORMAL_NOTIFICATION_VIEWED', async () => {
+    decodePayloadStub.returns(makeKinesisPayload('INFORMAL_NOTIFICATION_VIEWED', { recIndex: 1 }));
 
     await processRecord(record);
 
@@ -86,68 +77,7 @@ describe('processRecord tests', () => {
     expect(updateMetadataStub.firstCall.args[1]).to.deep.equal({ iun_recipientId: 'mockedIun##recipientId2' });
   });
 
-  it('should set delivered=true for SEND_DIGITAL_FEEDBACK with responseStatus OK', async () => {
-    decodePayloadStub.returns(makeKinesisPayload('SEND_DIGITAL_FEEDBACK', { responseStatus: 'OK', recIndex: 0 }));
-
-    await processRecord(record);
-
-    expect(updateMetadataStub.callCount).to.equal(1);
-    expect(updateMetadataStub.firstCall.args[2]).to.deep.equal({ delivered: true });
-  });
-
-  it('should set delivered=true for SEND_ANALOG_FEEDBACK with responseStatus OK', async () => {
-    decodePayloadStub.returns(makeKinesisPayload('SEND_ANALOG_FEEDBACK', { responseStatus: 'OK', recIndex: 0 }));
-
-    await processRecord(record);
-
-    expect(updateMetadataStub.callCount).to.equal(1);
-    expect(updateMetadataStub.firstCall.args[2]).to.deep.equal({ delivered: true });
-  });
-
-  it('should skip update for SEND_DIGITAL_FEEDBACK with responseStatus KO', async () => {
-    decodePayloadStub.returns(makeKinesisPayload('SEND_DIGITAL_FEEDBACK', { responseStatus: 'KO' }));
-
-    await processRecord(record);
-
-    expect(getItemStub.called).to.be.true;
-    expect(updateMetadataStub.called).to.be.false;
-  });
-
-  it('should skip update for SEND_ANALOG_FEEDBACK without details', async () => {
-    decodePayloadStub.returns(makeKinesisPayload('SEND_ANALOG_FEEDBACK'));
-
-    await processRecord(record);
-
-    expect(getItemStub.called).to.be.true;
-    expect(updateMetadataStub.called).to.be.false;
-  });
-
-  it('should skip WORKFLOW_DONE for LEGAL notification', async () => {
-    decodePayloadStub.returns(makeKinesisPayload('WORKFLOW_DONE', { recIndex: 0 }));
-
-    await processRecord(record);
-
-    expect(getItemStub.called).to.be.true;
-    expect(updateMetadataStub.called).to.be.false;
-  });
-
-  // INFORMAL notification tests
-  it('should set viewed=true for INFORMAL_NOTIFICATION_VIEWED on the correct recipient', async () => {
-    getItemStub.resolves(informalNotificationMock);
-    decodePayloadStub.returns(makeKinesisPayload('INFORMAL_NOTIFICATION_VIEWED', { recIndex: 0 }));
-
-    await processRecord(record);
-
-    expect(updateMetadataStub.callCount).to.equal(1);
-    expect(updateMetadataStub.firstCall.args).to.deep.equal([
-      'pn-NotificationsMetadata',
-      { iun_recipientId: 'mockedIun##recipientId1' },
-      { viewed: true },
-    ]);
-  });
-
   it('should set delivered=true for REACHED on the correct recipient', async () => {
-    getItemStub.resolves(informalNotificationMock);
     decodePayloadStub.returns(makeKinesisPayload('REACHED', { recIndex: 1 }));
 
     await processRecord(record);
@@ -160,8 +90,7 @@ describe('processRecord tests', () => {
     ]);
   });
 
-  it('should set desiredFeedback=true for WORKFLOW_DONE on INFORMAL notification', async () => {
-    getItemStub.resolves(informalNotificationMock);
+  it('should set desiredFeedback=true for WORKFLOW_DONE on the correct recipient', async () => {
     decodePayloadStub.returns(makeKinesisPayload('WORKFLOW_DONE', { recIndex: 1 }));
 
     await processRecord(record);
@@ -169,16 +98,6 @@ describe('processRecord tests', () => {
     expect(updateMetadataStub.callCount).to.equal(1);
     expect(updateMetadataStub.firstCall.args[1]).to.deep.equal({ iun_recipientId: 'mockedIun##recipientId2' });
     expect(updateMetadataStub.firstCall.args[2]).to.deep.equal({ desiredFeedback: true });
-  });
-
-  it('should skip NOTIFICATION_VIEWED for INFORMAL notification', async () => {
-    getItemStub.resolves(informalNotificationMock);
-    decodePayloadStub.returns(makeKinesisPayload('NOTIFICATION_VIEWED', { recIndex: 0 }));
-
-    await processRecord(record);
-
-    expect(getItemStub.called).to.be.true;
-    expect(updateMetadataStub.called).to.be.false;
   });
 
   // Common tests
@@ -192,7 +111,7 @@ describe('processRecord tests', () => {
   });
 
   it('should throw error when recIndex is missing from details', async () => {
-    decodePayloadStub.returns(makeKinesisPayload('NOTIFICATION_VIEWED', {}));
+    decodePayloadStub.returns(makeKinesisPayload('INFORMAL_NOTIFICATION_VIEWED', {}));
 
     try {
       await processRecord(record);
@@ -204,7 +123,7 @@ describe('processRecord tests', () => {
   });
 
   it('should throw error when recIndex is out of bounds', async () => {
-    decodePayloadStub.returns(makeKinesisPayload('NOTIFICATION_VIEWED', { recIndex: 99 }));
+    decodePayloadStub.returns(makeKinesisPayload('INFORMAL_NOTIFICATION_VIEWED', { recIndex: 99 }));
 
     try {
       await processRecord(record);
@@ -215,7 +134,7 @@ describe('processRecord tests', () => {
   });
 
   it('should throw error when getItem fails', async () => {
-    decodePayloadStub.returns(makeKinesisPayload('NOTIFICATION_VIEWED', { recIndex: 0 }));
+    decodePayloadStub.returns(makeKinesisPayload('INFORMAL_NOTIFICATION_VIEWED', { recIndex: 0 }));
     getItemStub.rejects(new Error('DynamoDB error'));
 
     try {
@@ -227,7 +146,7 @@ describe('processRecord tests', () => {
   });
 
   it('should throw error when updateMetadata fails', async () => {
-    decodePayloadStub.returns(makeKinesisPayload('NOTIFICATION_VIEWED', { recIndex: 0 }));
+    decodePayloadStub.returns(makeKinesisPayload('INFORMAL_NOTIFICATION_VIEWED', { recIndex: 0 }));
     updateMetadataStub.rejects(new Error('Update error'));
 
     try {
