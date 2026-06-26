@@ -148,6 +148,7 @@ public class EntityToDtoNotificationMapper {
                     .noticeCode(paymentInfo.getNoticeCode())
                     .applyCost(paymentInfo.getApplyCost() == null || paymentInfo.getApplyCost())
                     .amount(paymentInfo.getAmount())
+                    .dueDate(paymentInfo.getDueDate() != null ? paymentInfo.getDueDate().atOffset(ZoneOffset.UTC) : null)
                     .attachment(buildOptionalMetadataAttachment(paymentInfo.getPagoPaForm()))
                     .build();
         }

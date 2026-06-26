@@ -610,6 +610,10 @@ components:
           format: int32
           description: Importo del pagamento in eurocent
           minimum: 0
+        dueDate:
+          type: string
+          format: date-time
+          description: Data di scadenza del pagamento. Il formato data deve essere ISO-8601 e fuso orario UTC
 
 
     PagoPaPayment:

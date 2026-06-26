@@ -123,15 +123,17 @@ public class DtoToEntityNotificationMapper {
     }
 
     private NotificationPaymentInfoEntity toNotificationPaymentInfoEntity(NotificationPaymentInfo item) {
-        return NotificationPaymentInfoEntity.builder()
-                .creditorTaxId(item.getPagoPa() != null ? item.getPagoPa().getCreditorTaxId() : null)
-                .noticeCode(item.getPagoPa() != null ? item.getPagoPa().getNoticeCode() : null)
-                .applyCost(item.getPagoPa() != null ? item.getPagoPa().isApplyCost() : null)
-                .pagoPaForm(item.getPagoPa() != null ? dto2PagoPaPaymentEntity(item.getPagoPa().getAttachment()) : null)
-                .amount(item.getPagoPa().getAmount())
-                .f24(
-                        dto2F24PaymentEntity(item.getF24())
-                ).build();
+        NotificationPaymentInfoEntity notificationPaymentInfoEntity = new NotificationPaymentInfoEntity();
+        if (item.getPagoPa() != null) {
+            notificationPaymentInfoEntity.setCreditorTaxId(item.getPagoPa().getCreditorTaxId());
+            notificationPaymentInfoEntity.setNoticeCode(item.getPagoPa().getNoticeCode());
+            notificationPaymentInfoEntity.setApplyCost(item.getPagoPa().isApplyCost());
+            notificationPaymentInfoEntity.setPagoPaForm(dto2PagoPaPaymentEntity(item.getPagoPa().getAttachment()));
+            notificationPaymentInfoEntity.setAmount(item.getPagoPa().getAmount());
+            notificationPaymentInfoEntity.setDueDate(item.getPagoPa().getDueDate() != null ? item.getPagoPa().getDueDate().toInstant() : null);
+        }
+        notificationPaymentInfoEntity.setF24(dto2F24PaymentEntity(item.getF24()));
+        return notificationPaymentInfoEntity;
     }
 
     private F24PaymentEntity dto2F24PaymentEntity(F24Payment f24Payment){
