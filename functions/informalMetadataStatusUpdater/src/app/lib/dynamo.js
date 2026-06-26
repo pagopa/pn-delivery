@@ -3,7 +3,7 @@ const {
   DynamoDBDocumentClient,
   GetCommand,
   DeleteCommand,
-  PutCommand,
+  UpdateCommand,
 } = require("@aws-sdk/lib-dynamodb");
 const client = new DynamoDBClient({ region: process.env.AWS_REGION });
 const docClient = DynamoDBDocumentClient.from(client, {
@@ -52,20 +52,9 @@ const deleteItem = async (TableName, Key, Iun) => {
 };
 
 const putMetadata = async (tablename, item, partitionKeyName) => {
-  const params = {
-    TableName: tablename,
-    Item: item,
-    ConditionExpression:
-      "attribute_not_exists(notificationStatusTimestamp) OR #notificationStatusTimestamp < :statusChangeTimestamp",
-    ExpressionAttributeNames: {
-      "#notificationStatusTimestamp": "notificationStatusTimestamp",
-    },
-    ExpressionAttributeValues: {
-      ":statusChangeTimestamp": item.notificationStatusTimestamp,
-    },
-  };
+  const params = buildUpdateParams(tablename, item, partitionKeyName);
   try {
-    const command = new PutCommand(params);
+    const command = new UpdateCommand(params);
     const result = await docClient.send(command);
     console.log(`putItem successfully executed with pk: ${item[partitionKeyName]} and status: ${item.notificationStatus} on table: ${tablename}`);
   } catch (error) {
@@ -80,4 +69,30 @@ const putMetadata = async (tablename, item, partitionKeyName) => {
   }
 };
 
-module.exports = { getItem, deleteItem, putMetadata };
+const buildUpdateParams = (tablename, item, partitionKeyName) => {
+  const key = { [partitionKeyName]: item[partitionKeyName] };
+
+  const setExpressions = [];
+  const expressionAttributeValues = { ":statusChangeTimestamp": item.notificationStatusTimestamp };
+  const expressionAttributeNames = { "#notificationStatusTimestamp": "notificationStatusTimestamp" };
+
+  for (const [field, value] of Object.entries(item)) {
+    if (field !== partitionKeyName && value !== null && value !== undefined) {
+      setExpressions.push(`#${field} = :${field}`);
+      expressionAttributeValues[`:${field}`] = value;
+      expressionAttributeNames[`#${field}`] = field;
+    }
+  }
+
+  return {
+    TableName: tablename,
+    Key: key,
+    UpdateExpression: `SET ${setExpressions.join(", ")}`,
+    ConditionExpression:
+      "attribute_not_exists(#notificationStatusTimestamp) OR #notificationStatusTimestamp < :statusChangeTimestamp",
+    ExpressionAttributeNames: expressionAttributeNames,
+    ExpressionAttributeValues: expressionAttributeValues,
+  };
+};
+
+module.exports = { getItem, deleteItem, putMetadata, buildUpdateParams };
