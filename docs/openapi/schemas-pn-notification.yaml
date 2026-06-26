@@ -5,6 +5,17 @@ components:
     ############################################################################################
     ###                           COMUNICAZIONE BONARIA                                      ###
     ############################################################################################
+
+    FullInformalNotificationRecipientV1:
+      allOf:
+        - $ref: '#/components/schemas/InformalNotificationRecipientV1'
+        - type: object
+          required:
+            - message
+          properties:
+            message:
+              $ref: './api-internal-b2b-informal-pa.yaml#/components/schemas/NewMessageRequest'
+
     InformalSentNotificationV1:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata
@@ -16,7 +27,14 @@ components:
             - sentAt
             - senderTaxId
             - senderPaId
+            - recipients
           properties:
+            recipients:
+              type: array
+              description: Informazioni sui destinatari
+              items:
+                $ref: '#/components/schemas/FullInformalNotificationRecipientV1'
+              minItems: 1
             senderTaxId:
               $ref: '#/components/schemas/paTaxId'
             senderPaId:
