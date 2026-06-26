@@ -5,7 +5,7 @@ const RestClient = require('../app/lib/services');
 const dynamo = require('../app/lib/dynamo');
 
 describe('putNotificationMetadata', () => {
-  let statusInfo, notification, acceptedAt, getRootSenderStub, getMandatesStub, updateNotificationMetadataRecordStub, putMetadataStub, consoleLogStub;
+  let statusInfo, notification, acceptedAt, getRootSenderStub, getMandatesStub, putMetadataStub, consoleLogStub;
 
   beforeEach(() => {
     statusInfo = {
@@ -29,7 +29,6 @@ describe('putNotificationMetadata', () => {
 
     getRootSenderStub = sinon.stub(RestClient, 'getRootSenderId').resolves('rootSenderId');
     getMandatesStub = sinon.stub(RestClient, 'getMandates').resolves([{ mandateId: 'mandate1', delegate: 'delegate1' }]);
-    updateNotificationMetadataRecordStub = sinon.stub(dynamo, "updateNotificationMetadataRecord").resolves();
     putMetadataStub = sinon.stub(dynamo, "putMetadata").resolves();
     consoleLogStub = sinon.stub(console, 'log');
   });
@@ -42,19 +41,17 @@ describe('putNotificationMetadata', () => {
     await putNotificationMetadata(statusInfo, notification);
 
     expect(getRootSenderStub.firstCall.args[0]).to.be.deep.equal('senderPaId');
-    expect(updateNotificationMetadataRecordStub.callCount).to.equal(1);
-    expect(updateNotificationMetadataRecordStub.firstCall.args[0]).to.equal('pn-NotificationsMetadata');
-    expect(updateNotificationMetadataRecordStub.firstCall.args[1]).to.have.property('communicationType', 'LEGAL');
-    expect(putMetadataStub.callCount).to.equal(1);
-    expect(putMetadataStub.firstCall.args[0]).to.equal('pn-NotificationDelegationMetadata');
-    expect(putMetadataStub.firstCall.args[2]).to.equal('iun_recipientId_delegateId_groupId');
+    expect(putMetadataStub.callCount).to.equal(2); // 2 (1 metadata + 1 delegationMetadata) * recipients.length
+    expect(putMetadataStub.firstCall.args[0]).to.equal('pn-NotificationsMetadata');
+    expect(putMetadataStub.firstCall.args[1]).to.have.property('communicationType', 'LEGAL');
+    expect(putMetadataStub.secondCall.args[0]).to.equal('pn-NotificationDelegationMetadata');
   });
 
   it('should include communicationType in notification metadata payload', async () => {
     notification.communicationType = 'LEGAL';
     await putNotificationMetadata(statusInfo, notification);
 
-    const metadataPayload = updateNotificationMetadataRecordStub.firstCall.args[1];
+    const metadataPayload = putMetadataStub.firstCall.args[1];
     expect(metadataPayload).to.have.property('communicationType', 'LEGAL');
   });
 
@@ -62,7 +59,7 @@ describe('putNotificationMetadata', () => {
     delete notification.communicationType;
     await putNotificationMetadata(statusInfo, notification);
 
-    const metadataPayload = updateNotificationMetadataRecordStub.firstCall.args[1];
+    const metadataPayload = putMetadataStub.firstCall.args[1];
     expect(metadataPayload).to.have.property('communicationType', undefined);
   });
 
@@ -75,10 +72,9 @@ describe('putNotificationMetadata', () => {
     await putNotificationMetadata(statusInfo, notification);
 
     expect(getRootSenderStub.firstCall.args[0]).to.be.deep.equal('senderPaId');
-    expect(updateNotificationMetadataRecordStub.callCount).to.equal(1);
-    expect(updateNotificationMetadataRecordStub.firstCall.args[0]).to.equal('pn-NotificationsMetadata');
-    expect(putMetadataStub.callCount).to.equal(2);
-    expect(putMetadataStub.firstCall.args[0]).to.equal('pn-NotificationDelegationMetadata');
+    expect(putMetadataStub.callCount).to.equal(3); // 2 (1 metadata + 2 delegationMetadata) * recipients.length
+    expect(putMetadataStub.firstCall.args[0]).to.equal('pn-NotificationsMetadata');
+    expect(putMetadataStub.secondCall.args[0]).to.equal('pn-NotificationDelegationMetadata');
   });
 
   it('should log and return if no mandates are found', async () => {
@@ -87,8 +83,7 @@ describe('putNotificationMetadata', () => {
     await putNotificationMetadata(statusInfo, notification);
 
     expect(consoleLogStub.secondCall.args[0]).to.equal('No mandates found for recipient recipientId1');
-    expect(updateNotificationMetadataRecordStub.callCount).to.equal(1);
-    expect(putMetadataStub.callCount).to.equal(0);
+    expect(putMetadataStub.callCount).to.equal(1);
   });
 
   it('should handle errors and log them', async () => {

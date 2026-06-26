@@ -19,9 +19,10 @@ const putNotificationMetadata = async (
       rootSenderId,
       recipient
     );
-    await dynamo.updateNotificationMetadataRecord(
+    await dynamo.putMetadata(
       "pn-NotificationsMetadata",
-      notificationMetadata
+      notificationMetadata,
+      "iun_recipientId"
     );
 
     const mandates = await RestClient.getMandates(recipient.recipientId);
