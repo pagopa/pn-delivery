@@ -67,24 +67,32 @@ paths:
         required: true
       responses:
         '200':
-          description: OK
+          description: Informazioni per il caricamento degli allegati tramite URL presigned
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: "#/components/schemas/InformalPreLoadResponse"
-              example:
-                - preloadIdx: "0"
-                  secret: "[secret-token-0]"
-                  httpMethod: PUT
-                  url: "https://pn-safestorage.../PN_NOTIFICATION_ATTACHMENTS-dfe837b7e83e43ec9e9135d989196fd8.pdf?X-Amz-..."
-                  key: "PN_NOTIFICATION_ATTACHMENTS-dfe837b7e83e43ec9e9135d989196fd8.pdf"
-                - preloadIdx: "1"
-                  secret: "[secret-token-1]"
-                  httpMethod: PUT
-                  url: "https://pn-safestorage.../PN_NOTIFICATION_ATTACHMENTS-61997b71a19c4e4e97d4228ee74326e9.pdf?X-Amz-..."
-                  key: "PN_NOTIFICATION_ATTACHMENTS-61997b71a19c4e4e97d4228ee74326e9.pdf"
+              examples:
+                preloadResponseDocument:
+                  summary: Esempio preload documento principale
+                  description: Risposta di preload per il documento allegato alla notifica.
+                  value:
+                    - preloadIdx: "0"
+                      secret: "[n4NQEZq2womDzK7ZeUBYLGCZBlECjjsAqTN9KgyChefYjw7iJYEjET1jiP_x76y-dZT-diocWI6TIn7LxoDbMQ6J6xz6RJeWBZpzSaqhJGwL5AuxXqJFI-zz6YmoaGC24_e6QLzs_HyKRMb6pBVbbpfC_Zw0ir0D7RTwitQdLLVRXc47bCnqHsbt3aPyHENsr5dfOGbZ_9-98F2R_zvG0xq4Bl3Nlvt1-qsqZ8uZJA66uGLEzMyxP9XkG8kqr_7HuFDuXg8Xy2DAJRgYKjIoM0mnwMoQjZ_Mw2oizVksq6iuGmjN_xfvlnKqtQnYw3F-xTGEz4K_RijNmEYJ4vgCVA]"
+                      httpMethod: PUT
+                      url: "https://pn-safestorage-eu-south-1-956319218727.s3.eu-south-1.amazonaws.com/PN_NOTIFICATION_ATTACHMENTS-dfe837b7e83e43ec9e9135d989196fd8.pdf?x-amzn-trace-id=Self%3D1-6a3e7fc2-7ee9bc3223ed4e6a773e291d%3BRoot%3D1-6a3e7fc1-08e65c9162e27f112dddcb55%3BParent%3D6a7fd0fd2164f76c%3BSampled%3D0&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEJ3%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCmV1LXNvdXRoLTEiSDBGAiEA2%2B%2FDeCF2sZ4jPbJzNGXn%2FlPusQBaYxKJLHxlWPFP5BECIQDpArxzuyOvY6NLBIGA66jH3%2F8o4iRumjqoO2f%2FYu1vWCqOBAhmEAEaDDk1NjMxOTIxODcyNyIM%2FVLysjbIICRrlu3ZKusD8zmk9eBTdJEDCUxeR5%2F56YF5SPbUgtprJE0wqpPeACYzh%2BkQC5kdRCbj7pQ8Il2WG8hhWOXtDhlM04tyw2fUfx63LGENzJV7IyseF%2B2TfntsUuGlDwzzMdU55qttitIXszgnHuW0ebHId%2Fjbd9pnVYvARte%2BW1w%2Bny08qvZLH9XDdEEdqLnsSuWztQZZoez3xuR0UqI4xITkmbX%2FTilNvHQeXWJqgPmU1OKie92Et5xZkK%2BC3VaBty7eqpABQAtnqn8JGOriTbmW6WZ3UayHA4XswLqU%2BZxGqm2QZUsHtW7gs72VU5Duz5uyXY3WiocoxXvcASgRKOFriA6r5WGkdd65uo6Nw57baiTS111xz%2FMnyx9%2FkGZwfff3PsjCWnJzT6t%2FIDvKnn79qhYDqlkNZVHXGvUj%2FC3%2BrnC%2FtzUEBLlnRz3nMfXmceShaX5jRure0E8HvY6MPnZksLs0%2BHpKG3ChKEbhBbfsjz2IrEbVRv%2F8XRpp4xMXZivmG4%2FOAF3ioWqrv7CpEDnB7HeKydGhcKWWqhTOE2KMVd05WPpiH094S%2BQrdgvOq2oChZ5H%2BDGZGsInbG8iL12OVV%2B3ZeiWnSmiMfP4%2BFBfTUwcyya0sNm1FpRSLGbYwIGvMhPAoDRLU6uKkedfu%2BXSg90wvPL50QY6pQHaDYFvk6KBKHrlKY4c3FzGVe7z98NJEH%2BMnm3xZuK4C3uHRa%2BAcVxBGk3YK9pfr2vmuovpQ2gtkvdwC8s1M8zIJBZrxHrUsVZr%2BqAiUocU5rrkJ%2BpmOe3GCcmLmZzOTjT2E25dDG%2FG9kgUfnhSZAkfDej0Wu9DULbqP%2FIq25rpi51Nm79Fs9rQ7600aww6xwnP%2BLP3Ixbrb7SmRIO0hfGs78V5sfc%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260626T133354Z&X-Amz-SignedHeaders=content-type%3Bhost%3Bx-amz-checksum-sha256%3Bx-amz-meta-secret&X-Amz-Expires=1200&X-Amz-Credential=ASIA55KIRHQTW6IUOL3K%2F20260626%2Feu-south-1%2Fs3%2Faws4_request&X-Amz-Signature=72fbdebb66ca9e7c9890f7155105bb6c063f82a050f5eaaf700415347ca22bdb"
+                      key: "PN_NOTIFICATION_ATTACHMENTS-dfe837b7e83e43ec9e9135d989196fd8.pdf"
+                preloadResponsePagoPA:
+                  summary: Esempio preload avviso pagoPA
+                  description: Risposta di preload per il PDF dell'avviso di pagamento pagoPA.
+                  value:
+                    - preloadIdx: "0"
+                      secret: "[x_VYxjApX3aWKAFbCQrTTGJJFEs9jPaaZbhERprjFyc4KUPQ8k-nJoELuV972AS4Qjm1uQHnIqoHXwmWxk2uqEP5YyZe3U4hh6S-6A0UrlixxXW0igWqjWiWM-3HHUf3G6QEPMBkcxeN_8SSwxyK2mxCCz6LMhmicEi0nxXhK848Jh5NKRGAUyo8qi2dqMv5N4y-6tKe3lWNnbl8jbnTSMgSxDMgi8RtSdmZ2Yr4XmFzgY9QkMnD2SEyovRbGXIbjKFYOXUQKhqXO3PGgavpPDQ6EBL4GbyMmghG3pwJF-pd8rynf-jPF7QFTCkzBW5fIiKUDr5dh6SHE7khgZVebQ]"
+                      httpMethod: PUT
+                      url: "https://pn-safestorage-eu-south-1-956319218727.s3.eu-south-1.amazonaws.com/PN_NOTIFICATION_ATTACHMENTS-61997b71a19c4e4e97d4228ee74326e9.pdf?x-amzn-trace-id=Self%3D1-6a3e7fc2-3e49e28927115be44e7ac700%3BRoot%3D1-6a3e7fc2-5de139786f63a1c01fae06e7%3BParent%3D4fa617ed46677722%3BSampled%3D0&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEJv%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCmV1LXNvdXRoLTEiRzBFAiALb6EV6LnvbUiMQx1gnqvqDFTtjGf2xwkNWHQCdEICHwIhALnjppkNgu%2F30RO1zcJ7cLPW2AAO6MLXQyd2TKIScOXBKo4ECGQQARoMOTU2MzE5MjE4NzI3Igxv0NLGFMgCSQqgIw0q6wMtdWmEtDB%2FU3bzvlKmxwwViarZpr%2Ftv6vRWm2Dlihb5Ld4H8iubJ1ug3Ng1Wo0iYNDpfa4i5wHSTPqK%2F0CMW88EfGkdy1Bb0NecUfpcHBb0pvBATOp%2F2T6koXxASZPzDPqzg2y9FvvHf8tmP4usqrJ%2BjcfAtH1Jw9oh360gbZMm1rkW72nDjwQBBzrG5KjQVCPerCYDJvGaGeOjb63%2FD0eAjzYcIPFgj3ScRoe8bHYWa%2FAXOITSzfi0vIy9%2B1Skt6BS7BfA6z4RkCCmCC%2FvYkkrXGkzZCKB4cIZ7TD94nfQ4d6r1O%2FP4VvaoIuogGbMjsKwVhWQioPyhQ7CJj3ah%2FP9jAlzsC4OPElkt4BvXcVvIElYpXzWAvNBHhc%2FwTFP81AFzugcY1Q4v%2B866LY75zobJAS22Br9Z01tkyZN5VjIuaMJVaCA2unEJSkakCWs5aphsiBuNyI9LAnP%2BbCrdWLzG3a8HXzYR7dZTpVI7CGM1NIENzQUtMY8lW%2FGLktusiUSm6%2BhyVTJwcOSv%2FDYaKFR3exARIxZ9r%2FFJU9QW24fbQ8gEWJXX6WM2HAbzQ5TufmjYRati71QlMdZzFOa90Jtk9gVaJZBkbyl00BuoqMaDQ4L6hReSMmCZFDksrjXXq%2FJ4O6KsFkWxidBTD2v%2FnRBjqmAYjbzt%2Fhx7HJf8PrCTZTxocXg5H7lCE40NBiXC3FMfZVIV2TEpk2qB3Bee2J1NhRU0%2BKaALwSvNogKDTcIiDVuYsKRqPmjvHDUg2IeNL2BOkg7j6r8tnH5ZBoK8sB63UhDMldXE%2BtnTTYPLKC4jivdPwWF4KigVU1LHkrFR43ljomCN4IVqy32e1tJYkhH00Iu4KgTeIGUcAoiltc8AW25gPeC3i%2BlY%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260626T133354Z&X-Amz-SignedHeaders=content-type%3Bhost%3Bx-amz-checksum-sha256%3Bx-amz-meta-secret&X-Amz-Expires=1200&X-Amz-Credential=ASIA55KIRHQT6C3C2T7B%2F20260626%2Feu-south-1%2Fs3%2Faws4_request&X-Amz-Signature=ad427d2084371d3a8c65fe29acfbabf2fae83663270abcbacacd3867fc0b4554"
+                      key: "PN_NOTIFICATION_ATTACHMENTS-61997b71a19c4e4e97d4228ee74326e9.pdf"
         '400':
           description: Bad request
           content:
@@ -362,11 +370,29 @@ paths:
         - $ref: '#/components/parameters/idempotenceToken'
       responses:
         '200':
-          description: OK
+          description: Stato corrente della richiesta di notifica informale
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/NewInformalNotificationRequestStatusResponseV1"
+              examples:
+                waiting:
+                  summary: Richiesta in attesa
+                  description: La richiesta è stata presa in carico ma non ancora accettata.
+                  value:
+                    notificationRequestId: TVBNRS1RR1RHLVZNVEUtMjAyNjA2LUgtQQ==
+                    notificationRequestStatus: WAITING
+                    retryAfter: 1000
+                accepted:
+                  summary: Richiesta accettata
+                  description: La richiesta è stata accettata e la notifica risulta disponibile.
+                  value:
+                    notificationRequestId: TVBNRS1RR1RHLVZNVEUtMjAyNjA2LUgtQQ==
+                    notificationRequestStatus: ACCEPTED
+                    notificationIun: TVBNRS1RR1RHLVZNVEUtMjAyNjA2LUgtQQ==
+                    timeline:
+                      - status: ACCEPTED
+                        timestamp: "2026-06-26T13:33:55.772Z"
         '400':
           description: Bad request
           content:
