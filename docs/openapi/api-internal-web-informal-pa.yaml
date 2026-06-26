@@ -9,7 +9,7 @@ info:
     ## Abstract
       API utilizzate dal portale di SEND dedicato alle Pubbliche Amministrazioni per la gestione delle campagne e notifiche bonarie
   contact:
-    email: [EMAIL_ADDRESS]'
+    email: [EMAIL_ADDRESS]
   license:
     name: Licenza di SEND
     url: 'https://da-definire/'

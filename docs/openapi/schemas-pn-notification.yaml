@@ -879,16 +879,27 @@ components:
           type: boolean
           description: Indica se la comunicazione è stata consegnata al destinatario
 
+    UnifiedNotificationStatus:
+      description: >-
+        Stato unificato della notifica per i destinatari. Contiene i valori di NotificationStatusV26
+        quando il campo communicationType è LEGAL, oppure i valori di InformalNotificationStatus
+        quando il campo communicationType è INFORMAL.
+      oneOf:
+        - $ref: '#/components/schemas/NotificationStatusV26'
+        - $ref: '#/components/schemas/InformalNotificationStatus'
+
     RecipientNotificationSearchRow:
       description: >-
         Riga di risultato della ricerca notifiche per i destinatari. Estende NotificationSearchRow
-        aggiungendo il campo communicationOutcomes, presente per entrambe le tipologie di notifica
-        (legali e bonarie). Non include il campo notificationStatus poiché lo stato varia
-        a seconda della tipologia di notifica.
+        aggiungendo i campi notificationStatus (unificato per legali e bonarie) e communicationOutcomes.
+        Il campo notificationStatus conterrà valori di NotificationStatusV26 se communicationType è LEGAL,
+        oppure valori di InformalNotificationStatus se communicationType è INFORMAL.
       allOf:
         - $ref: '#/components/schemas/NotificationSearchRow'
         - type: object
           properties:
+            notificationStatus:
+              $ref: '#/components/schemas/UnifiedNotificationStatus'
             communicationOutcomes:
               $ref: '#/components/schemas/CommunicationOutcomes'
 
@@ -919,13 +930,12 @@ components:
             communicationOutcomes:
               $ref: '#/components/schemas/CommunicationOutcomes'
 
-    NotificationSearchResponse:
-      title: Elenco di notifiche
+    RecipientNotificationSearchResponse:
+      title: Elenco di notifiche per i destinatari
       description: >-
-        Dto generico contenente i risultati di una ricerca di notifiche mista (legali e bonarie).
-        Utilizzato dalle API dei destinatari. Gli elementi della pagina sono tipizzati con
-        RecipientNotificationSearchRow che estende la classe base con il campo communicationOutcomes,
-        ma senza notificationStatus (poiché lo stato varia a seconda della tipologia di notifica).
+        Dto contenente i risultati di una ricerca di notifiche mista (legali e bonarie) per i destinatari.
+        Gli elementi della pagina sono tipizzati con RecipientNotificationSearchRow che include
+        il campo notificationStatus (unificato) e communicationOutcomes.
       type: object
       properties:
         resultsPage:

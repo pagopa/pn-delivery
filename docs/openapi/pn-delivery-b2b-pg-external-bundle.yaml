@@ -113,7 +113,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotificationSearchResponse'
+                $ref: '#/components/schemas/LegalNotificationSearchResponse'
         '400':
           description: Bad request
           content:
@@ -155,7 +155,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotificationSearchResponse'
+                $ref: '#/components/schemas/LegalNotificationSearchResponse'
         '400':
           description: Bad request
           content:
@@ -680,45 +680,34 @@ components:
         mandateId:
           type: string
           description: Id delega (per notifiche delegate)
-    CommunicationOutcomes:
-      type: object
-      description: Esiti della comunicazione (solo per comunicazioni post-rilascio)
-      properties:
-        viewed:
-          type: boolean
-          description: Indica se la comunicazione è stata visualizzata dal destinatario
-        delivered:
-          type: boolean
-          description: Indica se la comunicazione è stata consegnata al destinatario
-    RecipientNotificationSearchRow:
+    LegalNotificationSearchRow:
       description: >-
-        Riga di risultato della ricerca notifiche per i destinatari. Estende
-        NotificationSearchRow aggiungendo il campo communicationOutcomes,
-        presente per entrambe le tipologie di notifica (legali e bonarie). Non
-        include il campo notificationStatus poiché lo stato varia a seconda
-        della tipologia di notifica.
+        Riga di risultato della ricerca di notifiche legali. Estende
+        NotificationSearchRow aggiungendo il campo notificationStatus tipizzato
+        con NotificationStatusV26, che rappresenta il ciclo di vita delle
+        notifiche legali.
       allOf:
         - $ref: '#/components/schemas/NotificationSearchRow'
         - type: object
           properties:
-            communicationOutcomes:
-              $ref: '#/components/schemas/CommunicationOutcomes'
-    NotificationSearchResponse:
-      title: Elenco di notifiche
+            notificationStatus:
+              $ref: '#/components/schemas/NotificationStatusV26'
+    LegalNotificationSearchResponse:
+      title: Elenco di notifiche legali
       description: >-
-        Dto generico contenente i risultati di una ricerca di notifiche mista
-        (legali e bonarie). Utilizzato dalle API dei destinatari. Gli elementi
-        della pagina sono tipizzati con RecipientNotificationSearchRow che
-        estende la classe base con il campo communicationOutcomes, ma senza
-        notificationStatus (poiché lo stato varia a seconda della tipologia di
-        notifica).
+        Dto contenente i risultati di una ricerca di notifiche legali. Ogni
+        risposta conterrà solo una pagina di risultati relativi a una ricerca e
+        le indicazioni per raggiungere alcune pagine successive. Gli elementi
+        della pagina sono tipizzati con LegalNotificationSearchRow il cui campo
+        notificationStatus rispecchia gli stati del ciclo di vita delle
+        notifiche legali (definiti in NotificationStatusV26).
       type: object
       properties:
         resultsPage:
           description: Una pagina di risultati della query
           type: array
           items:
-            $ref: '#/components/schemas/RecipientNotificationSearchRow'
+            $ref: '#/components/schemas/LegalNotificationSearchRow'
         moreResult:
           description: Indica se sono presenti ulteriori pagine di risultati
           type: boolean
