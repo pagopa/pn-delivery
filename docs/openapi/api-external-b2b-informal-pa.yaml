@@ -346,19 +346,89 @@ paths:
                   summary: Richiesta in attesa
                   description: La richiesta è stata presa in carico ma non ancora accettata.
                   value:
-                    notificationRequestId: TVBNRS1RR1RHLVZNVEUtMjAyNjA2LUgtQQ==
+                    senderDenomination: Comune di Palermo
+                    paProtocolNumber: "121251"
+                    campaignId: campaign-analog-workflow
+                    subject: Test notifica 121251
+                    recipients:
+                      - recipientType: PG
+                        taxId: "01113570442"
+                        denomination: Ettore Fieramosca
+                        physicalAddress:
+                          address: Roma Via del Campo 101
+                          zip: "00121"
+                          municipality: Roma
+                          province: RM
+                          foreignState: ITALIA
+                        payments:
+                          - pagoPa:
+                              noticeCode: "302040194342919104"
+                              creditorTaxId: "77777777777"
+                              attachment:
+                                digests:
+                                  sha256: 1QKD/Ks6BohyQ+bgMxHf9NrpNhVmGUPxRYE1aerU4JQ=
+                                contentType: application/pdf
+                                ref:
+                                  key: PN_NOTIFICATION_ATTACHMENTS-fec693663bb04300aa8d0af615d21e66.pdf
+                                  versionToken: v1
+                        messageId: aafadc53-9bff-4299-adc9-40e02998ee38
+                        additionalLanguages: []
+                    documents:
+                      - digests:
+                          sha256: SmHRur4+IVEaMHrYoof4mwzhxh3r2D/+WeVnMQnokgw=
+                        contentType: application/pdf
+                        ref:
+                          key: PN_NOTIFICATION_ATTACHMENTS-39a690b91d8a4d1fa3d6eae5f8246f57.pdf
+                          versionToken: v1
+                        docIdx: "0"
+                    notificationRequestId: UUVMSC1LRU5HLVlMTVAtMjAyNjA2LVYtQQ==
                     notificationRequestStatus: WAITING
-                    retryAfter: 1000
+                    retryAfter: 10
                 accepted:
                   summary: Richiesta accettata
                   description: La richiesta è stata accettata e la notifica risulta disponibile.
                   value:
+                    senderDenomination: Comune di Palermo
+                    paProtocolNumber: "302110111988283231"
+                    campaignId: campaign-1
+                    subject: Test notifica..302070111988283233
+                    recipients:
+                      - recipientType: PF
+                        taxId: FRMTTR76M06B715E
+                        denomination: Ettore Fieramosca
+                        physicalAddress:
+                          at: presso
+                          address: via Roma
+                          addressDetails: Strega
+                          zip: "82100"
+                          municipality: Benevento
+                          province: BN
+                          foreignState: ITALIA
+                        payments:
+                          - pagoPa:
+                              noticeCode: "302000111988284400"
+                              creditorTaxId: "77777777777"
+                              attachment:
+                                digests:
+                                  sha256: 1QKD/Ks6BohyQ+bgMxHf9NrpNhVmGUPxRYE1aerU4JQ=
+                                contentType: application/pdf
+                                ref:
+                                  key: PN_NOTIFICATION_ATTACHMENTS-61997b71a19c4e4e97d4228ee74326e9.pdf
+                                  versionToken: v1
+                        messageId: 94484841-57e5-496f-8f2d-eec053c539e3
+                        additionalLanguages: []
+                    documents:
+                      - digests:
+                          sha256: SmHRur4+IVEaMHrYoof4mwzhxh3r2D/+WeVnMQnokgw=
+                        contentType: application/pdf
+                        ref:
+                          key: PN_NOTIFICATION_ATTACHMENTS-dfe837b7e83e43ec9e9135d989196fd8.pdf
+                          versionToken: v1
+                        docIdx: "0"
+                    group: Gruppo1
                     notificationRequestId: TVBNRS1RR1RHLVZNVEUtMjAyNjA2LUgtQQ==
                     notificationRequestStatus: ACCEPTED
-                    notificationIun: TVBNRS1RR1RHLVZNVEUtMjAyNjA2LUgtQQ==
-                    timeline:
-                      - status: ACCEPTED
-                        timestamp: "2026-06-26T13:33:55.772Z"
+                    iun: MPME-QGTG-VMTE-202606-H-1
         '400':
           description: Bad request
           content:
