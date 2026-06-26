@@ -462,6 +462,50 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
 
+  ###########################################################################################
+  ###                          GESTIONE PRECARICAMENTO ALLEGATI                           ###
+  ###########################################################################################
+  "/delivery/v1/attachments/informal/preload":
+    post:
+      summary: Richiesta di pre-caricamento dei documenti della notifica bonaria
+      description: >-
+        Operazione che richiede a Piattaforma Notifica le informazioni e le autorizzazioni necessarie 
+        a precaricare uno o più file da allegare a una notifica bonaria. <br/>
+      tags:
+        - NewInformalNotification
+      operationId: informalPresignedUploadRequest
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/InformalPreLoadRequest"
+              minItems: 1
+              maxItems: 15
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InformalPreLoadResponse"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
 components:
   parameters:
     ############################################################################################
@@ -719,6 +763,83 @@ components:
           example: Parametro non valido
           type: string
 
+    ###########################################################################################
+    ###                             DTO PRECARICAMENTO ALLEGATI                             ###
+    ###########################################################################################
+    InformalPreLoadRequest:
+      title: Richiesta di precaricamento di un File
+      type: object
+      required:
+        - sha256
+      properties:
+        preloadIdx:
+          title: Id della richiesta di precaricamento di un file
+          description: >-
+            Identificativo univoco all'interno della request HTTP, serve per correlare la risposta.
+            Stringa alfanumerica con caratteri utilizzabili in un nome file.
+          type: string
+          minLength: 1
+          maxLength: 512
+          pattern: ^[a-zA-Z0-9._-]{1,512}$
+        contentType:
+          title: MIME type del file che verrà caricato
+          description: >-
+            Il MIME type dell'allegato che dovrà essere caricato. Attualmente sono supportati
+              - application/pdf
+          type: string
+          minLength: 15
+          maxLength: 16
+          pattern: ^application\/(pdf)$
+        sha256:
+          title: checksum sha256 del file che verrà caricato
+          description: >-
+            checksum sha256, codificato in base 64, del contenuto binario del file che verrà
+            caricato
+          type: string
+          example: 'jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE='
+          minLength: 44
+          maxLength: 44
+          pattern: ^[A-Za-z0-9+\/]{43}=|[A-Za-z0-9+\/]{44}$
+
+    InformalPreLoadResponse:
+      title: Informazioni per il caricamento file
+      description: >-
+        Per ogni richiesta che è stata fatta viene fornito un presigned URL e le 
+        informazioni per usarlo.
+      type: object
+      properties:
+        preloadIdx:
+          description: per correlazione con la richiesta. Stringa alfanumerica con caratteri utilizzabili in un file.
+          type: string
+          minLength: 1
+          maxLength: 512
+          pattern: ^[a-zA-Z0-9._-]{1,512}$
+        secret:
+          description: >-
+            Token aggiuntivo per far si che sia necessario intercettare anche gli 
+            header e non solo l'URL di upload del contenuto del documento.
+          example: AZ23RF12
+          type: string
+        httpMethod:
+          description: >-
+            Indica se per l'upload del contenuto file bisogna utilizzare il metodo PUT o POST
+          type: string
+          example: PUT
+          enum:
+            - POST
+            - PUT
+        url:
+          description: >-
+            URL a cui effettuare l'upload del contenuto del documento.
+          type: string
+          example: 'https://preloadpn.aws.amazon.......'
+        key:
+          description: >-
+            la chiave restituita sarà globalmente unica e andrà utilizzata nella richiesta 
+            di notifica.
+          example: 'PN_NOTIFICATION_ATTACHMENTS-0001-301W-B9CB-9U72-WIKD'
+          type: string
+
     Problem:
       $ref: './remote-refs.yaml#/components/schemas/Problem'
     ProblemError:
@@ -732,8 +853,3 @@ components:
 
 #security:                 # ONLY EXTERNAL
 #  - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
-
-
-
-
-
