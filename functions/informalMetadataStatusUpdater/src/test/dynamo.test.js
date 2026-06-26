@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 const sinon = require('sinon');
 const { DynamoDBDocumentClient, GetCommand, DeleteCommand, UpdateCommand } = require('@aws-sdk/lib-dynamodb');
-const { getItem, deleteItem, putMetadata, buildUpdateParams } = require('../app/lib/dynamo');
+const { getItem, deleteItem, updateNotificationMetadataRecord, buildNotificationMetadataUpdateParams } = require('../app/lib/dynamo');
 const { ItemNotFoundException } = require('../app/lib/exceptions');
 
 describe('dynamo.js tests', () => {
@@ -62,43 +62,42 @@ describe('dynamo.js tests', () => {
     });
   });
 
-  describe('putMetadata', () => {
-    it('should put metadata successfully', async () => {
+  describe('updateNotificationMetadataRecord', () => {
+    it('should execute UpdateCommand successfully', async () => {
       docClientStub.resolves({});
 
       const item = { iun_recipientId: 'iun1##rec1', notificationStatusTimestamp: '2025-01-01T00:00:00Z', notificationStatus: 'ACCEPTED' };
-      await putMetadata('testTable', item, 'iun_recipientId');
+      await updateNotificationMetadataRecord('testTable', item);
 
       expect(docClientStub.firstCall.args[0]).to.be.an.instanceof(UpdateCommand);
     });
 
-    it('should log and not throw error if ConditionalCheckFailedException occurs', async () => {
+    it('should log and not throw on ConditionalCheckFailedException', async () => {
       const error = new Error();
       error.name = 'ConditionalCheckFailedException';
       docClientStub.rejects(error);
 
-      const item = { testKey: 'key', notificationStatus: "DELIVERING" };
-      await putMetadata('testTable', item, 'testKey');
+      const item = { iun_recipientId: 'iun1##rec1', notificationStatus: 'DELIVERING', notificationStatusTimestamp: '2025-01-01T00:00:00Z' };
+      await updateNotificationMetadataRecord('testTable', item);
 
-      expect(logStub.firstCall.args[0]).to.be.equal('update not necessary for item with pk: key and status: DELIVERING on table: testTable');
+      expect(logStub.firstCall.args[0]).to.equal('update not necessary for item with pk: iun1##rec1 and status: DELIVERING on table: testTable');
     });
 
-    it('should throw error if other exception occurs', async () => {
+    it('should throw on other errors', async () => {
       const error = new Error('Test error');
       docClientStub.rejects(error);
 
-      const item = { notificationStatusTimestamp: '2025-01-01T00:00:00Z' };
+      const item = { iun_recipientId: 'iun1##rec1', notificationStatus: 'ACCEPTED', notificationStatusTimestamp: '2025-01-01T00:00:00Z' };
       try {
-        await putMetadata('testTable', item, 'testKey')
-      } catch (error) {
-        expect(error.message).to.equal('Test error');
+        await updateNotificationMetadataRecord('testTable', item);
+        expect.fail('should have thrown');
+      } catch (err) {
+        expect(err.message).to.equal('Test error');
       }
     });
   });
 
-  describe('buildUpdateParams', () => {
-    const partitionKeyName = 'iun_recipientId';
-
+  describe('buildNotificationMetadataUpdateParams', () => {
     const fullItem = {
       iun_recipientId: 'iun1##rec1',
       notificationStatus: 'ACCEPTED',
@@ -123,13 +122,13 @@ describe('dynamo.js tests', () => {
       recipientOne: true,
     };
 
-    it('should set Key to partition key only', () => {
-      const params = buildUpdateParams('testTable', fullItem, partitionKeyName);
+    it('should set Key to iun_recipientId', () => {
+      const params = buildNotificationMetadataUpdateParams('testTable', fullItem);
       expect(params.Key).to.deep.equal({ iun_recipientId: 'iun1##rec1' });
     });
 
-    it('should include every field of the item (except partition key) in UpdateExpression', () => {
-      const params = buildUpdateParams('testTable', fullItem, partitionKeyName);
+    it('should include all notification metadata fields in UpdateExpression', () => {
+      const params = buildNotificationMetadataUpdateParams('testTable', fullItem);
       const expr = params.UpdateExpression;
 
       expect(expr).to.include('#notificationStatus = :notificationStatus');
@@ -146,10 +145,13 @@ describe('dynamo.js tests', () => {
       expect(expr).to.include('#senderId_creationMonth = :senderId_creationMonth');
       expect(expr).to.include('#recipientId_creationMonth = :recipientId_creationMonth');
       expect(expr).to.include('#recipientOne = :recipientOne');
+      expect(expr).to.include('#viewed = if_not_exists(#viewed, :false)');
+      expect(expr).to.include('#delivered = if_not_exists(#delivered, :false)');
+      expect(expr).to.include('#desiredFeedback = if_not_exists(#desiredFeedback, :false)');
     });
 
-    it('should map every non-key field value into ExpressionAttributeValues', () => {
-      const params = buildUpdateParams('testTable', fullItem, partitionKeyName);
+    it('should map every field value into ExpressionAttributeValues', () => {
+      const params = buildNotificationMetadataUpdateParams('testTable', fullItem);
       const vals = params.ExpressionAttributeValues;
 
       expect(vals[':notificationStatus']).to.equal('ACCEPTED');
@@ -166,39 +168,37 @@ describe('dynamo.js tests', () => {
       expect(vals[':senderId_creationMonth']).to.equal('sender1##202501');
       expect(vals[':recipientId_creationMonth']).to.equal('rec1##202501');
       expect(vals[':recipientOne']).to.equal(true);
+      expect(vals[':statusChangeTimestamp']).to.equal('2025-01-01T00:00:00Z');
+      expect(vals[':false']).to.equal(false);
     });
 
-    it('should preserve nested objects (tableRow) as-is in ExpressionAttributeValues', () => {
-      const params = buildUpdateParams('testTable', fullItem, partitionKeyName);
+    it('should preserve nested tableRow object as-is', () => {
+      const params = buildNotificationMetadataUpdateParams('testTable', fullItem);
       expect(params.ExpressionAttributeValues[':tableRow']).to.deep.equal(fullItem.tableRow);
     });
 
-    it('should not include partition key in UpdateExpression or ExpressionAttributeValues', () => {
-      const params = buildUpdateParams('testTable', fullItem, partitionKeyName);
-      expect(params.UpdateExpression).to.not.include(`#${partitionKeyName}`);
-      expect(params.ExpressionAttributeValues).to.not.have.property(`:${partitionKeyName}`);
+    it('should not include iun_recipientId in UpdateExpression or ExpressionAttributeValues', () => {
+      const params = buildNotificationMetadataUpdateParams('testTable', fullItem);
+      expect(params.UpdateExpression).to.not.include('#iun_recipientId');
+      expect(params.ExpressionAttributeValues).to.not.have.property(':iun_recipientId');
     });
 
     it('should set correct ConditionExpression for timestamp ordering', () => {
-      const params = buildUpdateParams('testTable', fullItem, partitionKeyName);
+      const params = buildNotificationMetadataUpdateParams('testTable', fullItem);
       expect(params.ConditionExpression).to.equal(
         'attribute_not_exists(#notificationStatusTimestamp) OR #notificationStatusTimestamp < :statusChangeTimestamp'
       );
       expect(params.ExpressionAttributeValues[':statusChangeTimestamp']).to.equal(fullItem.notificationStatusTimestamp);
     });
 
-    it('should skip null values', () => {
-      const itemWithNull = { ...fullItem, campaignId: null };
-      const params = buildUpdateParams('testTable', itemWithNull, partitionKeyName);
-      expect(params.UpdateExpression).to.not.include('#campaignId');
-      expect(params.ExpressionAttributeValues).to.not.have.property(':campaignId');
+    it('should set null for optional field campaignId when it is null', () => {
+      const params = buildNotificationMetadataUpdateParams('testTable', { ...fullItem, campaignId: null });
+      expect(params.ExpressionAttributeValues[':campaignId']).to.be.null;
     });
 
-    it('should skip undefined values', () => {
-      const itemWithUndefined = { ...fullItem, campaignId: undefined };
-      const params = buildUpdateParams('testTable', itemWithUndefined, partitionKeyName);
-      expect(params.UpdateExpression).to.not.include('#campaignId');
-      expect(params.ExpressionAttributeValues).to.not.have.property(':campaignId');
+    it('should set null for optional field campaignId when it is undefined', () => {
+      const params = buildNotificationMetadataUpdateParams('testTable', { ...fullItem, campaignId: undefined });
+      expect(params.ExpressionAttributeValues[':campaignId']).to.be.null;
     });
   });
 })

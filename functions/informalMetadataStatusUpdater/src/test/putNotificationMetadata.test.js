@@ -4,7 +4,7 @@ const { putNotificationMetadata } = require('../app/lib/putNotificationMetadata'
 const dynamo = require('../app/lib/dynamo');
 
 describe('putNotificationMetadata', () => {
-  let statusInfo, notification, putMetadataStub, consoleLogStub;
+  let statusInfo, notification, updateNotificationMetadataRecordStub, consoleLogStub;
 
   beforeEach(() => {
     statusInfo = {
@@ -27,7 +27,7 @@ describe('putNotificationMetadata', () => {
       senderDenomination: 'senderDenomination1',
     };
 
-    putMetadataStub = sinon.stub(dynamo, "putMetadata").resolves();
+    updateNotificationMetadataRecordStub = sinon.stub(dynamo, "updateNotificationMetadataRecord").resolves();
     consoleLogStub = sinon.stub(console, 'log');
   });
 
@@ -38,21 +38,21 @@ describe('putNotificationMetadata', () => {
   it('should put notification metadata for all recipients', async () => {
     await putNotificationMetadata(statusInfo, notification);
 
-    expect(putMetadataStub.callCount).to.equal(1);
-    expect(putMetadataStub.firstCall.args[0]).to.equal('pn-NotificationsMetadata');
+    expect(updateNotificationMetadataRecordStub.callCount).to.equal(1);
+    expect(updateNotificationMetadataRecordStub.firstCall.args[0]).to.equal('pn-NotificationsMetadata');
   });
 
   it('should include communicationType INFORMAL in notification metadata payload', async () => {
     await putNotificationMetadata(statusInfo, notification);
 
-    const metadataPayload = putMetadataStub.firstCall.args[1];
+    const metadataPayload = updateNotificationMetadataRecordStub.firstCall.args[1];
     expect(metadataPayload).to.have.property('communicationType', 'INFORMAL');
   });
 
   it('should include campaignId in notification metadata payload', async () => {
     await putNotificationMetadata(statusInfo, notification);
 
-    const metadataPayload = putMetadataStub.firstCall.args[1];
+    const metadataPayload = updateNotificationMetadataRecordStub.firstCall.args[1];
     expect(metadataPayload).to.have.property('campaignId', 'campaign1');
   });
 
@@ -60,7 +60,7 @@ describe('putNotificationMetadata', () => {
     delete notification.campaignId;
     await putNotificationMetadata(statusInfo, notification);
 
-    const metadataPayload = putMetadataStub.firstCall.args[1];
+    const metadataPayload = updateNotificationMetadataRecordStub.firstCall.args[1];
     expect(metadataPayload).to.have.property('campaignId', undefined);
   });
 
@@ -73,19 +73,19 @@ describe('putNotificationMetadata', () => {
 
     await putNotificationMetadata(statusInfo, notification);
 
-    expect(putMetadataStub.callCount).to.equal(3);
+    expect(updateNotificationMetadataRecordStub.callCount).to.equal(3);
   });
 
   it('should not include rootSenderId in informal metadata payload', async () => {
     await putNotificationMetadata(statusInfo, notification);
 
-    const metadataPayload = putMetadataStub.firstCall.args[1];
+    const metadataPayload = updateNotificationMetadataRecordStub.firstCall.args[1];
     expect(metadataPayload).to.not.have.property('rootSenderId');
   });
 
   it('should handle errors and log them', async () => {
     const error = new Error('Test error');
-    putMetadataStub.rejects(error);
+    updateNotificationMetadataRecordStub.rejects(error);
 
     try {
       await putNotificationMetadata(statusInfo, notification);

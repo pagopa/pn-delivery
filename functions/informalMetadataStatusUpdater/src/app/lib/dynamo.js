@@ -51,48 +51,82 @@ const deleteItem = async (TableName, Key, Iun) => {
   }
 };
 
-const putMetadata = async (tablename, item, partitionKeyName) => {
-  const params = buildUpdateParams(tablename, item, partitionKeyName);
+const buildNotificationMetadataUpdateParams = (tablename, item) => ({
+  TableName: tablename,
+  Key: { iun_recipientId: item.iun_recipientId },
+  UpdateExpression:
+    "SET #notificationStatus = :notificationStatus, " +
+    "#notificationStatusTimestamp = :notificationStatusTimestamp, " +
+    "#senderId = :senderId, " +
+    "#recipientId = :recipientId, " +
+    "#sentAt = :sentAt, " +
+    "#notificationGroup = :notificationGroup, " +
+    "#communicationType = :communicationType, " +
+    "#campaignId = :campaignId, " +
+    "#recipientIds = :recipientIds, " +
+    "#tableRow = :tableRow, " +
+    "#senderId_recipientId = :senderId_recipientId, " +
+    "#senderId_creationMonth = :senderId_creationMonth, " +
+    "#recipientId_creationMonth = :recipientId_creationMonth, " +
+    "#recipientOne = :recipientOne, " +
+    "#viewed = if_not_exists(#viewed, :false), " +
+    "#delivered = if_not_exists(#delivered, :false), " +
+    "#desiredFeedback = if_not_exists(#desiredFeedback, :false)",
+  ConditionExpression:
+    "attribute_not_exists(#notificationStatusTimestamp) OR #notificationStatusTimestamp < :statusChangeTimestamp",
+  ExpressionAttributeNames: {
+    "#notificationStatus": "notificationStatus",
+    "#notificationStatusTimestamp": "notificationStatusTimestamp",
+    "#senderId": "senderId",
+    "#recipientId": "recipientId",
+    "#sentAt": "sentAt",
+    "#notificationGroup": "notificationGroup",
+    "#communicationType": "communicationType",
+    "#campaignId": "campaignId",
+    "#recipientIds": "recipientIds",
+    "#tableRow": "tableRow",
+    "#senderId_recipientId": "senderId_recipientId",
+    "#senderId_creationMonth": "senderId_creationMonth",
+    "#recipientId_creationMonth": "recipientId_creationMonth",
+    "#recipientOne": "recipientOne",
+    "#viewed": "viewed",
+    "#delivered": "delivered",
+    "#desiredFeedback": "desiredFeedback",
+  },
+  ExpressionAttributeValues: {
+    ":notificationStatus": item.notificationStatus,
+    ":notificationStatusTimestamp": item.notificationStatusTimestamp,
+    ":senderId": item.senderId,
+    ":recipientId": item.recipientId,
+    ":sentAt": item.sentAt,
+    ":notificationGroup": item.notificationGroup ?? null,
+    ":communicationType": item.communicationType ?? null,
+    ":campaignId": item.campaignId ?? null,
+    ":recipientIds": item.recipientIds,
+    ":tableRow": item.tableRow,
+    ":senderId_recipientId": item.senderId_recipientId,
+    ":senderId_creationMonth": item.senderId_creationMonth,
+    ":recipientId_creationMonth": item.recipientId_creationMonth,
+    ":recipientOne": item.recipientOne,
+    ":statusChangeTimestamp": item.notificationStatusTimestamp,
+    ":false": false,
+  },
+});
+
+const updateNotificationMetadataRecord = async (tablename, item) => {
+  const params = buildNotificationMetadataUpdateParams(tablename, item);
   try {
     const command = new UpdateCommand(params);
-    const result = await docClient.send(command);
-    console.log(`putItem successfully executed with pk: ${item[partitionKeyName]} and status: ${item.notificationStatus} on table: ${tablename}`);
+    await docClient.send(command);
+    console.log(`putItem successfully executed with pk: ${item.iun_recipientId} and status: ${item.notificationStatus} on table: ${tablename}`);
   } catch (error) {
     if (error.name === "ConditionalCheckFailedException") {
-      console.log(
-        `update not necessary for item with pk: ${item[partitionKeyName]} and status: ${item.notificationStatus} on table: ${tablename}`
-      );
+      console.log(`update not necessary for item with pk: ${item.iun_recipientId} and status: ${item.notificationStatus} on table: ${tablename}`);
     } else {
-      console.log(`Error ${error.message} during putMetadata with pk: ${item[partitionKeyName]} and status: ${item.notificationStatus} on table: ${tablename}`);
+      console.log(`Error ${error.message} during updateNotificationMetadataRecord with pk: ${item.iun_recipientId} and status: ${item.notificationStatus} on table: ${tablename}`);
       throw error;
     }
   }
 };
 
-const buildUpdateParams = (tablename, item, partitionKeyName) => {
-  const key = { [partitionKeyName]: item[partitionKeyName] };
-
-  const setExpressions = [];
-  const expressionAttributeValues = { ":statusChangeTimestamp": item.notificationStatusTimestamp };
-  const expressionAttributeNames = { "#notificationStatusTimestamp": "notificationStatusTimestamp" };
-
-  for (const [field, value] of Object.entries(item)) {
-    if (field !== partitionKeyName && value !== null && value !== undefined) {
-      setExpressions.push(`#${field} = :${field}`);
-      expressionAttributeValues[`:${field}`] = value;
-      expressionAttributeNames[`#${field}`] = field;
-    }
-  }
-
-  return {
-    TableName: tablename,
-    Key: key,
-    UpdateExpression: `SET ${setExpressions.join(", ")}`,
-    ConditionExpression:
-      "attribute_not_exists(#notificationStatusTimestamp) OR #notificationStatusTimestamp < :statusChangeTimestamp",
-    ExpressionAttributeNames: expressionAttributeNames,
-    ExpressionAttributeValues: expressionAttributeValues,
-  };
-};
-
-module.exports = { getItem, deleteItem, putMetadata, buildUpdateParams };
+module.exports = { getItem, deleteItem, updateNotificationMetadataRecord, buildNotificationMetadataUpdateParams };

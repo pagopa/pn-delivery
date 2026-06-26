@@ -11,10 +11,9 @@ const putNotificationMetadata = async (
       notification,
       recipient
     );
-    await dynamo.putMetadata(
+    await dynamo.updateNotificationMetadataRecord(
       "pn-NotificationsMetadata",
-      notificationMetadata,
-      "iun_recipientId"
+      notificationMetadata
     );
   }
 };
