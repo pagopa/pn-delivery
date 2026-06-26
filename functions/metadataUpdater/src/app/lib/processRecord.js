@@ -2,13 +2,17 @@ const utils = require("./utils");
 const { unmarshall } = require("@aws-sdk/util-dynamodb");
 const dynamo = require("./dynamo");
 
-const CATEGORY_FIELD_MAP = {
+const LEGAL_CATEGORY_FIELD_MAP = {
   NOTIFICATION_VIEWED: () => ({ viewed: true }),
-  NOTIFICATION_VIEWED_INFORMAL: () => ({ viewed: true }),
   SEND_DIGITAL_FEEDBACK: (details) =>
     details && details.responseStatus === "OK" ? { delivered: true } : null,
   SEND_ANALOG_FEEDBACK: (details) =>
     details && details.responseStatus === "OK" ? { delivered: true } : null,
+};
+
+const INFORMAL_CATEGORY_FIELD_MAP = {
+  INFORMAL_NOTIFICATION_VIEWED: () => ({ viewed: true }),
+  REACHED: () => ({ delivered: true }),
   WORKFLOW_DONE: () => ({ desiredFeedback: true }),
 };
 
@@ -19,7 +23,15 @@ const processRecord = async (record) => {
 
   console.log(`Processing record for notification ${iun} with category ${category}`);
 
-  const categoryHandler = CATEGORY_FIELD_MAP[category];
+  const notification = await dynamo.getItem("pn-Notifications", { iun });
+
+  const communicationType = notification.communicationType;
+  const categoryMap =
+    communicationType === "INFORMAL"
+      ? INFORMAL_CATEGORY_FIELD_MAP
+      : LEGAL_CATEGORY_FIELD_MAP;
+
+  const categoryHandler = categoryMap[category];
   if (!categoryHandler) {
     console.log(`Skipping unhandled category ${category} for notification ${iun}`);
     return;
@@ -37,8 +49,6 @@ const processRecord = async (record) => {
     console.error(errMsg);
     throw new Error(errMsg);
   }
-
-  const notification = await dynamo.getItem("pn-Notifications", { iun });
 
   const recipient = notification.recipients[recIndex];
   if (!recipient) {

@@ -9,8 +9,18 @@ describe('processRecord tests', () => {
     kinesis: { data: 'mockedEncodedData' },
   };
 
-  const notificationMock = {
+  const legalNotificationMock = {
     iun: 'mockedIun',
+    communicationType: 'LEGAL',
+    recipients: [
+      { recipientId: 'recipientId1' },
+      { recipientId: 'recipientId2' },
+    ],
+  };
+
+  const informalNotificationMock = {
+    iun: 'mockedIun',
+    communicationType: 'INFORMAL',
     recipients: [
       { recipientId: 'recipientId1' },
       { recipientId: 'recipientId2' },
@@ -42,7 +52,7 @@ describe('processRecord tests', () => {
 
   beforeEach(() => {
     decodePayloadStub = sinon.stub(utils, 'decodePayload');
-    getItemStub = sinon.stub(dynamo, 'getItem').resolves(notificationMock);
+    getItemStub = sinon.stub(dynamo, 'getItem').resolves(legalNotificationMock);
     updateMetadataStub = sinon.stub(dynamo, 'updateMetadata').resolves();
     sinon.stub(console, 'log');
     sinon.stub(console, 'error');
@@ -52,6 +62,7 @@ describe('processRecord tests', () => {
     sinon.restore();
   });
 
+  // LEGAL notification tests
   it('should set viewed=true for NOTIFICATION_VIEWED on the correct recipient', async () => {
     decodePayloadStub.returns(makeKinesisPayload('NOTIFICATION_VIEWED', { recIndex: 0 }));
 
@@ -73,15 +84,6 @@ describe('processRecord tests', () => {
 
     expect(updateMetadataStub.callCount).to.equal(1);
     expect(updateMetadataStub.firstCall.args[1]).to.deep.equal({ iun_recipientId: 'mockedIun##recipientId2' });
-  });
-
-  it('should set viewed=true for NOTIFICATION_VIEWED_INFORMAL on the correct recipient', async () => {
-    decodePayloadStub.returns(makeKinesisPayload('NOTIFICATION_VIEWED_INFORMAL', { recIndex: 0 }));
-
-    await processRecord(record);
-
-    expect(updateMetadataStub.callCount).to.equal(1);
-    expect(updateMetadataStub.firstCall.args[2]).to.deep.equal({ viewed: true });
   });
 
   it('should set delivered=true for SEND_DIGITAL_FEEDBACK with responseStatus OK', async () => {
@@ -107,7 +109,7 @@ describe('processRecord tests', () => {
 
     await processRecord(record);
 
-    expect(getItemStub.called).to.be.false;
+    expect(getItemStub.called).to.be.true;
     expect(updateMetadataStub.called).to.be.false;
   });
 
@@ -116,11 +118,50 @@ describe('processRecord tests', () => {
 
     await processRecord(record);
 
-    expect(getItemStub.called).to.be.false;
+    expect(getItemStub.called).to.be.true;
     expect(updateMetadataStub.called).to.be.false;
   });
 
-  it('should set desiredFeedback=true for WORKFLOW_DONE', async () => {
+  it('should skip WORKFLOW_DONE for LEGAL notification', async () => {
+    decodePayloadStub.returns(makeKinesisPayload('WORKFLOW_DONE', { recIndex: 0 }));
+
+    await processRecord(record);
+
+    expect(getItemStub.called).to.be.true;
+    expect(updateMetadataStub.called).to.be.false;
+  });
+
+  // INFORMAL notification tests
+  it('should set viewed=true for INFORMAL_NOTIFICATION_VIEWED on the correct recipient', async () => {
+    getItemStub.resolves(informalNotificationMock);
+    decodePayloadStub.returns(makeKinesisPayload('INFORMAL_NOTIFICATION_VIEWED', { recIndex: 0 }));
+
+    await processRecord(record);
+
+    expect(updateMetadataStub.callCount).to.equal(1);
+    expect(updateMetadataStub.firstCall.args).to.deep.equal([
+      'pn-NotificationsMetadata',
+      { iun_recipientId: 'mockedIun##recipientId1' },
+      { viewed: true },
+    ]);
+  });
+
+  it('should set delivered=true for REACHED on the correct recipient', async () => {
+    getItemStub.resolves(informalNotificationMock);
+    decodePayloadStub.returns(makeKinesisPayload('REACHED', { recIndex: 1 }));
+
+    await processRecord(record);
+
+    expect(updateMetadataStub.callCount).to.equal(1);
+    expect(updateMetadataStub.firstCall.args).to.deep.equal([
+      'pn-NotificationsMetadata',
+      { iun_recipientId: 'mockedIun##recipientId2' },
+      { delivered: true },
+    ]);
+  });
+
+  it('should set desiredFeedback=true for WORKFLOW_DONE on INFORMAL notification', async () => {
+    getItemStub.resolves(informalNotificationMock);
     decodePayloadStub.returns(makeKinesisPayload('WORKFLOW_DONE', { recIndex: 1 }));
 
     await processRecord(record);
@@ -130,12 +171,23 @@ describe('processRecord tests', () => {
     expect(updateMetadataStub.firstCall.args[2]).to.deep.equal({ desiredFeedback: true });
   });
 
+  it('should skip NOTIFICATION_VIEWED for INFORMAL notification', async () => {
+    getItemStub.resolves(informalNotificationMock);
+    decodePayloadStub.returns(makeKinesisPayload('NOTIFICATION_VIEWED', { recIndex: 0 }));
+
+    await processRecord(record);
+
+    expect(getItemStub.called).to.be.true;
+    expect(updateMetadataStub.called).to.be.false;
+  });
+
+  // Common tests
   it('should skip unknown category', async () => {
     decodePayloadStub.returns(makeKinesisPayload('UNKNOWN_CATEGORY'));
 
     await processRecord(record);
 
-    expect(getItemStub.called).to.be.false;
+    expect(getItemStub.called).to.be.true;
     expect(updateMetadataStub.called).to.be.false;
   });
 
@@ -147,7 +199,7 @@ describe('processRecord tests', () => {
       expect.fail('should have thrown');
     } catch (err) {
       expect(err.message).to.include('Missing recIndex');
-      expect(getItemStub.called).to.be.false;
+      expect(getItemStub.called).to.be.true;
     }
   });
 
@@ -163,7 +215,7 @@ describe('processRecord tests', () => {
   });
 
   it('should throw error when getItem fails', async () => {
-    decodePayloadStub.returns(makeKinesisPayload('WORKFLOW_DONE', { recIndex: 0 }));
+    decodePayloadStub.returns(makeKinesisPayload('NOTIFICATION_VIEWED', { recIndex: 0 }));
     getItemStub.rejects(new Error('DynamoDB error'));
 
     try {
