@@ -324,7 +324,7 @@ class PnInternalNotificationsControllerTest {
         String validIun = "ABCD-EFGH-IJKL-123456-M-N";
         InformalNotificationDetail informalNotificationDetail = newInformalNotification();
 
-        Mockito.when(informalNotificationDetailRetrieverStrategy.getNotificationInformation(anyString(), anyBoolean(), anyBoolean(),eq(null)))
+        Mockito.when(informalNotificationDetailRetrieverStrategy.getNotificationInformation(anyString(), anyBoolean(), anyBoolean(), anyBoolean(),eq(null)))
                 .thenReturn(informalNotificationDetail);
 
         webTestClient.get()
@@ -344,7 +344,7 @@ class PnInternalNotificationsControllerTest {
                 .exchange()
                 .expectStatus().isBadRequest();
         Mockito.verify(informalNotificationDetailRetrieverStrategy, Mockito.never())
-                .getNotificationInformation(anyString(), anyBoolean(), anyBoolean(), eq(null));
+                .getNotificationInformation(anyString(), anyBoolean(), anyBoolean(), anyBoolean(), eq(null));
     }
 
     @Test

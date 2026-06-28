@@ -390,8 +390,8 @@ public class PnReceivedNotificationsController implements RecipientReadApi, Reci
             InformalNotificationDetail informalNotificationDetail = informalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(
                     iun,
                     internalAuthHeader,
-                    null,
-                    logEvent);
+                    logEvent
+            );
             InternalNotification internalNotification = informalNotificationDetail.getNotification();
             InternalFieldsCleaner.cleanInternalFields( internalNotification );
             result = modelMapper.map(informalNotificationDetail, FullReceivedInformalNotificationV1.class);

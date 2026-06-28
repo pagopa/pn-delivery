@@ -263,7 +263,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
                         tle -> InformalTimelineElementCategoryV1.REQUEST_REFUSED.equals(tle.getCategory())).findFirst();
                 timelineElement.ifPresent(element -> response.setErrors(getInformalNotificationRefusedErrors(element)));
             }
-            default -> response.setNotificationRequestStatus("PROCESSING");
+            default -> response.setNotificationRequestStatus("ACCEPTED");
         }
 
         logEvent.generateSuccess().log();
@@ -299,7 +299,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
     @Override
     public ResponseEntity<FullSentInformalNotificationV1> getSentInformalNotificationV1(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
         InformalNotificationDetail informalNotificationDetail =
-                informalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(iun, xPagopaPnCxId, xPagopaPnCxGroups );
+                informalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheckAndMessage(iun, xPagopaPnCxId, xPagopaPnCxGroups );
         InternalNotification internalNotification = informalNotificationDetail.getNotification();
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
@@ -307,7 +307,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
                 .iun(iun)
                 .build();
         logEvent.log();
-        if ( InformalNotificationStatusV1.ACCEPTED.equals( informalNotificationDetail.getNotificationStatus() )
+        if ( InformalNotificationStatusV1.IN_VALIDATION.equals( informalNotificationDetail.getNotificationStatus() )
                 || InformalNotificationStatusV1.REFUSED.equals( informalNotificationDetail.getNotificationStatus() ) ) {
             logEvent.generateFailure("Unable to find informal notification with iun={} cause status={}", internalNotification.getIun(), informalNotificationDetail.getNotificationStatus()).log();
             throw new PnNotificationNotFoundException( "Unable to find informal notification with iun="+ internalNotification.getIun() );

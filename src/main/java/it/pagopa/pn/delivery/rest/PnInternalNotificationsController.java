@@ -135,10 +135,11 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     }
 
     @Override
-    public ResponseEntity<InformalSentNotificationV1> getSentInformalNotificationPrivateV1(String iun) {
+    public ResponseEntity<InformalSentNotificationV1> getSentInformalNotificationPrivateV1(String iun, Boolean retrieveMessage) {
         InformalNotificationDetail informalNotificationDetail = informalNotificationDetailRetrieverStrategy.getNotificationInformation(
                 iun,
                 false,
+                Boolean.TRUE.equals(retrieveMessage),
                 true,
                 null);
         InternalNotification notification = informalNotificationDetail.getNotification();

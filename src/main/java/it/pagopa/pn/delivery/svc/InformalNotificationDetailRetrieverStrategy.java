@@ -14,6 +14,7 @@ import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.svc.authorization.CxType;
 import it.pagopa.pn.delivery.svc.search.InformalTimelineEnricher;
+import it.pagopa.pn.delivery.svc.search.MessageEnricher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,17 +37,19 @@ public class InformalNotificationDetailRetrieverStrategy implements Notification
 	private final NotificationViewedProducer notificationAcknowledgementProducer;
 	private final InformalTimelineEnricher informalTimelineEnricher;
 	private final NotificationRetrieverService notificationRetrieverService;
+	private final MessageEnricher messageEnricher;
 
 
 	@Autowired
 	public InformalNotificationDetailRetrieverStrategy(Clock clock,
                                                        NotificationViewedProducer notificationAcknowledgementProducer,
                                                        InformalTimelineEnricher informalTimelineEnricher,
-													   NotificationRetrieverService notificationRetrieverService) {
+                                                       NotificationRetrieverService notificationRetrieverService, MessageEnricher messageEnricher) {
 		this.clock = clock;
 		this.notificationAcknowledgementProducer = notificationAcknowledgementProducer;
         this.informalTimelineEnricher = informalTimelineEnricher;
         this.notificationRetrieverService = notificationRetrieverService;
+        this.messageEnricher = messageEnricher;
     }
 
 	/**
@@ -60,10 +63,13 @@ public class InformalNotificationDetailRetrieverStrategy implements Notification
 	 * @return Notification DTO
 	 *
 	 */
-	@Override
-	public InformalNotificationDetail getNotificationInformation(String iun, boolean withTimeline, boolean requestBySender, String senderId) {
+	public InformalNotificationDetail getNotificationInformation(String iun, boolean withTimeline, boolean withMessage, boolean requestBySender, String senderId) {
 		log.debug( "Retrieve notification by iun={} withTimeline={} requestBySender={} START", iun, withTimeline, requestBySender );
-		return notificationRetrieverService.loadAndEnrichNotificationDetail(iun, withTimeline, requestBySender, senderId, new InformalNotificationDetail(), informalTimelineEnricher);
+		InformalNotificationDetail informalNotificationDetail =  notificationRetrieverService.loadAndEnrichNotificationDetail(iun, withTimeline, requestBySender, senderId, new InformalNotificationDetail(), informalTimelineEnricher);
+		if(withMessage) {
+			messageEnricher.enrichInternalNotification(informalNotificationDetail.getNotification());
+		}
+		return informalNotificationDetail;
 	}
 
 	/**
@@ -82,6 +88,13 @@ public class InformalNotificationDetailRetrieverStrategy implements Notification
 		return notificationRetrieverService.loadCheckAndEnrichNotificationDetail(iun, senderId, groups, new InformalNotificationDetail(), informalTimelineEnricher);
 	}
 
+	public InformalNotificationDetail getNotificationInformationWithSenderIdCheckAndMessage(String iun, String senderId, List<String> groups) {
+		log.debug( "Retrieve complete notification with sender check and message by iun={} senderId={} START", iun, senderId );
+		InformalNotificationDetail informalNotificationDetail = notificationRetrieverService.loadCheckAndEnrichNotificationDetail(iun, senderId, groups, new InformalNotificationDetail(), informalTimelineEnricher);
+		messageEnricher.enrichInternalNotification(informalNotificationDetail.getNotification());
+		return informalNotificationDetail;
+	}
+
 	@Override
 	public InformalNotificationDetail getNotificationInformation(String senderId, String paProtocolNumber, String idempotenceToken, List<String> groups) {
 		String iun = notificationRetrieverService.resolveIunFromRequestId(senderId, paProtocolNumber, idempotenceToken);
@@ -93,19 +106,16 @@ public class InformalNotificationDetailRetrieverStrategy implements Notification
 	 *
 	 * @param iun                	unique identifier of a Notification
 	 * @param internalAuthHeader	header cx-*
-	 * @param mandateId 	 		id delega (opzionale)
 	 * @return Notification
 	 */
-	@Override
 	public InformalNotificationDetail getNotificationAndNotifyViewedEvent(
 			String iun,
 			InternalAuthHeader internalAuthHeader,
-			String mandateId,
 			PnAuditLogEvent logEvent
 	) {
 		log.debug("Start getInformalNotificationAndNotifyViewedEvent for {}", iun);
 
-		InformalNotificationDetail notificationDetail = getNotificationInformation(iun, true, false, null);
+		InformalNotificationDetail notificationDetail = getNotificationInformation(iun, true, true, false, null);
 		InternalNotification notification = notificationDetail.getNotification();
 		if (checkAuthorizationPG(internalAuthHeader.cxType(), internalAuthHeader.xPagopaPnCxGroups())) {
 			log.error( "only a PG admin can access this resource" );

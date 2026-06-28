@@ -72,7 +72,6 @@ public class LegalNotificationDetailRetrieverStrategy implements NotificationDet
 	 * @return Notification DTO
 	 *
 	 */
-	@Override
 	public LegalNotificationDetail getNotificationInformation(String iun, boolean withTimeline, boolean requestBySender, String senderId) {
 		log.debug( "Retrieve notification by iun={} withTimeline={} requestBySender={} START", iun, withTimeline, requestBySender );
 		return notificationRetrieverService.loadAndEnrichNotificationDetail(iun, withTimeline, requestBySender, senderId, new LegalNotificationDetail(), legalTimelineEnricher);
@@ -110,7 +109,6 @@ public class LegalNotificationDetailRetrieverStrategy implements NotificationDet
 	 * @param mandateId 	 		id delega (opzionale)
 	 * @return Notification
 	 */
-	@Override
 	public LegalNotificationDetail getNotificationAndNotifyViewedEvent(
 			String iun,
 			InternalAuthHeader internalAuthHeader,

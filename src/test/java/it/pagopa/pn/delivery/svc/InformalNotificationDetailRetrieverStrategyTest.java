@@ -18,6 +18,7 @@ import it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAd
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
 import it.pagopa.pn.delivery.svc.search.InformalTimelineEnricher;
+import it.pagopa.pn.delivery.svc.search.MessageEnricher;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,6 +54,7 @@ class InformalNotificationDetailRetrieverStrategyTest {
     private NotificationViewedProducer notificationViewedProducer;
     private InformalTimelineEnricher informalTimelineEnricher;
     private NotificationRetrieverService notificationRetrieverService;
+    private MessageEnricher messageEnricher;
 
     private InformalNotificationDetailRetrieverStrategy strategy;
 
@@ -62,17 +64,19 @@ class InformalNotificationDetailRetrieverStrategyTest {
         this.notificationViewedProducer = Mockito.mock(NotificationViewedProducer.class);
         this.informalTimelineEnricher = Mockito.mock(InformalTimelineEnricher.class);
         this.notificationRetrieverService = Mockito.mock(NotificationRetrieverService.class);
+        this.messageEnricher = Mockito.mock(MessageEnricher.class);
 
         this.strategy = new InformalNotificationDetailRetrieverStrategy(
                 clock,
                 notificationViewedProducer,
                 informalTimelineEnricher,
-                notificationRetrieverService
+                notificationRetrieverService,
+                messageEnricher
         );
     }
 
     @Test
-    void getNotificationInformationShouldDelegateToRetrieverService() {
+    void getNotificationInformationShouldDelegateToRetrieverServiceAndUseMessageEnricher() {
         InformalNotificationDetail expected = InformalNotificationDetail.builder().notification(new InternalNotification()).build();
 
         when(notificationRetrieverService.loadAndEnrichNotificationDetail(
@@ -84,9 +88,45 @@ class InformalNotificationDetailRetrieverStrategyTest {
                 same(informalTimelineEnricher)
         )).thenReturn(expected);
 
-        InformalNotificationDetail result = strategy.getNotificationInformation(IUN, true, false, null);
+        InformalNotificationDetail result = strategy.getNotificationInformation(IUN, true, true, false, null);
 
         Assertions.assertSame(expected, result);
+        Mockito.verify(messageEnricher).enrichInternalNotification(expected.getNotification());
+        Mockito.verify(notificationRetrieverService).loadAndEnrichNotificationDetail(
+                eq(IUN),
+                eq(true),
+                eq(false),
+                isNull(),
+                any(InformalNotificationDetail.class),
+                same(informalTimelineEnricher)
+        );
+    }
+
+    @Test
+    void getNotificationInformationShouldDelegateToRetrieverServiceAndAvoidMessageEnricher() {
+        InformalNotificationDetail expected = InformalNotificationDetail.builder().notification(new InternalNotification()).build();
+
+        when(notificationRetrieverService.loadAndEnrichNotificationDetail(
+                eq(IUN),
+                eq(true),
+                eq(false),
+                isNull(),
+                any(InformalNotificationDetail.class),
+                same(informalTimelineEnricher)
+        )).thenReturn(expected);
+
+        InformalNotificationDetail result = strategy.getNotificationInformation(IUN, true, false, false, null);
+
+        Assertions.assertSame(expected, result);
+        Mockito.verify(messageEnricher, Mockito.times(0)).enrichInternalNotification(expected.getNotification());
+        Mockito.verify(notificationRetrieverService).loadAndEnrichNotificationDetail(
+                eq(IUN),
+                eq(true),
+                eq(false),
+                isNull(),
+                any(InformalNotificationDetail.class),
+                same(informalTimelineEnricher)
+        );
     }
 
     @Test
@@ -148,7 +188,7 @@ class InformalNotificationDetailRetrieverStrategyTest {
         )).thenReturn(detail);
         when(clock.instant()).thenReturn(viewedAt);
 
-        InformalNotificationDetail result = strategy.getNotificationAndNotifyViewedEvent(IUN, authHeader, null, logEvent);
+        InformalNotificationDetail result = strategy.getNotificationAndNotifyViewedEvent(IUN, authHeader, logEvent);
 
         Assertions.assertSame(detail, result);
         Assertions.assertEquals(2, result.getTimeline().size());
@@ -190,7 +230,7 @@ class InformalNotificationDetailRetrieverStrategyTest {
 
         Assertions.assertThrows(
                 PnForbiddenException.class,
-                () -> strategy.getNotificationAndNotifyViewedEvent(IUN, authHeader, null, createAuditLog())
+                () -> strategy.getNotificationAndNotifyViewedEvent(IUN, authHeader, createAuditLog())
         );
 
         verifyNoInteractions(notificationViewedProducer);
@@ -215,7 +255,7 @@ class InformalNotificationDetailRetrieverStrategyTest {
 
         Assertions.assertThrows(
                 PnNotFoundException.class,
-                () -> strategy.getNotificationAndNotifyViewedEvent(IUN, authHeader, null, createAuditLog())
+                () -> strategy.getNotificationAndNotifyViewedEvent(IUN, authHeader, createAuditLog())
         );
     }
 

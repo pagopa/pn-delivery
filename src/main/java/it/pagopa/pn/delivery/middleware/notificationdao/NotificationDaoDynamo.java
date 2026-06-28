@@ -3,7 +3,6 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.*;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewMessageRequest;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
@@ -29,8 +28,6 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import static it.pagopa.pn.delivery.models.internal.notification.mapper.LocalizedContentMapper.mapToServerLocalizedContent;
 
 @Component
 @Slf4j
@@ -192,16 +189,6 @@ public class NotificationDaoDynamo implements NotificationDao {
 				log.error( "Unable to find any recipient info from data-vault for recipient={}", opaqueTaxId );
 			}
 
-			MessageResponseDto messageDto = retrieveInformalMessageById(recipient, daoResult);
-
-			if (Objects.nonNull(messageDto)) {
-				recipient.setMessage(
-						NewMessageRequest.builder()
-								.primaryMessage(mapToServerLocalizedContent(messageDto.getPrimaryContent()))
-								.additionalMessage(mapToServerLocalizedContent(messageDto.getSecondaryContent()))
-								.build()
-				);
-			}
 
 			if ( clearDataAddresses != null ) {
 				recipient.setDenomination(clearDataAddresses.getDenomination());
@@ -220,28 +207,6 @@ public class NotificationDaoDynamo implements NotificationDao {
 				log.error( "Unable to find any recipient addresses from data-vault for recipient={}", opaqueTaxId );
 			}
 			recipientIndex += 1;
-		}
-	}
-
-	private MessageResponseDto retrieveInformalMessageById(NotificationRecipient recipient, InternalNotification notification) {
-		if (Objects.isNull(recipient.getMessageId()) || Objects.isNull(notification.getSenderPaId())) {
-			log.debug("Message ID or Sender PA ID is null for recipient with internalId={}, skipping message retrieval", recipient.getInternalId());
-			return null;
-		}
-		try {
-			return pnDataVaultClient.getInformalMessageById(
-					UUID.fromString(recipient.getMessageId()),
-					UUID.fromString(notification.getSenderPaId())
-			);
-		} catch (IllegalArgumentException ex) {
-			log.warn(
-					"Invalid UUID for messageId={} or senderPaId={} (recipient internalId={}); skipping message retrieval",
-					recipient.getMessageId(),
-					notification.getSenderPaId(),
-					recipient.getInternalId(),
-					ex
-			);
-			return null;
 		}
 	}
 

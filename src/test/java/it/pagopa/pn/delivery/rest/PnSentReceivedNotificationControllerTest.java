@@ -1996,7 +1996,6 @@ class PnSentReceivedNotificationControllerTest {
         Mockito.when(informalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(
                 Mockito.anyString(),
                 Mockito.any(InternalAuthHeader.class),
-                Mockito.eq(null),
                 Mockito.any(PnAuditLogEvent.class)
         )).thenReturn(informalNotificationDetail);
 
@@ -2019,7 +2018,6 @@ class PnSentReceivedNotificationControllerTest {
         Mockito.verify(informalNotificationDetailRetrieverStrategy).getNotificationAndNotifyViewedEvent(
                 Mockito.eq(INFORMAL_IUN),
                 Mockito.eq(INTERNAL_AUTH_HEADER),
-                Mockito.eq(null),
                 Mockito.any(PnAuditLogEvent.class)
         );
     }
@@ -2029,7 +2027,6 @@ class PnSentReceivedNotificationControllerTest {
         Mockito.when(informalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(
                 Mockito.anyString(),
                 Mockito.any(InternalAuthHeader.class),
-                Mockito.eq(null),
                 Mockito.any(PnAuditLogEvent.class)
         )).thenThrow(new PnNotificationNotFoundException("Simulated Error"));
 
@@ -2052,9 +2049,9 @@ class PnSentReceivedNotificationControllerTest {
     void getSentInformalNotificationSuccess() {
         // Given
         InformalNotificationDetail informalNotificationDetail = newInformalNotification();
-        informalNotificationDetail.setNotificationStatus(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatusV1.COMPLETED);
+        informalNotificationDetail.setNotificationStatus(InformalNotificationStatusV1.ACCEPTED);
 
-        Mockito.when(informalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
+        Mockito.when(informalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheckAndMessage(anyString(), anyString(), anyList()))
                 .thenReturn(informalNotificationDetail);
 
         // Then
@@ -2072,7 +2069,7 @@ class PnSentReceivedNotificationControllerTest {
                 .isOk()
                 .expectBody(FullSentInformalNotificationV1.class);
 
-        Mockito.verify(informalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(INFORMAL_IUN, PA_ID, GROUPS);
+        Mockito.verify(informalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheckAndMessage(INFORMAL_IUN, PA_ID, GROUPS);
     }
 
     @Test
@@ -2082,7 +2079,7 @@ class PnSentReceivedNotificationControllerTest {
         informalNotificationDetail.setNotificationStatus(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatusV1.IN_VALIDATION);
         informalNotificationDetail.setNotificationStatus(InformalNotificationStatusV1.IN_VALIDATION);
 
-        Mockito.when(informalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
+        Mockito.when(informalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheckAndMessage(anyString(), anyString(), anyList()))
                 .thenReturn(informalNotificationDetail);
 
         // Then
@@ -2099,7 +2096,7 @@ class PnSentReceivedNotificationControllerTest {
                 .expectStatus()
                 .isNotFound();
 
-        Mockito.verify(informalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(INFORMAL_IUN, PA_ID, GROUPS);
+        Mockito.verify(informalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheckAndMessage(INFORMAL_IUN, PA_ID, GROUPS);
     }
 
     private InternalNotification newNotification() {
