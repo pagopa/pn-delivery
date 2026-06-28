@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: Dd3aFpW4v4FoX9sEQQILDWdYcjwcnjs3JPCbnGpR3ok=
+  version: hdCYrdNPpmW9R3AmfLrabKPEbgXvQluP3/wAEU00rn0=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -543,7 +543,7 @@ paths:
                     group: Gruppo1
                     notificationRequestId: TVBNRS1RR1RHLVZNVEUtMjAyNjA2LUgtQQ==
                     notificationRequestStatus: ACCEPTED
-                    iun: MPME-QGTG-VMTE-202606-H-1
+                    iun: MPME-QGTG-VMTE-202606-H-A
         '400':
           description: Bad request
           content:
@@ -1164,7 +1164,7 @@ components:
                 richiesta per  la stessa entità; valorizzato quando lo status è
                 __WAITING__.
             iun:
-              $ref: '#/components/schemas/IUN'
+              $ref: '#/components/schemas/InformalIUN'
             errors:
               description: >-
                 Elenco degli errori che hanno causato il rifiuto della richiesta
@@ -1696,6 +1696,9 @@ components:
             Data di scadenza del pagamento. Il formato data deve essere ISO-8601
             e fuso orario UTC
     InformalNotificationPaymentItem:
+      description: >-
+        Elemento di pagamento della notifica informale. Al momento è supportato
+        esclusivamente il pagamento pagoPA.
       type: object
       additionalProperties: false
       required:
@@ -1704,12 +1707,16 @@ components:
         pagoPa:
           $ref: '#/components/schemas/PagoPaPaymentBase'
     InformalNotificationPayments:
-      description: Pagamenti collegati alla notifica per il destinatario.
+      description: >-
+        Lista dei pagamenti collegati alla notifica informale per il
+        destinatario.
       type: array
       items:
         $ref: '#/components/schemas/InformalNotificationPaymentItem'
     InformalNotificationRecipientV1:
-      description: Informazioni sui destinatari delle notifiche informali.
+      description: >-
+        Dati del destinatario specifici per una notifica informale, inclusi il
+        riferimento al messaggio e i canali opzionali di contatto.
       allOf:
         - $ref: '#/components/schemas/NotificationRecipientV24'
         - type: object
@@ -1722,7 +1729,7 @@ components:
               type: string
               format: uuid
               description: >-
-                Identificativo del messaggio da fornire e utilizzare per il
+                Identificativo del template di messaggio da utilizzare per il
                 destinatario.
             email:
               type: string
@@ -1780,6 +1787,7 @@ components:
               maxLength: 3
               pattern: ^\d+$
     InformalNotificationRequestV1:
+      description: Dati necessari per richiedere la creazione di una notifica informale.
       type: object
       required:
         - senderDenomination
@@ -1796,31 +1804,34 @@ components:
           $ref: '#/components/schemas/IdempotenceToken'
         campaignId:
           type: string
-          description: ID della campagna che definisce il workflow di invio
+          description: Identificativo della campagna che determina il workflow di invio.
         subject:
           type: string
-          description: Oggetto della comunicazione (visibile nel riepilogo)
+          description: Oggetto della comunicazione mostrato nei riepiloghi.
         recipients:
           type: array
-          description: Informazioni sui destinatari
+          description: Elenco dei destinatari della notifica informale.
           items:
             $ref: '#/components/schemas/InformalNotificationRecipientV1'
           minItems: 1
         documents:
           type: array
+          description: Elenco dei documenti allegati alla notifica informale.
           items:
             $ref: '#/components/schemas/NotificationDocument'
         group:
           type: string
-          description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
+          description: >-
+            Gruppo di utenti dell'ente mittente autorizzato a visualizzare la
+            notifica.
           pattern: ^[ -~]*$
           maxLength: 1024
-    IUN:
-      description: Identificativo Univoco Notifica
+    InformalIUN:
+      description: Identificativo Univoco Notifica per il dominio informale
       type: string
       minLength: 25
       maxLength: 25
-      pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+      pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[A-Z]{1}$
     NewNotificationResponse:
       title: Identificativi della richiesta di notifica
       description: >-
@@ -1933,6 +1944,12 @@ components:
           properties:
             message:
               $ref: '#/components/schemas/schemas-NewMessageRequest'
+    IUN:
+      description: Identificativo Univoco Notifica
+      type: string
+      minLength: 25
+      maxLength: 25
+      pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
     UsedServices:
       description: Servizi utilizzati per la creazione della notifica
       type: object
@@ -1940,7 +1957,9 @@ components:
         physicalAddressLookup:
           type: boolean
     InformalSentNotificationV1:
-      description: Le informazioni riguardanti una richiesta di notifica accettata
+      description: >-
+        Informazioni complete di una notifica informale accettata, incluse le
+        caratteristiche della richiesta originaria e i metadati di invio.
       allOf:
         - $ref: '#/components/schemas/InformalNotificationRequestV1'
         - type: object

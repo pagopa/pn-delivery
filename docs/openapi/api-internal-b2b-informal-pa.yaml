@@ -462,7 +462,7 @@ paths:
                     group: Gruppo1
                     notificationRequestId: TVBNRS1RR1RHLVZNVEUtMjAyNjA2LUgtQQ==
                     notificationRequestStatus: ACCEPTED
-                    iun: MPME-QGTG-VMTE-202606-H-1
+                    iun: MPME-QGTG-VMTE-202606-H-A
         '400':
           description: Bad request
           content:
@@ -1002,7 +1002,7 @@ components:
                 Numero di secondi da attendere prima di effettuare una nuova richiesta per 
                 la stessa entità; valorizzato quando lo status è __WAITING__.
             iun:
-              $ref: "./schemas-pn-notification.yaml#/components/schemas/IUN"
+              $ref: "./schemas-pn-notification.yaml#/components/schemas/InformalIUN"
             errors:
               description: >-
                 Elenco degli errori che hanno causato il rifiuto della richiesta di notifica
