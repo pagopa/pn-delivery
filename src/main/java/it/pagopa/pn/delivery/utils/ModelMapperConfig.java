@@ -51,6 +51,12 @@ public class ModelMapperConfig {
             destination.setCommunicationType(CommunicationType.INFORMAL);
             return destination;
         };
+    static Converter<NewNotificationRequestV26, InternalNotification> legalNotificationConverter =
+        context -> {
+            InternalNotification destination = context.getDestination();
+            destination.setCommunicationType(CommunicationType.LEGAL);
+            return destination;
+        };
 
     static Converter<String, UUID> stringToUuid = ctx ->
             ctx.getSource() != null ? UUID.fromString(ctx.getSource()) : null;
@@ -70,6 +76,8 @@ public class ModelMapperConfig {
                 .addMapping( NotificationRecipientEntity::getRecipientId, NotificationRecipient::setInternalId );
         modelMapper.createTypeMap(InformalNotificationRequestV1.class, InternalNotification.class)
                 .setPostConverter(ModelMapperConfig.informalNotificationConverter);
+        modelMapper.createTypeMap(NewNotificationRequestV26.class, InternalNotification.class)
+                .setPostConverter(ModelMapperConfig.legalNotificationConverter);
         modelMapper.createTypeMap(NotificationRecipient.class, InformalNotificationRecipientV1.class)
                 .addMappings(mapper ->
                         mapper.using(stringToUuid)

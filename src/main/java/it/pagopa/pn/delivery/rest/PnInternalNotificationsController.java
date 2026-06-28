@@ -145,7 +145,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         InternalNotification notification = informalNotificationDetail.getNotification();
         InformalSentNotificationV1 informalNotification = modelMapper.map(notification, InformalSentNotificationV1.class);
         int recIdx = 0;
-        for (InformalNotificationRecipientV1 rec : informalNotification.getRecipients()) {
+        for (FullInformalNotificationRecipientV1 rec : informalNotification.getRecipients()) {
             rec.setInternalId(notification.getRecipientIds().get(recIdx));
             recIdx += 1;
         }

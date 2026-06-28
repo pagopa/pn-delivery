@@ -56,7 +56,7 @@ class EntityToDtoNotificationMapperTest {
         Assertions.assertEquals(List.of("FR"), internalNotification.getAdditionalLanguages());
         Assertions.assertEquals("messageId", internalNotification.getRecipients().get(0).getMessageId());
         Assertions.assertEquals("campaignId", internalNotification.getCampaignId());
-        Assertions.assertNull(internalNotification.getCommunicationType());
+        Assertions.assertEquals(CommunicationType.LEGAL, internalNotification.getCommunicationType());
         assertEquals(PHYSICAL_COMMUNICATION_PRIORITY, internalNotification.getPhysicalCommunicationPriority());
         assertEquals( VAT, internalNotification.getVat() );
     }

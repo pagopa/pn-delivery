@@ -1,16 +1,16 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.NotificationLang;
+import it.pagopa.pn.delivery.models.internal.notification.*;
 import it.pagopa.pn.delivery.models.internal.notification.F24Payment;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentDigests;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
 import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
-import it.pagopa.pn.delivery.models.internal.notification.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -70,6 +70,44 @@ class DtoToEntityNotificationMapperTest {
         Assertions.assertEquals( NOTICE_CODE , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getNoticeCode() );
         Assertions.assertEquals( CREDITOR_TAX_ID , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getCreditorTaxId() );
         Assertions.assertEquals(List.of(NotificationLang.builder().lang("IT").build()), notificationEntity.getLanguages());
+        Assertions.assertEquals("messageId", internalNotification.getRecipients().get(0).getMessageId());
+        Assertions.assertEquals("campaignId", internalNotification.getCampaignId());
+        Assertions.assertEquals(CommunicationType.LEGAL, internalNotification.getCommunicationType());
+        assertEquals(PHYSICAL_COMMUNICATION_PRIORITY, notificationEntity.getPhysicalCommunicationPriority());
+        assertEquals( VAT, notificationEntity.getVat() );
+    }
+
+    @Test
+    void dto2EntitySuccessWithAdditionalLanguagesInformal() {
+        InternalNotification internalNotification = newInternalNotification();
+        internalNotification.setCommunicationType(CommunicationType.INFORMAL);
+        internalNotification.getRecipients().get(0).setAdditionalLanguages(List.of("DE"));
+
+        NotificationEntity notificationEntity = mapper.dto2Entity(internalNotification);
+
+        Assertions.assertNotNull( notificationEntity );
+        Assertions.assertEquals( 1 , notificationEntity.getRecipients().get( 0 ).getPayments().size() );
+        Assertions.assertEquals( NOTICE_CODE , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getNoticeCode() );
+        Assertions.assertEquals( CREDITOR_TAX_ID , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getCreditorTaxId() );
+        Assertions.assertEquals(List.of(NotificationLang.builder().lang("DE").build(),NotificationLang.builder().lang("IT").build()), notificationEntity.getRecipients().get( 0 ).getLanguages());
+        Assertions.assertNull( notificationEntity.getLanguages() );
+        assertEquals(PHYSICAL_COMMUNICATION_PRIORITY, notificationEntity.getPhysicalCommunicationPriority());
+        assertEquals( VAT, notificationEntity.getVat() );
+    }
+
+    @Test
+    void dto2EntitySuccessWithITLanguagesInformal() {
+        InternalNotification internalNotification = newInternalNotification();
+        internalNotification.setAdditionalLanguages(null);
+        internalNotification.setCommunicationType(CommunicationType.INFORMAL);
+
+        NotificationEntity notificationEntity = mapper.dto2Entity(internalNotification);
+
+        Assertions.assertNotNull( notificationEntity );
+        Assertions.assertEquals( 1 , notificationEntity.getRecipients().get( 0 ).getPayments().size() );
+        Assertions.assertEquals( NOTICE_CODE , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getNoticeCode() );
+        Assertions.assertEquals( CREDITOR_TAX_ID , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getCreditorTaxId() );
+        Assertions.assertEquals(List.of(NotificationLang.builder().lang("IT").build()), notificationEntity.getRecipients().get( 0 ).getLanguages());
         Assertions.assertEquals("messageId", internalNotification.getRecipients().get(0).getMessageId());
         Assertions.assertEquals("campaignId", internalNotification.getCampaignId());
         Assertions.assertEquals(CommunicationType.INFORMAL, internalNotification.getCommunicationType());
@@ -188,6 +226,7 @@ class DtoToEntityNotificationMapperTest {
                 .physicalAddressLookup(true)
                 .build();
         InternalNotification internalNotification = new InternalNotification();
+        internalNotification.setCommunicationType(CommunicationType.LEGAL);
         internalNotification.setPagoPaIntMode(NewNotificationRequestV26.PagoPaIntModeEnum.NONE);
         internalNotification.setSentAt(OffsetDateTime.now());
         internalNotification.setIun("IUN_01");
@@ -246,7 +285,6 @@ class DtoToEntityNotificationMapperTest {
                                 .address("account@dominio.it")
                                 .build()).build()));
         internalNotification.setCampaignId("campaignId");
-        internalNotification.setCommunicationType(CommunicationType.INFORMAL);
         return internalNotification;
     }
 }

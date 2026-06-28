@@ -2,6 +2,8 @@ package it.pagopa.pn.delivery.models.internal.notification;
 
 import lombok.*;
 
+import java.time.OffsetDateTime;
+
 @EqualsAndHashCode
 @ToString
 @Getter
@@ -13,5 +15,7 @@ public class PagoPaPayment {
     private String noticeCode;
     private String creditorTaxId;
     private boolean applyCost;
+    private Integer amount;
+    private OffsetDateTime dueDate;
     private MetadataAttachment attachment;
 }

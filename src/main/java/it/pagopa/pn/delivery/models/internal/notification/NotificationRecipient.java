@@ -28,6 +28,7 @@ public class NotificationRecipient {
     private String email;
     @ToString.Exclude
     private String phoneNumber;
+    private List<String> additionalLanguages;
 
     public NotificationRecipient recipientType(NotificationRecipientV24.RecipientTypeEnum recipientType) {
         this.recipientType = recipientType;
