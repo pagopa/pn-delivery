@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: zoFDMc0jaQnWGyzeD8Pg5sITAuJmlTGZKpPcxjRlxJQ=
+  version: 3V1YJ15gibbDZoASawlk4WlNM42GezMtxr9beq5cIcg=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2369,19 +2369,21 @@ components:
         type: request
 tags:
   - name: Messages
-    description: Gestione dei template dei messaggi per notifiche bonarie
+    description: >-
+      Invocazioni utilizzabili dai mittenti per creare messaggi da utilizzare
+      nelle notifiche bonarie.
   - name: NewInformalNotification
     description: >-
       Invocazioni per effettuare il pre-caricamento dei documenti della notifica
-      e inviare notifiche
+      e inviare notifiche bonarie.
   - name: SenderReadInformalNotificationB2B
     description: >-
       Invocazioni utilizzabili dai mittenti per verificare lo stato delle
-      richieste  di notifica inviate e delle notifiche accettate.
+      richieste di notifica inviate e delle notifiche accettate.
   - name: InformalNotificationTermination
     description: >-
       Invocazioni per interrompere il workflow di una notifica non legale in
-      stato di attesa o accettata
+      stato di attesa o accettata.
 x-amazon-apigateway-gateway-responses:
   DEFAULT_5XX:
     responseParameters:

@@ -10,9 +10,11 @@ info:
   x-summary: 'Piattaforma Notifiche: API B2B per le notifiche bonarie esposte alle Pubbliche Amministrazioni'
   version: '1.0.0'
   description: #TODO: da aggiornare
-    La Piattaforma Notifiche espone alle Pubbliche Amministrazioni un set di API per la gestione delle notifiche bonarie. <br/>
-    Le API esposte in questo documento sono considerate "informali" in quanto sono a disposizione di un numero limitato di enti che hanno aderito a una fase di sperimentazione, e non sono ancora state pubblicizzate ufficialmente. <br/>
-    Per qualsiasi informazione o richiesta di adesione alla fase di sperimentazione è possibile contattare il supporto tecnico dedicato agli enti.
+    ## Abstract
+    API utilizzate dalle pubbliche amministrazioni per __inviare richieste di notifiche bonarie__ e
+    __ottenere informazioni in modalità pull__ sullo stato della
+    _"richiesta di notifica"_ (accettata o rifiutata) e, in caso di richiesta accettata,
+    sulle comunicazioni effettuate, o solo tentate, nei confronti dei destinatari della notifica.
   contact:
     name: 'SEND: supporto enti'
     url: https://pagopa.atlassian.net/servicedesk/customer/portal/5
@@ -23,17 +25,21 @@ servers:
     description: Ambiente di collaudo
 tags:
   - name: Messages
-    description: Gestione dei template dei messaggi per notifiche bonarie
+    description: >-
+      Invocazioni utilizzabili dai mittenti per creare messaggi da utilizzare
+      nelle notifiche bonarie.
   - name: NewInformalNotification
     description: >-
-      Invocazioni per effettuare il pre-caricamento dei documenti della notifica e inviare notifiche
+      Invocazioni per effettuare il pre-caricamento dei documenti della notifica
+      e inviare notifiche bonarie.
   - name: SenderReadInformalNotificationB2B
     description: >-
-      Invocazioni utilizzabili dai mittenti per verificare lo stato delle richieste 
-      di notifica inviate e delle notifiche accettate.
+      Invocazioni utilizzabili dai mittenti per verificare lo stato delle
+      richieste di notifica inviate e delle notifiche accettate.
   - name: InformalNotificationTermination
     description: >-
-      Invocazioni per interrompere il workflow di una notifica non legale in stato di attesa o accettata
+      Invocazioni per interrompere il workflow di una notifica non legale in
+      stato di attesa o accettata.
 
 paths:
   ###########################################################################################
