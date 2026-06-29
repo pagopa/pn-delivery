@@ -45,7 +45,7 @@ components:
               pattern: ^.*$
               maxLength: 256
             iun:
-              $ref: '#/components/schemas/IUN'
+              $ref: '#/components/schemas/InformalIUN'
             sentAt:
               type: string
               description: Momento di ricezione della notifica da parte di PN
