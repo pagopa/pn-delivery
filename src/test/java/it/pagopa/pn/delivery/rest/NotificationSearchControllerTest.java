@@ -2,9 +2,10 @@ package it.pagopa.pn.delivery.rest;
 
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchResponse;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RecipientNotificationSearchResponse;
+import it.pagopa.pn.delivery.models.NotificationSearchRow;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.UnifiedNotificationStatus;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
@@ -71,7 +72,7 @@ class NotificationSearchControllerTest {
         
         NotificationSearchRow searchRow = NotificationSearchRow.builder()
                 .iun("202109-2d74ffe9-aa40-47c2-88ea-9fb171ada637")
-                .notificationStatus(STATUS)
+                .notificationStatus(UnifiedNotificationStatus.fromValue(STATUS.getValue()))
                 .sender(SENDER_ID)
                 .sentAt( OffsetDateTime.parse("2021-09-17T13:45:28.00Z") )
                 .recipients( Collections.singletonList( RECIPIENT_ID ) )
@@ -131,7 +132,7 @@ class NotificationSearchControllerTest {
         //Given
         NotificationSearchRow searchRow = NotificationSearchRow.builder()
                 .iun("202109-2d74ffe9-aa40-47c2-88ea-9fb171ada637")
-                .notificationStatus(STATUS)
+                .notificationStatus(UnifiedNotificationStatus.fromValue(STATUS.getValue()))
                 .sender(SENDER_ID)
                 .sentAt( OffsetDateTime.parse("2021-09-17T13:45:28.00Z") )
                 .recipients(Collections.singletonList(RECIPIENT_ID))
@@ -152,7 +153,7 @@ class NotificationSearchControllerTest {
                 .thenReturn(result);
 
         org.modelmapper.ModelMapper mapper = new org.modelmapper.ModelMapper();
-        mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
+        mapper.createTypeMap( ResultPaginationDto.class, RecipientNotificationSearchResponse.class );
 
         webTestClient.get()
                 .uri(uriBuilder ->
@@ -193,7 +194,7 @@ class NotificationSearchControllerTest {
         //Given
         NotificationSearchRow searchRow = NotificationSearchRow.builder()
                 .iun("202109-2d74ffe9-aa40-47c2-88ea-9fb171ada637")
-                .notificationStatus(STATUS)
+                .notificationStatus(UnifiedNotificationStatus.fromValue(STATUS.getValue()))
                 .sender(SENDER_ID)
                 .sentAt( OffsetDateTime.parse("2021-09-17T13:45:28.00Z") )
                 .recipients(Collections.singletonList(RECIPIENT_ID))
@@ -212,7 +213,7 @@ class NotificationSearchControllerTest {
                 .thenReturn(result);
 
         org.modelmapper.ModelMapper mapper = new org.modelmapper.ModelMapper();
-        mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
+        mapper.createTypeMap( ResultPaginationDto.class, RecipientNotificationSearchResponse.class );
 
         //Then
         webTestClient.get()
@@ -224,7 +225,6 @@ class NotificationSearchControllerTest {
                                 .queryParam("endDate", END_DATE)
                                 .queryParam("mandateId", MANDATE_ID)
                                 .queryParam("senderId", SENDER_ID)
-                                .queryParam("status", STATUS)
                                 .queryParam("subjectRegExp", SUBJECT_REG_EXP)
                                 .build())
                 .accept(MediaType.ALL)
@@ -242,7 +242,7 @@ class NotificationSearchControllerTest {
                 .startDate(Instant.parse(START_DATE))
                 .endDate(Instant.parse(END_DATE))
                 .filterId(SENDER_ID)
-                .statuses(List.of(STATUS))
+                .statuses(List.of())
                 .subjectRegExp(SUBJECT_REG_EXP)
                 .size(null)
                 .nextPagesKey(null)
@@ -256,7 +256,7 @@ class NotificationSearchControllerTest {
         //Given
         NotificationSearchRow searchRow = NotificationSearchRow.builder()
                 .iun("202109-2d74ffe9-aa40-47c2-88ea-9fb171ada637")
-                .notificationStatus(STATUS)
+                .notificationStatus(UnifiedNotificationStatus.fromValue(STATUS.getValue()))
                 .sender(SENDER_ID)
                 .sentAt( OffsetDateTime.parse("2021-09-17T13:45:28.00Z") )
                 .recipients( Collections.singletonList( RECIPIENT_ID ) )
@@ -276,7 +276,7 @@ class NotificationSearchControllerTest {
                 .thenReturn(result);
 
         org.modelmapper.ModelMapper mapper = new org.modelmapper.ModelMapper();
-        mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
+        mapper.createTypeMap( ResultPaginationDto.class, RecipientNotificationSearchResponse.class );
 
         //Then
         webTestClient.get()

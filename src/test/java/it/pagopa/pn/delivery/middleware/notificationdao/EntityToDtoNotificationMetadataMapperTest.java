@@ -1,7 +1,8 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
+import it.pagopa.pn.delivery.models.NotificationSearchRow;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.UnifiedNotificationStatus;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import org.junit.jupiter.api.BeforeEach;
@@ -98,7 +99,7 @@ class EntityToDtoNotificationMetadataMapperTest {
                 .subject("subjectTest")
                 .paProtocolNumber("protocolNumberTest")
                 .requestAcceptedAt(OffsetDateTime.parse(ACCEPTED_AT))
-                .notificationStatus(NotificationStatusV26.ACCEPTED)
+                .notificationStatus(UnifiedNotificationStatus.ACCEPTED)
                 .mandateId("mandateId")
                 .build();
 

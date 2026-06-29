@@ -884,9 +884,27 @@ components:
         Stato unificato della notifica per i destinatari. Contiene i valori di NotificationStatusV26
         quando il campo communicationType è LEGAL, oppure i valori di InformalNotificationStatus
         quando il campo communicationType è INFORMAL.
-      oneOf:
-        - $ref: '#/components/schemas/NotificationStatusV26'
-        - $ref: '#/components/schemas/InformalNotificationStatus'
+        N.B. l'enum è l'unione dei valori di NotificationStatusV26 (notifiche legali) e di
+        InformalNotificationStatus (notifiche bonarie). Va mantenuto allineato a tali enum.
+      type: string
+      enum:
+        # Valori delle notifiche legali (NotificationStatusV26)
+        - IN_VALIDATION
+        - ACCEPTED
+        - REFUSED
+        - DELIVERING
+        - DELIVERED
+        - VIEWED
+        - EFFECTIVE_DATE
+        - PAID
+        - UNREACHABLE
+        - CANCELLED
+        - RETURNED_TO_SENDER
+        # Valori delle notifiche bonarie (InformalNotificationStatus) — REFUSED già presente sopra
+        - READY_TO_SEND
+        - PROCESSING
+        - SUCCESSFUL_SENDING
+        - UNSUCCESSFUL_SENDING
 
     RecipientNotificationSearchRow:
       description: >-

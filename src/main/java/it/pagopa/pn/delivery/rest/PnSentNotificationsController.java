@@ -12,6 +12,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadInformalN
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadWebApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.NotificationSearchRow;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
@@ -76,7 +77,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
 
 
     @Override
-    public ResponseEntity<NotificationSearchResponse> searchSentNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, OffsetDateTime startDate, OffsetDateTime endDate, List<String> xPagopaPnCxGroups, String recipientId, NotificationStatusV26 status, String subjectRegExp, String iunMatch, Integer size, String nextPagesKey) {
+    public ResponseEntity<LegalNotificationSearchResponse> searchSentNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, OffsetDateTime startDate, OffsetDateTime endDate, List<String> xPagopaPnCxGroups, String recipientId, NotificationStatusV26 status, String subjectRegExp, String iunMatch, Integer size, String nextPagesKey) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_SEARCH_SND, "searchSentNotification")
@@ -98,10 +99,10 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
                 .nextPagesKey(nextPagesKey)
                 .build();
         ResultPaginationDto<NotificationSearchRow,String> serviceResult;
-        NotificationSearchResponse response = new NotificationSearchResponse();
+        LegalNotificationSearchResponse response = new LegalNotificationSearchResponse();
         try {
             serviceResult = retrieveSvc.searchNotification(searchDto, null, null);
-            response = modelMapper.map( serviceResult, NotificationSearchResponse.class );
+            response = modelMapper.map( serviceResult, LegalNotificationSearchResponse.class );
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("" + exc.getProblem()).log();
