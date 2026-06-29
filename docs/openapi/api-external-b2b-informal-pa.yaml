@@ -889,46 +889,17 @@ components:
     ###                              DTO MESSAGGI                                           ###
     ###########################################################################################
 
-    LocalizedContent:
-      type: object
-      required: [ subject, longBody, language ]
-      properties:
-        subject:
-          type: string
-          maxLength: 256
-          description: "Titolo del messaggio (es. Oggetto della mail o intestazione IO)"
-          example: "Sollecito di pagamento Tari 2023"
-        longBody:
-          type: string
-          maxLength: 10000
-          description: "Corpo esteso del messaggio in formato Markdown"
-          example: "Gentile cittadino, la informiamo che..."
-        shortBody:
-          type: string
-          maxLength: 160
-          description: "Versione breve per SMS o anteprime"
-          example: "Sollecito Tari: hai una nuova comunicazione da SEND."
-        language:
-          type: string
-          description: >-
-            Lingua del messaggio. Valori accettati:
-            - IT <br/>
-            - DE <br/>
-            - SL <br/>
-            - FR <br/>
-            DE (tedesco), SL (sloveno), FR (francese).
-
     NewMessageRequest:
       type: object
       required: [ primaryMessage ]
       properties:
         primaryMessage:
           allOf:
-            - $ref: '#/components/schemas/LocalizedContent'
+            - $ref: './schemas-pn-notification.yaml#/components/schemas/LocalizedContent'
             - description: Contenuto principale del messaggio, deve essere in lingua italiana
         additionalMessage:
           allOf:
-            - $ref: '#/components/schemas/LocalizedContent'
+            - $ref: './schemas-pn-notification.yaml#/components/schemas/LocalizedContent'
             - description: Contenuto aggiuntivo del messaggio, opzionale, può essere in una lingua diversa dall'italiano
     MessageResponse:
       type: object
