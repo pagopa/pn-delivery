@@ -5,6 +5,7 @@ import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationCancelledException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.api.NotificationProcessCostApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.api.TimelineAndStatusApi;
+import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalNotificationHistoryResponse;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationHistoryResponse;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationProcessCostResponse;
@@ -108,6 +109,31 @@ class PnDeliveryPushClientImplTest {
 
         Executable todo = () -> pnDeliveryPushClientImpl.getNotificationProcessCost( "iun", 1, NotificationFeePolicy.DELIVERY_MODE, false, 0, 22);
         assertThrows(PnNotificationCancelledException.class, todo);
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void testGetInformalNotificationHistory() throws RestClientException {
+        InformalNotificationHistoryResponse response = new InformalNotificationHistoryResponse();
+
+        when(timelineAndStatusApi.getInformalNotificationHistory(
+                Mockito.<String>any(),
+                Mockito.<Integer>any(),
+                Mockito.<OffsetDateTime>any()))
+                .thenReturn(response);
+
+        assertSame(
+                response,
+                pnDeliveryPushClientImpl.getInformalNotificationHistory(
+                        "Iun",
+                        10,
+                        OffsetDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.MIDNIGHT, ZoneOffset.UTC))
+        );
+
+        verify(timelineAndStatusApi).getInformalNotificationHistory(
+                Mockito.<String>any(),
+                Mockito.<Integer>any(),
+                Mockito.<OffsetDateTime>any());
     }
 }
 
