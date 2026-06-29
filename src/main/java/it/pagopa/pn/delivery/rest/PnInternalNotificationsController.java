@@ -9,6 +9,7 @@ import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.InternalOnlyApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.NotificationSearchCommunicationType;
 import it.pagopa.pn.delivery.models.NotificationSearchRow;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -159,7 +160,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                 .endDate(endDate.toInstant())
                 .statuses(status==null?List.of():status)
                 .receiverIdIsOpaque(recipientIdOpaque)
-                .communicationType(communicationType)
+                .communicationType(StringUtils.hasText(communicationType) ? NotificationSearchCommunicationType.valueOf(communicationType) : NotificationSearchCommunicationType.LEGAL)
                 .size(size)
                 .maxPageNumber( 1 )
                 .nextPagesKey(nextPagesKey)

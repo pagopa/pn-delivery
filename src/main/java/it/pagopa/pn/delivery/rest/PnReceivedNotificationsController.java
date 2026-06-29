@@ -65,7 +65,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .mandateId(mandateId)
                 .filterId(senderId)
                 .statuses(List.of())
-                .communicationType(communicationType)
+                .communicationType(StringUtils.hasText(communicationType) ? NotificationSearchCommunicationType.valueOf(communicationType) : NotificationSearchCommunicationType.LEGAL)
                 //.groups( groups != null ? Arrays.asList( groups ) : null )
                 .subjectRegExp(subjectRegExp)
                 .iunMatch(iunMatch)
