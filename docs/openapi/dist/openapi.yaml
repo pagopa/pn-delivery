@@ -426,114 +426,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery/v1/notifications/informal/sent/{iun}/attachments/documents/{docIdx}:
-    get:
-      description: Download documento notificato
-      summary: Download documento notificato
-      tags:
-        - SenderReadInformalNotificationB2B
-      operationId: retrieveSentInformalNotificationDocument
-      parameters:
-        - $ref: '#/components/parameters/pathInformalIun'
-        - $ref: '#/components/parameters/pathDocumentIdx'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
-              example:
-                filename: AvvisoPagamento.pdf
-                contentType: application/pdf
-                contentLength: 54092
-                sha256: 1QKD/Ks6BohyQ+bgMxHf9NrpNhVmGUPxRYE1aerU4JQ=
-                url: https://pn-safestorage.../PN_NOTIFICATION_ATTACHMENTS-39a690b91d8a4d1fa3d6eae5f8246f57.pdf?X-Amz-...
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '401':
-          description: Unauthorized
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '403':
-          description: Forbidden
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '404':
-          description: Not Found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '500':
-          description: Internal error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-  /delivery/v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}:
-    get:
-      description: Download allegato per pagamento
-      summary: Download allegato per pagamento
-      tags:
-        - SenderReadInformalNotificationB2B
-      operationId: retrieveSentInformalNotificationAttachment
-      parameters:
-        - $ref: '#/components/parameters/pathInformalIun'
-        - $ref: '#/components/parameters/pathRecipientIdx'
-        - $ref: '#/components/parameters/pathAttachmentName'
-        - $ref: '#/components/parameters/attachmentIdx'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
-              example:
-                filename: AvvisoPagoPA.pdf
-                contentType: application/pdf
-                contentLength: 54092
-                sha256: 1QKD/Ks6BohyQ+bgMxHf9NrpNhVmGUPxRYE1aerU4JQ=
-                url: https://pn-safestorage.../PN_NOTIFICATION_ATTACHMENTS-fec693663bb04300aa8d0af615d21e66.pdf?X-Amz-...
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '401':
-          description: Unauthorized
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '403':
-          description: Forbidden
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '404':
-          description: Not Found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '500':
-          description: Internal error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
 components:
   parameters:
     notificationRequestId:
@@ -587,16 +479,6 @@ components:
       schema:
         type: integer
         format: int32
-    pathInformalIun:
-      description: Identificativo Univoco Notifica informale
-      name: iun
-      in: path
-      required: true
-      schema:
-        type: string
-        minLength: 25
-        maxLength: 25
-        pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[A-Z]{1}$
   schemas:
     InformalPreLoadRequest:
       title: Richiesta di precaricamento di un File
@@ -1359,44 +1241,6 @@ components:
           $ref: '#/components/schemas/PaProtocolNumber'
         idempotenceToken:
           $ref: '#/components/schemas/IdempotenceToken'
-    NotificationAttachmentDownloadMetadataResponse:
-      title: Url e metadati per il download di un allegato di una notifica
-      description: |-
-        I due campi più importanti sono __url__ e __retryAfter__. <br/>
-          - __url__ è presente se il file è pronto per essere scaricato ed indica l'url a cui fare GET.
-          - __retryAfter__ indica che il file è stato archiviato e bisognerà aspettare un numero di
-            secondi non inferiore a quanto indicato dal campo _retryAfter_. <br/>
-      type: object
-      required:
-        - filename
-        - contentType
-        - contentLength
-        - sha256
-      properties:
-        filename:
-          type: string
-        contentType:
-          type: string
-          example: application/pdf
-        contentLength:
-          type: integer
-          format: int32
-          example: 54092
-          description: dimensione, in byte, del contenuto.
-        sha256:
-          type: string
-          description: SHA256 del contenuto del file.
-        url:
-          type: string
-          description: URL preautorizzato a cui effettuare una richiesta GET per ottenere il  contenuto del documento. Presente solo se il documento è pronto per il download.
-        retryAfter:
-          type: integer
-          format: int32
-          description: Stima del numero di secondi da aspettare prima che il contenuto del  documento sia disponibile per il download.
-        numberOfPages:
-          type: integer
-          format: int32
-          description: numero di pagine del documento. Valorizzato solo se il documento è di tipo PDF
     FullInformalNotificationRecipientV1:
       allOf:
         - $ref: '#/components/schemas/InformalNotificationRecipientV1'
