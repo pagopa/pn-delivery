@@ -120,11 +120,18 @@ public class NotificationRetrieverService {
 
 		validateInput(searchDto);
 
+		// default applicativo SRS: in assenza di tipologia di comunicazione si filtra sulle sole notifiche legali
+		if ( searchDto.getCommunicationType() == null ) {
+			searchDto.setCommunicationType( NotificationSearchCommunicationType.LEGAL );
+		}
+
 		if ( !searchDto.isBySender() ) {
 			log.debug( "Search from receiver" );
 			String mandateId = searchDto.getMandateId();
 			if ( StringUtils.hasText( mandateId )) {
 				checkMandate(searchDto, mandateId, recipientType, cxGroups);
+				// inibizione delle comunicazioni bonarie ai delegati PF: si forza LEGAL ignorando ALL/INFORMAL richiesti dal client
+				searchDto.setCommunicationType( NotificationSearchCommunicationType.LEGAL );
 			} else if (checkAuthorizationPG(recipientType, cxGroups)) {
 				log.error("PG {} can not access this resource", searchDto.getSenderReceiverId());
 				throw new PnForbiddenException(ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND);

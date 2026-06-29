@@ -8,6 +8,7 @@ import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.EntityToDtoNotificationMetadataMapper;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.NotificationSearchCommunicationType;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
@@ -66,12 +67,23 @@ public abstract class NotificationSearchMultiPage extends NotificationSearch {
         // se ho dei filtri ulteriori, suppongo che i dati vengano ulteriormente filtrati, quindi aumento il numero di elementi da leggere
         if (!CollectionUtils.isEmpty(inputSearchNotificationDto.getStatuses())
             || !CollectionUtils.isEmpty(inputSearchNotificationDto.getGroups())
-            || (inputSearchNotificationDto.isBySender() && StringUtils.hasText(inputSearchNotificationDto.getFilterId())))
+            || (inputSearchNotificationDto.isBySender() && StringUtils.hasText(inputSearchNotificationDto.getFilterId()))
+            || isCommunicationTypeFilterApplied(inputSearchNotificationDto.getCommunicationType()))
             dynamoDbPageSize = dynamoDbPageSize * FILTER_EXPRESSION_APPLIED_MULTIPLIER;
 
         List<NotificationMetadataEntity> dataRead = getDataRead( requiredSize, dynamoDbPageSize );
 
         return prepareGlobalResult(dataRead, requiredSize);
+    }
+
+    /**
+     * Il filtro per tipologia di comunicazione applica una FilterExpression a valle (per {@code LEGAL}
+     * o {@code INFORMAL}) che pu&ograve; scartare righe lette da DynamoDB. In quel caso conviene
+     * incrementare {@code dynamoDbPageSize}. Con {@code ALL} (o assente) non viene applicato alcun
+     * filtro, quindi il moltiplicatore non &egrave; necessario.
+     */
+    private boolean isCommunicationTypeFilterApplied(NotificationSearchCommunicationType communicationType) {
+        return communicationType != null && communicationType != NotificationSearchCommunicationType.ALL;
     }
 
     /**
