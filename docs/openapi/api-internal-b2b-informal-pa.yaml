@@ -4,7 +4,7 @@
 openapi: 3.0.3
 info:
   termsOfService: https://selfcare.notifichedigitali.it/termini-di-servizio
-  #x-api-id: api-internal-b2b-informal-pa # NO EXTERNAL
+  x-api-id: api-internal-b2b-informal-pa # NO EXTERNAL
 #  x-api-id: api-internal-b2b-informal-pa # ONLY EXTERNAL
   title: 'Piattaforma Notifiche: API B2B per le notifiche bonarie esposte alle Pubbliche Amministrazioni'
   x-summary: 'Piattaforma Notifiche: API B2B per le notifiche bonarie esposte alle Pubbliche Amministrazioni'
