@@ -83,6 +83,59 @@ class EntityToDtoNotificationMetadataMapperTest {
         assertEquals( NOTIFICATION_STATUS, result.getNotificationStatus().getValue() );
         assertEquals( NOTIFICATION_GROUP, result.getGroup() );
     }
+
+    @Test
+    void entity2DtoMapsDynamicCommunicationFields() {
+        // Given: entity bonaria con i nuovi campi dinamici valorizzati
+        NotificationMetadataEntity metadataEntity = new NotificationMetadataEntity();
+        metadataEntity.setRecipientIds( List.of( RECIPIENT_ID ));
+        metadataEntity.setRecipientId( RECIPIENT_ID );
+        metadataEntity.setNotificationGroup( NOTIFICATION_GROUP );
+        metadataEntity.setNotificationStatus( NOTIFICATION_STATUS );
+        metadataEntity.setIunRecipientId( IUN_RECIPIENT_ID );
+        metadataEntity.setSenderId( SENDER_ID );
+        metadataEntity.setSentAt( Instant.parse(SENT_AT) );
+        metadataEntity.setTableRow( TABLE_ROW );
+        metadataEntity.setCommunicationType( "INFORMAL" );
+        metadataEntity.setCampaignId( "campaign-1" );
+        metadataEntity.setViewed( true );
+        metadataEntity.setDelivered( false );
+        metadataEntity.setDesiredFeedback( true );
+
+        // When
+        NotificationSearchRow result = mapper.entity2Dto( metadataEntity );
+
+        // Then
+        assertEquals( "INFORMAL", result.getCommunicationType() );
+        assertEquals( "campaign-1", result.getCampaignId() );
+        assertEquals( Boolean.TRUE, result.getViewed() );
+        assertEquals( Boolean.FALSE, result.getDelivered() );
+        assertEquals( Boolean.TRUE, result.getDesiredFeedback() );
+    }
+
+    @Test
+    void entity2DtoLeavesDynamicFieldsNullForLegacyEntity() {
+        // Given: entity legale storica priva dei nuovi campi
+        NotificationMetadataEntity metadataEntity = new NotificationMetadataEntity();
+        metadataEntity.setRecipientIds( List.of( RECIPIENT_ID ));
+        metadataEntity.setRecipientId( RECIPIENT_ID );
+        metadataEntity.setNotificationGroup( NOTIFICATION_GROUP );
+        metadataEntity.setNotificationStatus( NOTIFICATION_STATUS );
+        metadataEntity.setIunRecipientId( IUN_RECIPIENT_ID );
+        metadataEntity.setSenderId( SENDER_ID );
+        metadataEntity.setSentAt( Instant.parse(SENT_AT) );
+        metadataEntity.setTableRow( TABLE_ROW );
+
+        // When
+        NotificationSearchRow result = mapper.entity2Dto( metadataEntity );
+
+        // Then
+        assertNull( result.getCommunicationType() );
+        assertNull( result.getCampaignId() );
+        assertNull( result.getViewed() );
+        assertNull( result.getDelivered() );
+        assertNull( result.getDesiredFeedback() );
+    }
     @Test
     void entity2DtoTest() {
 

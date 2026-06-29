@@ -16,6 +16,7 @@ import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.*;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
+import it.pagopa.pn.delivery.utils.LegalNotificationStatusValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
@@ -169,6 +170,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         LegalNotificationSearchResponse response = new LegalNotificationSearchResponse();
         try {
             serviceResult = retrieveSvc.searchNotification(searchDto, cxType, null);
+            LegalNotificationStatusValidator.assertLegalCompatible( serviceResult );
             response = modelMapper.map( serviceResult, LegalNotificationSearchResponse.class );
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {

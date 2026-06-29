@@ -5,6 +5,7 @@ import it.pagopa.pn.delivery.exception.PnForbiddenException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.NotificationSearchCommunicationType;
 import it.pagopa.pn.delivery.models.NotificationSearchRow;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -132,6 +133,7 @@ class PnInternalNotificationsControllerTest {
                 .size(null)
                 .maxPageNumber( 1 )
                 .nextPagesKey(null)
+                .communicationType(NotificationSearchCommunicationType.LEGAL)
                 .build();
 
 
@@ -229,6 +231,7 @@ class PnInternalNotificationsControllerTest {
                 .size(null)
                 .maxPageNumber( 1 )
                 .nextPagesKey(null)
+                .communicationType(NotificationSearchCommunicationType.LEGAL)
                 .build();
 
 

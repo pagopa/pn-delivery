@@ -8,18 +8,22 @@ import it.pagopa.pn.delivery.models.NotificationSearchRow;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.UnifiedNotificationStatus;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.NotificationSearchCommunicationType;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationQRService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
+import it.pagopa.pn.delivery.utils.ModelMapperConfig;
 import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -32,6 +36,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
 @WebFluxTest(controllers = {PnSentNotificationsController.class, PnReceivedNotificationsController.class})
+@Import(ModelMapperConfig.class)
 class NotificationSearchControllerTest {
 
     private static final String SENDER_ID = "test";
@@ -246,9 +251,128 @@ class NotificationSearchControllerTest {
                 .subjectRegExp(SUBJECT_REG_EXP)
                 .size(null)
                 .nextPagesKey(null)
+                .communicationType(NotificationSearchCommunicationType.LEGAL)
                 .build();
         
         Mockito.verify(svc).searchNotification(eq(searchDto), eq("PF"), any());
+    }
+
+    @Test
+    void getReceiverWithInformalCommunicationType() {
+        ArgumentCaptor<InputSearchNotificationDto> captor = receiverSearchAndCapture("INFORMAL");
+        org.junit.jupiter.api.Assertions.assertEquals(
+                NotificationSearchCommunicationType.INFORMAL, captor.getValue().getCommunicationType());
+    }
+
+    @Test
+    void getReceiverWithAllCommunicationType() {
+        ArgumentCaptor<InputSearchNotificationDto> captor = receiverSearchAndCapture("ALL");
+        org.junit.jupiter.api.Assertions.assertEquals(
+                NotificationSearchCommunicationType.ALL, captor.getValue().getCommunicationType());
+    }
+
+    @Test
+    void getReceiverWithLegalCommunicationType() {
+        ArgumentCaptor<InputSearchNotificationDto> captor = receiverSearchAndCapture("LEGAL");
+        org.junit.jupiter.api.Assertions.assertEquals(
+                NotificationSearchCommunicationType.LEGAL, captor.getValue().getCommunicationType());
+    }
+
+    @Test
+    void getReceiverWithoutCommunicationTypeDefaultsToLegal() {
+        ArgumentCaptor<InputSearchNotificationDto> captor = receiverSearchAndCapture(null);
+        org.junit.jupiter.api.Assertions.assertEquals(
+                NotificationSearchCommunicationType.LEGAL, captor.getValue().getCommunicationType());
+    }
+
+    @Test
+    void getReceiverResponseMapsCommunicationOutcomes() {
+        // riga bonaria con dati dinamici: la response deve esporre communicationType e communicationOutcomes
+        NotificationSearchRow searchRow = NotificationSearchRow.builder()
+                .iun("202109-2d74ffe9-aa40-47c2-88ea-9fb171ada637")
+                .notificationStatus(UnifiedNotificationStatus.fromValue(STATUS.getValue()))
+                .sender(SENDER_ID)
+                .sentAt(OffsetDateTime.parse("2021-09-17T13:45:28.00Z"))
+                .recipients(Collections.singletonList(RECIPIENT_ID))
+                .paProtocolNumber("123")
+                .subject(SUBJECT_REG_EXP)
+                .communicationType("INFORMAL")
+                .viewed(true)
+                .delivered(false)
+                .build();
+
+        ResultPaginationDto<NotificationSearchRow, String> result =
+                ResultPaginationDto.<NotificationSearchRow, String>builder()
+                        .resultsPage(Collections.singletonList(searchRow))
+                        .moreResult(false)
+                        .nextPagesKey(null).build();
+
+        Mockito.when(svc.searchNotification(any(InputSearchNotificationDto.class), eq("PF"), any()))
+                .thenReturn(result);
+
+        webTestClient.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path("/" + PnDeliveryRestConstants.NOTIFICATIONS_RECEIVED_PATH)
+                                .queryParam("startDate", START_DATE)
+                                .queryParam("endDate", END_DATE)
+                                .queryParam("communicationType", "INFORMAL")
+                                .build())
+                .accept(MediaType.APPLICATION_JSON)
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, RECIPIENT_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, UID)
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF")
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody()
+                .jsonPath("$.resultsPage[0].communicationType").isEqualTo("INFORMAL")
+                .jsonPath("$.resultsPage[0].communicationOutcomes.viewed").isEqualTo(true)
+                .jsonPath("$.resultsPage[0].communicationOutcomes.delivered").isEqualTo(false);
+    }
+
+    private ArgumentCaptor<InputSearchNotificationDto> receiverSearchAndCapture(String communicationType) {
+        NotificationSearchRow searchRow = NotificationSearchRow.builder()
+                .iun("202109-2d74ffe9-aa40-47c2-88ea-9fb171ada637")
+                .notificationStatus(UnifiedNotificationStatus.fromValue(STATUS.getValue()))
+                .sender(SENDER_ID)
+                .sentAt(OffsetDateTime.parse("2021-09-17T13:45:28.00Z"))
+                .recipients(Collections.singletonList(RECIPIENT_ID))
+                .paProtocolNumber("123")
+                .subject(SUBJECT_REG_EXP)
+                .build();
+
+        ResultPaginationDto<NotificationSearchRow, String> result =
+                ResultPaginationDto.<NotificationSearchRow, String>builder()
+                        .resultsPage(Collections.singletonList(searchRow))
+                        .moreResult(false)
+                        .nextPagesKey(null).build();
+
+        Mockito.when(svc.searchNotification(any(InputSearchNotificationDto.class), eq("PF"), any()))
+                .thenReturn(result);
+
+        webTestClient.get()
+                .uri(uriBuilder -> {
+                    uriBuilder
+                            .path("/" + PnDeliveryRestConstants.NOTIFICATIONS_RECEIVED_PATH)
+                            .queryParam("startDate", START_DATE)
+                            .queryParam("endDate", END_DATE);
+                    if (communicationType != null) {
+                        uriBuilder.queryParam("communicationType", communicationType);
+                    }
+                    return uriBuilder.build();
+                })
+                .accept(MediaType.ALL)
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, RECIPIENT_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, UID)
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF")
+                .exchange()
+                .expectStatus()
+                .isOk();
+
+        ArgumentCaptor<InputSearchNotificationDto> captor = ArgumentCaptor.forClass(InputSearchNotificationDto.class);
+        Mockito.verify(svc).searchNotification(captor.capture(), eq("PF"), any());
+        return captor;
     }
 
     @Test

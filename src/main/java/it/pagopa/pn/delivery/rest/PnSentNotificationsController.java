@@ -20,6 +20,7 @@ import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService.InternalAttachmentWithFileKey;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.InternalFieldsCleaner;
+import it.pagopa.pn.delivery.utils.LegalNotificationStatusValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -102,6 +103,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
         LegalNotificationSearchResponse response = new LegalNotificationSearchResponse();
         try {
             serviceResult = retrieveSvc.searchNotification(searchDto, null, null);
+            LegalNotificationStatusValidator.assertLegalCompatible( serviceResult );
             response = modelMapper.map( serviceResult, LegalNotificationSearchResponse.class );
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {
