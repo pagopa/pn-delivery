@@ -63,15 +63,15 @@ public class ModelMapperConfig {
      *     <li>{@code desiredFeedback}: volutamente NON mappato in output.</li>
      * </ul>
      */
-    static Converter<it.pagopa.pn.delivery.models.NotificationSearchRow, RecipientNotificationSearchRow> recipientSearchRowConverter =
+    static Converter<it.pagopa.pn.delivery.models.NotificationSearchRow, FullNotificationSearchRow> recipientSearchRowConverter =
         context -> {
             it.pagopa.pn.delivery.models.NotificationSearchRow source = context.getSource();
-            RecipientNotificationSearchRow destination = context.getDestination();
+            FullNotificationSearchRow destination = context.getDestination();
 
             destination.setCommunicationType(
                     org.springframework.util.StringUtils.hasText(source.getCommunicationType())
-                            ? RecipientNotificationSearchRow.CommunicationTypeEnum.fromValue(source.getCommunicationType())
-                            : RecipientNotificationSearchRow.CommunicationTypeEnum.LEGAL);
+                            ? FullNotificationSearchRow.CommunicationTypeEnum.fromValue(source.getCommunicationType())
+                            : FullNotificationSearchRow.CommunicationTypeEnum.LEGAL);
 
             if (source.getViewed() != null || source.getDelivered() != null) {
                 CommunicationOutcomes outcomes = new CommunicationOutcomes();
@@ -102,8 +102,8 @@ public class ModelMapperConfig {
                         mapper.using(stringToUuid)
                                 .map(NotificationRecipient::getMessageId, InformalNotificationRecipientV1::setMessageId)
                 );
-        modelMapper.createTypeMap(it.pagopa.pn.delivery.models.NotificationSearchRow.class, RecipientNotificationSearchRow.class)
-                .addMappings(mapper -> mapper.skip(RecipientNotificationSearchRow::setCommunicationType))
+        modelMapper.createTypeMap(it.pagopa.pn.delivery.models.NotificationSearchRow.class, FullNotificationSearchRow.class)
+                .addMappings(mapper -> mapper.skip(FullNotificationSearchRow::setCommunicationType))
                 .setPostConverter(ModelMapperConfig.recipientSearchRowConverter);
         return modelMapper;
     }

@@ -1,8 +1,8 @@
 package it.pagopa.pn.delivery.utils;
 
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CommunicationOutcomes;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RecipientNotificationSearchResponse;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RecipientNotificationSearchRow;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullNotificationSearchResponse;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullNotificationSearchRow;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.UnifiedNotificationStatus;
 import it.pagopa.pn.delivery.models.NotificationSearchRow;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test del converter WI-US2.9 che mappa la riga di ricerca interna
- * {@link NotificationSearchRow} sul DTO destinatario {@link RecipientNotificationSearchRow}.
+ * {@link NotificationSearchRow} sul DTO destinatario {@link FullNotificationSearchRow}.
  */
 class ModelMapperConfigRecipientSearchRowTest {
 
@@ -32,36 +32,36 @@ class ModelMapperConfigRecipientSearchRowTest {
     void communicationTypeDefaultsToLegalWhenNull() {
         NotificationSearchRow source = baseRow().toBuilder().communicationType(null).build();
 
-        RecipientNotificationSearchRow result = modelMapper.map(source, RecipientNotificationSearchRow.class);
+        FullNotificationSearchRow result = modelMapper.map(source, FullNotificationSearchRow.class);
 
-        assertEquals(RecipientNotificationSearchRow.CommunicationTypeEnum.LEGAL, result.getCommunicationType());
+        assertEquals(FullNotificationSearchRow.CommunicationTypeEnum.LEGAL, result.getCommunicationType());
     }
 
     @Test
     void communicationTypeDefaultsToLegalWhenBlank() {
         NotificationSearchRow source = baseRow().toBuilder().communicationType("").build();
 
-        RecipientNotificationSearchRow result = modelMapper.map(source, RecipientNotificationSearchRow.class);
+        FullNotificationSearchRow result = modelMapper.map(source, FullNotificationSearchRow.class);
 
-        assertEquals(RecipientNotificationSearchRow.CommunicationTypeEnum.LEGAL, result.getCommunicationType());
+        assertEquals(FullNotificationSearchRow.CommunicationTypeEnum.LEGAL, result.getCommunicationType());
     }
 
     @Test
     void communicationTypeMappedToLegal() {
         NotificationSearchRow source = baseRow().toBuilder().communicationType("LEGAL").build();
 
-        RecipientNotificationSearchRow result = modelMapper.map(source, RecipientNotificationSearchRow.class);
+        FullNotificationSearchRow result = modelMapper.map(source, FullNotificationSearchRow.class);
 
-        assertEquals(RecipientNotificationSearchRow.CommunicationTypeEnum.LEGAL, result.getCommunicationType());
+        assertEquals(FullNotificationSearchRow.CommunicationTypeEnum.LEGAL, result.getCommunicationType());
     }
 
     @Test
     void communicationTypeMappedToInformal() {
         NotificationSearchRow source = baseRow().toBuilder().communicationType("INFORMAL").build();
 
-        RecipientNotificationSearchRow result = modelMapper.map(source, RecipientNotificationSearchRow.class);
+        FullNotificationSearchRow result = modelMapper.map(source, FullNotificationSearchRow.class);
 
-        assertEquals(RecipientNotificationSearchRow.CommunicationTypeEnum.INFORMAL, result.getCommunicationType());
+        assertEquals(FullNotificationSearchRow.CommunicationTypeEnum.INFORMAL, result.getCommunicationType());
     }
 
     @Test
@@ -72,7 +72,7 @@ class ModelMapperConfigRecipientSearchRowTest {
                 .delivered(false)
                 .build();
 
-        RecipientNotificationSearchRow result = modelMapper.map(source, RecipientNotificationSearchRow.class);
+        FullNotificationSearchRow result = modelMapper.map(source, FullNotificationSearchRow.class);
 
         CommunicationOutcomes outcomes = result.getCommunicationOutcomes();
         assertNotNull(outcomes);
@@ -88,7 +88,7 @@ class ModelMapperConfigRecipientSearchRowTest {
                 .delivered(null)
                 .build();
 
-        RecipientNotificationSearchRow result = modelMapper.map(source, RecipientNotificationSearchRow.class);
+        FullNotificationSearchRow result = modelMapper.map(source, FullNotificationSearchRow.class);
 
         CommunicationOutcomes outcomes = result.getCommunicationOutcomes();
         assertNotNull(outcomes);
@@ -105,7 +105,7 @@ class ModelMapperConfigRecipientSearchRowTest {
                 .delivered(null)
                 .build();
 
-        RecipientNotificationSearchRow result = modelMapper.map(source, RecipientNotificationSearchRow.class);
+        FullNotificationSearchRow result = modelMapper.map(source, FullNotificationSearchRow.class);
 
         assertNull(result.getCommunicationOutcomes());
     }
@@ -119,10 +119,10 @@ class ModelMapperConfigRecipientSearchRowTest {
                 .desiredFeedback(true)
                 .build();
 
-        RecipientNotificationSearchRow result = modelMapper.map(source, RecipientNotificationSearchRow.class);
+        FullNotificationSearchRow result = modelMapper.map(source, FullNotificationSearchRow.class);
 
         // il DTO destinatario non espone desiredFeedback: garanzia a compile-time + nessun metodo a runtime
-        assertTrue(java.util.Arrays.stream(RecipientNotificationSearchRow.class.getMethods())
+        assertTrue(java.util.Arrays.stream(FullNotificationSearchRow.class.getMethods())
                 .noneMatch(m -> m.getName().toLowerCase().contains("desiredfeedback")));
         assertNotNull(result.getCommunicationOutcomes());
     }
@@ -131,7 +131,7 @@ class ModelMapperConfigRecipientSearchRowTest {
     void baseFieldsArePreservedByConverter() {
         NotificationSearchRow source = baseRow().toBuilder().communicationType("LEGAL").build();
 
-        RecipientNotificationSearchRow result = modelMapper.map(source, RecipientNotificationSearchRow.class);
+        FullNotificationSearchRow result = modelMapper.map(source, FullNotificationSearchRow.class);
 
         assertEquals(source.getIun(), result.getIun());
         assertEquals(source.getPaProtocolNumber(), result.getPaProtocolNumber());
@@ -142,7 +142,7 @@ class ModelMapperConfigRecipientSearchRowTest {
 
     @Test
     void paginationWrapperIsMappedToResponse() {
-        // come fa il controller: ResultPaginationDto<NotificationSearchRow,String> -> RecipientNotificationSearchResponse
+        // come fa il controller: ResultPaginationDto<NotificationSearchRow,String> -> FullNotificationSearchResponse
         NotificationSearchRow legal = baseRow().toBuilder().communicationType("LEGAL").build();
         NotificationSearchRow informal = baseRow().toBuilder()
                 .iun("INFR-MLEL-VDDY-202209-A-2")
@@ -156,18 +156,18 @@ class ModelMapperConfigRecipientSearchRowTest {
         page.setMoreResult(false);
         page.setNextPagesKey(List.of());
 
-        RecipientNotificationSearchResponse response =
-                modelMapper.map(page, RecipientNotificationSearchResponse.class);
+        FullNotificationSearchResponse response =
+                modelMapper.map(page, FullNotificationSearchResponse.class);
 
         assertNotNull(response.getResultsPage());
         assertEquals(2, response.getResultsPage().size());
 
-        RecipientNotificationSearchRow mappedLegal = response.getResultsPage().get(0);
-        assertEquals(RecipientNotificationSearchRow.CommunicationTypeEnum.LEGAL, mappedLegal.getCommunicationType());
+        FullNotificationSearchRow mappedLegal = response.getResultsPage().get(0);
+        assertEquals(FullNotificationSearchRow.CommunicationTypeEnum.LEGAL, mappedLegal.getCommunicationType());
         assertNull(mappedLegal.getCommunicationOutcomes());
 
-        RecipientNotificationSearchRow mappedInformal = response.getResultsPage().get(1);
-        assertEquals(RecipientNotificationSearchRow.CommunicationTypeEnum.INFORMAL, mappedInformal.getCommunicationType());
+        FullNotificationSearchRow mappedInformal = response.getResultsPage().get(1);
+        assertEquals(FullNotificationSearchRow.CommunicationTypeEnum.INFORMAL, mappedInformal.getCommunicationType());
         assertNotNull(mappedInformal.getCommunicationOutcomes());
         assertEquals(Boolean.TRUE, mappedInformal.getCommunicationOutcomes().getViewed());
         assertEquals(Boolean.FALSE, mappedInformal.getCommunicationOutcomes().getDelivered());

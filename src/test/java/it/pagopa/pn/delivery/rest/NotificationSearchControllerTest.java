@@ -3,7 +3,7 @@ package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RecipientNotificationSearchResponse;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullNotificationSearchResponse;
 import it.pagopa.pn.delivery.models.NotificationSearchRow;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.UnifiedNotificationStatus;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
@@ -158,7 +158,7 @@ class NotificationSearchControllerTest {
                 .thenReturn(result);
 
         org.modelmapper.ModelMapper mapper = new org.modelmapper.ModelMapper();
-        mapper.createTypeMap( ResultPaginationDto.class, RecipientNotificationSearchResponse.class );
+        mapper.createTypeMap( ResultPaginationDto.class, FullNotificationSearchResponse.class );
 
         webTestClient.get()
                 .uri(uriBuilder ->
@@ -218,7 +218,7 @@ class NotificationSearchControllerTest {
                 .thenReturn(result);
 
         org.modelmapper.ModelMapper mapper = new org.modelmapper.ModelMapper();
-        mapper.createTypeMap( ResultPaginationDto.class, RecipientNotificationSearchResponse.class );
+        mapper.createTypeMap( ResultPaginationDto.class, FullNotificationSearchResponse.class );
 
         //Then
         webTestClient.get()
@@ -399,9 +399,6 @@ class NotificationSearchControllerTest {
         Mockito.when(svc.searchNotificationDelegated(any(InputSearchNotificationDelegatedDto.class)))
                 .thenReturn(result);
 
-        org.modelmapper.ModelMapper mapper = new org.modelmapper.ModelMapper();
-        mapper.createTypeMap( ResultPaginationDto.class, RecipientNotificationSearchResponse.class );
-
         //Then
         webTestClient.get()
                 .uri(uriBuilder ->
@@ -419,7 +416,12 @@ class NotificationSearchControllerTest {
                 .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(0)+","+GROUPS.get(1))
                 .exchange()
                 .expectStatus()
-                .isOk();
+                .isOk()
+                // il delegato risponde con LegalNotificationSearchResponse: status tipizzato NotificationStatusV26
+                // e nessun campo communicationOutcomes (esclusivo delle righe destinatario/bonarie)
+                .expectBody()
+                .jsonPath("$.resultsPage[0].notificationStatus").isEqualTo(STATUS.getValue())
+                .jsonPath("$.resultsPage[0].communicationOutcomes").doesNotExist();
 
 
         InputSearchNotificationDelegatedDto inputSearchNotificationDelegatedDto = InputSearchNotificationDelegatedDto.builder()
@@ -436,5 +438,47 @@ class NotificationSearchControllerTest {
                 .build();
 
         Mockito.verify(svc).searchNotificationDelegated(inputSearchNotificationDelegatedDto);
+    }
+
+    @Test
+    void searchNotificationDelegatedRejectsInformalStatusOnLegalBoundary() {
+        // una riga con stato tipico delle bonarie non deve poter attraversare il boundary legale del delegato
+        NotificationSearchRow informalRow = NotificationSearchRow.builder()
+                .iun("202109-2d74ffe9-aa40-47c2-88ea-9fb171ada637")
+                .notificationStatus(UnifiedNotificationStatus.PROCESSING)
+                .sender(SENDER_ID)
+                .sentAt(OffsetDateTime.parse("2021-09-17T13:45:28.00Z"))
+                .recipients(Collections.singletonList(RECIPIENT_ID))
+                .paProtocolNumber("123")
+                .subject(SUBJECT_REG_EXP)
+                .build();
+
+        ResultPaginationDto<NotificationSearchRow, String> result =
+                ResultPaginationDto.<NotificationSearchRow, String>builder()
+                        .resultsPage(Collections.singletonList(informalRow))
+                        .moreResult(false)
+                        .nextPagesKey(Collections.singletonList(null))
+                        .build();
+
+        Mockito.when(svc.searchNotificationDelegated(any(InputSearchNotificationDelegatedDto.class)))
+                .thenReturn(result);
+
+        webTestClient.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path("/" + PnDeliveryRestConstants.NOTIFICATION_RECEIVED_DELEGATED_PATH)
+                                .queryParam("startDate", START_DATE)
+                                .queryParam("endDate", END_DATE)
+                                .queryParam("recipientId", RECIPIENT_ID)
+                                .queryParam("status", STATUS)
+                                .build())
+                .accept(MediaType.APPLICATION_JSON)
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, SENDER_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, UID)
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF")
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(0) + "," + GROUPS.get(1))
+                .exchange()
+                .expectStatus()
+                .is5xxServerError();
     }
 }

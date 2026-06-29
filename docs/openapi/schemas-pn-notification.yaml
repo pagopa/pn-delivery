@@ -906,9 +906,9 @@ components:
         - SUCCESSFUL_SENDING
         - UNSUCCESSFUL_SENDING
 
-    RecipientNotificationSearchRow:
+    FullNotificationSearchRow:
       description: >-
-        Riga di risultato della ricerca notifiche per i destinatari. Estende NotificationSearchRow
+        Riga di risultato della ricerca di notifiche completa (legali e bonarie). Estende NotificationSearchRow
         aggiungendo i campi notificationStatus (unificato per legali e bonarie) e communicationOutcomes.
         Il campo notificationStatus conterrà valori di NotificationStatusV26 se communicationType è LEGAL,
         oppure valori di InformalNotificationStatus se communicationType è INFORMAL.
@@ -948,11 +948,11 @@ components:
             communicationOutcomes:
               $ref: '#/components/schemas/CommunicationOutcomes'
 
-    RecipientNotificationSearchResponse:
-      title: Elenco di notifiche per i destinatari
+    FullNotificationSearchResponse:
+      title: Elenco di notifiche completo (legali e bonarie)
       description: >-
-        Dto contenente i risultati di una ricerca di notifiche mista (legali e bonarie) per i destinatari.
-        Gli elementi della pagina sono tipizzati con RecipientNotificationSearchRow che include
+        Dto contenente i risultati di una ricerca di notifiche mista (legali e bonarie).
+        Gli elementi della pagina sono tipizzati con FullNotificationSearchRow che include
         il campo notificationStatus (unificato) e communicationOutcomes.
       type: object
       properties:
@@ -960,7 +960,7 @@ components:
           description: Una pagina di risultati della query
           type: array
           items:
-            $ref: '#/components/schemas/RecipientNotificationSearchRow'
+            $ref: '#/components/schemas/FullNotificationSearchRow'
         moreResult:
           description: Indica se sono presenti ulteriori pagine di risultati
           type: boolean
