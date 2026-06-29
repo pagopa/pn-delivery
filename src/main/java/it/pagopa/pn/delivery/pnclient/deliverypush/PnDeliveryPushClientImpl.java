@@ -6,6 +6,7 @@ import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationCancelledException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.api.NotificationProcessCostApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.api.TimelineAndStatusApi;
+import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalNotificationHistoryResponse;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationHistoryResponse;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationProcessCostResponse;
@@ -31,6 +32,13 @@ public class PnDeliveryPushClientImpl {
     public NotificationHistoryResponse getTimelineAndStatusHistory(String iun, int numberOfRecipients, OffsetDateTime createdAt) {
         log.logInvokingExternalService(PnLogger.EXTERNAL_SERVICES.PN_DELIVERY_PUSH, "getTimelineAndStatusHistory");
         return timelineAndStatusApi.getNotificationHistory(iun, numberOfRecipients, createdAt);
+    }
+
+    public InformalNotificationHistoryResponse getInformalNotificationHistory(String iun,
+                                                                              Integer numberOfRecipients,
+                                                                              OffsetDateTime createdAt) {
+        log.logInvokingExternalService(PnLogger.EXTERNAL_SERVICES.PN_DELIVERY_PUSH, "getInformalNotificationHistory");
+        return timelineAndStatusApi.getInformalNotificationHistory(iun, numberOfRecipients, createdAt);
     }
 
     public NotificationProcessCostResponse getNotificationProcessCost(String iun, int recipientIdx, NotificationFeePolicy notificationFeePolicy, boolean applyCost, Integer paFee, Integer vat) {
