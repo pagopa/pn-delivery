@@ -870,7 +870,10 @@ components:
 
     CommunicationOutcomes:
       type: object
-      description: Esiti della comunicazione (solo per comunicazioni post-rilascio)
+      description: >-
+        Esiti della comunicazione (solo per comunicazioni post-rilascio).
+        Valorizzato esclusivamente per le notifiche bonarie (communicationType INFORMAL);
+        per le notifiche legali (communicationType LEGAL) non viene mai valorizzato.
       properties:
         viewed:
           type: boolean
@@ -919,7 +922,12 @@ components:
             notificationStatus:
               $ref: '#/components/schemas/UnifiedNotificationStatus'
             communicationOutcomes:
-              $ref: '#/components/schemas/CommunicationOutcomes'
+              description: >-
+                Esiti della comunicazione. Valorizzato esclusivamente per le notifiche bonarie
+                (communicationType INFORMAL); per le notifiche legali (communicationType LEGAL)
+                non viene mai valorizzato.
+              allOf:
+                - $ref: '#/components/schemas/CommunicationOutcomes'
 
     LegalNotificationSearchRow:
       description: >-
