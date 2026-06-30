@@ -44,6 +44,8 @@ aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
         AttributeName=senderId_creationMonth,AttributeType=S \
         AttributeName=senderId_recipientId,AttributeType=S \
         AttributeName=recipientId_creationMonth,AttributeType=S \
+        AttributeName=campaignId_creationMonth,AttributeType=S \
+        AttributeName=campaignId_recipientId,AttributeType=S \
     --key-schema \
         AttributeName=iun_recipientId,KeyType=HASH \
         AttributeName=sentAt,KeyType=RANGE \
@@ -78,6 +80,30 @@ aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
         {
             \"IndexName\": \"recipientId\",
             \"KeySchema\": [{\"AttributeName\":\"recipientId_creationMonth\",\"KeyType\":\"HASH\"},
+                            {\"AttributeName\":\"sentAt\",\"KeyType\":\"RANGE\"}],
+            \"Projection\":{
+                \"ProjectionType\":\"ALL\"
+            },
+            \"ProvisionedThroughput\": {
+                \"ReadCapacityUnits\": 10,
+                \"WriteCapacityUnits\": 5
+            }
+        },
+        {
+            \"IndexName\": \"campaignId\",
+            \"KeySchema\": [{\"AttributeName\":\"campaignId_creationMonth\",\"KeyType\":\"HASH\"},
+                            {\"AttributeName\":\"sentAt\",\"KeyType\":\"RANGE\"}],
+            \"Projection\":{
+                \"ProjectionType\":\"ALL\"
+            },
+            \"ProvisionedThroughput\": {
+                \"ReadCapacityUnits\": 10,
+                \"WriteCapacityUnits\": 5
+            }
+        },
+        {
+            \"IndexName\": \"campaignId_recipientId\",
+            \"KeySchema\": [{\"AttributeName\":\"campaignId_recipientId\",\"KeyType\":\"HASH\"},
                             {\"AttributeName\":\"sentAt\",\"KeyType\":\"RANGE\"}],
             \"Projection\":{
                 \"ProjectionType\":\"ALL\"
