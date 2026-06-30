@@ -19,6 +19,8 @@ import java.util.List;
 public class InputSearchNotificationDto {
     @NotEmpty
     private String senderReceiverId;
+
+    private String campaignId;
     
     @NotNull
     private Instant startDate;
@@ -46,6 +48,10 @@ public class InputSearchNotificationDto {
 
     private NotificationSearchCommunicationType communicationType;
 
+    private Boolean viewed;
+
+    private Boolean delivered;
+
     private boolean receiverIdIsOpaque;
 
     @Positive
@@ -55,6 +61,8 @@ public class InputSearchNotificationDto {
     private String nextPagesKey;
     
     private boolean bySender;
+
+    private boolean byCampaign;
 
     private Integer maxPageNumber;
     

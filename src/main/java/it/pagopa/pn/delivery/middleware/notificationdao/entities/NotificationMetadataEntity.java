@@ -22,6 +22,8 @@ public class NotificationMetadataEntity {
     public static final String INDEX_SENDER_ID = "senderId";
     public static final String INDEX_SENDER_ID_RECIPIENT_ID = "senderId_recipientId";
     public static final String INDEX_RECIPIENT_ID = "recipientId";
+    public static final String INDEX_BY_CAMPAIGN = "campaignId";
+    public static final String INDEX_BY_CAMPAIGN_RECIPIENT = "campaignId_recipientId";
     public static final String FIELD_RECIPIENT_IDS = "recipientIds";
     public static final String FIELD_RECIPIENT_ONE = "recipientOne";
     public static final String FIELD_NOTIFICATION_GROUP = "notificationGroup";
@@ -30,6 +32,8 @@ public class NotificationMetadataEntity {
     public static final String FIELD_SENDER_ID_CREATION_MONTH = "senderId_creationMonth";
     public static final String FIELD_RECIPIENT_ID_CREATION_MONTH = "recipientId_creationMonth";
     public static final String FIELD_SENDER_ID_RECIPIENT_ID = "senderId_recipientId";
+    public static final String FIELD_CAMPAIGN_ID_CREATION_MONTH = "campaignId_creationMonth";
+    public static final String FIELD_CAMPAIGN_ID_RECIPIENT_ID = "campaignId_recipientId";
     public static final String FIELD_ROOT_SENDER_ID = "rootSenderId";
     public static final String FIELD_NOTIFICATION_STATUS_TIMESTAMP = "notificationStatusTimestamp";
     public static final String FIELD_COMMUNICATION_TYPE = "communicationType";
@@ -52,6 +56,8 @@ public class NotificationMetadataEntity {
     private String senderIdCreationMonth;
     private String recipientIdCreationMonth;
     private String senderIdRecipientId;
+    private String campaignIdCreationMonth;
+    private String campaignIdRecipientId;
     private String rootSenderId;
     private Instant notificationStatusTimestamp;
     private String communicationType;
@@ -71,7 +77,13 @@ public class NotificationMetadataEntity {
     }
 
     @DynamoDbSortKey
-    @DynamoDbSecondarySortKey( indexNames = {INDEX_SENDER_ID, INDEX_SENDER_ID_RECIPIENT_ID, INDEX_RECIPIENT_ID})
+    @DynamoDbSecondarySortKey( indexNames = {
+            INDEX_SENDER_ID,
+            INDEX_SENDER_ID_RECIPIENT_ID,
+            INDEX_RECIPIENT_ID,
+            INDEX_BY_CAMPAIGN,
+            INDEX_BY_CAMPAIGN_RECIPIENT
+    })
     @DynamoDbAttribute(value = FIELD_SENT_AT)
     public Instant getSentAt() {
         return sentAt;
@@ -170,6 +182,26 @@ public class NotificationMetadataEntity {
 
     public void setSenderIdRecipientId(String senderIdRecipientId) {
         this.senderIdRecipientId = senderIdRecipientId;
+    }
+
+    @DynamoDbSecondaryPartitionKey(indexNames = { INDEX_BY_CAMPAIGN })
+    @DynamoDbAttribute(value = FIELD_CAMPAIGN_ID_CREATION_MONTH)
+    public String getCampaignIdCreationMonth() {
+        return campaignIdCreationMonth;
+    }
+
+    public void setCampaignIdCreationMonth(String campaignIdCreationMonth) {
+        this.campaignIdCreationMonth = campaignIdCreationMonth;
+    }
+
+    @DynamoDbSecondaryPartitionKey(indexNames = { INDEX_BY_CAMPAIGN_RECIPIENT })
+    @DynamoDbAttribute(value = FIELD_CAMPAIGN_ID_RECIPIENT_ID)
+    public String getCampaignIdRecipientId() {
+        return campaignIdRecipientId;
+    }
+
+    public void setCampaignIdRecipientId(String campaignIdRecipientId) {
+        this.campaignIdRecipientId = campaignIdRecipientId;
     }
 
     @DynamoDbAttribute(value = FIELD_ROOT_SENDER_ID)
