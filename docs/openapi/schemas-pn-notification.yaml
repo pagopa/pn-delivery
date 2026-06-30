@@ -870,7 +870,10 @@ components:
 
     CommunicationOutcomes:
       type: object
-      description: Esiti della comunicazione (solo per comunicazioni post-rilascio)
+      description: >-
+        Esiti della comunicazione (solo per comunicazioni post-rilascio).
+        Valorizzato esclusivamente per le notifiche bonarie (communicationType INFORMAL);
+        per le notifiche legali (communicationType LEGAL) non viene mai valorizzato.
       properties:
         viewed:
           type: boolean
@@ -884,13 +887,31 @@ components:
         Stato unificato della notifica per i destinatari. Contiene i valori di NotificationStatusV26
         quando il campo communicationType è LEGAL, oppure i valori di InformalNotificationStatus
         quando il campo communicationType è INFORMAL.
-      oneOf:
-        - $ref: '#/components/schemas/NotificationStatusV26'
-        - $ref: '#/components/schemas/InformalNotificationStatus'
+        N.B. l'enum è l'unione dei valori di NotificationStatusV26 (notifiche legali) e di
+        InformalNotificationStatus (notifiche bonarie). Va mantenuto allineato a tali enum.
+      type: string
+      enum:
+        # Valori delle notifiche legali (NotificationStatusV26)
+        - IN_VALIDATION
+        - ACCEPTED
+        - REFUSED
+        - DELIVERING
+        - DELIVERED
+        - VIEWED
+        - EFFECTIVE_DATE
+        - PAID
+        - UNREACHABLE
+        - CANCELLED
+        - RETURNED_TO_SENDER
+        # Valori delle notifiche bonarie (InformalNotificationStatus) — REFUSED già presente sopra
+        - READY_TO_SEND
+        - PROCESSING
+        - SUCCESSFUL_SENDING
+        - UNSUCCESSFUL_SENDING
 
-    RecipientNotificationSearchRow:
+    FullNotificationSearchRow:
       description: >-
-        Riga di risultato della ricerca notifiche per i destinatari. Estende NotificationSearchRow
+        Riga di risultato della ricerca di notifiche completa (legali e bonarie). Estende NotificationSearchRow
         aggiungendo i campi notificationStatus (unificato per legali e bonarie) e communicationOutcomes.
         Il campo notificationStatus conterrà valori di NotificationStatusV26 se communicationType è LEGAL,
         oppure valori di InformalNotificationStatus se communicationType è INFORMAL.
@@ -901,7 +922,12 @@ components:
             notificationStatus:
               $ref: '#/components/schemas/UnifiedNotificationStatus'
             communicationOutcomes:
-              $ref: '#/components/schemas/CommunicationOutcomes'
+              description: >-
+                Esiti della comunicazione. Valorizzato esclusivamente per le notifiche bonarie
+                (communicationType INFORMAL); per le notifiche legali (communicationType LEGAL)
+                non viene mai valorizzato.
+              allOf:
+                - $ref: '#/components/schemas/CommunicationOutcomes'
 
     LegalNotificationSearchRow:
       description: >-
@@ -925,16 +951,20 @@ components:
         - $ref: '#/components/schemas/NotificationSearchRow'
         - type: object
           properties:
+            campaignId:
+              type: string
+              description: >-
+                Identificativo della campagna a cui appartiene la comunicazione bonaria.
             notificationStatus:
               $ref: '#/components/schemas/InformalNotificationStatus'
             communicationOutcomes:
               $ref: '#/components/schemas/CommunicationOutcomes'
 
-    RecipientNotificationSearchResponse:
-      title: Elenco di notifiche per i destinatari
+    FullNotificationSearchResponse:
+      title: Elenco di notifiche completo (legali e bonarie)
       description: >-
-        Dto contenente i risultati di una ricerca di notifiche mista (legali e bonarie) per i destinatari.
-        Gli elementi della pagina sono tipizzati con RecipientNotificationSearchRow che include
+        Dto contenente i risultati di una ricerca di notifiche mista (legali e bonarie).
+        Gli elementi della pagina sono tipizzati con FullNotificationSearchRow che include
         il campo notificationStatus (unificato) e communicationOutcomes.
       type: object
       properties:
@@ -942,7 +972,7 @@ components:
           description: Una pagina di risultati della query
           type: array
           items:
-            $ref: '#/components/schemas/RecipientNotificationSearchRow'
+            $ref: '#/components/schemas/FullNotificationSearchRow'
         moreResult:
           description: Indica se sono presenti ulteriori pagine di risultati
           type: boolean
