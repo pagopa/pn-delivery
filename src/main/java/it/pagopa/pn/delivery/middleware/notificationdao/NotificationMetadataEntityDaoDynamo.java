@@ -82,8 +82,8 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             log.debug("result not satisfy filter sender");
             return  new PageSearchTrunk<>();
         }
-        // filtro per destinatario
-        if (!inputSearchNotificationDto.isBySender() && !entity.getRecipientIds().contains(inputSearchNotificationDto.getSenderReceiverId()) )
+        // filtro per destinatario (non applicabile al flusso campagna, che non ha un destinatario "di sessione")
+        if (!inputSearchNotificationDto.isBySender() && !inputSearchNotificationDto.isByCampaign() && !entity.getRecipientIds().contains(inputSearchNotificationDto.getSenderReceiverId()) )
         {
             log.debug("result not satisfy filter receiver");
             return  new PageSearchTrunk<>();
@@ -98,7 +98,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             return  new PageSearchTrunk<>();
         }
         // filtro per mittente (su filterId, quindi a logica invertita rispetto ai 2 filtri precedenti)
-        if (StringUtils.hasText(inputSearchNotificationDto.getFilterId()) && !inputSearchNotificationDto.isBySender() && entity.getSenderId().equals(inputSearchNotificationDto.getFilterId()) )
+        if (StringUtils.hasText(inputSearchNotificationDto.getFilterId()) && !inputSearchNotificationDto.isBySender() && !inputSearchNotificationDto.isByCampaign() && entity.getSenderId().equals(inputSearchNotificationDto.getFilterId()) )
         {
             log.debug("result not satisfy filter filterid sender");
             return  new PageSearchTrunk<>();
@@ -114,7 +114,17 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             log.debug("result not satisfy filter communicationType");
             return new PageSearchTrunk<>();
         }
-        // NB: punto di estensione per la ricerca-per-campagne (futuro): qui andrà verificata anche l'appartenenza alla campagna.
+        // filtro per appartenenza alla campagna (ricerca puntuale per IUN nel flusso bonarie):
+        // scarto l'entity se non appartiene alla campagna richiesta
+        if ( inputSearchNotificationDto.isByCampaign() && !inputSearchNotificationDto.getCampaignId().equals( entity.getCampaignId() ) ) {
+            log.debug("result not satisfy filter campaign");
+            return new PageSearchTrunk<>();
+        }
+        // filtro per esito (viewed/delivered), applicato in memoria con la stessa semantica della query
+        if ( !matchesEsitoFilter( inputSearchNotificationDto, entity ) ) {
+            log.debug("result not satisfy filter esito");
+            return new PageSearchTrunk<>();
+        }
 
         // preparo i risultati
         PageSearchTrunk<NotificationMetadataEntity> res = new PageSearchTrunk<>();
@@ -232,12 +242,28 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         return NotificationSearchCommunicationType.INFORMAL.name().equals(entityCommunicationType);
     }
 
+    /**
+     * Filtro in memoria per esito (viewed/delivered), usato dalla ricerca puntuale per IUN ({@code GetItem}).
+     * Stessa semantica della query: il filtro viene applicato solo se il relativo flag &egrave; valorizzato.
+     */
+    private boolean matchesEsitoFilter(InputSearchNotificationDto inputSearchNotificationDto,
+                                       NotificationMetadataEntity entity) {
+        Boolean viewed = inputSearchNotificationDto.getViewed();
+        if (viewed != null && !viewed.equals(entity.getViewed())) {
+            return false;
+        }
+        Boolean delivered = inputSearchNotificationDto.getDelivered();
+        return delivered == null || delivered.equals(entity.getDelivered());
+    }
+
     private String retrieveAttributeName(String indexName) {
         String attributeName;
         switch (indexName) {
             case NotificationMetadataEntity.FIELD_SENDER_ID -> attributeName = NotificationMetadataEntity.FIELD_SENDER_ID_CREATION_MONTH;
             case NotificationMetadataEntity.FIELD_RECIPIENT_ID -> attributeName = NotificationMetadataEntity.FIELD_RECIPIENT_ID_CREATION_MONTH;
             case NotificationMetadataEntity.INDEX_SENDER_ID_RECIPIENT_ID -> attributeName = NotificationMetadataEntity.FIELD_SENDER_ID_RECIPIENT_ID;
+            case NotificationMetadataEntity.INDEX_BY_CAMPAIGN -> attributeName = NotificationMetadataEntity.FIELD_CAMPAIGN_ID_CREATION_MONTH;
+            case NotificationMetadataEntity.INDEX_BY_CAMPAIGN_RECIPIENT -> attributeName = NotificationMetadataEntity.FIELD_CAMPAIGN_ID_RECIPIENT_ID;
             default -> {
                 String msg = String.format("Unable to retrieve attributeName by indexName=%s", indexName);
                 log.error(msg);
@@ -257,6 +283,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         addGroupFilterExpression( inputSearchNotificationDto.getGroups(), filterExpressionBuilder, expressionBuilder);
         addPaIdsFilterExpression( inputSearchNotificationDto.getMandateAllowedPaIds(), filterExpressionBuilder, expressionBuilder);
         addCommunicationTypeFilterExpression( inputSearchNotificationDto.getCommunicationType(), filterExpressionBuilder, expressionBuilder);
+        addEsitoFilterExpression( inputSearchNotificationDto, filterExpressionBuilder, expressionBuilder);
 
         requestBuilder.filterExpression(filterExpressionBuilder
                 .expression(expressionBuilder.length() > 0 ? expressionBuilder.toString() : null)
@@ -267,8 +294,11 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
                                                  Expression.Builder filterExpressionBuilder,
                                                  StringBuilder expressionBuilder) {
 
-        // nel caso in cui sono il mittente e sto cercando senza specificare il destinatario, applico il filtro su recipientOne (così mi torna solo il un record per iun multidestinatario)
-        if (inputSearchNotificationDto.isBySender() && !StringUtils.hasText(inputSearchNotificationDto.getFilterId())) {
+        // nel caso in cui sono il mittente (o sto eseguendo una ricerca massiva per campagna) e sto cercando
+        // senza specificare il destinatario, applico il filtro su recipientOne (così mi torna solo un record per iun multidestinatario)
+        boolean massiveSenderSearch = inputSearchNotificationDto.isBySender() && !StringUtils.hasText(inputSearchNotificationDto.getFilterId());
+        boolean massiveCampaignSearch = inputSearchNotificationDto.isByCampaign() && !StringUtils.hasText(inputSearchNotificationDto.getFilterId());
+        if (massiveSenderSearch || massiveCampaignSearch) {
 
             filterExpressionBuilder.putExpressionValue(":recipientOne",
                     AttributeValue.builder()
@@ -412,6 +442,39 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         }
 
         expressionBuilder.append(" )");
+    }
+
+    /**
+     * Filtro per esito applicato alla query multi-mese. I flag {@code viewed} e {@code delivered}
+     * sono indipendenti: ciascuno viene aggiunto come condizione {@code = :flag} solo se valorizzato.
+     * Se entrambi assenti, nessun filtro viene applicato.
+     */
+    private void addEsitoFilterExpression(InputSearchNotificationDto inputSearchNotificationDto,
+                                          Expression.Builder filterExpressionBuilder,
+                                          StringBuilder expressionBuilder) {
+        Boolean viewed = inputSearchNotificationDto.getViewed();
+        if (viewed != null) {
+            log.trace( "Add viewed filter expression viewed={}", viewed );
+            if ( expressionBuilder.length() > 0 )
+                expressionBuilder.append( " AND ( " );
+            else
+                expressionBuilder.append( " ( " );
+            expressionBuilder.append( NotificationMetadataEntity.FIELD_VIEWED + " = :viewed )" );
+            filterExpressionBuilder.putExpressionValue(":viewed",
+                    AttributeValue.builder().bool(viewed).build());
+        }
+
+        Boolean delivered = inputSearchNotificationDto.getDelivered();
+        if (delivered != null) {
+            log.trace( "Add delivered filter expression delivered={}", delivered );
+            if ( expressionBuilder.length() > 0 )
+                expressionBuilder.append( " AND ( " );
+            else
+                expressionBuilder.append( " ( " );
+            expressionBuilder.append( NotificationMetadataEntity.FIELD_DELIVERED + " = :delivered )" );
+            filterExpressionBuilder.putExpressionValue(":delivered",
+                    AttributeValue.builder().bool(delivered).build());
+        }
     }
 
 

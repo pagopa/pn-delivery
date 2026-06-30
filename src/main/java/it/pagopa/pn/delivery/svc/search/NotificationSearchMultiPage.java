@@ -68,7 +68,8 @@ public abstract class NotificationSearchMultiPage extends NotificationSearch {
         if (!CollectionUtils.isEmpty(inputSearchNotificationDto.getStatuses())
             || !CollectionUtils.isEmpty(inputSearchNotificationDto.getGroups())
             || (inputSearchNotificationDto.isBySender() && StringUtils.hasText(inputSearchNotificationDto.getFilterId()))
-            || isCommunicationTypeFilterApplied(inputSearchNotificationDto.getCommunicationType()))
+            || isCommunicationTypeFilterApplied(inputSearchNotificationDto.getCommunicationType())
+            || isEsitoFilterApplied(inputSearchNotificationDto))
             dynamoDbPageSize = dynamoDbPageSize * FILTER_EXPRESSION_APPLIED_MULTIPLIER;
 
         List<NotificationMetadataEntity> dataRead = getDataRead( requiredSize, dynamoDbPageSize );
@@ -84,6 +85,15 @@ public abstract class NotificationSearchMultiPage extends NotificationSearch {
      */
     private boolean isCommunicationTypeFilterApplied(NotificationSearchCommunicationType communicationType) {
         return communicationType != null && communicationType != NotificationSearchCommunicationType.ALL;
+    }
+
+    /**
+     * I filtri esito (viewed/delivered) sono applicati come FilterExpression a valle e possono
+     * scartare righe lette da DynamoDB: in tal caso conviene incrementare {@code dynamoDbPageSize}.
+     * Sono indipendenti, basta che almeno uno sia valorizzato.
+     */
+    private boolean isEsitoFilterApplied(InputSearchNotificationDto inputSearchNotificationDto) {
+        return inputSearchNotificationDto.getViewed() != null || inputSearchNotificationDto.getDelivered() != null;
     }
 
     /**
@@ -158,6 +168,22 @@ public abstract class NotificationSearchMultiPage extends NotificationSearch {
             pageLastEvaluatedKey.setExternalLastEvaluatedKey(keyelement.getSenderIdRecipientId());
             pageLastEvaluatedKey.setInternalLastEvaluatedKey(Map.of(
                     NotificationMetadataEntity.FIELD_SENDER_ID_RECIPIENT_ID, AttributeValue.builder().s(keyelement.getSenderIdRecipientId()).build(),
+                    NotificationMetadataEntity.FIELD_SENT_AT, AttributeValue.builder().s(keyelement.getSentAt().toString()).build(),
+                    NotificationMetadataEntity.FIELD_IUN_RECIPIENT_ID, AttributeValue.builder().s(keyelement.getIunRecipientId()).build()));
+        }
+        else if (indexNameAndPartitions.getIndexName().equals(IndexNameAndPartitions.SearchIndexEnum.INDEX_BY_CAMPAIGN))
+        {
+            pageLastEvaluatedKey.setExternalLastEvaluatedKey(keyelement.getCampaignIdCreationMonth());
+            pageLastEvaluatedKey.setInternalLastEvaluatedKey(Map.of(
+                    NotificationMetadataEntity.FIELD_CAMPAIGN_ID_CREATION_MONTH, AttributeValue.builder().s(keyelement.getCampaignIdCreationMonth()).build(),
+                    NotificationMetadataEntity.FIELD_SENT_AT, AttributeValue.builder().s(keyelement.getSentAt().toString()).build(),
+                    NotificationMetadataEntity.FIELD_IUN_RECIPIENT_ID, AttributeValue.builder().s(keyelement.getIunRecipientId()).build()));
+        }
+        else if (indexNameAndPartitions.getIndexName().equals(IndexNameAndPartitions.SearchIndexEnum.INDEX_BY_CAMPAIGN_RECIPIENT))
+        {
+            pageLastEvaluatedKey.setExternalLastEvaluatedKey(keyelement.getCampaignIdRecipientId());
+            pageLastEvaluatedKey.setInternalLastEvaluatedKey(Map.of(
+                    NotificationMetadataEntity.FIELD_CAMPAIGN_ID_RECIPIENT_ID, AttributeValue.builder().s(keyelement.getCampaignIdRecipientId()).build(),
                     NotificationMetadataEntity.FIELD_SENT_AT, AttributeValue.builder().s(keyelement.getSentAt().toString()).build(),
                     NotificationMetadataEntity.FIELD_IUN_RECIPIENT_ID, AttributeValue.builder().s(keyelement.getIunRecipientId()).build()));
         }
