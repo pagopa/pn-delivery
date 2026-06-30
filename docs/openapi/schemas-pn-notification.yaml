@@ -83,12 +83,6 @@ components:
         - SUCCESSFUL_SENDING
         - UNSUCCESSFUL_SENDING
 
-    NotificationStatusV26:
-      # Alias locale allo stato delle notifiche legali definito in pn-delivery-push.
-      # Contiene tutti gli stati del ciclo di vita di una notifica legale (es. ACCEPTED, DELIVERING, DELIVERED, ecc.)
-      $ref: './remote-refs.yaml#/components/schemas/NotificationStatusV26'
-
-
     TaxId:
       description: C.F. persona fisica o persona giuridica
       type: string
@@ -939,7 +933,7 @@ components:
         - type: object
           properties:
             notificationStatus:
-              $ref: '#/components/schemas/NotificationStatusV26'
+              $ref: './remote-refs.yaml#/components/schemas/NotificationStatusV26'
 
     InformalNotificationSearchRow:
       description: >-
