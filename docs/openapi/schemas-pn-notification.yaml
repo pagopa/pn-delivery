@@ -951,6 +951,10 @@ components:
         - $ref: '#/components/schemas/NotificationSearchRow'
         - type: object
           properties:
+            campaignId:
+              type: string
+              description: >-
+                Identificativo della campagna a cui appartiene la comunicazione bonaria.
             notificationStatus:
               $ref: '#/components/schemas/InformalNotificationStatus'
             communicationOutcomes:
