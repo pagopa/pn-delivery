@@ -38,8 +38,11 @@ class NotificationMetadataEntityDaoDynamoCommunicationTypeTest {
 
     private static final String TABLE_NAME = "NotificationsMetadata";
     private static final String INDEX_NAME = NotificationMetadataEntity.FIELD_RECIPIENT_ID;
+    private static final String SENDER_INDEX_NAME = NotificationMetadataEntity.FIELD_SENDER_ID;
     private static final String PARTITION = "PF-recipient##202209";
+    private static final String SENDER_PARTITION = "PA-sender##202209";
     private static final String RECIPIENT_ID = "PF-recipient";
+    private static final String SENDER_ID = "PA-sender";
     private static final Instant SENT_AT = Instant.parse("2022-09-05T18:47:39.267123Z");
     private static final Instant START_DATE = Instant.parse("2022-09-01T00:00:00.00Z");
     private static final Instant END_DATE = Instant.parse("2022-09-30T00:00:00.00Z");
@@ -188,6 +191,84 @@ class NotificationMetadataEntityDaoDynamoCommunicationTypeTest {
         }
     }
 
+    // ---------- WI-US3.4: flusso MITTENTE (bySender = true) ----------
+
+    @Test
+    void searchForOneMonthSenderLegalAppliesLegalOrAttributeNotExistsOnSenderIndex() {
+        Expression filter = captureSenderFilterExpression(NotificationSearchCommunicationType.LEGAL);
+
+        assertNotNull(filter.expression());
+        assertTrue(filter.expression().contains(NotificationMetadataEntity.FIELD_COMMUNICATION_TYPE + " = :legal"),
+                "Anche per il mittente (INDEX_BY_SENDER) deve filtrare per communicationType = :legal");
+        assertTrue(filter.expression().contains("attribute_not_exists(" + NotificationMetadataEntity.FIELD_COMMUNICATION_TYPE + ")"),
+                "Deve includere le notifiche storiche prive del campo anche lato mittente");
+        assertEquals("LEGAL", filter.expressionValues().get(":legal").s());
+        assertFalse(filter.expressionValues().containsKey(":informal"));
+    }
+
+    @Test
+    void searchForOneMonthSenderLegalKeepsRecipientOneClauseTogetherWithCommunicationTypeFilter() {
+        // lato mittente senza filterId viene applicato anche il filtro recipientOne: i due filtri devono coesistere
+        Expression filter = captureSenderFilterExpression(NotificationSearchCommunicationType.LEGAL);
+
+        assertNotNull(filter.expression());
+        assertTrue(filter.expression().contains(NotificationMetadataEntity.FIELD_RECIPIENT_ONE + " = :recipientOne"),
+                "Il filtro recipientOne del mittente deve restare presente");
+        assertTrue(filter.expression().contains(NotificationMetadataEntity.FIELD_COMMUNICATION_TYPE + " = :legal"),
+                "Il filtro communicationType deve essere applicato in AND con recipientOne");
+        assertTrue(filter.expressionValues().containsKey(":recipientOne"));
+        assertTrue(filter.expressionValues().containsKey(":legal"));
+    }
+
+    @Test
+    void searchByIunSenderLegalKeepsLegalEntity() {
+        mockGetItem(senderCommunicationTypeEntity("LEGAL"));
+        assertSenderResult(NotificationSearchCommunicationType.LEGAL, true);
+    }
+
+    @Test
+    void searchByIunSenderLegalKeepsHistoricalEntityWithoutCommunicationType() {
+        mockGetItem(senderCommunicationTypeEntity(null));
+        assertSenderResult(NotificationSearchCommunicationType.LEGAL, true);
+    }
+
+    @Test
+    void searchByIunSenderLegalDiscardsInformalEntity() {
+        mockGetItem(senderCommunicationTypeEntity("INFORMAL"));
+        assertSenderResult(NotificationSearchCommunicationType.LEGAL, false);
+    }
+
+    private Expression captureSenderFilterExpression(NotificationSearchCommunicationType communicationType) {
+        Page<NotificationMetadataEntity> page = Page.create(Collections.emptyList());
+        when(index.query(any(QueryEnhancedRequest.class))).thenReturn(() -> List.of(page).iterator());
+
+        InputSearchNotificationDto searchDto = baseSenderSearch()
+                .communicationType(communicationType)
+                .build();
+
+        dao.searchForOneMonth(searchDto, SENDER_INDEX_NAME, SENDER_PARTITION, 10, null);
+
+        ArgumentCaptor<QueryEnhancedRequest> captor = ArgumentCaptor.forClass(QueryEnhancedRequest.class);
+        verify(index).query(captor.capture());
+        return captor.getValue().filterExpression();
+    }
+
+    private void assertSenderResult(NotificationSearchCommunicationType communicationType, boolean expectedKept) {
+        InputSearchNotificationDto searchDto = baseSenderSearch()
+                .communicationType(communicationType)
+                .build();
+
+        PageSearchTrunk<NotificationMetadataEntity> result =
+                dao.searchByIun(searchDto, SENDER_PARTITION, SENT_AT.toString());
+
+        if (expectedKept) {
+            assertNotNull(result.getResults());
+            assertEquals(1, result.getResults().size());
+        } else {
+            assertTrue(result.getResults() == null || result.getResults().isEmpty());
+        }
+    }
+
     // ---------- helpers ----------
 
     private void mockGetItem(NotificationMetadataEntity entity) {
@@ -204,11 +285,35 @@ class NotificationMetadataEntityDaoDynamoCommunicationTypeTest {
                 .size(10);
     }
 
+    private InputSearchNotificationDto.InputSearchNotificationDtoBuilder baseSenderSearch() {
+        return new InputSearchNotificationDto().toBuilder()
+                .bySender(true)
+                .senderReceiverId(SENDER_ID)
+                .startDate(START_DATE)
+                .endDate(END_DATE)
+                .statuses(List.of())
+                .size(10);
+    }
+
     private NotificationMetadataEntity communicationTypeEntity(String communicationType) {
         return NotificationMetadataEntity.builder()
                 .iunRecipientId("TGWR-ZJQN-JMAR-202209-A-1##" + RECIPIENT_ID)
                 .recipientId(RECIPIENT_ID)
                 .recipientIds(List.of(RECIPIENT_ID))
+                .notificationGroup("")
+                .notificationStatus("DELIVERING")
+                .sentAt(SENT_AT)
+                .communicationType(communicationType)
+                .tableRow(Map.of("senderDenomination", "comune", "subject", "oggetto", "paProtocolNumber", "123"))
+                .build();
+    }
+
+    private NotificationMetadataEntity senderCommunicationTypeEntity(String communicationType) {
+        return NotificationMetadataEntity.builder()
+                .iunRecipientId("TGWR-ZJQN-JMAR-202209-A-1##" + RECIPIENT_ID)
+                .recipientId(RECIPIENT_ID)
+                .recipientIds(List.of(RECIPIENT_ID))
+                .senderId(SENDER_ID)
                 .notificationGroup("")
                 .notificationStatus("DELIVERING")
                 .sentAt(SENT_AT)

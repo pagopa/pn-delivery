@@ -125,6 +125,7 @@ class NotificationSearchControllerTest {
                 .statuses(List.of(STATUS))
                 .groups( GROUPS )
                 .subjectRegExp(SUBJECT_REG_EXP)
+                .communicationType(NotificationSearchCommunicationType.LEGAL)
                 .size(null)
                 .nextPagesKey(null)
                 .build();
@@ -186,6 +187,7 @@ class NotificationSearchControllerTest {
                 .endDate(Instant.parse(END_DATE))
                 .groups( GROUPS )
                 .statuses(List.of())
+                .communicationType(NotificationSearchCommunicationType.LEGAL)
                 .size( SIZE )
                 .nextPagesKey( NEXT_PAGES_KEY )
                 .build();

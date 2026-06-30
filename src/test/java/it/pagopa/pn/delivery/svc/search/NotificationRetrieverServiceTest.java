@@ -202,6 +202,58 @@ class NotificationRetrieverServiceTest {
     }
 
     @Test
+    void senderSearchAppliesDefaultLegalCommunicationTypeAndNoDelegateInhibition() {
+        //Given: ricerca lato mittente senza communicationType esplicito
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                .bySender( true )
+                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                .senderReceiverId( "SENDER_ID" )
+                .size( 10 )
+                .nextPagesKey( null )
+                .build();
+
+        ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> results = getPaginatedNotifications();
+        Mockito.when(notificationSearch.searchNotificationMetadata()).thenReturn(results);
+
+        //When
+        svc.searchNotification( inputSearch, "PA", null );
+
+        //Then: il service applica il default applicativo LEGAL e non passa dall'inibizione delegati
+        ArgumentCaptor<InputSearchNotificationDto> captor = ArgumentCaptor.forClass(InputSearchNotificationDto.class);
+        Mockito.verify(notificationSearchFactory).getMultiPageSearch(captor.capture(), any());
+        InputSearchNotificationDto captured = captor.getValue();
+        Assertions.assertTrue( captured.isBySender() );
+        Assertions.assertEquals( NotificationSearchCommunicationType.LEGAL, captured.getCommunicationType() );
+        Mockito.verifyNoInteractions( pnMandateClient );
+    }
+
+    @Test
+    void senderSearchKeepsExplicitLegalCommunicationType() {
+        //Given: ricerca lato mittente con communicationType LEGAL già impostato dal controller (WI-US3.1)
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                .bySender( true )
+                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                .senderReceiverId( "SENDER_ID" )
+                .communicationType( NotificationSearchCommunicationType.LEGAL )
+                .size( 10 )
+                .nextPagesKey( null )
+                .build();
+
+        ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> results = getPaginatedNotifications();
+        Mockito.when(notificationSearch.searchNotificationMetadata()).thenReturn(results);
+
+        //When
+        svc.searchNotification( inputSearch, "PA", null );
+
+        //Then: il valore esplicito LEGAL viene preservato
+        ArgumentCaptor<InputSearchNotificationDto> captor = ArgumentCaptor.forClass(InputSearchNotificationDto.class);
+        Mockito.verify(notificationSearchFactory).getMultiPageSearch(captor.capture(), any());
+        Assertions.assertEquals( NotificationSearchCommunicationType.LEGAL, captor.getValue().getCommunicationType() );
+    }
+
+    @Test
     void checkMandate_notfound() {
         //Given
         InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()

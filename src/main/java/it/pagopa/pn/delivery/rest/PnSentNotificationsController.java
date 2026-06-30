@@ -13,6 +13,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadWebApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.NotificationSearchRow;
+import it.pagopa.pn.delivery.models.NotificationSearchCommunicationType;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
@@ -96,6 +97,8 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
                 .groups( xPagopaPnCxGroups )
                 .subjectRegExp(subjectRegExp)
                 .iunMatch(iunMatch)
+                // la ricerca lato mittente è esclusivamente legale: si forza esplicitamente il filtro così da escludere le comunicazioni bonarie
+                .communicationType(NotificationSearchCommunicationType.LEGAL)
                 .size(size)
                 .nextPagesKey(nextPagesKey)
                 .build();
