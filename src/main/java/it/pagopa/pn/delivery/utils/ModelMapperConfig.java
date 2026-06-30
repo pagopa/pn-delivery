@@ -82,6 +82,38 @@ public class ModelMapperConfig {
             return destination;
         };
 
+    /**
+     * Converte la riga di ricerca interna nel DTO per il flusso bonario (campagna):
+     * <ul>
+     *     <li>{@code communicationType}: valore dell'entity, con default {@code INFORMAL} quando
+     *     assente (per costruzione il flusso campagna ricerca solo comunicazioni bonarie);</li>
+     *     <li>{@code communicationOutcomes}: assemblato dai campi flat {@code viewed}/{@code delivered}
+     *     e valorizzato solo quando almeno uno dei due è presente;</li>
+     *     <li>{@code notificationStatus}: lasciato alla mappatura implicita STRICT che converte per nome
+     *     da {@code UnifiedNotificationStatus} a {@code InformalNotificationStatus} (la compatibilità
+     *     è garantita a monte dal fail-fast di {@code InformalNotificationStatusValidator});</li>
+     *     <li>{@code desiredFeedback}: volutamente NON mappato in output (resta solo su DB).</li>
+     * </ul>
+     */
+    static Converter<it.pagopa.pn.delivery.models.NotificationSearchRow, InformalNotificationSearchRow> informalSearchRowConverter =
+        context -> {
+            it.pagopa.pn.delivery.models.NotificationSearchRow source = context.getSource();
+            InformalNotificationSearchRow destination = context.getDestination();
+
+            destination.setCommunicationType(
+                    org.springframework.util.StringUtils.hasText(source.getCommunicationType())
+                            ? InformalNotificationSearchRow.CommunicationTypeEnum.fromValue(source.getCommunicationType())
+                            : InformalNotificationSearchRow.CommunicationTypeEnum.INFORMAL);
+
+            if (source.getViewed() != null || source.getDelivered() != null) {
+                CommunicationOutcomes outcomes = new CommunicationOutcomes();
+                outcomes.setViewed(source.getViewed());
+                outcomes.setDelivered(source.getDelivered());
+                destination.setCommunicationOutcomes(outcomes);
+            }
+            return destination;
+        };
+
 
     @Bean
     public ModelMapper modelMapper() {
@@ -105,6 +137,9 @@ public class ModelMapperConfig {
         modelMapper.createTypeMap(it.pagopa.pn.delivery.models.NotificationSearchRow.class, FullNotificationSearchRow.class)
                 .addMappings(mapper -> mapper.skip(FullNotificationSearchRow::setCommunicationType))
                 .setPostConverter(ModelMapperConfig.recipientSearchRowConverter);
+        modelMapper.createTypeMap(it.pagopa.pn.delivery.models.NotificationSearchRow.class, InformalNotificationSearchRow.class)
+                .addMappings(mapper -> mapper.skip(InformalNotificationSearchRow::setCommunicationType))
+                .setPostConverter(ModelMapperConfig.informalSearchRowConverter);
         return modelMapper;
     }
 

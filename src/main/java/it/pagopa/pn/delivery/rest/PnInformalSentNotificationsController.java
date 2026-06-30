@@ -12,6 +12,7 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.NotificationSearchCommunicationType;
 import it.pagopa.pn.delivery.models.NotificationSearchRow;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
+import it.pagopa.pn.delivery.svc.search.CampaignAuthValidator;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.InformalNotificationStatusValidator;
 import lombok.extern.slf4j.Slf4j;
@@ -29,10 +30,14 @@ public class PnInformalSentNotificationsController implements SenderInformalRead
 
     private final NotificationRetrieverService retrieveSvc;
     private final ModelMapper modelMapper;
+    private final CampaignAuthValidator campaignAuthValidator;
 
-    public PnInformalSentNotificationsController(NotificationRetrieverService retrieveSvc, ModelMapper modelMapper) {
+    public PnInformalSentNotificationsController(NotificationRetrieverService retrieveSvc,
+                                                 ModelMapper modelMapper,
+                                                 CampaignAuthValidator campaignAuthValidator) {
         this.retrieveSvc = retrieveSvc;
         this.modelMapper = modelMapper;
+        this.campaignAuthValidator = campaignAuthValidator;
     }
 
     @Override
@@ -58,9 +63,6 @@ public class PnInformalSentNotificationsController implements SenderInformalRead
                 .build();
         logEvent.log();
 
-        // Autorizzazione campagna -> mittente (WI-US4.10): verificare che campaignId appartenga a xPagopaPnCxId.
-        // La sorgente dati campagna non esiste ancora in pn-delivery: la verifica sarà agganciata qui.
-
         InputSearchNotificationDto searchDto = new InputSearchNotificationDto().toBuilder()
                 .byCampaign(true)
                 .campaignId(campaignId)
@@ -84,6 +86,9 @@ public class PnInformalSentNotificationsController implements SenderInformalRead
         ResultPaginationDto<NotificationSearchRow, String> serviceResult;
         InformalNotificationSearchResponse response = new InformalNotificationSearchResponse();
         try {
+            // Autorizzazione campagna -> mittente (WI-US4.10): la campagna deve appartenere a xPagopaPnCxId.
+            // Solleva PnForbiddenException quando la verifica fallisce (implementazione stub, vedi validator).
+            campaignAuthValidator.assertCampaignBelongsToSender(campaignId, xPagopaPnCxId);
             serviceResult = retrieveSvc.searchNotification(searchDto, null, null);
             // la validazione di dominio deve stare fuori dal map(): ModelMapper incapsula
             // le eccezioni del converter in MappingException, perdendo il codice errore dedicato
