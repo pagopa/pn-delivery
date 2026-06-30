@@ -66,6 +66,7 @@ public abstract class NotificationSearchMultiPage extends NotificationSearch {
         int dynamoDbPageSize = requiredSize;
         // se ho dei filtri ulteriori, suppongo che i dati vengano ulteriormente filtrati, quindi aumento il numero di elementi da leggere
         if (!CollectionUtils.isEmpty(inputSearchNotificationDto.getStatuses())
+            || !CollectionUtils.isEmpty(inputSearchNotificationDto.getInformalStatuses())
             || !CollectionUtils.isEmpty(inputSearchNotificationDto.getGroups())
             || (inputSearchNotificationDto.isBySender() && StringUtils.hasText(inputSearchNotificationDto.getFilterId()))
             || isCommunicationTypeFilterApplied(inputSearchNotificationDto.getCommunicationType())
