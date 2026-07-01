@@ -77,8 +77,8 @@ describe('processRecord tests', () => {
     expect(updateMetadataStub.firstCall.args[1]).to.deep.equal({ iun_recipientId: 'mockedIun##recipientId2' });
   });
 
-  it('should set delivered=true for REACHED on the correct recipient', async () => {
-    decodePayloadStub.returns(makeKinesisPayload('REACHED', { recIndex: 1 }));
+  it('should set delivered=true for DELIVERED on the correct recipient', async () => {
+    decodePayloadStub.returns(makeKinesisPayload('DELIVERED', { recIndex: 1 }));
 
     await processRecord(record);
 
