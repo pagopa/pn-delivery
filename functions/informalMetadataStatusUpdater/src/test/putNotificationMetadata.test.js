@@ -56,12 +56,12 @@ describe('putNotificationMetadata', () => {
     expect(metadataPayload).to.have.property('campaignId', 'campaign1');
   });
 
-  it('should include undefined campaignId when not set on notification', async () => {
-    delete notification.campaignId;
+  it('should include campaign GSI keys when campaignId is set', async () => {
     await putNotificationMetadata(statusInfo, notification);
 
     const metadataPayload = updateNotificationMetadataRecordStub.firstCall.args[1];
-    expect(metadataPayload).to.have.property('campaignId', undefined);
+    expect(metadataPayload).to.have.property('campaignId_creationMonth', 'campaign1##202501');
+    expect(metadataPayload).to.have.property('campaignId_recipientId', 'campaign1##recipientId1');
   });
 
   it('should put metadata for each recipient', async () => {

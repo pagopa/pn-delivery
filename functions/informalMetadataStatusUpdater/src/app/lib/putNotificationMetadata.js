@@ -49,6 +49,8 @@ const buildNotificationMetadata = (
     recipientId_creationMonth: `${recipientId}##${sentAtMonth}`,
     iun_recipientId: `${notification.iun}##${recipientId}`,
     recipientOne: notification.recipients.indexOf(recipient) === 0,
+    campaignId_creationMonth: `${notification.campaignId}##${sentAtMonth}`,
+    campaignId_recipientId: `${notification.campaignId}##${recipientId}`,
   };
 };
 
