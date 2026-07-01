@@ -125,7 +125,6 @@ paths:
         - $ref: './parameters-notification-search.yaml#/components/parameters/cxType'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchPageSize'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchNextPagesKey'
-        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchCommunicationType'
       responses:
         '200':
           description: OK

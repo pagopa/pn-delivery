@@ -142,8 +142,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     public  ResponseEntity<LegalNotificationSearchResponse> searchNotificationsPrivate(OffsetDateTime startDate, OffsetDateTime endDate,
                                                                                   String recipientId, Boolean recipientIdOpaque,
                                                                                   String senderId, List<NotificationStatusV26> status,
-                                                                                  String mandateId, String cxType, Integer size, String nextPagesKey,
-                                                                                  String communicationType) {
+                                                                                  String mandateId, String cxType, Integer size, String nextPagesKey) {
 
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
@@ -161,7 +160,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                 .endDate(endDate.toInstant())
                 .statuses(status==null?List.of():status)
                 .receiverIdIsOpaque(recipientIdOpaque)
-                .communicationType(StringUtils.hasText(communicationType) ? NotificationSearchCommunicationType.valueOf(communicationType) : NotificationSearchCommunicationType.LEGAL)
+                .communicationType(NotificationSearchCommunicationType.LEGAL)
                 .size(size)
                 .maxPageNumber( 1 )
                 .nextPagesKey(nextPagesKey)
