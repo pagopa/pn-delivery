@@ -213,4 +213,67 @@ class IndexNameAndPartitionsTest {
         );
     }
 
+    @Test
+    void searchByCampaignMassive() {
+        // - GIVEN: ricerca massiva per campagna (nessun iunMatch, nessun filterId)
+        InputSearchNotificationDto searchParams = new InputSearchNotificationDto().toBuilder()
+                .byCampaign( true )
+                .campaignId( "campaignId" )
+                .startDate(Instant.parse("2020-10-13T10:00:00Z"))
+                .endDate(Instant.parse("2020-12-13T10:00:00Z"))
+                .build();
+
+        // - WHEN
+        IndexNameAndPartitions indexAndPartitions =
+                IndexNameAndPartitions.selectIndexAndPartitions( searchParams );
+
+        // - THAN: indice massivo campaignId, partizioni campaignId##YYYYMM (multi-mese)
+        Assertions.assertEquals( INDEX_BY_CAMPAIGN, indexAndPartitions.getIndexName() );
+        Assertions.assertEquals(
+                Arrays.asList("campaignId##202012","campaignId##202011","campaignId##202010"),
+                indexAndPartitions.getPartitions()
+        );
+    }
+
+    @Test
+    void searchByCampaignWithRecipientFilter() {
+        // - GIVEN: ricerca per campagna + destinatario specifico (filterId valorizzato)
+        InputSearchNotificationDto searchParams = new InputSearchNotificationDto().toBuilder()
+                .byCampaign( true )
+                .campaignId( "campaignId" )
+                .filterId( "recipientId" )
+                .startDate(Instant.parse("2020-10-13T10:00:00Z"))
+                .endDate(Instant.parse("2020-12-13T10:00:00Z"))
+                .build();
+
+        // - WHEN
+        IndexNameAndPartitions indexAndPartitions =
+                IndexNameAndPartitions.selectIndexAndPartitions( searchParams );
+
+        // - THAN: indice campaignId_recipientId, singola partizione campaignId##recipientId
+        Assertions.assertEquals( INDEX_BY_CAMPAIGN_RECIPIENT, indexAndPartitions.getIndexName() );
+        Assertions.assertEquals(
+                Collections.singletonList("campaignId##recipientId"),
+                indexAndPartitions.getPartitions()
+        );
+    }
+
+    @Test
+    void searchByCampaignWithIunMatchReusesIunIndex() {
+        // - GIVEN: ricerca puntuale per IUN nel flusso campagna (verifica campagna a valle)
+        InputSearchNotificationDto searchParams = new InputSearchNotificationDto().toBuilder()
+                .byCampaign( true )
+                .campaignId( "campaignId" )
+                .iunMatch( "iun123" )
+                .build();
+
+        // - WHEN
+        IndexNameAndPartitions indexAndPartitions =
+                IndexNameAndPartitions.selectIndexAndPartitions( searchParams );
+
+        // - THAN: riuso dell'indice principale per IUN, nessuna partizione
+        Assertions.assertEquals( INDEX_BY_IUN, indexAndPartitions.getIndexName() );
+        Assertions.assertEquals( 0, indexAndPartitions.getPartitions().size() );
+    }
+
 }
