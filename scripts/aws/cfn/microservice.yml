@@ -2418,7 +2418,7 @@ Resources:
       FilterCriteria:
         Filters:
           - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName" : [ "INSERT" ], "dynamodb" : { "NewImage" : { "category" : { "S": [ "INFORMAL_NOTIFICATION_VIEWED" ] } } } } }'
-          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName" : [ "INSERT" ], "dynamodb" : { "NewImage" : { "category" : { "S": [ "REACHED" ] } } } } }'
+          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName" : [ "INSERT" ], "dynamodb" : { "NewImage" : { "category" : { "S": [ "DELIVERED" ] } } } } }'
           - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName" : [ "INSERT" ], "dynamodb" : { "NewImage" : { "category" : { "S": [ "WORKFLOW_DONE" ] } } } } }'
       FunctionName: !Ref MetadataUpdaterLambda
       FunctionResponseTypes:

@@ -4,7 +4,7 @@ const dynamo = require("./dynamo");
 
 const CATEGORY_FIELD_MAP = {
   INFORMAL_NOTIFICATION_VIEWED: () => ({ viewed: true }),
-  REACHED: () => ({ delivered: true }),
+  DELIVERED: () => ({ delivered: true }),
   WORKFLOW_DONE: () => ({ desiredFeedback: true }),
 };
 
