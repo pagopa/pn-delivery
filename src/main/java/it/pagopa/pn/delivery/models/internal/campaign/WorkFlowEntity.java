@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Duration;
+import java.util.Set;
 
 @Data
 @Builder(toBuilder = true)
@@ -14,7 +15,7 @@ import java.time.Duration;
 @AllArgsConstructor
 public class WorkFlowEntity {
 	private ChannelType channel;
-	private RecipientTypeInt recipientType;
+	private Set<RecipientTypeInt> recipientType;
 	private Duration timeout;
 	private DesiredFeedbackType desiredFeedback;
 	private Boolean includeAttachment;
