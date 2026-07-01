@@ -1,13 +1,7 @@
 package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.delivery.exception.PnCampaignNotFoundException;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ChannelType;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignDetail;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignSearchResponse;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignSummary;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.DesiredFeedbackType;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RecipientTypeInt;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.WorkflowEntity;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.svc.CampaignService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -46,7 +40,7 @@ class CampaignControllerTest {
                 .title("Campaign 1")
                 .pfChannels(List.of(ChannelType.IO))
                 .pgChannels(List.of(ChannelType.PEC))
-                .closed(false)
+                .campaignStatus(CampaignStatus.IN_PROGRESS)
                 .startDate(OffsetDateTime.now())
                 .endDate(OffsetDateTime.now().plusDays(30));
 
@@ -85,7 +79,7 @@ class CampaignControllerTest {
                 .title("Campaign 1")
                 .pfChannels(List.of(ChannelType.IO))
                 .pgChannels(List.of(ChannelType.PEC))
-                .closed(false)
+                .campaignStatus(CampaignStatus.IN_PROGRESS)
                 .startDate(OffsetDateTime.now())
                 .endDate(OffsetDateTime.now().plusDays(30));
 
@@ -95,7 +89,7 @@ class CampaignControllerTest {
                 .title("Campaign 2")
                 .pfChannels(List.of(ChannelType.SMS))
                 .pgChannels(List.of(ChannelType.ANALOG))
-                .closed(false)
+                .campaignStatus(CampaignStatus.IN_PROGRESS)
                 .startDate(OffsetDateTime.now())
                 .endDate(OffsetDateTime.now().plusDays(30));
 
@@ -164,7 +158,7 @@ class CampaignControllerTest {
                 .senderId(SENDER_ID)
                 .title("Campaign 1")
                 .descriptionScope("Test description")
-                .closed(false)
+                .campaignStatus(CampaignStatus.IN_PROGRESS)
                 .senderContact("contact@example.com")
                 .startDate(OffsetDateTime.now())
                 .endDate(OffsetDateTime.now().plusDays(30))
@@ -196,7 +190,7 @@ class CampaignControllerTest {
                     assert result.getCampaignId().equals(CAMPAIGN_ID);
                     assert result.getTitle().equals("Campaign 1");
                     assert result.getDescriptionScope().equals("Test description");
-                    assert !result.getClosed();
+                    assert result.getCampaignStatus().equals(CampaignStatus.IN_PROGRESS);
                 });
     }
 
@@ -223,7 +217,7 @@ class CampaignControllerTest {
                 .senderId(SENDER_ID)
                 .title("Campaign 1")
                 .descriptionScope("Test description")
-                .closed(false)
+                .campaignStatus(CampaignStatus.IN_PROGRESS)
                 .startDate(OffsetDateTime.now())
                 .endDate(OffsetDateTime.now().plusDays(30))
                 .serviceId("service-1")

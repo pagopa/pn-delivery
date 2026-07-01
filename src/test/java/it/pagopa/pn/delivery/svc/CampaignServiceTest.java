@@ -4,10 +4,7 @@ import it.pagopa.pn.delivery.config.CampaignsParameterConsumer;
 import it.pagopa.pn.delivery.exception.PnCampaignNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignDetail;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignSearchResponse;
-import it.pagopa.pn.delivery.models.internal.campaign.Campaign;
-import it.pagopa.pn.delivery.models.internal.campaign.ChannelType;
-import it.pagopa.pn.delivery.models.internal.campaign.DesiredFeedbackType;
-import it.pagopa.pn.delivery.models.internal.campaign.WorkFlowEntity;
+import it.pagopa.pn.delivery.models.internal.campaign.*;
 import it.pagopa.pn.commons.utils.qr.models.RecipientTypeInt;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -95,7 +92,7 @@ class CampaignServiceTest {
                 .senderId(SENDER_ID)
                 .title("Campaign 1")
                 .descriptionScope("Description")
-                .closed(false)
+                .status(CampaignStatus.IN_PROGRESS)
                 .startDate(now)
                 .endDate(now.plusDays(30))
                 .senderContact("contact@example.com")
@@ -125,7 +122,7 @@ class CampaignServiceTest {
         Assertions.assertEquals("c1", result.getCampaignId());
         Assertions.assertEquals("Campaign 1", result.getTitle());
         Assertions.assertEquals("Description", result.getDescriptionScope());
-        Assertions.assertFalse(result.getClosed());
+        Assertions.assertEquals(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignStatus.IN_PROGRESS, result.getCampaignStatus());
         Assertions.assertEquals("contact@example.com", result.getSenderContact());
         Assertions.assertEquals(2, result.getChannels().size());
         Assertions.assertEquals(1, result.getWorkflow().size());
@@ -153,7 +150,7 @@ class CampaignServiceTest {
                 .senderId(SENDER_ID)
                 .title("title-" + campaignId)
                 .descriptionScope("description-" + campaignId)
-                .closed(false)
+                .status(CampaignStatus.IN_PROGRESS)
                 .startDate(now)
                 .endDate(now.plusDays(30))
                 .serviceId("service-" + campaignId)

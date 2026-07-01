@@ -3,10 +3,7 @@ package it.pagopa.pn.delivery.config;
 import it.pagopa.pn.commons.abstractions.ParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.exception.PnCampaignNotFoundException;
-import it.pagopa.pn.delivery.models.internal.campaign.Campaign;
-import it.pagopa.pn.delivery.models.internal.campaign.ChannelType;
-import it.pagopa.pn.delivery.models.internal.campaign.DesiredFeedbackType;
-import it.pagopa.pn.delivery.models.internal.campaign.WorkFlowEntity;
+import it.pagopa.pn.delivery.models.internal.campaign.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -222,7 +219,7 @@ class CampaignsParameterConsumerTest {
                 .senderId(senderId)
                 .title("Campaign " + campaignId)
                 .descriptionScope("Description " + campaignId)
-                .closed(false)
+                .status(CampaignStatus.IN_PROGRESS)
                 .startDate(OffsetDateTime.of(2025, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC))
                 .endDate(OffsetDateTime.of(2025, 1, 31, 0, 0, 0, 0, ZoneOffset.UTC))
                 .serviceId("service-" + campaignId)

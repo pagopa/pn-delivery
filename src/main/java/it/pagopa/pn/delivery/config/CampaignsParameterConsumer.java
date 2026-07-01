@@ -93,7 +93,7 @@ public class CampaignsParameterConsumer {
                 && StringUtils.hasText(campaign.getDescriptionScope())
                 && !Objects.isNull(campaign.getStartDate())
                 && !Objects.isNull(campaign.getEndDate())
-                && !Objects.isNull(campaign.getClosed())
+                && !Objects.isNull(campaign.getStatus())
                 && StringUtils.hasText(campaign.getServiceId())
                 && !Objects.isNull(campaign.getSensitiveContent())
                 && !Objects.isNull(campaign.getStopOnViewed())
