@@ -5687,9 +5687,9 @@ components:
             generare <br/> documenti, atti opponibili a terzi ecc. sarà quella
             italiana.
           type: array
+          maxItems: 1
           items:
             type: string
-            maxItems: 1
     SentNotificationV21:
       description: Le informazioni riguardanti una richiesta di notifica accettata
       allOf:
@@ -6890,9 +6890,9 @@ components:
             generare <br/> documenti, atti opponibili a terzi ecc. sarà quella
             italiana.
           type: array
+          maxItems: 1
           items:
             type: string
-            maxItems: 1
         physicalCommunicationPriority:
           type: integer
           format: int32
