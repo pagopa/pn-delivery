@@ -1,4 +1,4 @@
-TABLE_PREFIX="${TABLE_PREFIX:pn-}"
+TABLE_PREFIX="${TABLE_PREFIX:-}"
 
 echo "### CREATE QUEUES FIFO ###"
 queues_fifo="local-delivery-push-inputs.fifo"

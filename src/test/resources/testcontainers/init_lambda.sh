@@ -14,6 +14,17 @@
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+echo "### CREATE PN-PREFIXED TABLES (matching lambda hardcoded table names) ###"
+# Il codice delle lambda (functions/*) hardcoda i nomi tabella con prefisso
+# "pn-" (es. "pn-Notifications"), mentre il servizio Java (e questo stesso
+# init.sh, di default) usa nomi SENZA prefisso. Rieseguire init.sh con
+# TABLE_PREFIX=pn- crea le tabelle gemelle con prefisso, riusando lo stesso
+# schema, SENZA toccare le tabelle non prefissate gia' create per Java
+# (nomi diversi, nessun conflitto). init.sh non ha "set -e", quindi i comandi
+# non idempotenti (SQS/SSM) rieseguiti una seconda volta non interrompono lo
+# script anche se restituiscono errori "already exists".
+TABLE_PREFIX="pn-" bash "${SCRIPT_DIR}/init.sh"
+
 echo "### CREATE KINESIS CDC STREAM (for functions/* lambdas: metadataStatusUpdater, informalMetadataStatusUpdater, metadataUpdater) ###"
 
 aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \

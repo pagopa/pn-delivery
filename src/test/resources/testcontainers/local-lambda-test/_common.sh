@@ -10,10 +10,10 @@
 # servizio Java, sulle quali agiscono anche queste lambda.
 #
 # NOTA: il codice sorgente delle lambda (functions/*) hardcoda i nomi tabella
-# con prefisso "pn-" (es. "pn-Notifications"). Finche' questo non viene reso
-# configurabile via env var, le lambda NON leggeranno/scriveranno sulle
-# tabelle senza prefisso create qui: e' un limite noto, da risolvere in un
-# secondo momento lato codice lambda.
+# con prefisso "pn-" (es. "pn-Notifications"). init_lambda.sh crea queste
+# tabelle rieseguendo init.sh con TABLE_PREFIX=pn-, IN AGGIUNTA (non al posto
+# di) alle tabelle senza prefisso usate dal servizio Java: le due famiglie di
+# tabelle coesistono nello stesso account/region LocalStack senza conflitti.
 
 set -euo pipefail
 
@@ -29,8 +29,12 @@ MOCKSERVER_ENDPOINT_FROM_LAMBDA="http://mockserver:1080"
 
 KINESIS_STREAM_NAME="pn-cdc-timelines"
 
-NOTIFICATIONS_TABLE="Notifications"
-NOTIFICATIONS_METADATA_TABLE="NotificationsMetadata"
+# Nomi tabella CON prefisso "pn-": sono quelli hardcodati nel codice sorgente
+# delle lambda (functions/*/src/app/lib/processRecord.js e
+# putNotificationMetadata.js), quindi questi script devono leggere/scrivere
+# su questi nomi (non su quelli senza prefisso usati dal servizio Java).
+NOTIFICATIONS_TABLE="pn-Notifications"
+NOTIFICATIONS_METADATA_TABLE="pn-NotificationsMetadata"
 
 LAMBDA_RUNTIME="nodejs22.x"
 LAMBDA_ROLE_ARN="arn:aws:iam::000000000000:role/lambda-role"
