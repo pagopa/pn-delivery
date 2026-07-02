@@ -68,7 +68,10 @@ awslocal() {
 }
 
 log() {
-  echo "[local-lambda-test] $*"
+  # Scrive su stderr (non stdout): alcune funzioni chiamanti (es.
+  # package_lambda) vengono invocate con "$(...)" per catturarne il valore di
+  # ritorno su stdout, quindi log() non deve inquinare quel canale.
+  echo "[local-lambda-test] $*" >&2
 }
 
 # Pubblica un record Kinesis a partire da un file JSON contenente il payload

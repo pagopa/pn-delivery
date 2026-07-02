@@ -41,7 +41,10 @@ package_lambda() {
   fi
   if [[ ! -d "${fn_dir}/node_modules" ]]; then
     log "node_modules assente per ${fn_name}, eseguo npm install ..."
-    (cd "$fn_dir" && npm install --no-audit --no-fund)
+    # Redirect di stdout su stderr: questa funzione viene invocata con
+    # "$(...)" per catturare solo l'ultimo "echo $zip_path", quindi qualsiasi
+    # altro output su stdout (npm, ecc.) corromperebbe il valore catturato.
+    (cd "$fn_dir" && npm install --no-audit --no-fund) 1>&2
   fi
 
   log "Creo zip per ${fn_name} ..."
