@@ -13,6 +13,9 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.NotificationSearchCommunicationType;
+import it.pagopa.pn.delivery.models.NotificationSearchRow;
+import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
@@ -26,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1194,6 +1198,57 @@ class PnSentReceivedNotificationControllerTest {
                 .isOk();
 
         Mockito.verify(attachmentService).downloadAttachmentWithRedirect(IUN, INTERNAL_AUTH_HEADER, null, null, pagopa, null, true);
+    }
+
+    @Test
+    void searchSentNotificationForcesLegalCommunicationType() {
+        // Given: il service restituisce una notifica legale (stato compatibile NotificationStatusV26)
+        NotificationSearchRow row = NotificationSearchRow.builder()
+                .iun(IUN)
+                .sender("sender-denomination")
+                .recipients(List.of(RECIPIENT_ID))
+                .sentAt(OffsetDateTime.parse("2021-09-17T00:00:00.000Z"))
+                .subject("subject")
+                .paProtocolNumber(PA_PROTOCOL_NUMBER)
+                .notificationStatus(UnifiedNotificationStatus.ACCEPTED)
+                .communicationType("LEGAL")
+                .build();
+        ResultPaginationDto<NotificationSearchRow, String> serviceResult = ResultPaginationDto.<NotificationSearchRow, String>builder()
+                .resultsPage(List.of(row))
+                .moreResult(false)
+                .nextPagesKey(Collections.emptyList())
+                .build();
+
+        when(svc.searchNotification(any(InputSearchNotificationDto.class), any(), any())).thenReturn(serviceResult);
+
+        // When / Then: la risposta è una LegalNotificationSearchResponse con stato legale tipizzato
+        webTestClient.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path("/delivery/notifications/sent")
+                                .queryParam("startDate", "2022-08-25T12:30:28Z")
+                                .queryParam("endDate", "2022-08-26T12:30:28Z")
+                                .build())
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PA)
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd")
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(LegalNotificationSearchResponse.class)
+                .value(response -> {
+                    assertNotNull(response.getResultsPage());
+                    assertEquals(1, response.getResultsPage().size());
+                    assertEquals(NotificationStatusV26.ACCEPTED, response.getResultsPage().get(0).getNotificationStatus());
+                });
+
+        // Then: il controller forza esplicitamente communicationType = LEGAL e bySender = true
+        ArgumentCaptor<InputSearchNotificationDto> captor = ArgumentCaptor.forClass(InputSearchNotificationDto.class);
+        Mockito.verify(svc).searchNotification(captor.capture(), isNull(), isNull());
+        InputSearchNotificationDto capturedDto = captor.getValue();
+        assertTrue(capturedDto.isBySender());
+        assertEquals(NotificationSearchCommunicationType.LEGAL, capturedDto.getCommunicationType());
     }
 
     @Test

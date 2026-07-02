@@ -464,6 +464,28 @@ Resources:
         LogGroupRetention: !Ref LogRetention
         LogGroupPrefix: '/aws/lambda'
 
+  InformalMetadataStatusUpdaterLambdaLogGroup:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub "${ProjectName}-delivery-informal-metadata-status-updater-lambda"
+        LogGroupRetention: !Ref LogRetention
+        LogGroupPrefix: '/aws/lambda'
+
+  MetadataUpdaterLambdaLogGroup:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub "${ProjectName}-delivery-metadata-updater-lambda"
+        LogGroupRetention: !Ref LogRetention
+        LogGroupPrefix: '/aws/lambda'
+
 Outputs:
 
   # Dynamo table
@@ -629,6 +651,12 @@ Outputs:
 
   MetadataStatusUpdaterLambdaName:
     Value: !Sub "${ProjectName}-delivery-metadata-status-updater-lambda"
+
+  InformalMetadataStatusUpdaterLambdaName:
+    Value: !Sub "${ProjectName}-delivery-informal-metadata-status-updater-lambda"
+
+  MetadataUpdaterLambdaName:
+    Value: !Sub "${ProjectName}-delivery-metadata-updater-lambda"
 
   NotificationRefusedDispatcherLambdaName:
     Value: !Sub "${ProjectName}-delivery-notification-refused-dispatcher-lambda"

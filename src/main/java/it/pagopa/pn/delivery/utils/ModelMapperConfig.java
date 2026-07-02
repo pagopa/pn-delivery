@@ -53,6 +53,35 @@ public class ModelMapperConfig {
     static Converter<String, UUID> stringToUuid = ctx ->
             ctx.getSource() != null ? UUID.fromString(ctx.getSource()) : null;
 
+    /**
+     * Converte la riga di ricerca interna nel DTO per il destinatario:
+     * <ul>
+     *     <li>{@code communicationType}: valore dell'entity, con default {@code LEGAL} quando assente
+     *     (retrocompatibilità con le notifiche storiche prive del campo);</li>
+     *     <li>{@code communicationOutcomes}: assemblato dai campi flat {@code viewed}/{@code delivered}
+     *     e valorizzato solo quando almeno uno dei due è presente (tipicamente le comunicazioni bonarie);</li>
+     *     <li>{@code desiredFeedback}: volutamente NON mappato in output.</li>
+     * </ul>
+     */
+    static Converter<it.pagopa.pn.delivery.models.NotificationSearchRow, FullNotificationSearchRow> recipientSearchRowConverter =
+        context -> {
+            it.pagopa.pn.delivery.models.NotificationSearchRow source = context.getSource();
+            FullNotificationSearchRow destination = context.getDestination();
+
+            destination.setCommunicationType(
+                    org.springframework.util.StringUtils.hasText(source.getCommunicationType())
+                            ? FullNotificationSearchRow.CommunicationTypeEnum.fromValue(source.getCommunicationType())
+                            : FullNotificationSearchRow.CommunicationTypeEnum.LEGAL);
+
+            if (source.getViewed() != null || source.getDelivered() != null) {
+                CommunicationOutcomes outcomes = new CommunicationOutcomes();
+                outcomes.setViewed(source.getViewed());
+                outcomes.setDelivered(source.getDelivered());
+                destination.setCommunicationOutcomes(outcomes);
+            }
+            return destination;
+        };
+
 
     @Bean
     public ModelMapper modelMapper() {
@@ -73,6 +102,9 @@ public class ModelMapperConfig {
                         mapper.using(stringToUuid)
                                 .map(NotificationRecipient::getMessageId, InformalNotificationRecipientV1::setMessageId)
                 );
+        modelMapper.createTypeMap(it.pagopa.pn.delivery.models.NotificationSearchRow.class, FullNotificationSearchRow.class)
+                .addMappings(mapper -> mapper.skip(FullNotificationSearchRow::setCommunicationType))
+                .setPostConverter(ModelMapperConfig.recipientSearchRowConverter);
         return modelMapper;
     }
 
