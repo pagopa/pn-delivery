@@ -1,3 +1,5 @@
+TABLE_PREFIX="${TABLE_PREFIX:pn-}"
+
 echo "### CREATE QUEUES FIFO ###"
 queues_fifo="local-delivery-push-inputs.fifo"
 
@@ -24,7 +26,7 @@ echo " - Create pn-delivery TABLES"
 
 aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
     dynamodb create-table \
-    --table-name Notifications \
+    --table-name "${TABLE_PREFIX}Notifications" \
     --attribute-definitions \
         AttributeName=iun,AttributeType=S \
     --key-schema \
@@ -37,7 +39,7 @@ aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
 
 aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
     dynamodb create-table \
-    --table-name NotificationsMetadata \
+    --table-name "${TABLE_PREFIX}NotificationsMetadata" \
     --attribute-definitions \
         AttributeName=iun_recipientId,AttributeType=S \
         AttributeName=sentAt,AttributeType=S \
@@ -117,7 +119,7 @@ aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
 
 aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
     dynamodb create-table \
-    --table-name NotificationDelegationMetadata \
+    --table-name "${TABLE_PREFIX}NotificationDelegationMetadata" \
     --attribute-definitions \
         AttributeName=iun_recipientId_delegateId_groupId,AttributeType=S \
         AttributeName=sentAt,AttributeType=S \
@@ -170,7 +172,7 @@ aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
 
 aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
     dynamodb create-table \
-    --table-name NotificationsCost \
+    --table-name "${TABLE_PREFIX}NotificationsCost" \
     --attribute-definitions \
         AttributeName=creditorTaxId_noticeCode,AttributeType=S \
     --key-schema \
@@ -180,7 +182,7 @@ aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
 
 aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
     dynamodb create-table \
-    --table-name NotificationsQR \
+    --table-name "${TABLE_PREFIX}NotificationsQR" \
     --attribute-definitions \
         AttributeName=aarQRCodeValue,AttributeType=S \
         AttributeName=iun,AttributeType=S \
@@ -240,7 +242,7 @@ aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
 
 aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
     dynamodb create-table \
-    --table-name PaNotificationLimit \
+    --table-name "${TABLE_PREFIX}PaNotificationLimit" \
     --attribute-definitions \
         AttributeName=pk,AttributeType=S \
         AttributeName=yearMonth,AttributeType=S \
@@ -265,7 +267,7 @@ aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
 
 aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
     dynamodb create-table \
-    --table-name NotificationRefusedVerification \
+    --table-name "${TABLE_PREFIX}NotificationRefusedVerification" \
     --attribute-definitions \
         AttributeName=pk,AttributeType=S \
     --key-schema \
