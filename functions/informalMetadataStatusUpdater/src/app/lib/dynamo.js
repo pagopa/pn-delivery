@@ -53,7 +53,7 @@ const deleteItem = async (TableName, Key, Iun) => {
 
 const buildNotificationMetadataUpdateParams = (tablename, item) => ({
   TableName: tablename,
-  Key: { iun_recipientId: item.iun_recipientId },
+  Key: { iun_recipientId: item.iun_recipientId, sentAt: item.sentAt },
   UpdateExpression:
     "SET #notificationStatus = :notificationStatus, " +
     "#notificationStatusTimestamp = :notificationStatusTimestamp, " +

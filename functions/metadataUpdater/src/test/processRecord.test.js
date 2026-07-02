@@ -12,6 +12,7 @@ describe('processRecord tests', () => {
   const notificationMock = {
     iun: 'mockedIun',
     communicationType: 'INFORMAL',
+    sentAt: '2025-01-01T00:00:00Z',
     recipients: [
       { recipientId: 'recipientId1' },
       { recipientId: 'recipientId2' },
@@ -63,7 +64,7 @@ describe('processRecord tests', () => {
     expect(updateMetadataStub.callCount).to.equal(1);
     expect(updateMetadataStub.firstCall.args).to.deep.equal([
       'pn-NotificationsMetadata',
-      { iun_recipientId: 'mockedIun##recipientId1' },
+      { iun_recipientId: 'mockedIun##recipientId1', sentAt: '2025-01-01T00:00:00Z' },
       { viewed: true },
     ]);
   });
@@ -74,7 +75,7 @@ describe('processRecord tests', () => {
     await processRecord(record);
 
     expect(updateMetadataStub.callCount).to.equal(1);
-    expect(updateMetadataStub.firstCall.args[1]).to.deep.equal({ iun_recipientId: 'mockedIun##recipientId2' });
+    expect(updateMetadataStub.firstCall.args[1]).to.deep.equal({ iun_recipientId: 'mockedIun##recipientId2', sentAt: '2025-01-01T00:00:00Z' });
   });
 
   it('should set delivered=true for DELIVERED on the correct recipient', async () => {
@@ -85,7 +86,7 @@ describe('processRecord tests', () => {
     expect(updateMetadataStub.callCount).to.equal(1);
     expect(updateMetadataStub.firstCall.args).to.deep.equal([
       'pn-NotificationsMetadata',
-      { iun_recipientId: 'mockedIun##recipientId2' },
+      { iun_recipientId: 'mockedIun##recipientId2', sentAt: '2025-01-01T00:00:00Z' },
       { delivered: true },
     ]);
   });
@@ -96,7 +97,7 @@ describe('processRecord tests', () => {
     await processRecord(record);
 
     expect(updateMetadataStub.callCount).to.equal(1);
-    expect(updateMetadataStub.firstCall.args[1]).to.deep.equal({ iun_recipientId: 'mockedIun##recipientId2' });
+    expect(updateMetadataStub.firstCall.args[1]).to.deep.equal({ iun_recipientId: 'mockedIun##recipientId2', sentAt: '2025-01-01T00:00:00Z' });
     expect(updateMetadataStub.firstCall.args[2]).to.deep.equal({ desiredFeedback: true });
   });
 

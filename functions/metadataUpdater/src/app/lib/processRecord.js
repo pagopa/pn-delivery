@@ -46,7 +46,7 @@ const processRecord = async (record) => {
   const iun_recipientId = `${iun}##${recipient.recipientId}`;
   await dynamo.updateMetadata(
     "pn-NotificationsMetadata",
-    { iun_recipientId },
+    { iun_recipientId, sentAt: notification.sentAt },
     fieldsToUpdate
   );
 };

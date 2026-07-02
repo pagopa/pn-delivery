@@ -122,9 +122,9 @@ describe('dynamo.js tests', () => {
       recipientOne: true,
     };
 
-    it('should set Key to iun_recipientId', () => {
+    it('should set Key to iun_recipientId and sentAt (table composite key)', () => {
       const params = buildNotificationMetadataUpdateParams('testTable', fullItem);
-      expect(params.Key).to.deep.equal({ iun_recipientId: 'iun1##rec1' });
+      expect(params.Key).to.deep.equal({ iun_recipientId: 'iun1##rec1', sentAt: '2025-01-01T00:00:00Z' });
     });
 
     it('should include all notification metadata fields in UpdateExpression', () => {
