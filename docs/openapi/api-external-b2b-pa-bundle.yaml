@@ -346,7 +346,7 @@ info:
       
       <details>
         <summary>Eventi di timeline - v2.6 (tutti gli elementi v1 + v2 + v2.3 + gli elementi seguenti)</summary>
-
+    
       | Categoria | Descrizione |
       |-----------|-------------|
       |__ANALOG_WORKFLOW_RECIPIENT_DECEASED__ | Destinatario deceduto |
@@ -5251,7 +5251,12 @@ components:
         senderDenomination:
           $ref: '#/components/schemas/Denomination'
         senderTaxId:
-          $ref: '#/components/schemas/paTaxId'
+          description: Sender PA fiscal code
+          example: '77777777777'
+          type: string
+          maxLength: 11
+          minLength: 11
+          pattern: ^\d+$
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
@@ -5380,7 +5385,12 @@ components:
         senderDenomination:
           $ref: '#/components/schemas/Denomination'
         senderTaxId:
-          $ref: '#/components/schemas/paTaxId'
+          description: Sender PA fiscal code
+          example: '77777777777'
+          type: string
+          maxLength: 11
+          minLength: 11
+          pattern: ^\d+$
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
@@ -5487,7 +5497,12 @@ components:
         senderDenomination:
           $ref: '#/components/schemas/Denomination'
         senderTaxId:
-          $ref: '#/components/schemas/paTaxId'
+          description: Sender PA fiscal code
+          example: '77777777777'
+          type: string
+          maxLength: 11
+          minLength: 11
+          pattern: ^\d+$
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
@@ -5593,7 +5608,12 @@ components:
         senderDenomination:
           $ref: '#/components/schemas/Denomination'
         senderTaxId:
-          $ref: '#/components/schemas/paTaxId'
+          description: Sender PA fiscal code
+          example: '77777777777'
+          type: string
+          maxLength: 11
+          minLength: 11
+          pattern: ^\d+$
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
@@ -6792,7 +6812,12 @@ components:
         senderDenomination:
           $ref: '#/components/schemas/Denomination'
         senderTaxId:
-          $ref: '#/components/schemas/paTaxId'
+          description: Sender PA fiscal code
+          example: '77777777777'
+          type: string
+          maxLength: 11
+          minLength: 11
+          pattern: ^\d+$
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
@@ -8467,7 +8492,12 @@ components:
         senderDenomination:
           $ref: '#/components/schemas/Denomination'
         senderTaxId:
-          $ref: '#/components/schemas/paTaxId'
+          description: Sender PA fiscal code
+          example: '77777777777'
+          type: string
+          maxLength: 11
+          minLength: 11
+          pattern: ^\d+$
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
