@@ -248,7 +248,7 @@ info:
       | Eventi del workflow digitale | SEND_DIGITAL_DOMICILE, SEND_DIGITAL_FEEDBACK, DIGITAL_SUCCESS_WORKFLOW, DIGITAL_FAILURE_WORKFLOW, SEND_SIMPLE_REGISTERED_LETTER, SIMPLE_REGISTERED_LETTER_PROGRESS |
       | Eventi del workflow analogico | SEND_ANALOG_DOMICILE ,SEND_ANALOG_PROGRESS, SEND_ANALOG_FEEDBACK, ANALOG_SUCCESS_WORKFLOW, ANALOG_FAILURE_WORKFLOW, COMPLETELY_UNREACHABLE |
       | Eventi di chiusura del workflow | REFINEMENT, NOTIFICATION_VIEWED, NOTIFICATION_CANCELLED |
-      | Altri eventi | NOTIFICATION_RADD_RETRIEVED, ANALOG_WORKFLOW_RECIPIENT_DECEASED|
+      | Altri eventi | NOTIFICATION_RADD_RETRIEVED, ANALOG_WORKFLOW_RECIPIENT_DECEASED, PUBLIC_REGISTRY_VALIDATION_CALL_DETAILS, PUBLIC_REGISTRY_VALIDATION_RESPONSE_DETAILS, NOTIFICATION_TIMELINE_REWORKED |
 
     Il placeholder __DEFAULT__ può essere usato assieme ad altri eventi di
     timeline, ad esempio il filtro "DEFAULT,SEND_COURTESY_MESSAGE" permetterà di
@@ -350,9 +350,28 @@ info:
       | Categoria | Descrizione |
       |-----------|-------------|
       |__ANALOG_WORKFLOW_RECIPIENT_DECEASED__ | Destinatario deceduto |
-
+    
       </details>
 
+      <details>
+        <summary>Eventi di timeline - v2.8 (tutti gli elementi v1 + v2 + v2.3 + v2.6 + gli elementi seguenti)</summary>
+      
+      | Categoria | Descrizione |
+      |-----------|-------------|
+      |__PUBLIC_REGISTRY_VALIDATION_CALL__ | Data invio richiesta ai public registry |
+      |__PUBLIC_REGISTRY_VALIDATION_RESPONSE__ | Rappresenta il registro consultato per ottenere l'indirizzo |
+      
+      </details>
+      
+       <details>
+        <summary>Eventi di timeline - v2.9 (tutti gli elementi v1 + v2 + v2.3 + v2.6 + v2.8 + gli elementi seguenti)</summary>
+      
+      | Categoria | Descrizione |
+      |-----------|-------------|
+      |__NOTIFICATION_TIMELINE_REWORKED__ | Evento di correzione timeline (contiene gli eventi che sono stati invalidati) |
+      
+      </details>
+    
     ## Segregazione per gruppi (dalla versione 2.3)
 
     Così come notifiche, api-key e utenti dell'ente mittente possono essere
