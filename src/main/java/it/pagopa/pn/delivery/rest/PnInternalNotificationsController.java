@@ -9,11 +9,14 @@ import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.InternalOnlyApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.NotificationSearchCommunicationType;
+import it.pagopa.pn.delivery.models.NotificationSearchRow;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.*;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
+import it.pagopa.pn.delivery.utils.LegalNotificationStatusValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
@@ -136,10 +139,11 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     }
 
     @Override
-    public  ResponseEntity<NotificationSearchResponse> searchNotificationsPrivate(OffsetDateTime startDate, OffsetDateTime endDate,
+    public  ResponseEntity<LegalNotificationSearchResponse> searchNotificationsPrivate(OffsetDateTime startDate, OffsetDateTime endDate,
                                                                                   String recipientId, Boolean recipientIdOpaque,
                                                                                   String senderId, List<NotificationStatusV26> status,
-                                                                                  String mandateId, String cxType, Integer size, String nextPagesKey) {
+                                                                                  String mandateId, String cxType, Integer size, String nextPagesKey,
+                                                                                  String communicationType) {
 
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
@@ -157,15 +161,17 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                 .endDate(endDate.toInstant())
                 .statuses(status==null?List.of():status)
                 .receiverIdIsOpaque(recipientIdOpaque)
+                .communicationType(StringUtils.hasText(communicationType) ? NotificationSearchCommunicationType.valueOf(communicationType) : NotificationSearchCommunicationType.LEGAL)
                 .size(size)
                 .maxPageNumber( 1 )
                 .nextPagesKey(nextPagesKey)
                 .build();
         ResultPaginationDto<NotificationSearchRow,String> serviceResult;
-        NotificationSearchResponse response = new NotificationSearchResponse();
+        LegalNotificationSearchResponse response = new LegalNotificationSearchResponse();
         try {
             serviceResult = retrieveSvc.searchNotification(searchDto, cxType, null);
-            response = modelMapper.map( serviceResult, NotificationSearchResponse.class );
+            LegalNotificationStatusValidator.assertLegalCompatible( serviceResult );
+            response = modelMapper.map( serviceResult, LegalNotificationSearchResponse.class );
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("" + exc.getProblem()).log();

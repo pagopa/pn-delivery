@@ -18,7 +18,7 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.mo
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaymentStatus;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
+import it.pagopa.pn.delivery.models.NotificationSearchRow;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
@@ -36,6 +36,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 
@@ -1701,5 +1702,138 @@ class NotificationRetrieverServiceTest {
         when(externalRegistriesClient.getRootSenderId("senderPaId-1")).thenReturn("rootSenderId-1");
         when(pnMandateClient.listMandatesByDelegateV2(recipientInternalId, mandateId, null, null, notification.getSentAt(), iun, "rootSenderId-1")).thenReturn(new ArrayList<>());
         Assertions.assertThrows(PnMandateNotFoundException.class, () -> svc.checkIUNAndInternalId(iun, recipientInternalId, mandateId, null, null));
+    }
+
+    // ---------- WI-US2.7: default/override del filtro communicationType ----------
+
+    @Test
+    void searchNotificationAppliesLegalDefaultWhenCommunicationTypeNull() {
+        // Given: ricerca destinatario senza communicationType (retrocompatibilità)
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                .bySender(false)
+                .startDate(Instant.parse("2022-05-01T00:00:00.00Z"))
+                .endDate(Instant.parse("2022-05-30T00:00:00.00Z"))
+                .senderReceiverId("receiverId")
+                .size(10)
+                .nextPagesKey(null)
+                .build();
+        Assertions.assertNull(inputSearch.getCommunicationType());
+
+        when(notificationSearch.searchNotificationMetadata()).thenReturn(getPaginatedNotifications());
+
+        // When
+        svc.searchNotification(inputSearch, "PF", null);
+
+        // Then: la ricerca viene forzata a LEGAL
+        Assertions.assertEquals(NotificationSearchCommunicationType.LEGAL, inputSearch.getCommunicationType());
+        assertCommunicationTypePassedToSearch(NotificationSearchCommunicationType.LEGAL);
+    }
+
+    @Test
+    void searchNotificationKeepsExplicitAllWhenNoMandate() {
+        // Given: il destinatario richiede esplicitamente ALL
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                .bySender(false)
+                .startDate(Instant.parse("2022-05-01T00:00:00.00Z"))
+                .endDate(Instant.parse("2022-05-30T00:00:00.00Z"))
+                .senderReceiverId("receiverId")
+                .size(10)
+                .communicationType(NotificationSearchCommunicationType.ALL)
+                .nextPagesKey(null)
+                .build();
+
+        when(notificationSearch.searchNotificationMetadata()).thenReturn(getPaginatedNotifications());
+
+        // When
+        svc.searchNotification(inputSearch, "PF", null);
+
+        // Then: ALL viene preservato (nessuna delega)
+        Assertions.assertEquals(NotificationSearchCommunicationType.ALL, inputSearch.getCommunicationType());
+        assertCommunicationTypePassedToSearch(NotificationSearchCommunicationType.ALL);
+    }
+
+    @Test
+    void searchNotificationKeepsExplicitInformalWhenNoMandate() {
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                .bySender(false)
+                .startDate(Instant.parse("2022-05-01T00:00:00.00Z"))
+                .endDate(Instant.parse("2022-05-30T00:00:00.00Z"))
+                .senderReceiverId("receiverId")
+                .size(10)
+                .communicationType(NotificationSearchCommunicationType.INFORMAL)
+                .nextPagesKey(null)
+                .build();
+
+        when(notificationSearch.searchNotificationMetadata()).thenReturn(getPaginatedNotifications());
+
+        svc.searchNotification(inputSearch, "PF", null);
+
+        Assertions.assertEquals(NotificationSearchCommunicationType.INFORMAL, inputSearch.getCommunicationType());
+        assertCommunicationTypePassedToSearch(NotificationSearchCommunicationType.INFORMAL);
+    }
+
+    @Test
+    void searchNotificationForcesLegalForDelegateEvenWhenAllRequested() {
+        // Given: delega valida + richiesta esplicita ALL -> le bonarie devono essere inibite
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                .bySender(false)
+                .startDate(Instant.parse("2022-05-01T00:00:00.00Z"))
+                .endDate(Instant.parse("2022-05-30T00:00:00.00Z"))
+                .senderReceiverId(UID)
+                .size(10)
+                .communicationType(NotificationSearchCommunicationType.ALL)
+                .mandateId(MANDATE_ID)
+                .nextPagesKey(null)
+                .build();
+
+        InternalMandateDto internalMandateDto = new InternalMandateDto();
+        internalMandateDto.setMandateId(MANDATE_ID);
+        internalMandateDto.setDelegate(UID);
+        internalMandateDto.setDelegator(CX_ID);
+        internalMandateDto.setDatefrom("2022-03-23T23:23:00Z");
+        when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString(), any(), any()))
+                .thenReturn(List.of(internalMandateDto));
+        when(notificationSearch.searchNotificationMetadata()).thenReturn(getPaginatedNotifications());
+
+        // When
+        svc.searchNotification(inputSearch, "PF", null);
+
+        // Then: forzato a LEGAL nonostante la richiesta di ALL
+        Assertions.assertEquals(NotificationSearchCommunicationType.LEGAL, inputSearch.getCommunicationType());
+        assertCommunicationTypePassedToSearch(NotificationSearchCommunicationType.LEGAL);
+    }
+
+    @Test
+    void searchNotificationForcesLegalForDelegateEvenWhenInformalRequested() {
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                .bySender(false)
+                .startDate(Instant.parse("2022-05-01T00:00:00.00Z"))
+                .endDate(Instant.parse("2022-05-30T00:00:00.00Z"))
+                .senderReceiverId(UID)
+                .size(10)
+                .communicationType(NotificationSearchCommunicationType.INFORMAL)
+                .mandateId(MANDATE_ID)
+                .nextPagesKey(null)
+                .build();
+
+        InternalMandateDto internalMandateDto = new InternalMandateDto();
+        internalMandateDto.setMandateId(MANDATE_ID);
+        internalMandateDto.setDelegate(UID);
+        internalMandateDto.setDelegator(CX_ID);
+        internalMandateDto.setDatefrom("2022-03-23T23:23:00Z");
+        when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString(), any(), any()))
+                .thenReturn(List.of(internalMandateDto));
+        when(notificationSearch.searchNotificationMetadata()).thenReturn(getPaginatedNotifications());
+
+        svc.searchNotification(inputSearch, "PF", null);
+
+        Assertions.assertEquals(NotificationSearchCommunicationType.LEGAL, inputSearch.getCommunicationType());
+        assertCommunicationTypePassedToSearch(NotificationSearchCommunicationType.LEGAL);
+    }
+
+    private void assertCommunicationTypePassedToSearch(NotificationSearchCommunicationType expected) {
+        ArgumentCaptor<InputSearchNotificationDto> captor = ArgumentCaptor.forClass(InputSearchNotificationDto.class);
+        Mockito.verify(notificationSearchFactory).getMultiPageSearch(captor.capture(), any());
+        Assertions.assertEquals(expected, captor.getValue().getCommunicationType());
     }
 }

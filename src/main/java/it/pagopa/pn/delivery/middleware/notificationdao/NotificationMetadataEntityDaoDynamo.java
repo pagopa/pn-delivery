@@ -7,6 +7,7 @@ import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.NotificationSearchCommunicationType;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import lombok.extern.slf4j.Slf4j;
@@ -108,6 +109,13 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             return new PageSearchTrunk<>();
         }
 
+        // filtro per tipologia di comunicazione (trattandosi di GetItem, applicato in memoria con la stessa semantica della query)
+        if ( !matchesCommunicationTypeFilter( inputSearchNotificationDto.getCommunicationType(), entity ) ) {
+            log.debug("result not satisfy filter communicationType");
+            return new PageSearchTrunk<>();
+        }
+        // NB: punto di estensione per la ricerca-per-campagne (futuro): qui andrà verificata anche l'appartenenza alla campagna.
+
         // preparo i risultati
         PageSearchTrunk<NotificationMetadataEntity> res = new PageSearchTrunk<>();
         res.setResults(List.of(entity));
@@ -198,6 +206,32 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         return res;
     }
 
+    /**
+     * Filtro in memoria per tipologia di comunicazione, usato dalla ricerca puntuale per IUN ({@code GetItem}).
+     * Stessa semantica della query multi-mese:
+     * <ul>
+     *     <li>{@code LEGAL} (o assente): {@code communicationType == LEGAL} oppure {@code null} (notifiche storiche);</li>
+     *     <li>{@code INFORMAL}: {@code communicationType == INFORMAL};</li>
+     *     <li>{@code ALL}: nessun filtro.</li>
+     * </ul>
+     */
+    private boolean matchesCommunicationTypeFilter(NotificationSearchCommunicationType communicationType,
+                                                   NotificationMetadataEntity entity) {
+        // ALL o assente per "tutte": nessun filtro
+        if (communicationType == null || communicationType == NotificationSearchCommunicationType.ALL) {
+            return true;
+        }
+
+        String entityCommunicationType = entity.getCommunicationType();
+        if (communicationType == NotificationSearchCommunicationType.LEGAL) {
+            // include le notifiche storiche prive del campo communicationType
+            return !StringUtils.hasText(entityCommunicationType)
+                    || NotificationSearchCommunicationType.LEGAL.name().equals(entityCommunicationType);
+        }
+        // INFORMAL
+        return NotificationSearchCommunicationType.INFORMAL.name().equals(entityCommunicationType);
+    }
+
     private String retrieveAttributeName(String indexName) {
         String attributeName;
         switch (indexName) {
@@ -222,6 +256,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         addStatusFilterExpression( inputSearchNotificationDto.getStatuses(), filterExpressionBuilder, expressionBuilder);
         addGroupFilterExpression( inputSearchNotificationDto.getGroups(), filterExpressionBuilder, expressionBuilder);
         addPaIdsFilterExpression( inputSearchNotificationDto.getMandateAllowedPaIds(), filterExpressionBuilder, expressionBuilder);
+        addCommunicationTypeFilterExpression( inputSearchNotificationDto.getCommunicationType(), filterExpressionBuilder, expressionBuilder);
 
         requestBuilder.filterExpression(filterExpressionBuilder
                 .expression(expressionBuilder.length() > 0 ? expressionBuilder.toString() : null)
@@ -332,6 +367,51 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
 
             expressionBuilder.append(" )");
         }
+    }
+
+    /**
+     * Filtro per tipologia di comunicazione applicato alla query multi-mese.
+     * <ul>
+     *     <li>{@code LEGAL} (o filtro assente, gestito a monte con default applicativo):
+     *     {@code (communicationType = :legal OR attribute_not_exists(communicationType))},
+     *     così da includere anche le notifiche storiche precedenti al rilascio prive del campo;</li>
+     *     <li>{@code INFORMAL}: {@code communicationType = :informal};</li>
+     *     <li>{@code ALL}: nessun filtro (entrambe le tipologie).</li>
+     * </ul>
+     * Lo stesso metodo è riutilizzabile dal flusso mittente per escludere le bonarie.
+     */
+    private void addCommunicationTypeFilterExpression(NotificationSearchCommunicationType communicationType,
+                                                      Expression.Builder filterExpressionBuilder,
+                                                      StringBuilder expressionBuilder) {
+        // ALL o assente per "tutte": nessun filtro
+        if (communicationType == null || communicationType == NotificationSearchCommunicationType.ALL) {
+            return;
+        }
+
+        log.trace( "Add communicationType filter expression communicationType={}", communicationType );
+        if ( expressionBuilder.length() > 0 )
+            expressionBuilder.append( " AND ( " );
+        else {
+            expressionBuilder.append( " ( " );
+        }
+
+        if (communicationType == NotificationSearchCommunicationType.LEGAL) {
+            // includo anche le notifiche storiche prive del campo communicationType
+            expressionBuilder.append( NotificationMetadataEntity.FIELD_COMMUNICATION_TYPE + " = :legal" )
+                    .append( " OR attribute_not_exists(" + NotificationMetadataEntity.FIELD_COMMUNICATION_TYPE + ")" );
+            filterExpressionBuilder.putExpressionValue(":legal",
+                    AttributeValue.builder()
+                            .s( NotificationSearchCommunicationType.LEGAL.name() )
+                            .build());
+        } else {
+            expressionBuilder.append( NotificationMetadataEntity.FIELD_COMMUNICATION_TYPE + " = :informal" );
+            filterExpressionBuilder.putExpressionValue(":informal",
+                    AttributeValue.builder()
+                            .s( NotificationSearchCommunicationType.INFORMAL.name() )
+                            .build());
+        }
+
+        expressionBuilder.append(" )");
     }
 
 

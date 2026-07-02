@@ -5,6 +5,8 @@ import it.pagopa.pn.delivery.exception.PnForbiddenException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.NotificationSearchCommunicationType;
+import it.pagopa.pn.delivery.models.NotificationSearchRow;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
@@ -89,7 +91,7 @@ class PnInternalNotificationsControllerTest {
         //Given
         NotificationSearchRow searchRow = NotificationSearchRow.builder()
                 .iun("202109-2d74ffe9-aa40-47c2-88ea-9fb171ada637")
-                .notificationStatus(STATUS)
+                .notificationStatus(UnifiedNotificationStatus.fromValue(STATUS.getValue()))
                 .sender(SENDER_ID)
                 .sentAt( OffsetDateTime.parse("2021-09-17T13:45:28.00Z") )
                 .recipients(Collections.singletonList(RECIPIENT_INTERNAL_ID))
@@ -131,6 +133,7 @@ class PnInternalNotificationsControllerTest {
                 .size(null)
                 .maxPageNumber( 1 )
                 .nextPagesKey(null)
+                .communicationType(NotificationSearchCommunicationType.LEGAL)
                 .build();
 
 
@@ -184,7 +187,7 @@ class PnInternalNotificationsControllerTest {
         //Given
         NotificationSearchRow searchRow = NotificationSearchRow.builder()
                 .iun("202109-2d74ffe9-aa40-47c2-88ea-9fb171ada637")
-                .notificationStatus(STATUS)
+                .notificationStatus(UnifiedNotificationStatus.fromValue(STATUS.getValue()))
                 .sender(SENDER_ID)
                 .sentAt( OffsetDateTime.parse("2021-09-17T13:45:28.00Z") )
                 .recipients(Collections.singletonList(RECIPIENT_INTERNAL_ID))
@@ -228,6 +231,7 @@ class PnInternalNotificationsControllerTest {
                 .size(null)
                 .maxPageNumber( 1 )
                 .nextPagesKey(null)
+                .communicationType(NotificationSearchCommunicationType.LEGAL)
                 .build();
 
 
@@ -239,7 +243,7 @@ class PnInternalNotificationsControllerTest {
         //Given
         NotificationSearchRow searchRow = NotificationSearchRow.builder()
                 .iun("202109-2d74ffe9-aa40-47c2-88ea-9fb171ada637")
-                .notificationStatus(STATUS)
+                .notificationStatus(UnifiedNotificationStatus.fromValue(STATUS.getValue()))
                 .sender(SENDER_ID)
                 .sentAt( OffsetDateTime.parse("2021-09-17T13:45:28.00Z") )
                 .recipients(Collections.singletonList(RECIPIENT_INTERNAL_ID))
