@@ -176,6 +176,24 @@ components:
       description: Gruppo da utilizzare nella query come filtro
       schema:
         type: string
+    notificationSearchViewed:
+      name: viewed
+      in: query
+      required: false
+      description: >-
+        Se valorizzato, filtra le comunicazioni bonarie in base all'esito di visualizzazione
+        (true = visualizzate, false = non visualizzate).
+      schema:
+        type: boolean
+    notificationSearchDelivered:
+      name: delivered
+      in: query
+      required: false
+      description: >-
+        Se valorizzato, filtra le comunicazioni bonarie in base all'esito di consegna
+        (true = consegnate, false = non consegnate).
+      schema:
+        type: boolean
     cxType:
       name: cxType
       in: query
