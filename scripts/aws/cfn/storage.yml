@@ -122,6 +122,10 @@ Resources:
           AttributeType: "S"
         - AttributeName: "recipientId_creationMonth"
           AttributeType: "S"
+        - AttributeName: "campaignId_creationMonth"
+          AttributeType: "S"
+        - AttributeName: "campaignId_recipientId"
+          AttributeType: "S"
       KeySchema:
         - AttributeName: "iun_recipientId"
           KeyType: "HASH"
@@ -147,6 +151,22 @@ Resources:
         - IndexName: "recipientId"
           KeySchema:
             - AttributeName: "recipientId_creationMonth"
+              KeyType: "HASH"
+            - AttributeName: "sentAt"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: "ALL"
+        - IndexName: "campaignId"
+          KeySchema:
+            - AttributeName: "campaignId_creationMonth"
+              KeyType: "HASH"
+            - AttributeName: "sentAt"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: "ALL"
+        - IndexName: "campaignId_recipientId"
+          KeySchema:
+            - AttributeName: "campaignId_recipientId"
               KeyType: "HASH"
             - AttributeName: "sentAt"
               KeyType: "RANGE"
@@ -464,6 +484,17 @@ Resources:
         LogGroupRetention: !Ref LogRetention
         LogGroupPrefix: '/aws/lambda'
 
+  InformalMetadataStatusUpdaterLambdaLogGroup:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub "${ProjectName}-delivery-informal-metadata-status-updater-lambda"
+        LogGroupRetention: !Ref LogRetention
+        LogGroupPrefix: '/aws/lambda'
+
 Outputs:
 
   # Dynamo table
@@ -629,6 +660,9 @@ Outputs:
 
   MetadataStatusUpdaterLambdaName:
     Value: !Sub "${ProjectName}-delivery-metadata-status-updater-lambda"
+
+  InformalMetadataStatusUpdaterLambdaName:
+    Value: !Sub "${ProjectName}-delivery-informal-metadata-status-updater-lambda"
 
   NotificationRefusedDispatcherLambdaName:
     Value: !Sub "${ProjectName}-delivery-notification-refused-dispatcher-lambda"
