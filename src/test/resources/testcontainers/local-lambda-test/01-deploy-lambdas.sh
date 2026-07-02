@@ -55,6 +55,11 @@ deploy_lambda() {
   local fn_name="$1"
   local zip_path="$2"
   local env_json="$3"
+  local env_file="${WORKDIR}/${fn_name}-env.json"
+
+  # AWS CLI in alcuni ambienti (es. container LocalStack) e' sensibile al
+  # quoting di --environment: usare file:// evita errori di parsing.
+  printf '{"Variables":%s}\n' "$env_json" > "$env_file"
 
   if awslocal lambda get-function --function-name "$fn_name" > /dev/null 2>&1; then
     log "Funzione '${fn_name}' gia' esistente: aggiorno codice e configurazione."
@@ -65,7 +70,7 @@ deploy_lambda() {
     awslocal lambda update-function-configuration \
       --function-name "$fn_name" \
       --timeout 30 \
-      --environment "Variables=${env_json}" > /dev/null
+      --environment "file://${env_file}" > /dev/null
   else
     log "Creo funzione '${fn_name}' ..."
     awslocal lambda create-function \
@@ -75,7 +80,7 @@ deploy_lambda() {
       --role "$LAMBDA_ROLE_ARN" \
       --timeout 30 \
       --zip-file "fileb://${zip_path}" \
-      --environment "Variables=${env_json}" > /dev/null
+        --environment "file://${env_file}" > /dev/null
   fi
   awslocal lambda wait function-active --function-name "$fn_name"
   log "Funzione '${fn_name}' attiva."
