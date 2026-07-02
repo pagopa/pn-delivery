@@ -92,6 +92,8 @@ class PnDataVaultClientImplTestIT extends MockAWSObjectsTest {
                 .municipalityDetails("munDet")
                 .province("prov")
                 .state("state"));
+        recipientAddressesDto.setEmails(List.of(new EmailDto().value("test@emeail.it")));
+        recipientAddressesDto.setPhoneNumbers(List.of(new PhoneNumberDto().value("123123123")));
 
 
         //When
@@ -105,11 +107,7 @@ class PnDataVaultClientImplTestIT extends MockAWSObjectsTest {
                         .withStatusCode(200)
                 );
 
-        dataVaultClient.updateNotificationAddressesByIun ("DHUJ-QYVT-DMVH-202302-P-1", List.of(recipientAddressesDto));
-
-        assertDoesNotThrow(() -> {
-            dataVaultClient.updateNotificationAddressesByIun ("DHUJ-QYVT-DMVH-202302-P-1", List.of(recipientAddressesDto));
-        });
+        assertDoesNotThrow(() -> dataVaultClient.updateNotificationAddressesByIun ("DHUJ-QYVT-DMVH-202302-P-1", List.of(recipientAddressesDto)));
 
     }
 

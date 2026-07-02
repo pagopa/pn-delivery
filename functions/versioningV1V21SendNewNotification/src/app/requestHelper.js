@@ -35,7 +35,11 @@ exports.findRequestVersion = function(event) {
 
   if (event["path"].startsWith("/delivery/v2.4/")) {
     version = "2.4";
-}
+  }
+
+  if (event["path"].startsWith("/delivery/v2.5/")) {
+      version = "2.5";
+  }
   return version;
 }
 
@@ -48,6 +52,8 @@ exports.validateNewNotification = function(newNotificationRequest, requestVersio
     case "2.3":
     case "2.4":
       return validateNewNotificationV24(newNotificationRequest);
+    case "2.5":
+      return validateNewNotificationV25(newNotificationRequest);
     default:
       return newNotificationRequest;
   }
@@ -113,6 +119,10 @@ function validateNewNotificationV24(newNotificationRequestV24) {
   const errors = []
   checkPhysicalAddress(newNotificationRequestV24, errors);
   return errors;
+}
+
+function validateNewNotificationV25(newNotificationRequestV25) {
+  return [];
 }
 
 function haveF24Payment(newNotificationRequestV21) {

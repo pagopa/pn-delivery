@@ -80,7 +80,7 @@ class NotificationDaoDynamoTest {
 
         // GIVEN
         InternalNotification notification = newNotificationWithoutPayments( );
-        notification.setPhysicalCommunicationType(FullSentNotificationV28.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
+        notification.setPhysicalCommunicationType(FullSentNotificationV29.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
 
         // WHEN
         when( pnDataVaultClient.ensureRecipientByExternalId( any(it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
@@ -112,6 +112,9 @@ class NotificationDaoDynamoTest {
                 .province( "province" )
                 .cap( "cap" )
                 .state( "state" ));
+        notificationRecipientAddressesDto.setEmails(List.of(new EmailDto().value("test@example.com")));
+        notificationRecipientAddressesDto.setPhoneNumbers(List.of(new PhoneNumberDto().value("+393001234567")));
+        notificationRecipientAddressesDto.setRecIndex(0);
 
         NotificationRecipientAddressesDto notificationRecipientAddressesDto1 = new NotificationRecipientAddressesDto();
         notificationRecipientAddressesDto1.setDenomination( "recipientDenomination1" );
@@ -124,6 +127,10 @@ class NotificationDaoDynamoTest {
                 .province( "province1" )
                 .cap( "cap1" )
                 .state( "state1" ));
+        notificationRecipientAddressesDto1.setEmails(List.of(new EmailDto().value("test1@example.com")));
+        notificationRecipientAddressesDto1.setPhoneNumbers(List.of(new PhoneNumberDto().value("+393001234568")));
+        notificationRecipientAddressesDto1.setRecIndex(1);
+
         when( pnDataVaultClient.getNotificationAddressesByIun( "IUN_01" ) ).thenReturn( List.of( notificationRecipientAddressesDto ,notificationRecipientAddressesDto1 ) );
         Optional<InternalNotification> saved = this.dao.getNotificationByIun( notification.getIun(), true );
         Assertions.assertTrue( saved.isPresent() );
@@ -141,7 +148,7 @@ class NotificationDaoDynamoTest {
 
         // GIVEN
         InternalNotification notification = newNotificationWithoutPayments( );
-        notification.setPhysicalCommunicationType(FullSentNotificationV28.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
+        notification.setPhysicalCommunicationType(FullSentNotificationV29.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
         notification.setAdditionalLanguages(List.of("DE"));
 
         // WHEN
@@ -174,6 +181,9 @@ class NotificationDaoDynamoTest {
                 .province( "province" )
                 .cap( "cap" )
                 .state( "state" ));
+        notificationRecipientAddressesDto.setEmails(List.of(new EmailDto().value("test@example.com")));
+        notificationRecipientAddressesDto.setPhoneNumbers(List.of(new PhoneNumberDto().value("+393001234567")));
+        notificationRecipientAddressesDto.setRecIndex(0);
 
         NotificationRecipientAddressesDto notificationRecipientAddressesDto1 = new NotificationRecipientAddressesDto();
         notificationRecipientAddressesDto1.setDenomination( "recipientDenomination1" );
@@ -186,6 +196,10 @@ class NotificationDaoDynamoTest {
                 .province( "province1" )
                 .cap( "cap1" )
                 .state( "state1" ));
+        notificationRecipientAddressesDto1.setEmails(List.of(new EmailDto().value("test1@example.com")));
+        notificationRecipientAddressesDto1.setPhoneNumbers(List.of(new PhoneNumberDto().value("+393001234568")));
+        notificationRecipientAddressesDto1.setRecIndex(1);
+
         when( pnDataVaultClient.getNotificationAddressesByIun( "IUN_01" ) ).thenReturn( List.of( notificationRecipientAddressesDto ,notificationRecipientAddressesDto1 ) );
         Optional<InternalNotification> saved = this.dao.getNotificationByIun( notification.getIun(), true );
         Assertions.assertTrue( saved.isPresent() );
@@ -238,6 +252,9 @@ class NotificationDaoDynamoTest {
                 .province( "province" )
                 .cap( "cap" )
                 .state( "state" ));
+        notificationRecipientAddressesDto.setEmails(List.of(new EmailDto().value("test@example.com")));
+        notificationRecipientAddressesDto.setPhoneNumbers(List.of(new PhoneNumberDto().value("+393001234567")));
+        notificationRecipientAddressesDto.setRecIndex(0);
 
         NotificationRecipientAddressesDto notificationRecipientAddressesDto1 = new NotificationRecipientAddressesDto();
         notificationRecipientAddressesDto1.setDenomination( "recipientDenomination1" );
@@ -250,6 +267,9 @@ class NotificationDaoDynamoTest {
                 .province( "province1" )
                 .cap( "cap1" )
                 .state( "state1" ));
+        notificationRecipientAddressesDto1.setEmails(List.of(new EmailDto().value("test1@example.com")));
+        notificationRecipientAddressesDto1.setPhoneNumbers(List.of(new PhoneNumberDto().value("+393001234568")));
+        notificationRecipientAddressesDto1.setRecIndex(1);
 
         when( pnDataVaultClient.getNotificationAddressesByIun( "IUN_01" ) ).thenReturn( List.of( notificationRecipientAddressesDto ,notificationRecipientAddressesDto1 ) );
         // THEN
@@ -276,6 +296,8 @@ class NotificationDaoDynamoTest {
                 .province( "province" )
                 .cap( "cap" )
                 .state( "state" ));
+        notificationRecipientAddressesDto.setEmails(List.of(new EmailDto().value("test@example.com")));
+        notificationRecipientAddressesDto.setPhoneNumbers(List.of(new PhoneNumberDto().value("+393001234567")));
         notificationRecipientAddressesDto.setRecIndex(0);
 
 
@@ -290,6 +312,8 @@ class NotificationDaoDynamoTest {
                 .province( "province1" )
                 .cap( "cap1" )
                 .state( "state1" ));
+        notificationRecipientAddressesDto1.setEmails(List.of(new EmailDto().value("test1@example.com")));
+        notificationRecipientAddressesDto1.setPhoneNumbers(List.of(new PhoneNumberDto().value("+393001234568")));
         notificationRecipientAddressesDto1.setRecIndex(1);
 
         when( pnDataVaultClient.getNotificationAddressesByIun( "IUN_01" ) ).thenReturn( List.of( notificationRecipientAddressesDto ,notificationRecipientAddressesDto1 ) );
@@ -572,7 +596,7 @@ class NotificationDaoDynamoTest {
     private InternalNotification newNotificationWithoutPayments() {
         InternalNotification internalNotification = new InternalNotification();
         internalNotification.setPaFee(0);
-        internalNotification.setPagoPaIntMode(NewNotificationRequestV25.PagoPaIntModeEnum.NONE);
+        internalNotification.setPagoPaIntMode(NewNotificationRequestV26.PagoPaIntModeEnum.NONE);
         internalNotification.setSentAt(OffsetDateTime.now());
         internalNotification.setIun("IUN_01");
         internalNotification.setPaProtocolNumber("protocol_01");
@@ -588,6 +612,8 @@ class NotificationDaoDynamoTest {
                         .denomination("Nome Cognome/Ragione Sociale")
                         .internalId( "recipientInternalId" )
                         .recipientType(NotificationRecipientV24.RecipientTypeEnum.PF)
+                        .email("test@example.com")
+                        .phoneNumber("+393001234567")
                         .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
                                 .type( NotificationDigitalAddress.TypeEnum.PEC )
                                 .address("account@dominio.it")
@@ -598,8 +624,8 @@ class NotificationDaoDynamoTest {
     private InternalNotification newNotification() {
         InternalNotification internalNotification = new InternalNotification();
         internalNotification.setPaFee(0);
-        internalNotification.setPhysicalCommunicationType(FullSentNotificationV28.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
-        internalNotification.setPagoPaIntMode(NewNotificationRequestV25.PagoPaIntModeEnum.NONE);
+        internalNotification.setPhysicalCommunicationType(FullSentNotificationV29.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
+        internalNotification.setPagoPaIntMode(NewNotificationRequestV26.PagoPaIntModeEnum.NONE);
         internalNotification.setSentAt(OffsetDateTime.now());
         internalNotification.setIun("IUN_01");
         internalNotification.setPaProtocolNumber("protocol_01");
@@ -658,6 +684,8 @@ class NotificationDaoDynamoTest {
                                 .province("province")
                                 .foreignState("foreignState")
                                 .build())
+                        .email("test@example.com")
+                        .phoneNumber("+393001234567")
                         .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
                                 .type( NotificationDigitalAddress.TypeEnum.PEC )
                                 .address("account@dominio.it")

@@ -31,6 +31,7 @@ class DtoToEntityNotificationMapperTest {
     public static final String X_PAGOPA_PN_SRC_CH = "B2B";
     public static final String NOTICE_CODE = "302211675775915057";
     public static final String CREDITOR_TAX_ID = "77777777777";
+    public static final Integer PHYSICAL_COMMUNICATION_PRIORITY = 5;
     public static final Integer VAT = 22;
     private static final String FILE_SHA_256 = "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=";
 
@@ -52,6 +53,7 @@ class DtoToEntityNotificationMapperTest {
         Assertions.assertEquals( NOTICE_CODE , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getNoticeCode() );
         Assertions.assertEquals( CREDITOR_TAX_ID , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getCreditorTaxId() );
         Assertions.assertEquals(List.of(NotificationLang.builder().lang("DE").build(),NotificationLang.builder().lang("IT").build()), notificationEntity.getLanguages());
+        assertEquals(PHYSICAL_COMMUNICATION_PRIORITY, notificationEntity.getPhysicalCommunicationPriority());
         assertEquals( VAT, notificationEntity.getVat() );
 
     }
@@ -71,6 +73,7 @@ class DtoToEntityNotificationMapperTest {
         Assertions.assertEquals("messageId", internalNotification.getRecipients().get(0).getMessageId());
         Assertions.assertEquals("campaignId", internalNotification.getCampaignId());
         Assertions.assertEquals(CommunicationType.INFORMAL, internalNotification.getCommunicationType());
+        assertEquals(PHYSICAL_COMMUNICATION_PRIORITY, notificationEntity.getPhysicalCommunicationPriority());
         assertEquals( VAT, notificationEntity.getVat() );
     }
 
@@ -86,6 +89,7 @@ class DtoToEntityNotificationMapperTest {
         Assertions.assertEquals( NOTICE_CODE , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getNoticeCode() );
         Assertions.assertEquals( CREDITOR_TAX_ID , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getCreditorTaxId() );
         Assertions.assertEquals(List.of(NotificationLang.builder().lang("IT").build()), notificationEntity.getLanguages());
+        assertEquals(PHYSICAL_COMMUNICATION_PRIORITY, notificationEntity.getPhysicalCommunicationPriority());
         assertEquals( VAT, notificationEntity.getVat() );
     }
 
@@ -95,6 +99,7 @@ class DtoToEntityNotificationMapperTest {
         InternalNotification actualInternalNotification = new InternalNotification();
         actualInternalNotification._abstract(" abstract");
         actualInternalNotification.amount(10);
+        actualInternalNotification.physicalCommunicationPriority(PHYSICAL_COMMUNICATION_PRIORITY);
         actualInternalNotification.cancelledByIun("Cancelled By Iun");
         actualInternalNotification.cancelledIun("Cancelled Iun");
         ArrayList<NotificationDocument> documents = new ArrayList<>();
@@ -110,7 +115,7 @@ class DtoToEntityNotificationMapperTest {
         actualInternalNotification.paProtocolNumber("42");
         actualInternalNotification.paymentExpirationDate("2020-03-01");
         actualInternalNotification
-                .physicalCommunicationType(FullSentNotificationV28.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
+                .physicalCommunicationType(FullSentNotificationV29.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
         ArrayList<String> recipientIds = new ArrayList<>();
         actualInternalNotification.recipientIds(recipientIds);
         ArrayList<NotificationRecipient> recipients = new ArrayList<>();
@@ -121,6 +126,7 @@ class DtoToEntityNotificationMapperTest {
         actualInternalNotification.sentAt(OffsetDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.MIDNIGHT, ZoneOffset.UTC));
         actualInternalNotification.setAbstract(" abstract");
         actualInternalNotification.setAmount(10);
+        actualInternalNotification.setPhysicalCommunicationPriority(PHYSICAL_COMMUNICATION_PRIORITY);
         actualInternalNotification.setCancelledByIun("Cancelled By Iun");
         actualInternalNotification.setCancelledIun("Cancelled Iun");
         ArrayList<NotificationDocument> documents2 = new ArrayList<>();
@@ -136,7 +142,7 @@ class DtoToEntityNotificationMapperTest {
         actualInternalNotification.setPaProtocolNumber("42");
         actualInternalNotification.setPaymentExpirationDate("2020-03-01");
         actualInternalNotification
-                .setPhysicalCommunicationType(FullSentNotificationV28.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
+                .setPhysicalCommunicationType(FullSentNotificationV29.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
         ArrayList<String> recipientIds2 = new ArrayList<>();
         actualInternalNotification.setRecipientIds(recipientIds2);
         ArrayList<NotificationRecipient> recipients2 = new ArrayList<>();
@@ -163,6 +169,7 @@ class DtoToEntityNotificationMapperTest {
         actualInternalNotification.timeline(timeline2);
         assertEquals(" abstract", actualInternalNotification.getAbstract());
         assertEquals(10, actualInternalNotification.getAmount().intValue());
+        assertEquals(PHYSICAL_COMMUNICATION_PRIORITY, actualInternalNotification.getPhysicalCommunicationPriority());
         assertEquals("Cancelled By Iun", actualInternalNotification.getCancelledByIun());
         assertEquals("Cancelled Iun", actualInternalNotification.getCancelledIun());
         List<TimelineElementV28> timeline3 = actualInternalNotification.getTimeline();
@@ -174,7 +181,7 @@ class DtoToEntityNotificationMapperTest {
         assertEquals(NotificationStatusV26.IN_VALIDATION, actualInternalNotification.getNotificationStatus());
         assertEquals("42", actualInternalNotification.getPaProtocolNumber());
         assertEquals("2020-03-01", actualInternalNotification.getPaymentExpirationDate());
-        assertEquals(FullSentNotificationV28.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER,
+        assertEquals(FullSentNotificationV29.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER,
                 actualInternalNotification.getPhysicalCommunicationType());
         assertEquals("Sender Denomination", actualInternalNotification.getSenderDenomination());
         assertEquals("42", actualInternalNotification.getSenderPaId());
@@ -194,7 +201,7 @@ class DtoToEntityNotificationMapperTest {
                 .physicalAddressLookup(true)
                 .build();
         InternalNotification internalNotification = new InternalNotification();
-        internalNotification.setPagoPaIntMode(NewNotificationRequestV25.PagoPaIntModeEnum.NONE);
+        internalNotification.setPagoPaIntMode(NewNotificationRequestV26.PagoPaIntModeEnum.NONE);
         internalNotification.setSentAt(OffsetDateTime.now());
         internalNotification.setIun("IUN_01");
         internalNotification.setPaProtocolNumber("protocol_01");
@@ -204,6 +211,7 @@ class DtoToEntityNotificationMapperTest {
         internalNotification.setSenderPaId("PA_ID");
         internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
         internalNotification.setPaFee(0);
+        internalNotification.setPhysicalCommunicationPriority(PHYSICAL_COMMUNICATION_PRIORITY);
         internalNotification.setVat(VAT);
         internalNotification.setNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
         internalNotification.setAdditionalLanguages(languages);

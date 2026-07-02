@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV28;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV29;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 class EntityToDtoNotificationMapperTest {
+    public static final Integer PHYSICAL_COMMUNICATION_PRIORITY = 5;
     public static final Integer VAT = 22;
 
     private EntityToDtoNotificationMapper mapper;
@@ -56,6 +57,7 @@ class EntityToDtoNotificationMapperTest {
         Assertions.assertEquals("messageId", internalNotification.getRecipients().get(0).getMessageId());
         Assertions.assertEquals("campaignId", internalNotification.getCampaignId());
         Assertions.assertNull(internalNotification.getCommunicationType());
+        assertEquals(PHYSICAL_COMMUNICATION_PRIORITY, internalNotification.getPhysicalCommunicationPriority());
         assertEquals( VAT, internalNotification.getVat() );
     }
 
@@ -78,6 +80,7 @@ class EntityToDtoNotificationMapperTest {
         Assertions.assertNotNull(internalNotification.getRecipients().get(1).getPayments().get(0).getPagoPa().getAttachment());
         Assertions.assertEquals(0, internalNotification.getAdditionalLanguages().size());
         Assertions.assertEquals(CommunicationType.INFORMAL, internalNotification.getCommunicationType());
+        assertEquals(PHYSICAL_COMMUNICATION_PRIORITY, internalNotification.getPhysicalCommunicationPriority());
         assertEquals( VAT, internalNotification.getVat() );
     }
 
@@ -101,6 +104,7 @@ class EntityToDtoNotificationMapperTest {
         Assertions.assertNull(internalNotification.getRecipients().get(0).getPayments().get(0).getPagoPa().getAttachment());
         Assertions.assertNotNull(internalNotification.getRecipients().get(1).getPayments().get(0).getPagoPa().getAttachment());
         Assertions.assertEquals(0, internalNotification.getAdditionalLanguages().size());
+        assertEquals(PHYSICAL_COMMUNICATION_PRIORITY, internalNotification.getPhysicalCommunicationPriority());
         assertEquals( VAT, internalNotification.getVat() );
     }
 
@@ -215,7 +219,7 @@ class EntityToDtoNotificationMapperTest {
                 .idempotenceToken("idempotenceToken")
                 .paNotificationId("protocol_01")
                 .subject("Subject 01")
-                .physicalCommunicationType(FullSentNotificationV28.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
+                .physicalCommunicationType(FullSentNotificationV29.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
                 .cancelledByIun("IUN_05")
                 .cancelledIun("IUN_00")
                 .senderPaId("pa_02")
@@ -224,6 +228,7 @@ class EntityToDtoNotificationMapperTest {
                 .notificationFeePolicy(NotificationFeePolicy.FLAT_RATE)
                 .recipients(List.of(notificationRecipientEntity, notificationRecipientEntity1))
                 .version("1")
+                .physicalCommunicationPriority(PHYSICAL_COMMUNICATION_PRIORITY)
                 .vat(VAT)
                 .languages(additionalLangs)
                 .usedServices(usedServices)

@@ -131,8 +131,6 @@ public class PnDeliveryConfigs {
 
     private Integer maxMessageShortBodyLength;
 
-    private boolean informalNotificationCheckCampaignLangActive;
-
     @PostConstruct
     public void init(){
         log.info("CONFIGURATION {}",this);

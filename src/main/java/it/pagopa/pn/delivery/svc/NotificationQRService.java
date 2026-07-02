@@ -66,6 +66,7 @@ public class NotificationQRService {
         }
         String recipientType = request.getRecipientType();
         String recipientInternalId = request.getRecipientInternalId();
+        aarQrCodeValue = sanitizeAarQrCodeValue(aarQrCodeValue);
         log.info( "Get notification QR for aarQrCodeValue={} recipientType={} recipientInternalId={}", aarQrCodeValue, recipientType, recipientInternalId);
         InternalNotificationQR internalNotificationQR = getInternalNotificationQR( aarQrCodeValue );
         if ( isRecipientInNotification( internalNotificationQR, recipientInternalId ) ) {
@@ -79,7 +80,7 @@ public class NotificationQRService {
     }
 
     public UserInfoQrCode getAarQrCodeToDecode(RequestDecodeQrDto request) {
-        String aarQrCodeValue = request.getAarTokenValue();
+        String aarQrCodeValue = sanitizeAarQrCodeValue(request.getAarTokenValue());
         log.info("Get QRCode value for aarQrCodeValue={}", aarQrCodeValue);
         InternalNotificationQR internalNotificationQR = getInternalNotificationQR(aarQrCodeValue);
         Optional<InternalNotification> optInternalNotification = notificationDao.getNotificationByIun(internalNotificationQR.getIun(), true);
@@ -112,7 +113,7 @@ public class NotificationQRService {
     }
 
     public ResponseCheckAarMandateDto getNotificationByQRWithMandate( RequestCheckAarMandateDto request, String recipientType, String userId, List<String> cxGroups ) {
-        String aarQrCodeValue = request.getAarQrCodeValue();
+        String aarQrCodeValue = sanitizeAarQrCodeValue(request.getAarQrCodeValue());
         log.info( "Get notification QR with mandate for aarQrCodeValue={} recipientType={} userId={}", aarQrCodeValue, recipientType, userId);
         InternalNotificationQR internalNotificationQR = getInternalNotificationQR( aarQrCodeValue );
         Optional<InternalNotification> optInternalNotification = notificationDao.getNotificationByIun(internalNotificationQR.getIun(), false);
@@ -200,8 +201,18 @@ public class NotificationQRService {
         return mandateId;
     }
 
+    private String sanitizeAarQrCodeValue(String aarQrCodeValue) {
+        if (aarQrCodeValue != null) {
+            int ampIdx = aarQrCodeValue.indexOf('&');
+            if (ampIdx != -1) {
+                return aarQrCodeValue.substring(0, ampIdx);
+            }
+        }
+        return aarQrCodeValue;
+    }
+
     public ResponseCheckQrMandateDto getNotificationByQRFromIOWithMandate(RequestCheckQrMandateDto request, String recipientType, String userId, List<String> cxGroups ) {
-        String aarQrCodeValue = decodeQrUrl(request);
+        String aarQrCodeValue = sanitizeAarQrCodeValue(decodeQrUrl(request));
         log.info( "Get notification QR from IO with mandate for aarQrCodeValue={} recipientType={} userId={}", aarQrCodeValue, recipientType, userId);
         InternalNotificationQR internalNotificationQR = getInternalNotificationQR( aarQrCodeValue );
         String recipientInternalId = internalNotificationQR.getRecipientInternalId();

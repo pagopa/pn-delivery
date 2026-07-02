@@ -2,6 +2,40 @@ info:
   version: v1.0
 components:
   schemas:
+    ############################################################################################
+    ###                           COMUNICAZIONE BONARIA                                      ###
+    ############################################################################################
+    InformalSentNotificationV1:
+      description: >-
+        Le informazioni riguardanti una richiesta di notifica accettata
+      allOf:
+        - $ref: '#/components/schemas/InformalNotificationRequestV1'
+        - type: object
+          required:
+            - iun
+            - sentAt
+            - senderTaxId
+            - senderPaId
+          properties:
+            senderTaxId:
+              $ref: '#/components/schemas/paTaxId'
+            senderPaId:
+              type: string
+              description: Identificativo (non IPA) della PA mittente che ha eseguito l'onboarding su SelfCare.
+              # wide range of characters
+              pattern: ^.*$
+              maxLength: 256
+            iun:
+              $ref: '#/components/schemas/IUN'
+            sentAt:
+              type: string
+              description: Momento di ricezione della notifica da parte di PN
+              format: date-time
+            version: # NO EXTERNAL
+              type: string                                              # NO EXTERNAL
+              description: Indica la versione della notifica            # NO EXTERNAL
+            usedServices:
+              $ref: '#/components/schemas/UsedServices'
 
     ############################################################################################
     ###                           IDENTIFICATIVI DELLE NOTIFICHE                             ###
@@ -24,6 +58,7 @@ components:
         La codifica prevede i caratteri ISO LATIN 1, senza | e senza i caratteri di controllo, ovvero la seguente regexp: ^[ -{}~\u00A0-ÿ]*$
       type: string
       x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+      format: password # NO EXTERNAL
       minLength: 1
 #      maxLength: 88                     # ONLY EXTERNAL
       pattern: ^.*$
@@ -33,6 +68,7 @@ components:
       description: C.F. persona fisica o persona giuridica
       type: string
       x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+      format: password # NO EXTERNAL
       minLength: 11
       maxLength: 16
       pattern: ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
@@ -121,11 +157,11 @@ components:
     ###                                 DTO DELLE NOTIFICHE                                  ###
     ############################################################################################
 
-    SentNotificationV25:
+    SentNotificationV26:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata
       allOf:
-        - $ref: '#/components/schemas/NewNotificationRequestV25'
+        - $ref: '#/components/schemas/NewNotificationRequestV26'
         - type: object
           required:
             - iun
@@ -154,7 +190,7 @@ components:
             usedServices:
                 $ref: '#/components/schemas/UsedServices'
 
-    NewNotificationRequestV25:
+    NewNotificationRequestV26:
       description: I campi utilizzati per la creazione di una nuova Notifica.
       type: object
       required:
@@ -201,6 +237,8 @@ components:
         recipients:
           type: array
           description: Informazioni sui destinatari
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          format: password # NO EXTERNAL
           items:
             $ref: "#/components/schemas/NotificationRecipientV24"
           minItems: 1
@@ -282,6 +320,16 @@ components:
           items:
             type: string
             maxItems: 1
+        physicalCommunicationPriority:
+          type: integer
+          format: int32
+          description: >-
+            Priorità del primo tentativo di recapito quando è attiva la funzionalità di gestione dei picchi, dove 100 rappresenta la priorità massima e 0 la minima. 
+            Regola l'ordine di affido delle spedizioni all'interno della sola quota mittente, dando precedenza a quelle più urgenti senza impattare sulle quote degli altri enti.
+          minimum: 0
+          maximum: 100
+          default: 0
+          example: 0
     UsedServices:
       description: >-
         Servizi utilizzati per la creazione della notifica
@@ -292,7 +340,7 @@ components:
 
     InformalNotificationRequestV1:
       type: object
-      required: [ senderDenomination, senderTaxId, paProtocolNumber, subject, campaignId, recipients ]
+      required: [ senderDenomination, paProtocolNumber, subject, campaignId, recipients ]
       properties:
         senderDenomination:
           $ref: '#/components/schemas/Denomination'
@@ -321,7 +369,6 @@ components:
             Attualmente è possibile indicare un solo item e dunque una sola lingua aggiuntiva. Se non vengono indicate lingue aggiuntive la lingua utilizzata <br/>
             per l'invio del messaggio sui canali configurati sarà quella italiana. <br />
             **Coerenza con messageId:** Se viene fornito un `messageId`, il messaggio identificato deve essere associato alla lingua indicata in questo campo. <br/>
-            **Coerenza con campaignId:** Se `messageId` non è presente, il sistema utilizzerà il messaggio della campagna (`campaignId`) corrispondente alla lingua indicata. Assicurarsi che tale traduzione sia stata configurata nella campagna.
           type: array
           maxItems: 1
           items:
@@ -386,6 +433,8 @@ components:
       allOf:
         - $ref: '#/components/schemas/NotificationRecipientV24'
         - type: object
+          required:
+            - messageId
           properties:
             payments:
               $ref: '#/components/schemas/InformalNotificationPayments'
@@ -393,7 +442,26 @@ components:
               type: string
               format: uuid
               description: >-
-                Opzionale. Sovrascrive il messaggio di default della campagna
+                Identificativo del messaggio da fornire e utilizzare per il destinatario.
+            email:
+              type: string
+              x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+              example: account@domain.it
+              description: >-
+                Indirizzo email che il mittente della notifica intende utilizzare per 
+                raggiungere il destinatario.
+              pattern: ^(?:[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?|\[(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?|[a-zA-Z0-9-]*[a-zA-Z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])$
+              maxLength: 320
+            phoneNumber:
+              type: string
+              x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+              example: +3900000000
+              description: >-
+                Numero di telefono che il mittente della notifica intende utilizzare per
+                raggiungere il destinatario, espresso in formato internazionale con prefisso
+                `+` oppure `00`.
+              pattern: ^(\+|00)[1-9]\d{0,3}[\s.-]?\d{1,4}[\s.-]?\d{1,4}[\s.-]?\d{1,9}$
+              maxLength: 30
 
     InformalNotificationPayments:
       description: Pagamenti collegati alla notifica per il destinatario.
@@ -648,6 +716,7 @@ components:
         address:
           type: string
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          format: password # NO EXTERNAL
           example: account@domain.it
           description: >-
             Indirizzo PEC o REM che il mittente della notifica intende utilizzare per 
@@ -666,6 +735,7 @@ components:
         at:
           type: string
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          format: password # NO EXTERNAL
           description: Campo "presso" dell'indirizzo
           # wide range of characters
           pattern: ^.*$
@@ -673,6 +743,7 @@ components:
         address:
           type: string
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          format: password # NO EXTERNAL
           description: Indirizzo del domicilio fisico
           # wide range of characters
           pattern: ^.*$
@@ -681,6 +752,7 @@ components:
         addressDetails:
           type: string
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          format: password # NO EXTERNAL
           description: Seconda riga dell'indirizzo fisico
           # wide range of characters
           pattern: ^.*$
@@ -688,6 +760,7 @@ components:
         zip:
           type: string
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          format: password # NO EXTERNAL
           description: Codice di avviamento postale. In caso di invio estero diventa facoltativo
           minLength: 0
           maxLength: 15
@@ -695,6 +768,7 @@ components:
         municipality:
           type: string
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          format: password # NO EXTERNAL
           description: Comune
           # wide range of characters
           pattern: ^.*$
@@ -703,6 +777,7 @@ components:
         municipalityDetails:
           type: string
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          format: password # NO EXTERNAL
           description: Frazione o località
           # wide range of characters
           pattern: ^.*$
@@ -710,6 +785,7 @@ components:
         province:
           type: string
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          format: password # NO EXTERNAL
           description: Provincia
           # wide range of characters
           pattern: ^.*$
@@ -717,6 +793,7 @@ components:
         foreignState:
           type: string
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          format: password # NO EXTERNAL
           description: Denominazione paese estero
           # wide range of characters
           pattern: ^.*$
@@ -780,6 +857,7 @@ components:
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           items:
             type: string
+            format: password # NO EXTERNAL
         requestAcceptedAt:
           description: Data accettazione notifica
           type: string

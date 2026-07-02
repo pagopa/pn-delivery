@@ -2,8 +2,8 @@ package it.pagopa.pn.delivery.svc.validation.validators.authorization;
 
 import it.pagopa.pn.delivery.config.InformalNotificationSendPaParameterConsumer;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.svc.validation.ValidationResult;
 import it.pagopa.pn.delivery.svc.validation.ErrorCodes;
+import it.pagopa.pn.delivery.svc.validation.ValidationResult;
 import org.junit.jupiter.api.Test;
 
 import static it.pagopa.pn.delivery.svc.validation.validators.ValidatorTestSupport.DEFAULT_CX_ID;
@@ -18,10 +18,14 @@ class SendInformalNotificationActiveValidatorTest {
 
     @Test
     void shouldReturnSuccessWhenSenderIsEnabledForInformalNotifications() {
-        InformalNotificationSendPaParameterConsumer parameterConsumer = mock(InformalNotificationSendPaParameterConsumer.class);
+        InformalNotificationSendPaParameterConsumer parameterConsumer =
+                mock(InformalNotificationSendPaParameterConsumer.class);
+
         when(parameterConsumer.isSenderActiveForInformalNotification(DEFAULT_CX_ID)).thenReturn(true);
 
-        SendInformalNotificationActiveValidator validator = new SendInformalNotificationActiveValidator(parameterConsumer);
+        SendInformalNotificationActiveValidator validator =
+                new SendInformalNotificationActiveValidator(parameterConsumer);
+
         ValidationResult result = validator.validate(legalContext(notification(java.util.List.of(), java.util.List.of())));
 
         assertSuccess(result);
@@ -29,12 +33,20 @@ class SendInformalNotificationActiveValidatorTest {
 
     @Test
     void shouldReturnErrorWhenSenderIsDisabledForInformalNotifications() {
-        InformalNotificationSendPaParameterConsumer parameterConsumer = mock(InformalNotificationSendPaParameterConsumer.class);
+        InformalNotificationSendPaParameterConsumer parameterConsumer =
+                mock(InformalNotificationSendPaParameterConsumer.class);
+
         when(parameterConsumer.isSenderActiveForInformalNotification(DEFAULT_CX_ID)).thenReturn(false);
 
-        SendInformalNotificationActiveValidator validator = new SendInformalNotificationActiveValidator(parameterConsumer);
+        SendInformalNotificationActiveValidator validator =
+                new SendInformalNotificationActiveValidator(parameterConsumer);
+
         ValidationResult result = validator.validate(legalContext(new InternalNotification()));
 
-        assertSingleError(result, ErrorCodes.ERROR_CODE_SEND_IS_DISABLED.getValue(), "non è abilitata alla comunicazione di notifiche bonarie");
+        assertSingleError(
+                result,
+                ErrorCodes.ERROR_CODE_SEND_IS_DISABLED.getValue(),
+                "non è abilitata alla comunicazione di notifiche bonarie"
+        );
     }
 }

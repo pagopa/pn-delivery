@@ -1,9 +1,6 @@
 package it.pagopa.pn.delivery.svc.validation.validators;
 
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.campaign.Campaign;
-import it.pagopa.pn.delivery.models.campaign.Message;
-import it.pagopa.pn.delivery.models.campaign.WorkflowEntity;
 import it.pagopa.pn.delivery.models.internal.notification.F24Payment;
 import it.pagopa.pn.delivery.models.internal.notification.MetadataAttachment;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef;
@@ -18,9 +15,7 @@ import it.pagopa.pn.delivery.svc.validation.context.InformalNotificationContext;
 import it.pagopa.pn.delivery.svc.validation.context.LegalNotificationContext;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV24;
 
-import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,7 +24,6 @@ public final class ValidatorTestSupport {
 
     public static final String DEFAULT_CX_ID = "PA123";
     public static final String DEFAULT_SENDER_TAX_ID = "12345678901";
-    public static final String DEFAULT_SHA_256 = "sha256";
 
     private ValidatorTestSupport() {
     }
@@ -41,11 +35,10 @@ public final class ValidatorTestSupport {
         return context;
     }
 
-    public static InformalNotificationContext informalContext(InternalNotification payload, Campaign campaign) {
+    public static InformalNotificationContext informalContext(InternalNotification payload) {
         return InformalNotificationContext.builder()
                 .payload(payload)
                 .cxId(DEFAULT_CX_ID)
-                .campaign(campaign)
                 .build();
     }
 
@@ -127,28 +120,6 @@ public final class ValidatorTestSupport {
                         .title("f24")
                         .metadataAttachment(attachment(key, sha256, contentType))
                         .build())
-                .build();
-    }
-
-    public static Campaign campaign(Message.AdditionalLanguage... additionalLanguages) {
-        return Campaign.builder()
-                .campaignId("campaignId")
-                .senderId(DEFAULT_CX_ID)
-                .title("title")
-                .descriptionScope("description")
-                .startDate(Instant.now())
-                .endDate(Instant.now().plusSeconds(3600))
-                .serviceId("serviceId")
-                .messages(Arrays.stream(additionalLanguages).map(ValidatorTestSupport::message).toList())
-                .workflow(List.of(new WorkflowEntity()))
-                .build();
-    }
-
-    public static Message message(Message.AdditionalLanguage additionalLanguage) {
-        return Message.builder()
-                .messageId("message-" + additionalLanguage.name())
-                .primaryLanguage(Message.PrimaryLanguage.IT)
-                .additionalLanguage(additionalLanguage)
                 .build();
     }
 

@@ -45,7 +45,8 @@ async function acceptConsent(consent, userInfo) {
     consent.consentType,
     lastVersion,
     userInfo.uid,
-    userInfo.cxType
+    userInfo.cxType,
+    userInfo.cxId
   );
 }
 
