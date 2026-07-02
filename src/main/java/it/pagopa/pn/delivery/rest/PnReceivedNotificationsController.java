@@ -375,7 +375,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi, Reci
     }
 
     @Override
-    public ResponseEntity<FullReceivedInformalNotificationV1> getReceivedInformalNotificationV1(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String xPagopaPnSrcCh, String iun, List<String> xPagopaPnCxGroups, String xPagopaPnSrcChDetails) {
+    public ResponseEntity<FullReceivedInformalNotificationV1> getReceivedInformalNotificationV1(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String xPagopaPnSrcCh, String iun, List<String> xPagopaPnCxGroups, String xPagopaPnSrcChDetails, Boolean retrieveMessage) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         FullReceivedInformalNotificationV1 result = null;
         PnAuditLogEventType eventType = PnAuditLogEventType.AUD_COM_VIEW_RCP;
@@ -390,7 +390,8 @@ public class PnReceivedNotificationsController implements RecipientReadApi, Reci
             InformalNotificationDetail informalNotificationDetail = informalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(
                     iun,
                     internalAuthHeader,
-                    logEvent
+                    logEvent,
+                    Boolean.TRUE.equals(retrieveMessage)
             );
             InternalNotification internalNotification = informalNotificationDetail.getNotification();
             InternalFieldsCleaner.cleanInternalFields( internalNotification );

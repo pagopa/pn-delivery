@@ -84,14 +84,15 @@ public class InformalNotificationDetailRetrieverStrategy implements Notification
 	 */
 	@Override
 	public InformalNotificationDetail getNotificationInformationWithSenderIdCheck(String iun, String senderId, List<String> groups) {
-		log.debug( "Retrieve complete notification with sender check by iun={} senderId={} START", iun, senderId );
-		return notificationRetrieverService.loadCheckAndEnrichNotificationDetail(iun, senderId, groups, new InformalNotificationDetail(), informalTimelineEnricher);
+		return getNotificationInformationWithSenderIdCheck(iun, senderId, groups, false);
 	}
 
-	public InformalNotificationDetail getNotificationInformationWithSenderIdCheckAndMessage(String iun, String senderId, List<String> groups) {
-		log.debug( "Retrieve complete notification with sender check and message by iun={} senderId={} START", iun, senderId );
+	public InformalNotificationDetail getNotificationInformationWithSenderIdCheck(String iun, String senderId, List<String> groups, boolean withMessage) {
+		log.debug( "Retrieve complete notification with sender check and message by iun={} senderId={} withMessage={} START", iun, senderId, withMessage );
 		InformalNotificationDetail informalNotificationDetail = notificationRetrieverService.loadCheckAndEnrichNotificationDetail(iun, senderId, groups, new InformalNotificationDetail(), informalTimelineEnricher);
-		messageEnricher.enrichInternalNotification(informalNotificationDetail.getNotification());
+		if(withMessage) {
+			messageEnricher.enrichInternalNotification(informalNotificationDetail.getNotification());
+		}
 		return informalNotificationDetail;
 	}
 
@@ -111,11 +112,12 @@ public class InformalNotificationDetailRetrieverStrategy implements Notification
 	public InformalNotificationDetail getNotificationAndNotifyViewedEvent(
 			String iun,
 			InternalAuthHeader internalAuthHeader,
-			PnAuditLogEvent logEvent
+			PnAuditLogEvent logEvent,
+			boolean withMessage
 	) {
 		log.debug("Start getInformalNotificationAndNotifyViewedEvent for {}", iun);
 
-		InformalNotificationDetail notificationDetail = getNotificationInformation(iun, true, true, false, null);
+		InformalNotificationDetail notificationDetail = getNotificationInformation(iun, true, withMessage, false, null);
 		InternalNotification notification = notificationDetail.getNotification();
 		if (checkAuthorizationPG(internalAuthHeader.cxType(), internalAuthHeader.xPagopaPnCxGroups())) {
 			log.error( "only a PG admin can access this resource" );

@@ -395,7 +395,7 @@ paths:
       operationId: getSentInformalNotificationPrivateV1
       parameters:
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathInformalIun'
-        - $ref: '#/components/parameters/retrieveMessage'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/retrieveMessage'
       responses:
         '200':
           description: OK
@@ -488,13 +488,6 @@ components:
           # ASCII printable characters
           pattern: ^[ -~]*$
           maxLength: 1024
-    retrieveMessage:
-      in: query
-      name: retrieveMessage
-      description: Indica se recuperare anche il messaggio della notifica
-      required: false
-      schema:
-        type: boolean
   responses:
     UnauthorizedError:
       description: Access token is missing or invalid

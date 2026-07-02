@@ -144,6 +144,25 @@ class InformalNotificationDetailRetrieverStrategyTest {
         InformalNotificationDetail result = strategy.getNotificationInformationWithSenderIdCheck(IUN, SENDER_ID, GROUPS);
 
         Assertions.assertSame(expected, result);
+        verifyNoInteractions(messageEnricher);
+    }
+
+    @Test
+    void getNotificationInformationWithSenderIdCheckAndMessageRetrieveShouldDelegateToRetrieverService() {
+        InformalNotificationDetail expected = InformalNotificationDetail.builder().notification(new InternalNotification()).build();
+
+        when(notificationRetrieverService.loadCheckAndEnrichNotificationDetail(
+                eq(IUN),
+                eq(SENDER_ID),
+                eq(GROUPS),
+                any(InformalNotificationDetail.class),
+                same(informalTimelineEnricher)
+        )).thenReturn(expected);
+
+        InformalNotificationDetail result = strategy.getNotificationInformationWithSenderIdCheck(IUN, SENDER_ID, GROUPS, true);
+
+        Assertions.assertSame(expected, result);
+        Mockito.verify(messageEnricher).enrichInternalNotification(expected.getNotification());
     }
 
     @Test
@@ -188,7 +207,7 @@ class InformalNotificationDetailRetrieverStrategyTest {
         )).thenReturn(detail);
         when(clock.instant()).thenReturn(viewedAt);
 
-        InformalNotificationDetail result = strategy.getNotificationAndNotifyViewedEvent(IUN, authHeader, logEvent);
+        InformalNotificationDetail result = strategy.getNotificationAndNotifyViewedEvent(IUN, authHeader, logEvent, true);
 
         Assertions.assertSame(detail, result);
         Assertions.assertEquals(2, result.getTimeline().size());
@@ -201,6 +220,7 @@ class InformalNotificationDetailRetrieverStrategyTest {
         Assertions.assertNull(result.getNotification().getRecipients().get(1).getPayments());
         Assertions.assertEquals(RECIPIENT_ID, logEvent.getMdc().get(MDCUtils.MDC_PN_RECIPIENT_ID_KEY));
 
+        verify(messageEnricher).enrichInternalNotification(any());
         verify(notificationViewedProducer).sendNotificationViewed(
                 IUN,
                 viewedAt,
@@ -230,7 +250,7 @@ class InformalNotificationDetailRetrieverStrategyTest {
 
         Assertions.assertThrows(
                 PnForbiddenException.class,
-                () -> strategy.getNotificationAndNotifyViewedEvent(IUN, authHeader, createAuditLog())
+                () -> strategy.getNotificationAndNotifyViewedEvent(IUN, authHeader, createAuditLog(), false)
         );
 
         verifyNoInteractions(notificationViewedProducer);
@@ -255,7 +275,7 @@ class InformalNotificationDetailRetrieverStrategyTest {
 
         Assertions.assertThrows(
                 PnNotFoundException.class,
-                () -> strategy.getNotificationAndNotifyViewedEvent(IUN, authHeader, createAuditLog())
+                () -> strategy.getNotificationAndNotifyViewedEvent(IUN, authHeader, createAuditLog(), false)
         );
     }
 

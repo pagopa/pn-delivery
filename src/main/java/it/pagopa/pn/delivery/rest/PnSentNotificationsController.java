@@ -297,9 +297,9 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
     }
 
     @Override
-    public ResponseEntity<FullSentInformalNotificationV1> getSentInformalNotificationV1(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
+    public ResponseEntity<FullSentInformalNotificationV1> getSentInformalNotificationV1(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups, Boolean retrieveMessage) {
         InformalNotificationDetail informalNotificationDetail =
-                informalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheckAndMessage(iun, xPagopaPnCxId, xPagopaPnCxGroups );
+                informalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(iun, xPagopaPnCxId, xPagopaPnCxGroups, Boolean.TRUE.equals(retrieveMessage));
         InternalNotification internalNotification = informalNotificationDetail.getNotification();
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
