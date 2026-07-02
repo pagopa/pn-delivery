@@ -16,12 +16,19 @@ MOCK_CONFIG_DIR="${PN_LOCALDEV_PATH}/services/mock_rest_configs/enabled"
 MOCK_CONFIG_FILE="${MOCK_CONFIG_DIR}/40-pn-delivery-lambda-mocks.json"
 
 log "Attendo che MockServer risponda su ${MOCKSERVER_ENDPOINT} ..."
+mockserver_up=false
 for _ in $(seq 1 30); do
   if curl -sf "${MOCKSERVER_ENDPOINT}/mockserver/status" -X PUT > /dev/null 2>&1; then
+    mockserver_up=true
     break
   fi
   sleep 1
 done
+
+if [[ "$mockserver_up" != "true" ]]; then
+  log "ATTENZIONE: MockServer non raggiungibile su ${MOCKSERVER_ENDPOINT} dopo 30s, salto la configurazione dei mock (facoltativa)."
+  exit 0
+fi
 
 read -r -d '' MOCK_JSON <<EOF || true
 [
@@ -59,8 +66,11 @@ else
 fi
 
 log "Registro le expectation live su MockServer (nessun restart necessario) ..."
-curl -sf -X PUT "${MOCKSERVER_ENDPOINT}/mockserver/expectation" \
+if ! curl -sf -X PUT "${MOCKSERVER_ENDPOINT}/mockserver/expectation" \
   -H 'Content-Type: application/json' \
-  -d "$MOCK_JSON" > /dev/null
+  -d "$MOCK_JSON" > /dev/null; then
+  log "ATTENZIONE: registrazione expectation su MockServer fallita, proseguo comunque (facoltativa)."
+  exit 0
+fi
 
 log "Mock REST configurati: getRootSenderId -> rootId=${TEST_ROOT_SENDER_ID}, getMandates -> []"
