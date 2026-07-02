@@ -1,39 +1,56 @@
 package it.pagopa.pn.delivery.models;
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.UnifiedNotificationStatus;
 import lombok.*;
 
-import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.util.List;
 
+/**
+ * Modello interno e generico di una riga di ricerca notifiche.
+ * Contiene il super-insieme dei dati persistiti, indipendentemente dallo
+ * specifico caso d'uso (ricerca per destinatario, per mittente, deleghe, ecc.).
+ * La specializzazione verso i DTO generati avviene nei singoli controller.
+ */
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Setter
 @Builder(toBuilder = true)
 @EqualsAndHashCode
 @ToString
 public class NotificationSearchRow {
-    //@Schema(name = "iun", description = "Identificativo Univoco Notifica")
+
     private String iun;
 
-    //@Schema(name = "paNotificationId", description = "Numero protocollo associato alla notifica da parte della PA")
-    private String paNotificationId;
+    private String paProtocolNumber;
 
-    //@Schema(name = "senderId", description = "Identificativo IPA della PA mittente")
-    private String senderId;
+    private String sender;
 
-    //@Schema(name = "sentAt", description = "Data spedizione notifica")
-    private Instant sentAt;
+    private OffsetDateTime sentAt;
 
-    //@Schema(name = "subject", description = "Oggetto della notifica")
     private String subject;
 
-    //@Schema(name = "notificationStatus", description = "Stato del workflow della notifica")
-    private NotificationStatusV26 notificationStatus;
+    private List<String> recipients;
 
-    //@Schema(name = "recipientId", description = "Identificativo opaco del destinatario")
-    private String recipientId;
+    private OffsetDateTime requestAcceptedAt;
 
-    //@Schema(name = "group", description = "Gruppo di utenti che possono accedere alla notifica")
     private String group;
+
+    private String mandateId;
+
+    // Dati statici
+    private String communicationType;
+
+    private String campaignId;
+
+    private UnifiedNotificationStatus notificationStatus;
+
+    // Dati dinamici (valorizzati solo per le comunicazioni bonarie)
+    private Boolean viewed;
+
+    private Boolean delivered;
+
+    private Boolean desiredFeedback;
 
 }
