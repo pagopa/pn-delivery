@@ -139,14 +139,14 @@ public class InformalNotificationDetailRetrieverStrategy implements Notification
 			//se il servizio è invocato da un destinatario, devo filtrare la timeline solo per lo specifico destinatario (o suo delegato)
 			//filtro (cyType != PA) superfluo poiché attualmente il servizio è invocato solo lato destinatario
 			List<InformalTimelineElementV1> timeline = informalNotificationDetail.getTimeline();
-			log.debug("Timelines size before filter: {}", timeline.size());
+			log.debug("Timelines size before filter: {}, for iun {} and recIndx {}", timeline.size(), informalNotificationDetail.getNotification().getIun(), recipientIndex);
 
 			List<InformalTimelineElementV1> filteredTimelineElements = timeline.stream().filter(timelineElement -> timelineElement.getDetails() == null ||
 							timelineElement.getDetails().getRecIndex() == null ||
 							timelineElement.getDetails().getRecIndex() == recipientIndex)
 					.toList();
 
-			log.debug("Timelines size after filter: {}", filteredTimelineElements.size());
+			log.debug("Timelines size after filter: {}, for iun {} and recIndx {}", timeline.size(), informalNotificationDetail.getNotification().getIun(), recipientIndex);
 			informalNotificationDetail.setTimeline(filteredTimelineElements);
 		}
 	}
