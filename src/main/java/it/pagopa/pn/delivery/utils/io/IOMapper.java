@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.utils.io;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.*;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementCategoryV28;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.LegalNotificationDetail;
 import it.pagopa.pn.delivery.models.internal.notification.F24Payment;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
 import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
@@ -27,11 +28,11 @@ public class IOMapper {
 
     private final ModelMapper modelMapper;
 
-    public ThirdPartyMessage mapToThirdPartMessage(InternalNotification internalNotification, boolean isCancelled) {
-        if(internalNotification == null) return null;
+    public ThirdPartyMessage mapToThirdPartMessage(LegalNotificationDetail legalNotificationDetail, boolean isCancelled) {
+        if(legalNotificationDetail == null) return null;
 
-        IOReceivedNotification details = mapToDetails(internalNotification, isCancelled);
-        List<ThirdPartyAttachment> attachments = mapToThirdPartyAttachment(internalNotification);
+        IOReceivedNotification details = mapToDetails(legalNotificationDetail, isCancelled);
+        List<ThirdPartyAttachment> attachments = mapToThirdPartyAttachment(legalNotificationDetail);
 
         return ThirdPartyMessage.builder()
                 .attachments(attachments)
@@ -39,7 +40,12 @@ public class IOMapper {
                 .build();
     }
 
-    public IOReceivedNotification mapToDetails(InternalNotification internalNotification, boolean isCancelled) {
+    public IOReceivedNotification mapToDetails(LegalNotificationDetail legalNotificationDetail, boolean isCancelled) {
+        if (legalNotificationDetail == null) {
+            return null;
+        }
+
+        InternalNotification internalNotification = legalNotificationDetail.getNotification();
         if(internalNotification == null) {
             return null;
         }
@@ -47,7 +53,7 @@ public class IOMapper {
         IOReceivedNotification ioReceivedNotification = IOReceivedNotification.builder()
                 .subject(internalNotification.getSubject())
                 .iun(internalNotification.getIun())
-                .notificationStatusHistory(convertNotificationStatusHistory(internalNotification.getNotificationStatusHistory()))
+                .notificationStatusHistory(convertNotificationStatusHistory(legalNotificationDetail.getNotificationStatusHistory()))
                 ._abstract(internalNotification.get_abstract())
                 .senderDenomination(internalNotification.getSenderDenomination())
                 .build();
@@ -62,7 +68,7 @@ public class IOMapper {
 
             // solo se la notifica è annullata, ritorno eventuali record di pagamento completati
             // NB: la timeline è GIA' FILTRATA per recipientIndex
-            ioReceivedNotification.setCompletedPayments(internalNotification.getTimeline()
+            ioReceivedNotification.setCompletedPayments(legalNotificationDetail.getTimeline()
                     .stream()
                     .filter(x -> x.getCategory().equals(TimelineElementCategoryV28.PAYMENT))
                     .map(x -> x.getDetails().getNoticeCode())
@@ -116,17 +122,25 @@ public class IOMapper {
                 .toList();
     }
 
-    public List<ThirdPartyAttachment> mapToThirdPartyAttachment(InternalNotification internalNotification) {
-        List<ThirdPartyAttachment> thirdPartyAttachments = new ArrayList<>();
-        List<NotificationDocument> documents = internalNotification.getDocuments();
-
-        it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient filteredNotificationRecipient = filterRecipient(internalNotification);
-
-        if(recipientHasF24Payments(filteredNotificationRecipient)) {
-            thirdPartyAttachments.addAll(mapF24PaymentsToThirdPartyAttachment(filteredNotificationRecipient, internalNotification.getIun()));
+    public List<ThirdPartyAttachment> mapToThirdPartyAttachment(LegalNotificationDetail legalNotificationDetail) {
+        if (legalNotificationDetail == null || legalNotificationDetail.getNotification() == null) {
+            return new ArrayList<>();
         }
 
-        if(!documents.isEmpty()) {
+        List<ThirdPartyAttachment> thirdPartyAttachments = new ArrayList<>();
+        InternalNotification internalNotification = legalNotificationDetail.getNotification();
+        List<NotificationDocument> documents = internalNotification.getDocuments();
+
+        it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient filteredNotificationRecipient =
+                filterRecipient(internalNotification);
+
+        if (recipientHasF24Payments(filteredNotificationRecipient)) {
+            thirdPartyAttachments.addAll(
+                    mapF24PaymentsToThirdPartyAttachment(filteredNotificationRecipient, internalNotification.getIun())
+            );
+        }
+
+        if (documents != null && !documents.isEmpty()) {
             thirdPartyAttachments.addAll(mapDocumentsToThirdPartyAttachment(documents, internalNotification.getIun()));
         }
 
