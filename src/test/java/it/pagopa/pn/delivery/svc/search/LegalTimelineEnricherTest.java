@@ -116,31 +116,77 @@ class LegalTimelineEnricherTest {
     }
 
     @Test
-    void shouldReturnTrueWhenNotificationIsCancelled() {
-        TimelineElementV28 cancellation = new TimelineElementV28();
-        cancellation.setCategory(TimelineElementCategoryV28.NOTIFICATION_CANCELLATION_REQUEST);
+    void shouldKeepDocumentsAvailableWhenNotificationIsCancelledAndRequestBySender() {
+        when(clock.instant()).thenReturn(Instant.parse("2026-06-15T00:00:00Z"));
 
-        InternalNotification notification = new InternalNotification();
-        notification.setIun("IUN_CANCELLED");
-        notification.setTimeline(List.of(cancellation));
+        InternalNotification notification = buildNotificationWithPayments("IUN_CANCELLED_BY_SENDER");
 
-        boolean result = enricher.isNotificationCancelled(notification);
+        LegalNotificationDetail detail = LegalNotificationDetail.builder()
+                .notification(notification)
+                .build();
 
-        assertTrue(result);
+        it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28 pushCancellation =
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28();
+        pushCancellation.setCategory(
+                it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV28.NOTIFICATION_CANCELLATION_REQUEST
+        );
+        pushCancellation.setTimestamp(OffsetDateTime.parse("2026-06-10T10:00:00Z"));
+
+        NotificationHistoryResponse historyResponse = mock(NotificationHistoryResponse.class);
+        when(historyResponse.getTimeline()).thenReturn(List.of(pushCancellation));
+        when(historyResponse.getNotificationStatusHistory()).thenReturn(Collections.emptyList());
+        when(historyResponse.getNotificationStatus()).thenReturn(
+                it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusV26.ACCEPTED
+        );
+
+        when(pnDeliveryPushClient.getTimelineAndStatusHistory(
+                eq("IUN_CANCELLED_BY_SENDER"),
+                eq(notification.getRecipients().size()),
+                eq(notification.getSentAt())
+        )).thenReturn(historyResponse);
+
+        enricher.enrichNotificationDetail(detail, true);
+
+        assertTrue(detail.getNotification().getDocumentsAvailable());
+        assertEquals(TimelineElementCategoryV28.NOTIFICATION_CANCELLATION_REQUEST,
+                detail.getTimeline().get(0).getCategory());
     }
 
     @Test
-    void shouldReturnFalseWhenNotificationIsNotCancelled() {
-        TimelineElementV28 timelineElement = new TimelineElementV28();
-        timelineElement.setCategory(TimelineElementCategoryV28.REQUEST_ACCEPTED);
+    void shouldKeepDocumentsAvailableWhenNotificationIsNotCancelled() {
+        when(clock.instant()).thenReturn(Instant.parse("2026-06-15T00:00:00Z"));
 
-        InternalNotification notification = new InternalNotification();
-        notification.setIun("IUN_NOT_CANCELLED");
-        notification.setTimeline(List.of(timelineElement));
+        InternalNotification notification = buildNotificationWithPayments("IUN_NOT_CANCELLED");
 
-        boolean result = enricher.isNotificationCancelled(notification);
+        LegalNotificationDetail detail = LegalNotificationDetail.builder()
+                .notification(notification)
+                .build();
 
-        assertFalse(result);
+        it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28 pushAccepted =
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28();
+        pushAccepted.setCategory(
+                it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV28.REQUEST_ACCEPTED
+        );
+        pushAccepted.setTimestamp(OffsetDateTime.parse("2026-06-10T10:00:00Z"));
+
+        NotificationHistoryResponse historyResponse = mock(NotificationHistoryResponse.class);
+        when(historyResponse.getTimeline()).thenReturn(List.of(pushAccepted));
+        when(historyResponse.getNotificationStatusHistory()).thenReturn(Collections.emptyList());
+        when(historyResponse.getNotificationStatus()).thenReturn(
+                it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusV26.ACCEPTED
+        );
+
+        when(pnDeliveryPushClient.getTimelineAndStatusHistory(
+                eq("IUN_NOT_CANCELLED"),
+                eq(notification.getRecipients().size()),
+                eq(notification.getSentAt())
+        )).thenReturn(historyResponse);
+
+        enricher.enrichNotificationDetail(detail, false);
+
+        assertTrue(detail.getNotification().getDocumentsAvailable());
+        assertEquals(TimelineElementCategoryV28.REQUEST_ACCEPTED,
+                detail.getTimeline().get(0).getCategory());
     }
 
     @Test
@@ -148,7 +194,6 @@ class LegalTimelineEnricherTest {
         when(clock.instant()).thenReturn(Instant.parse("2026-06-15T00:00:00Z"));
 
         InternalNotification notification = buildNotificationWithPayments("IUN_NO_REFINEMENT");
-        notification.setTimeline(Collections.emptyList());
 
         LegalNotificationDetail detail = LegalNotificationDetail.builder()
                 .notification(notification)
@@ -187,10 +232,6 @@ class LegalTimelineEnricherTest {
         when(clock.instant()).thenReturn(Instant.parse("2026-06-15T00:00:00Z"));
 
         InternalNotification notification = buildNotificationWithPayments("IUN_EXPIRED");
-        TimelineElementV28 refinement = new TimelineElementV28();
-        refinement.setCategory(TimelineElementCategoryV28.REFINEMENT);
-        refinement.setTimestamp(OffsetDateTime.parse("2026-01-01T10:00:00Z"));
-        notification.setTimeline(List.of(refinement));
 
         LegalNotificationDetail detail = LegalNotificationDetail.builder()
                 .notification(notification)
@@ -236,10 +277,6 @@ class LegalTimelineEnricherTest {
         when(clock.instant()).thenReturn(Instant.parse("2026-06-15T00:00:00Z"));
 
         InternalNotification notification = buildNotificationWithPayments("IUN_CANCELLED");
-        TimelineElementV28 cancellation = new TimelineElementV28();
-        cancellation.setCategory(TimelineElementCategoryV28.NOTIFICATION_CANCELLATION_REQUEST);
-        cancellation.setTimestamp(OffsetDateTime.parse("2026-06-10T10:00:00Z"));
-        notification.setTimeline(List.of(cancellation));
 
         LegalNotificationDetail detail = LegalNotificationDetail.builder()
                 .notification(notification)
