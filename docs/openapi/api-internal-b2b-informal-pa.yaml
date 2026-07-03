@@ -40,7 +40,9 @@ tags:
     description: >-
       Invocazioni per interrompere il workflow di una notifica non legale in
       stato di attesa o accettata.
-
+  - name: HealthCheck
+    description: >-
+      Invocazioni per sapere lo stato del microservizio
 paths:
   ###########################################################################################
   ###                          GESTIONE PRECARICAMENTO ALLEGATI                           ###
@@ -186,7 +188,7 @@ paths:
         - Messages
       summary: Recupera i dati di un messaggio
       description: Recupera il contenuto di un messaggio precedentemente creato dato il suo id.
-      operationId: getMessageById
+      operationId: messageById
       parameters:
         - name: messageId
           in: path
@@ -316,7 +318,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/NewInformalNotificationResponse"
+                $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationResponse"
               example:
                 notificationRequestId: TVBNRS1RR1RHLVZNVEUtMjAyNjA2LUgtQQ==
                 paProtocolNumber: "302110111988283231"
@@ -720,8 +722,7 @@ paths:
         </details>
       tags:
         - SenderReadInformalNotificationB2B
-      operationId: getSentInformalNotificationV1                                    # NO EXTERNAL
-      #      operationId: retrieveSentInformalNotificationV1                                # ONLY EXTERNAL
+      operationId: getSentInformalNotificationV1
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
@@ -1013,10 +1014,6 @@ components:
     ###########################################################################################
     ###                              DTO RICHIESTE DI NOTIFICA                              ###
     ###########################################################################################
-
-    NewInformalNotificationResponse:
-      $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationResponse"
-
     NewInformalNotificationRequestStatusResponseV1:
       allOf:
         - $ref: "./schemas-pn-notification.yaml#/components/schemas/InformalNotificationRequestV1"
