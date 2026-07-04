@@ -647,6 +647,7 @@ components:
         $ref: '#/components/schemas/NotificationPaymentItem'
 
     NotificationPaymentItem:
+      type: object
       minProperties: 1
       additionalProperties: false
       nullable: false

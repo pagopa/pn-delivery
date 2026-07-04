@@ -28,6 +28,47 @@ tags:
   - name: HealthCheck
     description: Invocazioni per sapere lo stato del microservizio
 paths:
+  /status:
+    get:
+      summary: status path
+      description: status path per verificare lo stato di Piattaforma Notifiche
+      tags:
+        - HealthCheck
+      operationId: status
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/PnStatusResponse'
+              example:
+                functionalities:
+                  - NOTIFICATION_CREATE
+                  - NOTIFICATION_VISUALIZATION
+                  - NOTIFICATION_WORKFLOW
+                openIncidents: []
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/PnStatusResponse'
+              example:
+                functionalities:
+                  - NOTIFICATION_CREATE
+                  - NOTIFICATION_VISUALIZATION
+                  - NOTIFICATION_WORKFLOW
+                openIncidents:
+                  - functionality: NOTIFICATION_CREATE
+                    status: KO
+                    startDate: '2019-08-24T14:15:22Z'
   /delivery/v1/attachments/informal/preload:
     post:
       summary: Richiesta di pre-caricamento dei documenti della notifica bonaria
@@ -594,9 +635,10 @@ paths:
       description: Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
       tags:
         - SenderReadInformalNotificationB2B
-      operationId: retrieveSentInformalNotificationV1
+      operationId: getSentInformalNotificationV1
       parameters:
         - $ref: '#/components/parameters/pathInformalIun'
+        - $ref: '#/components/parameters/retrieveMessage'
       responses:
         '200':
           description: OK
@@ -734,6 +776,13 @@ components:
         minLength: 25
         maxLength: 25
         pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[A-Z]{1}$
+    retrieveMessage:
+      in: query
+      name: retrieveMessage
+      description: Indica se recuperare anche il messaggio della notifica
+      required: false
+      schema:
+        type: boolean
   schemas:
     InformalPreLoadRequest:
       title: Richiesta di precaricamento di un File
@@ -893,6 +942,93 @@ components:
           description: Spiegazione specifica per questa occorrenza del problema.
           example: Parametro non valido
           type: string
+    PnStatusResponse:
+      title: Stato attuale di PN
+      description: Elenco delle funzionalità della piattaforma ed elenco dei disservizi noti e attivi  al momento della richiesta. I disservizi (_openIncidents_) segnalati sono al più uno  per funzionalità; gli attributi _endDate_ e _legalFactId_ non saranno valorizzati.
+      type: object
+      required:
+        - functionalities
+        - openIncidents
+      properties:
+        status:
+          description: Bad Request
+          example: 400
+          exclusiveMaximum: true
+          format: int32
+          maximum: 600
+          minimum: 100
+          type: integer
+        title:
+          description: The server cannot process the request
+          example: Bad Request
+          maxLength: 64
+          pattern: ^[ -~]{0,64}$
+          type: string
+        detail:
+          description: The server cannot process the request
+          example: Bad Request
+          maxLength: 4096
+          pattern: ^.{0,4096}$
+          type: string
+        functionalities:
+          title: elenco funzionalità di PN
+          description: Un array che comprende tutti i possibili valori dell'enum _PnFunctionality_
+          type: array
+          items:
+            $ref: '#/components/schemas/PnFunctionality'
+        openIncidents:
+          title: elenco disservizi correnti
+          description: Al più uno per funzionalità
+          type: array
+          items:
+            $ref: '#/components/schemas/PnDowntimeEntry'
+    PnFunctionality:
+      title: Funzionalità di PN
+      description: |-
+        - __NOTIFICATION_CREATE__: la possibilità di creare nuove notifiche.
+        - __NOTIFICATION_VISUALIZATION__: la possibilità di visualizzare le notifiche e scaricare gli atti. 
+        - __NOTIFICATION_WORKFLOW__: l'avanzamento del processo di notifica.
+      type: string
+      enum:
+        - NOTIFICATION_CREATE
+        - NOTIFICATION_VISUALIZATION
+        - NOTIFICATION_WORKFLOW
+      x-enum-varnames:
+        - NOTIFICATION_CREATE
+        - NOTIFICATION_VISUALIZATION
+        - NOTIFICATION_WORKFLOW
+    PnFunctionalityStatus:
+      type: string
+      enum:
+        - KO
+        - OK
+    PnDowntimeEntry:
+      title: Dati relativi ad un disservizio di PN.
+      type: object
+      required:
+        - functionality
+        - status
+        - startDate
+      properties:
+        functionality:
+          $ref: '#/components/schemas/PnFunctionality'
+        status:
+          $ref: '#/components/schemas/PnFunctionalityStatus'
+        startDate:
+          title: data inizio disservizio
+          type: string
+          format: date-time
+        endDate:
+          title: data fine disservizio
+          description: se il disservizio è ancora attivo questo campo sarà assente o con valore _null_
+          type: string
+          format: date-time
+        legalFactId:
+          title: id dell'atto opponibile a terzi
+          description: Se assente o valorizzato _null_ indica che l'atto opponibile a terzi non è ancora disponibile. Questo avviene per i disservizi ancora aperti e per i disservizi  terminati da pochi minuti. <br/> Questo valore è da utilizzare con l'API _getLegalFact_ di questo stesso servizio.
+          type: string
+        fileAvailable:
+          type: boolean
     FullSentInformalNotificationV1:
       description: Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il  processo di inoltro della notifica verso il cittadino.
       allOf:

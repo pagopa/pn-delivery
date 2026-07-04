@@ -35,7 +35,9 @@
                 "api-internal-b2b-informal-pa.yaml"
             ],
             "servicePath": "delivery",
-            "awsApiDiscriminator": "informal"
+            "awsApiDiscriminator": "informal",
+            "generateBundle": true,
+            "mergeBeforeBundleGeneration": true
         },
         {
             "intendedUsage": "B2BPG",
@@ -54,7 +56,8 @@
     ],
     "openapiBundlePresenceCheck": [
         "api-external-b2b-pa-bundle.yaml",
-        "pn-delivery-b2b-pg-external-bundle.yaml"
+        "pn-delivery-b2b-pg-external-bundle.yaml",
+        "api-external-b2b-informal-pa-bundle.yaml"
     ],
     "bundlePatch": "openapi.patch"
 
