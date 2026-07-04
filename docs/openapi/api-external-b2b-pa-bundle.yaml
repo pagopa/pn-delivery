@@ -6642,7 +6642,6 @@ components:
         metadataAttachment:
           $ref: '#/components/schemas/NotificationMetadataAttachment'
     NotificationPaymentItem:
-      type: object
       minProperties: 1
       additionalProperties: false
       nullable: false

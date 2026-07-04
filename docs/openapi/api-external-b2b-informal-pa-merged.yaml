@@ -212,6 +212,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
+              example:
+                primaryMessage:
+                  subject: Oggetto IT
+                  longBody: Test body IT
+                  shortBody: Short IT
+                  language: IT
+                messageId: 94484841-57e5-496f-8f2d-eec053c539e3
+                createdAt: "2026-06-26T13:35:00.000Z"
         '401':
           description: Unauthorized
           content:
@@ -267,6 +275,9 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationResponse"
+              example:
+                notificationRequestId: TVBNRS1RR1RHLVZNVEUtMjAyNjA2LUgtQQ==
+                paProtocolNumber: "302110111988283231"
         '400':
           description: Bad request
           content:

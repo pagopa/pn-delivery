@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: h1Q7D2574k3SOaKLrR4rhcLv5+PyFShJ2LiTXasuk5w=
+  version: jkk+DP2QPE7Arc05tJMyvSfM+RyIFlbK3hJPEBNWqws=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -203,6 +203,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
+              example:
+                primaryMessage:
+                  subject: Oggetto IT
+                  longBody: Test body IT
+                  shortBody: Short IT
+                  language: IT
+                messageId: 94484841-57e5-496f-8f2d-eec053c539e3
+                createdAt: '2026-06-26T13:35:00.000Z'
         '401':
           description: Unauthorized
           content:
@@ -296,6 +304,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/NewNotificationResponse'
+              example:
+                notificationRequestId: TVBNRS1RR1RHLVZNVEUtMjAyNjA2LUgtQQ==
+                paProtocolNumber: '302110111988283231'
         '400':
           description: Bad request
           content:
@@ -1577,7 +1588,6 @@ components:
         metadataAttachment:
           $ref: '#/components/schemas/NotificationMetadataAttachment'
     NotificationPaymentItem:
-      type: object
       minProperties: 1
       additionalProperties: false
       nullable: false
