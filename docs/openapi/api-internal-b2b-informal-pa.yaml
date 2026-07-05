@@ -303,7 +303,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationResponse"
+                $ref: "#/components/schemas/NewInformalNotificationResponse"
               example:
                 notificationRequestId: TVBNRS1RR1RHLVZNVEUtMjAyNjA2LUgtQQ==
                 paProtocolNumber: "302110111988283231"
@@ -863,6 +863,10 @@ components:
     ###########################################################################################
     ###                              DTO RICHIESTE DI NOTIFICA                              ###
     ###########################################################################################
+    NewInformalNotificationResponse:
+      $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationResponse"
+
+
     NewInformalNotificationRequestStatusResponseV1:
       allOf:
         - $ref: "./schemas-pn-notification.yaml#/components/schemas/InformalNotificationRequestV1"

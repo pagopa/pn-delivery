@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: jkk+DP2QPE7Arc05tJMyvSfM+RyIFlbK3hJPEBNWqws=
+  version: oRml8Zb1kp32U6jPKBKpu7SScUlWZqNWWxKLo82HGwg=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -978,6 +978,8 @@ components:
               description: Data e ora di creazione del messaggio
               type: string
               format: date-time
+    NewInformalNotificationResponse:
+      $ref: '#/components/schemas/NewNotificationResponse'
     NewInformalNotificationRequestStatusResponseV1:
       allOf:
         - $ref: '#/components/schemas/InformalNotificationRequestV1'

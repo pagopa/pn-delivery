@@ -678,6 +678,8 @@ components:
               description: Data e ora di creazione del messaggio
               type: string
               format: date-time
+    NewInformalNotificationResponse:
+      $ref: '#/components/schemas/NewNotificationResponse'
     NewInformalNotificationRequestStatusResponseV1:
       allOf:
         - $ref: '#/components/schemas/InformalNotificationRequestV1'
