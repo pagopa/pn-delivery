@@ -9,7 +9,7 @@ import it.pagopa.pn.delivery.models.NotificationSearchCommunicationType;
 import it.pagopa.pn.delivery.models.NotificationSearchRow;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.search.CampaignAuthValidator;
-import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
+import it.pagopa.pn.delivery.svc.search.NotificationSearchService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -36,14 +36,14 @@ class PnInformalSentNotificationsControllerTest {
     private static final OffsetDateTime START = OffsetDateTime.parse("2022-05-01T00:00:00Z");
     private static final OffsetDateTime END = OffsetDateTime.parse("2022-05-30T00:00:00Z");
 
-    private NotificationRetrieverService retrieveSvc;
+    private NotificationSearchService retrieveSvc;
     private ModelMapper modelMapper;
     private CampaignAuthValidator campaignAuthValidator;
     private PnInformalSentNotificationsController controller;
 
     @BeforeEach
     void setup() {
-        this.retrieveSvc = Mockito.mock(NotificationRetrieverService.class);
+        this.retrieveSvc = Mockito.mock(NotificationSearchService.class);
         this.modelMapper = Mockito.mock(ModelMapper.class);
         this.campaignAuthValidator = Mockito.mock(CampaignAuthValidator.class);
         this.controller = new PnInformalSentNotificationsController(retrieveSvc, modelMapper, campaignAuthValidator);

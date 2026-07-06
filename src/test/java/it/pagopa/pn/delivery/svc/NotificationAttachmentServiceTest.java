@@ -17,6 +17,8 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationAttachm
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PreLoadRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PreLoadResponse;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalPreLoadRequest;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalPreLoadResponse;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
@@ -111,6 +113,39 @@ class NotificationAttachmentServiceTest {
 
         // When
         List<PreLoadResponse> result = attachmentService.preloadDocuments(list);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    void informalPreloadDocuments() {
+        // Given
+        List<InformalPreLoadRequest> list = new ArrayList<>();
+        InformalPreLoadRequest request = new InformalPreLoadRequest();
+        request.setContentType("application/pdf");
+        request.setPreloadIdx("1");
+        request.setSha256("the_sha256_base64_encoded");
+        list.add(request);
+
+        InformalPreLoadRequest f24MetaRequest = InformalPreLoadRequest.builder()
+                .contentType("application/json")
+                .preloadIdx("2")
+                .sha256("metadata-f24-sha256")
+                .build();
+        list.add(f24MetaRequest);
+
+        FileCreationResponse response = new FileCreationResponse();
+        response.setUploadMethod(FileCreationResponse.UploadMethodEnum.POST);
+        response.setSecret("secret");
+        response.setKey("filekey");
+        response.setUploadUrl("https://url123");
+
+        when(pnSafeStorageClient.createFile(Mockito.any(), Mockito.anyString())).thenReturn(response);
+
+        // When
+        List<InformalPreLoadResponse> result = attachmentService.informalPreloadDocuments(list);
 
         // Then
         assertNotNull(result);

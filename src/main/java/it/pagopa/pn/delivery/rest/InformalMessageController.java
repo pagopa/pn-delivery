@@ -27,7 +27,7 @@ public class InformalMessageController implements MessagesApi {
     }
 
     @Override
-    public ResponseEntity<MessageResponse> getMessageById(
+    public ResponseEntity<MessageResponse> messageById(
             UUID messageId,
             String xPagopaPnUid,
             CxTypeAuthFleet xPagopaPnCxType,

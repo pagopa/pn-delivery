@@ -12,8 +12,9 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.NotificationSearchCommunicationType;
 import it.pagopa.pn.delivery.models.NotificationSearchRow;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
+import it.pagopa.pn.delivery.svc.NotificationRetrieverService;
 import it.pagopa.pn.delivery.svc.search.CampaignAuthValidator;
-import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
+import it.pagopa.pn.delivery.svc.search.NotificationSearchService;
 import it.pagopa.pn.delivery.utils.InformalNotificationStatusValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -28,11 +29,11 @@ import java.util.List;
 @Slf4j
 public class PnInformalSentNotificationsController implements SenderInformalReadWebApi {
 
-    private final NotificationRetrieverService retrieveSvc;
+    private final NotificationSearchService retrieveSvc;
     private final ModelMapper modelMapper;
     private final CampaignAuthValidator campaignAuthValidator;
 
-    public PnInformalSentNotificationsController(NotificationRetrieverService retrieveSvc,
+    public PnInformalSentNotificationsController(NotificationSearchService retrieveSvc,
                                                  ModelMapper modelMapper,
                                                  CampaignAuthValidator campaignAuthValidator) {
         this.retrieveSvc = retrieveSvc;

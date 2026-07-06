@@ -3,7 +3,9 @@ package it.pagopa.pn.delivery.utils;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV28;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationRecipientEntity;
+import it.pagopa.pn.delivery.models.InformalNotificationDetail;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.LegalNotificationDetail;
 import it.pagopa.pn.delivery.models.internal.notification.CommunicationType;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import org.modelmapper.Converter;
@@ -47,6 +49,12 @@ public class ModelMapperConfig {
         context -> {
             InternalNotification destination = context.getDestination();
             destination.setCommunicationType(CommunicationType.INFORMAL);
+            return destination;
+        };
+    static Converter<NewNotificationRequestV26, InternalNotification> legalNotificationConverter =
+        context -> {
+            InternalNotification destination = context.getDestination();
+            destination.setCommunicationType(CommunicationType.LEGAL);
             return destination;
         };
 
@@ -129,6 +137,8 @@ public class ModelMapperConfig {
                 .addMapping( NotificationRecipientEntity::getRecipientId, NotificationRecipient::setInternalId );
         modelMapper.createTypeMap(InformalNotificationRequestV1.class, InternalNotification.class)
                 .setPostConverter(ModelMapperConfig.informalNotificationConverter);
+        modelMapper.createTypeMap(NewNotificationRequestV26.class, InternalNotification.class)
+                .setPostConverter(ModelMapperConfig.legalNotificationConverter);
         modelMapper.createTypeMap(NotificationRecipient.class, InformalNotificationRecipientV1.class)
                 .addMappings(mapper ->
                         mapper.using(stringToUuid)
@@ -140,7 +150,98 @@ public class ModelMapperConfig {
         modelMapper.createTypeMap(it.pagopa.pn.delivery.models.NotificationSearchRow.class, InformalNotificationSearchRow.class)
                 .addMappings(mapper -> mapper.skip(InformalNotificationSearchRow::setCommunicationType))
                 .setPostConverter(ModelMapperConfig.informalSearchRowConverter);
+
+        mapFromLegalNotificationDetailToFullSentNotificationV29(modelMapper);
+
+        mapFromLegalNotificationDetailToFullReceivedNotificationV28(modelMapper);
+
+        mapFromInformalNotificationDetailToFullSentInformalNotificationV1(modelMapper);
+
+        mapFromInformalNotificationDetailToFullReceivedInformalNotificationV1(modelMapper);
+
+        mapFromLegalNotificationDetailToSentNotificationV26(modelMapper);
+
+        mapFromInformalNotificationDetailToInformalSentNotificationV1(modelMapper);
+
         return modelMapper;
     }
+
+    private static void mapFromInformalNotificationDetailToInformalSentNotificationV1(ModelMapper modelMapper) {
+        // InformalNotificationDetail -> InformalSentNotificationV1
+        modelMapper.createTypeMap(InformalNotificationDetail.class, InformalSentNotificationV1.class)
+                .setProvider(ctx -> modelMapper.map(
+                        ((InformalNotificationDetail) ctx.getSource()).getNotification(),
+                        InformalSentNotificationV1.class));
+    }
+
+    private static void mapFromLegalNotificationDetailToSentNotificationV26(ModelMapper modelMapper) {
+        // LegalNotificationDetail -> SentNotificationV26
+        modelMapper.createTypeMap(LegalNotificationDetail.class, SentNotificationV26.class)
+                .setProvider(ctx -> modelMapper.map(
+                        ((LegalNotificationDetail) ctx.getSource()).getNotification(),
+                        SentNotificationV26.class));
+    }
+
+    private static void mapFromInformalNotificationDetailToFullReceivedInformalNotificationV1(ModelMapper modelMapper) {
+        // InformalNotificationDetail -> FullReceivedInformalNotificationV1
+        modelMapper.createTypeMap(InformalNotificationDetail.class, FullReceivedInformalNotificationV1.class)
+                .setProvider(ctx -> modelMapper.map(
+                        ((InformalNotificationDetail) ctx.getSource()).getNotification(),
+                        FullReceivedInformalNotificationV1.class))
+                .addMappings(mapper -> {
+                    mapper.map(InformalNotificationDetail::getTimeline,
+                            FullReceivedInformalNotificationV1::setTimeline);
+                    mapper.map(InformalNotificationDetail::getNotificationStatus,
+                            FullReceivedInformalNotificationV1::setNotificationStatus);
+                    mapper.map(InformalNotificationDetail::getNotificationStatusHistory,
+                            FullReceivedInformalNotificationV1::setNotificationStatusHistory);
+                });
+    }
+
+    private static void mapFromInformalNotificationDetailToFullSentInformalNotificationV1(ModelMapper modelMapper) {
+        // InformalNotificationDetail -> FullSentInformalNotificationV1
+        modelMapper.createTypeMap(InformalNotificationDetail.class, FullSentInformalNotificationV1.class)
+                .setProvider(ctx -> modelMapper.map(
+                        ((InformalNotificationDetail) ctx.getSource()).getNotification(),
+                        FullSentInformalNotificationV1.class))
+                .addMappings(mapper -> {
+                    mapper.map(InformalNotificationDetail::getTimeline,
+                            FullSentInformalNotificationV1::setTimeline);
+                    mapper.map(InformalNotificationDetail::getNotificationStatus,
+                            FullSentInformalNotificationV1::setNotificationStatus);
+                    mapper.map(InformalNotificationDetail::getNotificationStatusHistory,
+                            FullSentInformalNotificationV1::setNotificationStatusHistory);
+                });
+    }
+
+    private static void mapFromLegalNotificationDetailToFullReceivedNotificationV28(ModelMapper modelMapper) {
+        // LegalNotificationDetail -> FullReceivedNotificationV28
+        modelMapper.createTypeMap(LegalNotificationDetail.class, FullReceivedNotificationV28.class)
+                .setProvider(ctx -> modelMapper.map(
+                        ((LegalNotificationDetail) ctx.getSource()).getNotification(),
+                        FullReceivedNotificationV28.class))
+                .addMappings(mapper -> {
+                    mapper.map(LegalNotificationDetail::getTimeline,
+                            FullReceivedNotificationV28::setTimeline);
+                    mapper.map(LegalNotificationDetail::getNotificationStatus,
+                            FullReceivedNotificationV28::setNotificationStatus);
+                    mapper.map(LegalNotificationDetail::getNotificationStatusHistory,
+                            FullReceivedNotificationV28::setNotificationStatusHistory);
+                });
+    }
+
+    private static void mapFromLegalNotificationDetailToFullSentNotificationV29(ModelMapper modelMapper) {
+        modelMapper.createTypeMap(LegalNotificationDetail.class, FullSentNotificationV29.class)
+                .setProvider(request -> modelMapper.map(
+                        ((LegalNotificationDetail) request.getSource()).getNotification(),
+                        FullSentNotificationV29.class
+                ))
+                .addMappings(mapper -> {
+                    mapper.map(LegalNotificationDetail::getTimeline, FullSentNotificationV29::setTimeline);
+                    mapper.map(LegalNotificationDetail::getNotificationStatus, FullSentNotificationV29::setNotificationStatus);
+                    mapper.map(LegalNotificationDetail::getNotificationStatusHistory, FullSentNotificationV29::setNotificationStatusHistory);
+                });
+    }
+
 
 }
