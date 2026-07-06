@@ -17,6 +17,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import static org.mockito.Mockito.when;
+
 class CampaignServiceTest {
 
     private static final String SENDER_ID = "5b994d4a-0fa8-47ac-9c7b-354f1d44a1ce";
@@ -33,7 +35,7 @@ class CampaignServiceTest {
     @Test
     void listCampaigns_returnsAllCampaigns() {
         // Arrange
-        Mockito.when(campaignsParameterConsumer.getCampaignsBySenderId(SENDER_ID))
+        when(campaignsParameterConsumer.getCampaignsBySenderId(SENDER_ID))
                 .thenReturn(List.of(
                         validCampaign("c1"),
                         validCampaign("c2"),
@@ -52,7 +54,7 @@ class CampaignServiceTest {
     @Test
     void listCampaigns_emptyList() {
         // Arrange
-        Mockito.when(campaignsParameterConsumer.getCampaignsBySenderId(SENDER_ID))
+        when(campaignsParameterConsumer.getCampaignsBySenderId(SENDER_ID))
                 .thenReturn(Collections.emptyList());
 
         // Act
@@ -67,7 +69,7 @@ class CampaignServiceTest {
     @Test
     void listCampaigns_ignoresPaginationParameters() {
         // Arrange
-        Mockito.when(campaignsParameterConsumer.getCampaignsBySenderId(SENDER_ID))
+        when(campaignsParameterConsumer.getCampaignsBySenderId(SENDER_ID))
                 .thenReturn(List.of(
                         validCampaign("c1"),
                         validCampaign("c2")
@@ -111,7 +113,7 @@ class CampaignServiceTest {
                 ))
                 .build();
 
-        Mockito.when(campaignsParameterConsumer.getCampaignByCampaignIdAndSenderId("c1", SENDER_ID))
+        when(campaignsParameterConsumer.getCampaignByCampaignIdAndSenderId("c1", SENDER_ID))
                 .thenReturn(campaign);
 
         // Act
@@ -135,7 +137,7 @@ class CampaignServiceTest {
     @Test
     void getCampaign_notFound() {
         // Arrange
-        Mockito.when(campaignsParameterConsumer.getCampaignByCampaignIdAndSenderId("missing", SENDER_ID))
+        when(campaignsParameterConsumer.getCampaignByCampaignIdAndSenderId("missing", SENDER_ID))
                 .thenThrow(new PnCampaignNotFoundException("Campaign not found"));
 
         // Act & Assert

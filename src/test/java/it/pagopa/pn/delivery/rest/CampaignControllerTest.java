@@ -4,7 +4,6 @@ import it.pagopa.pn.delivery.exception.PnCampaignNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.svc.CampaignService;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -17,6 +16,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @WebFluxTest(controllers = CampaignController.class)
 class CampaignControllerTest {
@@ -49,7 +49,7 @@ class CampaignControllerTest {
                 .moreResult(false)
                 .nextPagesKey(Collections.emptyList());
 
-        Mockito.when(campaignService.listCampaigns(eq(SENDER_ID.toString()), eq(10), isNull()))
+        when(campaignService.listCampaigns(eq(SENDER_ID.toString()), eq(10), isNull()))
                 .thenReturn(response);
 
         // When & Then
@@ -100,7 +100,7 @@ class CampaignControllerTest {
                 .moreResult(true)
                 .nextPagesKey(List.of(nextPageKey));
 
-        Mockito.when(campaignService.listCampaigns(eq(SENDER_ID.toString()), eq(20), isNull()))
+        when(campaignService.listCampaigns(eq(SENDER_ID.toString()), eq(20), isNull()))
                 .thenReturn(response);
 
         // When & Then
@@ -130,7 +130,7 @@ class CampaignControllerTest {
                 .moreResult(false)
                 .nextPagesKey(Collections.emptyList());
 
-        Mockito.when(campaignService.listCampaigns(eq(SENDER_ID.toString()), eq(10), isNull()))
+        when(campaignService.listCampaigns(eq(SENDER_ID.toString()), eq(10), isNull()))
                 .thenReturn(response);
 
         // When & Then
@@ -175,7 +175,7 @@ class CampaignControllerTest {
                                 .includeAttachment(false)
                 ));
 
-        Mockito.when(campaignService.getCampaign(eq(CAMPAIGN_ID), eq(SENDER_ID.toString())))
+        when(campaignService.getCampaign(CAMPAIGN_ID, SENDER_ID.toString()))
                 .thenReturn(detail);
 
         // When & Then
@@ -197,7 +197,7 @@ class CampaignControllerTest {
     @Test
     void getCampaign_notFound() {
         // Given
-        Mockito.when(campaignService.getCampaign(eq("missing"), eq(SENDER_ID.toString())))
+        when(campaignService.getCampaign("missing", SENDER_ID.toString()))
                 .thenThrow(new PnCampaignNotFoundException("Campaign not found"));
 
         // When & Then
@@ -239,7 +239,7 @@ class CampaignControllerTest {
                                 .includeAttachment(true)
                 ));
 
-        Mockito.when(campaignService.getCampaign(eq(CAMPAIGN_ID), eq(SENDER_ID.toString())))
+        when(campaignService.getCampaign(CAMPAIGN_ID, SENDER_ID.toString()))
                 .thenReturn(detail);
 
         // When & Then
@@ -287,7 +287,7 @@ class CampaignControllerTest {
                 .moreResult(false)
                 .nextPagesKey(Collections.emptyList());
 
-        Mockito.when(campaignService.listCampaigns(eq(SENDER_ID.toString()), eq(10), isNull()))
+        when(campaignService.listCampaigns(eq(SENDER_ID.toString()), eq(10), isNull()))
                 .thenReturn(response);
 
         // When & Then - /campaigns/?senderId=... targets listCampaigns endpoint
@@ -303,8 +303,8 @@ class CampaignControllerTest {
                     assert !result.getMoreResult();
                 });
 
-        Mockito.verify(campaignService).listCampaigns(eq(SENDER_ID.toString()), eq(10), isNull());
-        Mockito.verify(campaignService, Mockito.never()).getCampaign(anyString(), anyString());
+        verify(campaignService).listCampaigns(eq(SENDER_ID.toString()), eq(10), isNull());
+        verify(campaignService, never()).getCampaign(anyString(), anyString());
     }
 }
 
