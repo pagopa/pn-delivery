@@ -51,9 +51,9 @@ class InformalTimelineEnricherTest {
         historyResponse.setInformalNotificationStatus(InformalNotificationStatusV1.ACCEPTED);
 
         when(pnDeliveryPushClient.getInformalNotificationHistory(
-                eq("IUN_TEST"),
-                eq(notification.getRecipients().size()),
-                eq(notification.getSentAt())
+                "IUN_TEST",
+                notification.getRecipients().size(),
+                notification.getSentAt()
         )).thenReturn(historyResponse);
 
         enricher.enrichNotificationDetail(detail, false);
@@ -70,9 +70,9 @@ class InformalTimelineEnricherTest {
         );
 
         verify(pnDeliveryPushClient).getInformalNotificationHistory(
-                eq("IUN_TEST"),
-                eq(notification.getRecipients().size()),
-                eq(notification.getSentAt())
+                "IUN_TEST",
+                notification.getRecipients().size(),
+                notification.getSentAt()
         );
 
         verify(modelMapper).map(
@@ -102,9 +102,9 @@ class InformalTimelineEnricherTest {
         historyResponse.setInformalNotificationStatus(InformalNotificationStatusV1.ACCEPTED);
 
         when(pnDeliveryPushClient.getInformalNotificationHistory(
-                eq("IUN_DIRECT"),
-                eq(notification.getRecipients().size()),
-                eq(notification.getSentAt())
+                "IUN_DIRECT",
+                notification.getRecipients().size(),
+                notification.getSentAt()
         )).thenReturn(historyResponse);
 
         enricher.enrichNotificationDetail(detail, false);
@@ -132,9 +132,9 @@ class InformalTimelineEnricherTest {
         historyResponse.setInformalNotificationStatus(InformalNotificationStatusV1.ACCEPTED);
 
         when(pnDeliveryPushClient.getInformalNotificationHistory(
-                eq("IUN_NULL_TIMELINE"),
-                eq(notification.getRecipients().size()),
-                eq(notification.getSentAt())
+                "IUN_NULL_TIMELINE",
+                notification.getRecipients().size(),
+                notification.getSentAt()
         )).thenReturn(historyResponse);
 
         assertThrows(NullPointerException.class,
@@ -154,9 +154,9 @@ class InformalTimelineEnricherTest {
         historyResponse.setInformalNotificationStatus(InformalNotificationStatusV1.ACCEPTED);
 
         when(pnDeliveryPushClient.getInformalNotificationHistory(
-                eq("IUN_NULL_STATUS_HISTORY"),
-                eq(notification.getRecipients().size()),
-                eq(notification.getSentAt())
+                "IUN_NULL_STATUS_HISTORY",
+                notification.getRecipients().size(),
+                notification.getSentAt()
         )).thenReturn(historyResponse);
 
         assertThrows(NullPointerException.class,
@@ -171,9 +171,9 @@ class InformalTimelineEnricherTest {
                 .build();
 
         when(pnDeliveryPushClient.getInformalNotificationHistory(
-                eq("IUN_NULL_RESPONSE"),
-                eq(notification.getRecipients().size()),
-                eq(notification.getSentAt())
+                "IUN_NULL_RESPONSE",
+                notification.getRecipients().size(),
+                notification.getSentAt()
         )).thenReturn(null);
 
         assertThrows(NullPointerException.class,

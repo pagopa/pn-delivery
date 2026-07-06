@@ -51,7 +51,7 @@ import java.util.stream.Stream;
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_FILEINFONOTFOUND;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @WebFluxTest(controllers = {PnSentNotificationsController.class, PnReceivedNotificationsController.class})
 class PnSentReceivedNotificationControllerTest {
@@ -119,7 +119,7 @@ class PnSentReceivedNotificationControllerTest {
         LegalNotificationDetail legalNotificationDetail = newLegalNotification();
 
         // When
-        Mockito.when(legalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
+        when(legalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
                 .thenReturn(legalNotificationDetail);
 
         // Then
@@ -137,7 +137,7 @@ class PnSentReceivedNotificationControllerTest {
                 .isOk()
                 .expectBody(FullSentNotificationV29.class);
 
-        Mockito.verify(legalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(IUN, PA_ID, GROUPS);
+        verify(legalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(IUN, PA_ID, GROUPS);
     }
 
     @Test
@@ -147,7 +147,7 @@ class PnSentReceivedNotificationControllerTest {
         legalNotificationDetail.setNotificationStatus(NotificationStatusV26.IN_VALIDATION);
 
         // When
-        Mockito.when(legalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
+        when(legalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
                 .thenReturn(legalNotificationDetail);
 
         // Then
@@ -164,7 +164,7 @@ class PnSentReceivedNotificationControllerTest {
                 .expectStatus()
                 .isNotFound();
 
-        Mockito.verify(legalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(IUN, PA_ID, GROUPS);
+        verify(legalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(IUN, PA_ID, GROUPS);
     }
 
 
@@ -175,7 +175,7 @@ class PnSentReceivedNotificationControllerTest {
         legalNotificationDetail.setNotificationStatus(NotificationStatusV26.REFUSED);
 
         // When
-        Mockito.when(legalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
+        when(legalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
                 .thenReturn(legalNotificationDetail);
 
         // Then
@@ -192,7 +192,7 @@ class PnSentReceivedNotificationControllerTest {
                 .expectStatus()
                 .isNotFound();
 
-        Mockito.verify(legalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(IUN, PA_ID, GROUPS);
+        verify(legalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(IUN, PA_ID, GROUPS);
     }
 
 
@@ -202,7 +202,7 @@ class PnSentReceivedNotificationControllerTest {
         LegalNotificationDetail legalNotificationDetail = newLegalNotification();
         legalNotificationDetail.setNotificationStatusHistory(null);
 
-        Mockito.when(legalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
+        when(legalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
                 .thenReturn(legalNotificationDetail);
 
         webTestClient.get()
@@ -221,7 +221,7 @@ class PnSentReceivedNotificationControllerTest {
                 .isOk()
                 .expectBody(NewNotificationRequestStatusResponseV26.class);
 
-        Mockito.verify(legalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS);
+        verify(legalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS);
     }
 
     @Test
@@ -538,7 +538,7 @@ class PnSentReceivedNotificationControllerTest {
                         .build()
         ));
 
-        Mockito.when(legalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
+        when(legalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
                 .thenReturn(legalNotificationDetail);
 
         // When / Then
@@ -558,7 +558,7 @@ class PnSentReceivedNotificationControllerTest {
                 .isOk()
                 .expectBody(NewNotificationRequestStatusResponseV26.class);
 
-        Mockito.verify(legalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(
+        verify(legalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(
                 new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8),
                 PA_ID,
                 GROUPS
@@ -570,7 +570,7 @@ class PnSentReceivedNotificationControllerTest {
         // Given
         InformalNotificationDetail informalNotificationDetail = newInformalNotification();
 
-        Mockito.when(informalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
+        when(informalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
                 .thenReturn(informalNotificationDetail);
 
         // When / Then
@@ -590,7 +590,7 @@ class PnSentReceivedNotificationControllerTest {
                 .isOk()
                 .expectBody(NewInformalNotificationRequestStatusResponseV1.class);
 
-        Mockito.verify(informalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(
+        verify(informalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(
                 new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8),
                 PA_ID,
                 GROUPS
@@ -602,7 +602,7 @@ class PnSentReceivedNotificationControllerTest {
         // Given
         LegalNotificationDetail legalNotificationDetail = newLegalNotification();
 
-        Mockito.when(legalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
+        when(legalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
                 .thenReturn(legalNotificationDetail);
 
         // When / Then
@@ -622,7 +622,7 @@ class PnSentReceivedNotificationControllerTest {
                 .isOk()
                 .expectBody(NewNotificationRequestStatusResponseV26.class);
 
-        Mockito.verify(legalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(
+        verify(legalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(
                 new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8),
                 PA_ID,
                 GROUPS
@@ -634,7 +634,7 @@ class PnSentReceivedNotificationControllerTest {
         // Given
         InformalNotificationDetail informalNotificationDetail = newInformalNotification();
 
-        Mockito.when(informalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
+        when(informalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
                 .thenReturn(informalNotificationDetail);
 
         // When / Then
@@ -654,7 +654,7 @@ class PnSentReceivedNotificationControllerTest {
                 .isOk()
                 .expectBody(NewInformalNotificationRequestStatusResponseV1.class);
 
-        Mockito.verify(informalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(
+        verify(informalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(
                 new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8),
                 PA_ID,
                 GROUPS
@@ -672,7 +672,7 @@ class PnSentReceivedNotificationControllerTest {
         ));
         legalNotificationDetail.setTimeline(Collections.emptyList());
 
-        Mockito.when(legalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
+        when(legalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
                 .thenReturn(legalNotificationDetail);
 
         // When / Then
@@ -692,7 +692,7 @@ class PnSentReceivedNotificationControllerTest {
                 .isOk()
                 .expectBody(NewNotificationRequestStatusResponseV26.class);
 
-        Mockito.verify(legalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(
+        verify(legalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(
                 new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8),
                 PA_ID,
                 GROUPS
@@ -705,7 +705,7 @@ class PnSentReceivedNotificationControllerTest {
         InformalNotificationDetail informalNotificationDetail = newInformalNotification();
         informalNotificationDetail.setTimeline(Collections.emptyList());
 
-        Mockito.when(informalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
+        when(informalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
                 .thenReturn(informalNotificationDetail);
 
         // When / Then
@@ -725,7 +725,7 @@ class PnSentReceivedNotificationControllerTest {
                 .isOk()
                 .expectBody(NewInformalNotificationRequestStatusResponseV1.class);
 
-        Mockito.verify(informalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(
+        verify(informalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(
                 new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8),
                 PA_ID,
                 GROUPS
@@ -774,10 +774,10 @@ class PnSentReceivedNotificationControllerTest {
         LegalNotificationDetail legalNotificationDetail = newLegalNotification();
         InformalNotificationDetail informalNotificationDetail = newInformalNotification();
 
-        Mockito.when(legalNotificationDetailRetrieverStrategy.getNotificationInformation(anyString(), anyString(), anyString(), anyList()))
+        when(legalNotificationDetailRetrieverStrategy.getNotificationInformation(anyString(), anyString(), anyString(), anyList()))
                 .thenReturn(legalNotificationDetail);
 
-        Mockito.when(informalNotificationDetailRetrieverStrategy.getNotificationInformation(anyString(), anyString(), anyString(), anyList()))
+        when(informalNotificationDetailRetrieverStrategy.getNotificationInformation(anyString(), anyString(), anyString(), anyList()))
                 .thenReturn(informalNotificationDetail);
 
         // When / Then
@@ -799,9 +799,9 @@ class PnSentReceivedNotificationControllerTest {
                 .expectBody(responseClass);
 
         if (DELIVERY_REQUESTS_PATH.equals(path)) {
-            Mockito.verify(legalNotificationDetailRetrieverStrategy).getNotificationInformation(PA_ID, PA_PROTOCOL_NUMBER, IDEMPOTENCE_TOKEN, GROUPS);
+            verify(legalNotificationDetailRetrieverStrategy).getNotificationInformation(PA_ID, PA_PROTOCOL_NUMBER, IDEMPOTENCE_TOKEN, GROUPS);
         } else {
-            Mockito.verify(informalNotificationDetailRetrieverStrategy).getNotificationInformation(PA_ID, PA_PROTOCOL_NUMBER, IDEMPOTENCE_TOKEN, GROUPS);
+            verify(informalNotificationDetailRetrieverStrategy).getNotificationInformation(PA_ID, PA_PROTOCOL_NUMBER, IDEMPOTENCE_TOKEN, GROUPS);
         }
     }
 
@@ -813,7 +813,7 @@ class PnSentReceivedNotificationControllerTest {
         legalNotificationDetail.setNotificationStatusHistory(Collections.emptyList());
 
         // When
-        Mockito.when(legalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(
+        when(legalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(
                 Mockito.anyString(),
                 Mockito.any(InternalAuthHeader.class),
                 eq(null),
@@ -836,7 +836,7 @@ class PnSentReceivedNotificationControllerTest {
                 .isOk()
                 .expectBody(FullReceivedNotificationV28.class);
 
-        Mockito.verify(legalNotificationDetailRetrieverStrategy).getNotificationAndNotifyViewedEvent(
+        verify(legalNotificationDetailRetrieverStrategy).getNotificationAndNotifyViewedEvent(
                 Mockito.eq(IUN),
                 Mockito.eq(INTERNAL_AUTH_HEADER),
                 Mockito.eq(null),
@@ -848,7 +848,7 @@ class PnSentReceivedNotificationControllerTest {
     void getReceivedNotificationFailure() {
 
         // When
-        Mockito.when(legalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(
+        when(legalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(
                 Mockito.anyString(),
                         Mockito.any(InternalAuthHeader.class),
                         eq(null),
@@ -877,7 +877,7 @@ class PnSentReceivedNotificationControllerTest {
         legalNotificationDetail.setNotificationStatusHistory(Collections.emptyList());
 
         // When
-        Mockito.when(legalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(
+        when(legalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(
                 anyString(),
                 any(InternalAuthHeader.class),
                 anyString(),
@@ -904,7 +904,7 @@ class PnSentReceivedNotificationControllerTest {
                 .isOk()
                 .expectBody(FullReceivedNotificationV28.class);
 
-        Mockito.verify(legalNotificationDetailRetrieverStrategy).getNotificationAndNotifyViewedEvent(
+        verify(legalNotificationDetailRetrieverStrategy).getNotificationAndNotifyViewedEvent(
                 Mockito.eq(IUN),
                 Mockito.eq(INTERNAL_AUTH_HEADER),
                 Mockito.eq(MANDATE_ID),
@@ -924,8 +924,8 @@ class PnSentReceivedNotificationControllerTest {
         InternalAuthHeader internalAuthHeader = new InternalAuthHeader(CX_TYPE_PA, PA_ID, UID, List.of("asdasd"));
 
         // When
-        Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn(true);
-        Mockito.when(attachmentService.downloadDocumentWithRedirectWithFileKey(
+        when(cfg.isDownloadWithPresignedUrl()).thenReturn(true);
+        when(attachmentService.downloadDocumentWithRedirectWithFileKey(
                 anyString(),
                 any(InternalAuthHeader.class),
                 isNull(),
@@ -948,7 +948,7 @@ class PnSentReceivedNotificationControllerTest {
                 //.is3xxRedirection()
                 .isOk();
 
-        Mockito.verify(attachmentService).downloadDocumentWithRedirectWithFileKey(IUN, internalAuthHeader, null, DOCUMENT_INDEX, false);
+        verify(attachmentService).downloadDocumentWithRedirectWithFileKey(IUN, internalAuthHeader, null, DOCUMENT_INDEX, false);
     }
 
     @Test
@@ -962,8 +962,8 @@ class PnSentReceivedNotificationControllerTest {
                 .build();
 
         // When
-        Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn(true);
-        Mockito.when(attachmentService.downloadDocumentWithRedirect(
+        when(cfg.isDownloadWithPresignedUrl()).thenReturn(true);
+        when(attachmentService.downloadDocumentWithRedirect(
                 anyString(),
                 any(InternalAuthHeader.class),
                 Mockito.isNull(),
@@ -988,7 +988,7 @@ class PnSentReceivedNotificationControllerTest {
                 //.is3xxRedirection()
                 .isOk();
 
-        Mockito.verify(attachmentService).downloadDocumentWithRedirect(IUN, INTERNAL_AUTH_HEADER, null, DOCUMENT_INDEX, true);
+        verify(attachmentService).downloadDocumentWithRedirect(IUN, INTERNAL_AUTH_HEADER, null, DOCUMENT_INDEX, true);
     }
 
     @Test
@@ -1003,8 +1003,8 @@ class PnSentReceivedNotificationControllerTest {
                 .build();
 
         // When
-        Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn(true);
-        Mockito.when(attachmentService.downloadDocumentWithRedirect(
+        when(cfg.isDownloadWithPresignedUrl()).thenReturn(true);
+        when(attachmentService.downloadDocumentWithRedirect(
                 anyString(),
                 any(InternalAuthHeader.class),
                 Mockito.isNull(),
@@ -1029,7 +1029,7 @@ class PnSentReceivedNotificationControllerTest {
                 //.is3xxRedirection()
                 .isOk();
 
-        Mockito.verify(attachmentService).downloadDocumentWithRedirect(IUN, INTERNAL_AUTH_HEADER, null, DOCUMENT_INDEX, true);
+        verify(attachmentService).downloadDocumentWithRedirect(IUN, INTERNAL_AUTH_HEADER, null, DOCUMENT_INDEX, true);
     }
 
     @Test
@@ -1043,8 +1043,8 @@ class PnSentReceivedNotificationControllerTest {
                 .build();
 
         // When
-        Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn(true);
-        Mockito.when(attachmentService.downloadDocumentWithRedirect(
+        when(cfg.isDownloadWithPresignedUrl()).thenReturn(true);
+        when(attachmentService.downloadDocumentWithRedirect(
                 anyString(),
                 any(InternalAuthHeader.class),
                 anyString(),
@@ -1071,7 +1071,7 @@ class PnSentReceivedNotificationControllerTest {
                 .expectStatus()
                 .isOk();
 
-        Mockito.verify(attachmentService).downloadDocumentWithRedirect(IUN, INTERNAL_AUTH_HEADER, MANDATE_ID, DOCUMENT_INDEX, true);
+        verify(attachmentService).downloadDocumentWithRedirect(IUN, INTERNAL_AUTH_HEADER, MANDATE_ID, DOCUMENT_INDEX, true);
     }
 
     @Test
@@ -1087,8 +1087,8 @@ class PnSentReceivedNotificationControllerTest {
         InternalAuthHeader internalAuthHeader = new InternalAuthHeader(CX_TYPE_PA, CX_ID, UID, List.of("asdasd"));
 
         // When
-        //Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
-        Mockito.when(attachmentService.downloadAttachmentWithRedirectWithFileKey(
+        //when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
+        when(attachmentService.downloadAttachmentWithRedirectWithFileKey(
                 anyString(),
                 any(InternalAuthHeader.class),
                 isNull(),
@@ -1113,7 +1113,7 @@ class PnSentReceivedNotificationControllerTest {
                 .expectStatus()
                 .isOk();
 
-        Mockito.verify(attachmentService).downloadAttachmentWithRedirectWithFileKey(IUN, internalAuthHeader, null, 0, PAGOPA, null, false);
+        verify(attachmentService).downloadAttachmentWithRedirectWithFileKey(IUN, internalAuthHeader, null, 0, PAGOPA, null, false);
     }
 
     @Test
@@ -1129,8 +1129,8 @@ class PnSentReceivedNotificationControllerTest {
         InternalAuthHeader internalAuthHeader = new InternalAuthHeader(CX_TYPE_PA, CX_ID, UID, List.of("asdasd"));
 
         // When
-        //Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
-        Mockito.when(attachmentService.downloadAttachmentWithRedirectWithFileKey(
+        //when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
+        when(attachmentService.downloadAttachmentWithRedirectWithFileKey(
                 anyString(),
                 any(InternalAuthHeader.class),
                 isNull(),
@@ -1155,13 +1155,13 @@ class PnSentReceivedNotificationControllerTest {
                 .expectStatus()
                 .isOk();
 
-        Mockito.verify(attachmentService).downloadAttachmentWithRedirectWithFileKey(IUN, internalAuthHeader, null, 0, PAGOPA, null, false);
+        verify(attachmentService).downloadAttachmentWithRedirectWithFileKey(IUN, internalAuthHeader, null, 0, PAGOPA, null, false);
     }
 
     @Test
     void getSentNotificationAttachmentFailure() {
         // When
-        Mockito.doThrow(new PnNotificationNotFoundException("Simulated Error"))
+        doThrow(new PnNotificationNotFoundException("Simulated Error"))
                 .when(attachmentService)
                 .downloadAttachmentWithRedirectWithFileKey(IUN, new InternalAuthHeader(CX_TYPE_PF, PA_ID, UID, List.of("asdasd")), null, 0, PAGOPA, null, false);
 
@@ -1179,7 +1179,7 @@ class PnSentReceivedNotificationControllerTest {
     @Test
     void getSentNotificationDocumentFailure() {
         // When
-        Mockito.when(attachmentService.downloadDocumentWithRedirectWithFileKey(IUN, new InternalAuthHeader(CX_TYPE_PF, PA_ID, UID, List.of("asdasd")), null, 0, false))
+        when(attachmentService.downloadDocumentWithRedirectWithFileKey(IUN, new InternalAuthHeader(CX_TYPE_PF, PA_ID, UID, List.of("asdasd")), null, 0, false))
                 .thenThrow(new PnNotificationNotFoundException("Simulated Error"));
 
         webTestClient.get()
@@ -1197,7 +1197,7 @@ class PnSentReceivedNotificationControllerTest {
     void getReceivedNotificationDocumentFailure() {
         InternalAuthHeader internalAuthHeader = new InternalAuthHeader(CX_TYPE_PF, PA_ID, UID, List.of("asdasd"), X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_SRC_CH_DET);
         // When
-        Mockito.when(attachmentService.downloadDocumentWithRedirect(IUN, internalAuthHeader, null, 0, true))
+        when(attachmentService.downloadDocumentWithRedirect(IUN, internalAuthHeader, null, 0, true))
                 .thenThrow(new PnNotificationNotFoundException("Simulated Error"));
 
         webTestClient.get()
@@ -1217,7 +1217,7 @@ class PnSentReceivedNotificationControllerTest {
     void getReceivedNotificationAttachmentFailure() {
         // When
         InternalAuthHeader internalAuthHeader = new InternalAuthHeader(CX_TYPE_PF, CX_ID, UID, null, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_SRC_CH_DET);
-        Mockito.doThrow(new PnNotificationNotFoundException("Simulated Error"))
+        doThrow(new PnNotificationNotFoundException("Simulated Error"))
                 .when(attachmentService)
                 .downloadAttachmentWithRedirect(IUN, internalAuthHeader, null, null, PAGOPA, null, true);
 
@@ -1236,7 +1236,7 @@ class PnSentReceivedNotificationControllerTest {
     @Test
     void getReceivedNotificationAttachmentBadRequestFailure() {
         // When
-        Mockito.doThrow(new PnBadRequestException("Request took too long to complete.", "test", ERROR_CODE_DELIVERY_FILEINFONOTFOUND))
+        doThrow(new PnBadRequestException("Request took too long to complete.", "test", ERROR_CODE_DELIVERY_FILEINFONOTFOUND))
                 .when(attachmentService)
                 .downloadAttachmentWithRedirect(IUN, INTERNAL_AUTH_HEADER, null, null, PAGOPA, null, true);
 
@@ -1254,7 +1254,7 @@ class PnSentReceivedNotificationControllerTest {
     @Test
     void getReceivedNotificationAttachmentInternalErrorFailure() {
         // When
-        Mockito.doThrow(new PnInternalException("Simulated Error", "test"))
+        doThrow(new PnInternalException("Simulated Error", "test"))
                 .when(attachmentService)
                 .downloadAttachmentWithRedirect(IUN, INTERNAL_AUTH_HEADER, null, null, PAGOPA, null, true);
 
@@ -1282,8 +1282,8 @@ class PnSentReceivedNotificationControllerTest {
                 .build();
 
         // When
-        //Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
-        Mockito.when(attachmentService.downloadAttachmentWithRedirect(
+        //when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
+        when(attachmentService.downloadAttachmentWithRedirect(
                 anyString(),
                 any(InternalAuthHeader.class),
                 anyString(),
@@ -1312,7 +1312,7 @@ class PnSentReceivedNotificationControllerTest {
                 .expectStatus()
                 .isOk();
 
-        Mockito.verify(attachmentService).downloadAttachmentWithRedirect(IUN, INTERNAL_AUTH_HEADER, MANDATE_ID, null, pagopa, null, true);
+        verify(attachmentService).downloadAttachmentWithRedirect(IUN, INTERNAL_AUTH_HEADER, MANDATE_ID, null, pagopa, null, true);
     }
 
     @Test
@@ -1327,8 +1327,8 @@ class PnSentReceivedNotificationControllerTest {
                 .build();
 
         // When
-        //Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
-        Mockito.when(attachmentService.downloadAttachmentWithRedirect(
+        //when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
+        when(attachmentService.downloadAttachmentWithRedirect(
                 Mockito.anyString(),
                 Mockito.any(InternalAuthHeader.class),
                 Mockito.isNull(),
@@ -1357,13 +1357,13 @@ class PnSentReceivedNotificationControllerTest {
                 .expectStatus()
                 .isOk();
 
-        Mockito.verify(attachmentService).downloadAttachmentWithRedirect(IUN, INTERNAL_AUTH_HEADER, null, null, pagopa, null, true);
+        verify(attachmentService).downloadAttachmentWithRedirect(IUN, INTERNAL_AUTH_HEADER, null, null, pagopa, null, true);
     }
 
     @Test
     void searchSentNotificationFailure() {
         // When
-        Mockito.doThrow(new PnInternalException("Simulated Error"))
+        doThrow(new PnInternalException("Simulated Error"))
                 .when(svc)
                 .searchNotification(any(InputSearchNotificationDto.class), any(), any());
 
@@ -1387,7 +1387,7 @@ class PnSentReceivedNotificationControllerTest {
     @Test
     void searchSentNotificationValidationFailure() {
         // When
-        Mockito.doThrow(new PnValidationException("Simulated Error", Collections.emptySet()))
+        doThrow(new PnValidationException("Simulated Error", Collections.emptySet()))
                 .when(svc)
                 .searchNotification(any(InputSearchNotificationDto.class), any(), any());
 
@@ -1411,7 +1411,7 @@ class PnSentReceivedNotificationControllerTest {
     @Test
     void searchReceivedNotificationValidationFailure() {
         // When
-        Mockito.doThrow(new PnValidationException("Simulated Error", Collections.emptySet()))
+        doThrow(new PnValidationException("Simulated Error", Collections.emptySet()))
                 .when(svc)
                 .searchNotification(any(InputSearchNotificationDto.class), any(), any());
 
@@ -1445,7 +1445,7 @@ class PnSentReceivedNotificationControllerTest {
                 .build();
 
         //When
-        Mockito.when(qrService.getNotificationByQRWithMandate(Mockito.any(RequestCheckAarMandateDto.class), anyString(), anyString(), any()))
+        when(qrService.getNotificationByQRWithMandate(Mockito.any(RequestCheckAarMandateDto.class), anyString(), anyString(), any()))
                 .thenReturn(QrMandateResponse);
 
         webTestClient.post()
@@ -1462,7 +1462,7 @@ class PnSentReceivedNotificationControllerTest {
                 .expectBody(ResponseCheckAarMandateDto.class);
 
         //Then
-        Mockito.verify(qrService).getNotificationByQRWithMandate(dto, CX_TYPE_PF, CX_ID, null);
+        verify(qrService).getNotificationByQRWithMandate(dto, CX_TYPE_PF, CX_ID, null);
     }
 
     @Test
@@ -1478,7 +1478,7 @@ class PnSentReceivedNotificationControllerTest {
                 .build();
 
         //When
-        Mockito.when(qrService.getNotificationByQRWithMandate(Mockito.any(RequestCheckAarMandateDto.class), anyString(), anyString(), any()))
+        when(qrService.getNotificationByQRWithMandate(Mockito.any(RequestCheckAarMandateDto.class), anyString(), anyString(), any()))
                 .thenReturn(QrMandateResponse);
 
         webTestClient.post()
@@ -1495,7 +1495,7 @@ class PnSentReceivedNotificationControllerTest {
                 .expectBody(ResponseCheckAarMandateDto.class);
 
         //Then
-        Mockito.verify(qrService).getNotificationByQRWithMandate(dto, CX_TYPE_PF, CX_ID, null);
+        verify(qrService).getNotificationByQRWithMandate(dto, CX_TYPE_PF, CX_ID, null);
     }
 
     @Test
@@ -1505,7 +1505,7 @@ class PnSentReceivedNotificationControllerTest {
                 .build();
 
         //When
-        Mockito.when(qrService.getNotificationByQRWithMandate(Mockito.any(RequestCheckAarMandateDto.class), anyString(), anyString(), any()))
+        when(qrService.getNotificationByQRWithMandate(Mockito.any(RequestCheckAarMandateDto.class), anyString(), anyString(), any()))
                 .thenThrow(new PnNotFoundException("test", "test", "test"));
 
         webTestClient.post()
@@ -1532,7 +1532,7 @@ class PnSentReceivedNotificationControllerTest {
     @Test
     void searchNotificationDelegatedFailure() {
         // When
-        Mockito.doThrow(new PnInternalException("Simulated Error"))
+        doThrow(new PnInternalException("Simulated Error"))
                 .when(svc)
                 .searchNotificationDelegated(any(InputSearchNotificationDelegatedDto.class));
 
@@ -1559,7 +1559,7 @@ class PnSentReceivedNotificationControllerTest {
     @Test
     void searchNotificationDelegatedValidationFailure() {
         // When
-        Mockito.doThrow(new PnValidationException("Simulated Error", Collections.emptySet()))
+        doThrow(new PnValidationException("Simulated Error", Collections.emptySet()))
                 .when(svc)
                 .searchNotificationDelegated(any(InputSearchNotificationDelegatedDto.class));
 
@@ -1607,8 +1607,8 @@ class PnSentReceivedNotificationControllerTest {
         InternalAuthHeader internalAuthHeader = new InternalAuthHeader(CX_TYPE_PA, CX_ID, UID, List.of("asdasd"));
 
         // When
-        //Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
-        Mockito.when(attachmentService.downloadAttachmentWithRedirectWithFileKey(
+        //when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
+        when(attachmentService.downloadAttachmentWithRedirectWithFileKey(
                 anyString(),
                 any(InternalAuthHeader.class),
                 isNull(),
@@ -1633,7 +1633,7 @@ class PnSentReceivedNotificationControllerTest {
                 .expectStatus()
                 .isOk();
 
-        Mockito.verify(attachmentService).downloadAttachmentWithRedirectWithFileKey(INFORMAL_IUN, internalAuthHeader, null, 0, PAGOPA, null, false);
+        verify(attachmentService).downloadAttachmentWithRedirectWithFileKey(INFORMAL_IUN, internalAuthHeader, null, 0, PAGOPA, null, false);
     }
 
     @Test
@@ -1649,8 +1649,8 @@ class PnSentReceivedNotificationControllerTest {
         InternalAuthHeader internalAuthHeader = new InternalAuthHeader(CX_TYPE_PA, CX_ID, UID, List.of("asdasd"));
 
         // When
-        //Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
-        Mockito.when(attachmentService.downloadAttachmentWithRedirectWithFileKey(
+        //when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
+        when(attachmentService.downloadAttachmentWithRedirectWithFileKey(
                 anyString(),
                 any(InternalAuthHeader.class),
                 isNull(),
@@ -1675,13 +1675,13 @@ class PnSentReceivedNotificationControllerTest {
                 .expectStatus()
                 .isOk();
 
-        Mockito.verify(attachmentService).downloadAttachmentWithRedirectWithFileKey(INFORMAL_IUN, internalAuthHeader, null, 0, PAGOPA, null, false);
+        verify(attachmentService).downloadAttachmentWithRedirectWithFileKey(INFORMAL_IUN, internalAuthHeader, null, 0, PAGOPA, null, false);
     }
 
     @Test
     void getSentInformalNotificationAttachmentFailure() {
         // When
-        Mockito.doThrow(new PnNotificationNotFoundException("Simulated Error"))
+        doThrow(new PnNotificationNotFoundException("Simulated Error"))
                 .when(attachmentService)
                 .downloadAttachmentWithRedirectWithFileKey(INFORMAL_IUN, new InternalAuthHeader(CX_TYPE_PF, PA_ID, UID, List.of("asdasd")), null, 0, PAGOPA, null, false);
 
@@ -1728,7 +1728,7 @@ class PnSentReceivedNotificationControllerTest {
                 .expectStatus().isOk()
                 .expectBody().isEmpty();
 
-        Mockito.verify(attachmentService).downloadDocumentWithRedirectWithFileKey(
+        verify(attachmentService).downloadDocumentWithRedirectWithFileKey(
                 eq(INFORMAL_IUN),
                 eq(expectedAuthHeader),
                 isNull(),
@@ -1784,7 +1784,7 @@ class PnSentReceivedNotificationControllerTest {
                 .jsonPath("$.sha256").isEqualTo(SHA256_BODY)
                 .jsonPath("$.filename").isEqualTo(FILENAME);
 
-        Mockito.verify(attachmentService).downloadDocumentWithRedirectWithFileKey(
+        verify(attachmentService).downloadDocumentWithRedirectWithFileKey(
                 eq(INFORMAL_IUN),
                 eq(expectedAuthHeader),
                 isNull(),
@@ -1803,7 +1803,7 @@ class PnSentReceivedNotificationControllerTest {
                 .filename(FILENAME)
                 .build();
 
-        Mockito.when(attachmentService.downloadDocumentWithRedirect(
+        when(attachmentService.downloadDocumentWithRedirect(
                 anyString(),
                 any(InternalAuthHeader.class),
                 Mockito.isNull(),
@@ -1825,7 +1825,7 @@ class PnSentReceivedNotificationControllerTest {
                 .expectStatus()
                 .isOk();
 
-        Mockito.verify(attachmentService).downloadDocumentWithRedirect(
+        verify(attachmentService).downloadDocumentWithRedirect(
                 INFORMAL_IUN,
                 INTERNAL_AUTH_HEADER,
                 null,
@@ -1845,7 +1845,7 @@ class PnSentReceivedNotificationControllerTest {
                 X_PAGOPA_PN_SRC_CH_DET
         );
 
-        Mockito.when(attachmentService.downloadDocumentWithRedirect(
+        when(attachmentService.downloadDocumentWithRedirect(
                 INFORMAL_IUN,
                 internalAuthHeader,
                 null,
@@ -1875,7 +1875,7 @@ class PnSentReceivedNotificationControllerTest {
                 .filename(FILENAME)
                 .build();
 
-        Mockito.when(attachmentService.downloadAttachmentWithRedirect(
+        when(attachmentService.downloadAttachmentWithRedirect(
                 anyString(),
                 any(InternalAuthHeader.class),
                 Mockito.isNull(),
@@ -1899,7 +1899,7 @@ class PnSentReceivedNotificationControllerTest {
                 .expectStatus()
                 .isOk();
 
-        Mockito.verify(attachmentService).downloadAttachmentWithRedirect(
+        verify(attachmentService).downloadAttachmentWithRedirect(
                 INFORMAL_IUN,
                 INTERNAL_AUTH_HEADER,
                 null,
@@ -1921,7 +1921,7 @@ class PnSentReceivedNotificationControllerTest {
                 X_PAGOPA_PN_SRC_CH_DET
         );
 
-        Mockito.doThrow(new PnNotificationNotFoundException("Simulated Error"))
+        doThrow(new PnNotificationNotFoundException("Simulated Error"))
                 .when(attachmentService)
                 .downloadAttachmentWithRedirect(
                         INFORMAL_IUN,
@@ -1956,7 +1956,7 @@ class PnSentReceivedNotificationControllerTest {
                 .retryAfter(3600)
                 .build();
 
-        Mockito.when(attachmentService.downloadDocumentWithRedirect(
+        when(attachmentService.downloadDocumentWithRedirect(
                 anyString(),
                 any(InternalAuthHeader.class),
                 Mockito.isNull(),
@@ -1978,7 +1978,7 @@ class PnSentReceivedNotificationControllerTest {
                 .expectStatus()
                 .isOk();
 
-        Mockito.verify(attachmentService).downloadDocumentWithRedirect(
+        verify(attachmentService).downloadDocumentWithRedirect(
                 INFORMAL_IUN,
                 INTERNAL_AUTH_HEADER,
                 null,
@@ -1993,7 +1993,7 @@ class PnSentReceivedNotificationControllerTest {
         InformalNotificationDetail informalNotificationDetail = newInformalNotification();
         informalNotificationDetail.setTimeline(Collections.emptyList());
 
-        Mockito.when(informalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(
+        when(informalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(
                 Mockito.anyString(),
                 Mockito.any(InternalAuthHeader.class),
                 Mockito.any(PnAuditLogEvent.class),
@@ -2016,7 +2016,7 @@ class PnSentReceivedNotificationControllerTest {
                 .isOk()
                 .expectBody(FullReceivedInformalNotificationV1.class);
 
-        Mockito.verify(informalNotificationDetailRetrieverStrategy).getNotificationAndNotifyViewedEvent(
+        verify(informalNotificationDetailRetrieverStrategy).getNotificationAndNotifyViewedEvent(
                 Mockito.eq(INFORMAL_IUN),
                 Mockito.eq(INTERNAL_AUTH_HEADER),
                 Mockito.any(PnAuditLogEvent.class),
@@ -2026,7 +2026,7 @@ class PnSentReceivedNotificationControllerTest {
 
     @Test
     void getReceivedInformalNotificationFailure() {
-        Mockito.when(informalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(
+        when(informalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(
                 Mockito.anyString(),
                 Mockito.any(InternalAuthHeader.class),
                 Mockito.any(PnAuditLogEvent.class),
@@ -2054,7 +2054,7 @@ class PnSentReceivedNotificationControllerTest {
         InformalNotificationDetail informalNotificationDetail = newInformalNotification();
         informalNotificationDetail.setNotificationStatus(InformalNotificationStatusV1.ACCEPTED);
 
-        Mockito.when(informalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList(), anyBoolean()))
+        when(informalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList(), anyBoolean()))
                 .thenReturn(informalNotificationDetail);
 
         // Then
@@ -2072,7 +2072,7 @@ class PnSentReceivedNotificationControllerTest {
                 .isOk()
                 .expectBody(FullSentInformalNotificationV1.class);
 
-        Mockito.verify(informalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(INFORMAL_IUN, PA_ID, GROUPS, false);
+        verify(informalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(INFORMAL_IUN, PA_ID, GROUPS, false);
     }
 
     @Test
@@ -2082,7 +2082,7 @@ class PnSentReceivedNotificationControllerTest {
         informalNotificationDetail.setNotificationStatus(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatusV1.IN_VALIDATION);
         informalNotificationDetail.setNotificationStatus(InformalNotificationStatusV1.IN_VALIDATION);
 
-        Mockito.when(informalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList(), anyBoolean()))
+        when(informalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList(), anyBoolean()))
                 .thenReturn(informalNotificationDetail);
 
         // Then
@@ -2099,7 +2099,7 @@ class PnSentReceivedNotificationControllerTest {
                 .expectStatus()
                 .isNotFound();
 
-        Mockito.verify(informalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(INFORMAL_IUN, PA_ID, GROUPS, false);
+        verify(informalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(INFORMAL_IUN, PA_ID, GROUPS, false);
     }
 
     private InternalNotification newNotification() {
