@@ -1,8 +1,8 @@
 package it.pagopa.pn.delivery.models;
 
-import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalNotificationStatusHistoryElementV1;
-import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalNotificationStatusV1;
-import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalTimelineElementV1;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatusHistoryElementV1;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatusV1;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalTimelineElementV1;
 import lombok.*;
 
 import java.util.List;

@@ -20,7 +20,7 @@
                 "api-internal-b2b-pa.yaml",
                 "api-internal-b2b-pa-older-versions.yaml",
                 { "url": "https://raw.githubusercontent.com/pagopa/pn-delivery-push/9e486010b7103547b0da6bf9136d14f87da43fd6/docs/openapi/api-external-pn-delivery-push-bundle.yaml", "mergeDescription": false },
-                { "url": "https://raw.githubusercontent.com/pagopa/pn-stream/e955ce1583b2cd05758b97901cf07d1e1297b71b/docs/openapi/pn-stream-api-external-bundle.yaml", "mergeDescription": true }
+                { "url": "https://raw.githubusercontent.com/pagopa/pn-stream/9d03101f7dc060469cd3d1c8a85533fd4cba96d5/docs/openapi/pn-stream-api-external-bundle.yaml", "mergeDescription": true }
             ],
             "servicePath": "delivery",
             "generateBundle": true,
@@ -35,7 +35,9 @@
                 "api-internal-b2b-informal-pa.yaml"
             ],
             "servicePath": "delivery",
-            "awsApiDiscriminator": "informal"
+            "awsApiDiscriminator": "informal",
+            "generateBundle": true,
+            "mergeBeforeBundleGeneration": true
         },
         {
             "intendedUsage": "B2BPG",
@@ -54,7 +56,8 @@
     ],
     "openapiBundlePresenceCheck": [
         "api-external-b2b-pa-bundle.yaml",
-        "pn-delivery-b2b-pg-external-bundle.yaml"
+        "pn-delivery-b2b-pg-external-bundle.yaml",
+        "api-external-b2b-informal-pa-bundle.yaml"
     ],
     "bundlePatch": "openapi.patch"
 

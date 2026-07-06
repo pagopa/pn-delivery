@@ -395,6 +395,7 @@ paths:
       operationId: getSentInformalNotificationPrivateV1
       parameters:
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathInformalIun'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/retrieveMessage'
       responses:
         '200':
           description: OK

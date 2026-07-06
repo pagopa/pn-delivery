@@ -496,7 +496,7 @@ components:
             phoneNumber:
               type: string
               x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
-              example: +3900000000
+              example: "+3900000000"
               description: >-
                 Numero di telefono che il mittente della notifica intende utilizzare per
                 raggiungere il destinatario, espresso in formato internazionale con prefisso

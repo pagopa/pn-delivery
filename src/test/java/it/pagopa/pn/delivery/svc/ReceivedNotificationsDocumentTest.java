@@ -4,7 +4,6 @@ import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.BaseRecipientDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.EntityToDtoNotificationMapper;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationDaoDynamo;
@@ -21,7 +20,7 @@ import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.rest.PnReceivedNotificationsController;
 import it.pagopa.pn.delivery.rest.PnSentNotificationsController;
-import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
+import it.pagopa.pn.delivery.svc.search.NotificationSearchService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -54,7 +53,13 @@ class ReceivedNotificationsDocumentTest {
 	private static final String IDEMPOTENCE_TOKEN = "idempotenceToken";
 
 	@MockBean
-	private NotificationRetrieverService svc;
+	private InformalNotificationDetailRetrieverStrategy informalNotificationDetailRetrieverStrategy;
+
+	@MockBean
+	private LegalNotificationDetailRetrieverStrategy legalNotificationDetailRetrieverStrategy;
+
+	@MockBean
+	private NotificationSearchService svc;
 
 	@MockBean
 	private NotificationAttachmentService attachmentService;
@@ -189,7 +194,6 @@ class ReceivedNotificationsDocumentTest {
 		internalNotification.setCancelledIun("IUN_05");
 		internalNotification.setCancelledIun("IUN_00");
 		internalNotification.setSenderPaId("PA_ID");
-		internalNotification.setNotificationStatus(NotificationStatusV26.IN_VALIDATION);
 		internalNotification.setDocuments(List.of(NotificationDocument.builder()
 				.docIdx("doc")
 				.title("title")
@@ -218,7 +222,6 @@ class ReceivedNotificationsDocumentTest {
 		internalNotification.setCancelledIun("IUN_05");
 		internalNotification.setCancelledIun("IUN_00");
 		internalNotification.setSenderPaId("PA_ID");
-		internalNotification.setNotificationStatus(NotificationStatusV26.IN_VALIDATION);
 		internalNotification.setRecipients(Collections.singletonList(
 				NotificationRecipient.builder()
 						.taxId("Codice Fiscale 01")
@@ -230,5 +233,12 @@ class ReceivedNotificationsDocumentTest {
 								.build()).build()));
 		return internalNotification;
 	}
+
+//	private LegalNotificationDetail newLegalNotification() {
+//		LegalNotificationDetail legalNotificationDetail = new LegalNotificationDetail();
+//		legalNotificationDetail.setNotification(createNoDocumentsNotification());
+//		legalNotificationDetail.setNotificationStatus(NotificationStatusV26.IN_VALIDATION);
+//		return legalNotificationDetail;
+//	}
 
 }

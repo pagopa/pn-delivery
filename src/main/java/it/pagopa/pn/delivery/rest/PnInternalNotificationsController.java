@@ -8,12 +8,10 @@ import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.InternalOnlyApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
-import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
-import it.pagopa.pn.delivery.models.InternalAuthHeader;
-import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.ResultPaginationDto;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
+import it.pagopa.pn.delivery.models.*;
 import it.pagopa.pn.delivery.svc.*;
-import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
+import it.pagopa.pn.delivery.svc.search.NotificationSearchService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
@@ -31,19 +29,31 @@ import static it.pagopa.pn.commons.utils.MDCUtils.MDC_PN_IUN_KEY;
 @RestController
 public class PnInternalNotificationsController implements InternalOnlyApi {
 
-    private final NotificationRetrieverService retrieveSvc;
+    private final NotificationSearchService retrieveSvc;
+    private final InformalNotificationDetailRetrieverStrategy informalNotificationDetailRetrieverStrategy;
+    private final LegalNotificationDetailRetrieverStrategy legalNotificationDetailRetrieverStrategy;
     private final NotificationPriceService priceService;
     private final NotificationQRService qrService;
     private final NotificationAttachmentService notificationAttachmentService;
     private final ModelMapper modelMapper;
+    private final NotificationRetrieverService notificationRetrieverService;
 
 
-    public PnInternalNotificationsController(NotificationRetrieverService retrieveSvc, NotificationPriceService priceService, NotificationQRService qrService, NotificationAttachmentService notificationAttachmentService, ModelMapper modelMapper) {
+    public PnInternalNotificationsController(NotificationSearchService retrieveSvc,
+                                             InformalNotificationDetailRetrieverStrategy informalNotificationDetailRetrieverStrategy,
+                                             LegalNotificationDetailRetrieverStrategy legalNotificationDetailRetrieverStrategy,
+                                             NotificationPriceService priceService,
+                                             NotificationQRService qrService,
+                                             NotificationAttachmentService notificationAttachmentService,
+                                             ModelMapper modelMapper, NotificationRetrieverService notificationRetrieverService) {
         this.retrieveSvc = retrieveSvc;
+        this.informalNotificationDetailRetrieverStrategy = informalNotificationDetailRetrieverStrategy;
+        this.legalNotificationDetailRetrieverStrategy = legalNotificationDetailRetrieverStrategy;
         this.priceService = priceService;
         this.qrService = qrService;
         this.notificationAttachmentService = notificationAttachmentService;
         this.modelMapper = modelMapper;
+        this.notificationRetrieverService = notificationRetrieverService;
     }
 
 
@@ -111,7 +121,8 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
 
     @Override
     public ResponseEntity<SentNotificationV26> getSentNotificationPrivate(String iun) {
-        InternalNotification notification = retrieveSvc.getNotificationInformation(iun, false, true);
+        LegalNotificationDetail legalNotificationDetail = legalNotificationDetailRetrieverStrategy.getNotificationInformation(iun, false, true,null);
+        InternalNotification notification = legalNotificationDetail.getNotification();
         SentNotificationV26 sentNotification = modelMapper.map(notification, SentNotificationV26.class);
 
         int recIdx = 0;
@@ -124,8 +135,14 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     }
 
     @Override
-    public ResponseEntity<InformalSentNotificationV1> getSentInformalNotificationPrivateV1(String iun) {
-        InternalNotification notification = retrieveSvc.getNotificationInformation(iun, false, true);
+    public ResponseEntity<InformalSentNotificationV1> getSentInformalNotificationPrivateV1(String iun, Boolean retrieveMessage) {
+        InformalNotificationDetail informalNotificationDetail = informalNotificationDetailRetrieverStrategy.getNotificationInformation(
+                iun,
+                false,
+                Boolean.TRUE.equals(retrieveMessage),
+                true,
+                null);
+        InternalNotification notification = informalNotificationDetail.getNotification();
         InformalSentNotificationV1 informalNotification = modelMapper.map(notification, InformalSentNotificationV1.class);
         int recIdx = 0;
         for (FullInformalNotificationRecipientV1 rec : informalNotification.getRecipients()) {
@@ -258,7 +275,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
 
     @Override
     public ResponseEntity<Void> checkIUNAndInternalId(String iun, String recipientInternalId, String mandateId, String queryCxType, List<String> queryCxGroups) {
-        retrieveSvc.checkIUNAndInternalId(iun, recipientInternalId, mandateId, queryCxType, queryCxGroups);
+        notificationRetrieverService.checkIUNAndInternalId(iun, recipientInternalId, mandateId, queryCxType, queryCxGroups);
         return ResponseEntity.noContent().build();
     }
 }

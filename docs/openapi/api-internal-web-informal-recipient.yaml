@@ -50,6 +50,7 @@ paths:
         - $ref: '#/components/parameters/headerSourceChannel'         # NO EXTERNAL
         - $ref: '#/components/parameters/headerSourceChannelDetails'  # NO EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathInformalIun'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/retrieveMessage'
       responses:
         '200':
           description: OK

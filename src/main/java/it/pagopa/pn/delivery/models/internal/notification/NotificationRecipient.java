@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.models.internal.notification;
 
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewMessageRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV24;
 import lombok.*;
 
@@ -22,6 +23,7 @@ public class NotificationRecipient {
     private NotificationPhysicalAddress physicalAddress;
     private List<NotificationPaymentInfo> payments = null;
     private String messageId;
+    private NewMessageRequest message;
     @ToString.Exclude
     private String email;
     @ToString.Exclude
@@ -131,5 +133,10 @@ public class NotificationRecipient {
     public void setMessageId(String messageId) {
         this.messageId = messageId;
     }
+
+    public NewMessageRequest getMessage() {
+        return message;
+    }
+    public void setMessage(NewMessageRequest message) {this.message = message;}
 
 }

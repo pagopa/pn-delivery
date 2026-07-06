@@ -30,6 +30,14 @@ components:
         maxLength: 25
         pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[A-Z]{1}$
 
+    retrieveMessage:
+      in: query
+      name: retrieveMessage
+      description: Indica se recuperare anche il messaggio della notifica
+      required: false
+      schema:
+        type: boolean
+
 
     ############################################################################################
     ###                               PARAMETRI RICERCA NOTIFICHE                            ###

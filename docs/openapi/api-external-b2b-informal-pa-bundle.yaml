@@ -1,23 +1,78 @@
-openapi: 3.0.1
+openapi: 3.0.3
 info:
-  title: >-
-    ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: oRml8Zb1kp32U6jPKBKpu7SScUlWZqNWWxKLo82HGwg=
+  termsOfService: https://selfcare.notifichedigitali.it/termini-di-servizio
+  x-api-id: api-internal-b2b-informal-pa
+  title: 'Piattaforma Notifiche: API B2B per le notifiche bonarie esposte alle Pubbliche Amministrazioni'
+  x-summary: 'Piattaforma Notifiche: API B2B per le notifiche bonarie esposte alle Pubbliche Amministrazioni'
+  version: 1.0.0
+  description: API utilizzate dalle pubbliche amministrazioni per __inviare richieste di notifiche bonarie__ e __ottenere informazioni in modalità pull__ sullo stato della _"richiesta di notifica"_ (accettata o rifiutata) e, in caso di richiesta accettata, sulle comunicazioni effettuate, o solo tentate, nei confronti dei destinatari della notifica.
+  contact:
+    name: 'SEND: supporto enti'
+    url: https://pagopa.atlassian.net/servicedesk/customer/portal/5
 servers:
-  - url: https://${stageVariables.DnsName}/{basePath}
-    variables:
-      basePath:
-        default: /${stageVariables.ServiceApiPath}
-    x-amazon-apigateway-endpoint-configuration:
-      disableExecuteApiEndpoint: true
+  - url: https://api.notifichedigitali.it
+    description: Ambiente di produzione
+  - url: https://api.uat.notifichedigitali.it
+    description: Ambiente di collaudo
+security:
+  - ApiKeyAuth: []
+tags:
+  - name: Messages
+    description: Invocazioni utilizzabili dai mittenti per creare messaggi da utilizzare nelle notifiche bonarie.
+  - name: NewInformalNotification
+    description: Invocazioni per effettuare il pre-caricamento dei documenti della notifica e inviare notifiche bonarie.
+  - name: SenderReadInformalNotificationB2B
+    description: Invocazioni utilizzabili dai mittenti per verificare lo stato delle richieste di notifica inviate e delle notifiche accettate.
+  - name: InformalNotificationTermination
+    description: Invocazioni per interrompere il workflow di una notifica non legale in stato di attesa o accettata.
+  - name: HealthCheck
+    description: Invocazioni per sapere lo stato del microservizio
 paths:
-  /v1/attachments/informal/preload:
+  /status:
+    get:
+      summary: status path
+      description: status path per verificare lo stato di Piattaforma Notifiche
+      tags:
+        - HealthCheck
+      operationId: status
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/PnStatusResponse'
+              example:
+                functionalities:
+                  - NOTIFICATION_CREATE
+                  - NOTIFICATION_VISUALIZATION
+                  - NOTIFICATION_WORKFLOW
+                openIncidents: []
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/PnStatusResponse'
+              example:
+                functionalities:
+                  - NOTIFICATION_CREATE
+                  - NOTIFICATION_VISUALIZATION
+                  - NOTIFICATION_WORKFLOW
+                openIncidents:
+                  - functionality: NOTIFICATION_CREATE
+                    status: KO
+                    startDate: '2019-08-24T14:15:22Z'
+  /delivery/v1/attachments/informal/preload:
     post:
       summary: Richiesta di pre-caricamento dei documenti della notifica bonaria
-      description: >-
-        Operazione che richiede a Piattaforma Notifica le informazioni e le
-        autorizzazioni necessarie  a precaricare uno o più file da allegare a
-        una notifica bonaria. <br/>
+      description: Operazione che richiede a Piattaforma Notifica le informazioni e le autorizzazioni necessarie  a precaricare uno o più file da allegare a una notifica bonaria. <br/>
       tags:
         - NewInformalNotification
       operationId: informalPresignedUploadRequest
@@ -52,48 +107,13 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-      security:
-        - pn-auth-fleet_ApiKeyAuthorizerV2_openapi: []
-        - api_key_openapi: []
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/attachments/informal/preload
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters:
-          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
-          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
-          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
-          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
-          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
-          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
-          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-      parameters: []
-    options:
-      operationId: Options for /v1/attachments/informal/preload API CORS
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/attachments/informal/preload
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters: {}
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-  /v1/messages:
+  /delivery/v1/messages:
     post:
       tags:
         - Messages
       summary: Crea un nuovo template di messaggio
-      description: >
-        Salva il contenuto del messaggio in modo sicuro e ottiene un messageId
-        da utilizzare per creare una notifica bonaria.
+      description: |
+        Salva il contenuto del messaggio in modo sicuro e ottiene un messageId da utilizzare per creare una notifica bonaria.
       operationId: newMessage
       requestBody:
         required: true
@@ -146,48 +166,12 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-      security:
-        - pn-auth-fleet_ApiKeyAuthorizerV2_openapi: []
-        - api_key_openapi: []
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/messages
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters:
-          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
-          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
-          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
-          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
-          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
-          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
-          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-      parameters: []
-    options:
-      operationId: Options for /v1/messages API CORS
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/messages
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters: {}
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-  /v1/messages/{messageId}:
+  /delivery/v1/messages/{messageId}:
     get:
       tags:
         - Messages
       summary: Recupera i dati di un messaggio
-      description: >-
-        Recupera il contenuto di un messaggio precedentemente creato dato il suo
-        id.
+      description: Recupera il contenuto di un messaggio precedentemente creato dato il suo id.
       operationId: messageById
       parameters:
         - name: messageId
@@ -235,59 +219,16 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-      security:
-        - pn-auth-fleet_ApiKeyAuthorizerV2_openapi: []
-        - api_key_openapi: []
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/messages/{messageId}
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters:
-          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
-          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
-          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
-          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
-          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
-          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
-          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
-          integration.request.path.messageId: method.request.path.messageId
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-    options:
-      operationId: Options for /v1/messages/{messageId} API CORS
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/messages/{messageId}
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters:
-          integration.request.path.messageId: method.request.path.messageId
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-  /v1/notifications/informal:
+  /delivery/v1/notifications/informal:
     post:
       summary: Richiesta sottomissione di una nuova comunicazione bonaria
-      description: >-
-        Operazione utilizzata dalla Pubblica Amministrazione per richiedere
-        l'invio di una notifica bonaria.
+      description: |-
+        Operazione utilizzata dalla Pubblica Amministrazione per richiedere l'invio di una notifica bonaria.
 
-
-        La restituzione di uno stato HTTP 202 significa solo che la richiesta è
-        sintatticamente
-
+        La restituzione di uno stato HTTP 202 significa solo che la richiesta è sintatticamente
         valida, non che la richiesta sia stata validata ed accettata. <br/>
-
-        Per conoscere lo stato di accettazione della richiesta di notifica
-        bisogna utilizzare l'operazione
-
-        getInformalNotificationRequestStatusV1 oppure utilizzare la modalità
-        push prevista dai webhook. <br/>
+        Per conoscere lo stato di accettazione della richiesta di notifica bisogna utilizzare l'operazione
+        getInformalNotificationRequestStatusV1 oppure utilizzare la modalità push prevista dai webhook. <br/>
       tags:
         - NewInformalNotification
       operationId: sendNewInformalNotificationV1
@@ -337,39 +278,12 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-      security:
-        - pn-auth-fleet_ApiKeyAuthorizerV2_openapi: []
-        - api_key_openapi: []
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/informal
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters:
-          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
-          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
-          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
-          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
-          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
-          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
-          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-      parameters: []
     get:
       operationId: retrieveInformalNotificationRequestStatusV1
       tags:
         - SenderReadInformalNotificationB2B
       summary: Verifica accettazione richiesta notifica
-      description: >-
-        Questa operazione serve per verificare se la richiesta di notifica è
-        stata accettata e ottenere lo IUN associato a tale richiesta. <br/>
-        Bisogna specificare il parametro _notificationRequestId_  oppure la
-        coppia costituita dai parametri  _paProtocolNumber_ e
-        _idempotenceToken_. <br/>
+      description: Questa operazione serve per verificare se la richiesta di notifica è stata accettata e ottenere lo IUN associato a tale richiesta. <br/> Bisogna specificare il parametro _notificationRequestId_  oppure la coppia costituita dai parametri  _paProtocolNumber_ e _idempotenceToken_. <br/>
       parameters:
         - $ref: '#/components/parameters/notificationRequestId'
         - $ref: '#/components/parameters/paProtocolNumber'
@@ -380,8 +294,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: >-
-                  #/components/schemas/NewInformalNotificationRequestStatusResponseV1
+                $ref: '#/components/schemas/NewInformalNotificationRequestStatusResponseV1'
         '400':
           description: Bad request
           content:
@@ -412,40 +325,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-      security:
-        - pn-auth-fleet_ApiKeyAuthorizerV2_openapi: []
-        - api_key_openapi: []
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/informal
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters:
-          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
-          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
-          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
-          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
-          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
-          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
-          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-    options:
-      operationId: Options for /v1/notifications/informal API CORS
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/informal
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters: {}
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-  /v1/notifications/informal/sent/{iun}/attachments/documents/{docIdx}:
+  /delivery/v1/notifications/informal/sent/{iun}/attachments/documents/{docIdx}:
     get:
       description: Download documento notificato
       summary: Download documento notificato
@@ -461,15 +341,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: >-
-                  #/components/schemas/NotificationAttachmentDownloadMetadataResponse
+                $ref: '#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
               example:
                 filename: AvvisoPagamento.pdf
                 contentType: application/pdf
                 contentLength: 54092
                 sha256: 1QKD/Ks6BohyQ+bgMxHf9NrpNhVmGUPxRYE1aerU4JQ=
-                url: >-
-                  https://pn-safestorage.../PN_NOTIFICATION_ATTACHMENTS-39a690b91d8a4d1fa3d6eae5f8246f57.pdf?X-Amz-...
+                url: https://pn-safestorage.../PN_NOTIFICATION_ATTACHMENTS-39a690b91d8a4d1fa3d6eae5f8246f57.pdf?X-Amz-...
         '400':
           description: Bad request
           content:
@@ -500,47 +378,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-      security:
-        - pn-auth-fleet_ApiKeyAuthorizerV2_openapi: []
-        - api_key_openapi: []
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/informal/sent/{iun}/attachments/documents/{docIdx}
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters:
-          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
-          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
-          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
-          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
-          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
-          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
-          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
-          integration.request.path.iun: method.request.path.iun
-          integration.request.path.docIdx: method.request.path.docIdx
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-    options:
-      operationId: >-
-        Options for
-        /v1/notifications/informal/sent/{iun}/attachments/documents/{docIdx} API
-        CORS
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/informal/sent/{iun}/attachments/documents/{docIdx}
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters:
-          integration.request.path.iun: method.request.path.iun
-          integration.request.path.docIdx: method.request.path.docIdx
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-  /v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}:
+  /delivery/v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}:
     get:
       description: Download allegato per pagamento
       summary: Download allegato per pagamento
@@ -558,15 +396,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: >-
-                  #/components/schemas/NotificationAttachmentDownloadMetadataResponse
+                $ref: '#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
               example:
                 filename: AvvisoPagoPA.pdf
                 contentType: application/pdf
                 contentLength: 54092
                 sha256: 1QKD/Ks6BohyQ+bgMxHf9NrpNhVmGUPxRYE1aerU4JQ=
-                url: >-
-                  https://pn-safestorage.../PN_NOTIFICATION_ATTACHMENTS-fec693663bb04300aa8d0af615d21e66.pdf?X-Amz-...
+                url: https://pn-safestorage.../PN_NOTIFICATION_ATTACHMENTS-fec693663bb04300aa8d0af615d21e66.pdf?X-Amz-...
         '400':
           description: Bad request
           content:
@@ -597,57 +433,12 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-      security:
-        - pn-auth-fleet_ApiKeyAuthorizerV2_openapi: []
-        - api_key_openapi: []
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters:
-          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
-          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
-          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
-          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
-          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
-          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
-          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
-          integration.request.path.iun: method.request.path.iun
-          integration.request.path.recipientIdx: method.request.path.recipientIdx
-          integration.request.path.attachmentName: method.request.path.attachmentName
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-    options:
-      operationId: >-
-        Options for
-        /v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}
-        API CORS
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters:
-          integration.request.path.iun: method.request.path.iun
-          integration.request.path.recipientIdx: method.request.path.recipientIdx
-          integration.request.path.attachmentName: method.request.path.attachmentName
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-  /v1/notifications/informal/{iun}/terminate:
+  /delivery/v1/notifications/informal/{iun}/terminate:
     post:
       tags:
         - InformalNotificationTermination
       summary: Interruzione workflow notifica per IUN
-      description: >-
-        Permette all\'Ente di interrompere il workflow di una comunicazione non 
-        legale identificata dallo IUN specificato nel path. La notifica passerà
-        allo stato COMPLETED.
+      description: Permette all\'Ente di interrompere il workflow di una comunicazione non  legale identificata dallo IUN specificato nel path. La notifica passerà allo stato COMPLETED.
       operationId: terminateInformalWorkflow
       parameters:
         - $ref: '#/components/parameters/pathInformalIun'
@@ -694,47 +485,10 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-      security:
-        - pn-auth-fleet_ApiKeyAuthorizerV2_openapi: []
-        - api_key_openapi: []
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/informal/{iun}/terminate
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters:
-          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
-          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
-          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
-          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
-          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
-          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
-          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
-          integration.request.path.iun: method.request.path.iun
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-    options:
-      operationId: Options for /v1/notifications/informal/{iun}/terminate API CORS
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/informal/{iun}/terminate
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters:
-          integration.request.path.iun: method.request.path.iun
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-  /v1/notifications/informal/sent/{iun}:
+  /delivery/v1/notifications/informal/sent/{iun}:
     get:
       summary: 'Mittente: lettura dettagli notifica versione 1'
-      description: >-
-        Questa operazione permette di leggere tutti i dettagli di una notifica
-        accettata. <br/>
+      description: Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
       tags:
         - SenderReadInformalNotificationB2B
       operationId: getSentInformalNotificationV1
@@ -766,41 +520,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-      security:
-        - pn-auth-fleet_ApiKeyAuthorizerV2_openapi: []
-        - api_key_openapi: []
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/informal/sent/{iun}
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters:
-          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
-          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
-          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
-          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
-          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
-          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
-          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
-          integration.request.path.iun: method.request.path.iun
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-    options:
-      operationId: Options for /v1/notifications/informal/sent/{iun} API CORS
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/informal/sent/{iun}
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters:
-          integration.request.path.iun: method.request.path.iun
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
 components:
   parameters:
     notificationRequestId:
@@ -828,14 +547,16 @@ components:
       in: path
       required: true
       schema:
-        type: number
+        type: integer
+        format: int32
     pathRecipientIdx:
       name: recipientIdx
       description: indice del destinatario nella lista partendo da 0.
       in: path
       required: true
       schema:
-        type: number
+        type: integer
+        format: int32
     pathAttachmentName:
       name: attachmentName
       description: Tipologia del pagamento allegato alla notifica. Valore possibile PAGOPA
@@ -850,7 +571,8 @@ components:
       description: indice del documento di pagamento partendo da 0
       required: false
       schema:
-        type: number
+        type: integer
+        format: int32
     pathInformalIun:
       description: Identificativo Univoco Notifica informale
       name: iun
@@ -877,19 +599,15 @@ components:
       properties:
         preloadIdx:
           title: Id della richiesta di precaricamento di un file
-          description: >-
-            Identificativo univoco all'interno della request HTTP, serve per
-            correlare la risposta. Stringa alfanumerica con caratteri
-            utilizzabili in un nome file.
+          description: Identificativo univoco all'interno della request HTTP, serve per correlare la risposta. Stringa alfanumerica con caratteri utilizzabili in un nome file.
           type: string
           minLength: 1
           maxLength: 512
           pattern: ^[a-zA-Z0-9._-]{1,512}$
         contentType:
           title: MIME type del file che verrà caricato
-          description: >-
-            Il MIME type dell'allegato che dovrà essere caricato. Attualmente
-            sono supportati
+          description: |-
+            Il MIME type dell'allegato che dovrà essere caricato. Attualmente sono supportati
               - application/pdf
           type: string
           minLength: 15
@@ -897,9 +615,7 @@ components:
           pattern: ^application\/(pdf)$
         sha256:
           title: checksum sha256 del file che verrà caricato
-          description: >-
-            checksum sha256, codificato in base 64, del contenuto binario del
-            file che verrà caricato
+          description: checksum sha256, codificato in base 64, del contenuto binario del file che verrà caricato
           type: string
           example: jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=
           minLength: 44
@@ -907,29 +623,21 @@ components:
           pattern: ^[A-Za-z0-9+\/]{43}=|[A-Za-z0-9+\/]{44}$
     InformalPreLoadResponse:
       title: Informazioni per il caricamento file
-      description: >-
-        Per ogni richiesta che è stata fatta viene fornito un presigned URL e
-        le  informazioni per usarlo.
+      description: Per ogni richiesta che è stata fatta viene fornito un presigned URL e le  informazioni per usarlo.
       type: object
       properties:
         preloadIdx:
-          description: >-
-            per correlazione con la richiesta. Stringa alfanumerica con
-            caratteri utilizzabili in un file.
+          description: per correlazione con la richiesta. Stringa alfanumerica con caratteri utilizzabili in un file.
           type: string
           minLength: 1
           maxLength: 512
           pattern: ^[a-zA-Z0-9._-]{1,512}$
         secret:
-          description: >-
-            Token aggiuntivo per far si che sia necessario intercettare anche
-            gli  header e non solo l'URL di upload del contenuto del documento.
+          description: Token aggiuntivo per far si che sia necessario intercettare anche gli  header e non solo l'URL di upload del contenuto del documento.
           example: AZ23RF12
           type: string
         httpMethod:
-          description: >-
-            Indica se per l'upload del contenuto file bisogna utilizzare il
-            metodo PUT o POST
+          description: Indica se per l'upload del contenuto file bisogna utilizzare il metodo PUT o POST
           type: string
           example: PUT
           enum:
@@ -940,9 +648,7 @@ components:
           type: string
           example: https://preloadpn.aws.amazon.......
         key:
-          description: >-
-            la chiave restituita sarà globalmente unica e andrà utilizzata nella
-            richiesta  di notifica.
+          description: la chiave restituita sarà globalmente unica e andrà utilizzata nella richiesta  di notifica.
           example: PN_NOTIFICATION_ATTACHMENTS-0001-301W-B9CB-9U72-WIKD
           type: string
     NewMessageRequest:
@@ -953,15 +659,11 @@ components:
         primaryMessage:
           allOf:
             - $ref: '#/components/schemas/LocalizedContent'
-            - description: >-
-                Contenuto principale del messaggio, deve essere in lingua
-                italiana
+            - description: Contenuto principale del messaggio, deve essere in lingua italiana
         additionalMessage:
           allOf:
             - $ref: '#/components/schemas/LocalizedContent'
-            - description: >-
-                Contenuto aggiuntivo del messaggio, opzionale, può essere in una
-                lingua diversa dall'italiano
+            - description: Contenuto aggiuntivo del messaggio, opzionale, può essere in una lingua diversa dall'italiano
     MessageResponse:
       type: object
       allOf:
@@ -969,9 +671,7 @@ components:
         - type: object
           properties:
             messageId:
-              description: >-
-                Identificativo univoco del messaggio, da utilizzare per creare
-                una notifica bonaria
+              description: Identificativo univoco del messaggio, da utilizzare per creare una notifica bonaria
               type: string
               format: uuid
             createdAt:
@@ -991,24 +691,16 @@ components:
             notificationRequestId:
               $ref: '#/components/schemas/NotificationRequestId'
             notificationRequestStatus:
-              description: >-
-                - __WAITING__: in attesa di essere valutata - __ACCEPTED__:
-                richiesta di notifica accettata, lo IUN è valorizzato -
-                __REFUSED__: richiesta di notifica rifiutata, è valorizzato il
-                campo _errors_
+              description: '- __WAITING__: in attesa di essere valutata - __ACCEPTED__: richiesta di notifica accettata, lo IUN è valorizzato - __REFUSED__: richiesta di notifica rifiutata, è valorizzato il campo _errors_'
               type: string
             retryAfter:
-              type: number
-              description: >-
-                Numero di secondi da attendere prima di effettuare una nuova
-                richiesta per  la stessa entità; valorizzato quando lo status è
-                __WAITING__.
+              type: integer
+              format: int32
+              description: Numero di secondi da attendere prima di effettuare una nuova richiesta per  la stessa entità; valorizzato quando lo status è __WAITING__.
             iun:
               $ref: '#/components/schemas/InformalIUN'
             errors:
-              description: >-
-                Elenco degli errori che hanno causato il rifiuto della richiesta
-                di notifica
+              description: Elenco degli errori che hanno causato il rifiuto della richiesta di notifica
               type: array
               items:
                 $ref: '#/components/schemas/NotificationRequestRefusedProblemError'
@@ -1021,11 +713,10 @@ components:
           properties:
             recIndex:
               description: Index destinatario notifica digitale
-              type: number
+              type: integer
+              format: int32
     TerminationRequestStatus:
-      description: >-
-        Risposta alla richiesta di interruzione del workflow di una notifica non
-        legale.
+      description: Risposta alla richiesta di interruzione del workflow di una notifica non legale.
       type: object
       required:
         - status
@@ -1048,9 +739,7 @@ components:
       properties:
         code:
           description: Codice interno di errore o avvertimento, in formato leggibile
-          example: >-
-            NOTIFICATION_TERMINATION_ACCEPTED, NOTIFICATION_ALREADY_TERMINATED,
-            etc.
+          example: NOTIFICATION_TERMINATION_ACCEPTED, NOTIFICATION_ALREADY_TERMINATED, etc.
           type: string
         level:
           description: |
@@ -1064,11 +753,7 @@ components:
           type: string
     PnStatusResponse:
       title: Stato attuale di PN
-      description: >-
-        Elenco delle funzionalità della piattaforma ed elenco dei disservizi
-        noti e attivi  al momento della richiesta. I disservizi
-        (_openIncidents_) segnalati sono al più uno  per funzionalità; gli
-        attributi _endDate_ e _legalFactId_ non saranno valorizzati.
+      description: Elenco delle funzionalità della piattaforma ed elenco dei disservizi noti e attivi  al momento della richiesta. I disservizi (_openIncidents_) segnalati sono al più uno  per funzionalità; gli attributi _endDate_ e _legalFactId_ non saranno valorizzati.
       type: object
       required:
         - functionalities
@@ -1078,9 +763,10 @@ components:
           description: Bad Request
           example: 400
           exclusiveMaximum: true
+          format: int32
           maximum: 600
           minimum: 100
-          type: number
+          type: integer
         title:
           description: The server cannot process the request
           example: Bad Request
@@ -1095,9 +781,7 @@ components:
           type: string
         functionalities:
           title: elenco funzionalità di PN
-          description: >-
-            Un array che comprende tutti i possibili valori dell'enum
-            _PnFunctionality_
+          description: Un array che comprende tutti i possibili valori dell'enum _PnFunctionality_
           type: array
           items:
             $ref: '#/components/schemas/PnFunctionality'
@@ -1109,12 +793,9 @@ components:
             $ref: '#/components/schemas/PnDowntimeEntry'
     PnFunctionality:
       title: Funzionalità di PN
-      description: >-
+      description: |-
         - __NOTIFICATION_CREATE__: la possibilità di creare nuove notifiche.
-
-        - __NOTIFICATION_VISUALIZATION__: la possibilità di visualizzare le
-        notifiche e scaricare gli atti. 
-
+        - __NOTIFICATION_VISUALIZATION__: la possibilità di visualizzare le notifiche e scaricare gli atti. 
         - __NOTIFICATION_WORKFLOW__: l'avanzamento del processo di notifica.
       type: string
       enum:
@@ -1148,26 +829,17 @@ components:
           format: date-time
         endDate:
           title: data fine disservizio
-          description: >-
-            se il disservizio è ancora attivo questo campo sarà assente o con
-            valore _null_
+          description: se il disservizio è ancora attivo questo campo sarà assente o con valore _null_
           type: string
           format: date-time
         legalFactId:
           title: id dell'atto opponibile a terzi
-          description: >-
-            Se assente o valorizzato _null_ indica che l'atto opponibile a terzi
-            non è ancora disponibile. Questo avviene per i disservizi ancora
-            aperti e per i disservizi  terminati da pochi minuti. <br/> Questo
-            valore è da utilizzare con l'API _getLegalFact_ di questo stesso
-            servizio.
+          description: Se assente o valorizzato _null_ indica che l'atto opponibile a terzi non è ancora disponibile. Questo avviene per i disservizi ancora aperti e per i disservizi  terminati da pochi minuti. <br/> Questo valore è da utilizzare con l'API _getLegalFact_ di questo stesso servizio.
           type: string
         fileAvailable:
           type: boolean
     FullSentInformalNotificationV1:
-      description: >-
-        Le informazioni riguardanti una notifica (richiesta di notifica
-        accettata) e il  processo di inoltro della notifica verso il cittadino.
+      description: Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il  processo di inoltro della notifica verso il cittadino.
       allOf:
         - $ref: '#/components/schemas/InformalSentNotificationV1'
         - type: object
@@ -1181,9 +853,7 @@ components:
             notificationStatusHistory:
               $ref: '#/components/schemas/InformalNotificationStatusHistoryV1'
             timeline:
-              description: >-
-                elenco dettagliato di tutto ciò che è accaduto durrante il
-                processo di notifica
+              description: elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
               type: array
               items:
                 $ref: '#/components/schemas/InformalTimelineElementV1'
@@ -1193,18 +863,15 @@ components:
           description: URI reference of type definition
           type: string
         status:
-          description: >-
-            The HTTP status code generated by the origin server for this
-            occurrence of the problem.
-          type: number
+          description: The HTTP status code generated by the origin server for this occurrence of the problem.
+          type: integer
+          format: int32
           example: 503
           maximum: 600
           minimum: 100
           exclusiveMaximum: true
         title:
-          description: >-
-            A short, summary of the problem type. Written in english and
-            readable
+          description: A short, summary of the problem type. Written in english and readable
           example: Service Unavailable
           maxLength: 64
           pattern: ^[ -~]{0,64}$
@@ -1236,18 +903,14 @@ components:
       properties:
         code:
           description: Internal code of the error, in human-readable format
-          example: >-
-            PN_PARAMETER_TOO_LONG | PN_PARAMETER_TOO_SHORT | PN_DUPLICATE_ENTRY
-            | etc...
+          example: PN_PARAMETER_TOO_LONG | PN_PARAMETER_TOO_SHORT | PN_DUPLICATE_ENTRY | etc...
           type: string
         element:
           description: Parameter or request body field name for validation error
           example: body.order.item[2].quantity
           type: string
         detail:
-          description: >-
-            A human readable explanation specific to this occurrence of the
-            problem.
+          description: A human readable explanation specific to this occurrence of the problem.
           example: Parameter not valid
           maxLength: 1024
           type: string
@@ -1260,27 +923,19 @@ components:
         elementId:
           type: string
           maxLength: 512
-          description: >-
-            Identificativo dell'elemento di timeline: insieme allo IUN della
-            notifica bonaria definisce in maniera univoca l'elemento di timeline
+          description: 'Identificativo dell''elemento di timeline: insieme allo IUN della notifica bonaria definisce in maniera univoca l''elemento di timeline'
         timestamp:
           type: string
           deprecated: true
-          description: >-
-            Istante in cui avviene l'evento descritto in questo elemento di
-            timeline (deprecato, fare riferimento al campo eventTimestamp)
+          description: Istante in cui avviene l'evento descritto in questo elemento di timeline (deprecato, fare riferimento al campo eventTimestamp)
           format: date-time
         ingestionTimestamp:
           type: string
-          description: >-
-            Istante in cui l'evento descritto in questo elemento di timeline è
-            gestito da SEND
+          description: Istante in cui l'evento descritto in questo elemento di timeline è gestito da SEND
           format: date-time
         eventTimestamp:
           type: string
-          description: >-
-            Istante in cui avviene l'evento descritto in questo elemento di
-            timeline
+          description: Istante in cui avviene l'evento descritto in questo elemento di timeline
           format: date-time
         notificationSentAt:
           type: string
@@ -1338,9 +993,7 @@ components:
           example: 'Sollecito Tari: hai una nuova comunicazione da SEND.'
         language:
           type: string
-          description: >-
-            Lingua del messaggio. Valori accettati: - IT <br/> - DE <br/> - SL
-            <br/> - FR <br/> DE (tedesco), SL (sloveno), FR (francese).
+          description: 'Lingua del messaggio. Valori accettati: - IT <br/> - DE <br/> - SL <br/> - FR <br/> DE (tedesco), SL (sloveno), FR (francese).'
     NotificationRequestId:
       type: string
       description: identificativo univoco di una richiesta di invio notifica, non è lo IUN
@@ -1352,20 +1005,12 @@ components:
       pattern: ^.*$
       maxLength: 256
     IdempotenceToken:
-      description: >-
-        Identificativo utilizzabile dal chiamante per disambiguare differenti 
-        "richieste di notificazione" effettuate con lo stesso numero di
-        protocollo  (campo _paProtocolNumber_). Questo può essere necessario in
-        caso di  "richiesta di notifica" rifiutata per errori nei codici di
-        verifica degli allegati.
+      description: Identificativo utilizzabile dal chiamante per disambiguare differenti  "richieste di notificazione" effettuate con lo stesso numero di protocollo  (campo _paProtocolNumber_). Questo può essere necessario in caso di  "richiesta di notifica" rifiutata per errori nei codici di verifica degli allegati.
       type: string
       pattern: ^[ -~]*$
       maxLength: 256
     Denomination:
-      description: >-
-        Denominazione ente o persona fisica / ragione sociale. La codifica
-        prevede i caratteri ISO LATIN 1, senza | e senza i caratteri di
-        controllo, ovvero la seguente regexp: ^[ -{}~\u00A0-ÿ]*$
+      description: 'Denominazione ente o persona fisica / ragione sociale. La codifica prevede i caratteri ISO LATIN 1, senza | e senza i caratteri di controllo, ovvero la seguente regexp: ^[ -{}~\u00A0-ÿ]*$'
       type: string
       minLength: 1
       maxLength: 88
@@ -1375,8 +1020,7 @@ components:
       type: string
       minLength: 11
       maxLength: 16
-      pattern: >-
-        ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
+      pattern: ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
     NotificationDigitalAddress:
       description: Indirizzo di invio della notifica
       required:
@@ -1392,11 +1036,8 @@ components:
         address:
           type: string
           example: account@domain.it
-          description: >-
-            Indirizzo PEC o REM che il mittente della notifica intende
-            utilizzare per  raggiungere il destinatario.
-          pattern: >-
-            ^(?:[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?|\[(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?|[a-zA-Z0-9-]*[a-zA-Z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])$
+          description: Indirizzo PEC o REM che il mittente della notifica intende utilizzare per  raggiungere il destinatario.
+          pattern: ^(?:[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?|\[(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?|[a-zA-Z0-9-]*[a-zA-Z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])$
           maxLength: 320
     NotificationPhysicalAddress:
       description: Indirizzo fisico
@@ -1423,9 +1064,7 @@ components:
           maxLength: 1024
         zip:
           type: string
-          description: >-
-            Codice di avviamento postale. In caso di invio estero diventa
-            facoltativo
+          description: Codice di avviamento postale. In caso di invio estero diventa facoltativo
           minLength: 0
           maxLength: 15
           pattern: ^(\w|\ |\-)*$
@@ -1491,10 +1130,7 @@ components:
           pattern: ^(safestorage:\/\/)?[A-Za-z0-9._-]+$
         versionToken:
           type: string
-          description: >-
-            Token per recuperare l'esatta istanza dell'allegato, che dovrà
-            coincidere con l'__x-amz-version-id__ ottenuto nell'header della
-            response in fase di upload del documento ad esso associato.
+          description: Token per recuperare l'esatta istanza dell'allegato, che dovrà coincidere con l'__x-amz-version-id__ ottenuto nell'header della response in fase di upload del documento ad esso associato.
           pattern: ^.*$
           maxLength: 256
     NotificationAttachment:
@@ -1521,10 +1157,8 @@ components:
         - $ref: '#/components/schemas/NotificationAttachment'
     PagoPaPayment:
       title: Informazioni per effettuare il pagamento con sistema pagoPA
-      description: >-
-        Informazioni utili per effettuare il pagamento di una notifica, sono
-        associate al destinatario perché le spese di notifica possono differire
-        a seconda del canale di notifica utilizzato. <br/>
+      description: |-
+        Informazioni utili per effettuare il pagamento di una notifica, sono associate al destinatario perché le spese di notifica possono differire a seconda del canale di notifica utilizzato. <br/>
           - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
           - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
           - _applyCost_: flag per indicare se l'avviso pagoPA deve contenere i costi di notifica. <br/>
@@ -1542,9 +1176,7 @@ components:
         applyCost:
           type: boolean
           nullable: false
-          description: >-
-            Flag per indicare se l'avviso pagoPa deve contenere i costi di
-            notifica
+          description: Flag per indicare se l'avviso pagoPa deve contenere i costi di notifica
         attachment:
           $ref: '#/components/schemas/NotificationPaymentAttachment'
     NotificationMetadataAttachment:
@@ -1567,10 +1199,8 @@ components:
           $ref: '#/components/schemas/NotificationAttachmentBodyRef'
     F24Payment:
       title: Informazioni per effettuare il pagamento tramite modello F24
-      description: >-
-        Informazioni utili per effettuare il pagamento di una notifica, sono
-        associate al destinatario perché le spese di notifica possono differire
-        a seconda del canale di notifica utilizzato. <br/>
+      description: |-
+        Informazioni utili per effettuare il pagamento di una notifica, sono associate al destinatario perché le spese di notifica possono differire a seconda del canale di notifica utilizzato. <br/>
           - _title_: titolo del documento pdf da mostrare all'utente .<br/>
           - _applyCost_: flag per indicare se il modello F24 deve contenere i costi di notifica.<br/>
           - _metadataAttachment_: riferimento ai metadati per la generazione del modello F24.<br/>
@@ -1600,9 +1230,7 @@ components:
           $ref: '#/components/schemas/F24Payment'
     NotificationPayments:
       title: Pagamenti collegati alla notifica per il destinatario
-      description: >-
-        Lista dei pagamenti collegati alla notifica per il destinatario. Possono
-        essere pagamenti rateali o alternativi
+      description: Lista dei pagamenti collegati alla notifica per il destinatario. Possono essere pagamenti rateali o alternativi
       type: array
       items:
         $ref: '#/components/schemas/NotificationPaymentItem'
@@ -1617,9 +1245,7 @@ components:
       properties:
         recipientType:
           type: string
-          description: >-
-            Tipologia di destinatario: Persona Fisica (PF) o Persona Giuridica
-            (PG)
+          description: 'Tipologia di destinatario: Persona Fisica (PF) o Persona Giuridica (PG)'
           enum:
             - PF
             - PG
@@ -1635,10 +1261,8 @@ components:
           $ref: '#/components/schemas/NotificationPayments'
     PagoPaPaymentBase:
       title: Informazioni per effettuare il pagamento con sistema pagoPA
-      description: >-
-        Informazioni utili per effettuare il pagamento di una notifica, sono
-        associate al destinatario perché le spese di notifica possono differire
-        a seconda del canale di notifica utilizzato. <br/>
+      description: |-
+        Informazioni utili per effettuare il pagamento di una notifica, sono associate al destinatario perché le spese di notifica possono differire a seconda del canale di notifica utilizzato. <br/>
           - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
           - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
           - _attachment_: riferimento al PDF contenete il bollettino pagoPA<br/>
@@ -1655,19 +1279,16 @@ components:
         attachment:
           $ref: '#/components/schemas/NotificationPaymentAttachment'
         amount:
-          type: number
+          type: integer
+          format: int32
           description: Importo del pagamento in eurocent
           minimum: 0
         dueDate:
           type: string
           format: date-time
-          description: >-
-            Data di scadenza del pagamento. Il formato data deve essere ISO-8601
-            e fuso orario UTC
+          description: Data di scadenza del pagamento. Il formato data deve essere ISO-8601 e fuso orario UTC
     InformalNotificationPaymentItem:
-      description: >-
-        Elemento di pagamento della notifica informale. Al momento è supportato
-        esclusivamente il pagamento pagoPA.
+      description: Elemento di pagamento della notifica informale. Al momento è supportato esclusivamente il pagamento pagoPA.
       type: object
       additionalProperties: false
       required:
@@ -1676,16 +1297,12 @@ components:
         pagoPa:
           $ref: '#/components/schemas/PagoPaPaymentBase'
     InformalNotificationPayments:
-      description: >-
-        Lista dei pagamenti collegati alla notifica informale per il
-        destinatario.
+      description: Lista dei pagamenti collegati alla notifica informale per il destinatario.
       type: array
       items:
         $ref: '#/components/schemas/InformalNotificationPaymentItem'
     InformalNotificationRecipientV1:
-      description: >-
-        Dati del destinatario specifici per una notifica informale, inclusi il
-        riferimento al messaggio e i canali opzionali di contatto.
+      description: Dati del destinatario specifici per una notifica informale, inclusi il riferimento al messaggio e i canali opzionali di contatto.
       allOf:
         - $ref: '#/components/schemas/NotificationRecipientV24'
         - type: object
@@ -1697,41 +1314,21 @@ components:
             messageId:
               type: string
               format: uuid
-              description: >-
-                Identificativo del template di messaggio da utilizzare per il
-                destinatario.
+              description: Identificativo del template di messaggio da utilizzare per il destinatario.
             email:
               type: string
               example: account@domain.it
-              description: >-
-                Indirizzo email che il mittente della notifica intende
-                utilizzare per  raggiungere il destinatario.
-              pattern: >-
-                ^(?:[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?|\[(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?|[a-zA-Z0-9-]*[a-zA-Z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])$
+              description: Indirizzo email che il mittente della notifica intende utilizzare per  raggiungere il destinatario.
+              pattern: ^(?:[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?|\[(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?|[a-zA-Z0-9-]*[a-zA-Z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])$
               maxLength: 320
             phoneNumber:
               type: string
               example: '+3900000000'
-              description: >-
-                Numero di telefono che il mittente della notifica intende
-                utilizzare per raggiungere il destinatario, espresso in formato
-                internazionale con prefisso `+` oppure `00`.
+              description: Numero di telefono che il mittente della notifica intende utilizzare per raggiungere il destinatario, espresso in formato internazionale con prefisso `+` oppure `00`.
               pattern: ^(\+|00)[1-9]\d{0,3}[\s.-]?\d{1,4}[\s.-]?\d{1,4}[\s.-]?\d{1,9}$
               maxLength: 30
             additionalLanguages:
-              description: >-
-                In questo campo è possibile definire la lingua addizionale
-                (oltre a quella italiana) da utilizzare per l'invio del
-                messaggio sui canali configurati.<br/> Le lingue accettate e
-                dunque i valori possibili degli item dell'array sono: <br/> - DE
-                <br/> - SL <br/> - FR <br/> DE (tedesco), SL (sloveno), FR
-                (francese) Attualmente è possibile indicare un solo item e
-                dunque una sola lingua aggiuntiva. Se non vengono indicate
-                lingue aggiuntive la lingua utilizzata <br/> per l'invio del
-                messaggio sui canali configurati sarà quella italiana. <br />
-                **Coerenza con messageId:** Se viene fornito un `messageId`, il
-                messaggio identificato deve essere associato alla lingua
-                indicata in questo campo. <br/>
+              description: 'In questo campo è possibile definire la lingua addizionale (oltre a quella italiana) da utilizzare per l''invio del messaggio sui canali configurati.<br/> Le lingue accettate e dunque i valori possibili degli item dell''array sono: <br/> - DE <br/> - SL <br/> - FR <br/> DE (tedesco), SL (sloveno), FR (francese) Attualmente è possibile indicare un solo item e dunque una sola lingua aggiuntiva. Se non vengono indicate lingue aggiuntive la lingua utilizzata <br/> per l''invio del messaggio sui canali configurati sarà quella italiana. <br /> **Coerenza con messageId:** Se viene fornito un `messageId`, il messaggio identificato deve essere associato alla lingua indicata in questo campo. <br/>'
               type: array
               maxItems: 1
               items:
@@ -1744,9 +1341,7 @@ components:
           properties:
             title:
               type: string
-              description: >-
-                Titolo del documento allegato. Stringa alfanumerica con
-                caratteri utilizzabili in un nome file.
+              description: Titolo del documento allegato. Stringa alfanumerica con caratteri utilizzabili in un nome file.
               minLength: 1
               maxLength: 512
               pattern: ^.*$
@@ -1790,9 +1385,7 @@ components:
             $ref: '#/components/schemas/NotificationDocument'
         group:
           type: string
-          description: >-
-            Gruppo di utenti dell'ente mittente autorizzato a visualizzare la
-            notifica.
+          description: Gruppo di utenti dell'ente mittente autorizzato a visualizzare la notifica.
           pattern: ^[ -~]*$
           maxLength: 1024
     InformalIUN:
@@ -1803,9 +1396,7 @@ components:
       pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[A-Z]{1}$
     NewNotificationResponse:
       title: Identificativi della richiesta di notifica
-      description: >-
-        Contiene le informazioni per identificare una richiesta di invio
-        notifica che non è ancora stata accettata da Piattaforma notifiche.
+      description: Contiene le informazioni per identificare una richiesta di invio notifica che non è ancora stata accettata da Piattaforma notifiche.
       type: object
       required:
         - notificationRequestId
@@ -1837,7 +1428,8 @@ components:
           type: string
           example: application/pdf
         contentLength:
-          type: number
+          type: integer
+          format: int32
           example: 54092
           description: dimensione, in byte, del contenuto.
         sha256:
@@ -1845,15 +1437,11 @@ components:
           description: SHA256 del contenuto del file.
         url:
           type: string
-          description: >-
-            URL preautorizzato a cui effettuare una richiesta GET per ottenere
-            il  contenuto del documento. Presente solo se il documento è pronto
-            per il download.
+          description: URL preautorizzato a cui effettuare una richiesta GET per ottenere il  contenuto del documento. Presente solo se il documento è pronto per il download.
         retryAfter:
-          type: number
-          description: >-
-            Stima del numero di secondi da aspettare prima che il contenuto del 
-            documento sia disponibile per il download.
+          type: integer
+          format: int32
+          description: Stima del numero di secondi da aspettare prima che il contenuto del  documento sia disponibile per il download.
     FullInformalNotificationRecipientV1:
       allOf:
         - $ref: '#/components/schemas/InformalNotificationRecipientV1'
@@ -1870,9 +1458,7 @@ components:
         physicalAddressLookup:
           type: boolean
     InformalSentNotificationV1:
-      description: >-
-        Informazioni complete di una notifica informale accettata, incluse le
-        caratteristiche della richiesta originaria e i metadati di invio.
+      description: Informazioni complete di una notifica informale accettata, incluse le caratteristiche della richiesta originaria e i metadati di invio.
       allOf:
         - $ref: '#/components/schemas/InformalNotificationRequestV1'
         - type: object
@@ -1893,9 +1479,7 @@ components:
               $ref: '#/components/schemas/paTaxId'
             senderPaId:
               type: string
-              description: >-
-                Identificativo (non IPA) della PA mittente che ha eseguito
-                l'onboarding su SelfCare.
+              description: Identificativo (non IPA) della PA mittente che ha eseguito l'onboarding su SelfCare.
               pattern: ^.*$
               maxLength: 256
             iun:
@@ -1929,9 +1513,8 @@ components:
             $ref: '#/components/schemas/TimelineElementId'
     InformalTimelineElementCategoryV1:
       type: string
-      description: >
-        Categorie degli elementi della timeline nel dominio delle notifiche
-        bonarie:
+      description: |
+        Categorie degli elementi della timeline nel dominio delle notifiche bonarie:
           * `REQUEST_ACCEPTED` - Richiesta di notifica accettata a seguito dei controlli di validazione
           * `REQUEST_REFUSED` - Richiesta di notifica rifiutata per fallimento dei controlli di validazione
           * `COVERPAGE_CREATION_REQUEST` - Richiesta di generazione della pagina di copertina o dei moduli di pagamento
@@ -1972,8 +1555,9 @@ components:
         - REQUEST_ACCEPTED
         - REQUEST_REFUSED
     RecIndex:
-      type: number
+      type: integer
       description: Index destinatario notifica digitale
+      format: int32
     DigitalAddress:
       description: Indirizzo di invio della notifica
       required:
@@ -2000,10 +1584,8 @@ components:
         - GENERAL
     DigitalChannels:
       type: string
-      description: >
-        Canale di invio digitale per il quale è stato ricevuto il feedback
-        __APPIO__: invio tramite App IO __PEC__: invio tramite PEC __EMAIL__:
-        invio tramite email __SMS__: invio tramite SMS
+      description: |
+        Canale di invio digitale per il quale è stato ricevuto il feedback __APPIO__: invio tramite App IO __PEC__: invio tramite PEC __EMAIL__: invio tramite email __SMS__: invio tramite SMS
       enum:
         - APPIO
         - PEC
@@ -2028,8 +1610,9 @@ components:
         channel:
           $ref: '#/components/schemas/DigitalChannels'
         retryNumber:
-          type: number
+          type: integer
           description: numero dei tentativi effettuati
+          format: int32
     DigitalDeliveryDetail:
       description: Dettaglio di un avanzamento di consegna digitale
       type: object
@@ -2083,17 +1666,16 @@ components:
         channel:
           $ref: '#/components/schemas/DigitalChannels'
         retryNumber:
-          type: number
+          type: integer
           description: numero dei tentativi effettuati
+          format: int32
         eventTimestamp:
           type: string
           description: Data evento
           format: date-time
         requestId:
           type: string
-          description: >-
-            Id della richiesta di invio digitale che ha generato questo
-            avanzamento
+          description: Id della richiesta di invio digitale che ha generato questo avanzamento
           maxLength: 512
     ResponseStatus:
       type: string
@@ -2174,9 +1756,7 @@ components:
           x-field-extra-annotation: '@lombok.ToString.Exclude'
           format: password
           type: string
-          description: >-
-            Codice di avviamento postale. In caso di invio estero diventa
-            facoltativo
+          description: Codice di avviamento postale. In caso di invio estero diventa facoltativo
         municipality:
           x-field-extra-annotation: '@lombok.ToString.Exclude'
           format: password
@@ -2230,8 +1810,9 @@ components:
         deliveryType:
           $ref: '#/components/schemas/AnalogDeliveryType'
         sentAttemptMade:
-          type: number
+          type: integer
           description: numero dei tentativi effettuati
+          format: int32
         relatedRequestId:
           type: string
           description: Id relativo alla eventuale precedente richiesta di invio cartaceo
@@ -2284,8 +1865,9 @@ components:
         deliveryType:
           $ref: '#/components/schemas/AnalogDeliveryType'
         sentAttemptMade:
-          type: number
+          type: integer
           description: numero dei tentativi effettuati
+          format: int32
         foreignState:
           type: string
         relatedRequestId:
@@ -2295,21 +1877,20 @@ components:
         productType:
           type: string
           maxLength: 10
-          description: >
-            Tipo di invio cartaceo effettivamente inviato - __RS__: Raccomandata
-            nazionale Semplice (per Avviso di mancato Recapito) - __RIS__:
-            Raccomandata internazionale Semplice - __AR__: Raccomandata
-            nazionale Andata e Ritorno - __890__: Recapito a norma della legge
-            890/1982 - __RIR__: Raccomandata internazionale Andata e Ritorno
+          description: |
+            Tipo di invio cartaceo effettivamente inviato - __RS__: Raccomandata nazionale Semplice (per Avviso di mancato Recapito) - __RIS__: Raccomandata internazionale Semplice - __AR__: Raccomandata nazionale Andata e Ritorno - __890__: Recapito a norma della legge 890/1982 - __RIR__: Raccomandata internazionale Andata e Ritorno
         analogCost:
-          type: number
+          type: integer
           description: costo in eurocent dell'invio
+          format: int32
         numberOfPages:
-          type: number
+          type: integer
           description: numero delle pagina che compongono la spedizione cartacea
+          format: int32
         envelopeWeight:
-          type: number
+          type: integer
           description: peso in grammi della busta
+          format: int32
         prepareRequestId:
           type: string
           description: request id della relativa richiesta di prepare
@@ -2321,7 +1902,8 @@ components:
         categorizedAttachmentsResult:
           $ref: '#/components/schemas/CategorizedAttachmentsResult'
         vat:
-          type: number
+          type: integer
+          format: int32
     AnalogDeliveryDetail:
       description: Dettaglio di un avanzamento di consegna analogico
       type: object
@@ -2329,9 +1911,8 @@ components:
         code:
           type: string
           maxLength: 20
-          description: >
-            Formato: - __deliveryDetailCode__- [prodotto] - [statusCode] -
-            statusDescription
+          description: |
+            Formato: - __deliveryDetailCode__- [prodotto] - [statusCode] - statusDescription
               - __CON020__- [ALL] - [PROGRESS] - Originale dell’AAR (documento nativo digitale) reso disponibile dal Consolidatore e firmato digitalmente da PagoPA
               - __CON080__- [ALL] - [PROGRESS] - Stampato ed Imbustato
               - __RECRS001C__- [RS] - [OK] - Consegnato - Fascicolo Chiuso
@@ -2367,9 +1948,8 @@ components:
         failureCause:
           type: string
           maxLength: 10
-          description: >
-            __Motivazione di mancata consegna__ obbligatorie negli stati di
-            mancata consegna
+          description: |
+            __Motivazione di mancata consegna__ obbligatorie negli stati di mancata consegna
               - __M01__ destinatario irreperibile
               - __M02__ destinatario deceduto
               - __M03__ destinatario sconosciuto
@@ -2394,10 +1974,8 @@ components:
         documentType:
           type: string
           maxLength: 20
-          description: >
-            Codici documentType: - Plico: Indica il plico cartaceo - AR: Indica
-            la ricevuta di ritorno - Indagine: Indica la ricevuta dell'analisi
-            dell'indagine - 23L: Indica la ricevuta 23L
+          description: |
+            Codici documentType: - Plico: Indica il plico cartaceo - AR: Indica la ricevuta di ritorno - Indagine: Indica la ricevuta dell'analisi dell'indagine - 23L: Indica la ricevuta 23L
         url:
           type: string
           maxLength: 128
@@ -2457,8 +2035,9 @@ components:
         serviceLevel:
           $ref: '#/components/schemas/ServiceLevel'
         sentAttemptMade:
-          type: number
+          type: integer
           description: numero dei tentativi effettuati
+          format: int32
         newAddress:
           $ref: '#/components/schemas/PhysicalAddress'
         deliveryDetail:
@@ -2501,9 +2080,8 @@ components:
           $ref: '#/components/schemas/RecIndex'
         channel:
           type: string
-          description: >
-            __Canale di raggiungimento del destinatario__ - __APPIO__ - __PEC__
-            - __EMAIL__ - __SMS__ - __ANALOG__
+          description: |
+            __Canale di raggiungimento del destinatario__ - __APPIO__ - __PEC__ - __EMAIL__ - __SMS__ - __ANALOG__
         sourceElementId:
           type: string
           description: Id dell'elemento che ha generato il raggiungimento
@@ -2593,23 +2171,21 @@ components:
         categoryType:
           type: string
         recIndex:
-          type: number
+          type: integer
           description: Index destinatario notifica digitale
+          format: int32
         eventTimestamp:
           type: string
           description: Data ricezione richiesta visualizzazione notifica
           format: date-time
         sourceChannel:
           type: string
-          description: >
-            Canale di provenienza della richiesta di visualizzazione notifica
-            bonaria - __APPIO__: richiesta tramite App IO - __WEB__: richiesta
-            tramite Portale WEB
+          description: |
+            Canale di provenienza della richiesta di visualizzazione notifica bonaria - __APPIO__: richiesta tramite App IO - __WEB__: richiesta tramite Portale WEB
         sourceChannelDetails:
           type: string
-          description: >
-            Dettaglio del canale di provenienza della richiesta di
-            visualizzazione notifica bonaria
+          description: |
+            Dettaglio del canale di provenienza della richiesta di visualizzazione notifica bonaria
     CoverpageCreationRequestDetails:
       x-discriminator-value: COVERPAGE_CREATION_REQUEST
       type: object
@@ -2621,14 +2197,13 @@ components:
         categoryType:
           type: string
         recIndex:
-          type: number
+          type: integer
           description: Index destinatario notifica digitale
+          format: int32
         fileKey:
           type: string
           maxLength: 128
-          description: >-
-            Identificativo del frontespizio per il quale è stata richiesta la
-            creazione
+          description: Identificativo del frontespizio per il quale è stata richiesta la creazione
     SendDigitalMessageSkipDetails:
       x-discriminator-value: SEND_DIGITAL_MESSAGE_SKIP
       type: object
@@ -2646,8 +2221,9 @@ components:
         digitalAddressSource:
           $ref: '#/components/schemas/DigitalAddressSource'
         retryNumber:
-          type: number
+          type: integer
           description: numero dei tentativi effettuati
+          format: int32
     NotificationRequestAcceptedDetailsV28:
       x-discriminator-value: REQUEST_ACCEPTED
       type: object
@@ -2658,21 +2234,15 @@ components:
           type: string
         notificationRequestId:
           type: string
-          description: >-
-            identificativo univoco di una richiesta di invio notifica, non è lo
-            IUN
+          description: identificativo univoco di una richiesta di invio notifica, non è lo IUN
         paProtocolNumber:
           type: string
-          description: >-
-            Numero di protocollo associato alla notifica, può essere
-            riutilizzato per rettifiche.
+          description: Numero di protocollo associato alla notifica, può essere riutilizzato per rettifiche.
           pattern: ^.*$
           maxLength: 256
         idempotenceToken:
           type: string
-          description: >-
-            token usato per disambiguare "richieste di notificazione" effettuate
-            con lo stesso  numero di protocollo.
+          description: token usato per disambiguare "richieste di notificazione" effettuate con lo stesso  numero di protocollo.
           pattern: ^[ -~]*$
           maxLength: 256
     NotificationRefusedErrorV27:
@@ -2701,10 +2271,9 @@ components:
           type: string
           maxLength: 2048
         recIndex:
-          type: number
-          description: >-
-            Index destinatario notifica digitale con errore che ha portato al
-            rifiuto della notifica
+          type: integer
+          description: Index destinatario notifica digitale con errore che ha portato al rifiuto della notifica
+          format: int32
     RequestRefusedDetailsV27:
       x-discriminator-value: REQUEST_REFUSED
       type: object
@@ -2720,21 +2289,15 @@ components:
             $ref: '#/components/schemas/NotificationRefusedErrorV27'
         notificationRequestId:
           type: string
-          description: >-
-            identificativo univoco di una richiesta di invio notifica, non è lo
-            IUN
+          description: identificativo univoco di una richiesta di invio notifica, non è lo IUN
         paProtocolNumber:
           type: string
-          description: >-
-            Numero di protocollo associato alla notifica, può essere
-            riutilizzato per rettifiche.
+          description: Numero di protocollo associato alla notifica, può essere riutilizzato per rettifiche.
           pattern: ^.*$
           maxLength: 256
         idempotenceToken:
           type: string
-          description: >-
-            token usato per disambiguare "richieste di notificazione" effettuate
-            con lo stesso  numero di protocollo.
+          description: token usato per disambiguare "richieste di notificazione" effettuate con lo stesso  numero di protocollo.
           pattern: ^[ -~]*$
           maxLength: 256
     RecipientType:
@@ -2754,13 +2317,15 @@ components:
         categoryType:
           type: string
         recIndex:
-          type: number
+          type: integer
           description: Index destinatario che ha effettuato il pagamento della notifica
+          format: int32
         recipientType:
           $ref: '#/components/schemas/RecipientType'
         amount:
-          type: number
+          type: integer
           description: Importo di pagamento in eurocent
+          format: int32
         creditorTaxId:
           $ref: '#/components/schemas/paTaxId'
         noticeCode:
@@ -2801,70 +2366,8 @@ components:
         - $ref: '#/components/schemas/NotificationPaidDetails'
       discriminator:
         propertyName: categoryType
-  responses: {}
   securitySchemes:
-    api_key_openapi:
+    ApiKeyAuth:
       type: apiKey
-      name: x-api-key
       in: header
-    pn-auth-fleet_ApiKeyAuthorizerV2_openapi:
-      type: apiKey
       name: x-api-key
-      in: header
-      x-amazon-apigateway-authtype: custom
-      x-amazon-apigateway-authorizer:
-        authorizerUri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-ApiKeyAuthorizerV2Lambda/invocations
-        authorizerResultTtlInSeconds: 60
-        identitySource: method.request.header.x-api-key
-        type: request
-tags:
-  - name: Messages
-    description: >-
-      Invocazioni utilizzabili dai mittenti per creare messaggi da utilizzare
-      nelle notifiche bonarie.
-  - name: NewInformalNotification
-    description: >-
-      Invocazioni per effettuare il pre-caricamento dei documenti della notifica
-      e inviare notifiche bonarie.
-  - name: SenderReadInformalNotificationB2B
-    description: >-
-      Invocazioni utilizzabili dai mittenti per verificare lo stato delle
-      richieste di notifica inviate e delle notifiche accettate.
-  - name: InformalNotificationTermination
-    description: >-
-      Invocazioni per interrompere il workflow di una notifica non legale in
-      stato di attesa o accettata.
-  - name: HealthCheck
-    description: Invocazioni per sapere lo stato del microservizio
-x-amazon-apigateway-gateway-responses:
-  DEFAULT_5XX:
-    responseParameters:
-      gatewayresponse.header.Access-Control-Allow-Origin: '''*'''
-  DEFAULT_4XX:
-    responseParameters:
-      gatewayresponse.header.Access-Control-Allow-Origin: '''*'''
-  BAD_REQUEST_PARAMETERS:
-    responseParameters:
-      gatewayresponse.header.Access-Control-Allow-Origin: '''*'''
-    responseTemplates:
-      application/json: >-
-        {"status": 400, "title": "VALIDATION ERROR", "traceId":
-        "$context.xrayTraceId", "errors": [ { "code": "PN_INVALID_PARAMETERS",
-        "detail": "Validation errors: $context.error.validationErrorString" } ]}
-  BAD_REQUEST_BODY:
-    responseParameters:
-      gatewayresponse.header.Access-Control-Allow-Origin: '''*'''
-    responseTemplates:
-      application/json: >-
-        {"status": 400, "title": "VALIDATION ERROR", "traceId":
-        "$context.xrayTraceId", "errors": [ { "code": "PN_INVALID_BODY",
-        "detail": "Validation errors: $context.error.validationErrorString" } ]}
-x-amazon-apigateway-request-validators:
-  basic:
-    validateRequestBody: true
-    validateRequestParameters: true
-  params-only:
-    validateRequestBody: false
-    validateRequestParameters: true
-x-amazon-apigateway-request-validator: basic
