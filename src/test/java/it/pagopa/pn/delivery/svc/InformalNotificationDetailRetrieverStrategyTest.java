@@ -12,11 +12,7 @@ import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.models.InformalNotificationDetail;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
-import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
+import it.pagopa.pn.delivery.models.internal.notification.*;
 import it.pagopa.pn.delivery.svc.search.InformalTimelineEnricher;
 import it.pagopa.pn.delivery.svc.search.MessageEnricher;
 import org.junit.jupiter.api.Assertions;
@@ -31,13 +27,8 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 class InformalNotificationDetailRetrieverStrategyTest {
 
@@ -91,8 +82,8 @@ class InformalNotificationDetailRetrieverStrategyTest {
         InformalNotificationDetail result = strategy.getNotificationInformation(IUN, true, true, false, null);
 
         Assertions.assertSame(expected, result);
-        Mockito.verify(messageEnricher).enrichInternalNotification(expected.getNotification());
-        Mockito.verify(notificationRetrieverService).loadAndEnrichNotificationDetail(
+        verify(messageEnricher).enrichInternalNotification(expected.getNotification());
+        verify(notificationRetrieverService).loadAndEnrichNotificationDetail(
                 eq(IUN),
                 eq(true),
                 eq(false),
@@ -118,8 +109,8 @@ class InformalNotificationDetailRetrieverStrategyTest {
         InformalNotificationDetail result = strategy.getNotificationInformation(IUN, true, false, false, null);
 
         Assertions.assertSame(expected, result);
-        Mockito.verify(messageEnricher, Mockito.times(0)).enrichInternalNotification(expected.getNotification());
-        Mockito.verify(notificationRetrieverService).loadAndEnrichNotificationDetail(
+        verify(messageEnricher, Mockito.times(0)).enrichInternalNotification(expected.getNotification());
+        verify(notificationRetrieverService).loadAndEnrichNotificationDetail(
                 eq(IUN),
                 eq(true),
                 eq(false),
@@ -162,7 +153,7 @@ class InformalNotificationDetailRetrieverStrategyTest {
         InformalNotificationDetail result = strategy.getNotificationInformationWithSenderIdCheck(IUN, SENDER_ID, GROUPS, true);
 
         Assertions.assertSame(expected, result);
-        Mockito.verify(messageEnricher).enrichInternalNotification(expected.getNotification());
+        verify(messageEnricher).enrichInternalNotification(expected.getNotification());
     }
 
     @Test
