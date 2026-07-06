@@ -48,7 +48,7 @@ class InformalTimelineEnricherTest {
         InformalNotificationHistoryResponse historyResponse = new InformalNotificationHistoryResponse();
         historyResponse.setTimeline(List.of(timelineElement));
         historyResponse.setInformalNotificationStatusHistory(List.of(statusHistoryElement));
-        historyResponse.setInformalNotificationStatus(InformalNotificationStatusV1.COMPLETED);
+        historyResponse.setInformalNotificationStatus(InformalNotificationStatusV1.COMPLETED_REACHED);
 
         when(pnDeliveryPushClient.getInformalNotificationHistory(
                 eq("IUN_TEST"),
@@ -64,7 +64,7 @@ class InformalTimelineEnricherTest {
         assertNotNull(detail.getNotificationStatusHistory());
         assertEquals(1, detail.getNotificationStatusHistory().size());
 
-        assertEquals(InformalNotificationStatusV1.COMPLETED, detail.getNotificationStatus());
+        assertEquals(InformalNotificationStatusV1.COMPLETED_REACHED, detail.getNotificationStatus());
 
         verify(pnDeliveryPushClient).getInformalNotificationHistory(
                 eq("IUN_TEST"),
@@ -90,7 +90,7 @@ class InformalTimelineEnricherTest {
         InformalNotificationHistoryResponse historyResponse = new InformalNotificationHistoryResponse();
         historyResponse.setTimeline(List.of(timelineElement));
         historyResponse.setInformalNotificationStatusHistory(List.of(statusHistoryElement));
-        historyResponse.setInformalNotificationStatus(InformalNotificationStatusV1.COMPLETED);
+        historyResponse.setInformalNotificationStatus(InformalNotificationStatusV1.COMPLETED_REACHED);
 
         when(pnDeliveryPushClient.getInformalNotificationHistory(
                 eq("IUN_DIRECT"),
@@ -104,7 +104,7 @@ class InformalTimelineEnricherTest {
         assertEquals(1, detail.getTimeline().size());
         assertNotNull(detail.getNotificationStatusHistory());
         assertEquals(1, detail.getNotificationStatusHistory().size());
-        assertEquals(InformalNotificationStatusV1.COMPLETED, detail.getNotificationStatus());
+        assertEquals(InformalNotificationStatusV1.COMPLETED_REACHED, detail.getNotificationStatus());
     }
 
     @Test
@@ -117,7 +117,7 @@ class InformalTimelineEnricherTest {
         InformalNotificationHistoryResponse historyResponse = new InformalNotificationHistoryResponse();
         historyResponse.setTimeline(null);
         historyResponse.setInformalNotificationStatusHistory(List.of(new InformalNotificationStatusHistoryElementV1()));
-        historyResponse.setInformalNotificationStatus(InformalNotificationStatusV1.COMPLETED);
+        historyResponse.setInformalNotificationStatus(InformalNotificationStatusV1.COMPLETED_REACHED);
 
         when(pnDeliveryPushClient.getInformalNotificationHistory(
                 eq("IUN_NULL_TIMELINE"),
@@ -139,7 +139,7 @@ class InformalTimelineEnricherTest {
         InformalNotificationHistoryResponse historyResponse = new InformalNotificationHistoryResponse();
         historyResponse.setTimeline(List.of(new InformalTimelineElementV1()));
         historyResponse.setInformalNotificationStatusHistory(null);
-        historyResponse.setInformalNotificationStatus(InformalNotificationStatusV1.COMPLETED);
+        historyResponse.setInformalNotificationStatus(InformalNotificationStatusV1.COMPLETED_REACHED);
 
         when(pnDeliveryPushClient.getInformalNotificationHistory(
                 eq("IUN_NULL_STATUS_HISTORY"),
