@@ -3,10 +3,7 @@ package it.pagopa.pn.delivery.rest.mapper;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignDetail;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignSummary;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.WorkflowEntity;
-import it.pagopa.pn.delivery.models.internal.campaign.Campaign;
-import it.pagopa.pn.delivery.models.internal.campaign.ChannelType;
-import it.pagopa.pn.delivery.models.internal.campaign.DesiredFeedbackType;
-import it.pagopa.pn.delivery.models.internal.campaign.WorkFlowEntity;
+import it.pagopa.pn.delivery.models.internal.campaign.*;
 import it.pagopa.pn.commons.utils.qr.models.RecipientTypeInt;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -15,6 +12,7 @@ import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 class CampaignMapperTest {
@@ -37,22 +35,15 @@ class CampaignMapperTest {
                 .workflow(List.of(
                         WorkFlowEntity.builder()
                                 .channel(ChannelType.IO)
-                                .recipientType(Collections.singleton(RecipientTypeInt.PG))
+                                .recipientType(Collections.singleton(RecipientTypeInt.PF))
                                 .timeout(Duration.ofHours(24))
                                 .desiredFeedback(DesiredFeedbackType.READ)
                                 .includeAttachment(false)
                                 .build(),
                         WorkFlowEntity.builder()
                                 .channel(ChannelType.SMS)
-                                .recipientType(Collections.singleton(RecipientTypeInt.PG))
+                                .recipientType(Collections.singleton(RecipientTypeInt.PF))
                                 .timeout(Duration.ofHours(48))
-                                .desiredFeedback(DesiredFeedbackType.RECEIVED)
-                                .includeAttachment(false)
-                                .build(),
-                        WorkFlowEntity.builder()
-                                .channel(ChannelType.PEC)
-                                .recipientType(Collections.singleton(RecipientTypeInt.PG))
-                                .timeout(Duration.ofHours(72))
                                 .desiredFeedback(DesiredFeedbackType.RECEIVED)
                                 .includeAttachment(false)
                                 .build(),
@@ -64,21 +55,14 @@ class CampaignMapperTest {
                                 .includeAttachment(false)
                                 .build(),
                         WorkFlowEntity.builder()
-                                .channel(ChannelType.IO)
-                                .recipientType(Collections.singleton(RecipientTypeInt.PG))
-                                .timeout(Duration.ofHours(48))
-                                .desiredFeedback(DesiredFeedbackType.READ)
-                                .includeAttachment(false)
-                                .build(),
-                        WorkFlowEntity.builder()
                                 .channel(ChannelType.ANALOG)
-                                .recipientType(Collections.singleton(RecipientTypeInt.PG))
+                                .recipientType(Set.of(RecipientTypeInt.PG, RecipientTypeInt.PF))
                                 .timeout(Duration.ofHours(96))
                                 .desiredFeedback(DesiredFeedbackType.SKIP)
                                 .includeAttachment(true)
                                 .build()
                 ))
-                .closed(false)
+                .status(CampaignStatus.IN_PROGRESS)
                 .startDate(startDate)
                 .endDate(endDate)
                 .build();
@@ -93,13 +77,14 @@ class CampaignMapperTest {
         Assertions.assertEquals(TITLE, summary.getTitle());
         Assertions.assertEquals(List.of(
                 it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ChannelType.fromValue("IO"),
-                it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ChannelType.fromValue("SMS")
+                it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ChannelType.fromValue("SMS"),
+                it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ChannelType.fromValue("ANALOG")
         ), summary.getPfChannels());
         Assertions.assertEquals(List.of(
                 it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ChannelType.fromValue("PEC"),
                 it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ChannelType.fromValue("ANALOG")
         ), summary.getPgChannels());
-        Assertions.assertFalse(summary.getClosed());
+        Assertions.assertEquals(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignStatus.fromValue("IN_PROGRESS"), summary.getCampaignStatus());
         Assertions.assertEquals(startDate, summary.getStartDate());
         Assertions.assertEquals(endDate, summary.getEndDate());
     }
@@ -112,7 +97,7 @@ class CampaignMapperTest {
                 .senderId(SENDER_ID)
                 .title(TITLE)
                 .workflow(List.of())
-                .closed(true)
+                .status(CampaignStatus.CONCLUDED)
                 .startDate(OffsetDateTime.now())
                 .endDate(OffsetDateTime.now())
                 .build();
@@ -121,7 +106,7 @@ class CampaignMapperTest {
         CampaignSummary summary = CampaignMapper.toSummary(campaign);
 
         // Then
-        Assertions.assertTrue(summary.getClosed());
+        Assertions.assertEquals(summary.getCampaignStatus(), it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignStatus.fromValue("CONCLUDED"));
         Assertions.assertTrue(summary.getPfChannels().isEmpty());
         Assertions.assertTrue(summary.getPgChannels().isEmpty());
     }
@@ -137,7 +122,7 @@ class CampaignMapperTest {
                 .senderId(SENDER_ID)
                 .title(TITLE)
                 .descriptionScope(DESCRIPTION)
-                .closed(false)
+                .status(CampaignStatus.IN_PROGRESS)
                 .senderContact("contact@example.com")
                 .startDate(startDate)
                 .endDate(endDate)
@@ -165,7 +150,7 @@ class CampaignMapperTest {
         Assertions.assertEquals(UUID.fromString(SENDER_ID), detail.getSenderId());
         Assertions.assertEquals(TITLE, detail.getTitle());
         Assertions.assertEquals(DESCRIPTION, detail.getDescriptionScope());
-        Assertions.assertFalse(detail.getClosed());
+        Assertions.assertEquals(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignStatus.fromValue("IN_PROGRESS"), detail.getCampaignStatus());
         Assertions.assertEquals("contact@example.com", detail.getSenderContact());
         Assertions.assertEquals(startDate, detail.getStartDate());
         Assertions.assertEquals(endDate, detail.getEndDate());
@@ -182,7 +167,7 @@ class CampaignMapperTest {
         Assertions.assertEquals(1, detail.getWorkflow().size());
         WorkflowEntity workflow = detail.getWorkflow().get(0);
         Assertions.assertEquals(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ChannelType.fromValue("IO"), workflow.getChannel());
-        Assertions.assertEquals(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RecipientTypeInt.fromValue("PF"), workflow.getRecipientType());
+        Assertions.assertEquals(Set.of(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RecipientTypeInt.fromValue("PG")), workflow.getRecipientType());
         Assertions.assertEquals("PT24H", workflow.getTimeout());
         Assertions.assertEquals(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.DesiredFeedbackType.fromValue("READ"), workflow.getDesiredFeedback());
         Assertions.assertFalse(workflow.getIncludeAttachment());
@@ -196,7 +181,7 @@ class CampaignMapperTest {
                 .senderId(SENDER_ID)
                 .title(TITLE)
                 .descriptionScope(DESCRIPTION)
-                .closed(false)
+                .status(CampaignStatus.IN_PROGRESS)
                 .startDate(OffsetDateTime.now())
                 .endDate(OffsetDateTime.now())
                 .serviceId("service-1")
@@ -222,7 +207,7 @@ class CampaignMapperTest {
                 .senderId(SENDER_ID)
                 .title(TITLE)
                 .descriptionScope(DESCRIPTION)
-                .closed(false)
+                .status(CampaignStatus.IN_PROGRESS)
                 .startDate(OffsetDateTime.now())
                 .endDate(OffsetDateTime.now())
                 .serviceId("service-1")
@@ -248,7 +233,7 @@ class CampaignMapperTest {
                 .senderId(SENDER_ID)
                 .title(TITLE)
                 .descriptionScope(DESCRIPTION)
-                .closed(false)
+                .status(CampaignStatus.IN_PROGRESS)
                 .startDate(OffsetDateTime.now())
                 .endDate(OffsetDateTime.now())
                 .serviceId("service-1")
@@ -289,13 +274,13 @@ class CampaignMapperTest {
         WorkflowEntity workflow1 = detail.getWorkflow().get(0);
         Assertions.assertEquals(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ChannelType.fromValue("IO"), workflow1.getChannel());
         Assertions.assertEquals(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.DesiredFeedbackType.fromValue("READ"), workflow1.getDesiredFeedback());
-        Assertions.assertEquals(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RecipientTypeInt.fromValue("PF"), workflow1.getRecipientType());
+        Assertions.assertEquals(Set.of(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RecipientTypeInt.fromValue("PG")), workflow1.getRecipientType());
         Assertions.assertEquals("PT24H", workflow1.getTimeout());
 
         WorkflowEntity workflow2 = detail.getWorkflow().get(1);
         Assertions.assertEquals(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ChannelType.fromValue("PEC"), workflow2.getChannel());
         Assertions.assertEquals(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.DesiredFeedbackType.fromValue("RECEIVED"), workflow2.getDesiredFeedback());
-        Assertions.assertEquals(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RecipientTypeInt.fromValue("PG"), workflow2.getRecipientType());
+        Assertions.assertEquals(Set.of(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RecipientTypeInt.fromValue("PG")), workflow2.getRecipientType());
         Assertions.assertEquals("PT48H", workflow2.getTimeout());
         Assertions.assertTrue(workflow2.getIncludeAttachment());
 
@@ -312,7 +297,7 @@ class CampaignMapperTest {
                 .senderId(SENDER_ID)
                 .title(TITLE)
                 .descriptionScope(DESCRIPTION)
-                .closed(false)
+                .status(CampaignStatus.IN_PROGRESS)
                 .startDate(OffsetDateTime.now())
                 .endDate(OffsetDateTime.now())
                 .serviceId("service-1")
@@ -338,7 +323,7 @@ class CampaignMapperTest {
                 .senderId(SENDER_ID)
                 .title(TITLE)
                 .descriptionScope(DESCRIPTION)
-                .closed(true)
+                .status(CampaignStatus.CONCLUDED)
                 .startDate(OffsetDateTime.now())
                 .endDate(OffsetDateTime.now())
                 .serviceId("service-1")
@@ -352,7 +337,7 @@ class CampaignMapperTest {
         CampaignDetail detail = CampaignMapper.toDetail(campaign);
 
         // Then
-        Assertions.assertTrue(detail.getClosed());
+        Assertions.assertEquals(detail.getCampaignStatus(), it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignStatus.fromValue("CONCLUDED"));
     }
 }
 
