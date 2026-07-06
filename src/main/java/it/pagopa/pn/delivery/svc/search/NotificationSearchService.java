@@ -11,12 +11,9 @@ import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
+import it.pagopa.pn.delivery.models.*;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementCategoryV28;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementV28;
-import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
-import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
-import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
@@ -89,14 +86,28 @@ public class NotificationSearchService {
 
 		validateInput(searchDto);
 
-		if ( !searchDto.isBySender() ) {
-			log.debug( "Search from receiver" );
-			String mandateId = searchDto.getMandateId();
-			if ( StringUtils.hasText( mandateId )) {
-				checkMandate(searchDto, mandateId, recipientType, cxGroups);
-			} else if (checkAuthorizationPG(recipientType, cxGroups)) {
-				log.error("PG {} can not access this resource", searchDto.getSenderReceiverId());
-				throw new PnForbiddenException(ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND);
+        if ( searchDto.isByCampaign() ) {
+            // la ricerca per campagna riguarda per definizione notifiche bonarie: si forza INFORMAL.
+            // Non si applica il default LEGAL, né il ramo deleghe (mandato), né l'auth PG del destinatario:
+            // è un flusso lato mittente sugli indici di campagna.
+            searchDto.setCommunicationType( NotificationSearchCommunicationType.INFORMAL );
+        } else {
+            // default applicativo SRS: in assenza di tipologia di comunicazione si filtra sulle sole notifiche legali
+            if ( searchDto.getCommunicationType() == null ) {
+                searchDto.setCommunicationType( NotificationSearchCommunicationType.LEGAL );
+            }
+
+            if ( !searchDto.isBySender() ) {
+                log.debug( "Search from receiver" );
+                String mandateId = searchDto.getMandateId();
+                if ( StringUtils.hasText( mandateId )) {
+                    checkMandate(searchDto, mandateId, recipientType, cxGroups);
+                    // inibizione delle comunicazioni bonarie ai delegati PF: si forza LEGAL ignorando ALL/INFORMAL richiesti dal client
+                    searchDto.setCommunicationType( NotificationSearchCommunicationType.LEGAL );
+                } else if (checkAuthorizationPG(recipientType, cxGroups)) {
+                    log.error("PG {} can not access this resource", searchDto.getSenderReceiverId());
+                    throw new PnForbiddenException(ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND);
+                }
 			}
 		}
 

@@ -8,7 +8,7 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.Recip
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
+import it.pagopa.pn.delivery.models.NotificationSearchRow;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementCategoryV28;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementV28;
@@ -86,7 +86,10 @@ class NotificationSearchServiceTest {
 
         PnLastEvaluatedKey nextKey = buildLastEvaluatedKey("external-key", "pk", "value-1");
         ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> searchResult = ResultPaginationDto.<NotificationSearchRow, PnLastEvaluatedKey>builder()
-                .resultsPage(List.of(new NotificationSearchRow().group("group-code").iun("IUN_1")))
+                .resultsPage(List.of(NotificationSearchRow.builder()
+                        .group("group-code")
+                        .iun("IUN_1")
+                        .build()))
                 .moreResult(true)
                 .nextPagesKey(List.of(nextKey))
                 .build();
@@ -253,7 +256,9 @@ class NotificationSearchServiceTest {
         InputSearchNotificationDelegatedDto searchDto = baseDelegatedSearchDto();
         PnLastEvaluatedKey nextKey = buildLastEvaluatedKey("external-key", "pk", "value-1");
         ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> searchResult = ResultPaginationDto.<NotificationSearchRow, PnLastEvaluatedKey>builder()
-                .resultsPage(List.of(new NotificationSearchRow().iun("IUN_DELEGATED")))
+                .resultsPage(List.of(NotificationSearchRow.builder()
+                        .iun("IUN_DELEGATED")
+                        .build()))
                 .moreResult(true)
                 .nextPagesKey(List.of(nextKey))
                 .build();

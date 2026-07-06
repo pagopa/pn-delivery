@@ -17,7 +17,6 @@ import it.pagopa.pn.delivery.models.NotificationSearchCommunicationType;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
 import it.pagopa.pn.delivery.models.*;
 import it.pagopa.pn.delivery.svc.InformalNotificationDetailRetrieverStrategy;
 import it.pagopa.pn.delivery.svc.LegalNotificationDetailRetrieverStrategy;
