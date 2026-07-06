@@ -39,6 +39,14 @@ components:
       schema:
         type: string
 
+    retrieveMessage:
+      in: query
+      name: retrieveMessage
+      description: Indica se recuperare anche il messaggio della notifica
+      required: false
+      schema:
+        type: boolean
+
 
     ############################################################################################
     ###                               PARAMETRI RICERCA NOTIFICHE                            ###

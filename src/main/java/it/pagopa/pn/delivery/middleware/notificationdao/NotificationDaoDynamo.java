@@ -41,18 +41,18 @@ public class NotificationDaoDynamo implements NotificationDao {
 	private final PnDataVaultClientImpl pnDataVaultClient;
 
 	public NotificationDaoDynamo(NotificationEntityDao entityDao,
-								 NotificationMetadataEntityDao metadataEntityDao,
-								 NotificationDelegationMetadataEntityDao delegationMetadataEntityDao,
-								 DtoToEntityNotificationMapper dto2entityMapper,
-								 EntityToDtoNotificationMapper entity2DtoMapper,
-								 PnDataVaultClientImpl pnDataVaultClient) {
+                                 NotificationMetadataEntityDao metadataEntityDao,
+                                 NotificationDelegationMetadataEntityDao delegationMetadataEntityDao,
+                                 DtoToEntityNotificationMapper dto2entityMapper,
+                                 EntityToDtoNotificationMapper entity2DtoMapper,
+                                 PnDataVaultClientImpl pnDataVaultClient) {
 		this.entityDao = entityDao;
 		this.metadataEntityDao = metadataEntityDao;
 		this.delegationMetadataEntityDao = delegationMetadataEntityDao;
 		this.dto2entityMapper = dto2entityMapper;
 		this.entity2DtoMapper = entity2DtoMapper;
 		this.pnDataVaultClient = pnDataVaultClient;
-	}
+    }
 
 	@Override
 	public void addNotification(InternalNotification internalNotification  ) throws PnIdConflictException {

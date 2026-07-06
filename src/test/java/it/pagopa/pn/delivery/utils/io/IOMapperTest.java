@@ -4,388 +4,384 @@ import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.IOReceivedNot
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationStatusHistoryElement;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyAttachment;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyMessage;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementCategoryV28;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementDetailsV28;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementV28;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.internal.notification.MetadataAttachment;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
+import it.pagopa.pn.delivery.models.LegalNotificationDetail;
+import it.pagopa.pn.delivery.models.internal.notification.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Spy;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
 import java.time.OffsetDateTime;
-import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(MockitoExtension.class)
 class IOMapperTest {
-    private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
 
-    @Spy
-    private ModelMapper modelMapper;
-
-    @InjectMocks
     private IOMapper ioMapper;
 
-
-    @Test
-    void mapToThirdPartyMessageNoCanceledPayments() {
-        int indexDocument = 0;
-        String iun = "IUN";
-        boolean isCancelled = false;
-        InternalNotification internalNotification = internalNotification();
-
-        ThirdPartyMessage expectedValue = ThirdPartyMessage.builder()
-                .attachments(List.of(ThirdPartyAttachment.builder()
-                        .contentType("application/pdf")
-                        .id(iun + "_DOC" + indexDocument)
-                        .name("TITLE")
-                        .url("/delivery/notifications/received/IUN/attachments/documents/0")
-                        .build()))
-                .details(IOReceivedNotification.builder()
-                        .iun("IUN")
-                        .subject("SUBJECT")
-                        ._abstract("ABSTRACT")
-                        .senderDenomination("SENDERDENOMINATION")
-                        .recipients(List.of(it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationRecipient.builder()
-                                .denomination("DENOMINATION")
-                                .taxId("TAXID")
-                                .recipientType("PF")
-                                .build()))
-                        .notificationStatusHistory(List.of(NotificationStatusHistoryElement.builder().status("ACCEPTED").build(), NotificationStatusHistoryElement.builder().status("VIEWED").build()))
-                        .build())
-                .build();
-
-        ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification, isCancelled);
-
-        assertThat(actualValue.getDetails().getIun()).isEqualTo(expectedValue.getDetails().getIun());
+    @BeforeEach
+    void setup() {
+        ioMapper = new IOMapper(new ModelMapper());
     }
 
     @Test
-    void mapToThirdPartyMessageCancelledPayments() {
-        int indexDocument = 0;
-        String iun = "IUN";
-        boolean isCancelled = true;
-        InternalNotification internalNotification = internalNotification();
-
-        ThirdPartyMessage expectedValue = ThirdPartyMessage.builder()
-                .attachments(List.of(ThirdPartyAttachment.builder()
-                        .contentType("application/pdf")
-                        .id(iun + "_DOC" + indexDocument)
-                        .name("TITLE")
-                        .url("/delivery/notifications/received/IUN/attachments/documents/0")
-                        .build()))
-                .details(IOReceivedNotification.builder()
-                        .iun("IUN")
-                        .subject("SUBJECT")
-                        ._abstract("ABSTRACT")
-                        .senderDenomination("SENDERDENOMINATION")
-                        .recipients(List.of(it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationRecipient.builder()
-                                .denomination("DENOMINATION")
-                                .taxId("TAXID")
-                                .recipientType("PF")
-                                .build()))
-                        .notificationStatusHistory(List.of(NotificationStatusHistoryElement.builder().status("ACCEPTED").build(), NotificationStatusHistoryElement.builder().status("CANCELLED").build()))
-                        .completedPayments(List.of("302000100000019421"))
-                        .isCancelled(true)
-                        .build())
-                .build();
-
-        ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification, isCancelled);
-
-        assertThat(actualValue.getDetails().getIun()).isEqualTo(expectedValue.getDetails().getIun());
-    }
-
-
-    @Test
-    void mapToThirdPartyMessageCancelledNoPayment() {
-        int indexDocument = 0;
-        String iun = "IUN";
-        boolean isCancelled = true;
-        InternalNotification internalNotification = internalNotification();
-
-        ThirdPartyMessage expectedValue = ThirdPartyMessage.builder()
-                .attachments(List.of(ThirdPartyAttachment.builder()
-                        .contentType("application/pdf")
-                        .id(iun + "_DOC" + indexDocument)
-                        .name("TITLE")
-                        .url("/delivery/notifications/received/IUN/attachments/documents/0")
-                        .build()))
-                .details(IOReceivedNotification.builder()
-                        .iun("IUN")
-                        .subject("SUBJECT")
-                        ._abstract("ABSTRACT")
-                        .senderDenomination("SENDERDENOMINATION")
-                        .recipients(List.of(it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationRecipient.builder()
-                                .denomination("DENOMINATION")
-                                .taxId("TAXID")
-                                .recipientType("PF")
-                                .build()))
-                        .notificationStatusHistory(List.of(NotificationStatusHistoryElement.builder().status("ACCEPTED").build()))
-                        .completedPayments(List.of())
-                        .isCancelled(true)
-                        .build())
-                .build();
-
-        ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification, isCancelled);
-
-        assertThat(actualValue.getDetails().getIun()).isEqualTo(expectedValue.getDetails().getIun());
-    }
-
-
-    @Test
-    void mapToThirdPartyMessageNoCancelledNoPayment() {
-        int indexDocument = 0;
-        String iun = "IUN";
-        boolean isCancelled = false;
-        InternalNotification internalNotification = internalNotification();
-
-        ThirdPartyMessage expectedValue = ThirdPartyMessage.builder()
-                .attachments(List.of(ThirdPartyAttachment.builder()
-                        .contentType("application/pdf")
-                        .id(iun + "_DOC" + indexDocument)
-                        .name("TITLE.pdf")
-                        .category(ThirdPartyAttachment.CategoryEnum.DOCUMENT)
-                        .url("/delivery/notifications/received/IUN/attachments/documents/0")
-                        .build()))
-                .details(IOReceivedNotification.builder()
-                        .iun("IUN")
-                        .subject("SUBJECT")
-                        ._abstract("ABSTRACT")
-                        .senderDenomination("SENDERDENOMINATION")
-                        .recipients(List.of(it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationRecipient.builder()
-                                .denomination("DENOMINATION")
-                                .taxId("TAXID")
-                                .recipientType("PF")
-                                .build()))
-                        .notificationStatusHistory(List.of(NotificationStatusHistoryElement.builder().status("ACCEPTED").build(), NotificationStatusHistoryElement.builder().status("VIEWED").build()))
-                        .build())
-                .build();
-
-        ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification, isCancelled);
-
-        assertThat(actualValue.getAttachments()).isEqualTo(expectedValue.getAttachments());
-    }
-
-    @Test
-    void mapToThirdPartyMessageNullTitle() {
-        int indexDocument = 0;
-        String iun = "IUN";
-        boolean isCancelled = false;
-        InternalNotification internalNotification = internalNotification(null);
-
-
-        String id = iun + "_DOC" + indexDocument;
-        ThirdPartyMessage expectedValue = ThirdPartyMessage.builder()
-                .attachments(List.of(ThirdPartyAttachment.builder()
-                        .contentType("application/pdf")
-                        .id(id)
-                        .name(id + ".pdf")
-                        .category(ThirdPartyAttachment.CategoryEnum.DOCUMENT)
-                        .url("/delivery/notifications/received/IUN/attachments/documents/0")
-                        .build()))
-                .details(IOReceivedNotification.builder()
-                        .iun("IUN")
-                        .subject("SUBJECT")
-                        ._abstract("ABSTRACT")
-                        .senderDenomination("SENDERDENOMINATION")
-                        .recipients(List.of(it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationRecipient.builder()
-                                .denomination("DENOMINATION")
-                                .taxId("TAXID")
-                                .recipientType("PF")
-                                .build()))
-                        .notificationStatusHistory(List.of(NotificationStatusHistoryElement.builder().status("ACCEPTED").build(), NotificationStatusHistoryElement.builder().status("VIEWED").build()))
-                        .build())
-                .build();
-
-        ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification, isCancelled);
-
-        assertThat(actualValue.getAttachments()).isEqualTo(expectedValue.getAttachments());
-    }
-
-    @Test
-    void mapToThirdPartyMessageEmptyTitle() {
-        int indexDocument = 0;
-        String iun = "IUN";
-        boolean isCancelled = false;
-        InternalNotification internalNotification = internalNotification("   ");
-
-
-        String id = iun + "_DOC" + indexDocument;
-        ThirdPartyMessage expectedValue = ThirdPartyMessage.builder()
-                .attachments(List.of(ThirdPartyAttachment.builder()
-                        .contentType("application/pdf")
-                        .id(id)
-                        .name(id + ".pdf")
-                        .category(ThirdPartyAttachment.CategoryEnum.DOCUMENT)
-                        .url("/delivery/notifications/received/IUN/attachments/documents/0")
-                        .build()))
-                .details(IOReceivedNotification.builder()
-                        .iun("IUN")
-                        .subject("SUBJECT")
-                        ._abstract("ABSTRACT")
-                        .senderDenomination("SENDERDENOMINATION")
-                        .recipients(List.of(it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationRecipient.builder()
-                                .denomination("DENOMINATION")
-                                .taxId("TAXID")
-                                .recipientType("PF")
-                                .build()))
-                        .notificationStatusHistory(List.of(NotificationStatusHistoryElement.builder().status("ACCEPTED").build(), NotificationStatusHistoryElement.builder().status("VIEWED").build()))
-                        .build())
-                .build();
-
-        ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification, isCancelled);
-
-        assertThat(actualValue.getAttachments()).isEqualTo(expectedValue.getAttachments());
-    }
-
-    @Test
-    void mapToThirdPartyMessageNotificationNull() {
-
+    void mapToThirdPartMessageReturnsNullWhenNotificationDetailIsNull() {
         ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(null, false);
 
         assertThat(actualValue).isNull();
     }
 
     @Test
-    void mapToDetailsNotificationNull() {
-
+    void mapToDetailsReturnsNullWhenNotificationDetailIsNull() {
         IOReceivedNotification actualValue = ioMapper.mapToDetails(null, false);
 
         assertThat(actualValue).isNull();
     }
 
     @Test
-    void mapToDetailsNotification() {
-        InternalNotification internalNotification = internalNotification();
-        internalNotification.setRecipients(
-                List.of(
-                        NotificationRecipient.builder()
-                                .internalId("internalId")
-                                .recipientType(NotificationRecipientV24.RecipientTypeEnum.PF)
-                                .taxId("taxId")
-                                .physicalAddress(it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress.builder().build())
-                                .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder().build())
-                                .payments(List.of(NotificationPaymentInfo.builder()
-                                                .pagoPa(it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment.builder()
-                                                        .applyCost(false)
-                                                        .creditorTaxId("creditorTaxId")
-                                                        .noticeCode("noticeCode")
-                                                        .attachment(MetadataAttachment.builder().build()).build())
-                                        .f24(it.pagopa.pn.delivery.models.internal.notification.F24Payment.builder().build()).build()))
-                                .build()));
-        IOReceivedNotification actualValue = ioMapper.mapToDetails(internalNotification, false);
+    void mapToDetailsReturnsNullWhenInternalNotificationIsNull() {
+        LegalNotificationDetail notification = new LegalNotificationDetail();
+
+        IOReceivedNotification actualValue = ioMapper.mapToDetails(notification, false);
+
+        assertThat(actualValue).isNull();
+    }
+
+    @Test
+    void mapToThirdPartyAttachmentReturnsEmptyListWhenNotificationDetailIsNull() {
+        List<ThirdPartyAttachment> actualValue = ioMapper.mapToThirdPartyAttachment(null);
 
         assertThat(actualValue).isNotNull();
+        assertThat(actualValue).isEmpty();
     }
 
     @Test
-    void mapToDetailsNotification2() {
-        InternalNotification internalNotification = internalNotification();
-        internalNotification.setRecipients(
-                List.of(
-                        NotificationRecipient.builder()
-                                .internalId("internalId")
-                                .recipientType(NotificationRecipientV24.RecipientTypeEnum.PF)
-                                .taxId("taxId")
-                                .physicalAddress(it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress.builder().build())
-                                .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder().build())
-                                .payments(List.of(NotificationPaymentInfo.builder()
-                                        .f24(it.pagopa.pn.delivery.models.internal.notification.F24Payment.builder()
-                                                .applyCost(false)
-                                                .title("title")
-                                                .metadataAttachment(MetadataAttachment.builder().ref(it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef.builder().key("ssKey").build()).build()).build()).build()))
-                                .build()));
+    void mapToThirdPartyAttachmentReturnsEmptyListWhenInternalNotificationIsNull() {
+        LegalNotificationDetail notification = new LegalNotificationDetail();
 
-        assertThat(ioMapper.mapToThirdPartyAttachment(internalNotification)).isNotNull();
+        List<ThirdPartyAttachment> actualValue = ioMapper.mapToThirdPartyAttachment(notification);
+
+        assertThat(actualValue).isNotNull();
+        assertThat(actualValue).isEmpty();
     }
 
     @Test
-    void mapToThirdPartyAttachmentWithDocumentNullTest() {
+    void mapToDetailsMapsBaseFieldsAndRecipients() {
+        LegalNotificationDetail notification = newLegalNotification();
 
+        IOReceivedNotification actualValue = ioMapper.mapToDetails(notification, false);
+
+        assertThat(actualValue).isNotNull();
+        assertThat(actualValue.getIun()).isEqualTo("IUN");
+        assertThat(actualValue.getSubject()).isEqualTo("SUBJECT");
+        assertThat(actualValue.getAbstract()).isEqualTo("ABSTRACT");
+        assertThat(actualValue.getSenderDenomination()).isEqualTo("SENDERDENOMINATION");
+
+        assertThat(actualValue.getRecipients()).hasSize(1);
+        assertThat(actualValue.getRecipients().get(0).getRecipientType()).isEqualTo("PF");
+        assertThat(actualValue.getRecipients().get(0).getTaxId()).isEqualTo("Codice Fiscale 01");
+        assertThat(actualValue.getRecipients().get(0).getDenomination()).isEqualTo("Nome Cognome/Ragione Sociale");
+
+        assertThat(actualValue.getNotificationStatusHistory()).hasSize(2);
+        assertThat(actualValue.getNotificationStatusHistory())
+                .extracting(NotificationStatusHistoryElement::getStatus)
+                .containsExactly("ACCEPTED", "VIEWED");
+
+        assertThat(actualValue.getIsCancelled()).isNull();
+        assertThat(actualValue.getCompletedPayments()).isNull();
+    }
+
+    @Test
+    void mapToDetailsSetsCancelledAndCompletedPaymentsWhenCancelled() {
+        LegalNotificationDetail notification = newLegalNotificationWithPaymentTimeline("302000100000019421");
+
+        IOReceivedNotification actualValue = ioMapper.mapToDetails(notification, true);
+
+        assertThat(actualValue).isNotNull();
+        assertThat(actualValue.getIsCancelled()).isTrue();
+        assertThat(actualValue.getCompletedPayments()).containsExactly("302000100000019421");
+    }
+
+    @Test
+    void mapToDetailsSetsCancelledAndEmptyCompletedPaymentsWhenCancelledWithoutPaymentTimeline() {
+        LegalNotificationDetail notification = newLegalNotification();
+
+        IOReceivedNotification actualValue = ioMapper.mapToDetails(notification, true);
+
+        assertThat(actualValue).isNotNull();
+        assertThat(actualValue.getIsCancelled()).isTrue();
+        assertThat(actualValue.getCompletedPayments()).isEmpty();
+    }
+
+    @Test
+    void mapToDetailsDuplicatesRecipientForEachPagoPaPayment() {
+        LegalNotificationDetail notification = newLegalNotification();
+        notification.getNotification().setRecipients(List.of(
+                NotificationRecipient.builder()
+                        .recipientType(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV24.RecipientTypeEnum.PF)
+                        .taxId("taxId-1")
+                        .denomination("Recipient 1")
+                        .payments(List.of(
+                                NotificationPaymentInfo.builder()
+                                        .pagoPa(PagoPaPayment.builder()
+                                                .creditorTaxId("creditor-1")
+                                                .noticeCode("notice-1")
+                                                .build())
+                                        .build(),
+                                NotificationPaymentInfo.builder()
+                                        .pagoPa(PagoPaPayment.builder()
+                                                .creditorTaxId("creditor-2")
+                                                .noticeCode("notice-2")
+                                                .build())
+                                        .build()
+                        ))
+                        .build()
+        ));
+
+        IOReceivedNotification actualValue = ioMapper.mapToDetails(notification, false);
+
+        assertThat(actualValue).isNotNull();
+        assertThat(actualValue.getRecipients()).hasSize(2);
+        assertThat(actualValue.getRecipients().get(0).getPayment().getCreditorTaxId()).isEqualTo("creditor-1");
+        assertThat(actualValue.getRecipients().get(0).getPayment().getNoticeCode()).isEqualTo("notice-1");
+        assertThat(actualValue.getRecipients().get(1).getPayment().getCreditorTaxId()).isEqualTo("creditor-2");
+        assertThat(actualValue.getRecipients().get(1).getPayment().getNoticeCode()).isEqualTo("notice-2");
+    }
+
+    @Test
+    void mapToThirdPartMessageMapsDetailsAndAttachments() {
+        LegalNotificationDetail notification = newLegalNotification();
+
+        ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(notification, false);
+
+        assertThat(actualValue).isNotNull();
+        assertThat(actualValue.getDetails()).isNotNull();
+        assertThat(actualValue.getDetails().getIun()).isEqualTo("IUN");
+        assertThat(actualValue.getAttachments()).hasSize(1);
+
+        ThirdPartyAttachment attachment = actualValue.getAttachments().get(0);
+        assertThat(attachment.getId()).isEqualTo("IUN_DOC0");
+        assertThat(attachment.getName()).isEqualTo("TITLE.pdf");
+        assertThat(attachment.getContentType()).isEqualTo("application/pdf");
+        assertThat(attachment.getCategory()).isEqualTo(ThirdPartyAttachment.CategoryEnum.DOCUMENT);
+        assertThat(attachment.getUrl()).isEqualTo("/delivery/notifications/received/IUN/attachments/documents/0");
+    }
+
+    @Test
+    void mapToThirdPartyAttachmentMapsDocumentAttachment() {
+        LegalNotificationDetail notification = newLegalNotification();
+
+        List<ThirdPartyAttachment> actualValue = ioMapper.mapToThirdPartyAttachment(notification);
+
+        assertThat(actualValue).hasSize(1);
+
+        ThirdPartyAttachment attachment = actualValue.get(0);
+        assertThat(attachment.getId()).isEqualTo("IUN_DOC0");
+        assertThat(attachment.getName()).isEqualTo("TITLE.pdf");
+        assertThat(attachment.getContentType()).isEqualTo("application/pdf");
+        assertThat(attachment.getCategory()).isEqualTo(ThirdPartyAttachment.CategoryEnum.DOCUMENT);
+        assertThat(attachment.getUrl()).isEqualTo("/delivery/notifications/received/IUN/attachments/documents/0");
+    }
+
+    @Test
+    void mapToThirdPartyAttachmentMapsDefaultNameWhenTitleIsNull() {
+        ThirdPartyAttachment actualValue = ioMapper.mapToThirdPartyAttachment(notificationDocument(null), 0, "IUN");
+
+        assertThat(actualValue).isNotNull();
+        assertThat(actualValue.getId()).isEqualTo("IUN_DOC0");
+        assertThat(actualValue.getName()).isEqualTo("IUN_DOC0.pdf");
+        assertThat(actualValue.getCategory()).isEqualTo(ThirdPartyAttachment.CategoryEnum.DOCUMENT);
+    }
+
+    @Test
+    void mapToThirdPartyAttachmentMapsDefaultNameWhenTitleIsBlank() {
+        ThirdPartyAttachment actualValue = ioMapper.mapToThirdPartyAttachment(notificationDocument("   "), 0, "IUN");
+
+        assertThat(actualValue).isNotNull();
+        assertThat(actualValue.getId()).isEqualTo("IUN_DOC0");
+        assertThat(actualValue.getName()).isEqualTo("IUN_DOC0.pdf");
+        assertThat(actualValue.getCategory()).isEqualTo(ThirdPartyAttachment.CategoryEnum.DOCUMENT);
+    }
+
+    @Test
+    void mapToThirdPartyAttachmentReturnsNullWhenDocumentIsNull() {
         ThirdPartyAttachment actualValue = ioMapper.mapToThirdPartyAttachment(null, 0, "IUN");
 
         assertThat(actualValue).isNull();
-
     }
-
 
     @Test
-    void mapToThirdPartyAttachmentCollectionEmptyTest() {
-
-        List<ThirdPartyAttachment> actualValue = ioMapper.mapToThirdPartyAttachment(internalNotification());
-
-        assertThat(actualValue).isNotNull();
-
-    }
-
-    private NotificationDocument notificationDocument() {
-        return NotificationDocument.builder()
-                .title("TITLE")
-                .contentType("application/pdf")
-                .ref(NotificationAttachmentBodyRef.builder().key("key").build())
-                .build();
-    }
-
-    private InternalNotification internalNotification(String title) {
-        InternalNotification internalNotification = new InternalNotification();
-        TimelineElementV28 timelineElement = new TimelineElementV28();
-        timelineElement.setCategory(TimelineElementCategoryV28.AAR_CREATION_REQUEST);
-        internalNotification.setTimeline(List.of(timelineElement));
-        internalNotification.setSentAt(OffsetDateTime.now());
-        internalNotification.setDocuments(List.of(it.pagopa.pn.delivery.models.internal.notification.NotificationDocument.builder()
-                .docIdx("DOC0")
-                .contentType("application/pdf")
-                .ref(it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef.builder()
-                        .key("ssKey")
-                        .versionToken("versionToken")
-                        .build())
-                .title(title)
-                .build()));
-        internalNotification.setNotificationStatusHistory(List.of(
-                it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusHistoryElementV26.builder()
-                        .status(NotificationStatusV26.ACCEPTED)
+    void mapToThirdPartyAttachmentReturnsOnlyF24WhenDocumentsAreNull() {
+        LegalNotificationDetail notification = newLegalNotification();
+        notification.getNotification().setDocuments(null);
+        notification.getNotification().setRecipients(List.of(
+                NotificationRecipient.builder()
+                        .recipientType(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV24.RecipientTypeEnum.PF)
+                        .taxId("taxId")
+                        .denomination("Recipient")
+                        .payments(List.of(
+                                NotificationPaymentInfo.builder()
+                                        .f24(F24Payment.builder()
+                                                .title("MODELLO_F24")
+                                                .metadataAttachment(MetadataAttachment.builder()
+                                                        .ref(NotificationAttachmentBodyRef.builder().key("f24-key").build())
+                                                        .build())
+                                                .build())
+                                        .build()
+                        ))
                         .build()
         ));
-        internalNotification.setRecipients(
-                List.of(
-                        NotificationRecipient.builder()
-                                .internalId("internalId")
-                                .recipientType(NotificationRecipientV24.RecipientTypeEnum.PF)
-                                .taxId("taxId")
-                                .physicalAddress(it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress.builder().build())
-                                .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder().build())
-                                .payments(List.of(NotificationPaymentInfo.builder().build()))
-                                .build()));
+
+        List<ThirdPartyAttachment> actualValue = ioMapper.mapToThirdPartyAttachment(notification);
+
+        assertThat(actualValue).hasSize(1);
+        assertThat(actualValue.get(0).getId()).isEqualTo("IUN_F24_0");
+        assertThat(actualValue.get(0).getName()).isEqualTo("MODELLO_F24.pdf");
+        assertThat(actualValue.get(0).getCategory()).isEqualTo(ThirdPartyAttachment.CategoryEnum.F24);
+    }
+
+    @Test
+    void mapToThirdPartyAttachmentMapsF24Attachment() {
+        F24Payment f24Payment = F24Payment.builder()
+                .title("F24_TITLE")
+                .metadataAttachment(MetadataAttachment.builder()
+                        .ref(NotificationAttachmentBodyRef.builder().key("f24-key").build())
+                        .build())
+                .build();
+
+        ThirdPartyAttachment actualValue = ioMapper.mapF24ToThirdPartyAttachment(f24Payment, 2, "IUN");
+
+        assertThat(actualValue).isNotNull();
+        assertThat(actualValue.getId()).isEqualTo("IUN_F24_2");
+        assertThat(actualValue.getName()).isEqualTo("F24_TITLE.pdf");
+        assertThat(actualValue.getContentType()).isEqualTo("application/pdf");
+        assertThat(actualValue.getCategory()).isEqualTo(ThirdPartyAttachment.CategoryEnum.F24);
+        assertThat(actualValue.getUrl()).isEqualTo("/delivery/notifications/received/IUN/attachments/payment/F24/?attachmentIdx=2");
+    }
+
+    @Test
+    void mapF24ToThirdPartyAttachmentReturnsNullWhenF24IsNull() {
+        ThirdPartyAttachment actualValue = ioMapper.mapF24ToThirdPartyAttachment(null, 0, "IUN");
+
+        assertThat(actualValue).isNull();
+    }
+
+    @Test
+    void addFileExtensionIfMissingAddsPdfExtension() {
+        String actualValue = IOMapper.addFileExtensionIfMissing("document", "application/pdf");
+
+        assertThat(actualValue).isEqualTo("document.pdf");
+    }
+
+    @Test
+    void addFileExtensionIfMissingDoesNotDuplicateExtension() {
+        String actualValue = IOMapper.addFileExtensionIfMissing("document.pdf", "application/pdf");
+
+        assertThat(actualValue).isEqualTo("document.pdf");
+    }
+
+    @Test
+    void addFileExtensionIfMissingReturnsFileNameWhenContentTypeIsNull() {
+        String actualValue = IOMapper.addFileExtensionIfMissing("document", null);
+
+        assertThat(actualValue).isEqualTo("document");
+    }
+
+    @Test
+    void addFileExtensionIfMissingHandlesNullFileName() {
+        String actualValue = IOMapper.addFileExtensionIfMissing(null, "application/pdf");
+
+        assertThat(actualValue).isEqualTo(".pdf");
+    }
+
+    @Test
+    void getFileExtensionFromContentTypeReturnsPdf() {
+        String actualValue = IOMapper.getFileExtensionFromContentType("application/pdf");
+
+        assertThat(actualValue).isEqualTo("pdf");
+    }
+
+    @Test
+    void getFileExtensionFromContentTypeReturnsEmptyStringForUnknownContentType() {
+        String actualValue = IOMapper.getFileExtensionFromContentType("text/plain");
+
+        assertThat(actualValue).isEqualTo("");
+    }
+
+    private LegalNotificationDetail newLegalNotification() {
+        InternalNotification internalNotification = new InternalNotification();
         internalNotification.setIun("IUN");
-        internalNotification.setPaProtocolNumber("protocol_01");
         internalNotification.setSubject("SUBJECT");
-        internalNotification.setCancelledIun("IUN_05");
-        internalNotification.setCancelledIun("IUN_00");
-        internalNotification.setSenderPaId("PA_ID");
         internalNotification.setAbstract("ABSTRACT");
         internalNotification.setSenderDenomination("SENDERDENOMINATION");
-        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
-        internalNotification.setRecipients(Collections.singletonList(
+        internalNotification.setSentAt(OffsetDateTime.now());
+        internalNotification.setDocuments(List.of(
+                it.pagopa.pn.delivery.models.internal.notification.NotificationDocument.builder()
+                        .docIdx("DOC0")
+                        .contentType("application/pdf")
+                        .ref(it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef.builder()
+                                .key("doc-key")
+                                .versionToken("versionToken")
+                                .build())
+                        .title("TITLE")
+                        .build()
+        ));
+        internalNotification.setRecipients(List.of(
                 NotificationRecipient.builder()
-                        .recipientType(NotificationRecipientV24.RecipientTypeEnum.PF)
+                        .recipientType(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV24.RecipientTypeEnum.PF)
                         .taxId("Codice Fiscale 01")
                         .denomination("Nome Cognome/Ragione Sociale")
-                        .internalId( "recipientInternalId" )
-                        .payments(List.of(NotificationPaymentInfo.builder()
-                                .build()))
+                        .internalId("recipientInternalId")
+                        .payments(List.of(NotificationPaymentInfo.builder().build()))
                         .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
-                                .type( NotificationDigitalAddress.TypeEnum.PEC )
+                                .type(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress.TypeEnum.PEC)
                                 .address("account@dominio.it")
-                                .build()).build()));
-        return internalNotification;
+                                .build())
+                        .build()
+        ));
+
+        LegalNotificationDetail legalNotificationDetail = new LegalNotificationDetail();
+        legalNotificationDetail.setNotification(internalNotification);
+        legalNotificationDetail.setNotificationStatus(NotificationStatusV26.ACCEPTED);
+        legalNotificationDetail.setNotificationStatusHistory(List.of(
+                it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusHistoryElementV26.builder()
+                        .status(NotificationStatusV26.ACCEPTED)
+                        .build(),
+                it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusHistoryElementV26.builder()
+                        .status(NotificationStatusV26.VIEWED)
+                        .build()
+        ));
+        legalNotificationDetail.setTimeline(List.of(
+                TimelineElementV28.builder()
+                        .category(TimelineElementCategoryV28.AAR_CREATION_REQUEST)
+                        .build()
+        ));
+        return legalNotificationDetail;
     }
-    private InternalNotification internalNotification() {
-        return this.internalNotification("TITLE");
+
+    private LegalNotificationDetail newLegalNotificationWithPaymentTimeline(String noticeCode) {
+        LegalNotificationDetail legalNotificationDetail = newLegalNotification();
+        legalNotificationDetail.setTimeline(List.of(
+                TimelineElementV28.builder()
+                        .category(TimelineElementCategoryV28.PAYMENT)
+                        .details(TimelineElementDetailsV28.builder().noticeCode(noticeCode).build())
+                        .build()
+        ));
+        return legalNotificationDetail;
+    }
+
+    private it.pagopa.pn.delivery.models.internal.notification.NotificationDocument notificationDocument(String title) {
+        return it.pagopa.pn.delivery.models.internal.notification.NotificationDocument.builder()
+                .title(title)
+                .contentType("application/pdf")
+                .ref(it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef.builder()
+                        .key("key")
+                        .build())
+                .build();
     }
 }

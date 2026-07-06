@@ -19,7 +19,7 @@ class RestClient {
       throw error
     }
   }
-  static async putConsents(consentType, lastVersion, uid, cxType) {
+  static async putConsents(consentType, lastVersion, uid, cxType, cxId) {
     logger.info(`Accepting consent ${consentType} (version: ${lastVersion}) for user ${uid} and cxType ${cxType}`);
     try {
       const response = await axios.put(
@@ -28,6 +28,7 @@ class RestClient {
         {
           headers: {
             "x-pagopa-pn-uid": uid,
+            "x-pagopa-pn-cx-id": cxId,
             "x-pagopa-pn-cx-type": cxType,
             "X-Amzn-Trace-Id": getTraceIdFromEnv()
           }

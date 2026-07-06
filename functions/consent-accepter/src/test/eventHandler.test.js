@@ -101,7 +101,8 @@ describe('Consent Handler Tests', () => {
       
       const mockUserInfo = {
         uid: 'user123',
-        cxType: 'PF'
+        cxType: 'PF',
+        cxId: 'anonymous-123'
       };
 
       const mockDeliveryResponse = {
@@ -122,8 +123,8 @@ describe('Consent Handler Tests', () => {
       expect(utilsStub.getUserInfoFromEvent.calledOnce).to.be.true;
       expect(utilsStub.getUserInfoFromEvent.calledWith(mockEvent)).to.be.true;
       expect(RestClientStub.putConsents.callCount).to.equal(2);
-      expect(RestClientStub.putConsents.firstCall.args).to.deep.equal(['TOS', 'v1', 'user123', 'PF']);
-      expect(RestClientStub.putConsents.secondCall.args).to.deep.equal(['PRIVACY', 'v2', 'user123', 'PF']);
+      expect(RestClientStub.putConsents.firstCall.args).to.deep.equal(['TOS', 'v1', 'user123', 'PF', 'anonymous-123']);
+      expect(RestClientStub.putConsents.secondCall.args).to.deep.equal(['PRIVACY', 'v2', 'user123', 'PF', 'anonymous-123']);
       expect(RestClientStub.checkQrCode.calledOnce).to.be.true;
       expect(RestClientStub.checkQrCode.calledWith(
         'qrCodeData',
@@ -288,7 +289,7 @@ describe('Consent Handler Tests', () => {
         { consentType: 'TOS', version: 'v3' }
       ]);
 
-      const mockUserInfo = { uid: 'user123', cxType: 'PF' };
+      const mockUserInfo = { uid: 'user123', cxType: 'PF', cxId: 'anonymous-123' };
       utilsStub.getUserInfoFromEvent.returns(mockUserInfo);
       utilsStub.retrieveHeadersToForward.returns({});
       RestClientStub.putConsents.resolves({});
@@ -299,7 +300,7 @@ describe('Consent Handler Tests', () => {
 
       // Assert
       expect(RestClientStub.putConsents.calledOnce).to.be.true;
-      expect(RestClientStub.putConsents.calledWith('TOS', 'v3', 'user123', 'PF')).to.be.true;
+      expect(RestClientStub.putConsents.calledWith('TOS', 'v3', 'user123', 'PF', 'anonymous-123')).to.be.true;
       expect(mockCacheManagerInstance.get.called).to.be.false;
     });
 
@@ -314,7 +315,7 @@ describe('Consent Handler Tests', () => {
         { consentType: 'PRIVACY' }
       ]);
 
-      const mockUserInfo = { uid: 'user123', cxType: 'PG' };
+      const mockUserInfo = { uid: 'user123', cxType: 'PG', cxId: 'anonymous-123' };
       utilsStub.getUserInfoFromEvent.returns(mockUserInfo);
       utilsStub.retrieveHeadersToForward.returns({});
       RestClientStub.putConsents.resolves({});
@@ -327,7 +328,7 @@ describe('Consent Handler Tests', () => {
       // Assert
       expect(mockCacheManagerInstance.get.calledOnce).to.be.true;
       expect(mockCacheManagerInstance.get.calledWith('PG', 'PRIVACY')).to.be.true;
-      expect(RestClientStub.putConsents.calledWith('PRIVACY', 'v5', 'user123', 'PG')).to.be.true;
+      expect(RestClientStub.putConsents.calledWith('PRIVACY', 'v5', 'user123', 'PG', 'anonymous-123')).to.be.true;
     });
   });
 
@@ -345,7 +346,7 @@ describe('Consent Handler Tests', () => {
         { consentType: 'MARKETING', version: 'v2' }
       ]);
 
-      const mockUserInfo = { uid: 'user456', cxType: 'PG' };
+      const mockUserInfo = { uid: 'user456', cxType: 'PG', cxId: 'anonymous-456' };
       utilsStub.getUserInfoFromEvent.returns(mockUserInfo);
       utilsStub.retrieveHeadersToForward.returns({ 'x-api-key': 'test-key' });
       RestClientStub.putConsents.resolves({});

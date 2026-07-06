@@ -889,8 +889,17 @@ Parameters:
     Description: "latest informal notification version without v ex. 2.4"
     AllowedPattern: '^\d\.\d$'
 
+  EnableInformalB2BApiGateway:
+    Type: String
+    Description: 'Determina se le risorse API Gateway relative alle API delle notifiche bonarie debbano essere create (true/false)'
+    AllowedValues:
+      - 'true'
+      - 'false'
+    Default: 'true'
+
 Conditions:
   SendLogToKinesis: !Not [!Equals [!Ref LogsKinesisSourceStreamArn, ""]]
+  ShouldEnableInformalB2BApiGateway: !Equals [!Ref EnableInformalB2BApiGateway, "true"]
 
 Resources:
   # PN-Delivery microservice
@@ -1003,6 +1012,37 @@ Resources:
         AlbSecurityGroup: !Ref AlbSecurityGroup
         EcsLogGroup: !Ref EcsLogGroup
         LogAlarmStrategyV1: !Ref LogAlarmStrategy
+
+  # Expose PN-Delivery microservice public informal API with API-GW for B2B usage
+  DeliveryMicroserviceInformalPublicAPI:
+    Type: AWS::CloudFormation::Stack
+    Condition: ShouldEnableInformalB2BApiGateway
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service-openapi.yaml"
+      Parameters:
+        MicroServiceUniqueName: !Sub "${ProjectName}-delivery"
+        IntendedUsage: B2B
+        DnsName: !Ref ApiDnsName
+        ProjectName: !Ref ProjectName
+        ServiceApiPath: "delivery"
+        NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
+        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
+        OpenApiBucketName: !Ref MicroserviceBucketName
+        OpenApiBucketKey: !Sub ${MicroserviceBucketBaseKey}/docs/openapi/aws/api-delivery-informal-B2B-aws.yaml
+
+  DeliveryMicroserviceInformalPublicApiWaf:
+    Type: AWS::CloudFormation::Stack
+    Condition: ShouldEnableInformalB2BApiGateway
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
+      Parameters:
+        WAFName: !Sub "${ProjectName}-delivery-informal-b2b"
+        IntendedUsage: B2B
+        APIGatewayARNs: !GetAtt DeliveryMicroserviceInformalPublicAPI.Outputs.APIGatewayARN
+        ExcludedRule0: CrossSiteScripting_BODY,SizeRestrictions_BODY
+        Limit: !Ref B2bWafLimit
 
   # Grant operational rights to PN-Delivery microservice
   DeliveryMicroserviceTaskManagedPolicy:

@@ -10,10 +10,11 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.NotificationSearchCommunicationType;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
+import it.pagopa.pn.delivery.svc.InformalNotificationDetailRetrieverStrategy;
+import it.pagopa.pn.delivery.svc.LegalNotificationDetailRetrieverStrategy;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationQRService;
-import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
-import it.pagopa.pn.delivery.utils.ModelMapperConfig;
+import it.pagopa.pn.delivery.svc.search.NotificationSearchService;
 import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -56,7 +57,13 @@ class NotificationSearchControllerTest {
     WebTestClient webTestClient;
 
     @MockBean
-    private NotificationRetrieverService svc;
+    private NotificationSearchService svc;
+
+    @MockBean
+    private InformalNotificationDetailRetrieverStrategy informalNotificationDetailRetrieverStrategy;
+
+    @MockBean
+    private LegalNotificationDetailRetrieverStrategy legalNotificationDetailRetrieverStrategy;
 
     @MockBean
     private NotificationAttachmentService attachmentService;

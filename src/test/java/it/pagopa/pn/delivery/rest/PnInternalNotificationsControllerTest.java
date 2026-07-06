@@ -4,6 +4,8 @@ import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnForbiddenException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
+import it.pagopa.pn.delivery.models.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.NotificationSearchCommunicationType;
 import it.pagopa.pn.delivery.models.NotificationSearchRow;
@@ -13,7 +15,6 @@ import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.svc.*;
-import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -65,7 +66,16 @@ class PnInternalNotificationsControllerTest {
     WebTestClient webTestClient;
 
     @MockBean
-    private NotificationRetrieverService retrieveSvc;
+    private NotificationSearchService notificationSearchService;
+
+    @MockBean
+    private NotificationRetrieverService retrieverService;
+
+    @MockBean
+    private InformalNotificationDetailRetrieverStrategy informalNotificationDetailRetrieverStrategy;
+
+    @MockBean
+    private LegalNotificationDetailRetrieverStrategy legalNotificationDetailRetrieverStrategy;
 
     @MockBean
     private NotificationPriceService priceService;
@@ -106,7 +116,7 @@ class PnInternalNotificationsControllerTest {
                         .nextPagesKey(null).build();
 
         //When
-        Mockito.when(retrieveSvc.searchNotification(any(InputSearchNotificationDto.class), any(), any()))
+        Mockito.when(notificationSearchService.searchNotification(any(InputSearchNotificationDto.class), any(), any()))
                 .thenReturn(result);
 
         //Then
@@ -137,7 +147,7 @@ class PnInternalNotificationsControllerTest {
                 .build();
 
 
-        Mockito.verify(retrieveSvc).searchNotification(eq(searchDto), any(), any());
+        Mockito.verify(notificationSearchService).searchNotification(eq(searchDto), any(), any());
     }
 
     @Test
@@ -202,7 +212,7 @@ class PnInternalNotificationsControllerTest {
                         .nextPagesKey(null).build();
 
         //When
-        Mockito.when(retrieveSvc.searchNotification(Mockito.any(InputSearchNotificationDto.class), any(), any()))
+        Mockito.when(notificationSearchService.searchNotification(Mockito.any(InputSearchNotificationDto.class), any(), any()))
                 .thenReturn(result);
 
         //Then
@@ -235,7 +245,7 @@ class PnInternalNotificationsControllerTest {
                 .build();
 
 
-        Mockito.verify(retrieveSvc).searchNotification(searchDto, null, null);
+        Mockito.verify(notificationSearchService).searchNotification(searchDto, null, null);
     }
 
     @Test
@@ -258,7 +268,7 @@ class PnInternalNotificationsControllerTest {
                         .nextPagesKey(null).build();
 
         //When
-        Mockito.when(retrieveSvc.searchNotification(any(InputSearchNotificationDto.class), any(), any()))
+        Mockito.when(notificationSearchService.searchNotification(any(InputSearchNotificationDto.class), any(), any()))
                 .thenReturn(result);
 
         //Then
@@ -281,7 +291,7 @@ class PnInternalNotificationsControllerTest {
 
     @Test
     void searchNotificationsPrivateFailure() {
-        Mockito.when(retrieveSvc.searchNotification(any(InputSearchNotificationDto.class), any(), any()))
+        Mockito.when(notificationSearchService.searchNotification(any(InputSearchNotificationDto.class), any(), any()))
                 .thenThrow(new PnNotFoundException("test", "test", "test"));
 
         webTestClient.get()
@@ -300,11 +310,12 @@ class PnInternalNotificationsControllerTest {
     @Test
     void getSentNotificationPrivateSuccess() {
         // Given
-        InternalNotification notification = newNotification();
+        LegalNotificationDetail legalNotificationDetail = newLegalNotification();
 
 
         // When
-        Mockito.when( retrieveSvc.getNotificationInformation( IUN, false, true )).thenReturn( notification );
+        Mockito.when( legalNotificationDetailRetrieverStrategy.getNotificationInformation( IUN, false, true, null ))
+                .thenReturn( legalNotificationDetail );
 
         webTestClient.get()
                 .uri( "/delivery-private/notifications/{iun}".replace( "{iun}", IUN ) )
@@ -318,9 +329,10 @@ class PnInternalNotificationsControllerTest {
     void getSentInformalNotificationPrivateWithIunPatternValidation() {
         // IUN valido secondo pattern OpenAPI informal: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[A-Z]{1}$
         String validIun = "ABCD-EFGH-IJKL-123456-M-N";
-        InternalNotification notification = newNotification();
+        InformalNotificationDetail informalNotificationDetail = newInformalNotification();
 
-        Mockito.when(retrieveSvc.getNotificationInformation(anyString(), anyBoolean(), anyBoolean())).thenReturn(notification);
+        Mockito.when(informalNotificationDetailRetrieverStrategy.getNotificationInformation(anyString(), anyBoolean(), anyBoolean(), anyBoolean(),eq(null)))
+                .thenReturn(informalNotificationDetail);
 
         webTestClient.get()
                 .uri("/delivery-private/v1/notifications/informal/{iun}", validIun)
@@ -338,8 +350,8 @@ class PnInternalNotificationsControllerTest {
                 .accept(MediaType.ALL)
                 .exchange()
                 .expectStatus().isBadRequest();
-        Mockito.verify(retrieveSvc, Mockito.never())
-                .getNotificationInformation(anyString(), anyBoolean(), anyBoolean());
+        Mockito.verify(informalNotificationDetailRetrieverStrategy, Mockito.never())
+                .getNotificationInformation(anyString(), anyBoolean(), anyBoolean(), anyBoolean(), eq(null));
     }
 
     @Test
@@ -680,7 +692,7 @@ class PnInternalNotificationsControllerTest {
     void checkIunAndInternalIdWithRecipientTest() {
         String recipientId = "testRecipient";
         Mockito.doNothing()
-                .when(retrieveSvc)
+                .when(retrieverService)
                 .checkIUNAndInternalId(IUN, recipientId, null, null, null);
 
         webTestClient.get()
@@ -697,7 +709,7 @@ class PnInternalNotificationsControllerTest {
     void checkIunAndInternalIdWithRecipientNotPartOfNotificationTest() {
         String recipientId = "testRecipient";
         Mockito.doThrow(new PnForbiddenException("The given recipient is not one of notification's recipients"))
-                .when(retrieveSvc)
+                .when(retrieverService)
                 .checkIUNAndInternalId(IUN, recipientId, null, null, null);
 
         webTestClient.get()
@@ -731,16 +743,31 @@ class PnInternalNotificationsControllerTest {
         internalNotification.setCancelledIun("IUN_05");
         internalNotification.setCancelledIun("IUN_00");
         internalNotification.setSenderPaId("PA_ID");
-        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()
                         .taxId("Codice Fiscale 01")
                         .denomination("Nome Cognome/Ragione Sociale")
-                        .internalId( "recipientInternalId" )
+                        .internalId("recipientInternalId")
                         .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
-                                .type( NotificationDigitalAddress.TypeEnum.PEC )
+                                .type(NotificationDigitalAddress.TypeEnum.PEC)
                                 .address("account@dominio.it")
                                 .build()).build()));
         return internalNotification;
+    }
+
+    private LegalNotificationDetail newLegalNotification() {
+        LegalNotificationDetail legalNotificationDetail = new LegalNotificationDetail();
+        legalNotificationDetail.setNotification(newNotification());
+        legalNotificationDetail.setNotificationStatus(NotificationStatusV26.ACCEPTED);
+
+        return legalNotificationDetail;
+    }
+
+
+    private InformalNotificationDetail newInformalNotification() {
+        InformalNotificationDetail informalNotification = new InformalNotificationDetail();
+        informalNotification.setNotificationStatus(InformalNotificationStatusV1.IN_VALIDATION);
+        informalNotification.setNotification(newNotification());
+        return informalNotification;
     }
 }
