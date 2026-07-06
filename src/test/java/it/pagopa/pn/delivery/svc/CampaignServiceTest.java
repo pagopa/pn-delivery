@@ -101,13 +101,12 @@ class CampaignServiceTest {
                 .serviceId("service-1")
                 .sensitiveContent(false)
                 .stopOnViewed(false)
-                .channels(List.of(ChannelType.IO, ChannelType.SMS))
                 .workflow(List.of(
                         WorkFlowEntity.builder()
                                 .channel(ChannelType.IO)
                                 .recipientType(Set.of(RecipientTypeInt.PF))
                                 .timeout(Duration.ofDays(1))
-                                .desiredFeedback(DesiredFeedbackType.READ)
+                                .desiredFeedback(Set.of(DesiredFeedbackType.READ))
                                 .includeAttachment(false)
                                 .build()
                 ))
@@ -126,7 +125,6 @@ class CampaignServiceTest {
         Assertions.assertEquals("Description", result.getDescriptionScope());
         Assertions.assertEquals(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignStatus.IN_PROGRESS, result.getCampaignStatus());
         Assertions.assertEquals("contact@example.com", result.getSenderContact());
-        Assertions.assertEquals(2, result.getChannels().size());
         Assertions.assertEquals(1, result.getWorkflow().size());
         Assertions.assertEquals(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ChannelType.fromValue("IO"), result.getWorkflow().get(0).getChannel());
         Set<it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RecipientTypeInt> recipients = result.getWorkflow().get(0).getRecipientType();
@@ -158,13 +156,12 @@ class CampaignServiceTest {
                 .serviceId("service-" + campaignId)
                 .sensitiveContent(false)
                 .stopOnViewed(false)
-                .channels(List.of(ChannelType.IO, ChannelType.SMS))
                 .workflow(List.of(
                         WorkFlowEntity.builder()
                                 .channel(ChannelType.IO)
                                 .recipientType(Set.of(RecipientTypeInt.PF))
                                 .timeout(Duration.ofDays(1))
-                                .desiredFeedback(DesiredFeedbackType.READ)
+                                .desiredFeedback(Set.of(DesiredFeedbackType.READ))
                                 .includeAttachment(false)
                                 .build()
                 ))

@@ -17,7 +17,7 @@ public class WorkFlowEntity {
 	private ChannelType channel;
 	private Set<RecipientTypeInt> recipientType;
 	private Duration timeout;
-	private DesiredFeedbackType desiredFeedback;
+	private Set<DesiredFeedbackType> desiredFeedback;
 	private Boolean includeAttachment;
 }
 
