@@ -2,12 +2,19 @@ package it.pagopa.pn.delivery.utils;
 
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InformalNotificationDetail;
+import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.LegalNotificationDetail;
+import it.pagopa.pn.delivery.models.internal.notification.F24Payment;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
+
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -75,5 +82,29 @@ public class NotificationUtils {
             log.warn("Notification with iun: {} has a request for cancellation", legalNotificationDetail.getNotification().getIun());
         }
         return cancellationTimelineIsPresent;
+    }
+
+    public static void removeDocuments(InternalNotification notification) {
+        notification.setDocumentsAvailable(false);
+        notification.setDocuments(Collections.emptyList());
+        for (NotificationRecipient recipient : notification.getRecipients()) {
+            List<NotificationPaymentInfo> payments = recipient.getPayments();
+            if (!CollectionUtils.isEmpty(payments)) {
+                payments.forEach(NotificationUtils::removePaymentAttachment);
+            }
+        }
+    }
+
+    private static void removePaymentAttachment(NotificationPaymentInfo notificationPaymentInfo) {
+        it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment pagoPaPayment = notificationPaymentInfo.getPagoPa();
+        if (Objects.nonNull(pagoPaPayment)) {
+            // rimuovo allegato di pagamento pagoPA
+            pagoPaPayment.setAttachment(null);
+        }
+        F24Payment f24Payment = notificationPaymentInfo.getF24();
+        if (Objects.nonNull(f24Payment)) {
+            // rimuovo oggetto di pagamento F24
+            notificationPaymentInfo.setF24(null);
+        }
     }
 }

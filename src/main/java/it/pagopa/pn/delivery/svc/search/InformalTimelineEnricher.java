@@ -1,21 +1,27 @@
 package it.pagopa.pn.delivery.svc.search;
 
 
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalNotificationHistoryResponse;
-
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalNotificationStatusHistoryElementV1;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalTimelineElementV1;
 import it.pagopa.pn.delivery.models.InformalNotificationDetail;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
+import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+
+import static it.pagopa.pn.delivery.utils.NotificationUtils.removeDocuments;
 
 @Service
 @RequiredArgsConstructor
@@ -24,12 +30,17 @@ public class InformalTimelineEnricher implements TimelineEnricher<InformalNotifi
 
     private final PnDeliveryPushClientImpl pnDeliveryPushClient;
     private final ModelMapper modelMapper;
+    private final PnDeliveryConfigs cfg;
+    private final Clock clock;
+    private final RefinementLocalDate refinementLocalDateUtils;
 
     @Override
     public void enrichNotificationDetail(InformalNotificationDetail informalNotificationDetail, boolean requestBySender) {
         InternalNotification notification = informalNotificationDetail.getNotification();
         String iun = notification.getIun();
         enrichWithTimelineAndStatusHistory(iun, informalNotificationDetail);
+        OffsetDateTime acceptanceDate = findAcceptanceDate(informalNotificationDetail.getTimeline(), notification.getIun());
+        checkDocumentsAvailability(informalNotificationDetail, acceptanceDate);
     }
 
     private void enrichWithTimelineAndStatusHistory(String iun, InformalNotificationDetail informalNotificationDetail) {
@@ -68,5 +79,38 @@ public class InformalTimelineEnricher implements TimelineEnricher<InformalNotifi
 
         informalNotificationDetail.setNotificationStatus(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatusV1
                 .fromValue(Objects.requireNonNull(informalNotificationHistory.getInformalNotificationStatus()).getValue()));
+    }
+
+    private OffsetDateTime findAcceptanceDate(List<it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalTimelineElementV1> timeline, String iun) {
+        log.debug("Find acceptance date iun={}", iun);
+        OffsetDateTime acceptanceDate = null;
+        // cerco elemento timeline con category request_accepted
+        Optional<OffsetDateTime> optionalDate = timeline
+                .stream()
+                .filter(tle -> it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalTimelineElementCategoryV1.REQUEST_ACCEPTED.equals(tle.getCategory()))
+                .map(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalTimelineElementV1::getIngestionTimestamp)
+                .filter(Objects::nonNull)
+                .findFirst();
+        // se trovo la data di accettazione della notifica
+        if (optionalDate.isPresent()) {
+            acceptanceDate = refinementLocalDateUtils.setLocalRefinementDate(optionalDate.get());
+        } else {
+            log.debug("Notification iun={} not accepted", iun);
+        }
+        return acceptanceDate;
+    }
+
+    private void checkDocumentsAvailability(InformalNotificationDetail informalNotificationDetail, OffsetDateTime acceptanceDate) {
+        InternalNotification notification = informalNotificationDetail.getNotification();
+        log.debug("Check if documents are available for iun={}", notification.getIun());
+        notification.setDocumentsAvailable(true);
+        if (acceptanceDate != null) {
+            long daysBetween = ChronoUnit.DAYS.between(acceptanceDate.toInstant().truncatedTo(ChronoUnit.DAYS),
+                    clock.instant().truncatedTo(ChronoUnit.DAYS));
+            if (daysBetween > Long.parseLong(cfg.getInformalMaxDocumentsAvailableDays())) {
+                log.debug("Documents not more available for iun={} from={}", notification.getIun(), acceptanceDate);
+                removeDocuments(notification);
+            }
+        }
     }
 }
