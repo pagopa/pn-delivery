@@ -144,6 +144,48 @@ class NotificationSearchServiceTest {
     }
 
     @Test
+    void searchNotificationShouldOpaqueFiscalCodeForCampaign() {
+        // il filtro recipientId di una ricerca per campagna bonaria arriva in chiaro (CF) come
+        // per il mittente "legale": deve essere anonimizzato allo stesso modo prima della ricerca
+        String fiscalCode = "EEEEEEEEEEEEEEEE";
+        InputSearchNotificationDto searchDto = baseSearchDto(false).toBuilder()
+                .byCampaign(true)
+                .campaignId("CAMP-TEST-01")
+                .filterId(fiscalCode)
+                .build();
+
+        when(dataVaultClient.ensureRecipientByExternalId(RecipientType.PF, fiscalCode)).thenReturn("opaque-pf");
+        when(dataVaultClient.ensureRecipientByExternalId(RecipientType.PG, fiscalCode)).thenReturn("opaque-pg");
+        when(notificationSearchFactory.getMultiPageSearch(eq(searchDto), isNull())).thenReturn(notificationSearch);
+        when(notificationSearch.searchNotificationMetadata()).thenReturn(emptySearchResult());
+
+        service.searchNotification(searchDto, "PA", null);
+
+        Assertions.assertEquals("opaque-pf", searchDto.getOpaqueFilterIdPF());
+        Assertions.assertEquals("opaque-pg", searchDto.getOpaqueFilterIdPG());
+        verify(dataVaultClient).ensureRecipientByExternalId(RecipientType.PF, fiscalCode);
+        verify(dataVaultClient).ensureRecipientByExternalId(RecipientType.PG, fiscalCode);
+    }
+
+    @Test
+    void searchNotificationShouldOpaquePivaFilterIdForCampaign() {
+        InputSearchNotificationDto searchDto = baseSearchDto(false).toBuilder()
+                .byCampaign(true)
+                .campaignId("CAMP-TEST-01")
+                .filterId(FILTER_ID)
+                .build();
+
+        when(dataVaultClient.ensureRecipientByExternalId(RecipientType.PG, FILTER_ID)).thenReturn("opaque-pg");
+        when(notificationSearchFactory.getMultiPageSearch(eq(searchDto), isNull())).thenReturn(notificationSearch);
+        when(notificationSearch.searchNotificationMetadata()).thenReturn(emptySearchResult());
+
+        service.searchNotification(searchDto, "PA", null);
+
+        Assertions.assertEquals("opaque-pg", searchDto.getOpaqueFilterIdPG());
+        verify(dataVaultClient).ensureRecipientByExternalId(RecipientType.PG, FILTER_ID);
+    }
+
+    @Test
     void searchNotificationByReceiverWithValidMandateShouldAdjustDatesAndDelegator() {
         InputSearchNotificationDto searchDto = baseSearchDto(false).toBuilder()
                 .senderReceiverId(DELEGATE_ID)

@@ -88,7 +88,7 @@ public class NotificationSearchService {
 
         if ( searchDto.isByCampaign() ) {
             // la ricerca per campagna riguarda per definizione notifiche bonarie: si forza INFORMAL.
-            // Non si applica il default LEGAL, né il ramo deleghe (mandato), né l'auth PG del destinatario:
+            // Non si applica il default LEGAL, né il ramo deleghe (mandate), né l'auth PG del destinatario:
             // è un flusso lato mittente sugli indici di campagna.
             searchDto.setCommunicationType( NotificationSearchCommunicationType.INFORMAL );
         } else {
@@ -210,7 +210,11 @@ public class NotificationSearchService {
 
 	private void opaqueFilterId(InputSearchNotificationDto searchDto) {
 		String searchDtoFilterId = searchDto.getFilterId();
-		if ( searchDtoFilterId != null && searchDto.isBySender() && !searchDto.isReceiverIdIsOpaque() ) {
+		// il filterId (recipientId) arriva in chiaro (CF/P.IVA) sia dal mittente "legal" sia dal
+		// mittente di una campagna bonaria: in entrambi i casi va anonimizzato tramite data-vault
+		// prima di essere usato come chiave di ricerca
+		boolean requiresOpaqueConversion = searchDto.isBySender() || searchDto.isByCampaign();
+		if ( searchDtoFilterId != null && requiresOpaqueConversion && !searchDto.isReceiverIdIsOpaque() ) {
 			if ( searchDtoFilterId.length() == 11 ) {
 				log.info( "[start] Send request P.Iva to data-vault" );
 				searchDto.setOpaqueFilterIdPG( dataVaultClient.ensureRecipientByExternalId( it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType.PG, searchDtoFilterId) );

@@ -119,9 +119,17 @@ public class IndexNameAndPartitions {
     @NotNull
     private static List<String> getCampaignAndRecipientPartition(InputSearchNotificationDto searchParams) {
         List<String> partitionValues = new ArrayList<>();
-        partitionValues.add( searchParams.getCampaignId()
-                + PARTITION_KEY_SEPARATOR + searchParams.getFilterId()
-        );
+        // le notifiche bonarie possono avere destinatari sia PF che PG: come per la ricerca
+        // mittente legale (INDEX_WITH_BOTH_IDS), si costruiscono entrambe le partizioni quando
+        // entrambi gli id opachi sono disponibili, effettuando poi 2 query reali unite a valle
+        if ( StringUtils.hasText( searchParams.getOpaqueFilterIdPF() ) ) {
+            partitionValues.add(searchParams.getCampaignId()
+                    + PARTITION_KEY_SEPARATOR + searchParams.getOpaqueFilterIdPF());
+        }
+        if ( StringUtils.hasText( searchParams.getOpaqueFilterIdPG() ) ) {
+            partitionValues.add(searchParams.getCampaignId()
+                    + PARTITION_KEY_SEPARATOR + searchParams.getOpaqueFilterIdPG());
+        }
         return partitionValues;
     }
 
