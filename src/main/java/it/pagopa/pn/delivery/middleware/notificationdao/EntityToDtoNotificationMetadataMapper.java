@@ -6,6 +6,7 @@ import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDel
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.NotificationSearchRow;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -39,7 +40,11 @@ public class EntityToDtoNotificationMetadataMapper {
                 .requestAcceptedAt( requestAcceptedAt )
                 .group( entity.getNotificationGroup() )
                 .notificationStatus( UnifiedNotificationStatus.fromValue( entity.getNotificationStatus() ))
-                .communicationType( entity.getCommunicationType() )
+                // notifiche storiche precedenti all'introduzione del campo non hanno communicationType
+                // valorizzato su DB: vengono trattate come LEGAL per retrocompatibilita'
+                .communicationType( StringUtils.hasText( entity.getCommunicationType() )
+                        ? entity.getCommunicationType()
+                        : "LEGAL" )
                 .campaignId( entity.getCampaignId() )
                 .viewed( entity.getViewed() )
                 .delivered( entity.getDelivered() )
