@@ -1,9 +1,6 @@
 package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.commons.exceptions.PnRuntimeException;
-import it.pagopa.pn.commons.log.PnAuditLogBuilder;
-import it.pagopa.pn.commons.log.PnAuditLogEvent;
-import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderInformalReadWebApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationSearchResponse;
@@ -12,7 +9,6 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.NotificationSearchCommunicationType;
 import it.pagopa.pn.delivery.models.NotificationSearchRow;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
-import it.pagopa.pn.delivery.svc.NotificationRetrieverService;
 import it.pagopa.pn.delivery.svc.search.CampaignAuthValidator;
 import it.pagopa.pn.delivery.svc.search.NotificationSearchService;
 import it.pagopa.pn.delivery.utils.InformalNotificationStatusValidator;
@@ -32,7 +28,7 @@ public class PnInformalSentNotificationsController implements SenderInformalRead
     private final NotificationSearchService retrieveSvc;
     private final ModelMapper modelMapper;
     private final CampaignAuthValidator campaignAuthValidator;
-
+    
     public PnInformalSentNotificationsController(NotificationSearchService retrieveSvc,
                                                  ModelMapper modelMapper,
                                                  CampaignAuthValidator campaignAuthValidator) {
@@ -57,12 +53,6 @@ public class PnInformalSentNotificationsController implements SenderInformalRead
                                                                                              Boolean delivered,
                                                                                              Integer size,
                                                                                              String nextPagesKey) {
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_SEARCH_SND, "searchInformalSentNotification campaignId={}", campaignId)
-                .iun(iunMatch)
-                .build();
-        logEvent.log();
 
         InputSearchNotificationDto searchDto = new InputSearchNotificationDto().toBuilder()
                 .byCampaign(true)
@@ -77,7 +67,6 @@ public class PnInformalSentNotificationsController implements SenderInformalRead
                 .groups(StringUtils.hasText(group) ? List.of(group) : xPagopaPnCxGroups)
                 .viewed(viewed)
                 .delivered(delivered)
-                // la ricerca per campagna è per definizione bonaria: si forza esplicitamente il filtro INFORMAL
                 .communicationType(NotificationSearchCommunicationType.INFORMAL)
                 .receiverIdIsOpaque(false)
                 .size(size)
@@ -85,19 +74,16 @@ public class PnInformalSentNotificationsController implements SenderInformalRead
                 .build();
 
         ResultPaginationDto<NotificationSearchRow, String> serviceResult;
-        InformalNotificationSearchResponse response = new InformalNotificationSearchResponse();
+        InformalNotificationSearchResponse response;
         try {
-            // Autorizzazione campagna -> mittente (WI-US4.10): la campagna deve appartenere a xPagopaPnCxId.
-            // Solleva PnForbiddenException quando la verifica fallisce (implementazione stub, vedi validator).
-            campaignAuthValidator.assertCampaignBelongsToSender(campaignId, xPagopaPnCxId);
+            campaignAuthValidator.checkCampaignIsFromSender(campaignId, xPagopaPnCxId);
             serviceResult = retrieveSvc.searchNotification(searchDto, null, null);
             // la validazione di dominio deve stare fuori dal map(): ModelMapper incapsula
             // le eccezioni del converter in MappingException, perdendo il codice errore dedicato
             InformalNotificationStatusValidator.assertInformalCompatible(serviceResult);
             response = modelMapper.map(serviceResult, InformalNotificationSearchResponse.class);
-            logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {
-            logEvent.generateFailure("" + exc.getProblem()).log();
+            log.error("Error searching informal sent notifications for campaignId={} senderId={} exc={}", campaignId, xPagopaPnCxId, exc.getMessage(), exc);
             throw exc;
         }
         return ResponseEntity.ok(response);

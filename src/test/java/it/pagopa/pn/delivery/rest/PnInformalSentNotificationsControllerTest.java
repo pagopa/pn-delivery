@@ -64,7 +64,7 @@ class PnInformalSentNotificationsControllerTest {
         assertSame(mapped, response.getBody());
 
         // l'auth campagna->mittente è invocata prima della ricerca
-        Mockito.verify(campaignAuthValidator).assertCampaignBelongsToSender(CAMPAIGN_ID, CX_ID);
+        Mockito.verify(campaignAuthValidator).checkCampaignIsFromSender(CAMPAIGN_ID, CX_ID);
 
         ArgumentCaptor<InputSearchNotificationDto> captor = ArgumentCaptor.forClass(InputSearchNotificationDto.class);
         Mockito.verify(retrieveSvc).searchNotification(captor.capture(), any(), any());
@@ -117,7 +117,7 @@ class PnInformalSentNotificationsControllerTest {
     @Test
     void forbiddenWhenCampaignDoesNotBelongToSender() {
         Mockito.doThrow(new PnForbiddenException("La campagna non appartiene al mittente"))
-                .when(campaignAuthValidator).assertCampaignBelongsToSender(CAMPAIGN_ID, CX_ID);
+                .when(campaignAuthValidator).checkCampaignIsFromSender(CAMPAIGN_ID, CX_ID);
 
         assertThrows(PnForbiddenException.class, () -> controller.searchInformalSentNotification(
                 UID, CxTypeAuthFleet.PA, CX_ID, CAMPAIGN_ID, START, END, List.of("G1"),
