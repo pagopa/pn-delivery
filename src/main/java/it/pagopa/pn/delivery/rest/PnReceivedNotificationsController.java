@@ -7,12 +7,13 @@ import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.RecipientReadApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
+import it.pagopa.pn.delivery.models.NotificationSearchRow;
 import it.pagopa.pn.delivery.models.*;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationQRService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.InternalFieldsCleaner;
+import it.pagopa.pn.delivery.utils.LegalNotificationStatusValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +45,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
     }
 
     @Override
-    public ResponseEntity<NotificationSearchResponse> searchReceivedNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, OffsetDateTime startDate, OffsetDateTime endDate, List<String> xPagopaPnCxGroups, String mandateId, String senderId, NotificationStatusV26 status, String subjectRegExp, String iunMatch, Integer size, String nextPagesKey) {
+    public ResponseEntity<FullNotificationSearchResponse> searchReceivedNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, OffsetDateTime startDate, OffsetDateTime endDate, List<String> xPagopaPnCxGroups, String mandateId, String senderId, String subjectRegExp, String iunMatch, Integer size, String nextPagesKey, String communicationType) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEventType eventType = PnAuditLogEventType.AUD_NT_SEARCH_RCP;
         String logMsg = "searchReceivedNotification";
@@ -64,7 +65,8 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .endDate(endDate.toInstant())
                 .mandateId(mandateId)
                 .filterId(senderId)
-                .statuses(status==null?List.of():List.of(status))
+                .statuses(List.of())
+                .communicationType(StringUtils.hasText(communicationType) ? NotificationSearchCommunicationType.valueOf(communicationType) : NotificationSearchCommunicationType.LEGAL)
                 //.groups( groups != null ? Arrays.asList( groups ) : null )
                 .subjectRegExp(subjectRegExp)
                 .iunMatch(iunMatch)
@@ -73,10 +75,10 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .build();
         log.info("Search received notification with filter senderId={} iun={}", senderId, iunMatch);
         ResultPaginationDto<NotificationSearchRow, String> serviceResult;
-        NotificationSearchResponse response = new NotificationSearchResponse();
+        FullNotificationSearchResponse response = new FullNotificationSearchResponse();
         try {
             serviceResult = retrieveSvc.searchNotification(searchDto, xPagopaPnCxType.getValue(), xPagopaPnCxGroups);
-            response = modelMapper.map(serviceResult, NotificationSearchResponse.class);
+            response = modelMapper.map(serviceResult, FullNotificationSearchResponse.class);
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("" + exc.getProblem()).log();
@@ -86,7 +88,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
     }
 
     @Override
-    public ResponseEntity<NotificationSearchResponse> searchReceivedDelegatedNotification(String xPagopaPnUid,
+    public ResponseEntity<LegalNotificationSearchResponse> searchReceivedDelegatedNotification(String xPagopaPnUid,
                                                                                           CxTypeAuthFleet xPagopaPnCxType,
                                                                                           String xPagopaPnCxId,
                                                                                           OffsetDateTime startDate,
@@ -119,10 +121,11 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .build();
         log.info("Search received delegated notification to {} with filter senderId={} recipientId={}", xPagopaPnCxId, senderId, recipientId);
         ResultPaginationDto<NotificationSearchRow, String> result;
-        NotificationSearchResponse response;
+        LegalNotificationSearchResponse response;
         try {
             result = retrieveSvc.searchNotificationDelegated(searchDto);
-            response = modelMapper.map(result, NotificationSearchResponse.class);
+            LegalNotificationStatusValidator.assertLegalCompatible(result);
+            response = modelMapper.map(result, LegalNotificationSearchResponse.class);
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException e) {
             log.error("can not search received delegated notification", e);

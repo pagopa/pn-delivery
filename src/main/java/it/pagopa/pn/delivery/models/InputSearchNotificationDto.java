@@ -44,6 +44,8 @@ public class InputSearchNotificationDto {
 
     private String iunMatch;
 
+    private NotificationSearchCommunicationType communicationType;
+
     private boolean receiverIdIsOpaque;
 
     @Positive

@@ -20,6 +20,7 @@ describe('putNotificationMetadata', () => {
       ],
       sentAt: '2025-01-01T00:00:00Z',
       group: 'group1',
+      communicationType: 'LEGAL',
       iun: 'iun1',
       paNotificationId: 'paNotificationId1',
       subject: 'subject1',
@@ -42,7 +43,24 @@ describe('putNotificationMetadata', () => {
     expect(getRootSenderStub.firstCall.args[0]).to.be.deep.equal('senderPaId');
     expect(putMetadataStub.callCount).to.equal(2); // 2 (1 metadata + 1 delegationMetadata) * recipients.length
     expect(putMetadataStub.firstCall.args[0]).to.equal('pn-NotificationsMetadata');
+    expect(putMetadataStub.firstCall.args[1]).to.have.property('communicationType', 'LEGAL');
     expect(putMetadataStub.secondCall.args[0]).to.equal('pn-NotificationDelegationMetadata');
+  });
+
+  it('should include communicationType in notification metadata payload', async () => {
+    notification.communicationType = 'LEGAL';
+    await putNotificationMetadata(statusInfo, notification);
+
+    const metadataPayload = putMetadataStub.firstCall.args[1];
+    expect(metadataPayload).to.have.property('communicationType', 'LEGAL');
+  });
+
+  it('should include undefined communicationType when not set on notification', async () => {
+    delete notification.communicationType;
+    await putNotificationMetadata(statusInfo, notification);
+
+    const metadataPayload = putMetadataStub.firstCall.args[1];
+    expect(metadataPayload).to.have.property('communicationType', undefined);
   });
 
   it('should put notification metadata and compute 2 delegation metadata entries', async () => {

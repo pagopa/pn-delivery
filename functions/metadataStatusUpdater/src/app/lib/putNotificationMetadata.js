@@ -54,6 +54,7 @@ const buildNotificationMetadata = (
     recipientId: recipientId,
     sentAt: notification.sentAt,
     notificationGroup: notification.group,
+    communicationType: notification.communicationType,
     recipientIds,
     tableRow: {
       iun: notification.iun,

@@ -14,7 +14,7 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.mo
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
+import it.pagopa.pn.delivery.models.NotificationSearchRow;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.models.*;
@@ -120,11 +120,18 @@ public class NotificationRetrieverService {
 
 		validateInput(searchDto);
 
+		// default applicativo SRS: in assenza di tipologia di comunicazione si filtra sulle sole notifiche legali
+		if ( searchDto.getCommunicationType() == null ) {
+			searchDto.setCommunicationType( NotificationSearchCommunicationType.LEGAL );
+		}
+
 		if ( !searchDto.isBySender() ) {
 			log.debug( "Search from receiver" );
 			String mandateId = searchDto.getMandateId();
 			if ( StringUtils.hasText( mandateId )) {
 				checkMandate(searchDto, mandateId, recipientType, cxGroups);
+				// inibizione delle comunicazioni bonarie ai delegati PF: si forza LEGAL ignorando ALL/INFORMAL richiesti dal client
+				searchDto.setCommunicationType( NotificationSearchCommunicationType.LEGAL );
 			} else if (checkAuthorizationPG(recipientType, cxGroups)) {
 				log.error("PG {} can not access this resource", searchDto.getSenderReceiverId());
 				throw new PnForbiddenException(ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND);
