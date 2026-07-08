@@ -1476,7 +1476,12 @@ components:
                 $ref: '#/components/schemas/FullInformalNotificationRecipientV1'
               minItems: 1
             senderTaxId:
-              $ref: '#/components/schemas/paTaxId'
+              description: Sender PA fiscal code
+              example: '77777777777'
+              type: string
+              maxLength: 11
+              minLength: 11
+              pattern: ^\d+$
             senderPaId:
               type: string
               description: Identificativo (non IPA) della PA mittente che ha eseguito l'onboarding su SelfCare.
@@ -1488,6 +1493,9 @@ components:
               type: string
               description: Momento di ricezione della notifica da parte di PN
               format: date-time
+            documentsAvailable:
+              type: boolean
+              description: Indica se i documenti notificati sono ancora disponibili.
             usedServices:
               $ref: '#/components/schemas/UsedServices'
     TimelineElementId:

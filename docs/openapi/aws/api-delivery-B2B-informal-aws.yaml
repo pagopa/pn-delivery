@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: oRml8Zb1kp32U6jPKBKpu7SScUlWZqNWWxKLo82HGwg=
+  version: TResyiLLnSsVkMhxDecTMuE2Uzh53jgp9NE6V5WHsMU=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1890,7 +1890,12 @@ components:
                 $ref: '#/components/schemas/FullInformalNotificationRecipientV1'
               minItems: 1
             senderTaxId:
-              $ref: '#/components/schemas/paTaxId'
+              description: Sender PA fiscal code
+              example: '77777777777'
+              type: string
+              maxLength: 11
+              minLength: 11
+              pattern: ^\d+$
             senderPaId:
               type: string
               description: >-
@@ -1904,6 +1909,9 @@ components:
               type: string
               description: Momento di ricezione della notifica da parte di PN
               format: date-time
+            documentsAvailable:
+              type: boolean
+              description: Indica se i documenti notificati sono ancora disponibili.
             usedServices:
               $ref: '#/components/schemas/UsedServices'
     TimelineElementId:
