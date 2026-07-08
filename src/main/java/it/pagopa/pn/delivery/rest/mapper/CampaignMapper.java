@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.rest.mapper;
 
 import it.pagopa.pn.commons.utils.qr.models.RecipientTypeInt;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignDetail;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignStatus;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignSummary;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.WorkflowEntity;
 import it.pagopa.pn.delivery.models.internal.campaign.Campaign;
@@ -22,7 +23,7 @@ public final class CampaignMapper {
                 .title(campaign.getTitle())
                 .pfChannels(extractSummaryChannels(campaign.getWorkflow(), RecipientTypeInt.PF))
                 .pgChannels(extractSummaryChannels(campaign.getWorkflow(), RecipientTypeInt.PG))
-                .closed(Boolean.TRUE.equals(campaign.getClosed()))
+                .campaignStatus(mapCampaignStatus(campaign.getStatus()))
                 .startDate(campaign.getStartDate())
                 .endDate(campaign.getEndDate());
     }
@@ -35,7 +36,7 @@ public final class CampaignMapper {
                 .descriptionScope(campaign.getDescriptionScope())
                 .startDate(campaign.getStartDate())
                 .endDate(campaign.getEndDate())
-                .closed(Boolean.TRUE.equals(campaign.getClosed()))
+                .campaignStatus(mapCampaignStatus(campaign.getStatus()))
                 .senderContact(campaign.getSenderContact())
                 .serviceId(campaign.getServiceId())
                 .sensitiveContent(Boolean.TRUE.equals(campaign.getSensitiveContent()))
@@ -51,6 +52,14 @@ public final class CampaignMapper {
 
         detail.workflow(workflow);
         return detail;
+    }
+
+    private static CampaignStatus mapCampaignStatus(
+            it.pagopa.pn.delivery.models.internal.campaign.CampaignStatus status) {
+        if (status == null) {
+            return null;
+        }
+        return CampaignStatus.fromValue(status.name());
     }
 
     private static List<it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ChannelType> mapChannels(

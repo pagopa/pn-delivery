@@ -1,16 +1,9 @@
 package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.delivery.exception.PnCampaignNotFoundException;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ChannelType;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignDetail;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignSearchResponse;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignSummary;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.DesiredFeedbackType;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RecipientTypeInt;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.WorkflowEntity;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.svc.CampaignService;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -23,6 +16,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @WebFluxTest(controllers = CampaignController.class)
 class CampaignControllerTest {
@@ -46,7 +40,7 @@ class CampaignControllerTest {
                 .title("Campaign 1")
                 .pfChannels(List.of(ChannelType.IO))
                 .pgChannels(List.of(ChannelType.PEC))
-                .closed(false)
+                .campaignStatus(CampaignStatus.IN_PROGRESS)
                 .startDate(OffsetDateTime.now())
                 .endDate(OffsetDateTime.now().plusDays(30));
 
@@ -55,7 +49,7 @@ class CampaignControllerTest {
                 .moreResult(false)
                 .nextPagesKey(Collections.emptyList());
 
-        Mockito.when(campaignService.listCampaigns(eq(SENDER_ID.toString()), eq(10), isNull()))
+        when(campaignService.listCampaigns(eq(SENDER_ID.toString()), eq(10), isNull()))
                 .thenReturn(response);
 
         // When & Then
@@ -85,7 +79,7 @@ class CampaignControllerTest {
                 .title("Campaign 1")
                 .pfChannels(List.of(ChannelType.IO))
                 .pgChannels(List.of(ChannelType.PEC))
-                .closed(false)
+                .campaignStatus(CampaignStatus.IN_PROGRESS)
                 .startDate(OffsetDateTime.now())
                 .endDate(OffsetDateTime.now().plusDays(30));
 
@@ -95,7 +89,7 @@ class CampaignControllerTest {
                 .title("Campaign 2")
                 .pfChannels(List.of(ChannelType.SMS))
                 .pgChannels(List.of(ChannelType.ANALOG))
-                .closed(false)
+                .campaignStatus(CampaignStatus.IN_PROGRESS)
                 .startDate(OffsetDateTime.now())
                 .endDate(OffsetDateTime.now().plusDays(30));
 
@@ -106,7 +100,7 @@ class CampaignControllerTest {
                 .moreResult(true)
                 .nextPagesKey(List.of(nextPageKey));
 
-        Mockito.when(campaignService.listCampaigns(eq(SENDER_ID.toString()), eq(20), isNull()))
+        when(campaignService.listCampaigns(eq(SENDER_ID.toString()), eq(20), isNull()))
                 .thenReturn(response);
 
         // When & Then
@@ -136,7 +130,7 @@ class CampaignControllerTest {
                 .moreResult(false)
                 .nextPagesKey(Collections.emptyList());
 
-        Mockito.when(campaignService.listCampaigns(eq(SENDER_ID.toString()), eq(10), isNull()))
+        when(campaignService.listCampaigns(eq(SENDER_ID.toString()), eq(10), isNull()))
                 .thenReturn(response);
 
         // When & Then
@@ -164,7 +158,7 @@ class CampaignControllerTest {
                 .senderId(SENDER_ID)
                 .title("Campaign 1")
                 .descriptionScope("Test description")
-                .closed(false)
+                .campaignStatus(CampaignStatus.IN_PROGRESS)
                 .senderContact("contact@example.com")
                 .startDate(OffsetDateTime.now())
                 .endDate(OffsetDateTime.now().plusDays(30))
@@ -181,7 +175,7 @@ class CampaignControllerTest {
                                 .includeAttachment(false)
                 ));
 
-        Mockito.when(campaignService.getCampaign(eq(CAMPAIGN_ID), eq(SENDER_ID.toString())))
+        when(campaignService.getCampaign(CAMPAIGN_ID, SENDER_ID.toString()))
                 .thenReturn(detail);
 
         // When & Then
@@ -196,14 +190,14 @@ class CampaignControllerTest {
                     assert result.getCampaignId().equals(CAMPAIGN_ID);
                     assert result.getTitle().equals("Campaign 1");
                     assert result.getDescriptionScope().equals("Test description");
-                    assert !result.getClosed();
+                    assert result.getCampaignStatus().equals(CampaignStatus.IN_PROGRESS);
                 });
     }
 
     @Test
     void getCampaign_notFound() {
         // Given
-        Mockito.when(campaignService.getCampaign(eq("missing"), eq(SENDER_ID.toString())))
+        when(campaignService.getCampaign("missing", SENDER_ID.toString()))
                 .thenThrow(new PnCampaignNotFoundException("Campaign not found"));
 
         // When & Then
@@ -223,7 +217,7 @@ class CampaignControllerTest {
                 .senderId(SENDER_ID)
                 .title("Campaign 1")
                 .descriptionScope("Test description")
-                .closed(false)
+                .campaignStatus(CampaignStatus.IN_PROGRESS)
                 .startDate(OffsetDateTime.now())
                 .endDate(OffsetDateTime.now().plusDays(30))
                 .serviceId("service-1")
@@ -245,7 +239,7 @@ class CampaignControllerTest {
                                 .includeAttachment(true)
                 ));
 
-        Mockito.when(campaignService.getCampaign(eq(CAMPAIGN_ID), eq(SENDER_ID.toString())))
+        when(campaignService.getCampaign(CAMPAIGN_ID, SENDER_ID.toString()))
                 .thenReturn(detail);
 
         // When & Then
@@ -293,7 +287,7 @@ class CampaignControllerTest {
                 .moreResult(false)
                 .nextPagesKey(Collections.emptyList());
 
-        Mockito.when(campaignService.listCampaigns(eq(SENDER_ID.toString()), eq(10), isNull()))
+        when(campaignService.listCampaigns(eq(SENDER_ID.toString()), eq(10), isNull()))
                 .thenReturn(response);
 
         // When & Then - /campaigns/?senderId=... targets listCampaigns endpoint
@@ -309,8 +303,8 @@ class CampaignControllerTest {
                     assert !result.getMoreResult();
                 });
 
-        Mockito.verify(campaignService).listCampaigns(eq(SENDER_ID.toString()), eq(10), isNull());
-        Mockito.verify(campaignService, Mockito.never()).getCampaign(anyString(), anyString());
+        verify(campaignService).listCampaigns(eq(SENDER_ID.toString()), eq(10), isNull());
+        verify(campaignService, never()).getCampaign(anyString(), anyString());
     }
 }
 

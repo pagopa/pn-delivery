@@ -82,6 +82,8 @@ public class PnDeliveryConfigs {
 
     private String maxDocumentsAvailableDays;
 
+    private String informalMaxDocumentsAvailableDays;
+
     private String maxFirstNoticeCodeDays;
 
     private String maxSecondNoticeCodeDays;

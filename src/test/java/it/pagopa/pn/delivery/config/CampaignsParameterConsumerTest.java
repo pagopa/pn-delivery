@@ -3,10 +3,7 @@ package it.pagopa.pn.delivery.config;
 import it.pagopa.pn.commons.abstractions.ParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.exception.PnCampaignNotFoundException;
-import it.pagopa.pn.delivery.models.internal.campaign.Campaign;
-import it.pagopa.pn.delivery.models.internal.campaign.ChannelType;
-import it.pagopa.pn.delivery.models.internal.campaign.DesiredFeedbackType;
-import it.pagopa.pn.delivery.models.internal.campaign.WorkFlowEntity;
+import it.pagopa.pn.delivery.models.internal.campaign.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,6 +19,8 @@ import java.util.Optional;
 
 import software.amazon.awssdk.services.ssm.model.ParameterNotFoundException;
 
+import static org.mockito.Mockito.*;
+
 class CampaignsParameterConsumerTest {
 
     private static final String SENDER_A = "5b994d4a-0fa8-47ac-9c7b-354f1d44a1ce";
@@ -32,7 +31,7 @@ class CampaignsParameterConsumerTest {
 
     @BeforeEach
     void setup() {
-        parameterConsumer = Mockito.mock(ParameterConsumer.class);
+        parameterConsumer = mock(ParameterConsumer.class);
         campaignsParameterConsumer = new CampaignsParameterConsumer(parameterConsumer);
     }
 
@@ -44,7 +43,7 @@ class CampaignsParameterConsumerTest {
                 validCampaign("c3", SENDER_A)
         };
 
-        Mockito.when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
+        when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
                 .thenReturn(Optional.of(campaigns));
         campaignsParameterConsumer.initialize();
 
@@ -61,7 +60,7 @@ class CampaignsParameterConsumerTest {
                 validCampaign("c1", SENDER_B)
         };
 
-        Mockito.when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
+        when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
                 .thenReturn(Optional.of(campaigns));
         campaignsParameterConsumer.initialize();
 
@@ -72,7 +71,7 @@ class CampaignsParameterConsumerTest {
 
     @Test
     void getCampaignsBySenderId_parameterNotFound() {
-        Mockito.when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
+        when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
                 .thenReturn(Optional.empty());
         campaignsParameterConsumer.initialize();
 
@@ -89,7 +88,7 @@ class CampaignsParameterConsumerTest {
                 ParameterNotFoundException.builder().message("Parameter MVPCampaigns not found.").build()
         );
 
-        Mockito.when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
+        when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
                 .thenThrow(exception);
 
         Assertions.assertDoesNotThrow(() -> campaignsParameterConsumer.initialize());
@@ -100,7 +99,7 @@ class CampaignsParameterConsumerTest {
     void initialize_unexpectedInternalExceptionIsPropagated() {
         PnInternalException exception = new PnInternalException("boom", "GENERIC_ERROR");
 
-        Mockito.when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
+        when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
                 .thenThrow(exception);
 
         Assertions.assertThrows(PnInternalException.class, () -> campaignsParameterConsumer.initialize());
@@ -110,7 +109,7 @@ class CampaignsParameterConsumerTest {
     void getCampaignByCampaignIdAndSenderId_success() {
         Campaign campaign = validCampaign("c1", SENDER_A);
 
-        Mockito.when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
+        when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
                 .thenReturn(Optional.of(new Campaign[] {campaign}));
         campaignsParameterConsumer.initialize();
 
@@ -127,7 +126,7 @@ class CampaignsParameterConsumerTest {
                 validCampaign("c1", SENDER_A)
         };
 
-        Mockito.when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
+        when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
                 .thenReturn(Optional.of(campaigns));
         campaignsParameterConsumer.initialize();
 
@@ -141,7 +140,7 @@ class CampaignsParameterConsumerTest {
                 validCampaign("c1", SENDER_B)
         };
 
-        Mockito.when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
+        when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
                 .thenReturn(Optional.of(campaigns));
         campaignsParameterConsumer.initialize();
 
@@ -151,7 +150,7 @@ class CampaignsParameterConsumerTest {
 
     @Test
     void getCampaignByCampaignIdAndSenderId_parameterNotFound() {
-        Mockito.when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
+        when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
                 .thenReturn(Optional.empty());
         campaignsParameterConsumer.initialize();
 
@@ -167,7 +166,7 @@ class CampaignsParameterConsumerTest {
                 validCampaign("c3", SENDER_A)
         };
 
-        Mockito.when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
+        when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
                 .thenReturn(Optional.of(campaigns));
         campaignsParameterConsumer.initialize();
 
@@ -183,7 +182,7 @@ class CampaignsParameterConsumerTest {
                 validCampaign("c1", SENDER_A)
         };
 
-        Mockito.when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
+        when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
                 .thenReturn(Optional.of(campaigns));
 
         campaignsParameterConsumer.initialize();
@@ -192,7 +191,7 @@ class CampaignsParameterConsumerTest {
         campaignsParameterConsumer.getCampaignsBySenderId(SENDER_B);
         campaignsParameterConsumer.getCampaignByCampaignIdAndSenderId("c1", SENDER_A);
 
-        Mockito.verify(parameterConsumer, Mockito.times(1))
+        verify(parameterConsumer, times(1))
                 .getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class));
     }
 
@@ -206,7 +205,7 @@ class CampaignsParameterConsumerTest {
                 null
         };
 
-        Mockito.when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
+        when(parameterConsumer.getParameterValue(Mockito.anyString(), Mockito.eq(Campaign[].class)))
                 .thenReturn(Optional.of(campaigns));
         campaignsParameterConsumer.initialize();
 
@@ -222,7 +221,7 @@ class CampaignsParameterConsumerTest {
                 .senderId(senderId)
                 .title("Campaign " + campaignId)
                 .descriptionScope("Description " + campaignId)
-                .closed(false)
+                .status(CampaignStatus.IN_PROGRESS)
                 .startDate(OffsetDateTime.of(2025, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC))
                 .endDate(OffsetDateTime.of(2025, 1, 31, 0, 0, 0, 0, ZoneOffset.UTC))
                 .serviceId("service-" + campaignId)

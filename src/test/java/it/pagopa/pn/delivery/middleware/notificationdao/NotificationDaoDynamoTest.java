@@ -33,6 +33,7 @@ import java.util.function.Predicate;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class NotificationDaoDynamoTest {
@@ -56,8 +57,8 @@ class NotificationDaoDynamoTest {
         entity2dto = new EntityToDtoNotificationMapper();
         entityDao = new EntityDaoMock();
         NotificationMetadataEntityDao metadataEntityDao = new MetadataEntityDaoMock();
-        pnDataVaultClient = Mockito.mock( PnDataVaultClientImpl.class );
-        delegationMetadataEntityDao = Mockito.mock( NotificationDelegationMetadataEntityDao.class );
+        pnDataVaultClient = mock( PnDataVaultClientImpl.class );
+        delegationMetadataEntityDao = mock( NotificationDelegationMetadataEntityDao.class );
         dao = new NotificationDaoDynamo( entityDao, metadataEntityDao, delegationMetadataEntityDao, dto2Entity, entity2dto, pnDataVaultClient);
     }
 

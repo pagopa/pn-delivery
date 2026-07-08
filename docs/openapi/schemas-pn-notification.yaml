@@ -88,6 +88,9 @@ components:
               type: string
               description: Momento di ricezione della notifica da parte di PN
               format: date-time
+            documentsAvailable:
+              type: boolean
+              description: Indica se i documenti notificati sono ancora disponibili.
             version: # NO EXTERNAL
               type: string                                              # NO EXTERNAL
               description: Indica la versione della notifica            # NO EXTERNAL

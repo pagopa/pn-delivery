@@ -8,24 +8,23 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementCate
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementV28;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.LegalNotificationDetail;
-import it.pagopa.pn.delivery.models.internal.notification.F24Payment;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
-import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 import static it.pagopa.pn.delivery.utils.NotificationUtils.isNotificationCancelled;
+import static it.pagopa.pn.delivery.utils.NotificationUtils.removeDocuments;
 
 @Service
 @RequiredArgsConstructor
@@ -126,30 +125,6 @@ public class LegalTimelineEnricher implements TimelineEnricher<LegalNotification
                 log.debug("Documents not more available for iun={} from={}", notification.getIun(), refinementDate);
                 removeDocuments(notification);
             }
-        }
-    }
-
-    private void removeDocuments(InternalNotification notification) {
-        notification.setDocumentsAvailable(false);
-        notification.setDocuments(Collections.emptyList());
-        for (NotificationRecipient recipient : notification.getRecipients()) {
-            List<NotificationPaymentInfo> payments = recipient.getPayments();
-            if (!CollectionUtils.isEmpty(payments)) {
-                payments.forEach(this::removePaymentAttachment);
-            }
-        }
-    }
-
-    private void removePaymentAttachment(NotificationPaymentInfo notificationPaymentInfo) {
-        PagoPaPayment pagoPaPayment = notificationPaymentInfo.getPagoPa();
-        if (Objects.nonNull(pagoPaPayment)) {
-            // rimuovo allegato di pagamento pagoPA
-            pagoPaPayment.setAttachment(null);
-        }
-        F24Payment f24Payment = notificationPaymentInfo.getF24();
-        if (Objects.nonNull(f24Payment)) {
-            // rimuovo oggetto di pagamento F24
-            notificationPaymentInfo.setF24(null);
         }
     }
 }

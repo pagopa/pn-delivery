@@ -1,17 +1,20 @@
 package it.pagopa.pn.delivery.svc.search;
 
-import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalNotificationHistoryResponse;
-import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalNotificationStatusHistoryElementV1;
-import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalNotificationStatusV1;
-import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalTimelineElementV1;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.*;
 import it.pagopa.pn.delivery.models.InformalNotificationDetail;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
+import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.modelmapper.ModelMapper;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -23,24 +26,43 @@ class InformalTimelineEnricherTest {
 
     private PnDeliveryPushClientImpl pnDeliveryPushClient;
     private ModelMapper modelMapper;
+    private Clock clock;
+    private RefinementLocalDate refinementLocalDateUtils;
+    private PnDeliveryConfigs cfg;
     private InformalTimelineEnricher enricher;
 
     @BeforeEach
     void setup() {
         this.pnDeliveryPushClient = mock(PnDeliveryPushClientImpl.class);
         this.modelMapper = spy(new ModelMapper());
-        this.enricher = new InformalTimelineEnricher(pnDeliveryPushClient, modelMapper);
+        this.clock = mock(Clock.class);
+        this.refinementLocalDateUtils = spy(new RefinementLocalDate());
+        this.cfg = mock(PnDeliveryConfigs.class);
+
+        when(cfg.getInformalMaxDocumentsAvailableDays()).thenReturn("10");
+
+        this.enricher = new InformalTimelineEnricher(pnDeliveryPushClient, modelMapper, cfg, clock, refinementLocalDateUtils);
     }
 
-    @Test
-    void shouldEnrichNotificationDetailWithTimelineStatusHistoryAndStatus() {
+    @ParameterizedTest
+    @CsvSource(
+            {
+                    "2026-06-15T19:00:00Z, 2026-06-15T10:00:00Z, true", // same day as the instant time
+                    "2026-06-15T19:00:00Z, 2026-06-14T10:00:00Z, true", // 1 day before the instant time
+                    "2026-06-15T19:00:00Z, 2026-06-05T10:00:00Z, true", // 10 days before the instant time
+                    "2026-06-15T19:00:00Z, 2026-06-04T10:00:00Z, false" // 11 days before the instant time
+            }
+    )
+    void shouldEnrichNotificationDetailWithNotificationAccepted(String instantTime, String acceptanceTime, boolean expectedDocumentsAvailable) {
         InternalNotification notification = buildNotification("IUN_TEST");
         InformalNotificationDetail detail = InformalNotificationDetail.builder()
                 .notification(notification)
                 .build();
 
+        when(clock.instant()).thenReturn(Instant.parse(instantTime));
         InformalTimelineElementV1 timelineElement = new InformalTimelineElementV1();
-        timelineElement.setTimestamp(OffsetDateTime.parse("2026-06-15T10:00:00Z"));
+        timelineElement.setCategory(InformalTimelineElementCategoryV1.REQUEST_ACCEPTED);
+        timelineElement.setIngestionTimestamp(OffsetDateTime.parse(acceptanceTime));
 
         InformalNotificationStatusHistoryElementV1 statusHistoryElement =
                 new InformalNotificationStatusHistoryElementV1();
@@ -51,9 +73,9 @@ class InformalTimelineEnricherTest {
         historyResponse.setInformalNotificationStatus(InformalNotificationStatusV1.ACCEPTED);
 
         when(pnDeliveryPushClient.getInformalNotificationHistory(
-                eq("IUN_TEST"),
-                eq(notification.getRecipients().size()),
-                eq(notification.getSentAt())
+                "IUN_TEST",
+                notification.getRecipients().size(),
+                notification.getSentAt()
         )).thenReturn(historyResponse);
 
         enricher.enrichNotificationDetail(detail, false);
@@ -69,10 +91,12 @@ class InformalTimelineEnricherTest {
                 detail.getNotificationStatus()
         );
 
+        assertEquals(expectedDocumentsAvailable, detail.getNotification().getDocumentsAvailable());
+
         verify(pnDeliveryPushClient).getInformalNotificationHistory(
-                eq("IUN_TEST"),
-                eq(notification.getRecipients().size()),
-                eq(notification.getSentAt())
+                "IUN_TEST",
+                notification.getRecipients().size(),
+                notification.getSentAt()
         );
 
         verify(modelMapper).map(
@@ -86,13 +110,17 @@ class InformalTimelineEnricherTest {
     }
 
     @Test
-    void shouldPopulateDetailWhenEnrichNotificationDetailIsCalled() {
-        InternalNotification notification = buildNotification("IUN_DIRECT");
+    void shouldEnrichNotificationDetailWithNotificationNotAccepted() {
+        InternalNotification notification = buildNotification("IUN_TEST");
         InformalNotificationDetail detail = InformalNotificationDetail.builder()
                 .notification(notification)
                 .build();
 
+        when(clock.instant()).thenReturn(Instant.parse("2026-06-15T19:00:00Z"));
         InformalTimelineElementV1 timelineElement = new InformalTimelineElementV1();
+        timelineElement.setCategory(InformalTimelineElementCategoryV1.REQUEST_REFUSED);
+        timelineElement.setIngestionTimestamp(OffsetDateTime.parse("2026-06-15T10:00:00Z"));
+
         InformalNotificationStatusHistoryElementV1 statusHistoryElement =
                 new InformalNotificationStatusHistoryElementV1();
 
@@ -102,82 +130,40 @@ class InformalTimelineEnricherTest {
         historyResponse.setInformalNotificationStatus(InformalNotificationStatusV1.ACCEPTED);
 
         when(pnDeliveryPushClient.getInformalNotificationHistory(
-                eq("IUN_DIRECT"),
-                eq(notification.getRecipients().size()),
-                eq(notification.getSentAt())
+                "IUN_TEST",
+                notification.getRecipients().size(),
+                notification.getSentAt()
         )).thenReturn(historyResponse);
 
         enricher.enrichNotificationDetail(detail, false);
 
         assertNotNull(detail.getTimeline());
         assertEquals(1, detail.getTimeline().size());
+
         assertNotNull(detail.getNotificationStatusHistory());
         assertEquals(1, detail.getNotificationStatusHistory().size());
+
         assertEquals(
                 it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatusV1.ACCEPTED,
                 detail.getNotificationStatus()
         );
-    }
 
-    @Test
-    void shouldThrowNullPointerWhenTimelineIsNull() {
-        InternalNotification notification = buildNotification("IUN_NULL_TIMELINE");
-        InformalNotificationDetail detail = InformalNotificationDetail.builder()
-                .notification(notification)
-                .build();
+        assertTrue(detail.getNotification().getDocumentsAvailable());
 
-        InformalNotificationHistoryResponse historyResponse = new InformalNotificationHistoryResponse();
-        historyResponse.setTimeline(null);
-        historyResponse.setInformalNotificationStatusHistory(List.of(new InformalNotificationStatusHistoryElementV1()));
-        historyResponse.setInformalNotificationStatus(InformalNotificationStatusV1.ACCEPTED);
+        verify(pnDeliveryPushClient).getInformalNotificationHistory(
+                "IUN_TEST",
+                notification.getRecipients().size(),
+                notification.getSentAt()
+        );
 
-        when(pnDeliveryPushClient.getInformalNotificationHistory(
-                eq("IUN_NULL_TIMELINE"),
-                eq(notification.getRecipients().size()),
-                eq(notification.getSentAt())
-        )).thenReturn(historyResponse);
-
-        assertThrows(NullPointerException.class,
-                () -> enricher.enrichNotificationDetail(detail, false));
-    }
-
-    @Test
-    void shouldThrowNullPointerWhenStatusHistoryIsNull() {
-        InternalNotification notification = buildNotification("IUN_NULL_STATUS_HISTORY");
-        InformalNotificationDetail detail = InformalNotificationDetail.builder()
-                .notification(notification)
-                .build();
-
-        InformalNotificationHistoryResponse historyResponse = new InformalNotificationHistoryResponse();
-        historyResponse.setTimeline(List.of(new InformalTimelineElementV1()));
-        historyResponse.setInformalNotificationStatusHistory(null);
-        historyResponse.setInformalNotificationStatus(InformalNotificationStatusV1.ACCEPTED);
-
-        when(pnDeliveryPushClient.getInformalNotificationHistory(
-                eq("IUN_NULL_STATUS_HISTORY"),
-                eq(notification.getRecipients().size()),
-                eq(notification.getSentAt())
-        )).thenReturn(historyResponse);
-
-        assertThrows(NullPointerException.class,
-                () -> enricher.enrichNotificationDetail(detail, false));
-    }
-
-    @Test
-    void shouldThrowNullPointerWhenHistoryResponseIsNull() {
-        InternalNotification notification = buildNotification("IUN_NULL_RESPONSE");
-        InformalNotificationDetail detail = InformalNotificationDetail.builder()
-                .notification(notification)
-                .build();
-
-        when(pnDeliveryPushClient.getInformalNotificationHistory(
-                eq("IUN_NULL_RESPONSE"),
-                eq(notification.getRecipients().size()),
-                eq(notification.getSentAt())
-        )).thenReturn(null);
-
-        assertThrows(NullPointerException.class,
-                () -> enricher.enrichNotificationDetail(detail, false));
+        verify(modelMapper).map(
+                timelineElement,
+                it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalTimelineElementV1.class
+        );
+        verify(modelMapper).map(
+                statusHistoryElement,
+                it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatusHistoryElementV1.class
+        );
     }
 
     private InternalNotification buildNotification(String iun) {

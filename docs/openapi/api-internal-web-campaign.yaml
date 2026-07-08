@@ -157,7 +157,7 @@ components:
         - title
         - pfChannels
         - pgChannels
-        - closed
+        - campaignStatus
         - startDate
         - endDate
       properties:
@@ -190,10 +190,9 @@ components:
           example:
             - PEC
             - ANALOG
-        closed:
-          type: boolean
-          description: Stato di chiusura della campagna.
-          example: false
+        campaignStatus:
+          $ref: '#/components/schemas/CampaignStatus'
+          example: IN_PROGRESS
         startDate:
           type: string
           format: date-time
@@ -215,7 +214,7 @@ components:
         - descriptionScope
         - startDate
         - endDate
-        - closed
+        - campaignStatus
         - serviceId
         - sensitiveContent
         - stopOnViewed
@@ -243,9 +242,8 @@ components:
           type: string
           format: date-time
           description: Data e ora di fine campagna in formato UTC.
-        closed:
-          type: boolean
-          description: Stato di chiusura della campagna.
+        campaignStatus:
+          $ref: '#/components/schemas/CampaignStatus'
         senderContact:
           type: string
           description: Recapito del mittente associato alla campagna.
@@ -329,6 +327,16 @@ components:
         - PAID
         - SKIP
       example: READ
+
+    CampaignStatus:
+      type: string
+      description: Stato della campagna.
+      enum:
+        - DRAFT
+        - IN_PROGRESS
+        - CANCELED
+        - CONCLUDED
+      example: IN_PROGRESS
 
     Problem:
       $ref: './remote-refs.yaml#/components/schemas/Problem'

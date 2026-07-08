@@ -42,18 +42,18 @@ class PnDeliveryPushClientImplTestIT extends MockAWSObjectsTest {
     private static ClientAndServer mockServer;
 
     @BeforeAll
-    public static void startMockServer() {
+    static void startMockServer() {
 
         mockServer = startClientAndServer(9998);
     }
 
     @AfterAll
-    public static void stopMockServer() {
+    static void stopMockServer() {
         mockServer.stop();
     }
 
     @AfterEach
-    public void resetMockServer() {
+    void resetMockServer() {
         if (mockServer != null) {
             mockServer.reset();
         }

@@ -5,6 +5,7 @@
     "PnDeliveryInsertTriggerLambdaEventSourceMappingMaximumRetryAttempts": "20",
     "IsMvpDefaultValue": "false",
     "MaxDocumentsAvailableDays": "120",
+    "InformalMaxDocumentsAvailableDays": "180",
     "PnDeliveryAsseverationLambdaEventSourceMappingBatchSize": "100",
     "PnDeliveryAsseverationEventSourceMappingMaximumBatchingWindowInSeconds": "30",
     "IsLollipopActive": "true",
