@@ -130,7 +130,7 @@ class EntityToDtoNotificationMetadataMapperTest {
         NotificationSearchRow result = mapper.entity2Dto( metadataEntity );
 
         // Then
-        assertNull( result.getCommunicationType() );
+        assertEquals( "LEGAL", result.getCommunicationType() );
         assertNull( result.getCampaignId() );
         assertNull( result.getViewed() );
         assertNull( result.getDelivered() );

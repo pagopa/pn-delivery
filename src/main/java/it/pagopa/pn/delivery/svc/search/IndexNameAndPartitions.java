@@ -130,6 +130,11 @@ public class IndexNameAndPartitions {
             partitionValues.add(searchParams.getCampaignId()
                     + PARTITION_KEY_SEPARATOR + searchParams.getOpaqueFilterIdPG());
         }
+        // Se non sono disponibili gli ID opachi, lancia eccezione
+        if ( partitionValues.isEmpty() ) {
+            throw new PnInternalException("Opaque filter IDs are required for campaign search with recipient filter",
+                    ERROR_CODE_DELIVERY_UNSUPPORTED_INDEX_NAME);
+        }
         return partitionValues;
     }
 

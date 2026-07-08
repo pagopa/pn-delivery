@@ -237,11 +237,12 @@ class IndexNameAndPartitionsTest {
 
     @Test
     void searchByCampaignWithRecipientFilter() {
-        // - GIVEN: ricerca per campagna + destinatario specifico (filterId valorizzato)
+        // - GIVEN: ricerca per campagna + destinatario specifico (con opaqueFilterIdPF valorizzato)
         InputSearchNotificationDto searchParams = new InputSearchNotificationDto().toBuilder()
                 .byCampaign( true )
                 .campaignId( "campaignId" )
                 .filterId( "recipientId" )
+                .opaqueFilterIdPF( "opaqueRecipientIdPF" )
                 .startDate(Instant.parse("2020-10-13T10:00:00Z"))
                 .endDate(Instant.parse("2020-12-13T10:00:00Z"))
                 .build();
@@ -250,11 +251,29 @@ class IndexNameAndPartitionsTest {
         IndexNameAndPartitions indexAndPartitions =
                 IndexNameAndPartitions.selectIndexAndPartitions( searchParams );
 
-        // - THAN: indice campaignId_recipientId, singola partizione campaignId##recipientId
+        // - THAN: indice campaignId_recipientId, singola partizione campaignId##opaqueRecipientIdPF
         Assertions.assertEquals( INDEX_BY_CAMPAIGN_RECIPIENT, indexAndPartitions.getIndexName() );
         Assertions.assertEquals(
-                Collections.singletonList("campaignId##recipientId"),
+                Collections.singletonList("campaignId##opaqueRecipientIdPF"),
                 indexAndPartitions.getPartitions()
+        );
+    }
+
+    @Test
+    void searchByCampaignWithRecipientFilterMissingOpaqueIds() {
+        // - GIVEN: ricerca per campagna + destinatario specifico SENZA gli ID opachi valorizzati
+        InputSearchNotificationDto searchParams = new InputSearchNotificationDto().toBuilder()
+                .byCampaign( true )
+                .campaignId( "campaignId" )
+                .filterId( "recipientId" )
+                .startDate(Instant.parse("2020-10-13T10:00:00Z"))
+                .endDate(Instant.parse("2020-12-13T10:00:00Z"))
+                .build();
+
+        // - WHEN / THAN: deve lanciare eccezione
+        Assertions.assertThrows( Exception.class,
+                () -> IndexNameAndPartitions.selectIndexAndPartitions( searchParams ),
+                "Deve lanciare eccezione quando gli ID opachi non sono forniti"
         );
     }
 
