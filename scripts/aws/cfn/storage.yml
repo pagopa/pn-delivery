@@ -124,8 +124,8 @@ Resources:
           AttributeType: "S"
         - AttributeName: "campaignId_creationMonth"
           AttributeType: "S"
-        - AttributeName: "campaignId_recipientId"
-          AttributeType: "S"
+        #- AttributeName: "campaignId_recipientId"
+        #  AttributeType: "S"
       KeySchema:
         - AttributeName: "iun_recipientId"
           KeyType: "HASH"
