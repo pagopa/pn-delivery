@@ -122,9 +122,9 @@ describe('dynamo.js tests', () => {
       recipientOne: true,
     };
 
-    it('should set Key to iun_recipientId', () => {
+    it('should set Key to iun_recipientId and sentAt (table composite key)', () => {
       const params = buildNotificationMetadataUpdateParams('testTable', fullItem);
-      expect(params.Key).to.deep.equal({ iun_recipientId: 'iun1##rec1' });
+      expect(params.Key).to.deep.equal({ iun_recipientId: 'iun1##rec1', sentAt: '2025-01-01T00:00:00Z' });
     });
 
     it('should include all notification metadata fields in UpdateExpression', () => {
@@ -135,7 +135,6 @@ describe('dynamo.js tests', () => {
       expect(expr).to.include('#notificationStatusTimestamp = :notificationStatusTimestamp');
       expect(expr).to.include('#senderId = :senderId');
       expect(expr).to.include('#recipientId = :recipientId');
-      expect(expr).to.include('#sentAt = :sentAt');
       expect(expr).to.include('#notificationGroup = :notificationGroup');
       expect(expr).to.include('#communicationType = :communicationType');
       expect(expr).to.include('#campaignId = :campaignId');
@@ -158,7 +157,6 @@ describe('dynamo.js tests', () => {
       expect(vals[':notificationStatusTimestamp']).to.equal('2025-01-01T00:00:00Z');
       expect(vals[':senderId']).to.equal('sender1');
       expect(vals[':recipientId']).to.equal('rec1');
-      expect(vals[':sentAt']).to.equal('2025-01-01T00:00:00Z');
       expect(vals[':notificationGroup']).to.equal('group1');
       expect(vals[':communicationType']).to.equal('INFORMAL');
       expect(vals[':campaignId']).to.equal('campaign1');
@@ -181,6 +179,12 @@ describe('dynamo.js tests', () => {
       const params = buildNotificationMetadataUpdateParams('testTable', fullItem);
       expect(params.UpdateExpression).to.not.include('#iun_recipientId');
       expect(params.ExpressionAttributeValues).to.not.have.property(':iun_recipientId');
+    });
+
+    it('should not include sentAt in UpdateExpression or ExpressionAttributeValues (it is a key attribute)', () => {
+      const params = buildNotificationMetadataUpdateParams('testTable', fullItem);
+      expect(params.UpdateExpression).to.not.include('#sentAt');
+      expect(params.ExpressionAttributeValues).to.not.have.property(':sentAt');
     });
 
     it('should set correct ConditionExpression for timestamp ordering', () => {

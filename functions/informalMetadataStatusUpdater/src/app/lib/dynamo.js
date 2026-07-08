@@ -53,13 +53,12 @@ const deleteItem = async (TableName, Key, Iun) => {
 
 const buildNotificationMetadataUpdateParams = (tablename, item) => ({
   TableName: tablename,
-  Key: { iun_recipientId: item.iun_recipientId },
+  Key: { iun_recipientId: item.iun_recipientId, sentAt: item.sentAt },
   UpdateExpression:
     "SET #notificationStatus = :notificationStatus, " +
     "#notificationStatusTimestamp = :notificationStatusTimestamp, " +
     "#senderId = :senderId, " +
     "#recipientId = :recipientId, " +
-    "#sentAt = :sentAt, " +
     "#notificationGroup = :notificationGroup, " +
     "#communicationType = :communicationType, " +
     "#campaignId = :campaignId, " +
@@ -79,7 +78,6 @@ const buildNotificationMetadataUpdateParams = (tablename, item) => ({
     "#notificationStatusTimestamp": "notificationStatusTimestamp",
     "#senderId": "senderId",
     "#recipientId": "recipientId",
-    "#sentAt": "sentAt",
     "#notificationGroup": "notificationGroup",
     "#communicationType": "communicationType",
     "#campaignId": "campaignId",
@@ -98,7 +96,6 @@ const buildNotificationMetadataUpdateParams = (tablename, item) => ({
     ":notificationStatusTimestamp": item.notificationStatusTimestamp,
     ":senderId": item.senderId,
     ":recipientId": item.recipientId,
-    ":sentAt": item.sentAt,
     ":notificationGroup": item.notificationGroup ?? null,
     ":communicationType": item.communicationType ?? null,
     ":campaignId": item.campaignId ?? null,
