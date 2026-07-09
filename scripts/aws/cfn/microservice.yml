@@ -1025,7 +1025,7 @@ Resources:
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service-openapi.yaml"
       Parameters:
-        MicroServiceUniqueName: !Sub "${ProjectName}-delivery"
+        MicroServiceUniqueName: !Sub "${ProjectName}-delivery-informal"
         IntendedUsage: B2B
         DnsName: !Ref ApiDnsName
         ProjectName: !Ref ProjectName
