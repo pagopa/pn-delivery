@@ -14,15 +14,11 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.Interna
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV24;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementDetailsV28;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementV28;
-import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
+import it.pagopa.pn.delivery.middleware.notificationviewedproducer.strategy.SqsNotificationViewedStrategy;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.LegalNotificationDetail;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
-import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
+import it.pagopa.pn.delivery.models.internal.notification.*;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.svc.search.LegalTimelineEnricher;
@@ -39,13 +35,8 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 class LegalNotificationDetailRetrieverStrategyTest {
 
@@ -61,7 +52,7 @@ class LegalNotificationDetailRetrieverStrategyTest {
     private static final List<String> GROUPS = List.of("group-1");
 
     private Clock clock;
-    private NotificationViewedProducer notificationViewedProducer;
+    private SqsNotificationViewedStrategy notificationViewedProducer;
     private PnMandateClientImpl pnMandateClient;
     private PnExternalRegistriesClientImpl pnExternalRegistriesClient;
     private LegalTimelineEnricher legalTimelineEnricher;
@@ -72,7 +63,7 @@ class LegalNotificationDetailRetrieverStrategyTest {
     @BeforeEach
     void setup() {
         this.clock = Mockito.mock(Clock.class);
-        this.notificationViewedProducer = Mockito.mock(NotificationViewedProducer.class);
+        this.notificationViewedProducer = Mockito.mock(SqsNotificationViewedStrategy.class);
         this.pnMandateClient = Mockito.mock(PnMandateClientImpl.class);
         this.pnExternalRegistriesClient = Mockito.mock(PnExternalRegistriesClientImpl.class);
         this.legalTimelineEnricher = Mockito.mock(LegalTimelineEnricher.class);

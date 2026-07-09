@@ -284,4 +284,9 @@ aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
     --type String \
     --value "[]"
 
+echo "### CREATE EVENT BUS - pn-CoreEventBus ###"
+event_bus_name="pn-CoreEventBus"
+aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
+  events create-event-bus --name $event_bus_name
+
 echo "Initialization terminated"

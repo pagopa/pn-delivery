@@ -47,4 +47,7 @@ public class PnDeliveryExceptionCodes extends PnExceptionsCodes {
     public static final String ERROR_CODE_INFORMAL_BODY_LENGTH_EXCEEDED = "PN_DELIVERY_INFORMAL_BODY_LENGTH_EXCEEDED";
     public static final String ERROR_CODE_INFORMAL_SHORT_BODY_REQUIRED = "PN_DELIVERY_INFORMAL_SHORT_BODY_REQUIRED";
 
+    public static final String ERROR_CODE_DELIVERY_SEND_EVENT_BRIDGE_ERROR = "PN_DELIVERY_SEND_EVENT_BRIDGE_ERROR";
+
+
 }

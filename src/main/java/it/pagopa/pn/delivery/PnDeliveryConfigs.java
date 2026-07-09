@@ -132,6 +132,8 @@ public class PnDeliveryConfigs {
     private Integer maxMessageLongBodyLength;
 
     private Integer maxMessageShortBodyLength;
+    
+    private EventBridge eventBridge;
 
     @PostConstruct
     public void init(){
@@ -191,6 +193,13 @@ public class PnDeliveryConfigs {
     @Data
     public static class NotificationRefusedVerificationDao {
         private String tableName;
+    }
+    
+    @Data
+    public static class EventBridge {
+        private String source;
+        private String notificationViewedDetailType;
+        private String name;
     }
 
 }

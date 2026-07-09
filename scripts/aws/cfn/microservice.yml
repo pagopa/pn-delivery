@@ -958,6 +958,9 @@ Resources:
         ContainerEnvEntry69: !Sub "PN_DELIVERY_NOTIFICATION_COST_SERVICE_RETRY_MAX_ATTEMPTS=${NotificationCostServiceMaxRetryAttempts}"
         ContainerEnvEntry70: !Sub "PN_DELIVERY_LATESTINFORMALNOTIFICATIONVERSION=${LatestInformalNotificationVersion}"
         ContainerEnvEntry71: !Sub "PN_DELIVERY_INFORMALMAXDOCUMENTSAVAILABLEDAYS=${InformalMaxDocumentsAvailableDays}"
+        ContainerEnvEntry72: !Sub "PN_DELIVERY_EVENTBRIDGE_NAME=arn:aws:events:${AWS::Region}:${AWS::AccountId}:event-bus/${ProjectName}-CoreEventBus"
+        ContainerEnvEntry73: !Sub "PN_DELIVERY_EVENTBRIDGE_SOURCE=pn-delivery"
+        ContainerEnvEntry74: !Sub "PN_DELIVERY_EVENTBRIDGE_NOTIFICATIONVIEWEDDETAILTYPE=InformalNotificationViewedEvent"
         ContainerSecret1: !Sub "ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:"
         ApplicativeEnvFileChecksum: !Ref ApplicativeEnvFileChecksum
         MicroServiceSecretPrefix: pn-Delivery-Secrets
