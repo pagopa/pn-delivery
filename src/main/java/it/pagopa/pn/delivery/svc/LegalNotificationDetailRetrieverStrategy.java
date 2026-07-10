@@ -10,7 +10,7 @@ import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementV28;
-import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
+import it.pagopa.pn.delivery.middleware.notificationviewedproducer.strategy.SqsNotificationViewedStrategy;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.LegalNotificationDetail;
@@ -40,7 +40,7 @@ import static it.pagopa.pn.delivery.utils.PgUtils.checkAuthorizationPG;
 public class LegalNotificationDetailRetrieverStrategy implements NotificationDetailRetrieverStrategy<LegalNotificationDetail> {
 
 	private final Clock clock;
-	private final NotificationViewedProducer notificationAcknowledgementProducer;
+	private final SqsNotificationViewedStrategy notificationAcknowledgementProducer;
 	private final PnMandateClientImpl pnMandateClient;
 	private final PnExternalRegistriesClientImpl pnExternalRegistriesClient;
 	private final LegalTimelineEnricher legalTimelineEnricher;
@@ -48,7 +48,7 @@ public class LegalNotificationDetailRetrieverStrategy implements NotificationDet
 
 	@Autowired
 	public LegalNotificationDetailRetrieverStrategy(Clock clock,
-                                                    NotificationViewedProducer notificationAcknowledgementProducer,
+													SqsNotificationViewedStrategy notificationAcknowledgementProducer,
                                                     PnMandateClientImpl pnMandateClient,
                                                     PnExternalRegistriesClientImpl pnExternalRegistriesClient,
                                                     LegalTimelineEnricher legalTimelineEnricher,

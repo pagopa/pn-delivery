@@ -1,13 +1,12 @@
 package it.pagopa.pn.delivery.svc;
 
-import it.pagopa.pn.api.dto.events.NotificationViewDelegateInfo;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.delivery.exception.PnForbiddenException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalTimelineElementV1;
-import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
+import it.pagopa.pn.delivery.middleware.notificationviewedproducer.strategy.EventBridgeNotificationViewedStrategy;
 import it.pagopa.pn.delivery.models.InformalNotificationDetail;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -34,7 +33,7 @@ import static it.pagopa.pn.delivery.utils.PgUtils.checkAuthorizationPG;
 public class InformalNotificationDetailRetrieverStrategy implements NotificationDetailRetrieverStrategy<InformalNotificationDetail> {
 
 	private final Clock clock;
-	private final NotificationViewedProducer notificationAcknowledgementProducer;
+	private final EventBridgeNotificationViewedStrategy notificationAcknowledgementProducer;
 	private final InformalTimelineEnricher informalTimelineEnricher;
 	private final NotificationRetrieverService notificationRetrieverService;
 	private final MessageEnricher messageEnricher;
@@ -42,7 +41,7 @@ public class InformalNotificationDetailRetrieverStrategy implements Notification
 
 	@Autowired
 	public InformalNotificationDetailRetrieverStrategy(Clock clock,
-                                                       NotificationViewedProducer notificationAcknowledgementProducer,
+													   EventBridgeNotificationViewedStrategy notificationAcknowledgementProducer,
                                                        InformalTimelineEnricher informalTimelineEnricher,
                                                        NotificationRetrieverService notificationRetrieverService, MessageEnricher messageEnricher) {
 		this.clock = clock;
@@ -129,7 +128,7 @@ public class InformalNotificationDetailRetrieverStrategy implements Notification
 		logEvent.getMdc().put(MDCUtils.MDC_PN_RECIPIENT_ID_KEY, recipientId);
 		filterTimelinesByRecipient(notificationDetail, internalAuthHeader, recipientIndex);
 		filterRecipients(notification, internalAuthHeader, recipientIndex);
-		notifyNotificationViewedEvent(notification, recipientIndex, null, internalAuthHeader);
+		notifyNotificationViewedEvent(notification, recipientIndex, internalAuthHeader);
 		return notificationDetail;
 	}
 
@@ -173,11 +172,11 @@ public class InformalNotificationDetailRetrieverStrategy implements Notification
 		}
 	}
 
-	private void notifyNotificationViewedEvent(InternalNotification notification, int recipientIndex, NotificationViewDelegateInfo delegateInfo, InternalAuthHeader internalAuthHeader) {
+	private void notifyNotificationViewedEvent(InternalNotification notification, int recipientIndex, InternalAuthHeader internalAuthHeader) {
 		String iun = notification.getIun();
-		log.info("Send \"notification acknowlwdgement\" event for iun={}", iun);
+		log.info("Send \"notification acknowlwdgement\" event for iun={} and recipientIndex={}", iun, recipientIndex);
 		Instant createdAt = clock.instant();
-		notificationAcknowledgementProducer.sendNotificationViewed( iun, createdAt, recipientIndex, delegateInfo, internalAuthHeader.xPagopaPnSrcCh(), internalAuthHeader.xPagopaPnSrcChDetails() );
+		notificationAcknowledgementProducer.sendNotificationViewed( iun, createdAt, recipientIndex, null, internalAuthHeader.xPagopaPnSrcCh(), internalAuthHeader.xPagopaPnSrcChDetails() );
 	}
 
 	private int getRecipientIndexFromRecipientId(InternalNotification internalNotification, String recipientId) {

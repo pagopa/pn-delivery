@@ -4,7 +4,7 @@ import io.awspring.cloud.autoconfigure.messaging.SqsAutoConfiguration;
 import it.pagopa.pn.delivery.config.CampaignsParameterConsumer;
 import it.pagopa.pn.delivery.config.InformalNotificationSendPaParameterConsumer;
 import it.pagopa.pn.delivery.middleware.AsseverationEventsProducer;
-import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
+import it.pagopa.pn.delivery.middleware.notificationviewedproducer.strategy.producer.NotificationViewedProducer;
 import it.pagopa.pn.delivery.middleware.PaymentEventsProducer;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;

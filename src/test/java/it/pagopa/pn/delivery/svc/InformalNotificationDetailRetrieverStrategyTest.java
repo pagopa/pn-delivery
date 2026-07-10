@@ -8,7 +8,7 @@ import it.pagopa.pn.delivery.exception.PnForbiddenException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalTimelineElementV1;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV24;
-import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
+import it.pagopa.pn.delivery.middleware.notificationviewedproducer.strategy.EventBridgeNotificationViewedStrategy;
 import it.pagopa.pn.delivery.models.InformalNotificationDetail;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -51,7 +51,7 @@ class InformalNotificationDetailRetrieverStrategyTest {
     private static final List<String> GROUPS = List.of("group-1");
 
     private Clock clock;
-    private NotificationViewedProducer notificationViewedProducer;
+    private EventBridgeNotificationViewedStrategy notificationViewedProducer;
     private InformalTimelineEnricher informalTimelineEnricher;
     private NotificationRetrieverService notificationRetrieverService;
     private MessageEnricher messageEnricher;
@@ -61,7 +61,7 @@ class InformalNotificationDetailRetrieverStrategyTest {
     @BeforeEach
     void setup() {
         this.clock = Mockito.mock(Clock.class);
-        this.notificationViewedProducer = Mockito.mock(NotificationViewedProducer.class);
+        this.notificationViewedProducer = Mockito.mock(EventBridgeNotificationViewedStrategy.class);
         this.informalTimelineEnricher = Mockito.mock(InformalTimelineEnricher.class);
         this.notificationRetrieverService = Mockito.mock(NotificationRetrieverService.class);
         this.messageEnricher = Mockito.mock(MessageEnricher.class);
