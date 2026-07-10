@@ -332,6 +332,12 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+#        '403':                                                    # ONLY EXTERNAL
+#          description: Forbidden                                  # ONLY EXTERNAL
+#          content:                                                # ONLY EXTERNAL
+#            application/problem+json:                             # ONLY EXTERNAL
+#              schema:                                             # ONLY EXTERNAL
+#                $ref: '#/components/schemas/Problem'               # ONLY EXTERNAL
         '500':
           description: Internal error
           content:
@@ -395,6 +401,12 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+#        '403':                                                    # ONLY EXTERNAL
+#          description: Forbidden                                  # ONLY EXTERNAL
+#          content:                                                # ONLY EXTERNAL
+#            application/problem+json:                             # ONLY EXTERNAL
+#              schema:                                             # ONLY EXTERNAL
+#                $ref: '#/components/schemas/Problem'               # ONLY EXTERNAL
         '409':
           description: Conflict
           content:
@@ -444,6 +456,12 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+#        '403':                                                    # ONLY EXTERNAL
+#          description: Forbidden                                  # ONLY EXTERNAL
+#          content:                                                # ONLY EXTERNAL
+#            application/problem+json:                             # ONLY EXTERNAL
+#              schema:                                             # ONLY EXTERNAL
+#                $ref: '#/components/schemas/Problem'               # ONLY EXTERNAL
         '404':
           description: Not found
           content:
@@ -502,6 +520,12 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+#        '403':                                                    # ONLY EXTERNAL
+#          description: Forbidden                                  # ONLY EXTERNAL
+#          content:                                                # ONLY EXTERNAL
+#            application/problem+json:                             # ONLY EXTERNAL
+#              schema:                                             # ONLY EXTERNAL
+#                $ref: '#/components/schemas/Problem'               # ONLY EXTERNAL
         '500':
           description: Internal error
           content:
@@ -554,6 +578,12 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+#        '403':                                                    # ONLY EXTERNAL
+#          description: Forbidden                                  # ONLY EXTERNAL
+#          content:                                                # ONLY EXTERNAL
+#            application/problem+json:                             # ONLY EXTERNAL
+#              schema:                                             # ONLY EXTERNAL
+#                $ref: '#/components/schemas/Problem'               # ONLY EXTERNAL
         '500':
           description: Internal error
           content:
@@ -597,6 +627,12 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+#        '403':                                                    # ONLY EXTERNAL
+#          description: Forbidden                                  # ONLY EXTERNAL
+#          content:                                                # ONLY EXTERNAL
+#            application/problem+json:                             # ONLY EXTERNAL
+#              schema:                                             # ONLY EXTERNAL
+#                $ref: '#/components/schemas/Problem'               # ONLY EXTERNAL
         '500':
           description: Internal error
           content:
@@ -649,6 +685,12 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+#        '403':                                                    # ONLY EXTERNAL
+#          description: Forbidden                                  # ONLY EXTERNAL
+#          content:                                                # ONLY EXTERNAL
+#            application/problem+json:                             # ONLY EXTERNAL
+#              schema:                                             # ONLY EXTERNAL
+#                $ref: '#/components/schemas/Problem'               # ONLY EXTERNAL
         '404':
           description: Not Found
           content:
@@ -693,6 +735,12 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+#        '403':                                                    # ONLY EXTERNAL
+#          description: Forbidden                                  # ONLY EXTERNAL
+#          content:                                                # ONLY EXTERNAL
+#            application/problem+json:                             # ONLY EXTERNAL
+#              schema:                                             # ONLY EXTERNAL
+#                $ref: '#/components/schemas/Problem'               # ONLY EXTERNAL
         '404':
           description: Not found
           content:
@@ -735,6 +783,12 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+#        '403':                                                    # ONLY EXTERNAL
+#          description: Forbidden                                  # ONLY EXTERNAL
+#          content:                                                # ONLY EXTERNAL
+#            application/problem+json:                             # ONLY EXTERNAL
+#              schema:                                             # ONLY EXTERNAL
+#                $ref: '#/components/schemas/Problem'               # ONLY EXTERNAL
         '404':
           description: Not found
           content:
