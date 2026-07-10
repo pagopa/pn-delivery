@@ -1577,16 +1577,12 @@ components:
         - DIGITAL
         - ANALOG
     PublicRegistryValidationCallDetails:
-      x-discriminator-value: PUBLIC_REGISTRY_VALIDATION_CALL
       type: object
       required:
         - recIndexes
         - deliveryMode
         - sendDate
-        - categoryType
       properties:
-        categoryType:
-          type: string
         recIndexes:
           description: Lista destinatari notifica
           type: array
@@ -1664,14 +1660,10 @@ components:
           description: Denominazione paese estero
       description: Indirizzo fisico scoperto durante fase di consegna
     PublicRegistryResponseDetails:
-      x-discriminator-value: PUBLIC_REGISTRY_RESPONSE
       type: object
       required:
         - recIndex
-        - categoryType
       properties:
-        categoryType:
-          type: string
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -1681,15 +1673,10 @@ components:
         physicalAddress:
           $ref: '#/components/schemas/PhysicalAddress'
     PublicRegistryValidationResponseDetails:
-      x-discriminator-value: PUBLIC_REGISTRY_VALIDATION_RESPONSE
       allOf:
         - $ref: '#/components/schemas/PublicRegistryResponseDetails'
         - type: object
-          required:
-            - categoryType
           properties:
-            categoryType:
-              type: string
             registry:
               type: string
               description: |
@@ -1697,25 +1684,13 @@ components:
                   - ANPR
                   - REGISTRO_IMPRESE
               maxLength: 128
-    ValidateNormalizeAddressDetails:
-      x-discriminator-value: VALIDATE_NORMALIZE_ADDRESSES_REQUEST
-      type: object
-      required:
-        - categoryType
-      properties:
-        categoryType:
-          type: string
     NormalizedAddressDetails:
-      x-discriminator-value: NORMALIZED_ADDRESS
       type: object
       required:
         - recIndex
         - oldAddress
         - normalizedAddress
-        - categoryType
       properties:
-        categoryType:
-          type: string
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -1725,13 +1700,8 @@ components:
         normalizedAddress:
           $ref: '#/components/schemas/PhysicalAddress'
     NotificationRequestAcceptedDetailsV28:
-      x-discriminator-value: REQUEST_ACCEPTED
       type: object
-      required:
-        - categoryType
       properties:
-        categoryType:
-          type: string
         notificationRequestId:
           type: string
           description: identificativo univoco di una richiesta di invio notifica, non è lo IUN
@@ -1775,13 +1745,8 @@ components:
           description: Index destinatario notifica digitale con errore che ha portato al rifiuto della notifica
           format: int32
     RequestRefusedDetailsV27:
-      x-discriminator-value: REQUEST_REFUSED
       type: object
-      required:
-        - categoryType
       properties:
-        categoryType:
-          type: string
         refusalReasons:
           type: array
           description: Motivazioni che hanno portato al rifiuto della notifica
@@ -1821,17 +1786,13 @@ components:
         - EMAIL
         - SMS
     SendDigitalMessageDetails:
-      x-discriminator-value: SEND_DIGITAL_MESSAGE
       type: object
       required:
         - recIndex
-        - categoryType
         - channel
       properties:
         recIndex:
           $ref: '#/components/schemas/RecIndex'
-        categoryType:
-          type: string
         digitalAddress:
           $ref: '#/components/schemas/DigitalAddress'
         digitalAddressSource:
@@ -1888,17 +1849,13 @@ components:
           description: Data evento di avanzamento della notifica
           format: date-time
     SendDigitalMessageProgressDetails:
-      x-discriminator-value: SEND_DIGITAL_MESSAGE_PROGRESS
       type: object
       required:
         - recIndex
-        - categoryType
         - channel
       properties:
         recIndex:
           $ref: '#/components/schemas/RecIndex'
-        categoryType:
-          type: string
         deliveryDetail:
           $ref: '#/components/schemas/DigitalDeliveryDetail'
         digitalAddress:
@@ -1937,18 +1894,14 @@ components:
           description: nome del server mittente
           maxLength: 128
     SendDigitalMessageFeedbackDetails:
-      x-discriminator-value: SEND_DIGITAL_MESSAGE_FEEDBACK
       type: object
       required:
         - recIndex
         - digitalAddress
         - responseStatus
         - notificationDate
-        - categoryType
         - channel
       properties:
-        categoryType:
-          type: string
         recIndex:
           $ref: '#/components/schemas/RecIndex'
         digitalAddress:
@@ -1991,11 +1944,8 @@ components:
       required:
         - recIndex
         - physicalAddress
-        - categoryType
         - deliveryType
       properties:
-        categoryType:
-          type: string
         recIndex:
           $ref: '#/components/schemas/RecIndex'
         physicalAddress:
@@ -2020,11 +1970,8 @@ components:
       required:
         - recIndex
         - physicalAddress
-        - categoryType
         - deliveryType
       properties:
-        categoryType:
-          type: string
         recIndex:
           $ref: '#/components/schemas/RecIndex'
         physicalAddress:
@@ -2146,15 +2093,11 @@ components:
           type: string
           format: date-time
     SendAnalogMessageProgressDetails:
-      x-discriminator-value: SEND_ANALOG_MESSAGE_PROGRESS
       type: object
       required:
         - recIndex
-        - categoryType
         - deliveryType
       properties:
-        categoryType:
-          type: string
         recIndex:
           $ref: '#/components/schemas/RecIndex'
         notificationDate:
@@ -2179,18 +2122,14 @@ components:
         serviceLevel:
           $ref: '#/components/schemas/ServiceLevel'
     SendAnalogMessageFeedbackDetails:
-      x-discriminator-value: SEND_ANALOG_MESSAGE_FEEDBACK
       type: object
       required:
         - recIndex
         - serviceLevel
         - sentAttemptMade
         - responseStatus
-        - categoryType
         - deliveryType
       properties:
-        categoryType:
-          type: string
         recIndex:
           $ref: '#/components/schemas/RecIndex'
         physicalAddress:
@@ -2231,16 +2170,12 @@ components:
           description: Codice della raccomandata
           maxLength: 128
     DeliveredDetails:
-      x-discriminator-value: DELIVERED
       type: object
       required:
         - recIndex
         - channel
         - sourceElementId
-        - categoryType
       properties:
-        categoryType:
-          type: string
         recIndex:
           $ref: '#/components/schemas/RecIndex'
         channel:
@@ -2256,40 +2191,28 @@ components:
           type: string
           format: date-time
     WorkflowEndedReachedDetails:
-      x-discriminator-value: WORKFLOW_ENDED_REACHED
       type: object
       required:
         - recIndex
-        - categoryType
         - sourceElementId
       properties:
-        categoryType:
-          type: string
         recIndex:
           $ref: '#/components/schemas/RecIndex'
         sourceElementId:
           type: string
     WorkflowEndedUnreachedDetails:
-      x-discriminator-value: WORKFLOW_ENDED_UNREACHED
       type: object
       required:
         - recIndex
-        - categoryType
         - sourceElementId
       properties:
-        categoryType:
-          type: string
         recIndex:
           $ref: '#/components/schemas/RecIndex'
     WorkflowEndedUndeliverableDetails:
-      x-discriminator-value: WORKFLOW_ENDED_UNDELIVERABLE
       type: object
       required:
         - recIndex
-        - categoryType
       properties:
-        categoryType:
-          type: string
         recIndex:
           $ref: '#/components/schemas/RecIndex'
     CompletionFeedback:
@@ -2301,16 +2224,12 @@ components:
         - UNDELIVERABLE
         - UNREACHED
     WorkflowDoneReachedDetails:
-      x-discriminator-value: WORKFLOW_DONE_REACHED
       type: object
       required:
         - recIndex
         - sourceElementId
         - completionFeedback
-        - categoryType
       properties:
-        categoryType:
-          type: string
         recIndex:
           $ref: '#/components/schemas/RecIndex'
         sourceElementId:
@@ -2320,16 +2239,12 @@ components:
         completionFeedback:
           $ref: '#/components/schemas/CompletionFeedback'
     WorkflowDoneUnreachedDetails:
-      x-discriminator-value: WORKFLOW_DONE_UNREACHED
       type: object
       required:
         - recIndex
         - sourceElementId
         - completionFeedback
-        - categoryType
       properties:
-        categoryType:
-          type: string
         recIndex:
           $ref: '#/components/schemas/RecIndex'
         sourceElementId:
@@ -2339,16 +2254,12 @@ components:
         completionFeedback:
           $ref: '#/components/schemas/CompletionFeedback'
     InformalNotificationViewedDetails:
-      x-discriminator-value: INFORMAL_NOTIFICATION_VIEWED
       type: object
       required:
         - recIndex
-        - categoryType
         - eventTimestamp
         - sourceChannel
       properties:
-        categoryType:
-          type: string
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -2366,15 +2277,11 @@ components:
           description: |
             Dettaglio del canale di provenienza della richiesta di visualizzazione notifica bonaria
     CoverpageCreationRequestDetails:
-      x-discriminator-value: COVERPAGE_CREATION_REQUEST
       type: object
       required:
         - recIndex
-        - categoryType
         - fileKey
       properties:
-        categoryType:
-          type: string
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -2388,13 +2295,10 @@ components:
       type: object
       required:
         - recIndex
-        - categoryType
         - channel
       properties:
         recIndex:
           $ref: '#/components/schemas/RecIndex'
-        categoryType:
-          type: string
         channel:
           $ref: '#/components/schemas/DigitalChannels'
         digitalAddressSource:
@@ -2409,16 +2313,12 @@ components:
         - PF
         - PG
     NotificationPaidDetailsV23:
-      x-discriminator-value: PAYMENT
       type: object
       required:
         - recIndex
         - recipientType
         - paymentSourceChannel
-        - categoryType
       properties:
-        categoryType:
-          type: string
         recIndex:
           type: integer
           description: Index destinatario che ha effettuato il pagamento della notifica
@@ -2454,7 +2354,6 @@ components:
       oneOf:
         - $ref: '#/components/schemas/PublicRegistryValidationCallDetails'
         - $ref: '#/components/schemas/PublicRegistryValidationResponseDetails'
-        - $ref: '#/components/schemas/ValidateNormalizeAddressDetails'
         - $ref: '#/components/schemas/NormalizedAddressDetails'
         - $ref: '#/components/schemas/NotificationRequestAcceptedDetailsV28'
         - $ref: '#/components/schemas/RequestRefusedDetailsV27'
@@ -2475,8 +2374,6 @@ components:
         - $ref: '#/components/schemas/CoverpageCreationRequestDetails'
         - $ref: '#/components/schemas/SendDigitalMessageSkipDetails'
         - $ref: '#/components/schemas/NotificationPaidDetailsV23'
-      discriminator:
-        propertyName: categoryType
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
