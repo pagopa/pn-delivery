@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: CrZ3GkINzd671lJTFs/iyjefSQP0Z42ncwvDDgekfrc=
+  version: EIejUGYUlAlHY/NkndB0cVd8EWoilcxoDZDecyorGFY=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2725,12 +2725,22 @@ components:
           type: string
         recIndex:
           $ref: '#/components/schemas/RecIndex'
+    CompletionFeedback:
+      type: string
+      description: >
+        Feedback desiderato per la conclusione del workflow di notificazione -
+        __SENT__ - __RECEIVED__ - __READ__ - __PAID__ - __SKIP__
+      enum:
+        - DELIVERED
+        - UNDELIVERABLE
+        - UNREACHED
     WorkflowDoneReachedDetails:
       x-discriminator-value: WORKFLOW_DONE_REACHED
       type: object
       required:
         - recIndex
         - sourceElementId
+        - completionFeedback
         - categoryType
       properties:
         categoryType:
@@ -2741,12 +2751,15 @@ components:
           type: string
           description: Id dell'elemento che ha generato la conclusione del workflow
           maxLength: 512
+        completionFeedback:
+          $ref: '#/components/schemas/CompletionFeedback'
     WorkflowDoneUnreachedDetails:
       x-discriminator-value: WORKFLOW_DONE_UNREACHED
       type: object
       required:
         - recIndex
         - sourceElementId
+        - completionFeedback
         - categoryType
       properties:
         categoryType:
@@ -2757,6 +2770,8 @@ components:
           type: string
           description: Id dell'elemento che ha generato la conclusione del workflow
           maxLength: 512
+        completionFeedback:
+          $ref: '#/components/schemas/CompletionFeedback'
     InformalNotificationViewedDetails:
       x-discriminator-value: INFORMAL_NOTIFICATION_VIEWED
       type: object
