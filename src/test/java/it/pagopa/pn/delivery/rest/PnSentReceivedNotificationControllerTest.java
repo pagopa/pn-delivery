@@ -516,7 +516,7 @@ class PnSentReceivedNotificationControllerTest {
     }
 
     @Test
-    void getNotificationRequestStatusByRequestIdREFUSED_legal() {
+    void getNotificationRequestStatusByRequestIdRefused_legal() {
         // Given
         LegalNotificationDetail legalNotificationDetail = newLegalNotification();
         legalNotificationDetail.setNotificationStatusHistory(Collections.singletonList(
@@ -566,9 +566,27 @@ class PnSentReceivedNotificationControllerTest {
     }
 
     @Test
-    void getNotificationRequestStatusByRequestIdREFUSED_informal() {
+    void getNotificationRequestStatusByRequestIdRefused_informal() {
         // Given
         InformalNotificationDetail informalNotificationDetail = newInformalNotification();
+        informalNotificationDetail.setNotificationStatusHistory(Collections.singletonList(
+                InformalNotificationStatusHistoryElementV1.builder()
+                        .status(InformalNotificationStatusV1.REFUSED)
+                        .build()
+        ));
+        informalNotificationDetail.setTimeline(Collections.singletonList(
+                InformalTimelineElementV1.builder()
+                        .category(InformalTimelineElementCategoryV1.REQUEST_REFUSED)
+                        .details(InformalTimelineElementDetailsV1.builder()
+                                .refusalReasons(Collections.singletonList(
+                                        NotificationRefusedErrorV27.builder()
+                                                .errorCode("FILE_NOTFOUND")
+                                                .detail("Allegato non trovato. fileKey=81dde2a8-9719-4407-b7b3-63e7ea694869")
+                                                .build()
+                                ))
+                                .build())
+                        .build()
+        ));
 
         when(informalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
                 .thenReturn(informalNotificationDetail);
@@ -703,6 +721,11 @@ class PnSentReceivedNotificationControllerTest {
     void getNotificationRequestStatusByRequestIdAccepted_informal() {
         // Given
         InformalNotificationDetail informalNotificationDetail = newInformalNotification();
+        informalNotificationDetail.setNotificationStatusHistory(Collections.singletonList(
+                InformalNotificationStatusHistoryElementV1.builder()
+                        .status(InformalNotificationStatusV1.ACCEPTED)
+                        .build()
+        ));
         informalNotificationDetail.setTimeline(Collections.emptyList());
 
         when(informalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
@@ -1087,7 +1110,6 @@ class PnSentReceivedNotificationControllerTest {
         InternalAuthHeader internalAuthHeader = new InternalAuthHeader(CX_TYPE_PA, CX_ID, UID, List.of("asdasd"));
 
         // When
-        //when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
         when(attachmentService.downloadAttachmentWithRedirectWithFileKey(
                 anyString(),
                 any(InternalAuthHeader.class),
@@ -1129,7 +1151,6 @@ class PnSentReceivedNotificationControllerTest {
         InternalAuthHeader internalAuthHeader = new InternalAuthHeader(CX_TYPE_PA, CX_ID, UID, List.of("asdasd"));
 
         // When
-        //when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
         when(attachmentService.downloadAttachmentWithRedirectWithFileKey(
                 anyString(),
                 any(InternalAuthHeader.class),
@@ -1282,7 +1303,6 @@ class PnSentReceivedNotificationControllerTest {
                 .build();
 
         // When
-        //when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
         when(attachmentService.downloadAttachmentWithRedirect(
                 anyString(),
                 any(InternalAuthHeader.class),
@@ -1327,7 +1347,6 @@ class PnSentReceivedNotificationControllerTest {
                 .build();
 
         // When
-        //when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
         when(attachmentService.downloadAttachmentWithRedirect(
                 Mockito.anyString(),
                 Mockito.any(InternalAuthHeader.class),
@@ -1607,7 +1626,6 @@ class PnSentReceivedNotificationControllerTest {
         InternalAuthHeader internalAuthHeader = new InternalAuthHeader(CX_TYPE_PA, CX_ID, UID, List.of("asdasd"));
 
         // When
-        //when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
         when(attachmentService.downloadAttachmentWithRedirectWithFileKey(
                 anyString(),
                 any(InternalAuthHeader.class),
@@ -1649,7 +1667,6 @@ class PnSentReceivedNotificationControllerTest {
         InternalAuthHeader internalAuthHeader = new InternalAuthHeader(CX_TYPE_PA, CX_ID, UID, List.of("asdasd"));
 
         // When
-        //when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
         when(attachmentService.downloadAttachmentWithRedirectWithFileKey(
                 anyString(),
                 any(InternalAuthHeader.class),

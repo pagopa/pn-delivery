@@ -95,9 +95,6 @@ public class CampaignsParameterConsumer {
                 && !Objects.isNull(campaign.getEndDate())
                 && !Objects.isNull(campaign.getStatus())
                 && StringUtils.hasText(campaign.getServiceId())
-                && !Objects.isNull(campaign.getSensitiveContent())
-                && !Objects.isNull(campaign.getStopOnViewed())
-                && hasValidChannels(campaign.getChannels())
                 && hasValidWorkflow(campaign.getWorkflow());
     }
 
@@ -112,12 +109,6 @@ public class CampaignsParameterConsumer {
         } catch (IllegalArgumentException ex) {
             return false;
         }
-    }
-
-    private boolean hasValidChannels(List<it.pagopa.pn.delivery.models.internal.campaign.ChannelType> channels) {
-        return !Objects.isNull(channels)
-                && !channels.isEmpty()
-                && channels.stream().allMatch(Objects::nonNull);
     }
 
     private boolean hasValidWorkflow(List<it.pagopa.pn.delivery.models.internal.campaign.WorkFlowEntity> workflow) {

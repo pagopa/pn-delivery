@@ -40,7 +40,6 @@ public final class CampaignMapper {
                 .senderContact(campaign.getSenderContact())
                 .serviceId(campaign.getServiceId())
                 .sensitiveContent(Boolean.TRUE.equals(campaign.getSensitiveContent()))
-                .channels(mapChannels(campaign.getChannels()))
                 .stopOnViewed(Boolean.TRUE.equals(campaign.getStopOnViewed()));
 
         List<WorkflowEntity> workflow = campaign.getWorkflow() == null
@@ -60,18 +59,6 @@ public final class CampaignMapper {
             return null;
         }
         return CampaignStatus.fromValue(status.name());
-    }
-
-    private static List<it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ChannelType> mapChannels(
-            List<it.pagopa.pn.delivery.models.internal.campaign.ChannelType> channels) {
-        if (channels == null) {
-            return Collections.emptyList();
-        }
-
-        return channels.stream()
-                .filter(Objects::nonNull)
-                .map(channel -> it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ChannelType.fromValue(channel.name()))
-                .toList();
     }
 
     private static List<it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ChannelType> extractSummaryChannels(
@@ -113,7 +100,11 @@ public final class CampaignMapper {
         }
 
         if (step.getDesiredFeedback() != null) {
-            workflowEntity.desiredFeedback(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.DesiredFeedbackType.fromValue(step.getDesiredFeedback().name()));
+            workflowEntity.desiredFeedback(
+                    step.getDesiredFeedback().stream()
+                            .map(df -> it.pagopa.pn.delivery.generated.openapi.server.v1.dto.DesiredFeedbackType.fromValue(df.name()))
+                            .collect(Collectors.toSet())
+            );
         }
 
         return workflowEntity;

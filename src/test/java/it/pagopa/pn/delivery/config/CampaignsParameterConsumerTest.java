@@ -16,6 +16,7 @@ import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import software.amazon.awssdk.services.ssm.model.ParameterNotFoundException;
 
@@ -200,7 +201,6 @@ class CampaignsParameterConsumerTest {
         Campaign[] campaigns = new Campaign[] {
                 validCampaign("c1", SENDER_A),
                 validCampaign("c2", "not-a-uuid"),
-                validCampaign("c3", SENDER_A).toBuilder().channels(List.of()).build(),
                 validCampaign("c4", SENDER_A).toBuilder().workflow(List.of(validWorkflowStep(), WorkFlowEntity.builder().build())).build(),
                 null
         };
@@ -227,7 +227,6 @@ class CampaignsParameterConsumerTest {
                 .serviceId("service-" + campaignId)
                 .sensitiveContent(false)
                 .stopOnViewed(false)
-                .channels(List.of(ChannelType.IO, ChannelType.SMS))
                 .workflow(List.of(validWorkflowStep()))
                 .build();
     }
@@ -237,7 +236,7 @@ class CampaignsParameterConsumerTest {
                 .channel(ChannelType.IO)
                 .recipientType(Collections.singleton(RecipientTypeInt.PF))
                 .timeout(Duration.ofDays(1))
-                .desiredFeedback(DesiredFeedbackType.READ)
+                .desiredFeedback(Set.of(DesiredFeedbackType.READ))
                 .includeAttachment(false)
                 .build();
     }

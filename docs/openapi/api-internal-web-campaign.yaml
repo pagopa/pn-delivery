@@ -218,7 +218,6 @@ components:
         - serviceId
         - sensitiveContent
         - stopOnViewed
-        - channels
         - workflow
       properties:
         campaignId:
@@ -257,11 +256,6 @@ components:
         stopOnViewed:
           type: boolean
           description: Se true, il workflow si interrompe al primo evento di visualizzazione.
-        channels:
-          type: array
-          description: Elenco dei canali previsti per la campagna.
-          items:
-            $ref: '#/components/schemas/ChannelType'
         workflow:
           type: array
           description: Configurazione del workflow di invio previsto per la campagna.
@@ -274,7 +268,6 @@ components:
       required:
         - channel
         - recipientType
-        - timeout
         - desiredFeedback
         - includeAttachment
       properties:
@@ -293,7 +286,11 @@ components:
           description: Durata massima dello step in formato ISO-8601 (es. PT24H).
           example: PT24H
         desiredFeedback:
-          $ref: '#/components/schemas/DesiredFeedbackType'
+          type: array
+          description: Elenco dei feedback richiesti per considerare completato lo step.
+          uniqueItems: true
+          items:
+            $ref: '#/components/schemas/DesiredFeedbackType'
         includeAttachment:
           type: boolean
           description: Indica se nello step vanno inclusi gli allegati.

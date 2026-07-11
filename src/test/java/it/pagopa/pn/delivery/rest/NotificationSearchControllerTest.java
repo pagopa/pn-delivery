@@ -15,7 +15,6 @@ import it.pagopa.pn.delivery.svc.NotificationQRService;
 import it.pagopa.pn.delivery.svc.search.NotificationSearchService;
 import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
@@ -31,6 +30,8 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @WebFluxTest(controllers = {PnSentNotificationsController.class, PnReceivedNotificationsController.class})
 class NotificationSearchControllerTest {
@@ -95,7 +96,7 @@ class NotificationSearchControllerTest {
                 .build();
         
         //When
-        Mockito.when(svc.searchNotification(any(InputSearchNotificationDto.class), any(), any()))
+        when(svc.searchNotification(any(InputSearchNotificationDto.class), any(), any()))
                 .thenReturn(result);
 
         //Then
@@ -131,7 +132,7 @@ class NotificationSearchControllerTest {
                 .nextPagesKey(null)
                 .build();
 
-        Mockito.verify(svc).searchNotification(searchDto, null, null);
+        verify(svc).searchNotification(searchDto, null, null);
     }
 
     @Test
@@ -156,7 +157,7 @@ class NotificationSearchControllerTest {
                         .build();
 
         //When
-        Mockito.when(svc.searchNotification(any(InputSearchNotificationDto.class), any(), any()))
+        when(svc.searchNotification(any(InputSearchNotificationDto.class), any(), any()))
                 .thenReturn(result);
 
         org.modelmapper.ModelMapper mapper = new org.modelmapper.ModelMapper();
@@ -192,7 +193,7 @@ class NotificationSearchControllerTest {
                 .nextPagesKey( NEXT_PAGES_KEY )
                 .build();
 
-        Mockito.verify(svc).searchNotification(searchDto, null, null);
+        verify(svc).searchNotification(searchDto, null, null);
     }
 
     
@@ -216,7 +217,7 @@ class NotificationSearchControllerTest {
                         .nextPagesKey(null).build();
         
         //When
-        Mockito.when(svc.searchNotification(any(InputSearchNotificationDto.class), eq("PF"), any()))
+        when(svc.searchNotification(any(InputSearchNotificationDto.class), eq("PF"), any()))
                 .thenReturn(result);
 
         org.modelmapper.ModelMapper mapper = new org.modelmapper.ModelMapper();
@@ -256,7 +257,7 @@ class NotificationSearchControllerTest {
                 .nextPagesKey(null)
                 .build();
         
-        Mockito.verify(svc).searchNotification(eq(searchDto), eq("PF"), any());
+        verify(svc).searchNotification(eq(searchDto), eq("PF"), any());
     }
 
     @Test
@@ -280,7 +281,7 @@ class NotificationSearchControllerTest {
                         .build();
 
         //When
-        Mockito.when(svc.searchNotificationDelegated(any(InputSearchNotificationDelegatedDto.class)))
+        when(svc.searchNotificationDelegated(any(InputSearchNotificationDelegatedDto.class)))
                 .thenReturn(result);
 
         org.modelmapper.ModelMapper mapper = new org.modelmapper.ModelMapper();
@@ -319,6 +320,6 @@ class NotificationSearchControllerTest {
                 .cxGroups(GROUPS)
                 .build();
 
-        Mockito.verify(svc).searchNotificationDelegated(inputSearchNotificationDelegatedDto);
+        verify(svc).searchNotificationDelegated(inputSearchNotificationDelegatedDto);
     }
 }
