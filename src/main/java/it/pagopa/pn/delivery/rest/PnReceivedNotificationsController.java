@@ -9,11 +9,9 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.api.RecipientReadApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.RecipientReadInformalNotificationApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.SenderContacts;
 import it.pagopa.pn.delivery.models.*;
-import it.pagopa.pn.delivery.svc.InformalNotificationDetailRetrieverStrategy;
-import it.pagopa.pn.delivery.svc.LegalNotificationDetailRetrieverStrategy;
-import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
-import it.pagopa.pn.delivery.svc.NotificationQRService;
+import it.pagopa.pn.delivery.svc.*;
 import it.pagopa.pn.delivery.svc.search.NotificationSearchService;
 import it.pagopa.pn.delivery.utils.InternalFieldsCleaner;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +37,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi, Reci
     private final LegalNotificationDetailRetrieverStrategy legalNotificationDetailRetrieverStrategy;
     private final NotificationAttachmentService notificationAttachmentService;
     private final NotificationQRService notificationQRService;
-
+    private final SenderContactsService senderContactsService;
     private final ModelMapper modelMapper;
 
 
@@ -47,13 +45,14 @@ public class PnReceivedNotificationsController implements RecipientReadApi, Reci
                                              InformalNotificationDetailRetrieverStrategy informalNotificationDetailRetrieverStrategy,
                                              LegalNotificationDetailRetrieverStrategy legalNotificationDetailRetrieverStrategy,
                                              NotificationAttachmentService notificationAttachmentService,
-                                             NotificationQRService notificationQRService,
+                                             NotificationQRService notificationQRService, SenderContactsService senderContactsService,
                                              ModelMapper modelMapper) {
         this.retrieveSvc = retrieveSvc;
         this.informalNotificationDetailRetrieverStrategy = informalNotificationDetailRetrieverStrategy;
         this.legalNotificationDetailRetrieverStrategy = legalNotificationDetailRetrieverStrategy;
         this.notificationAttachmentService = notificationAttachmentService;
         this.notificationQRService = notificationQRService;
+        this.senderContactsService = senderContactsService;
         this.modelMapper = modelMapper;
     }
 
@@ -407,5 +406,12 @@ public class PnReceivedNotificationsController implements RecipientReadApi, Reci
     @Override
     public Optional<NativeWebRequest> getRequest() {
         return RecipientReadApi.super.getRequest();
+    }
+
+    @Override
+    public ResponseEntity<SenderContacts> getSenderContacts(String senderId) {
+        log.info("getSenderContacts for senderId={}", senderId);
+        SenderContactsDto senderContactsDto = senderContactsService.getSenderContacts(senderId);
+        return ResponseEntity.ok(modelMapper.map(senderContactsDto, SenderContacts.class));
     }
 }

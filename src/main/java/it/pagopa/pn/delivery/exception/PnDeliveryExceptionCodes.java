@@ -48,6 +48,7 @@ public class PnDeliveryExceptionCodes extends PnExceptionsCodes {
     public static final String ERROR_CODE_INFORMAL_SHORT_BODY_REQUIRED = "PN_DELIVERY_INFORMAL_SHORT_BODY_REQUIRED";
 
     public static final String ERROR_CODE_DELIVERY_SEND_EVENT_BRIDGE_ERROR = "PN_DELIVERY_SEND_EVENT_BRIDGE_ERROR";
+    public static final String ERROR_CODE_DELIVERY_SENDER_CONTACTS_NOT_FOUND = "PN_DELIVERY_SENDER_CONTACTS_NOT_FOUND";
 
 
 }
