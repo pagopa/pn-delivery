@@ -91,6 +91,15 @@ describe('processRecord tests', () => {
     ]);
   });
 
+  it('should not update metadata for a LEGAL notification with a DELIVERED event', async () => {
+    decodePayloadStub.returns(makeKinesisPayload('DELIVERED', { recIndex: 1 }));
+    getItemStub.resolves({ ...notificationMock, communicationType: 'LEGAL' });
+
+    await processRecord(record);
+
+    expect(updateMetadataStub.called).to.be.false;
+  });
+
   it('should set desiredFeedback=true for WORKFLOW_DONE_REACHED on the correct recipient', async () => {
     decodePayloadStub.returns(makeKinesisPayload('WORKFLOW_DONE_REACHED', { recIndex: 1 }));
 

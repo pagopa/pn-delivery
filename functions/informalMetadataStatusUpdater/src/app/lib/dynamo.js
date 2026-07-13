@@ -62,6 +62,8 @@ const buildNotificationMetadataUpdateParams = (tablename, item) => ({
     "#notificationGroup = :notificationGroup, " +
     "#communicationType = :communicationType, " +
     "#campaignId = :campaignId, " +
+    "#campaignId_creationMonth = :campaignId_creationMonth, " +
+    "#campaignId_recipientId = :campaignId_recipientId, " +
     "#recipientIds = :recipientIds, " +
     "#tableRow = :tableRow, " +
     "#senderId_recipientId = :senderId_recipientId, " +
@@ -81,6 +83,8 @@ const buildNotificationMetadataUpdateParams = (tablename, item) => ({
     "#notificationGroup": "notificationGroup",
     "#communicationType": "communicationType",
     "#campaignId": "campaignId",
+    "#campaignId_creationMonth": "campaignId_creationMonth",
+    "#campaignId_recipientId": "campaignId_recipientId",
     "#recipientIds": "recipientIds",
     "#tableRow": "tableRow",
     "#senderId_recipientId": "senderId_recipientId",
@@ -99,6 +103,8 @@ const buildNotificationMetadataUpdateParams = (tablename, item) => ({
     ":notificationGroup": item.notificationGroup ?? null,
     ":communicationType": item.communicationType ?? null,
     ":campaignId": item.campaignId ?? null,
+    ":campaignId_creationMonth": item.campaignId_creationMonth,
+    ":campaignId_recipientId": item.campaignId_recipientId,
     ":recipientIds": item.recipientIds,
     ":tableRow": item.tableRow,
     ":senderId_recipientId": item.senderId_recipientId,

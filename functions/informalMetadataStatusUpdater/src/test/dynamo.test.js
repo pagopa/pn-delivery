@@ -108,6 +108,8 @@ describe('dynamo.js tests', () => {
       notificationGroup: 'group1',
       communicationType: 'INFORMAL',
       campaignId: 'campaign1',
+      campaignId_creationMonth: 'campaign1##202501',
+      campaignId_recipientId: 'campaign1##rec1',
       recipientIds: ['rec1', 'rec2'],
       tableRow: {
         iun: 'iun1',
@@ -138,6 +140,8 @@ describe('dynamo.js tests', () => {
       expect(expr).to.include('#notificationGroup = :notificationGroup');
       expect(expr).to.include('#communicationType = :communicationType');
       expect(expr).to.include('#campaignId = :campaignId');
+      expect(expr).to.include('#campaignId_creationMonth = :campaignId_creationMonth');
+      expect(expr).to.include('#campaignId_recipientId = :campaignId_recipientId');
       expect(expr).to.include('#recipientIds = :recipientIds');
       expect(expr).to.include('#tableRow = :tableRow');
       expect(expr).to.include('#senderId_recipientId = :senderId_recipientId');
@@ -160,6 +164,8 @@ describe('dynamo.js tests', () => {
       expect(vals[':notificationGroup']).to.equal('group1');
       expect(vals[':communicationType']).to.equal('INFORMAL');
       expect(vals[':campaignId']).to.equal('campaign1');
+      expect(vals[':campaignId_creationMonth']).to.equal('campaign1##202501');
+      expect(vals[':campaignId_recipientId']).to.equal('campaign1##rec1');
       expect(vals[':recipientIds']).to.deep.equal(['rec1', 'rec2']);
       expect(vals[':tableRow']).to.deep.equal(fullItem.tableRow);
       expect(vals[':senderId_recipientId']).to.equal('sender1##rec1');

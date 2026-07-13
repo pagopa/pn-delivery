@@ -18,6 +18,11 @@ const processRecord = async (record) => {
 
   const notification = await dynamo.getItem("pn-Notifications", { iun });
 
+  if (notification.communicationType !== "INFORMAL") {
+    console.log(`Skipping non-informal notification ${iun}`);
+    return;
+  }
+
   const categoryHandler = CATEGORY_FIELD_MAP[category];
   if (!categoryHandler) {
     console.log(`Skipping unhandled category ${category} for notification ${iun}`);

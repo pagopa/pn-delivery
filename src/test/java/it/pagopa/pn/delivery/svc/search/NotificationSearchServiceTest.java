@@ -14,6 +14,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementCate
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementV28;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.NotificationSearchCommunicationType;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
@@ -191,6 +192,7 @@ class NotificationSearchServiceTest {
                 .senderReceiverId(DELEGATE_ID)
                 .mandateId(MANDATE_ID)
                 .filterId(SENDER_ID)
+            .communicationType(NotificationSearchCommunicationType.INFORMAL)
                 .startDate(Instant.parse("2022-05-01T00:00:00Z"))
                 .endDate(Instant.parse("2022-08-01T00:00:00Z"))
                 .build();
@@ -214,6 +216,7 @@ class NotificationSearchServiceTest {
         Assertions.assertEquals(Instant.parse("2022-06-01T00:00:00Z"), searchDto.getStartDate());
         Assertions.assertEquals(Instant.parse("2022-07-01T00:00:00Z"), searchDto.getEndDate());
         Assertions.assertEquals(List.of(SENDER_ID), searchDto.getMandateAllowedPaIds());
+        Assertions.assertEquals(NotificationSearchCommunicationType.LEGAL, searchDto.getCommunicationType());
     }
 
     @Test
