@@ -12,11 +12,8 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.*;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
-import it.pagopa.pn.delivery.svc.InformalNotificationDetailRetrieverStrategy;
-import it.pagopa.pn.delivery.svc.LegalNotificationDetailRetrieverStrategy;
-import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
+import it.pagopa.pn.delivery.svc.*;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService.InternalAttachmentWithFileKey;
-import it.pagopa.pn.delivery.svc.NotificationQRService;
 import it.pagopa.pn.delivery.svc.search.NotificationSearchService;
 import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -97,6 +94,9 @@ class PnSentReceivedNotificationControllerTest {
 
     @MockBean
     private LegalNotificationDetailRetrieverStrategy legalNotificationDetailRetrieverStrategy;
+
+    @MockBean
+    SenderContactsService senderContactsService;
 
     @MockBean
     NotificationSearchService svc;
@@ -2117,6 +2117,34 @@ class PnSentReceivedNotificationControllerTest {
                 .isNotFound();
 
         verify(informalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(INFORMAL_IUN, PA_ID, GROUPS, false);
+    }
+
+    @Test
+    void getSenderContactsSuccess() {
+        // Given
+        String senderId = "senderId";
+        SenderContactsDto senderContactsDto = SenderContactsDto.builder()
+                .senderId(senderId)
+                .build();
+
+        when(senderContactsService.getSenderContacts(anyString()))
+                .thenReturn(senderContactsDto);
+
+        // Then
+        webTestClient.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path("/delivery/v1/sender/contacts")
+                                .queryParam("senderId", senderId)
+                                .build())
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(SenderContacts.class);
+
+        verify(senderContactsService).getSenderContacts(senderId);
     }
 
     private InternalNotification newNotification() {

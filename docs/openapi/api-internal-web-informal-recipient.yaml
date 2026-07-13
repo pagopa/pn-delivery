@@ -186,6 +186,48 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
 
+  "/delivery/v1/sender/contacts":
+    get:
+      summary: Informazioni contatto ente mittente
+      tags:
+        - RecipientReadInformalNotification
+      operationId: getSenderContacts
+      #      security:                                      # ONLY EXTERNAL
+      #        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      parameters:
+        - $ref: '#/components/parameters/senderId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SenderContacts'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
 components:
   parameters:
 
@@ -240,6 +282,14 @@ components:
         type: integer
         format: int32
 
+    senderId:
+      in: query
+      name: senderId
+      description: Identificativo del mittente della notifica bonaria
+      required: true
+      schema:
+        type: string
+
   schemas:
     ###########################################################################################
     ###                              DTO NOTIFICA CON DETTAGLI                              ###
@@ -266,6 +316,33 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/InformalTimelineElementV1'
+
+    ###########################################################################################
+    ###                              DTO DATI CONTATTO ENTE MITTENTE                        ###
+    ###########################################################################################
+    SenderContacts:
+      description: >-
+        Le informazioni riguardanti i contatti dell'ente mittente della notifica bonaria.
+      type: object
+      required:
+        - senderId
+        - senderName
+        - senderEmail
+        - senderPhone
+        - senderSite
+      properties:
+        email:
+          type: string
+          description: Email del mittente della notifica bonaria
+        pec:
+          type: string
+          description: PEC del mittente della notifica bonaria
+        phone:
+          type: string
+          description: Telefono del mittente della notifica bonaria
+        site:
+          type: string
+          description: Sito web del mittente della notifica bonaria
 
     Problem:
       $ref: './remote-refs.yaml#/components/schemas/Problem'

@@ -68,6 +68,9 @@ class ReceivedNotificationsDocumentTest {
 	private NotificationQRService qrService;
 
 	@MockBean
+	private SenderContactsService senderContactsService;
+
+	@MockBean
 	private PnDeliveryConfigs cfg;
 
 	@SpyBean
