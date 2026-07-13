@@ -24,7 +24,6 @@ public class Campaign {
     private String serviceId;
     private Boolean sensitiveContent;
     private Boolean stopOnViewed;
-    private List<ChannelType> channels;
     private List<WorkFlowEntity> workflow;
 }
 

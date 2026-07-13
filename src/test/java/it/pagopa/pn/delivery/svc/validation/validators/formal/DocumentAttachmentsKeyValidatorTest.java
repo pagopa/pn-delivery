@@ -25,7 +25,7 @@ class DocumentAttachmentsKeyValidatorTest {
     @Test
     void shouldAcceptDocumentWithValidKey() {
         // Given
-        NotificationDocument document = document("some/path/PN_NOTIFICATION_ATTACHMENTS/file.pdf", "sha256");
+        NotificationDocument document = document("some/path/PN_COMMUNICATIONS_ATTACHMENT/file.pdf", "sha256");
         InternalNotification payload = notification(List.of(), List.of(document));
         InformalNotificationContext context = informalContext(payload);
 
@@ -39,9 +39,9 @@ class DocumentAttachmentsKeyValidatorTest {
     @Test
     void shouldAcceptMultipleDocumentsWithValidKeys() {
         // Given
-        NotificationDocument doc1 = document("path/PN_NOTIFICATION_ATTACHMENTS/doc1.pdf", "sha1");
-        NotificationDocument doc2 = document("PN_NOTIFICATION_ATTACHMENTS/doc2.pdf", "sha2");
-        NotificationDocument doc3 = document("prefix/PN_NOTIFICATION_ATTACHMENTS/suffix/doc3.pdf", "sha3");
+        NotificationDocument doc1 = document("path/PN_COMMUNICATIONS_ATTACHMENT/doc1.pdf", "sha1");
+        NotificationDocument doc2 = document("PN_COMMUNICATIONS_ATTACHMENT/doc2.pdf", "sha2");
+        NotificationDocument doc3 = document("prefix/PN_COMMUNICATIONS_ATTACHMENT/suffix/doc3.pdf", "sha3");
 
         InternalNotification payload = notification(List.of(), List.of(doc1, doc2, doc3));
         InformalNotificationContext context = informalContext(payload);
@@ -68,7 +68,7 @@ class DocumentAttachmentsKeyValidatorTest {
         assertThat(result.getErrors()).hasSize(1);
         assertThat(result.getErrors().get(0).getElement()).isEqualTo("documents[0].ref.key");
         assertThat(result.getErrors().get(0).getCode()).isEqualTo(ErrorCodes.ERROR_CODE_INVALID_DOCUMENT_KEY.getValue());
-        assertThat(result.getErrors().get(0).getDetail()).isEqualTo("Document key must contain: PN_NOTIFICATION_ATTACHMENTS");
+        assertThat(result.getErrors().get(0).getDetail()).isEqualTo("Document key must contain: PN_COMMUNICATIONS_ATTACHMENT");
     }
 
     @Test
@@ -84,7 +84,7 @@ class DocumentAttachmentsKeyValidatorTest {
         // Then
         assertSingleError(result,
                 ErrorCodes.ERROR_CODE_INVALID_DOCUMENT_KEY.getValue(),
-                "Document key must contain: PN_NOTIFICATION_ATTACHMENTS");
+                "Document key must contain: PN_COMMUNICATIONS_ATTACHMENT");
     }
 
     @Test
@@ -100,13 +100,13 @@ class DocumentAttachmentsKeyValidatorTest {
         // Then
         assertSingleError(result,
                 ErrorCodes.ERROR_CODE_INVALID_DOCUMENT_KEY.getValue(),
-                "Document key must contain: PN_NOTIFICATION_ATTACHMENTS");
+                "Document key must contain: PN_COMMUNICATIONS_ATTACHMENT");
     }
 
     @Test
     void shouldRejectMultipleDocumentsWithInvalidKeys() {
         // Given
-        NotificationDocument validDoc = document("PN_NOTIFICATION_ATTACHMENTS/valid.pdf", "sha1");
+        NotificationDocument validDoc = document("PN_COMMUNICATIONS_ATTACHMENT/valid.pdf", "sha1");
         NotificationDocument invalidDoc1 = document("invalid/path/doc1.pdf", "sha2");
         NotificationDocument invalidDoc2 = document(null, "sha3");
 
@@ -125,7 +125,7 @@ class DocumentAttachmentsKeyValidatorTest {
 
         result.getErrors().forEach(error -> {
             assertThat(error.getCode()).isEqualTo(ErrorCodes.ERROR_CODE_INVALID_DOCUMENT_KEY.getValue());
-            assertThat(error.getDetail()).isEqualTo("Document key must contain: PN_NOTIFICATION_ATTACHMENTS");
+            assertThat(error.getDetail()).isEqualTo("Document key must contain: PN_COMMUNICATIONS_ATTACHMENT");
         });
     }
 

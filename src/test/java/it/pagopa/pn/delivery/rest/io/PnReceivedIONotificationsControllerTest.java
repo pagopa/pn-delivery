@@ -38,6 +38,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @WebFluxTest(controllers = {PnReceivedIONotificationsController.class})
 class PnReceivedIONotificationsControllerTest {
@@ -79,7 +81,7 @@ class PnReceivedIONotificationsControllerTest {
         System.out.println(expectedValueJson);
 
         // When
-        Mockito.when( legalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent( Mockito.anyString(),
+        when( legalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent( Mockito.anyString(),
                         Mockito.any( InternalAuthHeader.class ),
                         eq( null),
                         Mockito.any(PnAuditLogEvent.class)) )
@@ -100,14 +102,14 @@ class PnReceivedIONotificationsControllerTest {
                 .expectBody()
                 .json(expectedValueJson);
 
-        Mockito.verify(legalNotificationDetailRetrieverStrategy).getNotificationAndNotifyViewedEvent(Mockito.eq(IUN), Mockito.eq(new InternalAuthHeader("PF", "IO-" + USER_ID, USER_ID, null, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_SRC_CH_DET)), Mockito.eq(null), Mockito.any(PnAuditLogEvent.class));
+        verify(legalNotificationDetailRetrieverStrategy).getNotificationAndNotifyViewedEvent(Mockito.eq(IUN), Mockito.eq(new InternalAuthHeader("PF", "IO-" + USER_ID, USER_ID, null, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_SRC_CH_DET)), Mockito.eq(null), Mockito.any(PnAuditLogEvent.class));
     }
 
     @Test
     void getReceivedNotificationFailure() {
 
         // When
-        Mockito.when(legalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(null), Mockito.any(PnAuditLogEvent.class)))
+        when(legalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(null), Mockito.any(PnAuditLogEvent.class)))
                 .thenThrow(new PnNotificationNotFoundException("test"));
 
         // Then
@@ -128,7 +130,7 @@ class PnReceivedIONotificationsControllerTest {
     void getReceivedNotificationWithMandateFailsForRootId() {
 
         // When
-        Mockito.when(legalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(MANDATE_ID), Mockito.any(PnAuditLogEvent.class)))
+        when(legalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(MANDATE_ID), Mockito.any(PnAuditLogEvent.class)))
                 .thenThrow(new PnRootIdNonFountException("test"));
 
         // Then
@@ -152,7 +154,7 @@ class PnReceivedIONotificationsControllerTest {
     void getReceivedNotificationWithMandateFailsForMandate() {
 
         // When
-        Mockito.when(legalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(MANDATE_ID), Mockito.any(PnAuditLogEvent.class)))
+        when(legalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(MANDATE_ID), Mockito.any(PnAuditLogEvent.class)))
                 .thenThrow(new PnMandateNotFoundException("test"));
 
         // Then
@@ -183,7 +185,7 @@ class PnReceivedIONotificationsControllerTest {
         responseCheckQrMandateDto.setIun(IUN);
 
         // When
-        Mockito.when(notificationQRService.getNotificationByQRFromIOWithMandate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        when(notificationQRService.getNotificationByQRFromIOWithMandate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(responseCheckQrMandateDto);
 
         // Then
@@ -207,7 +209,7 @@ class PnReceivedIONotificationsControllerTest {
         responseCheckQrMandateDto.setIun(IUN);
 
         // When
-        Mockito.when(notificationQRService.getNotificationByQRFromIOWithMandate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        when(notificationQRService.getNotificationByQRFromIOWithMandate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenThrow(new PnIoMandateNotFoundException(responseCheckQrMandateDto));
 
         // Then

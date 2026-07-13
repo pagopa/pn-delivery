@@ -18,10 +18,12 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.Fil
 import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileDownloadResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
-import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
+import it.pagopa.pn.delivery.middleware.NotificationViewedEventDispatcher;
 import it.pagopa.pn.delivery.models.*;
-import it.pagopa.pn.delivery.models.internal.notification.*;
+import it.pagopa.pn.delivery.models.internal.notification.MetadataAttachment;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.pnclient.pnf24.PnF24ClientImpl;
 import it.pagopa.pn.delivery.pnclient.safestorage.PnSafeStorageClientImpl;
@@ -63,11 +65,11 @@ public class NotificationAttachmentService {
     private final PnDeliveryPushClientImpl pnDeliveryPushClient;
     private final NotificationDao notificationDao;
     private final CheckAuthComponent checkAuthComponent;
-    private final NotificationViewedProducer notificationViewedProducer;
+    private final NotificationViewedEventDispatcher notificationViewedEventDispatcher;
     private final MVPParameterConsumer mvpParameterConsumer;
     private final PnDeliveryConfigs cfg;
 
-    public NotificationAttachmentService(PnSafeStorageClientImpl safeStorageClient, PnF24ClientImpl pnF24Client, PnDeliveryPushClientImpl pnDeliveryPushClient, NotificationDao notificationDao, CheckAuthComponent checkAuthComponent, NotificationViewedProducer notificationViewedProducer,
+    public NotificationAttachmentService(PnSafeStorageClientImpl safeStorageClient, PnF24ClientImpl pnF24Client, PnDeliveryPushClientImpl pnDeliveryPushClient, NotificationDao notificationDao, CheckAuthComponent checkAuthComponent, NotificationViewedEventDispatcher notificationViewedEventDispatcher,
                                          MVPParameterConsumer mvpParameterConsumer,
                                          PnDeliveryConfigs cfg) {
         this.safeStorageClient = safeStorageClient;
@@ -75,7 +77,7 @@ public class NotificationAttachmentService {
         this.pnDeliveryPushClient = pnDeliveryPushClient;
         this.notificationDao = notificationDao;
         this.checkAuthComponent = checkAuthComponent;
-        this.notificationViewedProducer = notificationViewedProducer;
+        this.notificationViewedEventDispatcher = notificationViewedEventDispatcher;
         this.mvpParameterConsumer = mvpParameterConsumer;
         this.cfg = cfg;
     }
@@ -316,7 +318,7 @@ public class NotificationAttachmentService {
                             .operatorUuid(uid)
                             .build();
                 }
-                notificationViewedProducer.sendNotificationViewed(iun, Instant.now(), authorizationOutcome.getEffectiveRecipientIdx(), delegateInfo, cxSourceChannel, cxSourceChannelDetails);
+                notificationViewedEventDispatcher.sendNotificationViewed(iun, Instant.now(), authorizationOutcome.getEffectiveRecipientIdx(), delegateInfo, cxSourceChannel, cxSourceChannelDetails, notification.getCommunicationType());
             }
 
             return InternalAttachmentWithFileKey.of(NotificationAttachmentDownloadMetadataResponse.builder()

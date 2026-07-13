@@ -13,6 +13,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -164,14 +165,13 @@ class CampaignControllerTest {
                 .endDate(OffsetDateTime.now().plusDays(30))
                 .serviceId("service-1")
                 .sensitiveContent(false)
-                .channels(List.of(ChannelType.IO, ChannelType.SMS))
                 .stopOnViewed(false)
                 .workflow(List.of(
                         new WorkflowEntity()
                                 .channel(ChannelType.IO)
                                 .recipientType(Collections.singleton(RecipientTypeInt.PF))
                                 .timeout("PT24H")
-                                .desiredFeedback(DesiredFeedbackType.READ)
+                                .desiredFeedback(Set.of(DesiredFeedbackType.READ))
                                 .includeAttachment(false)
                 ));
 
@@ -222,20 +222,19 @@ class CampaignControllerTest {
                 .endDate(OffsetDateTime.now().plusDays(30))
                 .serviceId("service-1")
                 .sensitiveContent(true)
-                .channels(List.of(ChannelType.IO, ChannelType.PEC))
                 .stopOnViewed(true)
                 .workflow(List.of(
                         new WorkflowEntity()
                                 .channel(ChannelType.IO)
                                 .recipientType(Collections.singleton(RecipientTypeInt.PF))
                                 .timeout("PT24H")
-                                .desiredFeedback(DesiredFeedbackType.READ)
+                                .desiredFeedback(Set.of(DesiredFeedbackType.READ))
                                 .includeAttachment(false),
                         new WorkflowEntity()
                                 .channel(ChannelType.PEC)
                                 .recipientType(Collections.singleton(RecipientTypeInt.PG))
                                 .timeout("PT48H")
-                                .desiredFeedback(DesiredFeedbackType.RECEIVED)
+                                .desiredFeedback(Set.of(DesiredFeedbackType.RECEIVED))
                                 .includeAttachment(true)
                 ));
 

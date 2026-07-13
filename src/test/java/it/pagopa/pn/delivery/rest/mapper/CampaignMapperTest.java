@@ -37,28 +37,28 @@ class CampaignMapperTest {
                                 .channel(ChannelType.IO)
                                 .recipientType(Collections.singleton(RecipientTypeInt.PF))
                                 .timeout(Duration.ofHours(24))
-                                .desiredFeedback(DesiredFeedbackType.READ)
+                                .desiredFeedback(Set.of(DesiredFeedbackType.READ))
                                 .includeAttachment(false)
                                 .build(),
                         WorkFlowEntity.builder()
                                 .channel(ChannelType.SMS)
                                 .recipientType(Collections.singleton(RecipientTypeInt.PF))
                                 .timeout(Duration.ofHours(48))
-                                .desiredFeedback(DesiredFeedbackType.RECEIVED)
+                                .desiredFeedback(Set.of(DesiredFeedbackType.RECEIVED))
                                 .includeAttachment(false)
                                 .build(),
                         WorkFlowEntity.builder()
                                 .channel(ChannelType.PEC)
                                 .recipientType(Collections.singleton(RecipientTypeInt.PG))
                                 .timeout(Duration.ofHours(24))
-                                .desiredFeedback(DesiredFeedbackType.READ)
+                                .desiredFeedback(Set.of(DesiredFeedbackType.READ))
                                 .includeAttachment(false)
                                 .build(),
                         WorkFlowEntity.builder()
                                 .channel(ChannelType.ANALOG)
                                 .recipientType(Set.of(RecipientTypeInt.PG, RecipientTypeInt.PF))
                                 .timeout(Duration.ofHours(96))
-                                .desiredFeedback(DesiredFeedbackType.SKIP)
+                                .desiredFeedback(Set.of(DesiredFeedbackType.SKIP))
                                 .includeAttachment(true)
                                 .build()
                 ))
@@ -129,13 +129,12 @@ class CampaignMapperTest {
                 .serviceId("service-1")
                 .sensitiveContent(false)
                 .stopOnViewed(false)
-                .channels(List.of(ChannelType.IO, ChannelType.SMS))
                 .workflow(List.of(
                         WorkFlowEntity.builder()
                                 .channel(ChannelType.IO)
                                 .recipientType(Collections.singleton(RecipientTypeInt.PG))
                                 .timeout(Duration.ofHours(24))
-                                .desiredFeedback(DesiredFeedbackType.READ)
+                                .desiredFeedback(Set.of(DesiredFeedbackType.READ))
                                 .includeAttachment(false)
                                 .build()
                 ))
@@ -157,10 +156,6 @@ class CampaignMapperTest {
         Assertions.assertEquals("service-1", detail.getServiceId());
         Assertions.assertFalse(detail.getSensitiveContent());
         Assertions.assertFalse(detail.getStopOnViewed());
-        Assertions.assertEquals(List.of(
-                it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ChannelType.fromValue("IO"),
-                it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ChannelType.fromValue("SMS")
-        ), detail.getChannels());
 
         // Check workflow
         Assertions.assertNotNull(detail.getWorkflow());
@@ -169,7 +164,7 @@ class CampaignMapperTest {
         Assertions.assertEquals(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ChannelType.fromValue("IO"), workflow.getChannel());
         Assertions.assertEquals(Set.of(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RecipientTypeInt.fromValue("PG")), workflow.getRecipientType());
         Assertions.assertEquals("PT24H", workflow.getTimeout());
-        Assertions.assertEquals(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.DesiredFeedbackType.fromValue("READ"), workflow.getDesiredFeedback());
+        Assertions.assertEquals(Set.of(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.DesiredFeedbackType.fromValue("READ")), workflow.getDesiredFeedback());
         Assertions.assertFalse(workflow.getIncludeAttachment());
     }
 */
@@ -187,7 +182,6 @@ class CampaignMapperTest {
                 .serviceId("service-1")
                 .sensitiveContent(false)
                 .stopOnViewed(false)
-                .channels(List.of(ChannelType.IO))
                 .workflow(null)
                 .build();
 
@@ -213,7 +207,6 @@ class CampaignMapperTest {
                 .serviceId("service-1")
                 .sensitiveContent(false)
                 .stopOnViewed(false)
-                .channels(List.of(ChannelType.IO))
                 .workflow(List.of())
                 .build();
 
@@ -239,27 +232,26 @@ class CampaignMapperTest {
                 .serviceId("service-1")
                 .sensitiveContent(false)
                 .stopOnViewed(false)
-                .channels(List.of(ChannelType.IO, ChannelType.PEC, ChannelType.ANALOG))
                 .workflow(List.of(
                         WorkFlowEntity.builder()
                                 .channel(ChannelType.IO)
                                 .recipientType(Collections.singleton(RecipientTypeInt.PG))
                                 .timeout(Duration.ofHours(24))
-                                .desiredFeedback(DesiredFeedbackType.READ)
+                                .desiredFeedback(Set.of(DesiredFeedbackType.READ))
                                 .includeAttachment(false)
                                 .build(),
                         WorkFlowEntity.builder()
                                 .channel(ChannelType.PEC)
                                 .recipientType(Collections.singleton(RecipientTypeInt.PG))
                                 .timeout(Duration.ofHours(48))
-                                .desiredFeedback(DesiredFeedbackType.RECEIVED)
+                                .desiredFeedback(Set.of(DesiredFeedbackType.RECEIVED))
                                 .includeAttachment(true)
                                 .build(),
                         WorkFlowEntity.builder()
                                 .channel(ChannelType.ANALOG)
                                 .recipientType(Collections.singleton(RecipientTypeInt.PG))
                                 .timeout(Duration.ofHours(72))
-                                .desiredFeedback(DesiredFeedbackType.READ)
+                                .desiredFeedback(Set.of(DesiredFeedbackType.READ))
                                 .includeAttachment(false)
                                 .build()
                 ))
@@ -273,13 +265,13 @@ class CampaignMapperTest {
 
         WorkflowEntity workflow1 = detail.getWorkflow().get(0);
         Assertions.assertEquals(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ChannelType.fromValue("IO"), workflow1.getChannel());
-        Assertions.assertEquals(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.DesiredFeedbackType.fromValue("READ"), workflow1.getDesiredFeedback());
+        Assertions.assertEquals(Set.of(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.DesiredFeedbackType.fromValue("READ")), workflow1.getDesiredFeedback());
         Assertions.assertEquals(Set.of(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RecipientTypeInt.fromValue("PG")), workflow1.getRecipientType());
         Assertions.assertEquals("PT24H", workflow1.getTimeout());
 
         WorkflowEntity workflow2 = detail.getWorkflow().get(1);
         Assertions.assertEquals(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ChannelType.fromValue("PEC"), workflow2.getChannel());
-        Assertions.assertEquals(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.DesiredFeedbackType.fromValue("RECEIVED"), workflow2.getDesiredFeedback());
+        Assertions.assertEquals(Set.of(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.DesiredFeedbackType.fromValue("RECEIVED")), workflow2.getDesiredFeedback());
         Assertions.assertEquals(Set.of(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RecipientTypeInt.fromValue("PG")), workflow2.getRecipientType());
         Assertions.assertEquals("PT48H", workflow2.getTimeout());
         Assertions.assertTrue(workflow2.getIncludeAttachment());
@@ -303,7 +295,6 @@ class CampaignMapperTest {
                 .serviceId("service-1")
                 .sensitiveContent(true)
                 .stopOnViewed(true)
-                .channels(List.of(ChannelType.IO))
                 .workflow(List.of())
                 .build();
 
@@ -329,7 +320,6 @@ class CampaignMapperTest {
                 .serviceId("service-1")
                 .sensitiveContent(false)
                 .stopOnViewed(false)
-                .channels(List.of(ChannelType.IO))
                 .workflow(List.of())
                 .build();
 

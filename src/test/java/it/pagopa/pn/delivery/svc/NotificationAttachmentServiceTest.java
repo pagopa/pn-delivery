@@ -15,7 +15,7 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.Fil
 import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileDownloadResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
-import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
+import it.pagopa.pn.delivery.middleware.NotificationViewedEventDispatcher;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.*;
@@ -60,7 +60,7 @@ class NotificationAttachmentServiceTest {
     private PnF24ClientImpl pnF24Client;
     private PnDeliveryPushClientImpl pnDeliveryPushClient;
     private CheckAuthComponent checkAuthComponent;
-    private NotificationViewedProducer notificationViewedProducer;
+    private NotificationViewedEventDispatcher notificationViewedEventDispatcher;
     private MVPParameterConsumer mvpParameterConsumer;
     private PnDeliveryConfigs cfg;
 
@@ -72,11 +72,11 @@ class NotificationAttachmentServiceTest {
         pnDeliveryPushClient = Mockito.mock(PnDeliveryPushClientImpl.class);
         pnMandateClient = Mockito.mock(PnMandateClientImpl.class);
         checkAuthComponent = Mockito.mock(CheckAuthComponent.class);
-        notificationViewedProducer = Mockito.mock(NotificationViewedProducer.class);
+        notificationViewedEventDispatcher = Mockito.mock(NotificationViewedEventDispatcher.class);
         mvpParameterConsumer = Mockito.mock(MVPParameterConsumer.class);
         cfg = Mockito.mock(PnDeliveryConfigs.class);
         attachmentService = new NotificationAttachmentService(pnSafeStorageClient, pnF24Client, pnDeliveryPushClient, notificationDao,
-                checkAuthComponent, notificationViewedProducer, mvpParameterConsumer, cfg);
+                checkAuthComponent, notificationViewedEventDispatcher, mvpParameterConsumer, cfg);
     }
 
     @Test
@@ -178,8 +178,8 @@ class NotificationAttachmentServiceTest {
         assertEquals(IUN + "__" + attachmentName + ".pdf", result.getFilename());
         assertNotNull(result.getUrl());
 
-        verify(notificationViewedProducer, times(0))
-                .sendNotificationViewed(anyString(), any(Instant.class), anyInt(), any(NotificationViewDelegateInfo.class), anyString(), anyString());
+        verify(notificationViewedEventDispatcher, times(0))
+                .sendNotificationViewed(anyString(), any(Instant.class), anyInt(), any(NotificationViewDelegateInfo.class), anyString(), anyString(), any(CommunicationType.class));
     }
 
     @Test
@@ -236,8 +236,8 @@ class NotificationAttachmentServiceTest {
                 () -> attachmentService.downloadAttachmentWithRedirect(IUN, internalAuthHeader, null,
                         recipientidx, attachmentName, null, false));
 
-        verify(notificationViewedProducer, times(0))
-                .sendNotificationViewed(anyString(), any(Instant.class), anyInt(), any(NotificationViewDelegateInfo.class), anyString(), anyString());
+        verify(notificationViewedEventDispatcher, times(0))
+                .sendNotificationViewed(anyString(), any(Instant.class), anyInt(), any(NotificationViewDelegateInfo.class), anyString(), anyString(), any(CommunicationType.class));
 
     }
 
@@ -261,8 +261,8 @@ class NotificationAttachmentServiceTest {
                 () -> attachmentService.downloadAttachmentWithRedirect(IUN, internalAuthHeader, null,
                         recipientidx, PAGOPA, null, false));
 
-        verify(notificationViewedProducer, times(0))
-                .sendNotificationViewed(anyString(), any(Instant.class), anyInt(), any(NotificationViewDelegateInfo.class), anyString(), anyString());
+        verify(notificationViewedEventDispatcher, times(0))
+                .sendNotificationViewed(anyString(), any(Instant.class), anyInt(), any(NotificationViewDelegateInfo.class), anyString(), anyString(), any(CommunicationType.class));
 
     }
 
@@ -294,8 +294,8 @@ class NotificationAttachmentServiceTest {
                 () -> attachmentService.downloadAttachmentWithRedirect(IUN, internalAuthHeader, null,
                         recipientidx, PAGOPA, null, false));
 
-        verify(notificationViewedProducer, times(0))
-                .sendNotificationViewed(anyString(), any(Instant.class), anyInt(), any(NotificationViewDelegateInfo.class), anyString(), anyString());
+        verify(notificationViewedEventDispatcher, times(0))
+                .sendNotificationViewed(anyString(), any(Instant.class), anyInt(), any(NotificationViewDelegateInfo.class), anyString(), anyString(), any(CommunicationType.class));
 
     }
 
@@ -330,8 +330,8 @@ class NotificationAttachmentServiceTest {
                 result.getFilename());
         assertNotNull(result.getUrl());
 
-        verify(notificationViewedProducer, times(1))
-                .sendNotificationViewed(eq("iun"), any(Instant.class), eq(0), isNull(), isNull(), isNull());
+        verify(notificationViewedEventDispatcher, times(1))
+                .sendNotificationViewed(eq("iun"), any(Instant.class), eq(0), isNull(), isNull(), isNull(), any(CommunicationType.class));
     }
 
     @Test
@@ -366,8 +366,8 @@ class NotificationAttachmentServiceTest {
                 result.getFilename());
         assertNotNull(result.getUrl());
 
-        verify(notificationViewedProducer, times(0))
-                .sendNotificationViewed(anyString(), any(Instant.class), anyInt(), any(NotificationViewDelegateInfo.class), anyString(), anyString());
+        verify(notificationViewedEventDispatcher, times(0))
+                .sendNotificationViewed(anyString(), any(Instant.class), anyInt(), any(NotificationViewDelegateInfo.class), anyString(), anyString(), any(CommunicationType.class));
     }
 
     @Test
@@ -405,8 +405,8 @@ class NotificationAttachmentServiceTest {
         assertNotNull(result.getUrl());
         assertEquals(5, result.getNumberOfPages());
 
-        verify(notificationViewedProducer, times(0))
-                .sendNotificationViewed(anyString(), any(Instant.class), anyInt(), any(NotificationViewDelegateInfo.class), anyString(), anyString());
+        verify(notificationViewedEventDispatcher, times(0))
+                .sendNotificationViewed(anyString(), any(Instant.class), anyInt(), any(NotificationViewDelegateInfo.class), anyString(), anyString(), any(CommunicationType.class));
     }
 
     @Test
@@ -444,8 +444,8 @@ class NotificationAttachmentServiceTest {
         assertNotNull(result.getUrl());
         assertNull(result.getNumberOfPages());
 
-        verify(notificationViewedProducer, times(0))
-                .sendNotificationViewed(anyString(), any(Instant.class), anyInt(), any(NotificationViewDelegateInfo.class), anyString(), anyString());
+        verify(notificationViewedEventDispatcher, times(0))
+                .sendNotificationViewed(anyString(), any(Instant.class), anyInt(), any(NotificationViewDelegateInfo.class), anyString(), anyString(), any(CommunicationType.class));
     }
 
     @Test
@@ -479,8 +479,8 @@ class NotificationAttachmentServiceTest {
         assertEquals(IUN + "__" + attachmentName + ".pdf", result.getFilename());
         assertNotNull(result.getUrl());
 
-        verify(notificationViewedProducer, times(1))
-                .sendNotificationViewed(eq("iun"), any(Instant.class), eq(0), isNull(), isNull(), isNull());
+        verify(notificationViewedEventDispatcher, times(1))
+                .sendNotificationViewed(eq("iun"), any(Instant.class), eq(0), isNull(), isNull(), isNull(), any(CommunicationType.class));
     }
 
     @Test
@@ -525,8 +525,8 @@ class NotificationAttachmentServiceTest {
         assertEquals(IUN + "__" + attachmentName + ".pdf", result.getFilename());
         assertNotNull(result.getUrl());
 
-        verify(notificationViewedProducer, times(1))
-                .sendNotificationViewed(eq("iun"), any(Instant.class), eq(0), any(NotificationViewDelegateInfo.class), isNull(), isNull());
+        verify(notificationViewedEventDispatcher, times(1))
+                .sendNotificationViewed(eq("iun"), any(Instant.class), eq(0), any(NotificationViewDelegateInfo.class), isNull(), isNull(), any(CommunicationType.class));
     }
 
     @Test
@@ -564,8 +564,8 @@ class NotificationAttachmentServiceTest {
                         false)
         );
 
-        verify(notificationViewedProducer, times(0))
-                .sendNotificationViewed(anyString(), any(Instant.class), anyInt(), any(NotificationViewDelegateInfo.class), anyString(), anyString());
+        verify(notificationViewedEventDispatcher, times(0))
+                .sendNotificationViewed(anyString(), any(Instant.class), anyInt(), any(NotificationViewDelegateInfo.class), anyString(), anyString(), any(CommunicationType.class));
 
     }
 
@@ -904,6 +904,7 @@ class NotificationAttachmentServiceTest {
         documentItem.setTitle("titolo");
         notification.addDocumentsItem(documentItem);
         notification.setRecipientIds(List.of(taxid));
+        notification.setCommunicationType(CommunicationType.LEGAL);
         return notification;
     }
 }
