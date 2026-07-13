@@ -8,10 +8,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV
 import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
-import it.pagopa.pn.delivery.svc.InformalNotificationDetailRetrieverStrategy;
-import it.pagopa.pn.delivery.svc.LegalNotificationDetailRetrieverStrategy;
-import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
-import it.pagopa.pn.delivery.svc.NotificationQRService;
+import it.pagopa.pn.delivery.svc.*;
 import it.pagopa.pn.delivery.svc.search.NotificationSearchService;
 import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import org.junit.jupiter.api.Test;
@@ -66,6 +63,9 @@ class NotificationSearchControllerTest {
 
     @MockBean
     private NotificationQRService qrService;
+
+    @MockBean
+    private SenderContactsService senderContactsService;
 
 
     @MockBean
