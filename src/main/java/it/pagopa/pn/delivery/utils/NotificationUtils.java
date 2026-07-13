@@ -87,6 +87,9 @@ public class NotificationUtils {
     public static void removeDocuments(InternalNotification notification) {
         notification.setDocumentsAvailable(false);
         notification.setDocuments(Collections.emptyList());
+        if (CollectionUtils.isEmpty(notification.getRecipients())) {
+            return;
+        }
         for (NotificationRecipient recipient : notification.getRecipients()) {
             List<NotificationPaymentInfo> payments = recipient.getPayments();
             if (!CollectionUtils.isEmpty(payments)) {

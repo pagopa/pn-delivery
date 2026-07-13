@@ -65,9 +65,9 @@ class CampaignControllerTest {
                 .isOk()
                 .expectBody(CampaignSearchResponse.class)
                 .value(result -> {
-                    assert result.getResultsPage().size() == 1;
-                    assert result.getResultsPage().get(0).getCampaignId().equals(CAMPAIGN_ID);
-                    assert !result.getMoreResult();
+                    org.junit.jupiter.api.Assertions.assertEquals(1, result.getResultsPage().size());
+                    org.junit.jupiter.api.Assertions.assertEquals(CAMPAIGN_ID, result.getResultsPage().get(0).getCampaignId());
+                    org.junit.jupiter.api.Assertions.assertFalse(result.getMoreResult());
                 });
     }
 
@@ -117,9 +117,9 @@ class CampaignControllerTest {
                 .isOk()
                 .expectBody(CampaignSearchResponse.class)
                 .value(result -> {
-                    assert result.getResultsPage().size() == 2;
-                    assert result.getMoreResult();
-                    assert result.getNextPagesKey().size() == 1;
+                    org.junit.jupiter.api.Assertions.assertEquals(2, result.getResultsPage().size());
+                    org.junit.jupiter.api.Assertions.assertTrue(result.getMoreResult());
+                    org.junit.jupiter.api.Assertions.assertEquals(1, result.getNextPagesKey().size());
                 });
     }
 
@@ -146,8 +146,8 @@ class CampaignControllerTest {
                 .isOk()
                 .expectBody(CampaignSearchResponse.class)
                 .value(result -> {
-                    assert result.getResultsPage().isEmpty();
-                    assert !result.getMoreResult();
+                    org.junit.jupiter.api.Assertions.assertTrue(result.getResultsPage().isEmpty());
+                    org.junit.jupiter.api.Assertions.assertFalse(result.getMoreResult());
                 });
     }
 
@@ -187,10 +187,10 @@ class CampaignControllerTest {
                 .isOk()
                 .expectBody(CampaignDetail.class)
                 .value(result -> {
-                    assert result.getCampaignId().equals(CAMPAIGN_ID);
-                    assert result.getTitle().equals("Campaign 1");
-                    assert result.getDescriptionScope().equals("Test description");
-                    assert result.getCampaignStatus().equals(CampaignStatus.IN_PROGRESS);
+                    org.junit.jupiter.api.Assertions.assertEquals(CAMPAIGN_ID, result.getCampaignId());
+                    org.junit.jupiter.api.Assertions.assertEquals("Campaign 1", result.getTitle());
+                    org.junit.jupiter.api.Assertions.assertEquals("Test description", result.getDescriptionScope());
+                    org.junit.jupiter.api.Assertions.assertEquals(CampaignStatus.IN_PROGRESS, result.getCampaignStatus());
                 });
     }
 
@@ -250,9 +250,9 @@ class CampaignControllerTest {
                 .isOk()
                 .expectBody(CampaignDetail.class)
                 .value(result -> {
-                    assert result.getWorkflow().size() == 2;
-                    assert result.getSensitiveContent();
-                    assert result.getStopOnViewed();
+                    org.junit.jupiter.api.Assertions.assertEquals(2, result.getWorkflow().size());
+                    org.junit.jupiter.api.Assertions.assertTrue(result.getSensitiveContent());
+                    org.junit.jupiter.api.Assertions.assertTrue(result.getStopOnViewed());
                 });
     }
 
@@ -298,8 +298,8 @@ class CampaignControllerTest {
                 .isOk()
                 .expectBody(CampaignSearchResponse.class)
                 .value(result -> {
-                    assert result.getResultsPage().isEmpty();
-                    assert !result.getMoreResult();
+                    org.junit.jupiter.api.Assertions.assertTrue(result.getResultsPage().isEmpty());
+                    org.junit.jupiter.api.Assertions.assertFalse(result.getMoreResult());
                 });
 
         verify(campaignService).listCampaigns(eq(SENDER_ID.toString()), eq(10), isNull());

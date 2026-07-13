@@ -119,7 +119,7 @@ public class PnNotificationInputController implements NewNotificationApi, NewInf
 
             logEvent.log();
             if (preLoadRequest.size() > numberOfPresignedRequest) {
-                String logMessage = String.format("Presigned upload request lenght=%d is more than maximum allowed=%d",
+                String logMessage = String.format("Presigned upload request length=%d is more than maximum allowed=%d",
                         preLoadRequest.size(), numberOfPresignedRequest);
                 log.error(logMessage);
 

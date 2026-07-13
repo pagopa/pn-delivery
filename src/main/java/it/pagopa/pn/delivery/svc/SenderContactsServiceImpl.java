@@ -20,16 +20,16 @@ public class SenderContactsServiceImpl implements SenderContactsService {
 
     @Override
     public SenderContactsDto getSenderContacts(@Nonnull String senderId) {
-        List<SenderContactsDto> senderContactsList = cfg.getSenderContacts();
+        List<SenderContactsDto> senderContactsList = java.util.Optional.ofNullable(cfg.getSenderContacts())
+                .orElse(java.util.Collections.emptyList());
         log.debug("Looking for contacts for senderId: {} in list of size: {}", senderId, senderContactsList.size());
 
-        for(SenderContactsDto senderContacts : senderContactsList) {
-            if(senderId.equals(senderContacts.getSenderId())) {
-                return senderContacts;
-            }
-        }
-
-        String description = String.format("No contacts found for senderId: %s", senderId);
-        throw new PnNotFoundException("Contacts not found", description, ERROR_CODE_DELIVERY_SENDER_CONTACTS_NOT_FOUND);
+        return senderContactsList.stream()
+                .filter(senderContacts -> senderId.equals(senderContacts.getSenderId()))
+                .findFirst()
+                .orElseThrow(() -> {
+                    String description = String.format("No contacts found for senderId: %s", senderId);
+                    return new PnNotFoundException("Contacts not found", description, ERROR_CODE_DELIVERY_SENDER_CONTACTS_NOT_FOUND);
+                });
     }
 }
