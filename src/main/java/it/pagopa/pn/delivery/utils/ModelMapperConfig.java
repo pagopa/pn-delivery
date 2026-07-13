@@ -144,6 +144,11 @@ public class ModelMapperConfig {
                         mapper.using(stringToUuid)
                                 .map(NotificationRecipient::getMessageId, InformalNotificationRecipientV1::setMessageId)
                 );
+        modelMapper.createTypeMap(NotificationRecipient.class, FullInformalNotificationRecipientV1.class)
+                .addMappings(mapper ->
+                        mapper.using(stringToUuid)
+                                .map(NotificationRecipient::getMessageId, FullInformalNotificationRecipientV1::setMessageId)
+                );
         modelMapper.createTypeMap(it.pagopa.pn.delivery.models.NotificationSearchRow.class, FullNotificationSearchRow.class)
                 .addMappings(mapper -> mapper.skip(FullNotificationSearchRow::setCommunicationType))
                 .setPostConverter(ModelMapperConfig.recipientSearchRowConverter);
