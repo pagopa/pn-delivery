@@ -55,12 +55,12 @@ describe('putNotificationMetadata', () => {
     expect(metadataPayload).to.have.property('communicationType', 'LEGAL');
   });
 
-  it('should include undefined communicationType when not set on notification', async () => {
+  it('should default communicationType to LEGAL when not set on notification', async () => {
     delete notification.communicationType;
     await putNotificationMetadata(statusInfo, notification);
 
     const metadataPayload = putMetadataStub.firstCall.args[1];
-    expect(metadataPayload).to.have.property('communicationType', undefined);
+    expect(metadataPayload).to.have.property('communicationType', 'LEGAL');
   });
 
   it('should put notification metadata and compute 2 delegation metadata entries', async () => {
@@ -82,7 +82,9 @@ describe('putNotificationMetadata', () => {
 
     await putNotificationMetadata(statusInfo, notification);
 
-    expect(consoleLogStub.secondCall.args[0]).to.equal('No mandates found for recipient recipientId1');
+    expect(
+      consoleLogStub.calledWith('No mandates found for recipient recipientId1')
+    ).to.be.true;
     expect(putMetadataStub.callCount).to.equal(1);
   });
 

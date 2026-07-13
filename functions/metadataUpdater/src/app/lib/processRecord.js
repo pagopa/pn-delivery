@@ -5,7 +5,8 @@ const dynamo = require("./dynamo");
 const CATEGORY_FIELD_MAP = {
   INFORMAL_NOTIFICATION_VIEWED: () => ({ viewed: true }),
   DELIVERED: () => ({ delivered: true }),
-  WORKFLOW_DONE: () => ({ desiredFeedback: true }),
+  WORKFLOW_DONE_REACHED: () => ({ desiredFeedback: true }),
+  WORKFLOW_DONE_UNREACHED: () => ({ desiredFeedback: true }),
 };
 
 const processRecord = async (record) => {
@@ -44,6 +45,10 @@ const processRecord = async (record) => {
   }
 
   const iun_recipientId = `${iun}##${recipient.recipientId}`;
+  console.log(
+    `Updating notification metadata for ${iun_recipientId}:`,
+    JSON.stringify(fieldsToUpdate)
+  );
   await dynamo.updateMetadata(
     "pn-NotificationsMetadata",
     { iun_recipientId, sentAt: notification.sentAt },

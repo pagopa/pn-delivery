@@ -91,8 +91,18 @@ describe('processRecord tests', () => {
     ]);
   });
 
-  it('should set desiredFeedback=true for WORKFLOW_DONE on the correct recipient', async () => {
-    decodePayloadStub.returns(makeKinesisPayload('WORKFLOW_DONE', { recIndex: 1 }));
+  it('should set desiredFeedback=true for WORKFLOW_DONE_REACHED on the correct recipient', async () => {
+    decodePayloadStub.returns(makeKinesisPayload('WORKFLOW_DONE_REACHED', { recIndex: 1 }));
+
+    await processRecord(record);
+
+    expect(updateMetadataStub.callCount).to.equal(1);
+    expect(updateMetadataStub.firstCall.args[1]).to.deep.equal({ iun_recipientId: 'mockedIun##recipientId2', sentAt: '2025-01-01T00:00:00Z' });
+    expect(updateMetadataStub.firstCall.args[2]).to.deep.equal({ desiredFeedback: true });
+  });
+
+  it('should set desiredFeedback=true for WORKFLOW_DONE_UNREACHED on the correct recipient', async () => {
+    decodePayloadStub.returns(makeKinesisPayload('WORKFLOW_DONE_UNREACHED', { recIndex: 1 }));
 
     await processRecord(record);
 
