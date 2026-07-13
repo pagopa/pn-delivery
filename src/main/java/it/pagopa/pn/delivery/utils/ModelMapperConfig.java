@@ -83,6 +83,11 @@ public class ModelMapperConfig {
                         mapper.using(stringToUuid)
                                 .map(NotificationRecipient::getMessageId, InformalNotificationRecipientV1::setMessageId)
                 );
+        modelMapper.createTypeMap(NotificationRecipient.class, FullInformalNotificationRecipientV1.class)
+                .addMappings(mapper ->
+                        mapper.using(stringToUuid)
+                                .map(NotificationRecipient::getMessageId, FullInformalNotificationRecipientV1::setMessageId)
+                );
         mapFromLegalNotificationDetailToFullSentNotificationV29(modelMapper);
 
         mapFromLegalNotificationDetailToFullReceivedNotificationV28(modelMapper);
