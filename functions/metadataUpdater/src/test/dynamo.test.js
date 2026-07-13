@@ -70,7 +70,7 @@ describe('dynamo.js tests', () => {
       await updateMetadata('testTable', { iun_recipientId: 'iun1##rec1' }, {});
 
       expect(docClientStub.called).to.be.false;
-      expect(logStub.calledWith('No fields to update')).to.be.true;
+      expect(logStub.calledWith('[metadataUpdater] DynamoDB UpdateItem skipped: no fields to update, table=testTable, key={"iun_recipientId":"iun1##rec1"}')).to.be.true;
     });
 
     it('should skip null and undefined values in fieldsToUpdate', async () => {

@@ -12,6 +12,7 @@ const docClient = DynamoDBDocumentClient.from(client, {
 const { ItemNotFoundException } = require("./exceptions.js");
 
 const getItem = async (TableName, Key) => {
+  console.log(`[metadataUpdater] DynamoDB GetItem started: table=${TableName}, key=${JSON.stringify(Key)}`);
   const params = {
     TableName,
     Key,
@@ -20,8 +21,10 @@ const getItem = async (TableName, Key) => {
   const result = await docClient.send(command);
 
   if (!result.Item) {
+    console.error(`[metadataUpdater] DynamoDB GetItem returned no item: table=${TableName}, key=${JSON.stringify(Key)}`);
     throw new ItemNotFoundException(JSON.stringify(Key), TableName);
   }
+  console.log(`[metadataUpdater] DynamoDB GetItem completed: table=${TableName}, key=${JSON.stringify(Key)}`);
   return result.Item;
 };
 
@@ -41,7 +44,7 @@ const updateMetadata = async (tableName, key, fieldsToUpdate) => {
   }
 
   if (setExpressions.length === 0) {
-    console.log("No fields to update");
+    console.log(`[metadataUpdater] DynamoDB UpdateItem skipped: no fields to update, table=${tableName}, key=${JSON.stringify(key)}`);
     return;
   }
 
@@ -54,11 +57,15 @@ const updateMetadata = async (tableName, key, fieldsToUpdate) => {
   };
 
   const command = new UpdateCommand(params);
-  const result = await docClient.send(command);
-  console.log(
-    `updateMetadata executed on key: ${JSON.stringify(key)} on table: ${tableName}`
-  );
-  return result;
+  try {
+    console.log(`[metadataUpdater] DynamoDB UpdateItem started: table=${tableName}, key=${JSON.stringify(key)}, fields=${Object.keys(fieldsToUpdate).join(",")}`);
+    const result = await docClient.send(command);
+    console.log(`[metadataUpdater] DynamoDB UpdateItem completed: table=${tableName}, key=${JSON.stringify(key)}, fields=${Object.keys(fieldsToUpdate).join(",")}`);
+    return result;
+  } catch (error) {
+    console.error(`[metadataUpdater] DynamoDB UpdateItem failed: table=${tableName}, key=${JSON.stringify(key)}, fields=${Object.keys(fieldsToUpdate).join(",")}, error=${error.message}`, error.stack);
+    throw error;
+  }
 };
 
 module.exports = { getItem, updateMetadata };

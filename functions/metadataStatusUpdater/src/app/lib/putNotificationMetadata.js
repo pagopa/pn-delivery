@@ -23,7 +23,7 @@ const putNotificationMetadata = async (
       `Writing notification metadata for ${notificationMetadata.iun_recipientId}:`,
       JSON.stringify(notificationMetadata)
     );
-    await dynamo.putMetadata(
+    await dynamo.updateMetadata(
       "pn-NotificationsMetadata",
       notificationMetadata,
       "iun_recipientId"
@@ -93,7 +93,7 @@ const computeDelegationMetadataEntries = async (
         `Writing delegation metadata for ${record.iun_recipientId_delegateId_groupId}:`,
         JSON.stringify(record)
       );
-      await dynamo.putMetadata(
+      await dynamo.updateMetadata(
         "pn-NotificationDelegationMetadata",
         record,
         "iun_recipientId_delegateId_groupId"
