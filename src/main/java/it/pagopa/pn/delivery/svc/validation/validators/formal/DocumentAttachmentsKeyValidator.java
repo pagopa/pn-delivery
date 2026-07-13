@@ -13,11 +13,12 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+import static it.pagopa.pn.delivery.svc.NotificationAttachmentService.PN_COMMUNICATIONS_ATTACHMENT;
+
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class DocumentAttachmentsKeyValidator implements FormalValidator<NotificationContext> {
-    private static final String PN_NOTIFICATION_ATTACHMENTS = "PN_NOTIFICATION_ATTACHMENTS";
 
     @Override
     public ValidationResult validate(NotificationContext context) {
@@ -33,11 +34,11 @@ public class DocumentAttachmentsKeyValidator implements FormalValidator<Notifica
             NotificationDocument doc = documents.get(i);
             String key = doc.getRef().getKey();
 
-            if (key == null || !key.contains(PN_NOTIFICATION_ATTACHMENTS)) {
+            if (key == null || !key.contains(PN_COMMUNICATIONS_ATTACHMENT)) {
                 errors.add(ProblemError.builder()
                         .element("documents[" + i + "].ref.key")
                         .code(ErrorCodes.ERROR_CODE_INVALID_DOCUMENT_KEY.getValue())
-                        .detail("Document key must contain: " + PN_NOTIFICATION_ATTACHMENTS)
+                        .detail("Document key must contain: " + PN_COMMUNICATIONS_ATTACHMENT)
                         .build());
             }
         }
