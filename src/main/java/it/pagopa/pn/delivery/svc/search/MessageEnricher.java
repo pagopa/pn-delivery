@@ -21,8 +21,12 @@ import static it.pagopa.pn.delivery.models.internal.notification.mapper.Localize
 @RequiredArgsConstructor
 public class MessageEnricher {
     private final PnDataVaultClientImpl pnDataVaultClient;
+
     public void enrichInternalNotification(InternalNotification notification) {
-        for ( NotificationRecipient recipient : notification.getRecipients() ) {
+        if (notification.getRecipients() == null || notification.getRecipients().isEmpty()) {
+            return;
+        }
+        for (NotificationRecipient recipient : notification.getRecipients()) {
             MessageResponseDto messageDto = retrieveInformalMessageById(recipient, notification);
 
             recipient.setMessage(

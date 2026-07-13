@@ -174,7 +174,7 @@ public class InformalNotificationDetailRetrieverStrategy implements Notification
 
 	private void notifyNotificationViewedEvent(InternalNotification notification, int recipientIndex, InternalAuthHeader internalAuthHeader) {
 		String iun = notification.getIun();
-		log.info("Send \"notification acknowlwdgement\" event for iun={} and recipientIndex={}", iun, recipientIndex);
+		log.info("Send \"notification acknowledgement\" event for iun={} and recipientIndex={}", iun, recipientIndex);
 		Instant createdAt = clock.instant();
 		notificationAcknowledgementProducer.sendNotificationViewed( iun, createdAt, recipientIndex, null, internalAuthHeader.xPagopaPnSrcCh(), internalAuthHeader.xPagopaPnSrcChDetails() );
 	}
