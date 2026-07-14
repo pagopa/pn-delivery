@@ -109,7 +109,7 @@ public class PnNotificationInputController implements NewNotificationApi, NewInf
     }
 
     @Override
-    public ResponseEntity<List<InformalPreLoadResponse>> informalPresignedUploadRequest(List<InformalPreLoadRequest> preLoadRequest) {
+    public ResponseEntity<List<InformalPreLoadResponse>> informalPresignedUploadRequest(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<InformalPreLoadRequest> preLoadRequest) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_COM_PRELOAD, "presignedUploadRequest")
                 .build();

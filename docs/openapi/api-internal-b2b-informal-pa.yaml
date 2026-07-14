@@ -97,6 +97,10 @@ paths:
       tags:
         - NewInformalNotification
       operationId: informalPresignedUploadRequest
+      parameters: # NO EXTERNAL
+        - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL
       requestBody:
         content:
           application/json:
