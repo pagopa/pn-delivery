@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test-build": "npm run-script test && npm run-script coverage && npm run-script sonar && npm run-script build",
+    "test-build": "npm run-script test && npm run-script coverage && npm run-script build",
     "zip:full": "zip -r ./function.zip . -x './src/test/*' -x '*.md' -x './nodejs/*' -x './.nyc_output/*' -x './.scannerwork/*' -x './coverage/*' -x '*.env' -x '*.zip'  -x '*.gitignore'",
     "zip:code": "zip -r ./code_layer.zip . -x './src/test/*' -x '*.md' -x './nodejs/*' -x './.nyc_output/*' -x './.scannerwork/*' -x './coverage/*' -x '*.env' -x '*.zip'  -x '*.gitignore' -x './node_modules/*'",
     "zip:libs": "zip -r ./lib_layer.zip nodejs -x '*.md'",

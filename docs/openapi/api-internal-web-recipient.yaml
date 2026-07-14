@@ -65,18 +65,18 @@ paths:
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchEndDate'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchMandateId'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchSenderId'
-        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchStatus'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchSubject'
-        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchIun'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchUnifiedIun'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchPageSize'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchNextPagesKey'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchCommunicationType'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: './schemas-pn-notification.yaml#/components/schemas/NotificationSearchResponse'
+                $ref: './schemas-pn-notification.yaml#/components/schemas/FullNotificationSearchResponse'
         '400':
           description: Bad request
           content:
@@ -118,7 +118,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './schemas-pn-notification.yaml#/components/schemas/NotificationSearchResponse'
+                $ref: './schemas-pn-notification.yaml#/components/schemas/LegalNotificationSearchResponse'
         '400':
           description: Bad request
           content:

@@ -132,7 +132,6 @@ class NotificationReceiverValidationTest {
         internalNotification.setCancelledIun("IUN_05");
         internalNotification.setCancelledIun("IUN_00");
         internalNotification.setSenderPaId("PA_ID");
-        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()
                         .taxId("Codice Fiscale 01")
@@ -417,7 +416,6 @@ class NotificationReceiverValidationTest {
         internalNotification.setCancelledIun("IUN_05");
         internalNotification.setCancelledIun("IUN_00");
         internalNotification.setSenderPaId("PA_ID");
-        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()
                         .taxId("Codice Fiscale 01")
@@ -451,7 +449,6 @@ class NotificationReceiverValidationTest {
         internalNotification.setCancelledIun("IUN_05");
         internalNotification.setCancelledIun("IUN_00");
         internalNotification.setSenderPaId("PA_ID");
-        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()
                         .taxId("Codice Fiscale 01")
@@ -481,7 +478,6 @@ class NotificationReceiverValidationTest {
         internalNotification.setCancelledIun("IUN_05");
         internalNotification.setCancelledIun("IUN_00");
         internalNotification.setSenderPaId("PA_ID");
-        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()
                         .taxId("Codice Fiscale 01")
@@ -513,7 +509,6 @@ class NotificationReceiverValidationTest {
         internalNotification.setCancelledIun("IUN_05");
         internalNotification.setCancelledIun("IUN_00");
         internalNotification.setSenderPaId("PA_ID");
-        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()
                         .taxId("Codice Fiscale 01")
@@ -545,7 +540,6 @@ class NotificationReceiverValidationTest {
         internalNotification.setCancelledIun("IUN_05");
         internalNotification.setCancelledIun("IUN_00");
         internalNotification.setSenderPaId("PA_ID");
-        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()
                         .taxId("Codice Fiscale 01")
@@ -908,7 +902,6 @@ class NotificationReceiverValidationTest {
         internalNotification.setCancelledIun("IUN_05");
         internalNotification.setCancelledIun("IUN_00");
         internalNotification.setSenderPaId("PA_ID");
-        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()
                         .taxId("Codice Fiscale 01")
@@ -940,7 +933,6 @@ class NotificationReceiverValidationTest {
         internalNotification.setCancelledIun("IUN_05");
         internalNotification.setCancelledIun("IUN_00");
         internalNotification.setSenderPaId("PA_ID");
-        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()
                         .taxId("Codice Fiscale 01")
@@ -981,7 +973,6 @@ class NotificationReceiverValidationTest {
         internalNotification.setCancelledIun("IUN_05");
         internalNotification.setCancelledIun("IUN_00");
         internalNotification.setSenderPaId("PA_ID");
-        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
         internalNotification.documents(List.of(it.pagopa.pn.delivery.models.internal.notification.NotificationDocument.builder()
                 .ref(it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef.builder()
                         .versionToken(VERSION_TOKEN)
@@ -1060,7 +1051,6 @@ class NotificationReceiverValidationTest {
         internalNotification.setCancelledIun("IUN_05");
         internalNotification.setCancelledIun("IUN_00");
         internalNotification.setSenderPaId("PA_ID");
-        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()
                         .taxId("Codice Fiscale 01")
@@ -1552,7 +1542,6 @@ class NotificationReceiverValidationTest {
         internalNotification.setCancelledIun("IUN_05");
         internalNotification.setCancelledIun("IUN_00");
         internalNotification.setSenderPaId("PA_ID");
-        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()
                         .taxId("Codice Fiscale 01")
@@ -1573,7 +1562,6 @@ class NotificationReceiverValidationTest {
         internalNotification.setCancelledIun("IUN_05");
         internalNotification.setCancelledIun("IUN_00");
         internalNotification.setSenderPaId("PA_ID");
-        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()
                         .taxId("Codice Fiscale 01")

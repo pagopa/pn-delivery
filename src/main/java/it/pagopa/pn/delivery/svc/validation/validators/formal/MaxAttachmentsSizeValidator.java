@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -29,7 +30,7 @@ public class MaxAttachmentsSizeValidator implements FormalValidator<Notification
             return;
         }
 
-        if (context.getPayload().getDocuments().size() > maxAttachments) {
+        if (Objects.nonNull(context.getPayload().getDocuments()) && context.getPayload().getDocuments().size() > maxAttachments) {
             errors.add(ProblemError.builder().element("documents").code(ErrorCodes.ERROR_CODE_MAX_ATTACHMENT.getValue()).detail("Max attachment count reached").build());
         }
     }

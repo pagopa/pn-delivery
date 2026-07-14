@@ -19,7 +19,11 @@ const putNotificationMetadata = async (
       rootSenderId,
       recipient
     );
-    await dynamo.putMetadata(
+    console.log(
+      `Writing notification metadata for ${notificationMetadata.iun_recipientId}:`,
+      JSON.stringify(notificationMetadata)
+    );
+    await dynamo.updateMetadata(
       "pn-NotificationsMetadata",
       notificationMetadata,
       "iun_recipientId"
@@ -54,6 +58,7 @@ const buildNotificationMetadata = (
     recipientId: recipientId,
     sentAt: notification.sentAt,
     notificationGroup: notification.group,
+    communicationType: 'LEGAL',
     recipientIds,
     tableRow: {
       iun: notification.iun,
@@ -84,7 +89,11 @@ const computeDelegationMetadataEntries = async (
         notificationMetadata,
         mandate
       );
-      await dynamo.putMetadata(
+      console.log(
+        `Writing delegation metadata for ${record.iun_recipientId_delegateId_groupId}:`,
+        JSON.stringify(record)
+      );
+      await dynamo.updateMetadata(
         "pn-NotificationDelegationMetadata",
         record,
         "iun_recipientId_delegateId_groupId"

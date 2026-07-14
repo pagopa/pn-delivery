@@ -1,11 +1,12 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.UnifiedNotificationStatus;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
+import it.pagopa.pn.delivery.models.NotificationSearchRow;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -38,7 +39,16 @@ public class EntityToDtoNotificationMetadataMapper {
                 .paProtocolNumber( tableRow.get(TABLE_ROW_PA_PROTOCOL_NUMBER) )
                 .requestAcceptedAt( requestAcceptedAt )
                 .group( entity.getNotificationGroup() )
-                .notificationStatus( NotificationStatusV26.valueOf( entity.getNotificationStatus() ))
+                .notificationStatus( UnifiedNotificationStatus.fromValue( entity.getNotificationStatus() ))
+                // notifiche storiche precedenti all'introduzione del campo non hanno communicationType
+                // valorizzato su DB: vengono trattate come LEGAL per retrocompatibilita'
+                .communicationType( StringUtils.hasText( entity.getCommunicationType() )
+                        ? entity.getCommunicationType()
+                        : "LEGAL" )
+                .campaignId( entity.getCampaignId() )
+                .viewed( entity.getViewed() )
+                .delivered( entity.getDelivered() )
+                .desiredFeedback( entity.getDesiredFeedback() )
                 .build();
     }
 
@@ -58,7 +68,7 @@ public class EntityToDtoNotificationMetadataMapper {
                 .subject(tableRow.get(TABLE_ROW_SUBJECT))
                 .paProtocolNumber(tableRow.get(TABLE_ROW_PA_PROTOCOL_NUMBER))
                 .requestAcceptedAt(requestAcceptedAt)
-                .notificationStatus(NotificationStatusV26.valueOf(entity.getNotificationStatus()))
+                .notificationStatus(UnifiedNotificationStatus.fromValue(entity.getNotificationStatus()))
                 .mandateId(entity.getMandateId())
                 .build();
     }

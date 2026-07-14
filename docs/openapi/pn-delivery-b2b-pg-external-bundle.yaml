@@ -102,18 +102,18 @@ paths:
         - $ref: '#/components/parameters/notificationSearchEndDate'
         - $ref: '#/components/parameters/notificationSearchMandateId'
         - $ref: '#/components/parameters/notificationSearchSenderId'
-        - $ref: '#/components/parameters/notificationSearchStatus'
         - $ref: '#/components/parameters/notificationSearchSubject'
-        - $ref: '#/components/parameters/notificationSearchIun'
+        - $ref: '#/components/parameters/notificationSearchUnifiedIun'
         - $ref: '#/components/parameters/notificationSearchPageSize'
         - $ref: '#/components/parameters/notificationSearchNextPagesKey'
+        - $ref: '#/components/parameters/notificationSearchCommunicationType'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotificationSearchResponse'
+                $ref: '#/components/schemas/FullNotificationSearchResponse'
         '400':
           description: Bad request
           content:
@@ -155,7 +155,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotificationSearchResponse'
+                $ref: '#/components/schemas/LegalNotificationSearchResponse'
         '400':
           description: Bad request
           content:
@@ -397,13 +397,6 @@ components:
       description: identificativo del mittente
       schema:
         type: string
-    notificationSearchStatus:
-      name: status
-      in: query
-      required: false
-      description: stato della notifica
-      schema:
-        $ref: '#/components/schemas/NotificationStatusV26'
     notificationSearchSubject:
       name: subjectRegExp
       description: >-
@@ -413,15 +406,15 @@ components:
       required: false
       schema:
         type: string
-    notificationSearchIun:
+    notificationSearchUnifiedIun:
       name: iunMatch
       description: >-
         Se presente indica che lo IUN dei risultati deve essere uguale al valore
-        di questo parametro.
+        di questo parametro. Accetta sia formato legale che bonario.
       in: query
       required: false
       schema:
-        type: string
+        $ref: '#/components/schemas/UnifiedIUN'
     notificationSearchPageSize:
       name: size
       description: dimensione della pagina di risultati
@@ -440,6 +433,19 @@ components:
       required: false
       schema:
         type: string
+    notificationSearchCommunicationType:
+      name: communicationType
+      in: query
+      required: false
+      description: >-
+        Tipologia di notifica (LEGAL o INFORMAL). Se non specificato, di default
+        vengono ricercate le notifiche LEGAL. ALL per cercarle entrambe.
+      schema:
+        type: string
+        enum:
+          - LEGAL
+          - INFORMAL
+          - ALL
     notificationSearchRecipientId:
       name: recipientId
       in: query
@@ -456,6 +462,22 @@ components:
       description: Gruppo da utilizzare nella query come filtro
       schema:
         type: string
+    notificationSearchIun:
+      name: iunMatch
+      description: >-
+        Se presente indica che lo IUN dei risultati deve essere uguale al valore
+        di questo parametro.
+      in: query
+      required: false
+      schema:
+        type: string
+    notificationSearchStatus:
+      name: status
+      in: query
+      required: false
+      description: stato della notifica
+      schema:
+        $ref: '#/components/schemas/NotificationStatusV26'
     pathIun:
       description: Identificativo Univoco Notifica
       name: iun
@@ -625,17 +647,28 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/NotificationStatusHistoryElementV26'
-    IUN:
-      description: Identificativo Univoco Notifica
+    UnifiedIUN:
+      description: >-
+        Identificativo Univoco Notifica (valido sia per notifiche legali che
+        bonarie)
       type: string
       minLength: 25
       maxLength: 25
-      pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+      pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9A-Z]{1}$
     NotificationSearchRow:
+      description: >-
+        Oggetto base per le righe di risultato della ricerca notifiche. Contiene
+        tutti i campi comuni sia alle notifiche legali che bonarie
       type: object
       properties:
+        communicationType:
+          type: string
+          description: Indica la tipologia di comunicazione (LEGAL o INFORMAL)
+          enum:
+            - LEGAL
+            - INFORMAL
         iun:
-          $ref: '#/components/schemas/IUN'
+          $ref: '#/components/schemas/UnifiedIUN'
         paProtocolNumber:
           type: string
           description: Numero protocollo associato alla notifica da parte della PA
@@ -649,8 +682,6 @@ components:
         subject:
           type: string
           description: Oggetto della notifica
-        notificationStatus:
-          $ref: '#/components/schemas/NotificationStatusV26'
         recipients:
           description: >-
             Elenco delle denominazioni dei destinatari della notifica. <br/>
@@ -671,19 +702,80 @@ components:
         mandateId:
           type: string
           description: Id delega (per notifiche delegate)
-    NotificationSearchResponse:
-      title: Elenco di notifiche
+    UnifiedNotificationStatus:
       description: >-
-        Dto contenente i risultati di una ricerca di notifiche. Ogni risposta
-        conterrà solo  una pagina di risultati relativi a una ricerca e le
-        indicazioni per raggiungere alcune pagine successive.
+        Stato unificato della notifica per i destinatari. Contiene i valori di
+        NotificationStatusV26 quando il campo communicationType è LEGAL, oppure
+        i valori di InformalNotificationStatus quando il campo communicationType
+        è INFORMAL. N.B. l'enum è l'unione dei valori di NotificationStatusV26
+        (notifiche legali) e di InformalNotificationStatus (notifiche bonarie).
+        Va mantenuto allineato a tali enum.
+      type: string
+      enum:
+        - IN_VALIDATION
+        - ACCEPTED
+        - REFUSED
+        - DELIVERING
+        - DELIVERED
+        - VIEWED
+        - EFFECTIVE_DATE
+        - PAID
+        - UNREACHABLE
+        - CANCELLED
+        - RETURNED_TO_SENDER
+        - READY_TO_SEND
+        - PROCESSING
+        - SUCCESSFUL_SENDING
+        - UNSUCCESSFUL_SENDING
+    CommunicationOutcomes:
+      type: object
+      description: >-
+        Esiti della comunicazione (solo per comunicazioni post-rilascio).
+        Valorizzato esclusivamente per le notifiche bonarie (communicationType
+        INFORMAL); per le notifiche legali (communicationType LEGAL) non viene
+        mai valorizzato.
+      properties:
+        viewed:
+          type: boolean
+          description: Indica se la comunicazione è stata visualizzata dal destinatario
+        delivered:
+          type: boolean
+          description: Indica se la comunicazione è stata consegnata al destinatario
+    FullNotificationSearchRow:
+      description: >-
+        Riga di risultato della ricerca di notifiche completa (legali e
+        bonarie). Estende NotificationSearchRow aggiungendo i campi
+        notificationStatus (unificato per legali e bonarie) e
+        communicationOutcomes. Il campo notificationStatus conterrà valori di
+        NotificationStatusV26 se communicationType è LEGAL, oppure valori di
+        InformalNotificationStatus se communicationType è INFORMAL.
+      allOf:
+        - $ref: '#/components/schemas/NotificationSearchRow'
+        - type: object
+          properties:
+            notificationStatus:
+              $ref: '#/components/schemas/UnifiedNotificationStatus'
+            communicationOutcomes:
+              description: >-
+                Esiti della comunicazione. Valorizzato esclusivamente per le
+                notifiche bonarie (communicationType INFORMAL); per le notifiche
+                legali (communicationType LEGAL) non viene mai valorizzato.
+              allOf:
+                - $ref: '#/components/schemas/CommunicationOutcomes'
+    FullNotificationSearchResponse:
+      title: Elenco di notifiche completo (legali e bonarie)
+      description: >-
+        Dto contenente i risultati di una ricerca di notifiche mista (legali e
+        bonarie). Gli elementi della pagina sono tipizzati con
+        FullNotificationSearchRow che include il campo notificationStatus
+        (unificato) e communicationOutcomes.
       type: object
       properties:
         resultsPage:
           description: Una pagina di risultati della query
           type: array
           items:
-            $ref: '#/components/schemas/NotificationSearchRow'
+            $ref: '#/components/schemas/FullNotificationSearchRow'
         moreResult:
           description: Indica se sono presenti ulteriori pagine di risultati
           type: boolean
@@ -716,6 +808,45 @@ components:
           type: string
       required:
         - code
+    LegalNotificationSearchRow:
+      description: >-
+        Riga di risultato della ricerca di notifiche legali. Estende
+        NotificationSearchRow aggiungendo il campo notificationStatus tipizzato
+        con NotificationStatusV26, che rappresenta il ciclo di vita delle
+        notifiche legali.
+      allOf:
+        - $ref: '#/components/schemas/NotificationSearchRow'
+        - type: object
+          properties:
+            notificationStatus:
+              $ref: '#/components/schemas/NotificationStatusV26'
+    LegalNotificationSearchResponse:
+      title: Elenco di notifiche legali
+      description: >-
+        Dto contenente i risultati di una ricerca di notifiche legali. Ogni
+        risposta conterrà solo una pagina di risultati relativi a una ricerca e
+        le indicazioni per raggiungere alcune pagine successive. Gli elementi
+        della pagina sono tipizzati con LegalNotificationSearchRow il cui campo
+        notificationStatus rispecchia gli stati del ciclo di vita delle
+        notifiche legali (definiti in NotificationStatusV26).
+      type: object
+      properties:
+        resultsPage:
+          description: Una pagina di risultati della query
+          type: array
+          items:
+            $ref: '#/components/schemas/LegalNotificationSearchRow'
+        moreResult:
+          description: Indica se sono presenti ulteriori pagine di risultati
+          type: boolean
+        nextPagesKey:
+          description: >-
+            Elenco, non esaustivo, delle chiavi da usare per richiedere le 
+            pagine di risultati successive a quella corrente. <br/> Valorizzato
+            solo se il campo __moreResult__ ha valore __true__.
+          type: array
+          items:
+            type: string
     TaxId:
       description: C.F. persona fisica o persona giuridica
       type: string
@@ -1017,6 +1148,12 @@ components:
       enum:
         - FLAT_RATE
         - DELIVERY_MODE
+    IUN:
+      description: Identificativo Univoco Notifica
+      type: string
+      minLength: 25
+      maxLength: 25
+      pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
     PaFeeV23:
       type: integer
       description: >-

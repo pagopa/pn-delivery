@@ -4,14 +4,16 @@ import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnForbiddenException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.models.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.NotificationSearchCommunicationType;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.svc.*;
-import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
+import it.pagopa.pn.delivery.svc.search.NotificationSearchService;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -25,6 +27,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
+import it.pagopa.pn.delivery.models.NotificationSearchRow;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -33,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @WebFluxTest(controllers = {PnInternalNotificationsController.class})
 class PnInternalNotificationsControllerTest {
@@ -63,7 +67,16 @@ class PnInternalNotificationsControllerTest {
     WebTestClient webTestClient;
 
     @MockBean
-    private NotificationRetrieverService retrieveSvc;
+    private NotificationSearchService notificationSearchService;
+
+    @MockBean
+    private NotificationRetrieverService retrieverService;
+
+    @MockBean
+    private InformalNotificationDetailRetrieverStrategy informalNotificationDetailRetrieverStrategy;
+
+    @MockBean
+    private LegalNotificationDetailRetrieverStrategy legalNotificationDetailRetrieverStrategy;
 
     @MockBean
     private NotificationPriceService priceService;
@@ -89,7 +102,7 @@ class PnInternalNotificationsControllerTest {
         //Given
         NotificationSearchRow searchRow = NotificationSearchRow.builder()
                 .iun("202109-2d74ffe9-aa40-47c2-88ea-9fb171ada637")
-                .notificationStatus(STATUS)
+                .notificationStatus(UnifiedNotificationStatus.fromValue(STATUS.getValue()))
                 .sender(SENDER_ID)
                 .sentAt( OffsetDateTime.parse("2021-09-17T13:45:28.00Z") )
                 .recipients(Collections.singletonList(RECIPIENT_INTERNAL_ID))
@@ -104,7 +117,7 @@ class PnInternalNotificationsControllerTest {
                         .nextPagesKey(null).build();
 
         //When
-        Mockito.when(retrieveSvc.searchNotification(any(InputSearchNotificationDto.class), any(), any()))
+        when(notificationSearchService.searchNotification(any(InputSearchNotificationDto.class), any(), any()))
                 .thenReturn(result);
 
         //Then
@@ -131,10 +144,11 @@ class PnInternalNotificationsControllerTest {
                 .size(null)
                 .maxPageNumber( 1 )
                 .nextPagesKey(null)
+                .communicationType(NotificationSearchCommunicationType.LEGAL)
                 .build();
 
 
-        Mockito.verify(retrieveSvc).searchNotification(eq(searchDto), any(), any());
+        verify(notificationSearchService).searchNotification(eq(searchDto), any(), any());
     }
 
     @Test
@@ -148,7 +162,7 @@ class PnInternalNotificationsControllerTest {
                 .iun("iun")
                 .recipientInfo(userInfo);
 
-        Mockito.when(qrService.getAarQrCodeToDecode(request)).thenReturn(userInfoQrCode);
+        when(qrService.getAarQrCodeToDecode(request)).thenReturn(userInfoQrCode);
 
         webTestClient.post()
                 .uri("/delivery-private/notifications/qr-code/decode")
@@ -159,7 +173,7 @@ class PnInternalNotificationsControllerTest {
                 .isOk()
                 .expectBody(UserInfoQrCode.class);
 
-        Mockito.verify(qrService).getAarQrCodeToDecode(request);
+        verify(qrService).getAarQrCodeToDecode(request);
     }
 
     @Test
@@ -168,7 +182,7 @@ class PnInternalNotificationsControllerTest {
                 .aarTokenValue(AAR_QR_CODE_VALUE)
                 .build();
 
-        Mockito.when(qrService.getAarQrCodeToDecode(request))
+        when(qrService.getAarQrCodeToDecode(request))
                 .thenThrow(new PnNotFoundException("test", "test", "test"));
 
         webTestClient.post()
@@ -184,7 +198,7 @@ class PnInternalNotificationsControllerTest {
         //Given
         NotificationSearchRow searchRow = NotificationSearchRow.builder()
                 .iun("202109-2d74ffe9-aa40-47c2-88ea-9fb171ada637")
-                .notificationStatus(STATUS)
+                .notificationStatus(UnifiedNotificationStatus.fromValue(STATUS.getValue()))
                 .sender(SENDER_ID)
                 .sentAt( OffsetDateTime.parse("2021-09-17T13:45:28.00Z") )
                 .recipients(Collections.singletonList(RECIPIENT_INTERNAL_ID))
@@ -199,7 +213,7 @@ class PnInternalNotificationsControllerTest {
                         .nextPagesKey(null).build();
 
         //When
-        Mockito.when(retrieveSvc.searchNotification(Mockito.any(InputSearchNotificationDto.class), any(), any()))
+        when(notificationSearchService.searchNotification(Mockito.any(InputSearchNotificationDto.class), any(), any()))
                 .thenReturn(result);
 
         //Then
@@ -228,10 +242,11 @@ class PnInternalNotificationsControllerTest {
                 .size(null)
                 .maxPageNumber( 1 )
                 .nextPagesKey(null)
+                .communicationType(NotificationSearchCommunicationType.LEGAL)
                 .build();
 
 
-        Mockito.verify(retrieveSvc).searchNotification(searchDto, null, null);
+        verify(notificationSearchService).searchNotification(searchDto, null, null);
     }
 
     @Test
@@ -239,7 +254,7 @@ class PnInternalNotificationsControllerTest {
         //Given
         NotificationSearchRow searchRow = NotificationSearchRow.builder()
                 .iun("202109-2d74ffe9-aa40-47c2-88ea-9fb171ada637")
-                .notificationStatus(STATUS)
+                .notificationStatus(UnifiedNotificationStatus.fromValue(STATUS.getValue()))
                 .sender(SENDER_ID)
                 .sentAt( OffsetDateTime.parse("2021-09-17T13:45:28.00Z") )
                 .recipients(Collections.singletonList(RECIPIENT_INTERNAL_ID))
@@ -254,7 +269,7 @@ class PnInternalNotificationsControllerTest {
                         .nextPagesKey(null).build();
 
         //When
-        Mockito.when(retrieveSvc.searchNotification(any(InputSearchNotificationDto.class), any(), any()))
+        when(notificationSearchService.searchNotification(any(InputSearchNotificationDto.class), any(), any()))
                 .thenReturn(result);
 
         //Then
@@ -277,7 +292,7 @@ class PnInternalNotificationsControllerTest {
 
     @Test
     void searchNotificationsPrivateFailure() {
-        Mockito.when(retrieveSvc.searchNotification(any(InputSearchNotificationDto.class), any(), any()))
+        when(notificationSearchService.searchNotification(any(InputSearchNotificationDto.class), any(), any()))
                 .thenThrow(new PnNotFoundException("test", "test", "test"));
 
         webTestClient.get()
@@ -296,11 +311,12 @@ class PnInternalNotificationsControllerTest {
     @Test
     void getSentNotificationPrivateSuccess() {
         // Given
-        InternalNotification notification = newNotification();
+        LegalNotificationDetail legalNotificationDetail = newLegalNotification();
 
 
         // When
-        Mockito.when( retrieveSvc.getNotificationInformation( IUN, false, true )).thenReturn( notification );
+        when( legalNotificationDetailRetrieverStrategy.getNotificationInformation( IUN, false, true, null ))
+                .thenReturn( legalNotificationDetail );
 
         webTestClient.get()
                 .uri( "/delivery-private/notifications/{iun}".replace( "{iun}", IUN ) )
@@ -314,9 +330,10 @@ class PnInternalNotificationsControllerTest {
     void getSentInformalNotificationPrivateWithIunPatternValidation() {
         // IUN valido secondo pattern OpenAPI informal: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[A-Z]{1}$
         String validIun = "ABCD-EFGH-IJKL-123456-M-N";
-        InternalNotification notification = newNotification();
+        InformalNotificationDetail informalNotificationDetail = newInformalNotification();
 
-        Mockito.when(retrieveSvc.getNotificationInformation(anyString(), anyBoolean(), anyBoolean())).thenReturn(notification);
+        when(informalNotificationDetailRetrieverStrategy.getNotificationInformation(anyString(), anyBoolean(), anyBoolean(), anyBoolean(),eq(null)))
+                .thenReturn(informalNotificationDetail);
 
         webTestClient.get()
                 .uri("/delivery-private/v1/notifications/informal/{iun}", validIun)
@@ -334,8 +351,8 @@ class PnInternalNotificationsControllerTest {
                 .accept(MediaType.ALL)
                 .exchange()
                 .expectStatus().isBadRequest();
-        Mockito.verify(retrieveSvc, Mockito.never())
-                .getNotificationInformation(anyString(), anyBoolean(), anyBoolean());
+        verify(informalNotificationDetailRetrieverStrategy, Mockito.never())
+                .getNotificationInformation(anyString(), anyBoolean(), anyBoolean(), anyBoolean(), eq(null));
     }
 
     @Test
@@ -348,7 +365,7 @@ class PnInternalNotificationsControllerTest {
                 .build();
 
         //When
-        Mockito.when( priceService.getNotificationCost( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( costResponse );
+        when( priceService.getNotificationCost( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( costResponse );
 
         webTestClient.get()
                 .uri( "/delivery-private/notifications/{paTaxId}/{noticeCode}"
@@ -361,13 +378,13 @@ class PnInternalNotificationsControllerTest {
                 .expectBody(NotificationCostResponse.class );
 
         //Then
-        Mockito.verify( priceService ).getNotificationCost( PA_TAX_ID, NOTICE_CODE );
+        verify( priceService ).getNotificationCost( PA_TAX_ID, NOTICE_CODE );
     }
 
     @Test
     void getNotificationCostFailure(){
         //When
-        Mockito.when( priceService.getNotificationCost( Mockito.anyString(), Mockito.anyString() ) ).thenThrow(new PnNotFoundException("test", "test", "test"));
+        when( priceService.getNotificationCost( Mockito.anyString(), Mockito.anyString() ) ).thenThrow(new PnNotFoundException("test", "test", "test"));
 
         webTestClient.get()
                 .uri( "/delivery-private/notifications/{paTaxId}/{noticeCode}"
@@ -394,7 +411,7 @@ class PnInternalNotificationsControllerTest {
                 .build();
 
         //When
-        Mockito.when( qrService.getNotificationByQR( Mockito.any( RequestCheckAarDto.class ) )).thenReturn( QrResponse );
+        when( qrService.getNotificationByQR( Mockito.any( RequestCheckAarDto.class ) )).thenReturn( QrResponse );
 
         webTestClient.post()
                 .uri( "/delivery-private/check-aar-qr-code")
@@ -407,7 +424,7 @@ class PnInternalNotificationsControllerTest {
                 .expectBody(ResponseCheckAarDto.class );
 
         //Then
-        Mockito.verify( qrService ).getNotificationByQR( dto );
+        verify( qrService ).getNotificationByQR( dto );
     }
 
 
@@ -426,7 +443,7 @@ class PnInternalNotificationsControllerTest {
                 .build();
 
         //When
-        Mockito.when( qrService.getNotificationByQR( Mockito.any( RequestCheckAarDto.class ) )).thenReturn( QrResponse );
+        when( qrService.getNotificationByQR( Mockito.any( RequestCheckAarDto.class ) )).thenReturn( QrResponse );
 
         webTestClient.post()
                 .uri( "/delivery-private/check-aar-qr-code")
@@ -439,7 +456,7 @@ class PnInternalNotificationsControllerTest {
                 .expectBody(ResponseCheckAarDto.class );
 
         //Then
-        Mockito.verify( qrService ).getNotificationByQR( dto );
+        verify( qrService ).getNotificationByQR( dto );
     }
 
     @Test
@@ -451,7 +468,7 @@ class PnInternalNotificationsControllerTest {
                 .build();
 
         //When
-        Mockito.when(qrService.getNotificationByQR(Mockito.any(RequestCheckAarDto.class))).thenThrow(new PnNotFoundException("test", "test", "test"));
+        when(qrService.getNotificationByQR(Mockito.any(RequestCheckAarDto.class))).thenThrow(new PnNotFoundException("test", "test", "test"));
 
         webTestClient.post()
                 .uri("/delivery-private/check-aar-qr-code")
@@ -472,7 +489,7 @@ class PnInternalNotificationsControllerTest {
                 .filename( FILENAME )
                 .build();
 
-        Mockito.when( attachmentService.downloadAttachmentWithRedirect(
+        when( attachmentService.downloadAttachmentWithRedirect(
                 Mockito.anyString(),
                 Mockito.any( InternalAuthHeader.class ),
                 Mockito.any(),
@@ -499,12 +516,12 @@ class PnInternalNotificationsControllerTest {
                 .isOk()
                 .expectBody( NotificationAttachmentDownloadMetadataResponse.class );
 
-        Mockito.verify( attachmentService ).downloadAttachmentWithRedirect( IUN, INTERNAL_AUTH_HEADER, MANDATE_ID, null, ATTACHMENT_NAME, null, false );
+        verify( attachmentService ).downloadAttachmentWithRedirect( IUN, INTERNAL_AUTH_HEADER, MANDATE_ID, null, ATTACHMENT_NAME, null, false );
     }
 
     @Test
     void getNotificationAttachmentPrivateFailure() {
-        Mockito.doThrow( new PnNotFoundException("test", "test", "test") )
+        doThrow( new PnNotFoundException("test", "test", "test") )
                 .when( attachmentService )
                 .downloadAttachmentWithRedirect( IUN, INTERNAL_AUTH_HEADER, null, null, ATTACHMENT_NAME, null, false );
 
@@ -531,7 +548,7 @@ class PnInternalNotificationsControllerTest {
                 .filename( FILENAME )
                 .build();
 
-        Mockito.when( attachmentService.downloadDocumentWithRedirect(
+        when( attachmentService.downloadDocumentWithRedirect(
                 Mockito.anyString(),
                 Mockito.any( InternalAuthHeader.class ),
                 Mockito.isNull(),
@@ -551,7 +568,7 @@ class PnInternalNotificationsControllerTest {
                 .isOk()
                 .expectBody( NotificationAttachmentDownloadMetadataResponse.class );
 
-        Mockito.verify( attachmentService ).downloadDocumentWithRedirect( IUN, INTERNAL_AUTH_HEADER, null, DOCUMENT_IDX, false );
+        verify( attachmentService ).downloadDocumentWithRedirect( IUN, INTERNAL_AUTH_HEADER, null, DOCUMENT_IDX, false );
     }
 
     @Test
@@ -565,7 +582,7 @@ class PnInternalNotificationsControllerTest {
                 .retryAfter( 1000 )
                 .build();
 
-        Mockito.when( attachmentService.downloadDocumentWithRedirect(
+        when( attachmentService.downloadDocumentWithRedirect(
                 Mockito.anyString(),
                 Mockito.any( InternalAuthHeader.class ),
                 Mockito.isNull(),
@@ -585,12 +602,12 @@ class PnInternalNotificationsControllerTest {
                 .isOk()
                 .expectBody( NotificationAttachmentDownloadMetadataResponse.class );
 
-        Mockito.verify( attachmentService ).downloadDocumentWithRedirect( IUN, INTERNAL_AUTH_HEADER, null, DOCUMENT_IDX, false );
+        verify( attachmentService ).downloadDocumentWithRedirect( IUN, INTERNAL_AUTH_HEADER, null, DOCUMENT_IDX, false );
     }
 
     @Test
     void getNotificationDocumentPrivateFailure() {
-        Mockito.doThrow( new PnNotFoundException("test", "test", "test") )
+        doThrow( new PnNotFoundException("test", "test", "test") )
                 .when( attachmentService )
                 .downloadDocumentWithRedirect( IUN, INTERNAL_AUTH_HEADER, null, DOCUMENT_IDX, false );
 
@@ -620,12 +637,12 @@ class PnInternalNotificationsControllerTest {
                 .isOk()
                 .expectBody( Map.class );
 
-        Mockito.verify( qrService ).getQRByIun(IUN);
+        verify( qrService ).getQRByIun(IUN);
     }
     
     @Test
     void getQuickAccessLinkTokensPrivateFailure() {
-        Mockito.doThrow( new PnNotFoundException("test", "test", "test") )
+        doThrow( new PnNotFoundException("test", "test", "test") )
                 .when( qrService )
                 .getQRByIun( IUN);
 
@@ -658,7 +675,7 @@ class PnInternalNotificationsControllerTest {
 
     @Test
     void removeAllNotificationCostsByIunWithNotificationNotPresentTest() {
-        Mockito.doThrow( new PnNotFoundException("test", "test", "test") )
+        doThrow( new PnNotFoundException("test", "test", "test") )
                 .when( priceService )
                 .removeAllNotificationCostsByIun( IUN);
 
@@ -676,7 +693,7 @@ class PnInternalNotificationsControllerTest {
     void checkIunAndInternalIdWithRecipientTest() {
         String recipientId = "testRecipient";
         Mockito.doNothing()
-                .when(retrieveSvc)
+                .when(retrieverService)
                 .checkIUNAndInternalId(IUN, recipientId, null, null, null);
 
         webTestClient.get()
@@ -692,8 +709,8 @@ class PnInternalNotificationsControllerTest {
     @Test
     void checkIunAndInternalIdWithRecipientNotPartOfNotificationTest() {
         String recipientId = "testRecipient";
-        Mockito.doThrow(new PnForbiddenException("The given recipient is not one of notification's recipients"))
-                .when(retrieveSvc)
+        doThrow(new PnForbiddenException("The given recipient is not one of notification's recipients"))
+                .when(retrieverService)
                 .checkIUNAndInternalId(IUN, recipientId, null, null, null);
 
         webTestClient.get()
@@ -727,16 +744,31 @@ class PnInternalNotificationsControllerTest {
         internalNotification.setCancelledIun("IUN_05");
         internalNotification.setCancelledIun("IUN_00");
         internalNotification.setSenderPaId("PA_ID");
-        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()
                         .taxId("Codice Fiscale 01")
                         .denomination("Nome Cognome/Ragione Sociale")
-                        .internalId( "recipientInternalId" )
+                        .internalId("recipientInternalId")
                         .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
-                                .type( NotificationDigitalAddress.TypeEnum.PEC )
+                                .type(NotificationDigitalAddress.TypeEnum.PEC)
                                 .address("account@dominio.it")
                                 .build()).build()));
         return internalNotification;
+    }
+
+    private LegalNotificationDetail newLegalNotification() {
+        LegalNotificationDetail legalNotificationDetail = new LegalNotificationDetail();
+        legalNotificationDetail.setNotification(newNotification());
+        legalNotificationDetail.setNotificationStatus(NotificationStatusV26.ACCEPTED);
+
+        return legalNotificationDetail;
+    }
+
+
+    private InformalNotificationDetail newInformalNotification() {
+        InformalNotificationDetail informalNotification = new InformalNotificationDetail();
+        informalNotification.setNotificationStatus(InformalNotificationStatusV1.IN_VALIDATION);
+        informalNotification.setNotification(newNotification());
+        return informalNotification;
     }
 }

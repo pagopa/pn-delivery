@@ -2,18 +2,17 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.*;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
-import it.pagopa.pn.delivery.models.internal.notification.MetadataAttachment;
+import it.pagopa.pn.delivery.models.internal.notification.*;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.svc.search.IndexNameAndPartitions;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
@@ -34,7 +33,8 @@ import java.util.function.Predicate;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class NotificationDaoDynamoTest {
 
@@ -57,8 +57,8 @@ class NotificationDaoDynamoTest {
         entity2dto = new EntityToDtoNotificationMapper();
         entityDao = new EntityDaoMock();
         NotificationMetadataEntityDao metadataEntityDao = new MetadataEntityDaoMock();
-        pnDataVaultClient = Mockito.mock( PnDataVaultClientImpl.class );
-        delegationMetadataEntityDao = Mockito.mock( NotificationDelegationMetadataEntityDao.class );
+        pnDataVaultClient = mock( PnDataVaultClientImpl.class );
+        delegationMetadataEntityDao = mock( NotificationDelegationMetadataEntityDao.class );
         dao = new NotificationDaoDynamo( entityDao, metadataEntityDao, delegationMetadataEntityDao, dto2Entity, entity2dto, pnDataVaultClient);
     }
 
@@ -595,6 +595,7 @@ class NotificationDaoDynamoTest {
 
     private InternalNotification newNotificationWithoutPayments() {
         InternalNotification internalNotification = new InternalNotification();
+        internalNotification.setCommunicationType(CommunicationType.LEGAL);
         internalNotification.setPaFee(0);
         internalNotification.setPagoPaIntMode(NewNotificationRequestV26.PagoPaIntModeEnum.NONE);
         internalNotification.setSentAt(OffsetDateTime.now());
@@ -604,7 +605,6 @@ class NotificationDaoDynamoTest {
         internalNotification.setCancelledIun("IUN_05");
         internalNotification.setCancelledIun("IUN_00");
         internalNotification.setSenderPaId("PA_ID");
-        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
         internalNotification.setNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()
@@ -633,7 +633,6 @@ class NotificationDaoDynamoTest {
         internalNotification.setCancelledIun("IUN_05");
         internalNotification.setCancelledIun("IUN_00");
         internalNotification.setSenderPaId("PA_ID");
-        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
         internalNotification.setNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
         internalNotification.setPaFee(0);
         internalNotification.setDocuments(List.of(NotificationDocument

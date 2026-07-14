@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery;
 
 import it.pagopa.pn.commons.conf.SharedAutoConfiguration;
+import it.pagopa.pn.delivery.models.SenderContactsDto;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -11,6 +12,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import javax.annotation.PostConstruct;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 
 @Configuration
 @ConfigurationProperties( prefix = "pn.delivery")
@@ -82,6 +84,8 @@ public class PnDeliveryConfigs {
 
     private String maxDocumentsAvailableDays;
 
+    private String informalMaxDocumentsAvailableDays;
+
     private String maxFirstNoticeCodeDays;
 
     private String maxSecondNoticeCodeDays;
@@ -130,6 +134,10 @@ public class PnDeliveryConfigs {
     private Integer maxMessageLongBodyLength;
 
     private Integer maxMessageShortBodyLength;
+    
+    private EventBridge eventBridge;
+
+    private List<SenderContactsDto> senderContacts;
 
     @PostConstruct
     public void init(){
@@ -189,6 +197,13 @@ public class PnDeliveryConfigs {
     @Data
     public static class NotificationRefusedVerificationDao {
         private String tableName;
+    }
+    
+    @Data
+    public static class EventBridge {
+        private String source;
+        private String notificationViewedDetailType;
+        private String name;
     }
 
 }

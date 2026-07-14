@@ -16,16 +16,14 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.No
 import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileCreationRequest;
 import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileDownloadInfo;
 import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileDownloadResponse;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CxTypeAuthFleet;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationAttachmentDownloadMetadataResponse;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PreLoadRequest;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PreLoadResponse;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
-import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
-import it.pagopa.pn.delivery.models.InputDownloadDto;
-import it.pagopa.pn.delivery.models.InternalAuthHeader;
-import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.internal.notification.*;
+import it.pagopa.pn.delivery.middleware.NotificationViewedEventDispatcher;
+import it.pagopa.pn.delivery.models.*;
+import it.pagopa.pn.delivery.models.internal.notification.MetadataAttachment;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.pnclient.pnf24.PnF24ClientImpl;
 import it.pagopa.pn.delivery.pnclient.safestorage.PnSafeStorageClientImpl;
@@ -55,6 +53,7 @@ import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.*;
 public class NotificationAttachmentService {
 
     public static final String PN_NOTIFICATION_ATTACHMENTS = "PN_NOTIFICATION_ATTACHMENTS";
+    public static final String PN_COMMUNICATIONS_ATTACHMENT = "PN_COMMUNICATIONS_ATTACHMENT";
     public static final String PN_F24_META = "PN_F24_META";
     public static final String PRELOADED = "PRELOADED";
     private static final String ATTACHMENT_TYPE_PAGO_PA = "PAGOPA";
@@ -66,11 +65,11 @@ public class NotificationAttachmentService {
     private final PnDeliveryPushClientImpl pnDeliveryPushClient;
     private final NotificationDao notificationDao;
     private final CheckAuthComponent checkAuthComponent;
-    private final NotificationViewedProducer notificationViewedProducer;
+    private final NotificationViewedEventDispatcher notificationViewedEventDispatcher;
     private final MVPParameterConsumer mvpParameterConsumer;
     private final PnDeliveryConfigs cfg;
 
-    public NotificationAttachmentService(PnSafeStorageClientImpl safeStorageClient, PnF24ClientImpl pnF24Client, PnDeliveryPushClientImpl pnDeliveryPushClient, NotificationDao notificationDao, CheckAuthComponent checkAuthComponent, NotificationViewedProducer notificationViewedProducer,
+    public NotificationAttachmentService(PnSafeStorageClientImpl safeStorageClient, PnF24ClientImpl pnF24Client, PnDeliveryPushClientImpl pnDeliveryPushClient, NotificationDao notificationDao, CheckAuthComponent checkAuthComponent, NotificationViewedEventDispatcher notificationViewedEventDispatcher,
                                          MVPParameterConsumer mvpParameterConsumer,
                                          PnDeliveryConfigs cfg) {
         this.safeStorageClient = safeStorageClient;
@@ -78,7 +77,7 @@ public class NotificationAttachmentService {
         this.pnDeliveryPushClient = pnDeliveryPushClient;
         this.notificationDao = notificationDao;
         this.checkAuthComponent = checkAuthComponent;
-        this.notificationViewedProducer = notificationViewedProducer;
+        this.notificationViewedEventDispatcher = notificationViewedEventDispatcher;
         this.mvpParameterConsumer = mvpParameterConsumer;
         this.cfg = cfg;
     }
@@ -89,26 +88,75 @@ public class NotificationAttachmentService {
     }
 
     public List<PreLoadResponse> preloadDocuments(List<PreLoadRequest> preLoadRequests) {
-        return preLoadRequests.stream().map(req -> {
+        List<InternalPreLoadRequest> internalRequests = preLoadRequests.stream()
+                .map(req -> InternalPreLoadRequest.builder()
+                        .contentType(req.getContentType())
+                        .sha256(req.getSha256())
+                        .preloadIdx(req.getPreloadIdx())
+                        .documentTypeResolver(contentType -> {
+                            if ("application/json".equals(req.getContentType())) {
+                                return PN_F24_META;
+                            } else {
+                                return PN_NOTIFICATION_ATTACHMENTS;
+                            }
+                        })
+                        .build())
+                .toList();
+        
+        return preloadDocumentsInternal(internalRequests).stream()
+                .map(resp -> PreLoadResponse.builder()
+                        .url(resp.getUploadUrl())
+                        .key(resp.getKey())
+                        .httpMethod(PreLoadResponse.HttpMethodEnum.fromValue(resp.getUploadMethod().getValue()))
+                        .secret(resp.getSecret())
+                        .preloadIdx(resp.getPreloadIdx())
+                        .build())
+                .toList();
+    }
+
+    public List<InformalPreLoadResponse> informalPreloadDocuments(List<InformalPreLoadRequest> preLoadRequests) {
+        List<InternalPreLoadRequest> internalRequests = preLoadRequests.stream()
+                .map(req -> InternalPreLoadRequest.builder()
+                        .contentType(req.getContentType())
+                        .sha256(req.getSha256())
+                        .preloadIdx(req.getPreloadIdx())
+                        .documentTypeResolver(contentType -> PN_COMMUNICATIONS_ATTACHMENT)
+                        .build())
+                .toList();
+        
+        return preloadDocumentsInternal(internalRequests).stream()
+                .map(resp -> InformalPreLoadResponse.builder()
+                        .url(resp.getUploadUrl())
+                        .key(resp.getKey())
+                        .httpMethod(InformalPreLoadResponse.HttpMethodEnum.fromValue(resp.getUploadMethod().getValue()))
+                        .secret(resp.getSecret())
+                        .preloadIdx(resp.getPreloadIdx())
+                        .build())
+                .toList();
+    }
+
+    private List<InternalPreLoadResponse> preloadDocumentsInternal(List<InternalPreLoadRequest> internalRequests) {
+        return internalRequests.stream().map(req -> {
             log.info("preloadDocuments contentType:{} preloadIdx:{}", req.getContentType(), req.getPreloadIdx());
-            FileCreationRequest fileCreationRequest = new FileCreationRequest();
-            fileCreationRequest.setContentType(req.getContentType());
-            if ("application/json".equals(req.getContentType())) {
-                fileCreationRequest.setDocumentType(PN_F24_META);
-            } else {
-                fileCreationRequest.setDocumentType(PN_NOTIFICATION_ATTACHMENTS);
-            }
-            fileCreationRequest.setStatus(PRELOADED);
+            FileCreationRequest fileCreationRequest = getFileCreationRequest(req);
 
             var resp = this.safeStorageClient.createFile(fileCreationRequest, req.getSha256());
-            return PreLoadResponse.builder()
-                    .url(resp.getUploadUrl())
+            return InternalPreLoadResponse.builder()
+                    .uploadUrl(resp.getUploadUrl())
                     .key(resp.getKey())
-                    .httpMethod(PreLoadResponse.HttpMethodEnum.fromValue(resp.getUploadMethod().getValue()))
+                    .uploadMethod(resp.getUploadMethod())
                     .secret(resp.getSecret())
                     .preloadIdx(req.getPreloadIdx())
                     .build();
         }).toList();
+    }
+
+    private static FileCreationRequest getFileCreationRequest(InternalPreLoadRequest req) {
+        FileCreationRequest fileCreationRequest = new FileCreationRequest();
+        fileCreationRequest.setContentType(req.getContentType());
+        fileCreationRequest.setDocumentType(req.getDocumentTypeResolver().apply(req.getContentType()));
+        fileCreationRequest.setStatus(PRELOADED);
+        return fileCreationRequest;
     }
 
     public static class FileDownloadIdentify {
@@ -270,7 +318,7 @@ public class NotificationAttachmentService {
                             .operatorUuid(uid)
                             .build();
                 }
-                notificationViewedProducer.sendNotificationViewed(iun, Instant.now(), authorizationOutcome.getEffectiveRecipientIdx(), delegateInfo, cxSourceChannel, cxSourceChannelDetails);
+                notificationViewedEventDispatcher.sendNotificationViewed(iun, Instant.now(), authorizationOutcome.getEffectiveRecipientIdx(), delegateInfo, cxSourceChannel, cxSourceChannelDetails, notification.getCommunicationType());
             }
 
             return InternalAttachmentWithFileKey.of(NotificationAttachmentDownloadMetadataResponse.builder()

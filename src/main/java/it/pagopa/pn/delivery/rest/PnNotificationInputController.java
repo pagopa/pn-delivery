@@ -109,6 +109,37 @@ public class PnNotificationInputController implements NewNotificationApi, NewInf
     }
 
     @Override
+    public ResponseEntity<List<InformalPreLoadResponse>> informalPresignedUploadRequest(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<InformalPreLoadRequest> preLoadRequest) {
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_COM_PRELOAD, "presignedUploadRequest")
+                .build();
+
+        try {
+            Integer numberOfPresignedRequest = cfgs.getNumberOfPresignedRequest();
+
+            logEvent.log();
+            if (preLoadRequest.size() > numberOfPresignedRequest) {
+                String logMessage = String.format("Presigned upload request length=%d is more than maximum allowed=%d",
+                        preLoadRequest.size(), numberOfPresignedRequest);
+                log.error(logMessage);
+
+                throw new PnInvalidInputException(ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_SIZE,
+                        "preLoadRequest", logMessage);
+            }
+
+            List<InformalPreLoadResponse> res = this.notificationAttachmentService.informalPreloadDocuments(preLoadRequest);
+            String[] keys = res.stream().map(InformalPreLoadResponse::getKey).toArray(String[]::new);
+            String successMessage = "PreloadResponse file keys=" + String.join(", ", keys);
+            logEvent.generateSuccess(successMessage).log();
+
+            return ResponseEntity.ok(res);
+        } catch (PnRuntimeException e) {
+            logEvent.generateFailure("" + e.getProblem()).log();
+            throw e;
+        }
+    }
+
+    @Override
     public Optional<NativeWebRequest> getRequest() {
         return NewNotificationApi.super.getRequest();
     }
