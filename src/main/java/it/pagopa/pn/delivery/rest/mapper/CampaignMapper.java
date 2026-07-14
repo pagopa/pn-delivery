@@ -40,7 +40,8 @@ public final class CampaignMapper {
                 .senderContact(campaign.getSenderContact())
                 .serviceId(campaign.getServiceId())
                 .sensitiveContent(Boolean.TRUE.equals(campaign.getSensitiveContent()))
-                .stopOnViewed(Boolean.TRUE.equals(campaign.getStopOnViewed()));
+                .stopOnViewed(Boolean.TRUE.equals(campaign.getStopOnViewed()))
+                .taxonomyCode(campaign.getTaxonomyCode());
 
         List<WorkflowEntity> workflow = campaign.getWorkflow() == null
                 ? Collections.emptyList()
