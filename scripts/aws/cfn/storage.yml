@@ -124,8 +124,8 @@ Resources:
           AttributeType: "S"
         - AttributeName: "campaignId_creationMonth"
           AttributeType: "S"
-        - AttributeName: "campaignId_recipientId"
-          AttributeType: "S"
+       # - AttributeName: "campaignId_recipientId"
+       #   AttributeType: "S"
       KeySchema:
         - AttributeName: "iun_recipientId"
           KeyType: "HASH"
@@ -164,12 +164,12 @@ Resources:
               KeyType: "RANGE"
           Projection:
             ProjectionType: "ALL"
-        - IndexName: "campaignId_recipientId"
-          KeySchema:
-            - AttributeName: "campaignId_recipientId"
-              KeyType: "HASH"
-            - AttributeName: "sentAt"
-              KeyType: "RANGE"
+       # - IndexName: "campaignId_recipientId"
+       #   KeySchema:
+       #     - AttributeName: "campaignId_recipientId"
+       #       KeyType: "HASH"
+       #     - AttributeName: "sentAt"
+       #       KeyType: "RANGE"
           Projection:
             ProjectionType: "ALL"
       BillingMode: "PAY_PER_REQUEST"
