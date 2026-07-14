@@ -3,7 +3,7 @@ const {
   DynamoDBDocumentClient,
   GetCommand,
   DeleteCommand,
-  UpdateCommand,
+  PutCommand,
 } = require("@aws-sdk/lib-dynamodb");
 const client = new DynamoDBClient({ region: process.env.AWS_REGION });
 const docClient = DynamoDBDocumentClient.from(client, {
@@ -13,7 +13,6 @@ const docClient = DynamoDBDocumentClient.from(client, {
 const { ItemNotFoundException } = require("./exceptions.js");
 
 const getItem = async (TableName, Key) => {
-  console.log(`[metadataStatusUpdater] DynamoDB GetItem started: table=${TableName}, key=${JSON.stringify(Key)}`);
   const params = {
     TableName,
     Key,
@@ -22,10 +21,8 @@ const getItem = async (TableName, Key) => {
   const result = await docClient.send(command);
 
   if (!result.Item) {
-    console.error(`[metadataStatusUpdater] DynamoDB GetItem returned no item: table=${TableName}, key=${JSON.stringify(Key)}`);
     throw new ItemNotFoundException(JSON.stringify(Key), TableName);
   }
-  console.log(`[metadataStatusUpdater] DynamoDB GetItem completed: table=${TableName}, key=${JSON.stringify(Key)}`);
   return result.Item;
 };
 
@@ -39,91 +36,48 @@ const deleteItem = async (TableName, Key, Iun) => {
     },
   };
   try {
-    console.log(`[metadataStatusUpdater] DynamoDB DeleteItem started: table=${TableName}, key=${JSON.stringify(Key)}`);
     const command = new DeleteCommand(params);
     const result = await docClient.send(command);
-    console.log(`[metadataStatusUpdater] DynamoDB DeleteItem completed: table=${TableName}, key=${JSON.stringify(Key)}`);
+    console.log("Item deleted successfully with key:", JSON.stringify(Key));
     return result;
   } catch (error) {
     if (error.name === "ConditionalCheckFailedException") {
-      console.warn(`[metadataStatusUpdater] DynamoDB DeleteItem condition rejected: table=${TableName}, key=${JSON.stringify(Key)}, iun=${Iun}`);
+      console.log("Delete failed: iun does not match");
       throw error;
     } else {
-      console.error(`[metadataStatusUpdater] DynamoDB DeleteItem failed: table=${TableName}, key=${JSON.stringify(Key)}, error=${error.message}`, error.stack);
+      console.log("Error deleting item:", error.message);
       throw error;
     }
   }
 };
 
-const addUpdateField = (field, value, expressionAttributeNames, expressionAttributeValues, updateExpressions) => {
-  if (value === undefined) {
-    return;
-  }
-
-  const namePlaceholder = `#${field}`;
-  const valuePlaceholder = `:${field}`;
-  expressionAttributeNames[namePlaceholder] = field;
-  expressionAttributeValues[valuePlaceholder] = value;
-  updateExpressions.push(`${namePlaceholder} = ${valuePlaceholder}`);
-};
-
-const buildMetadataUpdateParams = (tablename, item, partitionKeyName) => {
-  const key = {
-    [partitionKeyName]: item[partitionKeyName],
-    sentAt: item.sentAt,
-  };
-  const expressionAttributeNames = {};
-  const expressionAttributeValues = {};
-  const updateExpressions = [];
-
-  addUpdateField("notificationStatus", item.notificationStatus, expressionAttributeNames, expressionAttributeValues, updateExpressions);
-  addUpdateField("notificationStatusTimestamp", item.notificationStatusTimestamp, expressionAttributeNames, expressionAttributeValues, updateExpressions);
-  addUpdateField("senderId", item.senderId, expressionAttributeNames, expressionAttributeValues, updateExpressions);
-  addUpdateField("rootSenderId", item.rootSenderId, expressionAttributeNames, expressionAttributeValues, updateExpressions);
-  addUpdateField("recipientId", item.recipientId, expressionAttributeNames, expressionAttributeValues, updateExpressions);
-  addUpdateField("notificationGroup", item.notificationGroup, expressionAttributeNames, expressionAttributeValues, updateExpressions);
-  addUpdateField("communicationType", item.communicationType, expressionAttributeNames, expressionAttributeValues, updateExpressions);
-  addUpdateField("recipientIds", item.recipientIds, expressionAttributeNames, expressionAttributeValues, updateExpressions);
-  addUpdateField("tableRow", item.tableRow, expressionAttributeNames, expressionAttributeValues, updateExpressions);
-  addUpdateField("senderId_recipientId", item.senderId_recipientId, expressionAttributeNames, expressionAttributeValues, updateExpressions);
-  addUpdateField("senderId_creationMonth", item.senderId_creationMonth, expressionAttributeNames, expressionAttributeValues, updateExpressions);
-  addUpdateField("recipientId_creationMonth", item.recipientId_creationMonth, expressionAttributeNames, expressionAttributeValues, updateExpressions);
-  addUpdateField("recipientOne", item.recipientOne, expressionAttributeNames, expressionAttributeValues, updateExpressions);
-  addUpdateField("mandateId", item.mandateId, expressionAttributeNames, expressionAttributeValues, updateExpressions);
-  addUpdateField("delegateId_creationMonth", item.delegateId_creationMonth, expressionAttributeNames, expressionAttributeValues, updateExpressions);
-
-  return {
+const putMetadata = async (tablename, item, partitionKeyName) => {
+  const params = {
     TableName: tablename,
-    Key: key,
-    UpdateExpression: `SET ${updateExpressions.join(", ")}`,
+    Item: item,
     ConditionExpression:
-      "attribute_not_exists(#notificationStatusTimestamp) OR #notificationStatusTimestamp < :statusChangeTimestamp",
+      "attribute_not_exists(notificationStatusTimestamp) OR #notificationStatusTimestamp < :statusChangeTimestamp",
     ExpressionAttributeNames: {
-      ...expressionAttributeNames,
       "#notificationStatusTimestamp": "notificationStatusTimestamp",
     },
     ExpressionAttributeValues: {
-      ...expressionAttributeValues,
       ":statusChangeTimestamp": item.notificationStatusTimestamp,
     },
   };
-};
-
-const updateMetadata = async (tablename, item, partitionKeyName) => {
-  const params = buildMetadataUpdateParams(tablename, item, partitionKeyName);
   try {
-    console.log(`[metadataStatusUpdater] DynamoDB UpdateItem started: table=${tablename}, key=${JSON.stringify(params.Key)}, fields=${Object.keys(params.ExpressionAttributeValues).filter((field) => field !== ":statusChangeTimestamp").map((field) => params.ExpressionAttributeNames[field.replace(":", "#")]).filter(Boolean).join(",")}`);
-    const command = new UpdateCommand(params);
-    await docClient.send(command);
-    console.log(`[metadataStatusUpdater] DynamoDB UpdateItem completed: table=${tablename}, key=${JSON.stringify(params.Key)}, status=${item.notificationStatus}`);
+    const command = new PutCommand(params);
+    const result = await docClient.send(command);
+    console.log(`putItem successfully executed with pk: ${item[partitionKeyName]} and status: ${item.notificationStatus} on table: ${tablename}`);
   } catch (error) {
     if (error.name === "ConditionalCheckFailedException") {
-      console.warn(`[metadataStatusUpdater] DynamoDB UpdateItem skipped by timestamp condition: table=${tablename}, key=${JSON.stringify(params.Key)}, status=${item.notificationStatus}`);
+      console.log(
+        `update not necessary for item with pk: ${item[partitionKeyName]} and status: ${item.notificationStatus} on table: ${tablename}`
+      );
     } else {
-      console.error(`[metadataStatusUpdater] DynamoDB UpdateItem failed: table=${tablename}, key=${JSON.stringify(params.Key)}, status=${item.notificationStatus}, error=${error.message}`, error.stack);
+      console.log(`Error ${error.message} during putMetadata with pk: ${item[partitionKeyName]} and status: ${item.notificationStatus} on table: ${tablename}`);
       throw error;
     }
   }
 };
 
-module.exports = { getItem, deleteItem, updateMetadata, buildMetadataUpdateParams };
+module.exports = { getItem, deleteItem, putMetadata };
