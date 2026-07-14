@@ -2201,7 +2201,7 @@ class PnSentReceivedNotificationControllerTest {
                 .exchange()
                 .expectStatus()
                 .isOk()
-                .expectBody(SenderContacts.class);
+                .expectBody(SenderContactInfo.class);
 
         verify(senderContactsService).getSenderContacts(senderId);
     }

@@ -9,7 +9,6 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.api.RecipientReadApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.RecipientReadInformalNotificationApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.NotificationSearchRow;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.SenderContacts;
 import it.pagopa.pn.delivery.models.*;
 import it.pagopa.pn.delivery.svc.*;
 import it.pagopa.pn.delivery.svc.search.NotificationSearchService;
@@ -412,9 +411,9 @@ public class PnReceivedNotificationsController implements RecipientReadApi, Reci
     }
 
     @Override
-    public ResponseEntity<SenderContacts> getSenderContacts(String senderId) {
+    public ResponseEntity<SenderContactInfo> getSenderContacts(String senderId) {
         log.info("getSenderContacts for senderId={}", senderId);
         SenderContactsDto senderContactsDto = senderContactsService.getSenderContacts(senderId);
-        return ResponseEntity.ok(modelMapper.map(senderContactsDto, SenderContacts.class));
+        return ResponseEntity.ok(modelMapper.map(senderContactsDto, SenderContactInfo.class));
     }
 }
