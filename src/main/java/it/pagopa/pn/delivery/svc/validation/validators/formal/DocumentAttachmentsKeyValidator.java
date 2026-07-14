@@ -30,6 +30,10 @@ public class DocumentAttachmentsKeyValidator implements FormalValidator<Notifica
     private void checkDocumentKeys(NotificationContext context, ArrayList<ProblemError> errors) {
         List<NotificationDocument> documents = context.getPayload().getDocuments();
 
+        if(documents == null || documents.isEmpty()) {
+            return;
+        }
+
         for (int i = 0; i < documents.size(); i++) {
             NotificationDocument doc = documents.get(i);
             String key = doc.getRef().getKey();
