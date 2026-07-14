@@ -130,13 +130,21 @@ class DocumentAttachmentsKeyValidatorTest {
     }
 
     @Test
-    void shouldAcceptEmptyDocumentList() {
+    void shouldAcceptEmptyAndNullDocumentList() {
         // Given
         InternalNotification payload = notification(List.of(), List.of());
         InformalNotificationContext context = informalContext(payload);
 
         // When
         ValidationResult result = validator.validate(context);
+
+        // Then
+        assertSuccess(result);
+
+        payload.setDocuments(null);
+
+        // When
+        result = validator.validate(context);
 
         // Then
         assertSuccess(result);
