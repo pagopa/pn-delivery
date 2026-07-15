@@ -90,7 +90,7 @@ class PnSentReceivedNotificationControllerTest {
     private static final String RECIPIENT_ID = "CGNNMO80A01H501M";
     public static final List<String> GROUPS = List.of("Group1", "Group2");
     public static final String DELIVERY_REQUESTS_PATH = "/delivery/v2.6/requests";
-    public static final String DELIVERY_INFORMAL_REQUESTS_PATH = "/informal/delivery/v1/requests";
+    public static final String DELIVERY_INFORMAL_REQUESTS_PATH = "/delivery/v1/requests";
     public static final String DELIVERY_RECEIVED_PATH = "/delivery/v2.8/notifications/received/";
     public static final String DELIVERY_SENT_PATH = "/delivery/v2.9/notifications/sent/";
 
@@ -1830,7 +1830,7 @@ class PnSentReceivedNotificationControllerTest {
                         "mockDetail"
                 ));
         webTestClient.get()
-                .uri("/delivery/v1/notifications/informal/sent/{iun}/attachments/documents/{docIdx}", INFORMAL_IUN, 1)
+                .uri("/delivery/v1/notifications/sent/{iun}/attachments/documents/{docIdx}", INFORMAL_IUN, 1)
                 .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
                 .header(PnDeliveryRestConstants.UID_HEADER, UID)
                 .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PA)
@@ -2168,7 +2168,7 @@ class PnSentReceivedNotificationControllerTest {
 
         // Then
         webTestClient.get()
-                .uri("/delivery/v1/notifications/informal/sent/" + INFORMAL_IUN)
+                .uri("/delivery/v1/notifications/sent/" + INFORMAL_IUN)
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)

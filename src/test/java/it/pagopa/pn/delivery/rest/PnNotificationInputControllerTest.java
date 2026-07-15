@@ -49,7 +49,7 @@ class PnNotificationInputControllerTest {
 	private static final String X_PAGOPA_PN_SRC_CH_DETAILS = "sourceChannelDetails";
 	private static final String FILE_SHA_256 = "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=";
 	public static final String DELIVERY_REQUESTS_PATH = "/delivery/v2.6/requests";
-	public static final String DELIVERY_INFORMAL_REQUESTS_PATH = "/informal/delivery/v1/requests";
+	public static final String DELIVERY_INFORMAL_REQUESTS_PATH = "/delivery/v1/requests";
 	public static final String DELIVERY_PRELOAD_REQUEST_PATH = "/delivery/attachments/preload";
 	public static final String DELIVERY_INFORMAL_PRELOAD_REQUEST_PATH = "/delivery/v1/attachments/preload";
 
