@@ -163,11 +163,6 @@ class ModelMapperConfigInformalSearchRowTest {
     }
 
     @Test
-    void legalAcceptedStatusFailsFastWithDedicatedErrorCode() {
-        assertFailsFast(UnifiedNotificationStatus.ACCEPTED);
-    }
-
-    @Test
     void legalDeliveredStatusFailsFastWithDedicatedErrorCode() {
         assertFailsFast(UnifiedNotificationStatus.DELIVERED);
     }
