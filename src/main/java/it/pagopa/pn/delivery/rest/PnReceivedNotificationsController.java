@@ -414,6 +414,8 @@ public class PnReceivedNotificationsController implements RecipientReadApi, Reci
     public ResponseEntity<SenderContactInfo> getSenderContacts(String senderId) {
         log.info("getSenderContacts for senderId={}", senderId);
         SenderContactsDto senderContactsDto = senderContactsService.getSenderContacts(senderId);
-        return ResponseEntity.ok(modelMapper.map(senderContactsDto, SenderContactInfo.class));
+        SenderContactInfo response = modelMapper.map(senderContactsDto, SenderContactInfo.class);
+        response.setSenderId(senderContactsDto.getSenderId());
+        return ResponseEntity.ok(response);
     }
 }
