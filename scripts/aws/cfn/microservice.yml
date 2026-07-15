@@ -2323,7 +2323,7 @@ Resources:
       MaximumBatchingWindowInSeconds: !Sub ${PnDeliveryInformalMetadataStatusUpdaterLambdaMaximumBatchingWindowInSeconds}
       MaximumRetryAttempts: !Sub ${PnDeliveryInformalMetadataStatusLambdaMaxRetryAttempts}
       MaximumRecordAgeInSeconds: !Ref InformalMetadataStatusUpdaterMaximumRecordAge
-      StartingPosition: TRIM_HORIZON
+      StartingPosition: LATEST
       DestinationConfig:
         OnFailure:
           Destination: !Sub arn:aws:s3:::${ESMKinesisFailureNotificationsBucketName}
@@ -2476,7 +2476,7 @@ Resources:
       MaximumBatchingWindowInSeconds: !Sub ${PnDeliveryMetadataUpdaterLambdaMaximumBatchingWindowInSeconds}
       MaximumRetryAttempts: !Sub ${PnDeliveryMetadataUpdaterLambdaMaxRetryAttempts}
       MaximumRecordAgeInSeconds: !Ref MetadataUpdaterMaximumRecordAge
-      StartingPosition: TRIM_HORIZON
+      StartingPosition: LATEST
       DestinationConfig:
         OnFailure:
           Destination: !Sub arn:aws:s3:::${ESMKinesisFailureNotificationsBucketName}
