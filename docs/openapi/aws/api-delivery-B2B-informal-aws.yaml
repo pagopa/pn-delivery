@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: KlACF/pDJZL0juz7jZaljI1dF1kvP1cgnCKb4VHPHIA=
+  version: 7wz5S8PUMetd5cZVbzBRuejFDWJ2B2M0MpwFlPfq8/g=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -11,7 +11,7 @@ servers:
     x-amazon-apigateway-endpoint-configuration:
       disableExecuteApiEndpoint: true
 paths:
-  /v1/attachments/informal/preload:
+  /v1/attachments/preload:
     post:
       summary: Richiesta di pre-caricamento dei documenti della notifica bonaria
       description: >-
@@ -57,7 +57,7 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/attachments/informal/preload
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/attachments/preload
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -75,10 +75,10 @@ paths:
         type: http_proxy
       parameters: []
     options:
-      operationId: Options for /v1/attachments/informal/preload API CORS
+      operationId: Options for /v1/attachments/preload API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/attachments/informal/preload
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/attachments/preload
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters: {}
@@ -270,7 +270,7 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
-  /v1/notifications/informal:
+  /v1/requests:
     post:
       summary: Richiesta sottomissione di una nuova comunicazione bonaria
       description: >-
@@ -342,7 +342,7 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/informal
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/requests
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -417,7 +417,7 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/informal
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/requests
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -434,10 +434,10 @@ paths:
         timeoutInMillis: 29000
         type: http_proxy
     options:
-      operationId: Options for /v1/notifications/informal API CORS
+      operationId: Options for /v1/requests API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/informal
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/requests
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters: {}
@@ -445,7 +445,7 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
-  /v1/notifications/informal/sent/{iun}/attachments/documents/{docIdx}:
+  /v1/notifications/sent/{iun}/attachments/documents/{docIdx}:
     get:
       description: Download documento notificato
       summary: Download documento notificato
@@ -505,7 +505,7 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/informal/sent/{iun}/attachments/documents/{docIdx}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/sent/{iun}/attachments/documents/{docIdx}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -525,12 +525,11 @@ paths:
         type: http_proxy
     options:
       operationId: >-
-        Options for
-        /v1/notifications/informal/sent/{iun}/attachments/documents/{docIdx} API
-        CORS
+        Options for /v1/notifications/sent/{iun}/attachments/documents/{docIdx}
+        API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/informal/sent/{iun}/attachments/documents/{docIdx}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/sent/{iun}/attachments/documents/{docIdx}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -540,7 +539,7 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
-  /v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}:
+  /v1/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}:
     get:
       description: Download allegato per pagamento
       summary: Download allegato per pagamento
@@ -602,7 +601,7 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -624,11 +623,11 @@ paths:
     options:
       operationId: >-
         Options for
-        /v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}
+        /v1/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}
         API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -639,7 +638,7 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
-  /v1/notifications/informal/{iun}/terminate:
+  /v1/notifications/sent/{iun}/terminate:
     post:
       tags:
         - InformalNotificationTermination
@@ -699,7 +698,7 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/informal/{iun}/terminate
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/sent/{iun}/terminate
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -717,10 +716,10 @@ paths:
         timeoutInMillis: 29000
         type: http_proxy
     options:
-      operationId: Options for /v1/notifications/informal/{iun}/terminate API CORS
+      operationId: Options for /v1/notifications/sent/{iun}/terminate API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/informal/{iun}/terminate
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/sent/{iun}/terminate
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -729,7 +728,7 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
-  /v1/notifications/informal/sent/{iun}:
+  /v1/notifications/sent/{iun}:
     get:
       summary: 'Mittente: lettura dettagli notifica versione 1'
       description: >-
@@ -771,7 +770,7 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/informal/sent/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/sent/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -789,10 +788,10 @@ paths:
         timeoutInMillis: 29000
         type: http_proxy
     options:
-      operationId: Options for /v1/notifications/informal/sent/{iun} API CORS
+      operationId: Options for /v1/notifications/sent/{iun} API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/informal/sent/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1/notifications/sent/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:

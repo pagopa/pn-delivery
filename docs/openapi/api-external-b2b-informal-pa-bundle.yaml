@@ -69,7 +69,7 @@ paths:
                   - functionality: NOTIFICATION_CREATE
                     status: KO
                     startDate: '2019-08-24T14:15:22Z'
-  /delivery/v1/attachments/informal/preload:
+  /delivery/v1/attachments/preload:
     post:
       summary: Richiesta di pre-caricamento dei documenti della notifica bonaria
       description: Operazione che richiede a Piattaforma Notifica le informazioni e le autorizzazioni necessarie  a precaricare uno o più file da allegare a una notifica bonaria. <br/>
@@ -219,7 +219,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery/v1/notifications/informal:
+  /delivery/v1/requests:
     post:
       summary: Richiesta sottomissione di una nuova comunicazione bonaria
       description: |-
@@ -325,7 +325,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery/v1/notifications/informal/sent/{iun}/attachments/documents/{docIdx}:
+  /delivery/v1/notifications/sent/{iun}/attachments/documents/{docIdx}:
     get:
       description: Download documento notificato
       summary: Download documento notificato
@@ -378,7 +378,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery/v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}:
+  /delivery/v1/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}:
     get:
       description: Download allegato per pagamento
       summary: Download allegato per pagamento
@@ -433,7 +433,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery/v1/notifications/informal/{iun}/terminate:
+  /delivery/v1/notifications/sent/{iun}/terminate:
     post:
       tags:
         - InformalNotificationTermination
@@ -485,7 +485,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery/v1/notifications/informal/sent/{iun}:
+  /delivery/v1/notifications/sent/{iun}:
     get:
       summary: 'Mittente: lettura dettagli notifica versione 1'
       description: Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
