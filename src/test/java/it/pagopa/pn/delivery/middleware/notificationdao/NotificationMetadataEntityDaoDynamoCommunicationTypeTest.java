@@ -104,6 +104,26 @@ class NotificationMetadataEntityDaoDynamoCommunicationTypeTest {
     }
 
     @Test
+    void searchForOneMonthReceiverWithSenderFilterAppliesSenderFilterWithCommunicationTypeAll() {
+        Page<NotificationMetadataEntity> page = Page.create(Collections.emptyList());
+        when(index.query(any(QueryEnhancedRequest.class))).thenReturn(() -> List.of(page).iterator());
+
+        InputSearchNotificationDto searchDto = baseReceiverSearch()
+                .filterId(SENDER_ID)
+                .communicationType(NotificationSearchCommunicationType.ALL)
+                .build();
+
+        dao.searchForOneMonth(searchDto, INDEX_NAME, PARTITION, 10, null);
+
+        ArgumentCaptor<QueryEnhancedRequest> captor = ArgumentCaptor.forClass(QueryEnhancedRequest.class);
+        verify(index).query(captor.capture());
+        Expression filter = captor.getValue().filterExpression();
+
+        assertEquals(NotificationMetadataEntity.FIELD_SENDER_ID + " = :senderId", filter.expression());
+        assertEquals(SENDER_ID, filter.expressionValues().get(":senderId").s());
+    }
+
+    @Test
     void searchForOneMonthNullDoesNotApplyCommunicationTypeFilter() {
         Expression filter = captureFilterExpression(null);
 
@@ -173,6 +193,37 @@ class NotificationMetadataEntityDaoDynamoCommunicationTypeTest {
     void searchByIunNullFilterKeepsAnyEntity() {
         mockGetItem(communicationTypeEntity("INFORMAL"));
         assertResult(null, true);
+    }
+
+    @Test
+    void searchByIunReceiverKeepsRequestedSender() {
+        mockGetItem(senderCommunicationTypeEntity("LEGAL"));
+
+        InputSearchNotificationDto searchDto = baseReceiverSearch()
+                .filterId(SENDER_ID)
+                .communicationType(NotificationSearchCommunicationType.ALL)
+                .build();
+
+        PageSearchTrunk<NotificationMetadataEntity> result =
+                dao.searchByIun(searchDto, PARTITION, SENT_AT.toString());
+
+        assertNotNull(result.getResults());
+        assertEquals(1, result.getResults().size());
+    }
+
+    @Test
+    void searchByIunReceiverDiscardsDifferentSender() {
+        mockGetItem(senderCommunicationTypeEntity("LEGAL", "PA-other-sender"));
+
+        InputSearchNotificationDto searchDto = baseReceiverSearch()
+                .filterId(SENDER_ID)
+                .communicationType(NotificationSearchCommunicationType.ALL)
+                .build();
+
+        PageSearchTrunk<NotificationMetadataEntity> result =
+                dao.searchByIun(searchDto, PARTITION, SENT_AT.toString());
+
+        assertTrue(result.getResults() == null || result.getResults().isEmpty());
     }
 
     private void assertResult(NotificationSearchCommunicationType communicationType, boolean expectedKept) {
@@ -309,11 +360,15 @@ class NotificationMetadataEntityDaoDynamoCommunicationTypeTest {
     }
 
     private NotificationMetadataEntity senderCommunicationTypeEntity(String communicationType) {
+        return senderCommunicationTypeEntity(communicationType, SENDER_ID);
+    }
+
+    private NotificationMetadataEntity senderCommunicationTypeEntity(String communicationType, String senderId) {
         return NotificationMetadataEntity.builder()
                 .iunRecipientId("TGWR-ZJQN-JMAR-202209-A-1##" + RECIPIENT_ID)
                 .recipientId(RECIPIENT_ID)
                 .recipientIds(List.of(RECIPIENT_ID))
-                .senderId(SENDER_ID)
+                .senderId(senderId)
                 .notificationGroup("")
                 .notificationStatus("DELIVERING")
                 .sentAt(SENT_AT)
