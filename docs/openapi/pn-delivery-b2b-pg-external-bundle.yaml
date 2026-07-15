@@ -723,10 +723,10 @@ components:
         - UNREACHABLE
         - CANCELLED
         - RETURNED_TO_SENDER
-        - READY_TO_SEND
         - PROCESSING
-        - SUCCESSFUL_SENDING
-        - UNSUCCESSFUL_SENDING
+        - COMPLETED_REACHED
+        - COMPLETED_UNREACHED
+        - UNDELIVERABLE
     CommunicationOutcomes:
       type: object
       description: >-

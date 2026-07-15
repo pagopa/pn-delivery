@@ -4,7 +4,7 @@ import it.pagopa.pn.commons.exceptions.PnRuntimeException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderInformalReadWebApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationSearchResponse;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatus;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatusV1;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.NotificationSearchCommunicationType;
 import it.pagopa.pn.delivery.models.NotificationSearchRow;
@@ -47,7 +47,7 @@ public class PnInformalSentNotificationsController implements SenderInformalRead
                                                                                              List<String> xPagopaPnCxGroups,
                                                                                              String recipientId,
                                                                                              String iunMatch,
-                                                                                             InformalNotificationStatus status,
+                                                                                             InformalNotificationStatusV1 status,
                                                                                              String group,
                                                                                              Boolean viewed,
                                                                                              Boolean delivered,

@@ -116,7 +116,7 @@ components:
       required: false
       description: stato della notifica bonaria
       schema:
-        $ref: './schemas-pn-notification.yaml#/components/schemas/InformalNotificationStatus'
+        $ref: './remote-refs.yaml#/components/schemas/InformalNotificationStatusV1'
     notificationSearchStatuses:
       name: status
       in: query

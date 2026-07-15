@@ -6,7 +6,7 @@ import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.LocalStackTestConfig;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.BaseRecipientDto;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatus;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatusV1;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
@@ -456,7 +456,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
         NotificationMetadataEntity matching = buildOneSearchMetadataEntry(
                 internalNotification1, NotificationStatusV26.ACCEPTED, recipientId, List.of(recipientId), creationMonth, sentAt.atOffset(ZoneOffset.UTC)
         );
-        matching.setNotificationStatus( InformalNotificationStatus.PROCESSING.getValue() );
+        matching.setNotificationStatus( InformalNotificationStatusV1.PROCESSING.getValue() );
         matching.setCommunicationType( NotificationSearchCommunicationType.INFORMAL.name() );
         matching.setCampaignId( campaignId );
         matching.setCampaignIdCreationMonth( createConcatenation( campaignId, creationMonth ) );
@@ -473,7 +473,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
         NotificationMetadataEntity discardedByEsito = buildOneSearchMetadataEntry(
                 internalNotification2, NotificationStatusV26.ACCEPTED, recipientId, List.of(recipientId), creationMonth, internalNotification2.getSentAt()
         );
-        discardedByEsito.setNotificationStatus( InformalNotificationStatus.PROCESSING.getValue() );
+        discardedByEsito.setNotificationStatus( InformalNotificationStatusV1.PROCESSING.getValue() );
         discardedByEsito.setCommunicationType( NotificationSearchCommunicationType.INFORMAL.name() );
         discardedByEsito.setCampaignId( campaignId );
         discardedByEsito.setCampaignIdCreationMonth( createConcatenation( campaignId, creationMonth ) );
@@ -491,7 +491,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( "paid1" )
                 .communicationType( NotificationSearchCommunicationType.INFORMAL )
-                .informalStatuses( List.of( InformalNotificationStatus.PROCESSING ) )
+                .informalStatuses( List.of( InformalNotificationStatusV1.PROCESSING ) )
                 .viewed( true )
                 .size( 10 )
                 .build();
@@ -528,7 +528,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
         NotificationMetadataEntity entity = buildOneSearchMetadataEntry(
                 internalNotification, NotificationStatusV26.ACCEPTED, recipientId, List.of(recipientId), "202205", sentAt.atOffset(ZoneOffset.UTC)
         );
-        entity.setNotificationStatus( InformalNotificationStatus.PROCESSING.getValue() );
+        entity.setNotificationStatus( InformalNotificationStatusV1.PROCESSING.getValue() );
         entity.setCommunicationType( NotificationSearchCommunicationType.INFORMAL.name() );
         entity.setCampaignId( "CAMPAIGN-OTHER" );
         entity.setViewed( true );

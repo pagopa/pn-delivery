@@ -145,16 +145,6 @@ components:
 #      maxLength: 88                     # ONLY EXTERNAL
       pattern: ^.*$
 
-    InformalNotificationStatus:
-      type: string
-      description: Stato della notifica bonaria
-      enum:
-        - READY_TO_SEND
-        - REFUSED
-        - PROCESSING
-        - SUCCESSFUL_SENDING
-        - UNSUCCESSFUL_SENDING
-
     TaxId:
       description: C.F. persona fisica o persona giuridica
       type: string
@@ -983,7 +973,7 @@ components:
         InformalNotificationStatus (notifiche bonarie). Va mantenuto allineato a tali enum.
       type: string
       enum:
-        # Valori delle notifiche legali (NotificationStatusV26)
+        # Valori delle notifiche legali
         - IN_VALIDATION
         - ACCEPTED
         - REFUSED
@@ -995,11 +985,11 @@ components:
         - UNREACHABLE
         - CANCELLED
         - RETURNED_TO_SENDER
-        # Valori delle notifiche bonarie (InformalNotificationStatus) — REFUSED già presente sopra
-        - READY_TO_SEND
+        # Valori delle notifiche bonarie — REFUSED e IN_VALIDATION già presenti sopra
         - PROCESSING
-        - SUCCESSFUL_SENDING
-        - UNSUCCESSFUL_SENDING
+        - COMPLETED_REACHED
+        - COMPLETED_UNREACHED
+        - UNDELIVERABLE
 
     FullNotificationSearchRow:
       description: >-
@@ -1048,7 +1038,7 @@ components:
               description: >-
                 Identificativo della campagna a cui appartiene la comunicazione bonaria.
             notificationStatus:
-              $ref: '#/components/schemas/InformalNotificationStatus'
+              $ref: './remote-refs.yaml#/components/schemas/InformalNotificationStatusV1'
             communicationOutcomes:
               $ref: '#/components/schemas/CommunicationOutcomes'
 

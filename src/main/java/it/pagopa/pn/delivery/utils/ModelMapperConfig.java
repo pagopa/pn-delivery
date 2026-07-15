@@ -98,7 +98,7 @@ public class ModelMapperConfig {
      *     <li>{@code communicationOutcomes}: assemblato dai campi flat {@code viewed}/{@code delivered}
      *     e valorizzato solo quando almeno uno dei due è presente;</li>
      *     <li>{@code notificationStatus}: lasciato alla mappatura implicita STRICT che converte per nome
-     *     da {@code UnifiedNotificationStatus} a {@code InformalNotificationStatus} (la compatibilità
+     *     da {@code UnifiedNotificationStatus} a {@code InformalNotificationStatusV1} (la compatibilità
      *     è garantita a monte dal fail-fast di {@code InformalNotificationStatusValidator});</li>
      *     <li>{@code desiredFeedback}: volutamente NON mappato in output (resta solo su DB).</li>
      * </ul>

@@ -4,7 +4,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatus;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatusV1;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
@@ -267,7 +267,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
      * nel flusso campagna. Lo stato &egrave; confrontato per valore stringa con
      * {@code entity.notificationStatus}. Se nessuno stato bonario &egrave; richiesto, nessun filtro.
      */
-    private boolean matchesInformalStatusFilter(List<InformalNotificationStatus> informalStatuses,
+    private boolean matchesInformalStatusFilter(List<InformalNotificationStatusV1> informalStatuses,
                                                 NotificationMetadataEntity entity) {
         if (CollectionUtils.isEmpty(informalStatuses)) {
             return true;
@@ -303,7 +303,6 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         addInformalStatusFilterExpression( inputSearchNotificationDto.getInformalStatuses(), filterExpressionBuilder, expressionBuilder);
         addGroupFilterExpression( inputSearchNotificationDto.getGroups(), filterExpressionBuilder, expressionBuilder);
         addPaIdsFilterExpression( inputSearchNotificationDto.getMandateAllowedPaIds(), filterExpressionBuilder, expressionBuilder);
-        addSenderFilterExpression( inputSearchNotificationDto, filterExpressionBuilder, expressionBuilder);
         addCommunicationTypeFilterExpression( inputSearchNotificationDto.getCommunicationType(), filterExpressionBuilder, expressionBuilder);
         addEsitoFilterExpression( inputSearchNotificationDto, filterExpressionBuilder, expressionBuilder);
 
@@ -342,7 +341,6 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
                 expressionBuilder.append( " ( " );
             }
 
-
             for (int i = 0;i<statuses.size();i++) {
                 NotificationStatusV26 notificationStatus = statuses.get(i);
                 expressionBuilder.append("notificationStatus = :notificationStatusValue");
@@ -359,24 +357,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         }
     }
 
-    private void addSenderFilterExpression(InputSearchNotificationDto inputSearchNotificationDto,
-                                           Expression.Builder filterExpressionBuilder,
-                                           StringBuilder expressionBuilder) {
-        if (inputSearchNotificationDto.isBySender()
-                || inputSearchNotificationDto.isByCampaign()
-                || !StringUtils.hasText(inputSearchNotificationDto.getFilterId())) {
-            return;
-        }
-
-        if (expressionBuilder.length() > 0) {
-            expressionBuilder.append(" AND ");
-        }
-        expressionBuilder.append(NotificationMetadataEntity.FIELD_SENDER_ID).append(" = :senderId");
-        filterExpressionBuilder.putExpressionValue(":senderId",
-                AttributeValue.builder().s(inputSearchNotificationDto.getFilterId()).build());
-    }
-
-    private void addInformalStatusFilterExpression(List<InformalNotificationStatus> informalStatuses,
+    private void addInformalStatusFilterExpression(List<InformalNotificationStatusV1> informalStatuses,
                                                    Expression.Builder filterExpressionBuilder,
                                                    StringBuilder expressionBuilder) {
         if (!CollectionUtils.isEmpty(informalStatuses)) {
@@ -387,7 +368,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             }
 
             for (int i = 0; i < informalStatuses.size(); i++) {
-                InformalNotificationStatus informalStatus = informalStatuses.get(i);
+                InformalNotificationStatusV1 informalStatus = informalStatuses.get(i);
                 expressionBuilder.append(NotificationMetadataEntity.FIELD_NOTIFICATION_STATUS + " = :informalStatusValue");
                 expressionBuilder.append(i).append(" ");
                 if (i < informalStatuses.size() - 1)

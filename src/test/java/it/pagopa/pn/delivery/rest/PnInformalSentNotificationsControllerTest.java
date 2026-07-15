@@ -3,7 +3,7 @@ package it.pagopa.pn.delivery.rest;
 import it.pagopa.pn.delivery.exception.PnForbiddenException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationSearchResponse;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatus;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatusV1;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.NotificationSearchCommunicationType;
 import it.pagopa.pn.delivery.models.NotificationSearchRow;
@@ -58,7 +58,7 @@ class PnInformalSentNotificationsControllerTest {
 
         ResponseEntity<InformalNotificationSearchResponse> response = controller.searchInformalSentNotification(
                 UID, CxTypeAuthFleet.PA, CX_ID, CAMPAIGN_ID, START, END, List.of("G1"),
-                RECIPIENT_ID, null, InformalNotificationStatus.PROCESSING, null, true, false, 10, null);
+                RECIPIENT_ID, null, InformalNotificationStatusV1.PROCESSING, null, true, false, 10, null);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertSame(mapped, response.getBody());
@@ -74,7 +74,7 @@ class PnInformalSentNotificationsControllerTest {
         assertEquals(CX_ID, dto.getSenderReceiverId());
         assertEquals(RECIPIENT_ID, dto.getFilterId());
         assertEquals(NotificationSearchCommunicationType.INFORMAL, dto.getCommunicationType());
-        assertEquals(List.of(InformalNotificationStatus.PROCESSING), dto.getInformalStatuses());
+        assertEquals(List.of(InformalNotificationStatusV1.PROCESSING), dto.getInformalStatuses());
         assertEquals(Boolean.TRUE, dto.getViewed());
         assertEquals(Boolean.FALSE, dto.getDelivered());
         assertFalse(dto.isReceiverIdIsOpaque());

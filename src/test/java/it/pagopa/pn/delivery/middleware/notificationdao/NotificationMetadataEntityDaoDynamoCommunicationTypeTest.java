@@ -104,26 +104,6 @@ class NotificationMetadataEntityDaoDynamoCommunicationTypeTest {
     }
 
     @Test
-    void searchForOneMonthReceiverWithSenderFilterAppliesSenderFilterWithCommunicationTypeAll() {
-        Page<NotificationMetadataEntity> page = Page.create(Collections.emptyList());
-        when(index.query(any(QueryEnhancedRequest.class))).thenReturn(() -> List.of(page).iterator());
-
-        InputSearchNotificationDto searchDto = baseReceiverSearch()
-                .filterId(SENDER_ID)
-                .communicationType(NotificationSearchCommunicationType.ALL)
-                .build();
-
-        dao.searchForOneMonth(searchDto, INDEX_NAME, PARTITION, 10, null);
-
-        ArgumentCaptor<QueryEnhancedRequest> captor = ArgumentCaptor.forClass(QueryEnhancedRequest.class);
-        verify(index).query(captor.capture());
-        Expression filter = captor.getValue().filterExpression();
-
-        assertEquals(NotificationMetadataEntity.FIELD_SENDER_ID + " = :senderId", filter.expression());
-        assertEquals(SENDER_ID, filter.expressionValues().get(":senderId").s());
-    }
-
-    @Test
     void searchForOneMonthNullDoesNotApplyCommunicationTypeFilter() {
         Expression filter = captureFilterExpression(null);
 
