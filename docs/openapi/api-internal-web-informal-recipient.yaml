@@ -202,7 +202,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SenderContacts'
+                $ref: '#/components/schemas/SenderContactInfo'
         '400':
           description: Bad request
           content:
@@ -320,17 +320,20 @@ components:
     ###########################################################################################
     ###                              DTO DATI CONTATTO ENTE MITTENTE                        ###
     ###########################################################################################
-    SenderContacts:
+    SenderContactInfo:
       description: >-
         Le informazioni riguardanti i contatti dell'ente mittente della notifica bonaria.
       type: object
       required:
         - senderId
-        - senderName
-        - senderEmail
-        - senderPhone
-        - senderSite
+        - pec
+        - email
+        - phone
+        - site
       properties:
+        senderId:
+            type: string
+            description: Identificativo del mittente della notifica bonaria
         email:
           type: string
           description: Email del mittente della notifica bonaria
