@@ -43,6 +43,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.*;
 
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_PA_NOT_FOUND;
 import static it.pagopa.pn.delivery.svc.NotificationReceiverService.PA_FEE_DEFAULT_VALUE;
 import static it.pagopa.pn.delivery.svc.NotificationReceiverService.VAT_DEFAULT_VALUE;
 import static org.junit.jupiter.api.Assertions.*;
@@ -93,6 +94,7 @@ class NotificationReceiverTest {
     private PaNotificationLimitService paNotificationLimitService;
 	private PhysicalAddressLookupParameterConsumer physicalAddressLookupParameter;
 	private ValidationPipeline<InformalNotificationContext> informalNotificationValidationPipeline;
+	private CampaignService campaignService;
 
 
 	private FeatureFlagUtils featureFlagUtils;
@@ -116,6 +118,7 @@ class NotificationReceiverTest {
 		physicalAddressLookupParameter = Mockito.mock(PhysicalAddressLookupParameterConsumer.class);
 		featureFlagUtils = Mockito.mock(FeatureFlagUtils.class);
 		informalNotificationValidationPipeline = Mockito.mock(ValidationPipeline.class);
+		campaignService = Mockito.mock(CampaignService.class);
 		// - Separate Tests
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
 		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator(), mvpParameterConsumer, validateUtils, pnDeliveryConfigs, agenziaEntrateApi, physicalAddressLookupParameter, pnExternalRegistriesClient, featureFlagUtils);
@@ -133,7 +136,8 @@ class NotificationReceiverTest {
 				pnF24Client,
 				cfg,
 				paNotificationLimitService,
-				informalNotificationValidationPipeline
+				informalNotificationValidationPipeline,
+				campaignService
 		);
 	}
 
@@ -860,10 +864,14 @@ class NotificationReceiverTest {
 		request.setCampaignId("campaignId");
 		request.setRecipients(List.of(new InformalNotificationRecipientV1().messageId(UUID.randomUUID())));
 
+		CampaignDetail detail = new CampaignDetail();
+		detail.setTaxonomyCode("taxonomyCode");
+
 
 		PaInfo paInfo = new PaInfo();
 		paInfo.setTaxId("01199250158");
 		when(pnExternalRegistriesClient.getOnePa(PAID)).thenReturn(paInfo);
+		when(campaignService.getCampaign("campaignId", PAID)).thenReturn(detail);
 
 		// When
 		NewInformalNotificationResponse response = deliveryService.receiveInformalNotification(
@@ -888,9 +896,14 @@ class NotificationReceiverTest {
 		request.setPaProtocolNumber("paProtocolNumber");
 		request.setCampaignId("campaignId");
 		request.setRecipients(List.of(new InformalNotificationRecipientV1().messageId(UUID.randomUUID())));
+
+		CampaignDetail detail = new CampaignDetail();
+		detail.setTaxonomyCode("taxonomyCode");
+
 		PaInfo paInfo = new PaInfo();
 		paInfo.setTaxId("01199250158");
 		when(pnExternalRegistriesClient.getOnePa(PAID)).thenReturn(paInfo);
+		when(campaignService.getCampaign("campaignId", PAID)).thenReturn(detail);
 
 		// When
 		deliveryService.receiveInformalNotification(
@@ -922,9 +935,13 @@ class NotificationReceiverTest {
 		recipient.setMessageId(messageId);
 		request.setRecipients(List.of(recipient));
 
+		CampaignDetail detail = new CampaignDetail();
+		detail.setTaxonomyCode("taxonomyCode");
+
 		PaInfo paInfo = new PaInfo();
 		paInfo.setTaxId("01199250158");
 		when(pnExternalRegistriesClient.getOnePa(PAID)).thenReturn(paInfo);
+		when(campaignService.getCampaign("campaignId", PAID)).thenReturn(detail);
 
 		// When
 		NewInformalNotificationResponse response = deliveryService.receiveInformalNotification(
@@ -1007,6 +1024,67 @@ class NotificationReceiverTest {
 		));
 
 		verify(notificationDao, Mockito.never()).addNotification(Mockito.any(InternalNotification.class));
+	}
+
+	@Test
+	void receiveInformalNotification_verifyTaxonomyCodeIsSet() {
+	    // Given
+	    InformalNotificationRequestV1 request = new InformalNotificationRequestV1();
+	    request.setPaProtocolNumber("paProtocolNumber");
+	    request.setCampaignId("campaignId");
+	    request.setRecipients(List.of(new InformalNotificationRecipientV1().messageId(UUID.randomUUID())));
+
+	    CampaignDetail detail = new CampaignDetail();
+	    detail.setTaxonomyCode("010101P");
+
+	    PaInfo paInfo = new PaInfo();
+	    paInfo.setTaxId("01199250158");
+	    when(pnExternalRegistriesClient.getOnePa(PAID)).thenReturn(paInfo);
+	    when(campaignService.getCampaign("campaignId", PAID)).thenReturn(detail);
+
+	    // When
+	    deliveryService.receiveInformalNotification(
+	        PAID,
+	        request,
+	        X_PAGOPA_PN_SRC_CH,
+	        null,
+	        X_PAGOPA_PN_CX_GROUPS_EMPTY,
+	        null
+	    );
+
+	    // Then
+	    ArgumentCaptor<InternalNotification> captor = ArgumentCaptor.forClass(InternalNotification.class);
+	    verify(notificationDao).addNotification(captor.capture());
+	    assertEquals("010101P", captor.getValue().getTaxonomyCode());
+	    verify(campaignService).getCampaign("campaignId", PAID);
+	}
+
+	@Test
+	void receiveInformalNotification_throwsExceptionWhenCampaignNotFound() {
+	    // Given
+	    InformalNotificationRequestV1 request = new InformalNotificationRequestV1();
+	    request.setPaProtocolNumber("paProtocolNumber");
+	    request.setCampaignId("notExistingCampaignId");
+	    request.setRecipients(List.of(new InformalNotificationRecipientV1().messageId(UUID.randomUUID())));
+
+	    PaInfo paInfo = new PaInfo();
+	    paInfo.setTaxId("01199250158");
+	    when(pnExternalRegistriesClient.getOnePa(PAID)).thenReturn(paInfo);
+	    when(campaignService.getCampaign("notExistingCampaignId", PAID))
+	            .thenThrow(new PnInternalException("Campaign not found", 404, ERROR_CODE_DELIVERY_PA_NOT_FOUND));
+
+	    // When & Then
+	    assertThrows(PnInternalException.class, () -> deliveryService.receiveInformalNotification(
+	            PAID,
+	            request,
+	            X_PAGOPA_PN_SRC_CH,
+	            null,
+	            X_PAGOPA_PN_CX_GROUPS_EMPTY,
+	            null
+	    ));
+
+	    verify(notificationDao, never()).addNotification(any(InternalNotification.class));
+	    verify(campaignService).getCampaign("notExistingCampaignId", PAID);
 	}
 
 	private NewNotificationRequestV26 newNotificationRequest() {

@@ -219,6 +219,8 @@ components:
         - sensitiveContent
         - stopOnViewed
         - workflow
+        - taxonomyCode
+        - serviceName
       properties:
         campaignId:
           type: string
@@ -256,11 +258,16 @@ components:
         stopOnViewed:
           type: boolean
           description: Se true, il workflow si interrompe al primo evento di visualizzazione.
+        taxonomyCode:
+          $ref: './schemas-pn-notification.yaml#/components/schemas/taxonomyCode'
         workflow:
           type: array
           description: Configurazione del workflow di invio previsto per la campagna.
           items:
             $ref: '#/components/schemas/WorkflowEntity'
+        serviceName:
+          type: string
+          description: Nome del servizio applicativo associato.
 
     WorkflowEntity:
       type: object
