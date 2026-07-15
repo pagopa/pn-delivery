@@ -303,7 +303,6 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         addInformalStatusFilterExpression( inputSearchNotificationDto.getInformalStatuses(), filterExpressionBuilder, expressionBuilder);
         addGroupFilterExpression( inputSearchNotificationDto.getGroups(), filterExpressionBuilder, expressionBuilder);
         addPaIdsFilterExpression( inputSearchNotificationDto.getMandateAllowedPaIds(), filterExpressionBuilder, expressionBuilder);
-        addSenderFilterExpression( inputSearchNotificationDto, filterExpressionBuilder, expressionBuilder);
         addCommunicationTypeFilterExpression( inputSearchNotificationDto.getCommunicationType(), filterExpressionBuilder, expressionBuilder);
         addEsitoFilterExpression( inputSearchNotificationDto, filterExpressionBuilder, expressionBuilder);
 
@@ -342,7 +341,6 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
                 expressionBuilder.append( " ( " );
             }
 
-
             for (int i = 0;i<statuses.size();i++) {
                 NotificationStatusV26 notificationStatus = statuses.get(i);
                 expressionBuilder.append("notificationStatus = :notificationStatusValue");
@@ -357,23 +355,6 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             }
             expressionBuilder.append( " ) ");
         }
-    }
-
-    private void addSenderFilterExpression(InputSearchNotificationDto inputSearchNotificationDto,
-                                           Expression.Builder filterExpressionBuilder,
-                                           StringBuilder expressionBuilder) {
-        if (inputSearchNotificationDto.isBySender()
-                || inputSearchNotificationDto.isByCampaign()
-                || !StringUtils.hasText(inputSearchNotificationDto.getFilterId())) {
-            return;
-        }
-
-        if (expressionBuilder.length() > 0) {
-            expressionBuilder.append(" AND ");
-        }
-        expressionBuilder.append(NotificationMetadataEntity.FIELD_SENDER_ID).append(" = :senderId");
-        filterExpressionBuilder.putExpressionValue(":senderId",
-                AttributeValue.builder().s(inputSearchNotificationDto.getFilterId()).build());
     }
 
     private void addInformalStatusFilterExpression(List<InformalNotificationStatus> informalStatuses,
