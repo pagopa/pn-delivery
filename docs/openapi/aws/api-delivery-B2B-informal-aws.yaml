@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 7wz5S8PUMetd5cZVbzBRuejFDWJ2B2M0MpwFlPfq8/g=
+  version: 7tBPHAzY/6OmmQxSLvxkfOuR7xDPu1xRdvx+Ts7C260=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2632,11 +2632,13 @@ components:
           $ref: '#/components/schemas/RecIndex'
         sourceElementId:
           type: string
+          description: >-
+            Id del primo elemento che ha determinato il raggiungimento del
+            destinatario
     WorkflowEndedUnreachedDetails:
       type: object
       required:
         - recIndex
-        - sourceElementId
       properties:
         recIndex:
           $ref: '#/components/schemas/RecIndex'
