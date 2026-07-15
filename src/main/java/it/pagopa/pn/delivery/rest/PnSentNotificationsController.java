@@ -90,7 +90,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
             throw new PnNotificationNotFoundException( "Unable to find notification with iun="+ internalNotification.getIun() );
         }
         InternalFieldsCleaner.cleanInternalFields( internalNotification );
-        FullSentNotificationV29 result = modelMapper.map( internalNotification, FullSentNotificationV29.class );
+        FullSentNotificationV29 result = modelMapper.map( legalNotificationDetail, FullSentNotificationV29.class );
         logEvent.generateSuccess().log();
         return ResponseEntity.ok( result );
     }
