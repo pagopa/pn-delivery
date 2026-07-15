@@ -149,11 +149,11 @@ components:
       type: string
       description: Stato della notifica bonaria
       enum:
-        - READY_TO_SEND
-        - REFUSED
         - PROCESSING
-        - SUCCESSFUL_SENDING
-        - UNSUCCESSFUL_SENDING
+        - REFUSED
+        - COMPLETED_REACHED
+        - COMPLETED_UNREACHED
+        - UNDELIVERABLE
 
     TaxId:
       description: C.F. persona fisica o persona giuridica
@@ -996,10 +996,10 @@ components:
         - CANCELLED
         - RETURNED_TO_SENDER
         # Valori delle notifiche bonarie (InformalNotificationStatus) — REFUSED già presente sopra
-        - READY_TO_SEND
         - PROCESSING
-        - SUCCESSFUL_SENDING
-        - UNSUCCESSFUL_SENDING
+        - COMPLETED_REACHED
+        - COMPLETED_UNREACHED
+        - UNDELIVERABLE
 
     FullNotificationSearchRow:
       description: >-
