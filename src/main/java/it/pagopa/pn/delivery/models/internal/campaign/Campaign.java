@@ -26,5 +26,6 @@ public class Campaign {
     private Boolean stopOnViewed;
     private List<WorkFlowEntity> workflow;
     private String taxonomyCode;
+    private String serviceName;
 }
 

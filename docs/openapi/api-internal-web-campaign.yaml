@@ -220,6 +220,7 @@ components:
         - stopOnViewed
         - workflow
         - taxonomyCode
+        - serviceName
       properties:
         campaignId:
           type: string
@@ -264,6 +265,9 @@ components:
           description: Configurazione del workflow di invio previsto per la campagna.
           items:
             $ref: '#/components/schemas/WorkflowEntity'
+        serviceName:
+          type: string
+          description: Nome del servizio applicativo associato.
 
     WorkflowEntity:
       type: object
