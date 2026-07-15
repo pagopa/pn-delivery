@@ -72,6 +72,6 @@
     "NotificationCostServiceMaxRetryAttempts": "0",
     "MetricFormatType": "EMF",
     "LatestInformalNotificationVersion": "1.0",
-    "EnableInformalB2BApiGateway": "false"
+    "EnableInformalB2BApiGateway": "true"
   }
 }
