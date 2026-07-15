@@ -331,6 +331,9 @@ components:
         - phone
         - site
       properties:
+        senderId:
+            type: string
+            description: Identificativo del mittente della notifica bonaria
         email:
           type: string
           description: Email del mittente della notifica bonaria
