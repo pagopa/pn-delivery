@@ -2140,7 +2140,7 @@ class PnSentReceivedNotificationControllerTest {
 
         // Then
         webTestClient.get()
-                .uri("/delivery/v1/notifications/informal/sent/" + INFORMAL_IUN)
+                .uri("/delivery/v1/notifications/sent/" + INFORMAL_IUN)
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
