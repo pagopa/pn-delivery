@@ -102,7 +102,6 @@ paths:
         - $ref: '#/components/parameters/notificationSearchEndDate'
         - $ref: '#/components/parameters/notificationSearchMandateId'
         - $ref: '#/components/parameters/notificationSearchSenderId'
-        - $ref: '#/components/parameters/notificationSearchSubject'
         - $ref: '#/components/parameters/notificationSearchUnifiedIun'
         - $ref: '#/components/parameters/notificationSearchPageSize'
         - $ref: '#/components/parameters/notificationSearchNextPagesKey'
@@ -395,15 +394,6 @@ components:
       in: query
       required: false
       description: identificativo del mittente
-      schema:
-        type: string
-    notificationSearchSubject:
-      name: subjectRegExp
-      description: >-
-        Regular expression usata, se presente, per filtrare i risultati in base
-        al subject  delle notifiche.
-      in: query
-      required: false
       schema:
         type: string
     notificationSearchUnifiedIun:

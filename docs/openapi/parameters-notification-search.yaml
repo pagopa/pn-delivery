@@ -126,15 +126,6 @@ components:
         type: array
         items:
           $ref: './remote-refs.yaml#/components/schemas/NotificationStatusV26'
-    notificationSearchSubject:
-      name: subjectRegExp
-      description: >-
-        Regular expression usata, se presente, per filtrare i risultati in base al subject 
-        delle notifiche.
-      in: query
-      required: false
-      schema:
-        type: string
     notificationSearchIun:
       name: iunMatch
       description: >-

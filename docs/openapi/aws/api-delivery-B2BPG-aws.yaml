@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: EaLoV/WZYT87frG5mYp92hW1e/sj8O/cy9fwl5I1nSs=
+  version: G0Kyu02CM7nIPrmKltkrmajPqyl0XSXHE1GdSqhzaUM=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -27,7 +27,6 @@ paths:
         - $ref: '#/components/parameters/notificationSearchEndDate'
         - $ref: '#/components/parameters/notificationSearchMandateId'
         - $ref: '#/components/parameters/notificationSearchSenderId'
-        - $ref: '#/components/parameters/notificationSearchSubject'
         - $ref: '#/components/parameters/notificationSearchUnifiedIun'
         - $ref: '#/components/parameters/notificationSearchPageSize'
         - $ref: '#/components/parameters/notificationSearchNextPagesKey'
@@ -457,15 +456,6 @@ components:
       in: query
       required: false
       description: identificativo del mittente
-      schema:
-        type: string
-    notificationSearchSubject:
-      name: subjectRegExp
-      description: >-
-        Regular expression usata, se presente, per filtrare i risultati in base
-        al subject  delle notifiche.
-      in: query
-      required: false
       schema:
         type: string
     notificationSearchUnifiedIun:

@@ -45,8 +45,6 @@ public class InputSearchNotificationDto {
     private List<InformalNotificationStatusV1> informalStatuses;
 
     private List<String> groups;
-    
-    private String subjectRegExp;
 
     private String iunMatch;
 

@@ -98,7 +98,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
 
 
     @Override
-    public ResponseEntity<LegalNotificationSearchResponse> searchSentNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, OffsetDateTime startDate, OffsetDateTime endDate, List<String> xPagopaPnCxGroups, String recipientId, NotificationStatusV26 status, String subjectRegExp, String iunMatch, Integer size, String nextPagesKey) {
+    public ResponseEntity<LegalNotificationSearchResponse> searchSentNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, OffsetDateTime startDate, OffsetDateTime endDate, List<String> xPagopaPnCxGroups, String recipientId, NotificationStatusV26 status, String iunMatch, Integer size, String nextPagesKey) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_SEARCH_SND, "searchSentNotification")
@@ -114,7 +114,6 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
                 .statuses(status==null?List.of():List.of(status))
                 .receiverIdIsOpaque(false)
                 .groups( xPagopaPnCxGroups )
-                .subjectRegExp(subjectRegExp)
                 .iunMatch(iunMatch)
                 // la ricerca lato mittente è esclusivamente legale: si forza esplicitamente il filtro così da escludere le comunicazioni bonarie
                 .communicationType(NotificationSearchCommunicationType.LEGAL)
