@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import it.pagopa.pn.commons.exceptions.ExceptionHelper;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.dto.ProblemError;
+import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnForbiddenException;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
@@ -34,6 +35,7 @@ import java.time.OffsetDateTime;
 import java.util.*;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND;
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_INVALID_MANDATE_COMMUNICATION_TYPE;
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_UNSUPPORTED_LAST_EVALUATED_KEY;
 import static it.pagopa.pn.delivery.utils.PgUtils.checkAuthorizationPG;
 
@@ -92,7 +94,7 @@ public class NotificationSearchService {
             // è un flusso lato mittente sugli indici di campagna.
             searchDto.setCommunicationType( NotificationSearchCommunicationType.INFORMAL );
         } else {
-            // default applicativo SRS: in assenza di tipologia di comunicazione si filtra sulle sole notifiche legali
+            // default applicativo SRS: in assenza di tipologia di comunicazione si filtra sulle sole notifiche legali per gestire client non aggiornati
             if ( searchDto.getCommunicationType() == null ) {
                 searchDto.setCommunicationType( NotificationSearchCommunicationType.LEGAL );
             }
@@ -101,9 +103,17 @@ public class NotificationSearchService {
                 log.debug( "Search from receiver" );
                 String mandateId = searchDto.getMandateId();
                 if ( StringUtils.hasText( mandateId )) {
+					if ( NotificationSearchCommunicationType.INFORMAL.equals(searchDto.getCommunicationType()) ) {
+						throw new PnBadRequestException(
+								"Invalid communication type for mandate search",
+								"INFORMAL communication type is not supported when mandateId is provided",
+								ERROR_CODE_DELIVERY_INVALID_MANDATE_COMMUNICATION_TYPE);
+					}
+					if ( NotificationSearchCommunicationType.ALL.equals(searchDto.getCommunicationType()) ) {
+						// se il client non specifica la tipologia di comunicazione, si forza LEGAL per la ricerca con mandateId
+						searchDto.setCommunicationType( NotificationSearchCommunicationType.LEGAL );
+					}
                     checkMandate(searchDto, mandateId, recipientType, cxGroups);
-                    // inibizione delle comunicazioni bonarie ai delegati PF: si forza LEGAL ignorando ALL/INFORMAL richiesti dal client
-                    searchDto.setCommunicationType( NotificationSearchCommunicationType.LEGAL );
                 } else if (checkAuthorizationPG(recipientType, cxGroups)) {
                     log.error("PG {} can not access this resource", searchDto.getSenderReceiverId());
                     throw new PnForbiddenException(ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND);

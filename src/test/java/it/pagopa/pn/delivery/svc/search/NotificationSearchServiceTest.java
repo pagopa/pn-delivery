@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.svc.search;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnForbiddenException;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
@@ -187,37 +188,59 @@ class NotificationSearchServiceTest {
     }
 
     @Test
-    void searchNotificationByReceiverWithValidMandateShouldAdjustDatesAndDelegator() {
+    void searchNotificationByReceiverWithInformalCommunicationAndMandateShouldThrowBadRequest() {
         InputSearchNotificationDto searchDto = baseSearchDto(false).toBuilder()
                 .senderReceiverId(DELEGATE_ID)
                 .mandateId(MANDATE_ID)
                 .filterId(SENDER_ID)
-            .communicationType(NotificationSearchCommunicationType.INFORMAL)
+                .communicationType(NotificationSearchCommunicationType.INFORMAL)
                 .startDate(Instant.parse("2022-05-01T00:00:00Z"))
                 .endDate(Instant.parse("2022-08-01T00:00:00Z"))
                 .build();
 
-        InternalMandateDto mandate = new InternalMandateDto();
-        mandate.setMandateId(MANDATE_ID);
-        mandate.setDelegate(DELEGATE_ID);
-        mandate.setDelegator(DELEGATOR_ID);
-        mandate.setDatefrom("2022-06-01T00:00:00Z");
-        mandate.setDateto("2022-07-01T00:00:00Z");
-        mandate.setVisibilityIds(List.of(SENDER_ID));
+        Assertions.assertThrows(PnBadRequestException.class,
+                () -> service.searchNotification(searchDto, "PF", CX_GROUPS));
 
+        verify(pnMandateClient, never()).listMandatesByDelegate(any(), any(), any(), any());
+    }
+
+        @Test
+        void searchNotificationByReceiverWithAllCommunicationAndMandateShouldSearchLegalNotifications() {
+        InputSearchNotificationDto searchDto = baseSearchDto(false).toBuilder()
+            .senderReceiverId(DELEGATE_ID)
+            .mandateId(MANDATE_ID)
+            .communicationType(NotificationSearchCommunicationType.ALL)
+            .build();
+
+        InternalMandateDto mandate = validMandate();
         when(pnMandateClient.listMandatesByDelegate(DELEGATE_ID, MANDATE_ID, CxTypeAuthFleet.PF, CX_GROUPS))
-                .thenReturn(List.of(mandate));
+            .thenReturn(List.of(mandate));
         when(notificationSearchFactory.getMultiPageSearch(eq(searchDto), isNull())).thenReturn(notificationSearch);
         when(notificationSearch.searchNotificationMetadata()).thenReturn(emptySearchResult());
 
         service.searchNotification(searchDto, "PF", CX_GROUPS);
 
-        Assertions.assertEquals(DELEGATOR_ID, searchDto.getSenderReceiverId());
-        Assertions.assertEquals(Instant.parse("2022-06-01T00:00:00Z"), searchDto.getStartDate());
-        Assertions.assertEquals(Instant.parse("2022-07-01T00:00:00Z"), searchDto.getEndDate());
-        Assertions.assertEquals(List.of(SENDER_ID), searchDto.getMandateAllowedPaIds());
         Assertions.assertEquals(NotificationSearchCommunicationType.LEGAL, searchDto.getCommunicationType());
-    }
+        verify(notificationSearchFactory).getMultiPageSearch(eq(searchDto), isNull());
+        }
+
+        @Test
+        void searchNotificationByReceiverWithLegalCommunicationAndMandateShouldKeepLegalNotifications() {
+        InputSearchNotificationDto searchDto = baseSearchDto(false).toBuilder()
+            .senderReceiverId(DELEGATE_ID)
+            .mandateId(MANDATE_ID)
+            .communicationType(NotificationSearchCommunicationType.LEGAL)
+            .build();
+
+        when(pnMandateClient.listMandatesByDelegate(DELEGATE_ID, MANDATE_ID, CxTypeAuthFleet.PF, CX_GROUPS))
+            .thenReturn(List.of(validMandate()));
+        when(notificationSearchFactory.getMultiPageSearch(eq(searchDto), isNull())).thenReturn(notificationSearch);
+        when(notificationSearch.searchNotificationMetadata()).thenReturn(emptySearchResult());
+
+        service.searchNotification(searchDto, "PF", CX_GROUPS);
+
+        Assertions.assertEquals(NotificationSearchCommunicationType.LEGAL, searchDto.getCommunicationType());
+        }
 
     @Test
     void searchNotificationByReceiverShouldThrowForbiddenForPgWithGroupsAndNoMandate() {
@@ -382,6 +405,16 @@ class NotificationSearchServiceTest {
                 .groups(Collections.emptyList())
                 .bySender(bySender)
                 .build();
+    }
+
+    private InternalMandateDto validMandate() {
+        InternalMandateDto mandate = new InternalMandateDto();
+        mandate.setMandateId(MANDATE_ID);
+        mandate.setDelegate(DELEGATE_ID);
+        mandate.setDelegator(DELEGATOR_ID);
+        mandate.setDatefrom("2022-05-01T00:00:00Z");
+        mandate.setDateto("2022-07-01T00:00:00Z");
+        return mandate;
     }
 
     private InputSearchNotificationDelegatedDto baseDelegatedSearchDto() {
