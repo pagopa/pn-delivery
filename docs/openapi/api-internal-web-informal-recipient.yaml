@@ -326,10 +326,6 @@ components:
       type: object
       required:
         - senderId
-        - pec
-        - email
-        - phone
-        - site
       properties:
         senderId:
             type: string
