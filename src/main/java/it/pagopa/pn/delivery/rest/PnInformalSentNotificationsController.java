@@ -48,7 +48,6 @@ public class PnInformalSentNotificationsController implements SenderInformalRead
                                                                                              String recipientId,
                                                                                              String iunMatch,
                                                                                              InformalNotificationStatusV1 status,
-                                                                                             String group,
                                                                                              Boolean viewed,
                                                                                              Boolean delivered,
                                                                                              Integer size,
@@ -63,8 +62,7 @@ public class PnInformalSentNotificationsController implements SenderInformalRead
                 .filterId(recipientId)
                 .iunMatch(iunMatch)
                 .informalStatuses(status == null ? List.of() : List.of(status))
-                // se è specificato un singolo gruppo come filtro lo si usa, altrimenti si filtra sui gruppi dell'utente
-                .groups(StringUtils.hasText(group) ? List.of(group) : xPagopaPnCxGroups)
+                .groups(xPagopaPnCxGroups)
                 .viewed(viewed)
                 .delivered(delivered)
                 .communicationType(NotificationSearchCommunicationType.INFORMAL)
