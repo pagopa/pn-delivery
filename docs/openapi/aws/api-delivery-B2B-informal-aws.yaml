@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 7tBPHAzY/6OmmQxSLvxkfOuR7xDPu1xRdvx+Ts7C260=
+  version: y1BJ2elvPKhheEcLMXtUPDVCIi0sNQhcGHdG9grHnuU=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1612,7 +1612,6 @@ components:
         - recipientType
         - taxId
       type: object
-      additionalProperties: false
       properties:
         recipientType:
           type: string
@@ -1690,6 +1689,7 @@ components:
         - type: object
           required:
             - messageId
+          additionalProperties: false
           properties:
             payments:
               $ref: '#/components/schemas/InformalNotificationPayments'

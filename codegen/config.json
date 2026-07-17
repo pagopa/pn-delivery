@@ -36,6 +36,9 @@
             ],
             "servicePath": "delivery",
             "awsApiDiscriminator": "informal",
+            "stripAdditionalPropertiesFromSchemas": [
+                "NotificationRecipientV24"
+            ],
             "generateBundle": true,
             "mergeBeforeBundleGeneration": true
         },

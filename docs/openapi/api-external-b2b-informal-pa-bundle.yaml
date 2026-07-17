@@ -1241,7 +1241,6 @@ components:
         - recipientType
         - taxId
       type: object
-      additionalProperties: false
       properties:
         recipientType:
           type: string
@@ -1308,6 +1307,7 @@ components:
         - type: object
           required:
             - messageId
+          additionalProperties: false
           properties:
             payments:
               $ref: '#/components/schemas/InformalNotificationPayments'
