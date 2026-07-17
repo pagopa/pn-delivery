@@ -1307,7 +1307,6 @@ components:
         - type: object
           required:
             - messageId
-          additionalProperties: false
           properties:
             payments:
               $ref: '#/components/schemas/InformalNotificationPayments'
