@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.utils;
 
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV28;
+import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalTimelineElementCategoryV1;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationRecipientEntity;
 import it.pagopa.pn.delivery.models.InformalNotificationDetail;
@@ -44,6 +45,21 @@ public class ModelMapperConfig {
             destination.setTimestamp(source.getTimestamp());
             return destination;
         };
+
+    // Stesso discorso del converter sopra, ma per la timeline informale (che ha lo stesso problema)
+    // Unica differenza è che la timeline informale non ha i campi notRefinedRecipientIndexes e invalidatedTimelineAndStatusHistory, quindi non è necessario settarli a null
+    static Converter<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalTimelineElementV1,InformalTimelineElementV1> informalTimelineElementConverter =
+            context -> {
+                it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalTimelineElementV1 source = context.getSource();
+                InformalTimelineElementV1 destination = context.getDestination();
+
+                assert source.getCategory() != null;
+                if (destination.getDetails() != null) {
+                    if(!source.getCategory().equals(InformalTimelineElementCategoryV1.PUBLIC_REGISTRY_VALIDATION_CALL))destination.getDetails().setRecIndexes(null);
+                }
+                destination.setTimestamp(source.getTimestamp());
+                return destination;
+            };
 
     static Converter<InformalNotificationRequestV1, InternalNotification> informalNotificationConverter =
         context -> {
@@ -131,6 +147,8 @@ public class ModelMapperConfig {
                 .addMapping( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusHistoryElementV26::getActiveFrom, NotificationStatusHistoryElementV26::setActiveFrom );
         modelMapper.createTypeMap(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28.class, TimelineElementV28.class)
                 .setPostConverter(ModelMapperConfig.timelineElementConverter);
+        modelMapper.createTypeMap(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalTimelineElementV1.class, InformalTimelineElementV1.class)
+                .setPostConverter(ModelMapperConfig.informalTimelineElementConverter);
         modelMapper.createTypeMap( NotificationRecipient.class, NotificationRecipientEntity.class )
                 .addMapping( NotificationRecipient::getTaxId, NotificationRecipientEntity::setRecipientId );
         modelMapper.createTypeMap( NotificationRecipientEntity.class, NotificationRecipient.class )
