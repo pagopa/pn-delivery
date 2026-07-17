@@ -2218,10 +2218,6 @@ components:
       type: string
       description: |
         Feedback desiderato per la conclusione del workflow di notificazione - __SENT__ - __RECEIVED__ - __READ__ - __PAID__ - __SKIP__
-      enum:
-        - DELIVERED
-        - UNDELIVERABLE
-        - UNREACHED
     WorkflowDoneReachedDetails:
       type: object
       required:
