@@ -893,6 +893,10 @@ Parameters:
     Description: "latest informal notification version without v ex. 2.4"
     AllowedPattern: '^\d\.\d$'
 
+  InformalServiceApiPathOverrideV2:
+    Type: String
+    Description: "API Gateway V2 mapping path for informal notifications"
+
   EnableInformalB2BApiGateway:
     Type: String
     Description: 'Determina se le risorse API Gateway relative alle API delle notifiche bonarie debbano essere create (true/false)'
@@ -1022,35 +1026,36 @@ Resources:
         LogAlarmStrategyV1: !Ref LogAlarmStrategy
 
   # Expose PN-Delivery microservice public informal API with API-GW for B2B usage
-#  DeliveryMicroserviceInformalPublicAPI:
-#    Type: AWS::CloudFormation::Stack
-#    Condition: ShouldEnableInformalB2BApiGateway
-#    Properties:
-#      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service-openapi.yaml"
-#      Parameters:
-#        MicroServiceUniqueName: !Sub "${ProjectName}-delivery-informal"
-#        IntendedUsage: B2B
-#        DnsName: !Ref ApiDnsName
-#        ProjectName: !Ref ProjectName
-#        ServiceApiPath: "delivery"
-#        NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
-#        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
-#        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-#        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
-#        OpenApiBucketName: !Ref MicroserviceBucketName
-#        OpenApiBucketKey: !Sub ${MicroserviceBucketBaseKey}/docs/openapi/aws/api-delivery-B2B-informal-aws.yaml
+  DeliveryMicroserviceInformalPublicAPI:
+    Type: AWS::CloudFormation::Stack
+    Condition: ShouldEnableInformalB2BApiGateway
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service-openapi.yaml"
+      Parameters:
+        MicroServiceUniqueName: !Sub "${ProjectName}-delivery-informal"
+        IntendedUsage: B2B
+        DnsName: !Ref ApiDnsName
+        ProjectName: !Ref ProjectName
+        ServiceApiPath: "delivery"
+        ServiceApiPathOverrideV2: !Ref InformalServiceApiPathOverrideV2
+        NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
+        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
+        OpenApiBucketName: !Ref MicroserviceBucketName
+        OpenApiBucketKey: !Sub ${MicroserviceBucketBaseKey}/docs/openapi/aws/api-delivery-B2B-informal-aws.yaml
 
-#  DeliveryMicroserviceInformalPublicApiWaf:
-#    Type: AWS::CloudFormation::Stack
-#    Condition: ShouldEnableInformalB2BApiGateway
-#    Properties:
-#      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
-#      Parameters:
-#        WAFName: !Sub "${ProjectName}-delivery-informal-b2b"
-#        IntendedUsage: B2B
-#        APIGatewayARNs: !GetAtt DeliveryMicroserviceInformalPublicAPI.Outputs.APIGatewayARN
-#        ExcludedRule0: CrossSiteScripting_BODY,SizeRestrictions_BODY
-#        Limit: !Ref B2bWafLimit
+  DeliveryMicroserviceInformalPublicApiWaf:
+    Type: AWS::CloudFormation::Stack
+    Condition: ShouldEnableInformalB2BApiGateway
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
+      Parameters:
+        WAFName: !Sub "${ProjectName}-delivery-informal-b2b"
+        IntendedUsage: B2B
+        APIGatewayARNs: !GetAtt DeliveryMicroserviceInformalPublicAPI.Outputs.APIGatewayARN
+        ExcludedRule0: CrossSiteScripting_BODY,SizeRestrictions_BODY
+        Limit: !Ref B2bWafLimit
 
   # Grant operational rights to PN-Delivery microservice
   DeliveryMicroserviceTaskManagedPolicy:
@@ -1097,6 +1102,12 @@ Resources:
             Resource:
               - !Sub "${NotificationDelegationMetadataDynamoTableArn}"
               - !Sub "${NotificationDelegationMetadataDynamoTableArn}/*"
+          - Effect: Allow
+            Action:
+              - 'events:DescribeEventBus'
+              - 'events:PutEvents'
+            Resource:
+                - !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:event-bus/${ProjectName}-CoreEventBus"
           - Effect: Allow
             Action:
               - "dynamodb:DeleteItem"
@@ -1242,20 +1253,24 @@ Resources:
           - - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiStageArn
             - !GetAtt DeliveryMicroserviceB2BPGAPI.Outputs.RestApiStageArn
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiStageArn
+            - !GetAtt DeliveryMicroserviceInformalPublicAPI.Outputs.RestApiStageArn
         RestApiNames: !Join
           - ","
           - - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiName
             - !GetAtt DeliveryMicroserviceB2BPGAPI.Outputs.RestApiName
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiName
+            - !GetAtt DeliveryMicroserviceInformalPublicAPI.Outputs.RestApiName
         AlarmArns: !Join
           - ","
           - - !GetAtt DeliveryMicroservice.Outputs.FatalLogsMetricAlarmArn
             - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiErrorAlarmArn
             - !GetAtt DeliveryMicroserviceB2BPGAPI.Outputs.RestApiErrorAlarmArn
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiErrorAlarmArn
+            - !GetAtt DeliveryMicroserviceInformalPublicAPI.Outputs.RestApiErrorAlarmArn
             - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiLatencyAlarmArn
             - !GetAtt DeliveryMicroserviceB2BPGAPI.Outputs.RestApiLatencyAlarmArn
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiLatencyAlarmArn
+            - !GetAtt DeliveryMicroserviceInformalPublicAPI.Outputs.RestApiLatencyAlarmArn
             - !Ref PnDeliveryInsertTriggerDLQAlarmARN
             - !Ref PnDeliveryAsseverationDLQAlarmARN
             - !GetAtt PnDeliveryAsseverationLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm

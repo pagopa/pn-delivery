@@ -1,6 +1,6 @@
 package it.pagopa.pn.delivery.models;
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatus;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatusV1;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
 import lombok.*;
 
@@ -42,11 +42,9 @@ public class InputSearchNotificationDto {
     private  List<NotificationStatusV26> statuses;
 
     // filtro di stato per il flusso bonario (campagna): gli stati bonari non sono rappresentabili con NotificationStatusV26
-    private List<InformalNotificationStatus> informalStatuses;
+    private List<InformalNotificationStatusV1> informalStatuses;
 
     private List<String> groups;
-    
-    private String subjectRegExp;
 
     private String iunMatch;
 

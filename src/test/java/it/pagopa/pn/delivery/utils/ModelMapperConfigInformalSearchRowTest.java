@@ -5,7 +5,7 @@ import it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CommunicationOutcomes;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationSearchResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationSearchRow;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatus;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatusV1;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.UnifiedNotificationStatus;
 import it.pagopa.pn.delivery.models.NotificationSearchRow;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
@@ -61,16 +61,6 @@ class ModelMapperConfigInformalSearchRowTest {
         InformalNotificationSearchRow result = modelMapper.map(source, InformalNotificationSearchRow.class);
 
         assertEquals("campaign-1", result.getCampaignId());
-    }
-
-    @Test
-    void notificationStatusIsConvertedByNameToInformalStatus() {
-        NotificationSearchRow source = baseRow(UnifiedNotificationStatus.SUCCESSFUL_SENDING)
-                .toBuilder().communicationType("INFORMAL").build();
-
-        InformalNotificationSearchRow result = modelMapper.map(source, InformalNotificationSearchRow.class);
-
-        assertEquals(InformalNotificationStatus.SUCCESSFUL_SENDING, result.getNotificationStatus());
     }
 
     @Test
@@ -131,7 +121,7 @@ class ModelMapperConfigInformalSearchRowTest {
         InformalNotificationSearchRow mapped = response.getResultsPage().get(0);
         assertEquals(InformalNotificationSearchRow.CommunicationTypeEnum.INFORMAL, mapped.getCommunicationType());
         assertEquals("campaign-1", mapped.getCampaignId());
-        assertEquals(InformalNotificationStatus.PROCESSING, mapped.getNotificationStatus());
+        assertEquals(InformalNotificationStatusV1.PROCESSING, mapped.getNotificationStatus());
         assertNotNull(mapped.getCommunicationOutcomes());
         assertEquals(Boolean.TRUE, mapped.getCommunicationOutcomes().getViewed());
         assertEquals(Boolean.FALSE, mapped.getCommunicationOutcomes().getDelivered());
@@ -142,7 +132,7 @@ class ModelMapperConfigInformalSearchRowTest {
     @Test
     void informalStatusPassesValidation() {
         assertDoesNotThrow(() -> InformalNotificationStatusValidator
-                .assertInformalCompatible(page(baseRow(UnifiedNotificationStatus.SUCCESSFUL_SENDING))));
+                .assertInformalCompatible(page(baseRow(UnifiedNotificationStatus.COMPLETED_REACHED))));
     }
 
     @Test
@@ -170,11 +160,6 @@ class ModelMapperConfigInformalSearchRowTest {
                 .build();
 
         assertDoesNotThrow(() -> InformalNotificationStatusValidator.assertInformalCompatible(empty));
-    }
-
-    @Test
-    void legalAcceptedStatusFailsFastWithDedicatedErrorCode() {
-        assertFailsFast(UnifiedNotificationStatus.ACCEPTED);
     }
 
     @Test

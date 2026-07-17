@@ -87,7 +87,7 @@ paths:
   ###########################################################################################
   ###                          GESTIONE PRECARICAMENTO ALLEGATI                           ###
   ###########################################################################################
-  "/delivery/v1/attachments/informal/preload":
+  "/delivery/v1/attachments/preload":
     post:
       summary: Richiesta di pre-caricamento dei documenti della notifica bonaria
       description: >-
@@ -248,7 +248,7 @@ paths:
     ###########################################################################################
     ###                          CREAZIONE RICHIESTE DI NOTIFICA                            ###
     ###########################################################################################
-  "/delivery/v1/notifications/informal":
+  "/delivery/v1/requests":
     post:
       summary: Richiesta sottomissione di una nuova comunicazione bonaria
       description: |-
@@ -369,7 +369,7 @@ paths:
       ###                     DOWNLOAD DOCUMENTI E ALLEGATI PER PAGAMENTO                     ###
       ###########################################################################################
 
-  "/delivery/v1/notifications/informal/sent/{iun}/attachments/documents/{docIdx}":
+  "/delivery/v1/notifications/sent/{iun}/attachments/documents/{docIdx}":
     get:
       description: |-
         Download documento notificato
@@ -425,7 +425,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
 
-  "/delivery/v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}":
+  "/delivery/v1/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}":
     get:
       description: Download allegato per pagamento
       summary: Download allegato per pagamento
@@ -484,7 +484,7 @@ paths:
     ###########################################################################################
     ###                             INTERRUZIONE DEL WORKFLOW                               ###
     ###########################################################################################
-  "/delivery/v1/notifications/informal/{iun}/terminate":
+  "/delivery/v1/notifications/sent/{iun}/terminate":
     post:
       tags:
         - InformalNotificationTermination
@@ -541,7 +541,7 @@ paths:
   ###########################################################################################
   ###                          RICERCA NOTIFICHE BONARIE INVIATE                          ###
   ###########################################################################################
-  "/delivery/v1/notifications/informal/sent/{iun}":
+  "/delivery/v1/notifications/sent/{iun}":
     get:
       summary: 'Mittente: lettura dettagli notifica versione 1'
       description: |-

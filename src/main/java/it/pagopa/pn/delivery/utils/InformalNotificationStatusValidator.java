@@ -2,7 +2,7 @@ package it.pagopa.pn.delivery.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatus;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatusV1;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.UnifiedNotificationStatus;
 import it.pagopa.pn.delivery.models.NotificationSearchRow;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
@@ -32,7 +32,7 @@ public final class InformalNotificationStatusValidator {
      *
      * @param serviceResult risultato paginato di ricerca da esporre sul boundary bonario
      * @throws PnInternalException se almeno una riga trasporta uno stato non mappabile su
-     *                             {@link InformalNotificationStatus}
+     *                             {@link InformalNotificationStatusV1}
      */
     public static void assertInformalCompatible(ResultPaginationDto<NotificationSearchRow, String> serviceResult) {
         if (serviceResult == null || serviceResult.getResultsPage() == null) {
@@ -48,7 +48,7 @@ public final class InformalNotificationStatusValidator {
             return;
         }
         try {
-            InformalNotificationStatus.fromValue(status.getValue());
+            InformalNotificationStatusV1.fromValue(status.getValue());
         } catch (IllegalArgumentException ex) {
             throw new PnInternalException(
                     "Stato '" + status.getValue() + "' incompatibile con il flusso bonario: "

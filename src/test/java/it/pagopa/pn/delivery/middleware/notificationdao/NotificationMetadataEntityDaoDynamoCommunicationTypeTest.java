@@ -175,6 +175,37 @@ class NotificationMetadataEntityDaoDynamoCommunicationTypeTest {
         assertResult(null, true);
     }
 
+    @Test
+    void searchByIunReceiverKeepsRequestedSender() {
+        mockGetItem(senderCommunicationTypeEntity("LEGAL"));
+
+        InputSearchNotificationDto searchDto = baseReceiverSearch()
+                .filterId(SENDER_ID)
+                .communicationType(NotificationSearchCommunicationType.ALL)
+                .build();
+
+        PageSearchTrunk<NotificationMetadataEntity> result =
+                dao.searchByIun(searchDto, PARTITION, SENT_AT.toString());
+
+        assertNotNull(result.getResults());
+        assertEquals(1, result.getResults().size());
+    }
+
+    @Test
+    void searchByIunReceiverDiscardsDifferentSender() {
+        mockGetItem(senderCommunicationTypeEntity("LEGAL", "PA-other-sender"));
+
+        InputSearchNotificationDto searchDto = baseReceiverSearch()
+                .filterId(SENDER_ID)
+                .communicationType(NotificationSearchCommunicationType.ALL)
+                .build();
+
+        PageSearchTrunk<NotificationMetadataEntity> result =
+                dao.searchByIun(searchDto, PARTITION, SENT_AT.toString());
+
+        assertTrue(result.getResults() == null || result.getResults().isEmpty());
+    }
+
     private void assertResult(NotificationSearchCommunicationType communicationType, boolean expectedKept) {
         InputSearchNotificationDto searchDto = baseReceiverSearch()
                 .communicationType(communicationType)
@@ -309,11 +340,15 @@ class NotificationMetadataEntityDaoDynamoCommunicationTypeTest {
     }
 
     private NotificationMetadataEntity senderCommunicationTypeEntity(String communicationType) {
+        return senderCommunicationTypeEntity(communicationType, SENDER_ID);
+    }
+
+    private NotificationMetadataEntity senderCommunicationTypeEntity(String communicationType, String senderId) {
         return NotificationMetadataEntity.builder()
                 .iunRecipientId("TGWR-ZJQN-JMAR-202209-A-1##" + RECIPIENT_ID)
                 .recipientId(RECIPIENT_ID)
                 .recipientIds(List.of(RECIPIENT_ID))
-                .senderId(SENDER_ID)
+                .senderId(senderId)
                 .notificationGroup("")
                 .notificationStatus("DELIVERING")
                 .sentAt(SENT_AT)

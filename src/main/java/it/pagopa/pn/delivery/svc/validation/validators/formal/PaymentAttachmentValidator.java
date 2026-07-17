@@ -13,6 +13,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+
+import static it.pagopa.pn.delivery.svc.NotificationAttachmentService.PN_COMMUNICATIONS_ATTACHMENT;
+import static it.pagopa.pn.delivery.svc.NotificationAttachmentService.PN_NOTIFICATION_ATTACHMENTS;
 
 @Component
 @Slf4j
@@ -23,7 +27,6 @@ public class PaymentAttachmentValidator implements FormalValidator<NotificationC
     private static final String APPLICATION_JSON_CONTENT_TYPE = "application/json";
     public static final String EXTENSION_PDF = ".pdf";
     public static final String EXTENSION_JSON = ".json";
-    public static final String PN_NOTIFICATION_ATTACHMENTS = "PN_NOTIFICATION_ATTACHMENTS";
     public static final String PN_F24_META = "PN_F24_META";
 
     @Override
@@ -57,11 +60,16 @@ public class PaymentAttachmentValidator implements FormalValidator<NotificationC
     }
 
     private void checkContentType(String contentType, String key, ArrayList<ProblemError> errors) {
-        if (APPLICATION_PDF_CONTENT_TYPE.equalsIgnoreCase(contentType) && (!key.contains(PN_NOTIFICATION_ATTACHMENTS) || !key.endsWith(EXTENSION_PDF) )) {
+        if (APPLICATION_PDF_CONTENT_TYPE.equalsIgnoreCase(contentType) && isNotAllowedPdfKey(key)) {
             errors.add(ProblemError.builder().detail(String.format("Key: %s does not conform to the expected content type: %s", key, contentType)).element("payment").code(ErrorCodes.ERROR_CODE_PAYMENT_ATTACHMENT_CONTENT_TYPE.getValue()).build());
         }
         if (APPLICATION_JSON_CONTENT_TYPE.equalsIgnoreCase(contentType) && (!key.contains(PN_F24_META) || !key.endsWith(EXTENSION_JSON))) {
             errors.add(ProblemError.builder().detail(String.format("Key: %s does not conform to the expected content type: %s", key, contentType)).element("payment").code(ErrorCodes.ERROR_CODE_PAYMENT_ATTACHMENT_CONTENT_TYPE.getValue()).build());
         }
+    }
+
+    private boolean isNotAllowedPdfKey(String key) {
+        Set<String> allowedKeys = Set.of(PN_NOTIFICATION_ATTACHMENTS, PN_COMMUNICATIONS_ATTACHMENT);
+        return allowedKeys.stream().noneMatch(key::contains) || !key.endsWith(EXTENSION_PDF);
     }
 }

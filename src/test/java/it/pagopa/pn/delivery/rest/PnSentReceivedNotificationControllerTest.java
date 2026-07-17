@@ -90,7 +90,7 @@ class PnSentReceivedNotificationControllerTest {
     private static final String RECIPIENT_ID = "CGNNMO80A01H501M";
     public static final List<String> GROUPS = List.of("Group1", "Group2");
     public static final String DELIVERY_REQUESTS_PATH = "/delivery/v2.6/requests";
-    public static final String DELIVERY_INFORMAL_REQUESTS_PATH = "/delivery/v1/notifications/informal";
+    public static final String DELIVERY_INFORMAL_REQUESTS_PATH = "/delivery/v1/requests";
     public static final String DELIVERY_RECEIVED_PATH = "/delivery/v2.8/notifications/received/";
     public static final String DELIVERY_SENT_PATH = "/delivery/v2.9/notifications/sent/";
 
@@ -125,6 +125,10 @@ class PnSentReceivedNotificationControllerTest {
     void getSentNotificationSuccess() {
         // Given
         LegalNotificationDetail legalNotificationDetail = newLegalNotification();
+        NotificationStatusHistoryElementV26 historyElement = new NotificationStatusHistoryElementV26();
+        historyElement.setStatus(NotificationStatusV26.ACCEPTED);
+        historyElement.setActiveFrom(OffsetDateTime.now());
+        legalNotificationDetail.setNotificationStatusHistory(List.of(historyElement));
 
         // When
         when(legalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
@@ -143,7 +147,8 @@ class PnSentReceivedNotificationControllerTest {
                 .exchange()
                 .expectStatus()
                 .isOk()
-                .expectBody(FullSentNotificationV29.class);
+                .expectBody()
+                .jsonPath("$.notificationStatusHistory[0].status").isEqualTo("ACCEPTED");
 
         verify(legalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(IUN, PA_ID, GROUPS);
     }
@@ -1697,7 +1702,7 @@ class PnSentReceivedNotificationControllerTest {
 
         // Then
         webTestClient.get()
-                .uri("/delivery/v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}".replace("{iun}", INFORMAL_IUN).replace("{recipientIdx}", "0").replace("{attachmentName}", PAGOPA))
+                .uri("/delivery/v1/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}".replace("{iun}", INFORMAL_IUN).replace("{recipientIdx}", "0").replace("{attachmentName}", PAGOPA))
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .header(PnDeliveryRestConstants.CX_ID_HEADER, CX_ID)
@@ -1738,7 +1743,7 @@ class PnSentReceivedNotificationControllerTest {
 
         // Then
         webTestClient.get()
-                .uri("/delivery/v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}".replace("{iun}", INFORMAL_IUN).replace("{recipientIdx}", "0").replace("{attachmentName}", PAGOPA))
+                .uri("/delivery/v1/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}".replace("{iun}", INFORMAL_IUN).replace("{recipientIdx}", "0").replace("{attachmentName}", PAGOPA))
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .header(PnDeliveryRestConstants.CX_ID_HEADER, CX_ID)
@@ -1762,7 +1767,7 @@ class PnSentReceivedNotificationControllerTest {
                 .downloadAttachmentWithRedirectWithFileKey(INFORMAL_IUN, new InternalAuthHeader(CX_TYPE_PF, PA_ID, UID, List.of("asdasd")), null, 0, PAGOPA, null, false);
 
         webTestClient.get()
-                .uri("/delivery/v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}".replace("{iun}", INFORMAL_IUN).replace("{recipientIdx}", "0").replace("{attachmentName}", PAGOPA))
+                .uri("/delivery/v1/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}".replace("{iun}", INFORMAL_IUN).replace("{recipientIdx}", "0").replace("{attachmentName}", PAGOPA))
                 .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
                 .header(PnDeliveryRestConstants.UID_HEADER, UID)
                 .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
@@ -1777,7 +1782,7 @@ class PnSentReceivedNotificationControllerTest {
     void terminateInformalWorkflow() {
         webTestClient.post()
                 .uri(uriBuilder -> uriBuilder
-                        .path("/delivery/v1/notifications/informal/{iun}/terminate")
+                        .path("/delivery/v1/notifications/sent/{iun}/terminate")
                         .build(INFORMAL_IUN))
                 .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
                 .header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
@@ -1796,7 +1801,7 @@ class PnSentReceivedNotificationControllerTest {
         InternalAuthHeader expectedAuthHeader = new InternalAuthHeader(CX_TYPE_PA, PA_ID, UID, null);
 
         webTestClient.get()
-                .uri("/delivery/v1/notifications/informal/sent/{iun}/attachments/documents/{docIdx}", INFORMAL_IUN, 1)
+                .uri("/delivery/v1/notifications/sent/{iun}/attachments/documents/{docIdx}", INFORMAL_IUN, 1)
                 .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
                 .header(PnDeliveryRestConstants.UID_HEADER, UID)
                 .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PA)
@@ -1825,7 +1830,7 @@ class PnSentReceivedNotificationControllerTest {
                         "mockDetail"
                 ));
         webTestClient.get()
-                .uri("/delivery/v1/notifications/informal/sent/{iun}/attachments/documents/{docIdx}", INFORMAL_IUN, 1)
+                .uri("/delivery/v1/notifications/sent/{iun}/attachments/documents/{docIdx}", INFORMAL_IUN, 1)
                 .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
                 .header(PnDeliveryRestConstants.UID_HEADER, UID)
                 .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PA)
@@ -1848,7 +1853,7 @@ class PnSentReceivedNotificationControllerTest {
         InternalAuthHeader expectedAuthHeader = new InternalAuthHeader(CX_TYPE_PA, PA_ID, UID, null);
 
         webTestClient.get()
-                .uri("/delivery/v1/notifications/informal/sent/{iun}/attachments/documents/{docIdx}", INFORMAL_IUN, 1)
+                .uri("/delivery/v1/notifications/sent/{iun}/attachments/documents/{docIdx}", INFORMAL_IUN, 1)
                 .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
                 .header(PnDeliveryRestConstants.UID_HEADER, UID)
                 .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PA)
@@ -2135,7 +2140,7 @@ class PnSentReceivedNotificationControllerTest {
 
         // Then
         webTestClient.get()
-                .uri("/delivery/v1/notifications/informal/sent/" + INFORMAL_IUN)
+                .uri("/delivery/v1/notifications/sent/" + INFORMAL_IUN)
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
@@ -2163,7 +2168,7 @@ class PnSentReceivedNotificationControllerTest {
 
         // Then
         webTestClient.get()
-                .uri("/delivery/v1/notifications/informal/sent/" + INFORMAL_IUN)
+                .uri("/delivery/v1/notifications/sent/" + INFORMAL_IUN)
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)

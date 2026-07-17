@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 6eFeUFrRqhp2utSeU/cpstLnAzm0ujeAivPVOKM27+E=
+  version: G0Kyu02CM7nIPrmKltkrmajPqyl0XSXHE1GdSqhzaUM=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -27,7 +27,6 @@ paths:
         - $ref: '#/components/parameters/notificationSearchEndDate'
         - $ref: '#/components/parameters/notificationSearchMandateId'
         - $ref: '#/components/parameters/notificationSearchSenderId'
-        - $ref: '#/components/parameters/notificationSearchSubject'
         - $ref: '#/components/parameters/notificationSearchUnifiedIun'
         - $ref: '#/components/parameters/notificationSearchPageSize'
         - $ref: '#/components/parameters/notificationSearchNextPagesKey'
@@ -459,15 +458,6 @@ components:
       description: identificativo del mittente
       schema:
         type: string
-    notificationSearchSubject:
-      name: subjectRegExp
-      description: >-
-        Regular expression usata, se presente, per filtrare i risultati in base
-        al subject  delle notifiche.
-      in: query
-      required: false
-      schema:
-        type: string
     notificationSearchUnifiedIun:
       name: iunMatch
       description: >-
@@ -771,10 +761,10 @@ components:
         - UNREACHABLE
         - CANCELLED
         - RETURNED_TO_SENDER
-        - READY_TO_SEND
         - PROCESSING
-        - SUCCESSFUL_SENDING
-        - UNSUCCESSFUL_SENDING
+        - COMPLETED_REACHED
+        - COMPLETED_UNREACHED
+        - UNDELIVERABLE
     CommunicationOutcomes:
       type: object
       description: >-
@@ -1202,6 +1192,16 @@ components:
       minLength: 25
       maxLength: 25
       pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+    taxonomyCode:
+      type: string
+      minLength: 7
+      maxLength: 7
+      pattern: ^([0-9]{6}[A-Z]{1})$
+      description: >-
+        Codice tassonomico della notifica basato sulla definizione presente
+        nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5
+        PIATTAFORMA NOTIFICHE
+        DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)
     PaFeeV23:
       type: number
       description: >-
@@ -1314,15 +1314,7 @@ components:
             Data di scadenza del pagamento nel formato YYYY-MM-DD riferito
             all'Italia
         taxonomyCode:
-          type: string
-          minLength: 7
-          maxLength: 7
-          pattern: ^([0-9]{6}[A-Z]{1})$
-          description: >-
-            Codice tassonomico della notifica basato sulla definizione presente
-            nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5
-            PIATTAFORMA NOTIFICHE
-            DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)
+          $ref: '#/components/schemas/taxonomyCode'
         paFee:
           $ref: '#/components/schemas/PaFeeV23'
         vat:

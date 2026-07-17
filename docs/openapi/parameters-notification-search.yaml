@@ -116,7 +116,7 @@ components:
       required: false
       description: stato della notifica bonaria
       schema:
-        $ref: './schemas-pn-notification.yaml#/components/schemas/InformalNotificationStatus'
+        $ref: './remote-refs.yaml#/components/schemas/InformalNotificationStatusV1'
     notificationSearchStatuses:
       name: status
       in: query
@@ -126,15 +126,6 @@ components:
         type: array
         items:
           $ref: './remote-refs.yaml#/components/schemas/NotificationStatusV26'
-    notificationSearchSubject:
-      name: subjectRegExp
-      description: >-
-        Regular expression usata, se presente, per filtrare i risultati in base al subject 
-        delle notifiche.
-      in: query
-      required: false
-      schema:
-        type: string
     notificationSearchIun:
       name: iunMatch
       description: >-

@@ -75,23 +75,8 @@ class ModelMapperConfigLegalStatusTest {
     }
 
     @Test
-    void informalReadyToSendStatusFailsFastWithDedicatedErrorCode() {
-        assertFailsFast(UnifiedNotificationStatus.READY_TO_SEND);
-    }
-
-    @Test
     void informalProcessingStatusFailsFastWithDedicatedErrorCode() {
         assertFailsFast(UnifiedNotificationStatus.PROCESSING);
-    }
-
-    @Test
-    void informalSuccessfulSendingStatusFailsFastWithDedicatedErrorCode() {
-        assertFailsFast(UnifiedNotificationStatus.SUCCESSFUL_SENDING);
-    }
-
-    @Test
-    void informalUnsuccessfulSendingStatusFailsFastWithDedicatedErrorCode() {
-        assertFailsFast(UnifiedNotificationStatus.UNSUCCESSFUL_SENDING);
     }
 
     @Test

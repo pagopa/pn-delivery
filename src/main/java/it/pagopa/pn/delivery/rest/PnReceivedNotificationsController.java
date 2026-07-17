@@ -57,7 +57,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi, Reci
     }
 
     @Override
-    public ResponseEntity<FullNotificationSearchResponse> searchReceivedNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, OffsetDateTime startDate, OffsetDateTime endDate, List<String> xPagopaPnCxGroups, String mandateId, String senderId, String subjectRegExp, String iunMatch, Integer size, String nextPagesKey, String communicationType) {
+    public ResponseEntity<FullNotificationSearchResponse> searchReceivedNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, OffsetDateTime startDate, OffsetDateTime endDate, List<String> xPagopaPnCxGroups, String mandateId, String senderId, String iunMatch, Integer size, String nextPagesKey, String communicationType) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEventType eventType = PnAuditLogEventType.AUD_NT_SEARCH_RCP;
         String logMsg = "searchReceivedNotification";
@@ -80,7 +80,6 @@ public class PnReceivedNotificationsController implements RecipientReadApi, Reci
                 .statuses(List.of())
                 .communicationType(StringUtils.hasText(communicationType) ? NotificationSearchCommunicationType.valueOf(communicationType) : NotificationSearchCommunicationType.LEGAL)
                 //.groups( groups != null ? Arrays.asList( groups ) : null )
-                .subjectRegExp(subjectRegExp)
                 .iunMatch(iunMatch)
                 .size(size)
                 .nextPagesKey(nextPagesKey)
