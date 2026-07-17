@@ -893,6 +893,10 @@ Parameters:
     Description: "latest informal notification version without v ex. 2.4"
     AllowedPattern: '^\d\.\d$'
 
+  InformalServiceApiPathOverrideV2:
+    Type: String
+    Description: "API Gateway V2 mapping path for informal notifications"
+
   EnableInformalB2BApiGateway:
     Type: String
     Description: 'Determina se le risorse API Gateway relative alle API delle notifiche bonarie debbano essere create (true/false)'
@@ -1032,7 +1036,8 @@ Resources:
         IntendedUsage: B2B
         DnsName: !Ref ApiDnsName
         ProjectName: !Ref ProjectName
-        ServiceApiPath: "informal"
+        ServiceApiPath: "delivery"
+        ServiceApiPathOverrideV2: !Ref InformalServiceApiPathOverrideV2
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
