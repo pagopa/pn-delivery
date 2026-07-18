@@ -627,13 +627,13 @@ diff --git a/docs/openapi/api-external-b2b-informal-pa-bundle.yaml b/docs/openap
 --- a/docs/openapi/api-external-b2b-informal-pa-bundle.yaml	(revision 73bc8ce344e9e5266387a9a4f35dc9d8fbeb97f1)
 +++ b/docs/openapi/api-external-b2b-informal-pa-bundle.yaml	(date 1784281120226)
 @@ -1608,7 +1608,6 @@
-         - recipientType
-         - taxId
-       type: object
+        - recipientType
+        - taxId
+      type: object
 -      additionalProperties: false
-       properties:
-         recipientType:
-           type: string
+      properties:
+        recipientType:
+          type: string
 Index: docs/openapi/aws/api-delivery-B2B-informal-aws.yaml
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
@@ -642,11 +642,100 @@ Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 diff --git a/docs/openapi/aws/api-delivery-B2B-informal-aws.yaml b/docs/openapi/aws/api-delivery-B2B-informal-aws.yaml
 --- a/docs/openapi/aws/api-delivery-B2B-informal-aws.yaml	(revision 73bc8ce344e9e5266387a9a4f35dc9d8fbeb97f1)
 +++ b/docs/openapi/aws/api-delivery-B2B-informal-aws.yaml	(date 1784281120226)
-@@ -1241,7 +1241,6 @@
-         - recipientType
-         - taxId
-       type: object
--      additionalProperties: false
-       properties:
-         recipientType:
-           type: string
+@@ -1683,55 +1683,49 @@
+    InformalNotificationRecipientV1:
+      description: >-
+        Dati del destinatario specifici per una notifica informale, inclusi il
+        riferimento al messaggio e i canali opzionali di contatto.
+-      allOf:
+-        - $ref: '#/components/schemas/NotificationRecipientV24'
+-        - type: object
+-          required:
+-            - messageId
+-          properties:
+-            payments:
+-              $ref: '#/components/schemas/InformalNotificationPayments'
+-            messageId:
+-              type: string
+-              format: uuid
+-              description: >-
+-                Identificativo del template di messaggio da utilizzare per il
+-                destinatario.
+-            email:
+-              type: string
+-              example: account@domain.it
+-              description: >-
+-                Indirizzo email che il mittente della notifica intende
+-                utilizzare per  raggiungere il destinatario.
+-              pattern: >-
+-                ^(?:[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?|\[(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?|[a-zA-Z0-9-]*[a-zA-Z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])$
+      type: object
+      required:
+        - denomination
+        - recipientType
+        - taxId
+        - messageId
+      properties:
+        recipientType:
+          type: string
+          description: Tipologia di destinatario: Persona Fisica (PF) o Persona Giuridica (PG)
+          enum:
+            - PF
+            - PG
+        taxId:
+          $ref: '#/components/schemas/TaxId'
+        denomination:
+          $ref: '#/components/schemas/Denomination'
+        digitalDomicile:
+          $ref: '#/components/schemas/NotificationDigitalAddress'
+        physicalAddress:
+          $ref: '#/components/schemas/NotificationPhysicalAddress'
+        payments:
+          $ref: '#/components/schemas/InformalNotificationPayments'
+        messageId:
+          type: string
+          format: uuid
+          description: >-
+            Identificativo del template di messaggio da utilizzare per il
+            destinatario.
+        email:
+          type: string
+          example: account@domain.it
+          description: >-
+            Indirizzo email che il mittente della notifica intende utilizzare
+            per raggiungere il destinatario.
+          pattern: >-
+            ^(?:[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?|\[(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?|[a-zA-Z0-9-]*[a-zA-Z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])$
+          maxLength: 320
+        phoneNumber:
+          type: string
+          example: '+3900000000'
+          description: >-
+            Numero di telefono che il mittente della notifica intende utilizzare
+            per raggiungere il destinatario, espresso in formato internazionale
+            con prefisso `+` oppure `00`.
+          pattern: ^(\+|00)[1-9]\d{0,3}[\s.-]?\d{1,4}[\s.-]?\d{1,4}[\s.-]?\d{1,9}$
+          maxLength: 30
+        additionalLanguages:
+          description: >-
+            In questo campo è possibile definire la lingua addizionale (oltre a
+            quella italiana) da utilizzare per l'invio del messaggio sui canali
+            configurati.<br/> Le lingue accettate e dunque i valori possibili
+            degli item dell'array sono: <br/> - DE <br/> - SL <br/> - FR <br/>
+            DE (tedesco), SL (sloveno), FR (francese) Attualmente è possibile
+            indicare un solo item e dunque una sola lingua aggiuntiva. Se non
+            vengono indicate lingue aggiuntive la lingua utilizzata <br/> per
+            l'invio del messaggio sui canali configurati sarà quella italiana.
+            <br /> **Coerenza con messageId:** Se viene fornito un `messageId`,
+            il messaggio identificato deve essere associato alla lingua indicata
+            in questo campo. <br/>
+          type: array
+          maxItems: 1
+          items:
+            type: string
+    UsedServices:
+      description: Servizi utilizzati per la creazione della notifica
+      type: object
+      properties:
+        physicalAddressLookup:
+          type: boolean
