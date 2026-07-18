@@ -1241,6 +1241,7 @@ components:
         - recipientType
         - taxId
       type: object
+      additionalProperties: false
       properties:
         recipientType:
           type: string
