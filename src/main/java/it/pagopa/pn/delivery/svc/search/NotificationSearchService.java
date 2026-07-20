@@ -103,17 +103,7 @@ public class NotificationSearchService {
                 log.debug( "Search from receiver" );
                 String mandateId = searchDto.getMandateId();
                 if ( StringUtils.hasText( mandateId )) {
-					if ( NotificationSearchCommunicationType.INFORMAL.equals(searchDto.getCommunicationType()) ) {
-						throw new PnBadRequestException(
-								"Invalid communication type for mandate search",
-								"INFORMAL communication type is not supported when mandateId is provided",
-								ERROR_CODE_DELIVERY_INVALID_MANDATE_COMMUNICATION_TYPE);
-					}
-					if ( NotificationSearchCommunicationType.ALL.equals(searchDto.getCommunicationType()) ) {
-						// se il client non specifica la tipologia di comunicazione, si forza LEGAL per la ricerca con mandateId
-						searchDto.setCommunicationType( NotificationSearchCommunicationType.LEGAL );
-					}
-                    checkMandate(searchDto, mandateId, recipientType, cxGroups);
+                    handleMandate(searchDto, recipientType, cxGroups, mandateId);
                 } else if (checkAuthorizationPG(recipientType, cxGroups)) {
                     log.error("PG {} can not access this resource", searchDto.getSenderReceiverId());
                     throw new PnForbiddenException(ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND);
@@ -161,7 +151,21 @@ public class NotificationSearchService {
 		return builder.build();
 	}
 
-	public ResultPaginationDto<NotificationSearchRow, String> searchNotificationDelegated(InputSearchNotificationDelegatedDto searchDto) {
+    private void handleMandate(InputSearchNotificationDto searchDto, String recipientType, List<String> cxGroups, String mandateId) {
+        if ( NotificationSearchCommunicationType.INFORMAL.equals(searchDto.getCommunicationType()) ) {
+            throw new PnBadRequestException(
+                    "Invalid communication type for mandate search",
+                    "INFORMAL communication type is not supported when mandateId is provided",
+                    ERROR_CODE_DELIVERY_INVALID_MANDATE_COMMUNICATION_TYPE);
+        }
+        if ( NotificationSearchCommunicationType.ALL.equals(searchDto.getCommunicationType()) ) {
+            // se il client non specifica la tipologia di comunicazione, si forza LEGAL per la ricerca con mandateId
+            searchDto.setCommunicationType( NotificationSearchCommunicationType.LEGAL );
+        }
+        checkMandate(searchDto, mandateId, recipientType, cxGroups);
+    }
+
+    public ResultPaginationDto<NotificationSearchRow, String> searchNotificationDelegated(InputSearchNotificationDelegatedDto searchDto) {
 		Instant startDate = searchDto.getStartDate();
 		if (PN_EPOCH.isAfter(startDate)) {
 			log.info("start date {} but PN exists since {}", startDate, PN_EPOCH);

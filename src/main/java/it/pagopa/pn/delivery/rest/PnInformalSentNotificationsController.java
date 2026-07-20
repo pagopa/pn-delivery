@@ -76,8 +76,6 @@ public class PnInformalSentNotificationsController implements SenderInformalRead
         try {
             campaignAuthValidator.checkCampaignIsFromSender(campaignId, xPagopaPnCxId);
             serviceResult = retrieveSvc.searchNotification(searchDto, null, null);
-            // la validazione di dominio deve stare fuori dal map(): ModelMapper incapsula
-            // le eccezioni del converter in MappingException, perdendo il codice errore dedicato
             InformalNotificationStatusValidator.assertInformalCompatible(serviceResult);
             response = modelMapper.map(serviceResult, InformalNotificationSearchResponse.class);
         } catch (PnRuntimeException exc) {

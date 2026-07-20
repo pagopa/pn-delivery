@@ -90,9 +90,13 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             return  new PageSearchTrunk<>();
         }
         // filtro per destinatario (su filterId, quindi a logica invertita rispetto ai 2 filtri precedenti)
-        if (StringUtils.hasText(inputSearchNotificationDto.getFilterId()) && inputSearchNotificationDto.isBySender() && !(
-            entity.getRecipientIds().contains(inputSearchNotificationDto.getOpaqueFilterIdPF())
-            || entity.getRecipientIds().contains(inputSearchNotificationDto.getOpaqueFilterIdPG())
+        if (StringUtils.hasText(inputSearchNotificationDto.getFilterId())
+            && (inputSearchNotificationDto.isBySender() || inputSearchNotificationDto.isByCampaign())
+            && !(
+            (StringUtils.hasText(inputSearchNotificationDto.getOpaqueFilterIdPF())
+                && entity.getRecipientIds().contains(inputSearchNotificationDto.getOpaqueFilterIdPF()))
+            || (StringUtils.hasText(inputSearchNotificationDto.getOpaqueFilterIdPG())
+                && entity.getRecipientIds().contains(inputSearchNotificationDto.getOpaqueFilterIdPG()))
             ))
         {
             log.debug("result not satisfy filter filterid receiver");
@@ -105,8 +109,10 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             return  new PageSearchTrunk<>();
         }
         // filtro per mittente gruppo
-        if( inputSearchNotificationDto.isBySender() && !CollectionUtils.isEmpty( inputSearchNotificationDto.getGroups()) && !inputSearchNotificationDto.getGroups().contains( entity.getNotificationGroup() ) ) {
-            log.debug("result not satisfy filter group sender");
+        if( (inputSearchNotificationDto.isBySender() || inputSearchNotificationDto.isByCampaign())
+                && !CollectionUtils.isEmpty( inputSearchNotificationDto.getGroups())
+                && !inputSearchNotificationDto.getGroups().contains( entity.getNotificationGroup() ) ) {
+            log.debug("result not satisfy filter group");
             return new PageSearchTrunk<>();
         }
 
