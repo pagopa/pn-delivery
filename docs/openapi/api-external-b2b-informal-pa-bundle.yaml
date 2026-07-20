@@ -1775,15 +1775,10 @@ components:
         - PLATFORM
         - SPECIAL
         - GENERAL
-    DigitalChannels:
+    DigitalNotificationChannel:
       type: string
       description: |
-        Canale di invio digitale per il quale è stato ricevuto il feedback __IO__: invio tramite App IO __PEC__: invio tramite PEC __EMAIL__: invio tramite email __SMS__: invio tramite SMS
-      enum:
-        - IO
-        - PEC
-        - EMAIL
-        - SMS
+        Canale di notificazione digitale __IO__: invio tramite App IO __PEC__: invio tramite PEC __EMAIL__: invio tramite email __SMS__: invio tramite SMS
     SendDigitalMessageDetails:
       type: object
       required:
@@ -1797,7 +1792,7 @@ components:
         digitalAddressSource:
           $ref: '#/components/schemas/DigitalAddressSource'
         channel:
-          $ref: '#/components/schemas/DigitalChannels'
+          $ref: '#/components/schemas/DigitalNotificationChannel'
         retryNumber:
           type: integer
           description: numero dei tentativi effettuati
@@ -1862,7 +1857,7 @@ components:
         digitalAddressSource:
           $ref: '#/components/schemas/DigitalAddressSource'
         channel:
-          $ref: '#/components/schemas/DigitalChannels'
+          $ref: '#/components/schemas/DigitalNotificationChannel'
         retryNumber:
           type: integer
           description: numero dei tentativi effettuati
@@ -1914,7 +1909,7 @@ components:
           description: data notifica
           format: date-time
         channel:
-          $ref: '#/components/schemas/DigitalChannels'
+          $ref: '#/components/schemas/DigitalNotificationChannel'
         deliveryDetail:
           $ref: '#/components/schemas/DigitalDeliveryDetail'
         sendingReceipts:
@@ -2167,6 +2162,10 @@ components:
           type: string
           description: Codice della raccomandata
           maxLength: 128
+    NotificationChannel:
+      type: string
+      description: |
+        Canale di notificazione - __IO__: invio tramite App IO - __PEC__: invio tramite PEC - __EMAIL__: invio tramite email - __SMS__: invio tramite SMS - __ANALOG__: invio tramite posta cartacea
     DeliveredDetails:
       type: object
       required:
@@ -2177,9 +2176,7 @@ components:
         recIndex:
           $ref: '#/components/schemas/RecIndex'
         channel:
-          type: string
-          description: |
-            __Canale di consegna al destinatario__ - __APPIO__ - __PEC__ - __EMAIL__ - __SMS__ - __ANALOG__
+          $ref: '#/components/schemas/NotificationChannel'
         sourceElementId:
           type: string
           description: Id dell'elemento che ha generato la consegna al destinatario
@@ -2294,7 +2291,7 @@ components:
         recIndex:
           $ref: '#/components/schemas/RecIndex'
         channel:
-          $ref: '#/components/schemas/DigitalChannels'
+          $ref: '#/components/schemas/DigitalNotificationChannel'
         digitalAddressSource:
           $ref: '#/components/schemas/DigitalAddressSource'
         retryNumber:
