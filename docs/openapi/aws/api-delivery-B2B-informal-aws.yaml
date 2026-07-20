@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: OSc0UnIKLMGcXjsK9r++bkiIRXfoj3VRecELPu3P10k=
+  version: mOlh96SxGS2IdPBmWBCLYqFX1aR9SJZ01c6r6ZVf8kI=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2537,7 +2537,6 @@ components:
       type: object
       required:
         - recIndex
-        - serviceLevel
         - sentAttemptMade
         - responseStatus
         - deliveryType

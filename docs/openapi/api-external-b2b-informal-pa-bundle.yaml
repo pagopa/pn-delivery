@@ -2124,7 +2124,6 @@ components:
       type: object
       required:
         - recIndex
-        - serviceLevel
         - sentAttemptMade
         - responseStatus
         - deliveryType
