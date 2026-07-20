@@ -154,6 +154,7 @@ class EntityToDtoNotificationMetadataMapperTest {
                 .requestAcceptedAt(OffsetDateTime.parse(ACCEPTED_AT))
                 .notificationStatus(UnifiedNotificationStatus.ACCEPTED)
                 .mandateId("mandateId")
+                .communicationType("LEGAL")
                 .build();
 
         NotificationDelegationMetadataEntity notificationDelegationMetadataEntity =
