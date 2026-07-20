@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.NotificationSearchCommunicationType;
@@ -104,10 +105,25 @@ class NotificationMetadataEntityDaoDynamoCommunicationTypeTest {
     }
 
     @Test
-    void searchForOneMonthNullDoesNotApplyCommunicationTypeFilter() {
-        Expression filter = captureFilterExpression(null);
+        void searchForOneMonthNullCommunicationTypeThrowsException() {
+        InputSearchNotificationDto searchDto = baseReceiverSearch()
+            .communicationType(null)
+            .build();
 
-        assertNull(filter.expression());
+        assertThrows(PnInternalException.class,
+            () -> dao.searchForOneMonth(searchDto, INDEX_NAME, PARTITION, 10, null));
+        verify(index, never()).query(any(QueryEnhancedRequest.class));
+        }
+
+        @Test
+        void searchByIunNullCommunicationTypeThrowsException() {
+        InputSearchNotificationDto searchDto = baseReceiverSearch()
+            .communicationType(null)
+            .build();
+
+        assertThrows(PnInternalException.class,
+            () -> dao.searchByIun(searchDto, PARTITION, SENT_AT.toString()));
+        verify(table, never()).getItem(any(software.amazon.awssdk.enhanced.dynamodb.model.GetItemEnhancedRequest.class));
     }
 
     private Expression captureFilterExpression(NotificationSearchCommunicationType communicationType) {
@@ -170,9 +186,9 @@ class NotificationMetadataEntityDaoDynamoCommunicationTypeTest {
     }
 
     @Test
-    void searchByIunNullFilterKeepsAnyEntity() {
+    void searchByIunAllFilterKeepsAnyEntity() {
         mockGetItem(communicationTypeEntity("INFORMAL"));
-        assertResult(null, true);
+        assertResult(NotificationSearchCommunicationType.ALL, true);
     }
 
     @Test
@@ -397,6 +413,7 @@ class NotificationMetadataEntityDaoDynamoCommunicationTypeTest {
                 .byCampaign(true)
                 .campaignId("campaign-id")
                 .senderReceiverId(SENDER_ID)
+                .communicationType(NotificationSearchCommunicationType.INFORMAL)
                 .startDate(START_DATE)
                 .endDate(END_DATE)
                 .statuses(List.of())
