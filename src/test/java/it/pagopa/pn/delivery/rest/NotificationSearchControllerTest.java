@@ -395,6 +395,7 @@ class NotificationSearchControllerTest {
                 .recipients( Collections.singletonList( RECIPIENT_ID ) )
                 .paProtocolNumber("123")
                 .subject(SUBJECT_REG_EXP)
+                .mandateId(MANDATE_ID)
                 .build();
 
         ResultPaginationDto<NotificationSearchRow,String> result =
