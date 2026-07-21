@@ -109,6 +109,7 @@ public class NotificationDaoDynamo implements NotificationDao {
 				.taxId( recipient.getTaxId() )
 				.payments( recipient.getPayments() )
 				.messageId( recipient.getMessageId() )
+				.additionalLanguages( recipient.getAdditionalLanguages() )
 				.build();
 	}
 
