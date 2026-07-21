@@ -1933,7 +1933,6 @@ components:
       enum:
         - RS
     PrepareAnalogDeliveryDetails:
-      x-discriminator-value: PREPARE_ANALOG_DELIVERY
       type: object
       required:
         - recIndex
@@ -1959,7 +1958,6 @@ components:
         foreignState:
           type: string
     SendAnalogMessageDetails:
-      x-discriminator-value: SEND_ANALOG_MESSAGE
       type: object
       required:
         - recIndex
@@ -2282,7 +2280,6 @@ components:
           maxLength: 128
           description: Identificativo del frontespizio per il quale è stata richiesta la creazione
     SendDigitalMessageSkipDetails:
-      x-discriminator-value: SEND_DIGITAL_MESSAGE_SKIP
       type: object
       required:
         - recIndex

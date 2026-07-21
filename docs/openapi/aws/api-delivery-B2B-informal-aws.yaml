@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 2hZ8bDH9Hmb0uBAk/Fp0ni2Qy/zBLWEH2YtfktAL458=
+  version: JaiiwbbACHRigZPUFZAeWfrmzh/RcRtnw9zPCvfp3SQ=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2344,7 +2344,6 @@ components:
       enum:
         - RS
     PrepareAnalogDeliveryDetails:
-      x-discriminator-value: PREPARE_ANALOG_DELIVERY
       type: object
       required:
         - recIndex
@@ -2369,7 +2368,6 @@ components:
         foreignState:
           type: string
     SendAnalogMessageDetails:
-      x-discriminator-value: SEND_ANALOG_MESSAGE
       type: object
       required:
         - recIndex
@@ -2702,7 +2700,6 @@ components:
             Identificativo del frontespizio per il quale è stata richiesta la
             creazione
     SendDigitalMessageSkipDetails:
-      x-discriminator-value: SEND_DIGITAL_MESSAGE_SKIP
       type: object
       required:
         - recIndex
