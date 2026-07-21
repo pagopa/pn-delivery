@@ -63,6 +63,7 @@ Resources:
             abstract:struct<S:string>,
             amount:struct<N:string>,
             cancelledIun:struct<S:string>,
+            cancelledByIun:struct<S:string>,
             documents:struct<L:array<struct<M:struct<
               contentType:struct<S:string>,
               digests:struct<M:struct<sha256:struct<S:string>>>,
@@ -70,7 +71,7 @@ Resources:
                 key:struct<S:string>,
                 versionToken:struct<S:string>
               >>,
-              requiresAck:struct<NULL:boolean,BOOL:boolean>,
+              requireAck:struct<NULL:boolean,BOOL:boolean>,
               sendByMail:struct<NULL:boolean,BOOL:boolean>,
               title:struct<NULL:boolean,S:string>
             >>>>,
@@ -127,7 +128,8 @@ Resources:
             taxonomyCode:struct<S:string>,
             vat:struct<N:string>,
             version:struct<S:string>,
-            usedServices:struct<M:struct<physicalAddressLookup:struct<BOOL:boolean>>>
+            usedServices:struct<M:struct<physicalAddressLookup:struct<BOOL:boolean>>>,
+            senderPriority:struct<N:string>
           >
   PnNotificationInformalDataQualityStack:
     Type: AWS::CloudFormation::Stack
@@ -152,7 +154,7 @@ Resources:
                 key:struct<S:string>,
                 versionToken:struct<S:string>
               >>,
-              requiresAck:struct<NULL:boolean,BOOL:boolean>,
+              requireAck:struct<NULL:boolean,BOOL:boolean>,
               sendByMail:struct<NULL:boolean,BOOL:boolean>,
               title:struct<NULL:boolean,S:string>
             >>>>,
@@ -163,6 +165,7 @@ Resources:
             paNotificationId:struct<S:string>,
             physicalCommunicationType:struct<S:string>,
             recipients:struct<L:array<struct<M:struct<
+              languages:struct<L:array<struct<M:struct<lang:struct<S:string>>>>>,
               denomination:struct<NULL:boolean,S:string>,
               digitalDomicile:struct<NULL:boolean,M:struct<type:struct<NULL:boolean,S:string>>>,
               payments:struct<L:array<struct<M:struct<
@@ -182,7 +185,7 @@ Resources:
               >>>>,
               recipientId:struct<S:string>,
               recipientType:struct<S:string>,
-              messageId:struct<S:string>
+              messageId:struct<NULL:boolean,S:string>
             >>>>,
             requestId:struct<S:string>,
             senderDenomination:struct<S:string>,
@@ -195,8 +198,9 @@ Resources:
             taxonomyCode:struct<S:string>,
             version:struct<S:string>,
             usedServices:struct<M:struct<physicalAddressLookup:struct<BOOL:boolean>>>,
-            campaignId:struct<S:string>,
-            communicationType:struct<S:string>
+            campaignId:struct<NULL:boolean,S:string>,
+            communicationType:struct<NULL:boolean,S:string>,
+            senderPriority:struct<NULL:boolean,N:string>
           >
 
   PnNotificationsCostDataQualityStack:
