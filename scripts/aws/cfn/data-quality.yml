@@ -76,7 +76,7 @@ Resources:
                 key:struct<S:string>,
                 versionToken:struct<S:string>
               >>,
-              requireAck:struct<NULL:boolean,BOOL:boolean>,
+              requiresAck:struct<NULL:boolean,BOOL:boolean>,
               sendByMail:struct<NULL:boolean,BOOL:boolean>,
               title:struct<NULL:boolean,S:string>
             >>>>,
@@ -92,8 +92,8 @@ Resources:
             physicalCommunicationType:struct<S:string>,
             physicalCommunicationPriority:struct<N:string>,
             recipients:struct<L:array<struct<M:struct<
-              denomination:struct<NULL:boolean>,
-              digitalDomicile:struct<NULL:boolean>,
+              denomination:struct<NULL:boolean,S:string>,
+              digitalDomicile:struct<NULL:boolean,M:struct<type:struct<NULL:boolean,S:string>>>,
               payments:struct<L:array<struct<M:struct<
                 applyCost:struct<BOOL:boolean>,
                 creditorTaxId:struct<S:string>,
@@ -119,7 +119,6 @@ Resources:
                   >>
                 >>
               >>>>,
-              physicalAddress:struct<NULL:boolean>,
               recipientId:struct<S:string>,
               recipientType:struct<S:string>
             >>>>,
@@ -133,7 +132,7 @@ Resources:
             subject:struct<S:string>,
             taxonomyCode:struct<S:string>,
             vat:struct<N:string>,
-            version:struct<N:string,S:string>,
+            version:struct<S:string>,
             usedServices:struct<M:struct<physicalAddressLookup:struct<BOOL:boolean>>>
           >
   PnNotificationInformalDataQualityStack:
@@ -158,7 +157,7 @@ Resources:
                 key:struct<S:string>,
                 versionToken:struct<S:string>
               >>,
-              requireAck:struct<NULL:boolean,BOOL:boolean>,
+              requiresAck:struct<NULL:boolean,BOOL:boolean>,
               sendByMail:struct<NULL:boolean,BOOL:boolean>,
               title:struct<NULL:boolean,S:string>
             >>>>,
@@ -169,8 +168,8 @@ Resources:
             paNotificationId:struct<S:string>,
             physicalCommunicationType:struct<S:string>,
             recipients:struct<L:array<struct<M:struct<
-              denomination:struct<NULL:boolean>,
-              digitalDomicile:struct<NULL:boolean>,
+              denomination:struct<NULL:boolean,S:string>,
+              digitalDomicile:struct<NULL:boolean,M:struct<type:struct<NULL:boolean,S:string>>>,
               payments:struct<L:array<struct<M:struct<
                 applyCost:struct<BOOL:boolean>,
                 creditorTaxId:struct<S:string>,
@@ -186,7 +185,6 @@ Resources:
                 amount:struct<N:string>,
                 dueDate:struct<S:string>
               >>>>,
-              physicalAddress:struct<NULL:boolean>,
               recipientId:struct<S:string>,
               recipientType:struct<S:string>,
               messageId:struct<S:string>
@@ -200,7 +198,7 @@ Resources:
             sourceChannelDetails:struct<S:string>,
             subject:struct<S:string>,
             taxonomyCode:struct<S:string>,
-            version:struct<N:string,S:string>,
+            version:struct<S:string>,
             usedServices:struct<M:struct<physicalAddressLookup:struct<BOOL:boolean>>>,
             campaignId:struct<S:string>,
             communicationType:struct<S:string>
