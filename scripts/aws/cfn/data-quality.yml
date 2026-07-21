@@ -160,7 +160,6 @@ Resources:
             >>>>,
             group:struct<S:string>,
             idempotenceToken:struct<S:string>,
-            languages:struct<L:array<struct<M:struct<lang:struct<S:string>>>>>,
             iun:struct<S:string>,
             paNotificationId:struct<S:string>,
             physicalCommunicationType:struct<S:string>,
