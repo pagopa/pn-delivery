@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: JaiiwbbACHRigZPUFZAeWfrmzh/RcRtnw9zPCvfp3SQ=
+  version: CYz6FhYTWNEbCCnbm5Bv6VW5MI9zVsrVzu6eqn3WPpE=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -286,8 +286,7 @@ paths:
         Per conoscere lo stato di accettazione della richiesta di notifica
         bisogna utilizzare l'operazione
 
-        getInformalNotificationRequestStatusV1 oppure utilizzare la modalità
-        push prevista dai webhook. <br/>
+        getInformalNotificationRequestStatusV1. <br/>
       tags:
         - NewInformalNotification
       operationId: sendNewInformalNotificationV1
