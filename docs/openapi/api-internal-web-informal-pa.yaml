@@ -46,7 +46,6 @@ paths:
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchRecipientId'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchUnifiedIun'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchInformalStatus'
-        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchGroup'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchViewed'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchDelivered'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchPageSize'

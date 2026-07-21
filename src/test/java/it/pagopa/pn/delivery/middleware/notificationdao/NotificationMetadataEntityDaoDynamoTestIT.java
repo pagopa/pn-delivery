@@ -71,6 +71,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( "c_h501" )
+                .communicationType( NotificationSearchCommunicationType.LEGAL )
                 .size( 10 )
                 .nextPagesKey( null )
                 .build();
@@ -137,6 +138,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( "c_h501" )
+                .communicationType( NotificationSearchCommunicationType.LEGAL )
                 .size( 10 )
                 .nextPagesKey( "eyJlayI6ImNfYjQyOSMjMjAyMjA0IiwiaWsiOnsiaXVuX3JlY2lwaWVudElkIjoiY19iNDI5LTIwMjIwNDA0MTYwNCMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwic2VudEF0IjoiMjAyMi0wNC0wNFQxNDowNDowNy41MjA1NThaIiwic2VuZGVySWRfY3JlYXRpb25Nb250aCI6ImNfYjQyOSMjMjAyMjA0In19" )
                 .build();
@@ -182,6 +184,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( TAX_ID_R1 )
+                .communicationType( NotificationSearchCommunicationType.LEGAL )
                 .size( 10 )
                 .nextPagesKey( null )
                 .build();
@@ -212,6 +215,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( OPAQUE_TAX_ID_R1 )
+                .communicationType( NotificationSearchCommunicationType.LEGAL )
                 .size( 10 )
                 .nextPagesKey( "eyJlayI6ImVkODRiOGM5LTQ0NGUtNDEwZC04MGQ3LWNmYWQ2YWExMjA3MCMjMjAyMjA0IiwiaWsiOnsiaXVuX3JlY2lwaWVudElkIjoiY19iNDI5LTIwMjIwNDA0MTYwNCMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwicmVjaXBpZW50SWRfY3JlYXRpb25Nb250aCI6ImVkODRiOGM5LTQ0NGUtNDEwZC04MGQ3LWNmYWQ2YWExMjA3MCMjMjAyMjA0Iiwic2VudEF0IjoiMjAyMi0wNC0wNFQxNDowNDowNy41MjA1NThaIn19" )
                 .build();
@@ -258,6 +262,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( "c_h501" )
+                .communicationType( NotificationSearchCommunicationType.LEGAL )
                 .size( 10 )
                 .filterId( OPAQUE_TAX_ID_R1 )
                 .build();
@@ -290,6 +295,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( "c_h501" )
+                .communicationType( NotificationSearchCommunicationType.LEGAL )
                 .size( 10 )
                 .nextPagesKey( "eyJlayI6ImNfYjQyOSMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwiaWsiOnsiaXVuX3JlY2lwaWVudElkIjoiY19iNDI5LTIwMjIwNDA1MTEyOCMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwic2VudEF0IjoiMjAyMi0wNC0wNVQwOToyODo0Mi4zNTgxMzZaIiwic2VuZGVySWRfcmVjaXBpZW50SWQiOiJjX2I0MjkjI2VkODRiOGM5LTQ0NGUtNDEwZC04MGQ3LWNmYWQ2YWExMjA3MCJ9fQ==" )
                 .filterId( OPAQUE_TAX_ID_R1 )
@@ -334,6 +340,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( "c_h501" )
+                .communicationType( NotificationSearchCommunicationType.LEGAL )
                 .size( 10 )
                 .statuses(List.of(NotificationStatusV26.ACCEPTED))
                 .build();
@@ -414,6 +421,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( senderPaid1 )
+                .communicationType( NotificationSearchCommunicationType.LEGAL )
                 .size( 10 )
                 .iunMatch( IUN )
                 .build();
@@ -616,6 +624,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( senderPaid1 )
+                .communicationType( NotificationSearchCommunicationType.LEGAL )
                 .size( 10 )
                 .groups( groups )
                 .build();
@@ -695,6 +704,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( senderPaid1)
+                .communicationType( NotificationSearchCommunicationType.LEGAL )
                 .size( 10 )
                 .groups( groups )
                 .build();
@@ -727,6 +737,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( "c_h501" )
+                .communicationType( NotificationSearchCommunicationType.LEGAL )
                 .size( 10 )
                 .mandateAllowedPaIds( paids )
                 .build();
@@ -798,6 +809,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                     .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                     .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                     .senderReceiverId( recipientId )
+                    .communicationType( NotificationSearchCommunicationType.LEGAL )
                     .size( 10 )
                     .mandateAllowedPaIds( paids )
                     .build();
@@ -885,6 +897,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                     .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                     .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                     .senderReceiverId( recipientId )
+                    .communicationType( NotificationSearchCommunicationType.LEGAL )
                     .size( 10 )
                     .mandateAllowedPaIds( paids )
                     .build();
@@ -971,6 +984,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                     .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                     .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                     .senderReceiverId( recipientId )
+                    .communicationType( NotificationSearchCommunicationType.LEGAL )
                     .size( 10 )
                     .mandateAllowedPaIds( paids )
                     .build();
@@ -1052,6 +1066,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                     .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                     .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                     .senderReceiverId( senderPaid1 )
+                    .communicationType( NotificationSearchCommunicationType.LEGAL )
                     .size( 10 )
                     .mandateAllowedPaIds( paids )
                     .build();
@@ -1134,6 +1149,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                     .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                     .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                     .senderReceiverId( senderPaid1 )
+                    .communicationType( NotificationSearchCommunicationType.LEGAL )
                     .groups(List.of("gruppo1"))
                     .size( 10 )
                     .mandateAllowedPaIds( paids )
@@ -1217,6 +1233,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                     .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                     .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                     .senderReceiverId( senderPaid1 )
+                    .communicationType( NotificationSearchCommunicationType.LEGAL )
                     .groups(List.of("gruppo2"))
                     .size( 10 )
                     .mandateAllowedPaIds( paids )

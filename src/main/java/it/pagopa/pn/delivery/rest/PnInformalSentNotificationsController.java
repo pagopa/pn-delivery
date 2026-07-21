@@ -48,7 +48,6 @@ public class PnInformalSentNotificationsController implements SenderInformalRead
                                                                                              String recipientId,
                                                                                              String iunMatch,
                                                                                              InformalNotificationStatusV1 status,
-                                                                                             String group,
                                                                                              Boolean viewed,
                                                                                              Boolean delivered,
                                                                                              Integer size,
@@ -63,8 +62,7 @@ public class PnInformalSentNotificationsController implements SenderInformalRead
                 .filterId(recipientId)
                 .iunMatch(iunMatch)
                 .informalStatuses(status == null ? List.of() : List.of(status))
-                // se è specificato un singolo gruppo come filtro lo si usa, altrimenti si filtra sui gruppi dell'utente
-                .groups(StringUtils.hasText(group) ? List.of(group) : xPagopaPnCxGroups)
+                .groups(xPagopaPnCxGroups)
                 .viewed(viewed)
                 .delivered(delivered)
                 .communicationType(NotificationSearchCommunicationType.INFORMAL)
@@ -78,8 +76,6 @@ public class PnInformalSentNotificationsController implements SenderInformalRead
         try {
             campaignAuthValidator.checkCampaignIsFromSender(campaignId, xPagopaPnCxId);
             serviceResult = retrieveSvc.searchNotification(searchDto, null, null);
-            // la validazione di dominio deve stare fuori dal map(): ModelMapper incapsula
-            // le eccezioni del converter in MappingException, perdendo il codice errore dedicato
             InformalNotificationStatusValidator.assertInformalCompatible(serviceResult);
             response = modelMapper.map(serviceResult, InformalNotificationSearchResponse.class);
         } catch (PnRuntimeException exc) {

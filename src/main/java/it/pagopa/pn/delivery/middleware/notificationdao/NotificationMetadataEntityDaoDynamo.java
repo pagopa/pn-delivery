@@ -23,6 +23,7 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import java.time.Instant;
 import java.util.List;
 
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_GENERIC_ERROR;
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_UNSUPPORTED_INDEX_NAME;
 
 @Component
@@ -44,6 +45,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             String partitionValue,
             String sentValue
     ) {
+        validateCommunicationType(inputSearchNotificationDto);
         log.debug( "START search for single IUN" );
         // costruzione delle Keys di ricerca in base alla partizione che si vuole interrogare ed al range di date di interesse
 
@@ -90,9 +92,13 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             return  new PageSearchTrunk<>();
         }
         // filtro per destinatario (su filterId, quindi a logica invertita rispetto ai 2 filtri precedenti)
-        if (StringUtils.hasText(inputSearchNotificationDto.getFilterId()) && inputSearchNotificationDto.isBySender() && !(
-            entity.getRecipientIds().contains(inputSearchNotificationDto.getOpaqueFilterIdPF())
-            || entity.getRecipientIds().contains(inputSearchNotificationDto.getOpaqueFilterIdPG())
+        if (StringUtils.hasText(inputSearchNotificationDto.getFilterId())
+            && (inputSearchNotificationDto.isBySender() || inputSearchNotificationDto.isByCampaign())
+            && !(
+            (StringUtils.hasText(inputSearchNotificationDto.getOpaqueFilterIdPF())
+                && entity.getRecipientIds().contains(inputSearchNotificationDto.getOpaqueFilterIdPF()))
+            || (StringUtils.hasText(inputSearchNotificationDto.getOpaqueFilterIdPG())
+                && entity.getRecipientIds().contains(inputSearchNotificationDto.getOpaqueFilterIdPG()))
             ))
         {
             log.debug("result not satisfy filter filterid receiver");
@@ -105,8 +111,10 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             return  new PageSearchTrunk<>();
         }
         // filtro per mittente gruppo
-        if( inputSearchNotificationDto.isBySender() && !CollectionUtils.isEmpty( inputSearchNotificationDto.getGroups()) && !inputSearchNotificationDto.getGroups().contains( entity.getNotificationGroup() ) ) {
-            log.debug("result not satisfy filter group sender");
+        if( (inputSearchNotificationDto.isBySender() || inputSearchNotificationDto.isByCampaign())
+                && !CollectionUtils.isEmpty( inputSearchNotificationDto.getGroups())
+                && !inputSearchNotificationDto.getGroups().contains( entity.getNotificationGroup() ) ) {
+            log.debug("result not satisfy filter group");
             return new PageSearchTrunk<>();
         }
 
@@ -149,6 +157,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             int size,
             PnLastEvaluatedKey lastEvaluatedKey
     ) {
+        validateCommunicationType(inputSearchNotificationDto);
         log.trace( "START search for one month" );
         Instant startDate = inputSearchNotificationDto.getStartDate();
         Instant endDate = inputSearchNotificationDto.getEndDate();
@@ -226,15 +235,15 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
      * Filtro in memoria per tipologia di comunicazione, usato dalla ricerca puntuale per IUN ({@code GetItem}).
      * Stessa semantica della query multi-mese:
      * <ul>
-     *     <li>{@code LEGAL} (o assente): {@code communicationType == LEGAL} oppure {@code null} (notifiche storiche);</li>
+        *     <li>{@code LEGAL}: {@code communicationType == LEGAL} oppure {@code null} (notifiche storiche);</li>
      *     <li>{@code INFORMAL}: {@code communicationType == INFORMAL};</li>
      *     <li>{@code ALL}: nessun filtro.</li>
      * </ul>
      */
     private boolean matchesCommunicationTypeFilter(NotificationSearchCommunicationType communicationType,
                                                    NotificationMetadataEntity entity) {
-        // ALL o assente per "tutte": nessun filtro
-        if (communicationType == null || communicationType == NotificationSearchCommunicationType.ALL) {
+        // ALL: nessun filtro
+        if (communicationType == NotificationSearchCommunicationType.ALL) {
             return true;
         }
 
@@ -246,6 +255,14 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         }
         // INFORMAL
         return NotificationSearchCommunicationType.INFORMAL.name().equals(entityCommunicationType);
+    }
+
+    private void validateCommunicationType(InputSearchNotificationDto inputSearchNotificationDto) {
+        if (inputSearchNotificationDto.getCommunicationType() == null) {
+            throw new PnInternalException(
+                    "communicationType is required for notification metadata search",
+                    ERROR_CODE_DELIVERY_GENERIC_ERROR);
+        }
     }
 
     /**
@@ -315,8 +332,8 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
                                                  Expression.Builder filterExpressionBuilder,
                                                  StringBuilder expressionBuilder) {
 
-        // nel caso in cui sono il mittente (o sto eseguendo una ricerca massiva per campagna) e sto cercando
-        // senza specificare il destinatario, applico il filtro su recipientOne (così mi torna solo un record per iun multidestinatario)
+        // nel caso in cui sono il mittente (o sto eseguendo una ricerca massiva per campagna utile se in futuro ci saranno i multidestinatari)
+        // e sto cercando senza specificare il destinatario, applico il filtro su recipientOne (così mi torna solo un record per iun multidestinatario)
         boolean massiveSenderSearch = inputSearchNotificationDto.isBySender() && !StringUtils.hasText(inputSearchNotificationDto.getFilterId());
         boolean massiveCampaignSearch = inputSearchNotificationDto.isByCampaign() && !StringUtils.hasText(inputSearchNotificationDto.getFilterId());
         if (massiveSenderSearch || massiveCampaignSearch) {
@@ -449,7 +466,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
     /**
      * Filtro per tipologia di comunicazione applicato alla query multi-mese.
      * <ul>
-     *     <li>{@code LEGAL} (o filtro assente, gestito a monte con default applicativo):
+        *     <li>{@code LEGAL}:
      *     {@code (communicationType = :legal OR attribute_not_exists(communicationType))},
      *     così da includere anche le notifiche storiche precedenti al rilascio prive del campo;</li>
      *     <li>{@code INFORMAL}: {@code communicationType = :informal};</li>
@@ -460,8 +477,8 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
     private void addCommunicationTypeFilterExpression(NotificationSearchCommunicationType communicationType,
                                                       Expression.Builder filterExpressionBuilder,
                                                       StringBuilder expressionBuilder) {
-        // ALL o assente per "tutte": nessun filtro
-        if (communicationType == null || communicationType == NotificationSearchCommunicationType.ALL) {
+        // ALL: nessun filtro
+        if (communicationType == NotificationSearchCommunicationType.ALL) {
             return;
         }
 

@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.svc;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
@@ -14,6 +15,8 @@ import it.pagopa.pn.delivery.middleware.notificationdao.NotificationDelegationMe
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
+import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.NotificationSearchCommunicationType;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 
@@ -29,6 +32,7 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
@@ -100,7 +104,10 @@ class NotificationDelegatedServiceTest {
         assertDoesNotThrow(() -> notificationDelegatedService.handleAcceptedMandate(payload, EventType.MANDATE_ACCEPTED));
 
         verify(pnMandateClientImpl).listMandatesByDelegator(any(), any(), any(), any(), any(), any());
-        verify(notificationMetadataEntityDao).searchForOneMonth(any(), any(), any(), anyInt(), any());
+        ArgumentCaptor<InputSearchNotificationDto> searchDtoCaptor = ArgumentCaptor.forClass(InputSearchNotificationDto.class);
+        verify(notificationMetadataEntityDao, atLeastOnce()).searchForOneMonth(searchDtoCaptor.capture(), any(), any(), anyInt(), any());
+        assertTrue(searchDtoCaptor.getAllValues().stream()
+                .allMatch(dto -> NotificationSearchCommunicationType.LEGAL.equals(dto.getCommunicationType())));
         verify(notificationDelegationMetadataEntityDao).batchPutItems(anyList());
     }
 
@@ -240,6 +247,7 @@ class NotificationDelegatedServiceTest {
         internalMandateDto.setDelegator(DELEGATOR_ID);
         internalMandateDto.setDelegate(DELEGATE_ID);
         internalMandateDto.setDatefrom(now.toString());
+        internalMandateDto.setGroups(Collections.singletonList("64425c8e8a0f4e1208fc0ed1"));
         List<InternalMandateDto> internalMandateDtoList = List.of(internalMandateDto);
         when(pnMandateClientImpl.listMandatesByDelegator(any(), any(), any(), any(), any(), any()))
                 .thenReturn(internalMandateDtoList);
@@ -266,5 +274,9 @@ class NotificationDelegatedServiceTest {
         assertDoesNotThrow(() -> notificationDelegatedService.handleUpdatedMandate(payload, EventType.MANDATE_ACCEPTED));
 
         verify(pnMandateClientImpl).listMandatesByDelegator(any(), any(), any(), any(), any(), any());
+        ArgumentCaptor<InputSearchNotificationDto> searchDtoCaptor = ArgumentCaptor.forClass(InputSearchNotificationDto.class);
+        verify(notificationMetadataEntityDao, atLeastOnce()).searchForOneMonth(searchDtoCaptor.capture(), any(), any(), anyInt(), any());
+        assertTrue(searchDtoCaptor.getAllValues().stream()
+                .allMatch(dto -> NotificationSearchCommunicationType.LEGAL.equals(dto.getCommunicationType())));
     }
 }

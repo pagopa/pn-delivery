@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.NotificationSearchCommunicationType;
@@ -104,10 +105,25 @@ class NotificationMetadataEntityDaoDynamoCommunicationTypeTest {
     }
 
     @Test
-    void searchForOneMonthNullDoesNotApplyCommunicationTypeFilter() {
-        Expression filter = captureFilterExpression(null);
+        void searchForOneMonthNullCommunicationTypeThrowsException() {
+        InputSearchNotificationDto searchDto = baseReceiverSearch()
+            .communicationType(null)
+            .build();
 
-        assertNull(filter.expression());
+        assertThrows(PnInternalException.class,
+            () -> dao.searchForOneMonth(searchDto, INDEX_NAME, PARTITION, 10, null));
+        verify(index, never()).query(any(QueryEnhancedRequest.class));
+        }
+
+        @Test
+        void searchByIunNullCommunicationTypeThrowsException() {
+        InputSearchNotificationDto searchDto = baseReceiverSearch()
+            .communicationType(null)
+            .build();
+
+        assertThrows(PnInternalException.class,
+            () -> dao.searchByIun(searchDto, PARTITION, SENT_AT.toString()));
+        verify(table, never()).getItem(any(software.amazon.awssdk.enhanced.dynamodb.model.GetItemEnhancedRequest.class));
     }
 
     private Expression captureFilterExpression(NotificationSearchCommunicationType communicationType) {
@@ -170,9 +186,9 @@ class NotificationMetadataEntityDaoDynamoCommunicationTypeTest {
     }
 
     @Test
-    void searchByIunNullFilterKeepsAnyEntity() {
+    void searchByIunAllFilterKeepsAnyEntity() {
         mockGetItem(communicationTypeEntity("INFORMAL"));
-        assertResult(null, true);
+        assertResult(NotificationSearchCommunicationType.ALL, true);
     }
 
     @Test
@@ -198,6 +214,72 @@ class NotificationMetadataEntityDaoDynamoCommunicationTypeTest {
         InputSearchNotificationDto searchDto = baseReceiverSearch()
                 .filterId(SENDER_ID)
                 .communicationType(NotificationSearchCommunicationType.ALL)
+                .build();
+
+        PageSearchTrunk<NotificationMetadataEntity> result =
+                dao.searchByIun(searchDto, PARTITION, SENT_AT.toString());
+
+        assertTrue(result.getResults() == null || result.getResults().isEmpty());
+    }
+
+    @Test
+    void searchByIunCampaignKeepsMatchingRecipientFromFilterId() {
+        NotificationMetadataEntity entity = campaignEntity();
+        mockGetItem(entity);
+
+        InputSearchNotificationDto searchDto = baseCampaignSearch()
+                .filterId("recipient-external-id")
+                .opaqueFilterIdPF("opaque-requested-recipient")
+                .build();
+
+        PageSearchTrunk<NotificationMetadataEntity> result =
+                dao.searchByIun(searchDto, PARTITION, SENT_AT.toString());
+
+        assertNotNull(result.getResults());
+        assertEquals(1, result.getResults().size());
+    }
+
+    @Test
+    void searchByIunCampaignDiscardsDifferentRecipientFromFilterId() {
+        NotificationMetadataEntity entity = campaignEntity();
+        entity.setRecipientIds(List.of("opaque-other-recipient"));
+        mockGetItem(entity);
+
+        InputSearchNotificationDto searchDto = baseCampaignSearch()
+                .filterId("recipient-external-id")
+                .opaqueFilterIdPF("opaque-requested-recipient")
+                .build();
+
+        PageSearchTrunk<NotificationMetadataEntity> result =
+                dao.searchByIun(searchDto, PARTITION, SENT_AT.toString());
+
+        assertTrue(result.getResults() == null || result.getResults().isEmpty());
+    }
+
+    @Test
+    void searchByIunCampaignKeepsEntityInsideRequestedGroups() {
+        NotificationMetadataEntity entity = campaignEntity();
+        mockGetItem(entity);
+
+        InputSearchNotificationDto searchDto = baseCampaignSearch()
+                .groups(List.of("group-allowed"))
+                .build();
+
+        PageSearchTrunk<NotificationMetadataEntity> result =
+                dao.searchByIun(searchDto, PARTITION, SENT_AT.toString());
+
+        assertNotNull(result.getResults());
+        assertEquals(1, result.getResults().size());
+    }
+
+    @Test
+    void searchByIunCampaignDiscardsEntityOutsideRequestedGroups() {
+        NotificationMetadataEntity entity = campaignEntity();
+        entity.setNotificationGroup("group-not-allowed");
+        mockGetItem(entity);
+
+        InputSearchNotificationDto searchDto = baseCampaignSearch()
+                .groups(List.of("group-allowed"))
                 .build();
 
         PageSearchTrunk<NotificationMetadataEntity> result =
@@ -326,6 +408,18 @@ class NotificationMetadataEntityDaoDynamoCommunicationTypeTest {
                 .size(10);
     }
 
+    private InputSearchNotificationDto.InputSearchNotificationDtoBuilder baseCampaignSearch() {
+        return new InputSearchNotificationDto().toBuilder()
+                .byCampaign(true)
+                .campaignId("campaign-id")
+                .senderReceiverId(SENDER_ID)
+                .communicationType(NotificationSearchCommunicationType.INFORMAL)
+                .startDate(START_DATE)
+                .endDate(END_DATE)
+                .statuses(List.of())
+                .size(10);
+    }
+
     private NotificationMetadataEntity communicationTypeEntity(String communicationType) {
         return NotificationMetadataEntity.builder()
                 .iunRecipientId("TGWR-ZJQN-JMAR-202209-A-1##" + RECIPIENT_ID)
@@ -335,6 +429,20 @@ class NotificationMetadataEntityDaoDynamoCommunicationTypeTest {
                 .notificationStatus("DELIVERING")
                 .sentAt(SENT_AT)
                 .communicationType(communicationType)
+                .tableRow(Map.of("senderDenomination", "comune", "subject", "oggetto", "paProtocolNumber", "123"))
+                .build();
+    }
+
+    private NotificationMetadataEntity campaignEntity() {
+        return NotificationMetadataEntity.builder()
+                .iunRecipientId("TGWR-ZJQN-JMAR-202209-A-1##" + RECIPIENT_ID)
+                .recipientId(RECIPIENT_ID)
+                .recipientIds(List.of("opaque-requested-recipient"))
+                .notificationGroup("group-allowed")
+                .notificationStatus("PROCESSING")
+                .sentAt(SENT_AT)
+                .campaignId("campaign-id")
+                .communicationType("INFORMAL")
                 .tableRow(Map.of("senderDenomination", "comune", "subject", "oggetto", "paProtocolNumber", "123"))
                 .build();
     }

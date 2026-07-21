@@ -58,7 +58,7 @@ class PnInformalSentNotificationsControllerTest {
 
         ResponseEntity<InformalNotificationSearchResponse> response = controller.searchInformalSentNotification(
                 UID, CxTypeAuthFleet.PA, CX_ID, CAMPAIGN_ID, START, END, List.of("G1"),
-                RECIPIENT_ID, null, InformalNotificationStatusV1.PROCESSING, null, true, false, 10, null);
+                RECIPIENT_ID, null, InformalNotificationStatusV1.PROCESSING, true, false, 10, null);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertSame(mapped, response.getBody());
@@ -82,23 +82,6 @@ class PnInformalSentNotificationsControllerTest {
     }
 
     @Test
-    void singleGroupFilterOverridesCxGroups() {
-        ResultPaginationDto<NotificationSearchRow, String> serviceResult = emptyPage();
-        when(retrieveSvc.searchNotification(any(), any(), any())).thenReturn(serviceResult);
-        when(modelMapper.map(any(), eq(InformalNotificationSearchResponse.class)))
-                .thenReturn(new InformalNotificationSearchResponse());
-
-        controller.searchInformalSentNotification(
-                UID, CxTypeAuthFleet.PA, CX_ID, CAMPAIGN_ID, START, END, List.of("G1", "G2"),
-                RECIPIENT_ID, null, null, "G2", null, null, 10, null);
-
-        ArgumentCaptor<InputSearchNotificationDto> captor = ArgumentCaptor.forClass(InputSearchNotificationDto.class);
-        Mockito.verify(retrieveSvc).searchNotification(captor.capture(), any(), any());
-        // se è specificato un gruppo singolo come filtro, ha la precedenza sui gruppi dell'utente
-        assertEquals(List.of("G2"), captor.getValue().getGroups());
-    }
-
-    @Test
     void emptyInformalStatusesWhenStatusNull() {
         ResultPaginationDto<NotificationSearchRow, String> serviceResult = emptyPage();
         when(retrieveSvc.searchNotification(any(), any(), any())).thenReturn(serviceResult);
@@ -107,7 +90,7 @@ class PnInformalSentNotificationsControllerTest {
 
         controller.searchInformalSentNotification(
                 UID, CxTypeAuthFleet.PA, CX_ID, CAMPAIGN_ID, START, END, List.of("G1"),
-                RECIPIENT_ID, null, null, null, null, null, 10, null);
+                RECIPIENT_ID, null, null, null, null, 10, null);
 
         ArgumentCaptor<InputSearchNotificationDto> captor = ArgumentCaptor.forClass(InputSearchNotificationDto.class);
         Mockito.verify(retrieveSvc).searchNotification(captor.capture(), any(), any());
@@ -121,7 +104,7 @@ class PnInformalSentNotificationsControllerTest {
 
         assertThrows(PnForbiddenException.class, () -> controller.searchInformalSentNotification(
                 UID, CxTypeAuthFleet.PA, CX_ID, CAMPAIGN_ID, START, END, List.of("G1"),
-                RECIPIENT_ID, null, null, null, null, null, 10, null));
+                RECIPIENT_ID, null, null,  null, null, 10, null));
 
         // la ricerca non viene eseguita se l'autorizzazione fallisce
         Mockito.verifyNoInteractions(retrieveSvc);

@@ -55,11 +55,11 @@ components:
     NotificationStatusHistoryV26:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/9e486010b7103547b0da6bf9136d14f87da43fd6/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatusHistoryV26'
     InformalNotificationStatusV1:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/797099b2e08f9ca2735440ef0c28fe7a9f0fd4f0/docs/openapi/schemas-pn-status.yaml#/components/schemas/InformalNotificationStatusV1'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/4a821e4de2356a402fc32a7d6b3a8e242d7a8198/docs/openapi/schemas-pn-status.yaml#/components/schemas/InformalNotificationStatusV1'
     InformalNotificationStatusHistoryV1:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/797099b2e08f9ca2735440ef0c28fe7a9f0fd4f0/docs/openapi/schemas-pn-status.yaml#/components/schemas/InformalNotificationStatusHistoryV1'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/4a821e4de2356a402fc32a7d6b3a8e242d7a8198/docs/openapi/schemas-pn-status.yaml#/components/schemas/InformalNotificationStatusHistoryV1'
     InformalTimelineElementV1:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/797099b2e08f9ca2735440ef0c28fe7a9f0fd4f0/docs/openapi/schemas-pn-timeline-external.yaml#/components/schemas/InformalTimelineElementV1'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/4a821e4de2356a402fc32a7d6b3a8e242d7a8198/docs/openapi/schemas-pn-timeline-external.yaml#/components/schemas/InformalTimelineElementV1'
     RequestStatus:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/9e486010b7103547b0da6bf9136d14f87da43fd6/docs/openapi/api-internal-pn-delivery-push.yaml#/components/schemas/RequestStatus'
     ############################################################################################

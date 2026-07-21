@@ -5,6 +5,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.UnifiedNotification
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.NotificationSearchRow;
+import it.pagopa.pn.delivery.models.internal.notification.CommunicationType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -44,7 +45,7 @@ public class EntityToDtoNotificationMetadataMapper {
                 // valorizzato su DB: vengono trattate come LEGAL per retrocompatibilita'
                 .communicationType( StringUtils.hasText( entity.getCommunicationType() )
                         ? entity.getCommunicationType()
-                        : "LEGAL" )
+                        : CommunicationType.LEGAL.name() )
                 .campaignId( entity.getCampaignId() )
                 .viewed( entity.getViewed() )
                 .delivered( entity.getDelivered() )
@@ -70,6 +71,7 @@ public class EntityToDtoNotificationMetadataMapper {
                 .requestAcceptedAt(requestAcceptedAt)
                 .notificationStatus(UnifiedNotificationStatus.fromValue(entity.getNotificationStatus()))
                 .mandateId(entity.getMandateId())
+                .communicationType(CommunicationType.LEGAL.name())
                 .build();
     }
 }
