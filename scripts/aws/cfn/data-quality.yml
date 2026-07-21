@@ -31,7 +31,7 @@ Parameters:
     AllowedPattern: '^[a-z_]+$'
     ConstraintDescription: | 
        Glue table name for pn-notifications, accept only lowercase values and underscores.
-    Default: pn_nofifications
+    Default: pn_notifications
   NotificationsCostGlueTableName:
     Type: String
     AllowedPattern: '^[a-z_]+$'
@@ -129,7 +129,7 @@ Resources:
             vat:struct<N:string>,
             version:struct<S:string>,
             usedServices:struct<M:struct<physicalAddressLookup:struct<BOOL:boolean>>>,
-            senderPriority:struct<N:string>
+            senderPriority:struct<NULL:boolean,N:string>
           >
   PnNotificationInformalDataQualityStack:
     Type: AWS::CloudFormation::Stack
