@@ -26,12 +26,6 @@ Parameters:
       DynamoDb table name for pn-notifications-cost, valorized by the related output
       in the storage.yaml template, used also for identifying the S3 bucket
       directory where related CDC files are stored.
-  NotificationInformalDynamoTableName:
-    Type: String
-    Description: |
-      DynamoDb table name for pn-notification-informal, valorized by the related output
-      in the storage.yaml template, used also for identifying the S3 bucket
-      directory where related CDC files are stored.
   NotificationsGlueTableName:
     Type: String
     AllowedPattern: '^[a-z_]+$'
@@ -140,11 +134,12 @@ Resources:
     Properties:
       TemplateURL: !Sub ${TemplateBucketBaseUrl}/fragments/cdc-glue.yaml
       Parameters:
-        DynamoTableName: !Ref NotificationInformalDynamoTableName
+        DynamoTableName: !Ref NotificationsDynamoTableName # same dynamo table, but with structure different and S3 path different (_INFORMAL)
         GlueTableName: !Ref NotificationInformalGlueTableName
         GlueServiceRoleArn: !Ref GlueServiceRoleArn
         LogsBucketName: !Ref LogsBucketName
         GlueDatabaseName: !Ref GlueDatabaseName
+        CdcS3PathSuffix: '_INFORMAL'
         DynamoDBKeysStructure: |
           struct<iun:struct<S:string>>
         DynamoDBNewImageStructure: |
