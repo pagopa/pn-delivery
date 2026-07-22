@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: G0Kyu02CM7nIPrmKltkrmajPqyl0XSXHE1GdSqhzaUM=
+  version: mD9T7cyjqPjjvcwgf6YEAkIS7X650/mwC+4tIwMwql0=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -471,7 +471,7 @@ components:
       name: size
       description: dimensione della pagina di risultati
       in: query
-      required: false
+      required: true
       schema:
         type: number
         maximum: 50
