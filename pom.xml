@@ -645,7 +645,7 @@
                         </goals>
                         <phase>process-resources</phase>
                         <configuration>
-                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery-push/bbc0d72bfdb320c1882ef477f93ef236edc628a7/docs/openapi/api-private.yaml</inputSpec>
+                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery-push/4a821e4de2356a402fc32a7d6b3a8e242d7a8198/docs/openapi/api-private.yaml</inputSpec>
                             <generatorName>java</generatorName>
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>
@@ -670,7 +670,7 @@
                         </goals>
                         <phase>process-resources</phase>
                         <configuration>
-                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-data-vault/f0195acffe62ed2c063ce3b7edef1b74517eff5b/docs/openapi/pn-datavault-api-v1.yaml</inputSpec>
+                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-data-vault/1c3d9995892f3a2b77b637739869ef136b63dd45/docs/openapi/pn-datavault-api-v1.yaml</inputSpec>
                             <generatorName>java</generatorName>
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>

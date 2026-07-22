@@ -271,7 +271,7 @@ paths:
         La restituzione di uno stato HTTP 202 significa solo che la richiesta è sintatticamente
         valida, non che la richiesta sia stata validata ed accettata. <br/>
         Per conoscere lo stato di accettazione della richiesta di notifica bisogna utilizzare l'operazione
-        getInformalNotificationRequestStatusV1 oppure utilizzare la modalità push prevista dai webhook. <br/>
+        getInformalNotificationRequestStatusV1. <br/>
 
         <details no-external>
         <summary><b> Attributi progettazione di alto livello </b></summary>

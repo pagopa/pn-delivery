@@ -228,7 +228,7 @@ paths:
         La restituzione di uno stato HTTP 202 significa solo che la richiesta è sintatticamente
         valida, non che la richiesta sia stata validata ed accettata. <br/>
         Per conoscere lo stato di accettazione della richiesta di notifica bisogna utilizzare l'operazione
-        getInformalNotificationRequestStatusV1 oppure utilizzare la modalità push prevista dai webhook. <br/>
+        getInformalNotificationRequestStatusV1. <br/>
       tags:
         - NewInformalNotification
       operationId: sendNewInformalNotificationV1
@@ -1933,7 +1933,6 @@ components:
       enum:
         - RS
     PrepareAnalogDeliveryDetails:
-      x-discriminator-value: PREPARE_ANALOG_DELIVERY
       type: object
       required:
         - recIndex
@@ -1959,7 +1958,6 @@ components:
         foreignState:
           type: string
     SendAnalogMessageDetails:
-      x-discriminator-value: SEND_ANALOG_MESSAGE
       type: object
       required:
         - recIndex
@@ -2282,7 +2280,6 @@ components:
           maxLength: 128
           description: Identificativo del frontespizio per il quale è stata richiesta la creazione
     SendDigitalMessageSkipDetails:
-      x-discriminator-value: SEND_DIGITAL_MESSAGE_SKIP
       type: object
       required:
         - recIndex
