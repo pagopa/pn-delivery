@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.models;
 
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatusV1;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
 import lombok.*;
 
@@ -19,6 +20,8 @@ import java.util.List;
 public class InputSearchNotificationDto {
     @NotEmpty
     private String senderReceiverId;
+
+    private String campaignId;
     
     @NotNull
     private Instant startDate;
@@ -38,11 +41,18 @@ public class InputSearchNotificationDto {
     
     private  List<NotificationStatusV26> statuses;
 
+    // filtro di stato per il flusso bonario (campagna): gli stati bonari non sono rappresentabili con NotificationStatusV26
+    private List<InformalNotificationStatusV1> informalStatuses;
+
     private List<String> groups;
-    
-    private String subjectRegExp;
 
     private String iunMatch;
+
+    private NotificationSearchCommunicationType communicationType;
+
+    private Boolean viewed;
+
+    private Boolean delivered;
 
     private boolean receiverIdIsOpaque;
 
@@ -53,6 +63,8 @@ public class InputSearchNotificationDto {
     private String nextPagesKey;
     
     private boolean bySender;
+
+    private boolean byCampaign;
 
     private Integer maxPageNumber;
     

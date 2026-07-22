@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: ZnU1keTgyZJk9buX4KoQGXKN3N9yhRcoB8Uorg1jlhU=
+  version: uyg+2mUSOqQwClqJVgyaNB6Pkz5w5072Ovnbdgr/TEI=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2920,6 +2920,16 @@ components:
       minLength: 25
       maxLength: 25
       pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+    taxonomyCode:
+      type: string
+      minLength: 7
+      maxLength: 7
+      pattern: ^([0-9]{6}[A-Z]{1})$
+      description: >-
+        Codice tassonomico della notifica basato sulla definizione presente
+        nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5
+        PIATTAFORMA NOTIFICHE
+        DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)
     PaFeeV23:
       type: number
       description: >-
@@ -3032,15 +3042,7 @@ components:
             Data di scadenza del pagamento nel formato YYYY-MM-DD riferito
             all'Italia
         taxonomyCode:
-          type: string
-          minLength: 7
-          maxLength: 7
-          pattern: ^([0-9]{6}[A-Z]{1})$
-          description: >-
-            Codice tassonomico della notifica basato sulla definizione presente
-            nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5
-            PIATTAFORMA NOTIFICHE
-            DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)
+          $ref: '#/components/schemas/taxonomyCode'
         paFee:
           $ref: '#/components/schemas/PaFeeV23'
         vat:

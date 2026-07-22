@@ -6,45 +6,58 @@ import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.RecipientReadApi;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.api.RecipientReadInformalNotificationApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
+import it.pagopa.pn.delivery.models.NotificationSearchRow;
 import it.pagopa.pn.delivery.models.*;
-import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
-import it.pagopa.pn.delivery.svc.NotificationQRService;
-import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
+import it.pagopa.pn.delivery.svc.*;
+import it.pagopa.pn.delivery.svc.search.NotificationSearchService;
 import it.pagopa.pn.delivery.utils.InternalFieldsCleaner;
+import it.pagopa.pn.delivery.utils.LegalNotificationStatusValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.NativeWebRequest;
 
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static it.pagopa.pn.commons.utils.MDCUtils.*;
 
 @Slf4j
 @RestController
-public class PnReceivedNotificationsController implements RecipientReadApi {
-    private final NotificationRetrieverService retrieveSvc;
+public class PnReceivedNotificationsController implements RecipientReadApi, RecipientReadInformalNotificationApi {
+    private final NotificationSearchService retrieveSvc;
+    private final InformalNotificationDetailRetrieverStrategy informalNotificationDetailRetrieverStrategy;
+    private final LegalNotificationDetailRetrieverStrategy legalNotificationDetailRetrieverStrategy;
     private final NotificationAttachmentService notificationAttachmentService;
     private final NotificationQRService notificationQRService;
-
+    private final SenderContactsService senderContactsService;
     private final ModelMapper modelMapper;
 
 
-    public PnReceivedNotificationsController(NotificationRetrieverService retrieveSvc, NotificationAttachmentService notificationAttachmentService, NotificationQRService notificationQRService, ModelMapper modelMapper) {
+    public PnReceivedNotificationsController(NotificationSearchService retrieveSvc,
+                                             InformalNotificationDetailRetrieverStrategy informalNotificationDetailRetrieverStrategy,
+                                             LegalNotificationDetailRetrieverStrategy legalNotificationDetailRetrieverStrategy,
+                                             NotificationAttachmentService notificationAttachmentService,
+                                             NotificationQRService notificationQRService, SenderContactsService senderContactsService,
+                                             ModelMapper modelMapper) {
         this.retrieveSvc = retrieveSvc;
+        this.informalNotificationDetailRetrieverStrategy = informalNotificationDetailRetrieverStrategy;
+        this.legalNotificationDetailRetrieverStrategy = legalNotificationDetailRetrieverStrategy;
         this.notificationAttachmentService = notificationAttachmentService;
         this.notificationQRService = notificationQRService;
+        this.senderContactsService = senderContactsService;
         this.modelMapper = modelMapper;
     }
 
     @Override
-    public ResponseEntity<NotificationSearchResponse> searchReceivedNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, OffsetDateTime startDate, OffsetDateTime endDate, List<String> xPagopaPnCxGroups, String mandateId, String senderId, NotificationStatusV26 status, String subjectRegExp, String iunMatch, Integer size, String nextPagesKey) {
+    public ResponseEntity<FullNotificationSearchResponse> searchReceivedNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, OffsetDateTime startDate, OffsetDateTime endDate, List<String> xPagopaPnCxGroups, String mandateId, String senderId, String iunMatch, Integer size, String nextPagesKey, String communicationType) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEventType eventType = PnAuditLogEventType.AUD_NT_SEARCH_RCP;
         String logMsg = "searchReceivedNotification";
@@ -64,19 +77,19 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .endDate(endDate.toInstant())
                 .mandateId(mandateId)
                 .filterId(senderId)
-                .statuses(status==null?List.of():List.of(status))
+                .statuses(List.of())
+                .communicationType(StringUtils.hasText(communicationType) ? NotificationSearchCommunicationType.valueOf(communicationType) : NotificationSearchCommunicationType.LEGAL)
                 //.groups( groups != null ? Arrays.asList( groups ) : null )
-                .subjectRegExp(subjectRegExp)
                 .iunMatch(iunMatch)
                 .size(size)
                 .nextPagesKey(nextPagesKey)
                 .build();
         log.info("Search received notification with filter senderId={} iun={}", senderId, iunMatch);
         ResultPaginationDto<NotificationSearchRow, String> serviceResult;
-        NotificationSearchResponse response = new NotificationSearchResponse();
+        FullNotificationSearchResponse response = new FullNotificationSearchResponse();
         try {
             serviceResult = retrieveSvc.searchNotification(searchDto, xPagopaPnCxType.getValue(), xPagopaPnCxGroups);
-            response = modelMapper.map(serviceResult, NotificationSearchResponse.class);
+            response = modelMapper.map(serviceResult, FullNotificationSearchResponse.class);
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("" + exc.getProblem()).log();
@@ -86,7 +99,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
     }
 
     @Override
-    public ResponseEntity<NotificationSearchResponse> searchReceivedDelegatedNotification(String xPagopaPnUid,
+    public ResponseEntity<LegalNotificationSearchResponse> searchReceivedDelegatedNotification(String xPagopaPnUid,
                                                                                           CxTypeAuthFleet xPagopaPnCxType,
                                                                                           String xPagopaPnCxId,
                                                                                           OffsetDateTime startDate,
@@ -119,10 +132,11 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .build();
         log.info("Search received delegated notification to {} with filter senderId={} recipientId={}", xPagopaPnCxId, senderId, recipientId);
         ResultPaginationDto<NotificationSearchRow, String> result;
-        NotificationSearchResponse response;
+        LegalNotificationSearchResponse response;
         try {
             result = retrieveSvc.searchNotificationDelegated(searchDto);
-            response = modelMapper.map(result, NotificationSearchResponse.class);
+            LegalNotificationStatusValidator.assertLegalCompatible(result);
+            response = modelMapper.map(result, LegalNotificationSearchResponse.class);
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException e) {
             log.error("can not search received delegated notification", e);
@@ -150,9 +164,10 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         logEvent.log();
         try {
             InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups, xPagopaPnSrcCh, xPagopaPnSrcChDetails);
-            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, mandateId, logEvent);
+            LegalNotificationDetail legalNotificationDetail = legalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, mandateId, logEvent);
+            InternalNotification internalNotification = legalNotificationDetail.getNotification();
             InternalFieldsCleaner.cleanInternalFields( internalNotification );
-            result = modelMapper.map(internalNotification, FullReceivedNotificationV28.class);
+            result = modelMapper.map(legalNotificationDetail, FullReceivedNotificationV28.class);
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("" + exc.getProblem()).log();
@@ -177,7 +192,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .build();
         logEvent.log();
         try {
-            retrieveSvc.checkIfNotificationIsNotCancelled(iun);
+            legalNotificationDetailRetrieverStrategy.checkIfNotificationIsNotCancelled(iun);
             InternalAuthHeader internalAuthHeader = new InternalAuthHeader(
                     xPagopaPnCxType.getValue(),
                     xPagopaPnCxId,
@@ -221,7 +236,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .build();
         logEvent.log();
         try {
-            retrieveSvc.checkIfNotificationIsNotCancelled(iun);
+            legalNotificationDetailRetrieverStrategy.checkIfNotificationIsNotCancelled(iun);
             InternalAuthHeader internalAuthHeader = new InternalAuthHeader(
                     xPagopaPnCxType.getValue(),
                     xPagopaPnCxId,
@@ -276,5 +291,130 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         }
 
         return ResponseEntity.ok( responseCheckAarMandateDto );
+    }
+
+
+    @Override
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedInformalNotificationAttachmentV1(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String xPagopaPnSrcCh, String iun, String attachmentName, List<String> xPagopaPnCxGroups, String xPagopaPnSrcChDetails, Integer attachmentIdx) {
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEventType eventType = PnAuditLogEventType.AUD_COM_ATCHOPEN_RCP;
+        String logMsg = "getReceivedInformalNotificationAttachmentV1 attachment name={}, attachment index={}";
+        NotificationAttachmentDownloadMetadataResponse response;
+        PnAuditLogEvent logEvent = auditLogBuilder.before(eventType, logMsg, attachmentName, attachmentIdx)
+                .iun(iun)
+                .build();
+        logEvent.log();
+        try {
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(
+                    xPagopaPnCxType.getValue(),
+                    xPagopaPnCxId,
+                    xPagopaPnUid,
+                    xPagopaPnCxGroups,
+                    xPagopaPnSrcCh,
+                    xPagopaPnSrcChDetails
+            );
+            response = notificationAttachmentService.downloadAttachmentWithRedirect(
+                    iun,
+                    internalAuthHeader,
+                    null,
+                    null,
+                    attachmentName,
+                    attachmentIdx,
+                    true
+            );
+            String fileName = response.getFilename();
+            String url = response.getUrl();
+            String retryAfter = String.valueOf( response.getRetryAfter() );
+            String message = LogUtils.createAuditLogMessageForDownloadDocument(fileName, url, retryAfter);
+            logEvent.generateSuccess("getReceivedInformalNotificationAttachmentV1 attachment name={} attachment index={}, {}",
+                    attachmentName, attachmentIdx, message).log();
+            return ResponseEntity.ok(response);
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("" + exc.getProblem()).log();
+            throw exc;
+        }
+    }
+
+    @Override
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedInformalNotificationDocumentV1(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String xPagopaPnSrcCh, String iun, Integer docIdx, List<String> xPagopaPnCxGroups, String xPagopaPnSrcChDetails) {
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEventType eventType = PnAuditLogEventType.AUD_COM_DOCOPEN_RCP;
+        String logMsg = "getReceivedInformalNotificationDocumentV1 from documents array with index={}";
+        NotificationAttachmentDownloadMetadataResponse response;
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(eventType, logMsg, docIdx)
+                .iun(iun)
+                .build();
+        logEvent.log();
+        try {
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(
+                    xPagopaPnCxType.getValue(),
+                    xPagopaPnCxId,
+                    xPagopaPnUid,
+                    xPagopaPnCxGroups,
+                    xPagopaPnSrcCh,
+                    xPagopaPnSrcChDetails
+            );
+            response = notificationAttachmentService.downloadDocumentWithRedirect(
+                    iun,
+                    internalAuthHeader,
+                    null,
+                    docIdx,
+                    true
+            );
+            String fileName = response.getFilename();
+            String url = response.getUrl();
+            String retryAfter = String.valueOf( response.getRetryAfter() );
+            String message = LogUtils.createAuditLogMessageForDownloadDocument(fileName, url, retryAfter);
+            logEvent.generateSuccess("getReceivedInformalNotificationDocumentV1 {}", message).log();
+            return ResponseEntity.ok(response);
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("" + exc.getProblem()).log();
+            throw exc;
+        }
+    }
+
+    @Override
+    public ResponseEntity<FullReceivedInformalNotificationV1> getReceivedInformalNotificationV1(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String xPagopaPnSrcCh, String iun, List<String> xPagopaPnCxGroups, String xPagopaPnSrcChDetails, Boolean retrieveMessage) {
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        FullReceivedInformalNotificationV1 result = null;
+        PnAuditLogEventType eventType = PnAuditLogEventType.AUD_COM_VIEW_RCP;
+        String logMsg = "getReceivedInformalNotification";
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(eventType, logMsg)
+                .iun(iun)
+                .build();
+        logEvent.log();
+        try {
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups, xPagopaPnSrcCh, xPagopaPnSrcChDetails);
+            InformalNotificationDetail informalNotificationDetail = informalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(
+                    iun,
+                    internalAuthHeader,
+                    logEvent,
+                    Boolean.TRUE.equals(retrieveMessage)
+            );
+            InternalNotification internalNotification = informalNotificationDetail.getNotification();
+            InternalFieldsCleaner.cleanInternalFields( internalNotification );
+            result = modelMapper.map(informalNotificationDetail, FullReceivedInformalNotificationV1.class);
+            logEvent.generateSuccess().log();
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("" + exc.getProblem()).log();
+            throw exc;
+        }
+        return ResponseEntity.ok(result);
+    }
+
+    @Override
+    public Optional<NativeWebRequest> getRequest() {
+        return RecipientReadApi.super.getRequest();
+    }
+
+    @Override
+    public ResponseEntity<SenderContactInfo> getSenderContacts(String senderId) {
+        log.info("getSenderContacts for senderId={}", senderId);
+        SenderContactsDto senderContactsDto = senderContactsService.getSenderContacts(senderId);
+        SenderContactInfo response = modelMapper.map(senderContactsDto, SenderContactInfo.class);
+        response.setSenderId(senderContactsDto.getSenderId());
+        return ResponseEntity.ok(response);
     }
 }

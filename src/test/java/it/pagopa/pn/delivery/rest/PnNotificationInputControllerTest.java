@@ -12,6 +12,8 @@ import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import it.pagopa.pn.delivery.utils.PreloadRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
@@ -27,6 +29,7 @@ import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_TAXONOMYCODE;
 import static org.mockito.ArgumentMatchers.any;
@@ -46,7 +49,9 @@ class PnNotificationInputControllerTest {
 	private static final String X_PAGOPA_PN_SRC_CH_DETAILS = "sourceChannelDetails";
 	private static final String FILE_SHA_256 = "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=";
 	public static final String DELIVERY_REQUESTS_PATH = "/delivery/v2.6/requests";
-	public static final String DELIVERY_INFORMAL_REQUESTS_PATH = "/delivery/v1/notifications/informal";
+	public static final String DELIVERY_INFORMAL_REQUESTS_PATH = "/delivery/v1/requests";
+	public static final String DELIVERY_PRELOAD_REQUEST_PATH = "/delivery/attachments/preload";
+	public static final String DELIVERY_INFORMAL_PRELOAD_REQUEST_PATH = "/delivery/v1/attachments/preload";
 
 	@Autowired
     WebTestClient webTestClient;
@@ -540,8 +545,16 @@ class PnNotificationInputControllerTest {
 
 	}
 
-	@Test
-	void postPresignedUploadNotSuccess() {
+	private static Stream<Arguments> providePresignedUploadArgs() {
+		return Stream.of(
+				Arguments.of(DELIVERY_PRELOAD_REQUEST_PATH),
+				Arguments.of(DELIVERY_INFORMAL_PRELOAD_REQUEST_PATH)
+		);
+	}
+
+	@ParameterizedTest
+	@MethodSource("providePresignedUploadArgs")
+	void postPresignedUploadNotSuccess(String path) {
 		// Given
 		List<PreLoadRequest> requests = new ArrayList<>();
 		requests.add( PreLoadRequest.builder()
@@ -554,7 +567,7 @@ class PnNotificationInputControllerTest {
 
 		// Then
 		webTestClient.post()
-				.uri("/delivery/attachments/preload")
+				.uri(path)
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
 				.body(Mono.just(requests), PreLoadRequest.class)
@@ -567,7 +580,8 @@ class PnNotificationInputControllerTest {
 
 	}
 
-	@Test
+	@ParameterizedTest
+	@MethodSource("providePresignedUploadArgs")
 	void postPresignedUploadSuccess() {
 		// Given
 		List<PreLoadRequest> requests = new ArrayList<>();
@@ -603,7 +617,8 @@ class PnNotificationInputControllerTest {
 		Mockito.verify( attachmentService ).preloadDocuments( requests );
 	}
 
-	@Test
+	@ParameterizedTest
+	@MethodSource("providePresignedUploadArgs")
 	void postPresignedUploadFailure() {
 		//GIven
 		List<PreloadRequest> requests = new ArrayList<>();

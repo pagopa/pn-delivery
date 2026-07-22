@@ -11,9 +11,9 @@ import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.RequestCheckQ
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ResponseCheckQrMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyMessage;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
-import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.LegalNotificationDetail;
+import it.pagopa.pn.delivery.svc.LegalNotificationDetailRetrieverStrategy;
 import it.pagopa.pn.delivery.svc.NotificationQRService;
-import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.io.IOMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,13 +24,14 @@ import java.util.List;
 import java.util.UUID;
 
 import static it.pagopa.pn.commons.utils.MDCUtils.*;
+import static it.pagopa.pn.delivery.utils.NotificationUtils.isNotificationCancelled;
 
 @Slf4j
 @RequiredArgsConstructor
 @RestController
 public class PnReceivedIONotificationsController implements AppIoPnNotificationApi {
 
-    private final NotificationRetrieverService retrieveSvc;
+    private final LegalNotificationDetailRetrieverStrategy legalNotificationDetailRetrieverStrategy;
     private final NotificationQRService notificationQRService;
     private final IOMapper ioMapper;
 
@@ -52,9 +53,9 @@ public class PnReceivedIONotificationsController implements AppIoPnNotificationA
         logEvent.log();
         try {
             InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups, xPagopaPnSrcCh, xPagopaPnSrcChDetails);
-            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, mandateId != null ? mandateId.toString() : null, logEvent);
-            boolean isNotificationCancelled = retrieveSvc.isNotificationCancelled(internalNotification);
-            result = ioMapper.mapToThirdPartMessage(internalNotification, isNotificationCancelled);
+            LegalNotificationDetail legalNotificationDetail = legalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, mandateId != null ? mandateId.toString() : null, logEvent);
+            boolean isNotificationCancelled = isNotificationCancelled(legalNotificationDetail);
+            result = ioMapper.mapToThirdPartMessage(legalNotificationDetail, isNotificationCancelled);
             logEvent.generateSuccess().log();
         } catch (PnMandateNotFoundException exc) {
             logEvent.generateFailure("Mandate not found: " + exc.getProblem().getDetail()).log();

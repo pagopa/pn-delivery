@@ -10,6 +10,7 @@ import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEnti
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.NotificationSearchCommunicationType;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.svc.search.IndexNameAndPartitions;
@@ -66,6 +67,7 @@ public class NotificationDelegatedService {
                 .bySender(false)
                 .startDate(event.getValidFrom())
                 .endDate(Instant.now()) // duplico solo le notifiche ricevute fino ad adesso, quelle successive verranno duplicate tramite il flusso standard
+                .communicationType(NotificationSearchCommunicationType.LEGAL)
                 .size(DEFAULT_DYNAMO_QUERY_SIZE)
                 .build();
         log.debug("filters: {}", searchDto);
@@ -146,6 +148,7 @@ public class NotificationDelegatedService {
                     .bySender(false)
                     .startDate(now.minus(120, ChronoUnit.DAYS))
                     .endDate(now) // duplico solo le notifiche ricevute fino ad adesso, quelle successive verranno duplicate tramite il flusso standard
+                    .communicationType(NotificationSearchCommunicationType.LEGAL)
                     .size(DEFAULT_DYNAMO_QUERY_SIZE)
                     .build();
             log.debug("filters: {}", searchDto);

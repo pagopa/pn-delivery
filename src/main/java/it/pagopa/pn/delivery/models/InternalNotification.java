@@ -44,9 +44,6 @@ public class InternalNotification {
     private OffsetDateTime sentAt;
     private String cancelledByIun;
     private Boolean documentsAvailable;
-    private NotificationStatusV26 notificationStatus;
-    private List<NotificationStatusHistoryElementV26> notificationStatusHistory;
-    private List<TimelineElementV28> timeline;
     private List<String> recipientIds;
     private String sourceChannel;
     private String sourceChannelDetails;
@@ -360,71 +357,6 @@ public class InternalNotification {
 
     public void setDocumentsAvailable(Boolean documentsAvailable) {
         this.documentsAvailable = documentsAvailable;
-    }
-
-    public InternalNotification notificationStatus(NotificationStatusV26 notificationStatus) {
-        this.notificationStatus = notificationStatus;
-        return this;
-    }
-
-    /**
-     * Get notificationStatus
-     *
-     * @return notificationStatus
-     */
-    public NotificationStatusV26 getNotificationStatus() {
-        return notificationStatus;
-    }
-
-    public void setNotificationStatus(NotificationStatusV26 notificationStatus) {
-        this.notificationStatus = notificationStatus;
-    }
-
-    public InternalNotification notificationStatusHistory(List<NotificationStatusHistoryElementV26> notificationStatusHistory) {
-        this.notificationStatusHistory = notificationStatusHistory;
-        return this;
-    }
-
-    public InternalNotification addNotificationStatusHistoryItem(NotificationStatusHistoryElementV26 notificationStatusHistoryItem) {
-        if (this.notificationStatusHistory == null) {
-            this.notificationStatusHistory = new ArrayList<>();
-        }
-        this.notificationStatusHistory.add(notificationStatusHistoryItem);
-        return this;
-    }
-
-    /**
-     * elenco degli avanzamenti effettuati dal processo di notifica
-     *
-     * @return notificationStatusHistory
-     */
-    public List<NotificationStatusHistoryElementV26> getNotificationStatusHistory() {
-        return notificationStatusHistory;
-    }
-
-    public void setNotificationStatusHistory(List<NotificationStatusHistoryElementV26> notificationStatusHistory) {
-        this.notificationStatusHistory = notificationStatusHistory;
-    }
-
-    public InternalNotification timeline(List<TimelineElementV28> timeline) {
-        this.timeline = timeline;
-        return this;
-    }
-
-    public InternalNotification addTimelineItem(TimelineElementV28 timelineItem) {
-        if (this.timeline == null) {
-            this.timeline = new ArrayList<>();
-        }
-        this.timeline.add(timelineItem);
-        return this;
-    }
-
-    public List<TimelineElementV28> getTimeline() {
-        return timeline;
-    }
-
-    public void setTimeline(List<TimelineElementV28> timeline) {
-        this.timeline = timeline;
     }
 
     public InternalNotification recipientIds(List<String> recipientIds) {

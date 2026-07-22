@@ -54,6 +54,12 @@ components:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/9e486010b7103547b0da6bf9136d14f87da43fd6/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatusV26'
     NotificationStatusHistoryV26:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/9e486010b7103547b0da6bf9136d14f87da43fd6/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatusHistoryV26'
+    InformalNotificationStatusV1:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/4a821e4de2356a402fc32a7d6b3a8e242d7a8198/docs/openapi/schemas-pn-status.yaml#/components/schemas/InformalNotificationStatusV1'
+    InformalNotificationStatusHistoryV1:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/4a821e4de2356a402fc32a7d6b3a8e242d7a8198/docs/openapi/schemas-pn-status.yaml#/components/schemas/InformalNotificationStatusHistoryV1'
+    InformalTimelineElementV1:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/4a821e4de2356a402fc32a7d6b3a8e242d7a8198/docs/openapi/schemas-pn-timeline-external.yaml#/components/schemas/InformalTimelineElementV1'
     RequestStatus:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/9e486010b7103547b0da6bf9136d14f87da43fd6/docs/openapi/api-internal-pn-delivery-push.yaml#/components/schemas/RequestStatus'
     ############################################################################################
@@ -97,15 +103,15 @@ components:
 
     TimelineElementV25:
       # DO NOT CHANGE: this is timeline V2.5 commit id.
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-stream/e955ce1583b2cd05758b97901cf07d1e1297b71b/docs/openapi/pn-stream-api-external-bundle.yaml#/components/schemas/TimelineElementV25'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-stream/9d03101f7dc060469cd3d1c8a85533fd4cba96d5/docs/openapi/pn-stream-api-external-bundle.yaml#/components/schemas/TimelineElementV25'
 
     TimelineElementV26:
       # DO NOT CHANGE: this is timeline V2.6 commit id.
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-stream/e955ce1583b2cd05758b97901cf07d1e1297b71b/docs/openapi/pn-stream-api-external-bundle.yaml#/components/schemas/TimelineElementV26'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-stream/9d03101f7dc060469cd3d1c8a85533fd4cba96d5/docs/openapi/pn-stream-api-external-bundle.yaml#/components/schemas/TimelineElementV26'
 
     TimelineElementV27:
       # DO NOT CHANGE: this is timeline V2.7 commit id.
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-stream/e955ce1583b2cd05758b97901cf07d1e1297b71b/docs/openapi/pn-stream-api-external-bundle.yaml#/components/schemas/TimelineElementV27'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-stream/9d03101f7dc060469cd3d1c8a85533fd4cba96d5/docs/openapi/pn-stream-api-external-bundle.yaml#/components/schemas/TimelineElementV27'
 
 
     NotificationStatus:

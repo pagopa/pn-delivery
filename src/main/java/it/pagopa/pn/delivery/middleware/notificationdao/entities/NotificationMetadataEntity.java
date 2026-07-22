@@ -22,6 +22,8 @@ public class NotificationMetadataEntity {
     public static final String INDEX_SENDER_ID = "senderId";
     public static final String INDEX_SENDER_ID_RECIPIENT_ID = "senderId_recipientId";
     public static final String INDEX_RECIPIENT_ID = "recipientId";
+    public static final String INDEX_BY_CAMPAIGN = "campaignId";
+    public static final String INDEX_BY_CAMPAIGN_RECIPIENT = "campaignId_recipientId";
     public static final String FIELD_RECIPIENT_IDS = "recipientIds";
     public static final String FIELD_RECIPIENT_ONE = "recipientOne";
     public static final String FIELD_NOTIFICATION_GROUP = "notificationGroup";
@@ -30,8 +32,15 @@ public class NotificationMetadataEntity {
     public static final String FIELD_SENDER_ID_CREATION_MONTH = "senderId_creationMonth";
     public static final String FIELD_RECIPIENT_ID_CREATION_MONTH = "recipientId_creationMonth";
     public static final String FIELD_SENDER_ID_RECIPIENT_ID = "senderId_recipientId";
+    public static final String FIELD_CAMPAIGN_ID_CREATION_MONTH = "campaignId_creationMonth";
+    public static final String FIELD_CAMPAIGN_ID_RECIPIENT_ID = "campaignId_recipientId";
     public static final String FIELD_ROOT_SENDER_ID = "rootSenderId";
     public static final String FIELD_NOTIFICATION_STATUS_TIMESTAMP = "notificationStatusTimestamp";
+    public static final String FIELD_COMMUNICATION_TYPE = "communicationType";
+    public static final String FIELD_CAMPAIGN_ID = "campaignId";
+    public static final String FIELD_VIEWED = "viewed";
+    public static final String FIELD_DELIVERED = "delivered";
+    public static final String FIELD_DESIRED_FEEDBACK = "desiredFeedback";
 
 
 
@@ -47,8 +56,15 @@ public class NotificationMetadataEntity {
     private String senderIdCreationMonth;
     private String recipientIdCreationMonth;
     private String senderIdRecipientId;
+    private String campaignIdCreationMonth;
+    private String campaignIdRecipientId;
     private String rootSenderId;
     private Instant notificationStatusTimestamp;
+    private String communicationType;
+    private String campaignId;
+    private Boolean viewed;
+    private Boolean delivered;
+    private Boolean desiredFeedback;
 
     @DynamoDbPartitionKey
     @DynamoDbAttribute(value = FIELD_IUN_RECIPIENT_ID)
@@ -61,7 +77,13 @@ public class NotificationMetadataEntity {
     }
 
     @DynamoDbSortKey
-    @DynamoDbSecondarySortKey( indexNames = {INDEX_SENDER_ID, INDEX_SENDER_ID_RECIPIENT_ID, INDEX_RECIPIENT_ID})
+    @DynamoDbSecondarySortKey( indexNames = {
+            INDEX_SENDER_ID,
+            INDEX_SENDER_ID_RECIPIENT_ID,
+            INDEX_RECIPIENT_ID,
+            INDEX_BY_CAMPAIGN,
+            INDEX_BY_CAMPAIGN_RECIPIENT
+    })
     @DynamoDbAttribute(value = FIELD_SENT_AT)
     public Instant getSentAt() {
         return sentAt;
@@ -162,6 +184,26 @@ public class NotificationMetadataEntity {
         this.senderIdRecipientId = senderIdRecipientId;
     }
 
+    @DynamoDbSecondaryPartitionKey(indexNames = { INDEX_BY_CAMPAIGN })
+    @DynamoDbAttribute(value = FIELD_CAMPAIGN_ID_CREATION_MONTH)
+    public String getCampaignIdCreationMonth() {
+        return campaignIdCreationMonth;
+    }
+
+    public void setCampaignIdCreationMonth(String campaignIdCreationMonth) {
+        this.campaignIdCreationMonth = campaignIdCreationMonth;
+    }
+
+    @DynamoDbSecondaryPartitionKey(indexNames = { INDEX_BY_CAMPAIGN_RECIPIENT })
+    @DynamoDbAttribute(value = FIELD_CAMPAIGN_ID_RECIPIENT_ID)
+    public String getCampaignIdRecipientId() {
+        return campaignIdRecipientId;
+    }
+
+    public void setCampaignIdRecipientId(String campaignIdRecipientId) {
+        this.campaignIdRecipientId = campaignIdRecipientId;
+    }
+
     @DynamoDbAttribute(value = FIELD_ROOT_SENDER_ID)
     public String getRootSenderId() {
         return rootSenderId == null ? this.getSenderId() : rootSenderId;
@@ -178,5 +220,50 @@ public class NotificationMetadataEntity {
 
     public void setNotificationStatusTimestamp(Instant notificationStatusTimestamp) {
         this.notificationStatusTimestamp = notificationStatusTimestamp;
+    }
+
+    @DynamoDbAttribute(value = FIELD_COMMUNICATION_TYPE)
+    public String getCommunicationType() {
+        return communicationType;
+    }
+
+    public void setCommunicationType(String communicationType) {
+        this.communicationType = communicationType;
+    }
+
+    @DynamoDbAttribute(value = FIELD_CAMPAIGN_ID)
+    public String getCampaignId() {
+        return campaignId;
+    }
+
+    public void setCampaignId(String campaignId) {
+        this.campaignId = campaignId;
+    }
+
+    @DynamoDbAttribute(value = FIELD_VIEWED)
+    public Boolean getViewed() {
+        return viewed;
+    }
+
+    public void setViewed(Boolean viewed) {
+        this.viewed = viewed;
+    }
+
+    @DynamoDbAttribute(value = FIELD_DELIVERED)
+    public Boolean getDelivered() {
+        return delivered;
+    }
+
+    public void setDelivered(Boolean delivered) {
+        this.delivered = delivered;
+    }
+
+    @DynamoDbAttribute(value = FIELD_DESIRED_FEEDBACK)
+    public Boolean getDesiredFeedback() {
+        return desiredFeedback;
+    }
+
+    public void setDesiredFeedback(Boolean desiredFeedback) {
+        this.desiredFeedback = desiredFeedback;
     }
 }

@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.middleware.notificationdao.entities;
 
+import it.pagopa.pn.delivery.models.NotificationLang;
 import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
@@ -22,6 +23,7 @@ public class NotificationRecipientEntity {
     public static final String FIELD_PHYSICAL_ADDRESS = "physicalAddress";
     public static final String FIELD_PAYMENTS = "payments";
     public static final String FIELD_MESSAGE_ID = "messageId";
+    public static final String FIELD_LANG = "languages";
 
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_RECIPIENT_TYPE)})) private RecipientTypeEntity recipientType;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_RECIPIENT_ID)})) private String recipientId;
@@ -30,5 +32,6 @@ public class NotificationRecipientEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PHYSICAL_ADDRESS)})) private NotificationPhysicalAddressEntity physicalAddress;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PAYMENTS),  @DynamoDbIgnoreNulls})) private List<NotificationPaymentInfoEntity> payments;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_MESSAGE_ID)})) private String messageId;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_LANG),  @DynamoDbIgnoreNulls})) private List<NotificationLang> languages;
 
 }

@@ -13,10 +13,7 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.F24.v1.model.SaveF24Item
 import it.pagopa.pn.delivery.generated.openapi.msclient.F24.v1.model.SaveF24Request;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaInfo;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationRequestV1;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewInformalNotificationResponse;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV26;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationResponse;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.InternalUsedService;
@@ -72,6 +69,8 @@ public class NotificationReceiverService {
 	private final PaNotificationLimitService paNotificationLimitService;
 	private final ValidationPipeline<InformalNotificationContext> informalNotificationValidationPipeline;
 
+	private final CampaignService campaignService;
+
 	@Autowired
 	public NotificationReceiverService(
             Clock clock,
@@ -83,7 +82,8 @@ public class NotificationReceiverService {
             PnF24ClientImpl f24Client,
             PnDeliveryConfigs cfg,
             PaNotificationLimitService paNotificationLimitService,
-             ValidationPipeline<InformalNotificationContext> informalNotificationValidationPipeline
+            ValidationPipeline<InformalNotificationContext> informalNotificationValidationPipeline,
+			CampaignService campaignService
     ) {
 		this.clock = clock;
 		this.notificationDao = notificationDao;
@@ -95,6 +95,7 @@ public class NotificationReceiverService {
 		this.cfg = cfg;
         this.paNotificationLimitService = paNotificationLimitService;
         this.informalNotificationValidationPipeline = informalNotificationValidationPipeline;
+        this.campaignService = campaignService;
     }
 
 	/**
@@ -352,6 +353,7 @@ public class NotificationReceiverService {
 		log.debug("New informal notification validation OK for paProtocolNumber={}", newInformalNotificationRequest.getPaProtocolNumber() );
 		log.logCheckingOutcome("New informal notification request validation process", true, "");
 
+		internalNotification.setTaxonomyCode(retrieveTaxonomyCodeByCampaign(internalNotification.getCampaignId(), internalNotification.getSenderPaId()));
 		setPhysicalAddressLookup(internalNotification);
 		String iun = generateIun(internalNotification, informalIunGenerator);
 
@@ -380,6 +382,12 @@ public class NotificationReceiverService {
 				.paProtocolNumber( internalNotification.getPaProtocolNumber() )
 				.idempotenceToken( internalNotification.getIdempotenceToken() )
 				.build();
+	}
+
+	private String retrieveTaxonomyCodeByCampaign(String campaignId, String paId) {
+		log.debug("Retrieving taxonomy code from campaign with campaignId={} and paId={}", campaignId, paId);
+		CampaignDetail campaign = campaignService.getCampaign(campaignId, paId);
+		return campaign.getTaxonomyCode();
 	}
 
 }

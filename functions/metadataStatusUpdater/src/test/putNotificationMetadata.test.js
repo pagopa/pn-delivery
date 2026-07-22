@@ -42,6 +42,7 @@ describe('putNotificationMetadata', () => {
     expect(getRootSenderStub.firstCall.args[0]).to.be.deep.equal('senderPaId');
     expect(putMetadataStub.callCount).to.equal(2); // 2 (1 metadata + 1 delegationMetadata) * recipients.length
     expect(putMetadataStub.firstCall.args[0]).to.equal('pn-NotificationsMetadata');
+    expect(putMetadataStub.firstCall.args[1]).to.have.property('communicationType', 'LEGAL');
     expect(putMetadataStub.secondCall.args[0]).to.equal('pn-NotificationDelegationMetadata');
   });
 

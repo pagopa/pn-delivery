@@ -1,17 +1,15 @@
-package it.pagopa.pn.delivery.middleware;
-
-import java.time.Instant;
+package it.pagopa.pn.delivery.middleware.notificationviewedproducer;
 
 import it.pagopa.pn.api.dto.events.*;
 
-public interface NotificationViewedProducer extends MomProducer<PnDeliveryNotificationViewedEvent> {
+import java.time.Instant;
 
-    default void sendNotificationViewed( String iun, Instant when, int recipientIndex, NotificationViewDelegateInfo delegateInfo, String sourceChannel, String sourceChannelDetails) {
-    	PnDeliveryNotificationViewedEvent event = buildNotificationViewed( iun, when, recipientIndex, delegateInfo, sourceChannel,sourceChannelDetails );
-        this.push( event );
+public class NotificationViewedUtils {
+    private NotificationViewedUtils() {
+        // utility class, prevent instantiation
     }
 
-    default PnDeliveryNotificationViewedEvent buildNotificationViewed( String iun, Instant when, int recipientIndex, NotificationViewDelegateInfo delegateInfo, String sourceChannel, String sourceChannelDetails) {
+    public static PnDeliveryNotificationViewedEvent buildNotificationViewed(String iun, Instant when, int recipientIndex, NotificationViewDelegateInfo delegateInfo, String sourceChannel, String sourceChannelDetails) {
         String eventId = iun + "_notification_viewed_rec" + recipientIndex;
         return PnDeliveryNotificationViewedEvent.builder()
                 .messageDeduplicationId(eventId)
@@ -30,6 +28,7 @@ public interface NotificationViewedProducer extends MomProducer<PnDeliveryNotifi
                         .delegateInfo( delegateInfo )
                         .sourceChannel( sourceChannel )
                         .sourceChannelDetails( sourceChannelDetails )
+                        .viewedDate( when )
                         .build()
                 )
                 .build();

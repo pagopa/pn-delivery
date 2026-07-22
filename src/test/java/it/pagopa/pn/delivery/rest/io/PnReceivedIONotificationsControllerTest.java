@@ -2,7 +2,10 @@ package it.pagopa.pn.delivery.rest.io;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
-import it.pagopa.pn.delivery.exception.*;
+import it.pagopa.pn.delivery.exception.PnIoMandateNotFoundException;
+import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
+import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
+import it.pagopa.pn.delivery.exception.PnRootIdNonFountException;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.RequestCheckQrMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ResponseCheckQrMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyMessage;
@@ -10,13 +13,15 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.LegalNotificationDetail;
 import it.pagopa.pn.delivery.models.internal.notification.*;
 import it.pagopa.pn.delivery.models.internal.notification.F24Payment;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
 import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
+import it.pagopa.pn.delivery.svc.InformalNotificationDetailRetrieverStrategy;
+import it.pagopa.pn.delivery.svc.LegalNotificationDetailRetrieverStrategy;
 import it.pagopa.pn.delivery.svc.NotificationQRService;
-import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.io.IOMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -33,6 +38,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @WebFluxTest(controllers = {PnReceivedIONotificationsController.class})
 class PnReceivedIONotificationsControllerTest {
@@ -48,7 +55,10 @@ class PnReceivedIONotificationsControllerTest {
     WebTestClient webTestClient;
 
     @MockBean
-    private NotificationRetrieverService svc;
+    private InformalNotificationDetailRetrieverStrategy informalNotificationDetailRetrieverStrategy;
+
+    @MockBean
+    private LegalNotificationDetailRetrieverStrategy legalNotificationDetailRetrieverStrategy;
 
     @MockBean
     private NotificationQRService notificationQRService;
@@ -65,13 +75,17 @@ class PnReceivedIONotificationsControllerTest {
     @Test
     void getReceivedNotificationSuccess() {
         // Given
+        LegalNotificationDetail legalNotificationDetail = newLegalNotification();
         InternalNotification notification = newNotification();
-        String expectedValueJson = newThirdPartyMessage(notification, false);
+        String expectedValueJson = newThirdPartyMessage(legalNotificationDetail, false);
         System.out.println(expectedValueJson);
 
         // When
-        Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.any( InternalAuthHeader.class ), eq( null), Mockito.any(PnAuditLogEvent.class)) )
-                .thenReturn( notification );
+        when( legalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent( Mockito.anyString(),
+                        Mockito.any( InternalAuthHeader.class ),
+                        eq( null),
+                        Mockito.any(PnAuditLogEvent.class)) )
+                .thenReturn( legalNotificationDetail );
 
         // Then
         webTestClient.get()
@@ -88,14 +102,14 @@ class PnReceivedIONotificationsControllerTest {
                 .expectBody()
                 .json(expectedValueJson);
 
-        Mockito.verify(svc).getNotificationAndNotifyViewedEvent(Mockito.eq(IUN), Mockito.eq(new InternalAuthHeader("PF", "IO-" + USER_ID, USER_ID, null, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_SRC_CH_DET)), Mockito.eq(null), Mockito.any(PnAuditLogEvent.class));
+        verify(legalNotificationDetailRetrieverStrategy).getNotificationAndNotifyViewedEvent(Mockito.eq(IUN), Mockito.eq(new InternalAuthHeader("PF", "IO-" + USER_ID, USER_ID, null, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_SRC_CH_DET)), Mockito.eq(null), Mockito.any(PnAuditLogEvent.class));
     }
 
     @Test
     void getReceivedNotificationFailure() {
 
         // When
-        Mockito.when(svc.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(null), Mockito.any(PnAuditLogEvent.class)))
+        when(legalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(null), Mockito.any(PnAuditLogEvent.class)))
                 .thenThrow(new PnNotificationNotFoundException("test"));
 
         // Then
@@ -116,7 +130,7 @@ class PnReceivedIONotificationsControllerTest {
     void getReceivedNotificationWithMandateFailsForRootId() {
 
         // When
-        Mockito.when(svc.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(MANDATE_ID), Mockito.any(PnAuditLogEvent.class)))
+        when(legalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(MANDATE_ID), Mockito.any(PnAuditLogEvent.class)))
                 .thenThrow(new PnRootIdNonFountException("test"));
 
         // Then
@@ -140,7 +154,7 @@ class PnReceivedIONotificationsControllerTest {
     void getReceivedNotificationWithMandateFailsForMandate() {
 
         // When
-        Mockito.when(svc.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(MANDATE_ID), Mockito.any(PnAuditLogEvent.class)))
+        when(legalNotificationDetailRetrieverStrategy.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(MANDATE_ID), Mockito.any(PnAuditLogEvent.class)))
                 .thenThrow(new PnMandateNotFoundException("test"));
 
         // Then
@@ -171,7 +185,7 @@ class PnReceivedIONotificationsControllerTest {
         responseCheckQrMandateDto.setIun(IUN);
 
         // When
-        Mockito.when(notificationQRService.getNotificationByQRFromIOWithMandate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        when(notificationQRService.getNotificationByQRFromIOWithMandate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(responseCheckQrMandateDto);
 
         // Then
@@ -195,7 +209,7 @@ class PnReceivedIONotificationsControllerTest {
         responseCheckQrMandateDto.setIun(IUN);
 
         // When
-        Mockito.when(notificationQRService.getNotificationByQRFromIOWithMandate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        when(notificationQRService.getNotificationByQRFromIOWithMandate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenThrow(new PnIoMandateNotFoundException(responseCheckQrMandateDto));
 
         // Then
@@ -211,20 +225,14 @@ class PnReceivedIONotificationsControllerTest {
     }
 
     private InternalNotification newNotification() {
-        TimelineElementV28 timelineElement = new TimelineElementV28();
-        timelineElement.setCategory(TimelineElementCategoryV28.AAR_CREATION_REQUEST);
         InternalNotification internalNotification = new InternalNotification();
-        internalNotification.setNotificationStatusHistory(List.of(NotificationStatusHistoryElementV26.builder()
-                .status(NotificationStatusV26.ACCEPTED).build()));
         internalNotification.setPagoPaIntMode(NewNotificationRequestV26.PagoPaIntModeEnum.NONE);
-        internalNotification.setTimeline(List.of(timelineElement));
         internalNotification.setIun("iun");
         internalNotification.setPaProtocolNumber("protocol_01");
         internalNotification.setSubject("Subject 01");
         internalNotification.setCancelledIun("IUN_05");
         internalNotification.setCancelledIun("IUN_00");
         internalNotification.setSenderPaId(PA_ID);
-        internalNotification.setNotificationStatus(NotificationStatusV26.ACCEPTED);
         internalNotification.setSourceChannel(X_PAGOPA_PN_SRC_CH);
         internalNotification.setDocuments(List.of(NotificationDocument.builder()
                 .title("title")
@@ -254,9 +262,21 @@ class PnReceivedIONotificationsControllerTest {
         return internalNotification;
     }
 
-    private String newThirdPartyMessage(InternalNotification notification, boolean isCancelled) {
+    private LegalNotificationDetail newLegalNotification() {
+        TimelineElementV28 timelineElement = new TimelineElementV28();
+        timelineElement.setCategory(TimelineElementCategoryV28.AAR_CREATION_REQUEST);
+        LegalNotificationDetail legalNotificationDetail = new LegalNotificationDetail();
+        legalNotificationDetail.setNotification(newNotification());
+        legalNotificationDetail.setNotificationStatus(NotificationStatusV26.ACCEPTED);
+        legalNotificationDetail.setNotificationStatusHistory(List.of(NotificationStatusHistoryElementV26.builder()
+                .status(NotificationStatusV26.ACCEPTED).build()));
+        legalNotificationDetail.setTimeline(List.of(timelineElement));
+        return legalNotificationDetail;
+    }
+
+    private String newThirdPartyMessage(LegalNotificationDetail legalNotificationDetail, boolean isCancelled) {
         try {
-            ThirdPartyMessage thirdPartMessage = ioMapper.mapToThirdPartMessage(notification, isCancelled);
+            ThirdPartyMessage thirdPartMessage = ioMapper.mapToThirdPartMessage(legalNotificationDetail, isCancelled);
             return objectMapper.writeValueAsString(thirdPartMessage);
         }
         catch (Exception e) {

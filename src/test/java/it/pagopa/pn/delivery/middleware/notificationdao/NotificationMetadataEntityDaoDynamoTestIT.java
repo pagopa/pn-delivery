@@ -6,9 +6,11 @@ import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.LocalStackTestConfig;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.BaseRecipientDto;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatusV1;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusV26;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.NotificationSearchCommunicationType;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
@@ -69,6 +71,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( "c_h501" )
+                .communicationType( NotificationSearchCommunicationType.LEGAL )
                 .size( 10 )
                 .nextPagesKey( null )
                 .build();
@@ -135,6 +138,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( "c_h501" )
+                .communicationType( NotificationSearchCommunicationType.LEGAL )
                 .size( 10 )
                 .nextPagesKey( "eyJlayI6ImNfYjQyOSMjMjAyMjA0IiwiaWsiOnsiaXVuX3JlY2lwaWVudElkIjoiY19iNDI5LTIwMjIwNDA0MTYwNCMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwic2VudEF0IjoiMjAyMi0wNC0wNFQxNDowNDowNy41MjA1NThaIiwic2VuZGVySWRfY3JlYXRpb25Nb250aCI6ImNfYjQyOSMjMjAyMjA0In19" )
                 .build();
@@ -180,6 +184,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( TAX_ID_R1 )
+                .communicationType( NotificationSearchCommunicationType.LEGAL )
                 .size( 10 )
                 .nextPagesKey( null )
                 .build();
@@ -210,6 +215,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( OPAQUE_TAX_ID_R1 )
+                .communicationType( NotificationSearchCommunicationType.LEGAL )
                 .size( 10 )
                 .nextPagesKey( "eyJlayI6ImVkODRiOGM5LTQ0NGUtNDEwZC04MGQ3LWNmYWQ2YWExMjA3MCMjMjAyMjA0IiwiaWsiOnsiaXVuX3JlY2lwaWVudElkIjoiY19iNDI5LTIwMjIwNDA0MTYwNCMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwicmVjaXBpZW50SWRfY3JlYXRpb25Nb250aCI6ImVkODRiOGM5LTQ0NGUtNDEwZC04MGQ3LWNmYWQ2YWExMjA3MCMjMjAyMjA0Iiwic2VudEF0IjoiMjAyMi0wNC0wNFQxNDowNDowNy41MjA1NThaIn19" )
                 .build();
@@ -256,6 +262,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( "c_h501" )
+                .communicationType( NotificationSearchCommunicationType.LEGAL )
                 .size( 10 )
                 .filterId( OPAQUE_TAX_ID_R1 )
                 .build();
@@ -288,6 +295,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( "c_h501" )
+                .communicationType( NotificationSearchCommunicationType.LEGAL )
                 .size( 10 )
                 .nextPagesKey( "eyJlayI6ImNfYjQyOSMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwiaWsiOnsiaXVuX3JlY2lwaWVudElkIjoiY19iNDI5LTIwMjIwNDA1MTEyOCMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwic2VudEF0IjoiMjAyMi0wNC0wNVQwOToyODo0Mi4zNTgxMzZaIiwic2VuZGVySWRfcmVjaXBpZW50SWQiOiJjX2I0MjkjI2VkODRiOGM5LTQ0NGUtNDEwZC04MGQ3LWNmYWQ2YWExMjA3MCJ9fQ==" )
                 .filterId( OPAQUE_TAX_ID_R1 )
@@ -332,6 +340,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( "c_h501" )
+                .communicationType( NotificationSearchCommunicationType.LEGAL )
                 .size( 10 )
                 .statuses(List.of(NotificationStatusV26.ACCEPTED))
                 .build();
@@ -412,6 +421,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( senderPaid1 )
+                .communicationType( NotificationSearchCommunicationType.LEGAL )
                 .size( 10 )
                 .iunMatch( IUN )
                 .build();
@@ -435,6 +445,126 @@ class NotificationMetadataEntityDaoDynamoTestIT {
         Assertions.assertNotNull( result );
         Assertions.assertEquals( createConcatenation(internalNotification1.getIun(), recipientId), result.getResults().get(0).getIunRecipientId() );
         Assertions.assertEquals( createConcatenation(internalNotification2.getIun(), recipientId), result.getResults().get(1).getIunRecipientId() );
+    }
+
+    @Test
+    void searchNotificationMetadataByCampaignMassiveAppliesInformalAndEsitoFilters() {
+        //Given: flusso campagna massivo (per campaignId), filtri INFORMAL + stato bonario + esito viewed
+        String campaignId = "CAMPAIGN-1";
+        String recipientId = "recipientId";
+        String creationMonth = "202205";
+        Instant sentAt = Instant.parse( "2022-05-28T00:00:00.00Z" );
+
+        InternalNotification internalNotification1 = new InternalNotification();
+        internalNotification1.setIun("IUN-CAMP-1");
+        internalNotification1.setSenderPaId("paid1");
+        internalNotification1.setSentAt(sentAt.atOffset(ZoneOffset.UTC));
+
+        // entity che soddisfa tutti i filtri: INFORMAL, stato PROCESSING, viewed=true, campagna corretta
+        NotificationMetadataEntity matching = buildOneSearchMetadataEntry(
+                internalNotification1, NotificationStatusV26.ACCEPTED, recipientId, List.of(recipientId), creationMonth, sentAt.atOffset(ZoneOffset.UTC)
+        );
+        matching.setNotificationStatus( InformalNotificationStatusV1.PROCESSING.getValue() );
+        matching.setCommunicationType( NotificationSearchCommunicationType.INFORMAL.name() );
+        matching.setCampaignId( campaignId );
+        matching.setCampaignIdCreationMonth( createConcatenation( campaignId, creationMonth ) );
+        matching.setCampaignIdRecipientId( createConcatenation( campaignId, recipientId ) );
+        matching.setViewed( true );
+        matching.setDelivered( false );
+
+        InternalNotification internalNotification2 = new InternalNotification();
+        internalNotification2.setIun("IUN-CAMP-2");
+        internalNotification2.setSenderPaId("paid1");
+        internalNotification2.setSentAt(Instant.parse( "2022-05-29T00:00:00.00Z" ).atOffset(ZoneOffset.UTC));
+
+        // entity scartata dal filtro esito: stessa campagna ma viewed=false / delivered=false
+        NotificationMetadataEntity discardedByEsito = buildOneSearchMetadataEntry(
+                internalNotification2, NotificationStatusV26.ACCEPTED, recipientId, List.of(recipientId), creationMonth, internalNotification2.getSentAt()
+        );
+        discardedByEsito.setNotificationStatus( InformalNotificationStatusV1.PROCESSING.getValue() );
+        discardedByEsito.setCommunicationType( NotificationSearchCommunicationType.INFORMAL.name() );
+        discardedByEsito.setCampaignId( campaignId );
+        discardedByEsito.setCampaignIdCreationMonth( createConcatenation( campaignId, creationMonth ) );
+        discardedByEsito.setCampaignIdRecipientId( createConcatenation( campaignId, recipientId ) );
+        discardedByEsito.setViewed( false );
+        discardedByEsito.setDelivered( false );
+
+        notificationMetadataEntityDao.put(matching);
+        notificationMetadataEntityDao.put(discardedByEsito);
+
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                .byCampaign( true )
+                .campaignId( campaignId )
+                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                .senderReceiverId( "paid1" )
+                .communicationType( NotificationSearchCommunicationType.INFORMAL )
+                .informalStatuses( List.of( InformalNotificationStatusV1.PROCESSING ) )
+                .viewed( true )
+                .size( 10 )
+                .build();
+
+        Mockito.when( dataVaultClient.getRecipientDenominationByInternalId( Mockito.anyList() ) ).thenReturn( getDataVaultResults() );
+
+        //When
+        PageSearchTrunk<NotificationMetadataEntity> result = notificationMetadataEntityDao.searchForOneMonth(
+                inputSearch,
+                NotificationMetadataEntity.INDEX_BY_CAMPAIGN,
+                createConcatenation( campaignId, creationMonth ),
+                inputSearch.getSize(),
+                null
+        );
+
+        //Then: torna solo l'entity con esito viewed=true
+        Assertions.assertNotNull( result );
+        Assertions.assertEquals( 1, result.getResults().size() );
+        Assertions.assertEquals( createConcatenation( internalNotification1.getIun(), recipientId ), result.getResults().get(0).getIunRecipientId() );
+    }
+
+    @Test
+    void searchByIunDiscardsEntityWithDifferentCampaignId() {
+        //Given: ricerca puntuale per IUN nel flusso campagna, entity appartenente ad un'altra campagna
+        String campaignId = "CAMPAIGN-1";
+        String recipientId = "recipientId";
+        Instant sentAt = Instant.parse( "2022-05-28T00:00:00.00Z" );
+
+        InternalNotification internalNotification = new InternalNotification();
+        internalNotification.setIun("IUN-OTHER-CAMP");
+        internalNotification.setSenderPaId("paid1");
+        internalNotification.setSentAt(sentAt.atOffset(ZoneOffset.UTC));
+
+        NotificationMetadataEntity entity = buildOneSearchMetadataEntry(
+                internalNotification, NotificationStatusV26.ACCEPTED, recipientId, List.of(recipientId), "202205", sentAt.atOffset(ZoneOffset.UTC)
+        );
+        entity.setNotificationStatus( InformalNotificationStatusV1.PROCESSING.getValue() );
+        entity.setCommunicationType( NotificationSearchCommunicationType.INFORMAL.name() );
+        entity.setCampaignId( "CAMPAIGN-OTHER" );
+        entity.setViewed( true );
+
+        notificationMetadataEntityDao.put(entity);
+
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                .byCampaign( true )
+                .campaignId( campaignId )
+                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                .senderReceiverId( "paid1" )
+                .communicationType( NotificationSearchCommunicationType.INFORMAL )
+                .size( 10 )
+                .build();
+
+        Mockito.when( dataVaultClient.getRecipientDenominationByInternalId( Mockito.anyList() ) ).thenReturn( getDataVaultResults() );
+
+        //When
+        PageSearchTrunk<NotificationMetadataEntity> result = notificationMetadataEntityDao.searchByIun(
+                inputSearch,
+                createConcatenation( internalNotification.getIun(), recipientId ),
+                sentAt.toString()
+        );
+
+        //Then: l'entity di un'altra campagna viene scartata
+        Assertions.assertNotNull( result );
+        Assertions.assertTrue( result.getResults() == null || result.getResults().isEmpty() );
     }
 
     @Test
@@ -494,6 +624,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( senderPaid1 )
+                .communicationType( NotificationSearchCommunicationType.LEGAL )
                 .size( 10 )
                 .groups( groups )
                 .build();
@@ -573,6 +704,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( senderPaid1)
+                .communicationType( NotificationSearchCommunicationType.LEGAL )
                 .size( 10 )
                 .groups( groups )
                 .build();
@@ -605,6 +737,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( "c_h501" )
+                .communicationType( NotificationSearchCommunicationType.LEGAL )
                 .size( 10 )
                 .mandateAllowedPaIds( paids )
                 .build();
@@ -676,6 +809,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                     .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                     .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                     .senderReceiverId( recipientId )
+                    .communicationType( NotificationSearchCommunicationType.LEGAL )
                     .size( 10 )
                     .mandateAllowedPaIds( paids )
                     .build();
@@ -763,6 +897,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                     .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                     .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                     .senderReceiverId( recipientId )
+                    .communicationType( NotificationSearchCommunicationType.LEGAL )
                     .size( 10 )
                     .mandateAllowedPaIds( paids )
                     .build();
@@ -849,6 +984,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                     .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                     .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                     .senderReceiverId( recipientId )
+                    .communicationType( NotificationSearchCommunicationType.LEGAL )
                     .size( 10 )
                     .mandateAllowedPaIds( paids )
                     .build();
@@ -930,6 +1066,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                     .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                     .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                     .senderReceiverId( senderPaid1 )
+                    .communicationType( NotificationSearchCommunicationType.LEGAL )
                     .size( 10 )
                     .mandateAllowedPaIds( paids )
                     .build();
@@ -1012,6 +1149,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                     .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                     .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                     .senderReceiverId( senderPaid1 )
+                    .communicationType( NotificationSearchCommunicationType.LEGAL )
                     .groups(List.of("gruppo1"))
                     .size( 10 )
                     .mandateAllowedPaIds( paids )
@@ -1095,6 +1233,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                     .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                     .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                     .senderReceiverId( senderPaid1 )
+                    .communicationType( NotificationSearchCommunicationType.LEGAL )
                     .groups(List.of("gruppo2"))
                     .size( 10 )
                     .mandateAllowedPaIds( paids )

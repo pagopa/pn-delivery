@@ -65,7 +65,7 @@ public class EntityToDtoNotificationMapper {
                 .version(entity.getVersion())
                 .additionalLanguages(removeITLanguageFromDto(entity.getLanguages()))
                 .usedServices(entity.getUsedServices() != null ? getUsedServicesDto(entity.getUsedServices()) : null)
-                .communicationType(entity.getCommunicationType())
+                .communicationType(mapCommunicationType(entity.getCommunicationType()))
                 .campaignId(entity.getCampaignId());
 
         return builder.build();
@@ -100,6 +100,7 @@ public class EntityToDtoNotificationMapper {
                 .recipientType(NotificationRecipientV24.RecipientTypeEnum.valueOf(entity.getRecipientType().getValue()))
                 .payments(entity2PaymentInfo(entity.getPayments()))
                 .messageId(entity.getMessageId())
+                .additionalLanguages(removeITLanguageFromDto(entity.getLanguages()))
                 .build();
     }
 
@@ -146,6 +147,8 @@ public class EntityToDtoNotificationMapper {
                     .creditorTaxId(paymentInfo.getCreditorTaxId())
                     .noticeCode(paymentInfo.getNoticeCode())
                     .applyCost(paymentInfo.getApplyCost() == null || paymentInfo.getApplyCost())
+                    .amount(paymentInfo.getAmount())
+                    .dueDate(paymentInfo.getDueDate() != null ? paymentInfo.getDueDate().atOffset(ZoneOffset.UTC) : null)
                     .attachment(buildOptionalMetadataAttachment(paymentInfo.getPagoPaForm()))
                     .build();
         }
@@ -194,5 +197,10 @@ public class EntityToDtoNotificationMapper {
                         .build())
                 .contentType(entity.getContentType())
                 .build();
+    }
+
+    private CommunicationType mapCommunicationType(CommunicationType communicationType) {
+        // Se sull'entity non è presente il campo communicationType si tratta di una notifica LEGAL
+        return Objects.requireNonNullElse(communicationType, CommunicationType.LEGAL);
     }
 }
