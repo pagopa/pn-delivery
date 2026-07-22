@@ -165,22 +165,21 @@ Resources:
             physicalCommunicationType:struct<S:string>,
             recipients:struct<L:array<struct<M:struct<
               languages:struct<L:array<struct<M:struct<lang:struct<S:string>>>>>,
-              denomination:struct<NULL:boolean,S:string>,
-              digitalDomicile:struct<NULL:boolean,M:struct<type:struct<NULL:boolean,S:string>>>,
+              denomination:struct<S:string>,
+              digitalDomicile:struct<NULL:boolean,M:struct<type:struct<S:string>>>,
               payments:struct<L:array<struct<M:struct<
-                applyCost:struct<BOOL:boolean>,
-                creditorTaxId:struct<S:string>,
-                noticeCode:struct<S:string>,
-                pagoPaForm:struct<M:struct<
-                  contentType:struct<S:string>,
-                  digests:struct<M:struct<sha256:struct<S:string>>>,
-                  ref:struct<M:struct<
-                    key:struct<S:string>,
-                    versionToken:struct<S:string>
-                  >>
-                >>,
+               creditorTaxId:struct<S:string>,
+               noticeCode:struct<S:string>,
+               pagoPaForm:struct<M:struct<
+                 contentType:struct<S:string>,
+                 digests:struct<M:struct<sha256:struct<S:string>>>,
+                 ref:struct<M:struct<
+                   key:struct<S:string>,
+                   versionToken:struct<S:string>
+                 >>
+               >>,
                 amount:struct<N:string>,
-                dueDate:struct<S:string>
+                dueDate:struct<NULL:boolean,S:string>
               >>>>,
               recipientId:struct<S:string>,
               recipientType:struct<S:string>,
@@ -198,8 +197,7 @@ Resources:
             version:struct<S:string>,
             usedServices:struct<M:struct<physicalAddressLookup:struct<BOOL:boolean>>>,
             campaignId:struct<NULL:boolean,S:string>,
-            communicationType:struct<NULL:boolean,S:string>,
-            senderPriority:struct<NULL:boolean,N:string>
+            communicationType:struct<NULL:boolean,S:string>
           >
 
   PnNotificationsCostDataQualityStack:
