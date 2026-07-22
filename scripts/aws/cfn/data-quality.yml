@@ -31,13 +31,19 @@ Parameters:
     AllowedPattern: '^[a-z_]+$'
     ConstraintDescription: | 
        Glue table name for pn-notifications, accept only lowercase values and underscores.
-    Default: pn_nofifications
+    Default: pn_notifications
   NotificationsCostGlueTableName:
     Type: String
     AllowedPattern: '^[a-z_]+$'
     ConstraintDescription: |
       Glue table name for pn-notifications-cost, accept only lowercase values and underscores.
     Default: pn_notifications_cost
+  NotificationInformalGlueTableName:
+    Type: String
+    AllowedPattern: '^[a-z_]+$'
+    ConstraintDescription: |
+      Glue table name for pn-notification-informal, accept only lowercase values and underscores.
+    Default: pn_notification_informal
     
 Resources:
   PnNotificationDataQualityStack:
@@ -57,6 +63,7 @@ Resources:
             abstract:struct<S:string>,
             amount:struct<N:string>,
             cancelledIun:struct<S:string>,
+            cancelledByIun:struct<S:string>,
             documents:struct<L:array<struct<M:struct<
               contentType:struct<S:string>,
               digests:struct<M:struct<sha256:struct<S:string>>>,
@@ -80,8 +87,8 @@ Resources:
             physicalCommunicationType:struct<S:string>,
             physicalCommunicationPriority:struct<N:string>,
             recipients:struct<L:array<struct<M:struct<
-              denomination:struct<NULL:boolean>,
-              digitalDomicile:struct<NULL:boolean>,
+              denomination:struct<NULL:boolean,S:string>,
+              digitalDomicile:struct<NULL:boolean,M:struct<type:struct<NULL:boolean,S:string>>>,
               payments:struct<L:array<struct<M:struct<
                 applyCost:struct<BOOL:boolean>,
                 creditorTaxId:struct<S:string>,
@@ -107,7 +114,6 @@ Resources:
                   >>
                 >>
               >>>>,
-              physicalAddress:struct<NULL:boolean>,
               recipientId:struct<S:string>,
               recipientType:struct<S:string>
             >>>>,
@@ -121,9 +127,79 @@ Resources:
             subject:struct<S:string>,
             taxonomyCode:struct<S:string>,
             vat:struct<N:string>,
-            version:struct<N:string,S:string>,
-            usedServices:struct<M:struct<physicalAddressLookup:struct<BOOL:boolean>>>
+            version:struct<S:string>,
+            usedServices:struct<M:struct<physicalAddressLookup:struct<BOOL:boolean>>>,
+            senderPriority:struct<NULL:boolean,N:string>
           >
+  PnNotificationInformalDataQualityStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub ${TemplateBucketBaseUrl}/fragments/cdc-glue.yaml
+      Parameters:
+        DynamoTableName: !Ref NotificationsDynamoTableName # same dynamo table, but with structure different and S3 path different (_INFORMAL)
+        GlueTableName: !Ref NotificationInformalGlueTableName
+        GlueServiceRoleArn: !Ref GlueServiceRoleArn
+        LogsBucketName: !Ref LogsBucketName
+        GlueDatabaseName: !Ref GlueDatabaseName
+        CdcS3PathSuffix: '_INFORMAL'
+        DynamoDBKeysStructure: |
+          struct<iun:struct<S:string>>
+        DynamoDBNewImageStructure: |
+          struct<
+            abstract:struct<S:string>,
+            documents:struct<L:array<struct<M:struct<
+              contentType:struct<S:string>,
+              digests:struct<M:struct<sha256:struct<S:string>>>,
+              ref:struct<M:struct<
+                key:struct<S:string>,
+                versionToken:struct<S:string>
+              >>,
+              requireAck:struct<NULL:boolean,BOOL:boolean>,
+              sendByMail:struct<NULL:boolean,BOOL:boolean>,
+              title:struct<NULL:boolean,S:string>
+            >>>>,
+            group:struct<S:string>,
+            idempotenceToken:struct<S:string>,
+            iun:struct<S:string>,
+            paNotificationId:struct<S:string>,
+            physicalCommunicationType:struct<S:string>,
+            recipients:struct<L:array<struct<M:struct<
+              languages:struct<L:array<struct<M:struct<lang:struct<S:string>>>>>,
+              denomination:struct<S:string>,
+              digitalDomicile:struct<NULL:boolean,M:struct<type:struct<S:string>>>,
+              payments:struct<L:array<struct<M:struct<
+               creditorTaxId:struct<S:string>,
+               noticeCode:struct<S:string>,
+               pagoPaForm:struct<M:struct<
+                 contentType:struct<S:string>,
+                 digests:struct<M:struct<sha256:struct<S:string>>>,
+                 ref:struct<M:struct<
+                   key:struct<S:string>,
+                   versionToken:struct<S:string>
+                 >>
+               >>,
+                amount:struct<N:string>,
+                dueDate:struct<NULL:boolean,S:string>
+              >>>>,
+              recipientId:struct<S:string>,
+              recipientType:struct<S:string>,
+              messageId:struct<NULL:boolean,S:string>
+            >>>>,
+            requestId:struct<S:string>,
+            senderDenomination:struct<S:string>,
+            senderPaId:struct<S:string>,
+            senderTaxId:struct<S:string>,
+            sentAt:struct<S:string>,
+            sourceChannel:struct<S:string>,
+            sourceChannelDetails:struct<S:string>,
+            subject:struct<S:string>,
+            taxonomyCode:struct<S:string>,
+            version:struct<S:string>,
+            usedServices:struct<M:struct<physicalAddressLookup:struct<BOOL:boolean>>>,
+            campaignId:struct<NULL:boolean,S:string>,
+            communicationType:struct<NULL:boolean,S:string>
+          >
+
   PnNotificationsCostDataQualityStack:
     Type: AWS::CloudFormation::Stack
     Properties:
