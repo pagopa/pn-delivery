@@ -79,7 +79,6 @@ Resources:
       StreamSpecification:
         StreamViewType: NEW_IMAGE
 
-
   NotificationsQRTable:
     Type: AWS::DynamoDB::Table
     UpdateReplacePolicy: Retain

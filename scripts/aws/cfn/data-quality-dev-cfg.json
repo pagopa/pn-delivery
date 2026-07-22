@@ -1,5 +1,7 @@
 {
-  "Parameters" : {
-    "NotificationsGlueTableName": "pn_notifications"
+  "Parameters": {
+    "NotificationsGlueTableName": "pn_notifications",
+    "NotificationsCostGlueTableName": "pn_notifications_cost",
+    "NotificationInformalGlueTableName": "pn_notification_informal"
   }
 }
