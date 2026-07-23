@@ -135,6 +135,10 @@ public class NotificationSearchService {
 		ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchResult = pageSearch.searchNotificationMetadata();
 		log.debug( "END search notification metadata" );
 
+		if (StringUtils.hasText(searchDto.getMandateId()) && searchResult.getResultsPage() != null) {
+			searchResult.getResultsPage().forEach(row -> row.setMandateId(searchDto.getMandateId()));
+		}
+
 		// labelize groups
 		labelizeGroups(searchResult, searchDto.getSenderReceiverId());
 

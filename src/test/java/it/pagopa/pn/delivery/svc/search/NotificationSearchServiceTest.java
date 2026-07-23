@@ -242,6 +242,30 @@ class NotificationSearchServiceTest {
         Assertions.assertEquals(NotificationSearchCommunicationType.LEGAL, searchDto.getCommunicationType());
         }
 
+        @Test
+        void searchNotificationByReceiverWithMandateShouldReturnMandateIdInRows() {
+        InputSearchNotificationDto searchDto = baseSearchDto(false).toBuilder()
+            .senderReceiverId(DELEGATE_ID)
+            .mandateId(MANDATE_ID)
+            .communicationType(NotificationSearchCommunicationType.LEGAL)
+            .build();
+        NotificationSearchRow row = NotificationSearchRow.builder().iun("IUN-1").build();
+        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> searchResult = ResultPaginationDto.<NotificationSearchRow, PnLastEvaluatedKey>builder()
+            .resultsPage(List.of(row))
+            .moreResult(false)
+            .nextPagesKey(Collections.emptyList())
+            .build();
+
+        when(pnMandateClient.listMandatesByDelegate(DELEGATE_ID, MANDATE_ID, CxTypeAuthFleet.PF, CX_GROUPS))
+            .thenReturn(List.of(validMandate()));
+        when(notificationSearchFactory.getMultiPageSearch(eq(searchDto), isNull())).thenReturn(notificationSearch);
+        when(notificationSearch.searchNotificationMetadata()).thenReturn(searchResult);
+
+        ResultPaginationDto<NotificationSearchRow, String> result = service.searchNotification(searchDto, "PF", CX_GROUPS);
+
+        Assertions.assertEquals(MANDATE_ID, result.getResultsPage().get(0).getMandateId());
+        }
+
     @Test
     void searchNotificationByReceiverShouldThrowForbiddenForPgWithGroupsAndNoMandate() {
         InputSearchNotificationDto searchDto = baseSearchDto(false);
