@@ -13,13 +13,15 @@ components:
       properties:
         subject:
           type: string
-          maxLength: 256
+          minLength: 10
+          maxLength: 120
           description: "Titolo del messaggio (es. Oggetto della mail o intestazione IO)"
           example: "Sollecito di pagamento Tari 2023"
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           format: password # NO EXTERNAL
         longBody:
           type: string
+          minLength: 80
           maxLength: 10000
           description: "Corpo esteso del messaggio in formato Markdown"
           example: "Gentile cittadino, la informiamo che..."
