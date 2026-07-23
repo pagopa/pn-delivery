@@ -13,7 +13,8 @@ components:
       properties:
         subject:
           type: string
-          maxLength: 256
+          minLength: 10
+          maxLength: 120
           description: "Titolo del messaggio (es. Oggetto della mail o intestazione IO)"
           example: "Sollecito di pagamento Tari 2023"
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
@@ -22,7 +23,7 @@ components:
           type: string
           maxLength: 10000
           description: "Corpo esteso del messaggio in formato Markdown"
-          example: "Gentile cittadino, la informiamo che..."
+          example: "Gentile cittadino, la informiamo che dobbiamoraggiungere 80 caratteri per il corpo del messaggio, quindi questo è un esempio di testo che supera i 80 caratteri. Il messaggio può essere più lungo, fino a 10.000 caratteri."
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           format: password # NO EXTERNAL
         shortBody:
