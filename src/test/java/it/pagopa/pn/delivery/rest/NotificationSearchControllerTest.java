@@ -93,6 +93,7 @@ class NotificationSearchControllerTest {
                 .recipients( Collections.singletonList( RECIPIENT_ID ) )
                 .paProtocolNumber("123")
                 .subject(SUBJECT_REG_EXP)
+                .mandateId("mandateId")
                 .build();
 
         ResultPaginationDto<NotificationSearchRow,String> result =
@@ -394,6 +395,7 @@ class NotificationSearchControllerTest {
                 .recipients( Collections.singletonList( RECIPIENT_ID ) )
                 .paProtocolNumber("123")
                 .subject(SUBJECT_REG_EXP)
+                .mandateId(MANDATE_ID)
                 .build();
 
         ResultPaginationDto<NotificationSearchRow,String> result =
@@ -429,6 +431,7 @@ class NotificationSearchControllerTest {
                 // e nessun campo communicationOutcomes (esclusivo delle righe destinatario/bonarie)
                 .expectBody()
                 .jsonPath("$.resultsPage[0].notificationStatus").isEqualTo(STATUS.getValue())
+                .jsonPath("$.resultsPage[0].mandateId").isEqualTo("mandateId")
                 .jsonPath("$.resultsPage[0].communicationOutcomes").doesNotExist();
 
 
