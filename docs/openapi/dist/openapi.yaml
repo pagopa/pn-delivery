@@ -23,8 +23,6 @@ tags:
     description: Invocazioni per effettuare il pre-caricamento dei documenti della notifica e inviare notifiche bonarie.
   - name: SenderReadInformalNotificationB2B
     description: Invocazioni utilizzabili dai mittenti per verificare lo stato delle richieste di notifica inviate e delle notifiche accettate.
-  - name: InformalNotificationTermination
-    description: Invocazioni per interrompere il workflow di una notifica non legale in stato di attesa o accettata.
   - name: HealthCheck
     description: Invocazioni per sapere lo stato del microservizio
 paths:
@@ -69,7 +67,7 @@ paths:
                   - functionality: NOTIFICATION_CREATE
                     status: KO
                     startDate: '2019-08-24T14:15:22Z'
-  /delivery/v1/attachments/informal/preload:
+  /delivery/v1/attachments/preload:
     post:
       summary: Richiesta di pre-caricamento dei documenti della notifica bonaria
       description: Operazione che richiede a Piattaforma Notifica le informazioni e le autorizzazioni necessarie  a precaricare uno o più file da allegare a una notifica bonaria. <br/>
@@ -85,13 +83,6 @@ paths:
                 $ref: '#/components/schemas/InformalPreLoadRequest'
               minItems: 1
               maxItems: 15
-            example:
-              - preloadIdx: '0'
-                contentType: application/pdf
-                sha256: SmHRur4+IVEaMHrYoof4mwzhxh3r2D/+WeVnMQnokgw=
-              - preloadIdx: '1'
-                contentType: application/pdf
-                sha256: 1QKD/Ks6BohyQ+bgMxHf9NrpNhVmGUPxRYE1aerU4JQ=
         required: true
       responses:
         '200':
@@ -102,25 +93,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/InformalPreLoadResponse'
-              examples:
-                preloadResponseDocument:
-                  summary: Esempio preload documento principale
-                  description: Risposta di preload per il documento allegato alla notifica.
-                  value:
-                    - preloadIdx: '0'
-                      secret: '[n4NQEZq2womDzK7ZeUBYLGCZBlECjjsAqTN9KgyChefYjw7iJYEjET1jiP_x76y-dZT-diocWI6TIn7LxoDbMQ6J6xz6RJeWBZpzSaqhJGwL5AuxXqJFI-zz6YmoaGC24_e6QLzs_HyKRMb6pBVbbpfC_Zw0ir0D7RTwitQdLLVRXc47bCnqHsbt3aPyHENsr5dfOGbZ_9-98F2R_zvG0xq4Bl3Nlvt1-qsqZ8uZJA66uGLEzMyxP9XkG8kqr_7HuFDuXg8Xy2DAJRgYKjIoM0mnwMoQjZ_Mw2oizVksq6iuGmjN_xfvlnKqtQnYw3F-xTGEz4K_RijNmEYJ4vgCVA]'
-                      httpMethod: PUT
-                      url: https://pn-safestorage-eu-south-1-956319218727.s3.eu-south-1.amazonaws.com/PN_NOTIFICATION_ATTACHMENTS-dfe837b7e83e43ec9e9135d989196fd8.pdf?x-amzn-trace-id=Self%3D1-6a3e7fc2-7ee9bc3223ed4e6a773e291d%3BRoot%3D1-6a3e7fc1-08e65c9162e27f112dddcb55%3BParent%3D6a7fd0fd2164f76c%3BSampled%3D0&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEJ3%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCmV1LXNvdXRoLTEiSDBGAiEA2%2B%2FDeCF2sZ4jPbJzNGXn%2FlPusQBaYxKJLHxlWPFP5BECIQDpArxzuyOvY6NLBIGA66jH3%2F8o4iRumjqoO2f%2FYu1vWCqOBAhmEAEaDDk1NjMxOTIxODcyNyIM%2FVLysjbIICRrlu3ZKusD8zmk9eBTdJEDCUxeR5%2F56YF5SPbUgtprJE0wqpPeACYzh%2BkQC5kdRCbj7pQ8Il2WG8hhWOXtDhlM04tyw2fUfx63LGENzJV7IyseF%2B2TfntsUuGlDwzzMdU55qttitIXszgnHuW0ebHId%2Fjbd9pnVYvARte%2BW1w%2Bny08qvZLH9XDdEEdqLnsSuWztQZZoez3xuR0UqI4xITkmbX%2FTilNvHQeXWJqgPmU1OKie92Et5xZkK%2BC3VaBty7eqpABQAtnqn8JGOriTbmW6WZ3UayHA4XswLqU%2BZxGqm2QZUsHtW7gs72VU5Duz5uyXY3WiocoxXvcASgRKOFriA6r5WGkdd65uo6Nw57baiTS111xz%2FMnyx9%2FkGZwfff3PsjCWnJzT6t%2FIDvKnn79qhYDqlkNZVHXGvUj%2FC3%2BrnC%2FtzUEBLlnRz3nMfXmceShaX5jRure0E8HvY6MPnZksLs0%2BHpKG3ChKEbhBbfsjz2IrEbVRv%2F8XRpp4xMXZivmG4%2FOAF3ioWqrv7CpEDnB7HeKydGhcKWWqhTOE2KMVd05WPpiH094S%2BQrdgvOq2oChZ5H%2BDGZGsInbG8iL12OVV%2B3ZeiWnSmiMfP4%2BFBfTUwcyya0sNm1FpRSLGbYwIGvMhPAoDRLU6uKkedfu%2BXSg90wvPL50QY6pQHaDYFvk6KBKHrlKY4c3FzGVe7z98NJEH%2BMnm3xZuK4C3uHRa%2BAcVxBGk3YK9pfr2vmuovpQ2gtkvdwC8s1M8zIJBZrxHrUsVZr%2BqAiUocU5rrkJ%2BpmOe3GCcmLmZzOTjT2E25dDG%2FG9kgUfnhSZAkfDej0Wu9DULbqP%2FIq25rpi51Nm79Fs9rQ7600aww6xwnP%2BLP3Ixbrb7SmRIO0hfGs78V5sfc%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260626T133354Z&X-Amz-SignedHeaders=content-type%3Bhost%3Bx-amz-checksum-sha256%3Bx-amz-meta-secret&X-Amz-Expires=1200&X-Amz-Credential=ASIA55KIRHQTW6IUOL3K%2F20260626%2Feu-south-1%2Fs3%2Faws4_request&X-Amz-Signature=72fbdebb66ca9e7c9890f7155105bb6c063f82a050f5eaaf700415347ca22bdb
-                      key: PN_NOTIFICATION_ATTACHMENTS-dfe837b7e83e43ec9e9135d989196fd8.pdf
-                preloadResponsePagoPA:
-                  summary: Esempio preload avviso pagoPA
-                  description: Risposta di preload per il PDF dell'avviso di pagamento pagoPA.
-                  value:
-                    - preloadIdx: '0'
-                      secret: '[x_VYxjApX3aWKAFbCQrTTGJJFEs9jPaaZbhERprjFyc4KUPQ8k-nJoELuV972AS4Qjm1uQHnIqoHXwmWxk2uqEP5YyZe3U4hh6S-6A0UrlixxXW0igWqjWiWM-3HHUf3G6QEPMBkcxeN_8SSwxyK2mxCCz6LMhmicEi0nxXhK848Jh5NKRGAUyo8qi2dqMv5N4y-6tKe3lWNnbl8jbnTSMgSxDMgi8RtSdmZ2Yr4XmFzgY9QkMnD2SEyovRbGXIbjKFYOXUQKhqXO3PGgavpPDQ6EBL4GbyMmghG3pwJF-pd8rynf-jPF7QFTCkzBW5fIiKUDr5dh6SHE7khgZVebQ]'
-                      httpMethod: PUT
-                      url: https://pn-safestorage-eu-south-1-956319218727.s3.eu-south-1.amazonaws.com/PN_NOTIFICATION_ATTACHMENTS-61997b71a19c4e4e97d4228ee74326e9.pdf?x-amzn-trace-id=Self%3D1-6a3e7fc2-3e49e28927115be44e7ac700%3BRoot%3D1-6a3e7fc2-5de139786f63a1c01fae06e7%3BParent%3D4fa617ed46677722%3BSampled%3D0&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEJv%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCmV1LXNvdXRoLTEiRzBFAiALb6EV6LnvbUiMQx1gnqvqDFTtjGf2xwkNWHQCdEICHwIhALnjppkNgu%2F30RO1zcJ7cLPW2AAO6MLXQyd2TKIScOXBKo4ECGQQARoMOTU2MzE5MjE4NzI3Igxv0NLGFMgCSQqgIw0q6wMtdWmEtDB%2FU3bzvlKmxwwViarZpr%2Ftv6vRWm2Dlihb5Ld4H8iubJ1ug3Ng1Wo0iYNDpfa4i5wHSTPqK%2F0CMW88EfGkdy1Bb0NecUfpcHBb0pvBATOp%2F2T6koXxASZPzDPqzg2y9FvvHf8tmP4usqrJ%2BjcfAtH1Jw9oh360gbZMm1rkW72nDjwQBBzrG5KjQVCPerCYDJvGaGeOjb63%2FD0eAjzYcIPFgj3ScRoe8bHYWa%2FAXOITSzfi0vIy9%2B1Skt6BS7BfA6z4RkCCmCC%2FvYkkrXGkzZCKB4cIZ7TD94nfQ4d6r1O%2FP4VvaoIuogGbMjsKwVhWQioPyhQ7CJj3ah%2FP9jAlzsC4OPElkt4BvXcVvIElYpXzWAvNBHhc%2FwTFP81AFzugcY1Q4v%2B866LY75zobJAS22Br9Z01tkyZN5VjIuaMJVaCA2unEJSkakCWs5aphsiBuNyI9LAnP%2BbCrdWLzG3a8HXzYR7dZTpVI7CGM1NIENzQUtMY8lW%2FGLktusiUSm6%2BhyVTJwcOSv%2FDYaKFR3exARIxZ9r%2FFJU9QW24fbQ8gEWJXX6WM2HAbzQ5TufmjYRati71QlMdZzFOa90Jtk9gVaJZBkbyl00BuoqMaDQ4L6hReSMmCZFDksrjXXq%2FJ4O6KsFkWxidBTD2v%2FnRBjqmAYjbzt%2Fhx7HJf8PrCTZTxocXg5H7lCE40NBiXC3FMfZVIV2TEpk2qB3Bee2J1NhRU0%2BKaALwSvNogKDTcIiDVuYsKRqPmjvHDUg2IeNL2BOkg7j6r8tnH5ZBoK8sB63UhDMldXE%2BtnTTYPLKC4jivdPwWF4KigVU1LHkrFR43ljomCN4IVqy32e1tJYkhH00Iu4KgTeIGUcAoiltc8AW25gPeC3i%2BlY%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260626T133354Z&X-Amz-SignedHeaders=content-type%3Bhost%3Bx-amz-checksum-sha256%3Bx-amz-meta-secret&X-Amz-Expires=1200&X-Amz-Credential=ASIA55KIRHQT6C3C2T7B%2F20260626%2Feu-south-1%2Fs3%2Faws4_request&X-Amz-Signature=ad427d2084371d3a8c65fe29acfbabf2fae83663270abcbacacd3867fc0b4554
-                      key: PN_NOTIFICATION_ATTACHMENTS-61997b71a19c4e4e97d4228ee74326e9.pdf
         '400':
           description: Bad request
           content:
@@ -213,6 +185,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
+              example:
+                primaryMessage:
+                  subject: Oggetto IT
+                  longBody: Test body IT
+                  shortBody: Short IT
+                  language: IT
+                messageId: 94484841-57e5-496f-8f2d-eec053c539e3
+                createdAt: '2026-06-26T13:35:00.000Z'
         '401':
           description: Unauthorized
           content:
@@ -237,7 +217,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery/v1/notifications/informal:
+  /delivery/v1/requests:
     post:
       summary: Richiesta sottomissione di una nuova comunicazione bonaria
       description: |-
@@ -246,7 +226,7 @@ paths:
         La restituzione di uno stato HTTP 202 significa solo che la richiesta è sintatticamente
         valida, non che la richiesta sia stata validata ed accettata. <br/>
         Per conoscere lo stato di accettazione della richiesta di notifica bisogna utilizzare l'operazione
-        getInformalNotificationRequestStatusV1 oppure utilizzare la modalità push prevista dai webhook. <br/>
+        getInformalNotificationRequestStatusV1. <br/>
       tags:
         - NewInformalNotification
       operationId: sendNewInformalNotificationV1
@@ -255,44 +235,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/InformalNotificationRequestV1'
-            example:
-              senderDenomination: Comune di Palermo
-              paProtocolNumber: '302110111988283231'
-              campaignId: campaign-1
-              subject: Test notifica..302070111988283233
-              recipients:
-                - recipientType: PF
-                  taxId: FRMTTR76M06B715E
-                  denomination: Ettore Fieramosca
-                  physicalAddress:
-                    at: presso
-                    address: via Roma
-                    addressDetails: Strega
-                    zip: '82100'
-                    municipality: Benevento
-                    province: BN
-                    foreignState: ITALIA
-                  payments:
-                    - pagoPa:
-                        noticeCode: '302000111988284400'
-                        creditorTaxId: '77777777777'
-                        amount: 1250
-                        attachment:
-                          digests:
-                            sha256: 1QKD/Ks6BohyQ+bgMxHf9NrpNhVmGUPxRYE1aerU4JQ=
-                          contentType: application/pdf
-                          ref:
-                            key: PN_NOTIFICATION_ATTACHMENTS-61997b71a19c4e4e97d4228ee74326e9.pdf
-                            versionToken: v1
-                  messageId: 94484841-57e5-496f-8f2d-eec053c539e3
-              documents:
-                - digests:
-                    sha256: SmHRur4+IVEaMHrYoof4mwzhxh3r2D/+WeVnMQnokgw=
-                  contentType: application/pdf
-                  ref:
-                    key: PN_NOTIFICATION_ATTACHMENTS-dfe837b7e83e43ec9e9135d989196fd8.pdf
-                    versionToken: v1
-              group: 65e0a77228425a43256303eb
         required: true
       responses:
         '202':
@@ -351,94 +293,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/NewInformalNotificationRequestStatusResponseV1'
-              examples:
-                waiting:
-                  summary: Richiesta in attesa
-                  description: La richiesta è stata presa in carico ma non ancora accettata.
-                  value:
-                    senderDenomination: Comune di Palermo
-                    paProtocolNumber: '121251'
-                    campaignId: campaign-analog-workflow
-                    subject: Test notifica 121251
-                    recipients:
-                      - recipientType: PG
-                        taxId: '01113570442'
-                        denomination: Ettore Fieramosca
-                        physicalAddress:
-                          address: Roma Via del Campo 101
-                          zip: '00121'
-                          municipality: Roma
-                          province: RM
-                          foreignState: ITALIA
-                        payments:
-                          - pagoPa:
-                              noticeCode: '302040194342919104'
-                              creditorTaxId: '77777777777'
-                              attachment:
-                                digests:
-                                  sha256: 1QKD/Ks6BohyQ+bgMxHf9NrpNhVmGUPxRYE1aerU4JQ=
-                                contentType: application/pdf
-                                ref:
-                                  key: PN_NOTIFICATION_ATTACHMENTS-fec693663bb04300aa8d0af615d21e66.pdf
-                                  versionToken: v1
-                        messageId: aafadc53-9bff-4299-adc9-40e02998ee38
-                        additionalLanguages: []
-                    documents:
-                      - digests:
-                          sha256: SmHRur4+IVEaMHrYoof4mwzhxh3r2D/+WeVnMQnokgw=
-                        contentType: application/pdf
-                        ref:
-                          key: PN_NOTIFICATION_ATTACHMENTS-39a690b91d8a4d1fa3d6eae5f8246f57.pdf
-                          versionToken: v1
-                        docIdx: '0'
-                    notificationRequestId: UUVMSC1LRU5HLVlMTVAtMjAyNjA2LVYtQQ==
-                    notificationRequestStatus: WAITING
-                    retryAfter: 10
-                accepted:
-                  summary: Richiesta accettata
-                  description: La richiesta è stata accettata e la notifica risulta disponibile.
-                  value:
-                    senderDenomination: Comune di Palermo
-                    paProtocolNumber: '302110111988283231'
-                    campaignId: campaign-1
-                    subject: Test notifica..302070111988283233
-                    recipients:
-                      - recipientType: PF
-                        taxId: FRMTTR76M06B715E
-                        denomination: Ettore Fieramosca
-                        physicalAddress:
-                          at: presso
-                          address: via Roma
-                          addressDetails: Strega
-                          zip: '82100'
-                          municipality: Benevento
-                          province: BN
-                          foreignState: ITALIA
-                        payments:
-                          - pagoPa:
-                              noticeCode: '302000111988284400'
-                              creditorTaxId: '77777777777'
-                              attachment:
-                                digests:
-                                  sha256: 1QKD/Ks6BohyQ+bgMxHf9NrpNhVmGUPxRYE1aerU4JQ=
-                                contentType: application/pdf
-                                ref:
-                                  key: PN_NOTIFICATION_ATTACHMENTS-61997b71a19c4e4e97d4228ee74326e9.pdf
-                                  versionToken: v1
-                        messageId: 94484841-57e5-496f-8f2d-eec053c539e3
-                        additionalLanguages: []
-                    documents:
-                      - digests:
-                          sha256: SmHRur4+IVEaMHrYoof4mwzhxh3r2D/+WeVnMQnokgw=
-                        contentType: application/pdf
-                        ref:
-                          key: PN_NOTIFICATION_ATTACHMENTS-dfe837b7e83e43ec9e9135d989196fd8.pdf
-                          versionToken: v1
-                        docIdx: '0'
-                    group: Gruppo1
-                    notificationRequestId: TVBNRS1RR1RHLVZNVEUtMjAyNjA2LUgtQQ==
-                    notificationRequestStatus: ACCEPTED
-                    iun: MPME-QGTG-VMTE-202606-H-A
         '400':
           description: Bad request
           content:
@@ -453,250 +307,6 @@ paths:
                 $ref: '#/components/schemas/Problem'
         '403':
           description: Forbidden
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '404':
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '500':
-          description: Internal error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-  /delivery/v1/notifications/informal/sent/{iun}/attachments/documents/{docIdx}:
-    get:
-      description: Download documento notificato
-      summary: Download documento notificato
-      tags:
-        - SenderReadInformalNotificationB2B
-      operationId: retrieveSentInformalNotificationDocument
-      parameters:
-        - $ref: '#/components/parameters/pathInformalIun'
-        - $ref: '#/components/parameters/pathDocumentIdx'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
-              example:
-                filename: AvvisoPagamento.pdf
-                contentType: application/pdf
-                contentLength: 54092
-                sha256: 1QKD/Ks6BohyQ+bgMxHf9NrpNhVmGUPxRYE1aerU4JQ=
-                url: https://pn-safestorage.../PN_NOTIFICATION_ATTACHMENTS-39a690b91d8a4d1fa3d6eae5f8246f57.pdf?X-Amz-...
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '401':
-          description: Unauthorized
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '403':
-          description: Forbidden
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '404':
-          description: Not Found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '500':
-          description: Internal error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-  /delivery/v1/notifications/informal/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}:
-    get:
-      description: Download allegato per pagamento
-      summary: Download allegato per pagamento
-      tags:
-        - SenderReadInformalNotificationB2B
-      operationId: retrieveSentInformalNotificationAttachment
-      parameters:
-        - $ref: '#/components/parameters/pathInformalIun'
-        - $ref: '#/components/parameters/pathRecipientIdx'
-        - $ref: '#/components/parameters/pathAttachmentName'
-        - $ref: '#/components/parameters/attachmentIdx'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
-              example:
-                filename: AvvisoPagoPA.pdf
-                contentType: application/pdf
-                contentLength: 54092
-                sha256: 1QKD/Ks6BohyQ+bgMxHf9NrpNhVmGUPxRYE1aerU4JQ=
-                url: https://pn-safestorage.../PN_NOTIFICATION_ATTACHMENTS-fec693663bb04300aa8d0af615d21e66.pdf?X-Amz-...
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '401':
-          description: Unauthorized
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '403':
-          description: Forbidden
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '404':
-          description: Not Found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '500':
-          description: Internal error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-  /delivery/v1/notifications/informal/{iun}/terminate:
-    post:
-      tags:
-        - InformalNotificationTermination
-      summary: Interruzione workflow notifica per IUN
-      description: Permette all\'Ente di interrompere il workflow di una comunicazione non  legale identificata dallo IUN specificato nel path. La notifica passerà allo stato COMPLETED.
-      operationId: terminateInformalWorkflow
-      parameters:
-        - $ref: '#/components/parameters/pathInformalIun'
-      responses:
-        '202':
-          description: Accepted - Richiesta interruzione presa in carico
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TerminationRequestStatus'
-              example:
-                status: OK
-                details:
-                  - code: NOTIFICATION_TERMINATION_ACCEPTED
-                    level: INFO
-                    detail: Richiesta di interruzione presa in carico
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '401':
-          description: Unauthorized
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '403':
-          description: Forbidden
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '404':
-          description: Not Found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '500':
-          description: Internal error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-  /delivery/v1/notifications/informal/sent/{iun}:
-    get:
-      summary: 'Mittente: lettura dettagli notifica versione 1'
-      description: Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
-      tags:
-        - SenderReadInformalNotificationB2B
-      operationId: getSentInformalNotificationV1
-      parameters:
-        - $ref: '#/components/parameters/pathInformalIun'
-        - $ref: '#/components/parameters/retrieveMessage'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FullSentInformalNotificationV1'
-              example:
-                senderDenomination: Comune di Palermo
-                senderTaxId: '77777777777'
-                senderPaId: 5b994d4a-0fa8-47ac-9c7b-354f1d44a1ce
-                paProtocolNumber: '121251'
-                campaignId: campaign-analog-workflow
-                subject: Test notifica 121251
-                iun: MPME-QGTG-VMTE-202606-H-A
-                sentAt: '2026-06-26T13:33:55.772Z'
-                recipients:
-                  - recipientType: PG
-                    taxId: '01113570442'
-                    denomination: Ettore Fieramosca
-                    physicalAddress:
-                      address: Roma Via del Campo 101
-                      zip: '00121'
-                      municipality: Roma
-                      province: RM
-                      foreignState: ITALIA
-                    payments:
-                      - pagoPa:
-                          noticeCode: '302040194342919104'
-                          creditorTaxId: '77777777777'
-                          attachment:
-                            digests:
-                              sha256: 1QKD/Ks6BohyQ+bgMxHf9NrpNhVmGUPxRYE1aerU4JQ=
-                            contentType: application/pdf
-                            ref:
-                              key: PN_NOTIFICATION_ATTACHMENTS-fec693663bb04300aa8d0af615d21e66.pdf
-                              versionToken: v1
-                    messageId: aafadc53-9bff-4299-adc9-40e02998ee38
-                    message:
-                      primaryMessage:
-                        subject: Oggetto IT
-                        longBody: Test body IT
-                        shortBody: Short IT
-                        language: IT
-                documents:
-                  - digests:
-                      sha256: SmHRur4+IVEaMHrYoof4mwzhxh3r2D/+WeVnMQnokgw=
-                    contentType: application/pdf
-                    ref:
-                      key: PN_NOTIFICATION_ATTACHMENTS-39a690b91d8a4d1fa3d6eae5f8246f57.pdf
-                      versionToken: v1
-                    docIdx: '0'
-                group: Gruppo1
-                notificationStatus: ACCEPTED
-                notificationStatusHistory: []
-                timeline: []
-        '400':
-          description: Bad request
           content:
             application/problem+json:
               schema:
@@ -734,55 +344,6 @@ components:
       required: false
       schema:
         $ref: '#/components/schemas/IdempotenceToken'
-    pathDocumentIdx:
-      name: docIdx
-      description: indice del documento nella lista partendo da 0.
-      in: path
-      required: true
-      schema:
-        type: integer
-        format: int32
-    pathRecipientIdx:
-      name: recipientIdx
-      description: indice del destinatario nella lista partendo da 0.
-      in: path
-      required: true
-      schema:
-        type: integer
-        format: int32
-    pathAttachmentName:
-      name: attachmentName
-      description: Tipologia del pagamento allegato alla notifica. Valore possibile PAGOPA
-      in: path
-      required: true
-      schema:
-        type: string
-        pattern: PAGOPA
-    attachmentIdx:
-      in: query
-      name: attachmentIdx
-      description: indice del documento di pagamento partendo da 0
-      required: false
-      schema:
-        type: integer
-        format: int32
-    pathInformalIun:
-      description: Identificativo Univoco Notifica informale
-      name: iun
-      in: path
-      required: true
-      schema:
-        type: string
-        minLength: 25
-        maxLength: 25
-        pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[A-Z]{1}$
-    retrieveMessage:
-      in: query
-      name: retrieveMessage
-      description: Indica se recuperare anche il messaggio della notifica
-      required: false
-      schema:
-        type: boolean
   schemas:
     InformalPreLoadRequest:
       title: Richiesta di precaricamento di un File
@@ -906,42 +467,6 @@ components:
               description: Index destinatario notifica digitale
               type: integer
               format: int32
-    TerminationRequestStatus:
-      description: Risposta alla richiesta di interruzione del workflow di una notifica non legale.
-      type: object
-      required:
-        - status
-      properties:
-        status:
-          description: |
-            Termination request status:
-              - OK
-          type: string
-        details:
-          type: array
-          maxItems: 9999
-          items:
-            $ref: '#/components/schemas/StatusDetail'
-    StatusDetail:
-      description: Informazione di dettaglio sullo stato di una richiesta
-      type: object
-      required:
-        - code
-      properties:
-        code:
-          description: Codice interno di errore o avvertimento, in formato leggibile
-          example: NOTIFICATION_TERMINATION_ACCEPTED, NOTIFICATION_ALREADY_TERMINATED, etc.
-          type: string
-        level:
-          description: |
-            livello informativo del dettaglio di stato: INFO,WARN, ERR
-            ERR (error) di default
-          example: INFO
-          type: string
-        detail:
-          description: Spiegazione specifica per questa occorrenza del problema.
-          example: Parametro non valido
-          type: string
     PnStatusResponse:
       title: Stato attuale di PN
       description: Elenco delle funzionalità della piattaforma ed elenco dei disservizi noti e attivi  al momento della richiesta. I disservizi (_openIncidents_) segnalati sono al più uno  per funzionalità; gli attributi _endDate_ e _legalFactId_ non saranno valorizzati.
@@ -1029,25 +554,6 @@ components:
           type: string
         fileAvailable:
           type: boolean
-    FullSentInformalNotificationV1:
-      description: Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il  processo di inoltro della notifica verso il cittadino.
-      allOf:
-        - $ref: '#/components/schemas/InformalSentNotificationV1'
-        - type: object
-          required:
-            - notificationStatus
-            - notificationStatusHistory
-            - timeline
-          properties:
-            notificationStatus:
-              $ref: '#/components/schemas/InformalNotificationStatusV1'
-            notificationStatusHistory:
-              $ref: '#/components/schemas/InformalNotificationStatusHistoryV1'
-            timeline:
-              description: elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
-              type: array
-              items:
-                $ref: '#/components/schemas/InformalTimelineElementV1'
     Problem:
       properties:
         type:
@@ -1107,59 +613,6 @@ components:
           type: string
       required:
         - code
-    InformalTimelineElementV1:
-      type: object
-      additionalProperties: false
-      properties:
-        elementId:
-          type: string
-          maxLength: 512
-          description: 'Identificativo dell''elemento di timeline: insieme allo IUN della notifica bonaria definisce in maniera univoca l''elemento di timeline'
-        timestamp:
-          type: string
-          deprecated: true
-          description: Istante in cui avviene l'evento descritto in questo elemento di timeline (deprecato, fare riferimento al campo eventTimestamp)
-          format: date-time
-        ingestionTimestamp:
-          type: string
-          description: Istante in cui l'evento descritto in questo elemento di timeline è gestito da SEND
-          format: date-time
-        eventTimestamp:
-          type: string
-          description: Istante in cui avviene l'evento descritto in questo elemento di timeline
-          format: date-time
-        notificationSentAt:
-          type: string
-          description: Momento di ricezione della richiesta di notifica da parte di SEND
-          format: date-time
-        category:
-          $ref: '#/components/schemas/InformalTimelineElementCategoryV1'
-        details:
-          $ref: '#/components/schemas/InformalTimelineElementDetailsV1'
-    InformalNotificationStatusV1:
-      type: string
-      description: |
-        stato di avanzamento del processo di notifica bonaria:
-          * `IN_VALIDATION` - Fase di validazione formale, sintattica (sincrona) ed asincrona (verifica allegati e coerenza della campagna)
-          * `PROCESSING` - Stato assunto non appena la validazione ha esito positivo e l'orchestratore avvia il workflow sequenziale di consegna sui canali
-          * `COMPLETED_REACHED` - Stato finale di terminazione positiva; Il destinatario è stato raggiunto alla destinazione più vicina al cittadino, ma non è stato ancora ottenuto il feedback di arresto finale desiderato dall'ente;
-          * `COMPLETED_UNREACHED` - Stato finale di terminazione negativa; Il destinatario non è stato raggiunto alla destinazione più vicina al cittadino;
-          * `UNDELIVERABLE` - Stato di irreperibilità totale; raggiungibile solo se la validazione asincrona consente l'ingresso di notifiche prive di qualsiasi recapito utile o di profilo IO associato
-          * `REFUSED` - Notifica rifiutata a seguito della validazione
-          * `ACCEPTED` - Notifica accettato a seguito della validazione
-      enum:
-        - IN_VALIDATION
-        - PROCESSING
-        - COMPLETED_REACHED
-        - COMPLETED_UNREACHED
-        - UNDELIVERABLE
-        - REFUSED
-        - ACCEPTED
-    InformalNotificationStatusHistoryV1:
-      description: elenco degli avanzamenti effettuati dal processo di notifica bonaria
-      type: array
-      items:
-        $ref: '#/components/schemas/InformalNotificationStatusHistoryElementV1'
     LocalizedContent:
       type: object
       required:
@@ -1172,22 +625,16 @@ components:
           maxLength: 256
           description: Titolo del messaggio (es. Oggetto della mail o intestazione IO)
           example: Sollecito di pagamento Tari 2023
-          x-field-extra-annotation: '@lombok.ToString.Exclude'
-          format: password
         longBody:
           type: string
           maxLength: 10000
           description: Corpo esteso del messaggio in formato Markdown
           example: Gentile cittadino, la informiamo che...
-          x-field-extra-annotation: '@lombok.ToString.Exclude'
-          format: password
         shortBody:
           type: string
           maxLength: 160
           description: Versione breve per SMS o anteprime
           example: 'Sollecito Tari: hai una nuova comunicazione da SEND.'
-          x-field-extra-annotation: '@lombok.ToString.Exclude'
-          format: password
         language:
           type: string
           description: 'Lingua del messaggio. Valori accettati: - IT <br/> - DE <br/> - SL <br/> - FR <br/> DE (tedesco), SL (sloveno), FR (francese).'
@@ -1209,15 +656,12 @@ components:
     Denomination:
       description: 'Denominazione ente o persona fisica / ragione sociale. La codifica prevede i caratteri ISO LATIN 1, senza | e senza i caratteri di controllo, ovvero la seguente regexp: ^[ -{}~\u00A0-ÿ]*$'
       type: string
-      x-field-extra-annotation: '@lombok.ToString.Exclude'
-      format: password
       minLength: 1
+      maxLength: 88
       pattern: ^.*$
     TaxId:
       description: C.F. persona fisica o persona giuridica
       type: string
-      x-field-extra-annotation: '@lombok.ToString.Exclude'
-      format: password
       minLength: 11
       maxLength: 16
       pattern: ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
@@ -1235,8 +679,6 @@ components:
             - PEC
         address:
           type: string
-          x-field-extra-annotation: '@lombok.ToString.Exclude'
-          format: password
           example: account@domain.it
           description: Indirizzo PEC o REM che il mittente della notifica intende utilizzare per  raggiungere il destinatario.
           pattern: ^(?:[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?|\[(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?|[a-zA-Z0-9-]*[a-zA-Z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])$
@@ -1250,59 +692,44 @@ components:
       properties:
         at:
           type: string
-          x-field-extra-annotation: '@lombok.ToString.Exclude'
-          format: password
           description: Campo "presso" dell'indirizzo
           pattern: ^.*$
+          maxLength: 44
         address:
           type: string
-          x-field-extra-annotation: '@lombok.ToString.Exclude'
-          format: password
           description: Indirizzo del domicilio fisico
           pattern: ^.*$
           minLength: 2
           maxLength: 1024
         addressDetails:
           type: string
-          x-field-extra-annotation: '@lombok.ToString.Exclude'
-          format: password
           description: Seconda riga dell'indirizzo fisico
           pattern: ^.*$
           maxLength: 1024
         zip:
           type: string
-          x-field-extra-annotation: '@lombok.ToString.Exclude'
-          format: password
           description: Codice di avviamento postale. In caso di invio estero diventa facoltativo
           minLength: 0
           maxLength: 15
           pattern: ^(\w|\ |\-)*$
         municipality:
           type: string
-          x-field-extra-annotation: '@lombok.ToString.Exclude'
-          format: password
           description: Comune
           pattern: ^.*$
           minLength: 2
           maxLength: 256
         municipalityDetails:
           type: string
-          x-field-extra-annotation: '@lombok.ToString.Exclude'
-          format: password
           description: Frazione o località
           pattern: ^.*$
           maxLength: 256
         province:
           type: string
-          x-field-extra-annotation: '@lombok.ToString.Exclude'
-          format: password
           description: Provincia
           pattern: ^.*$
           maxLength: 256
         foreignState:
           type: string
-          x-field-extra-annotation: '@lombok.ToString.Exclude'
-          format: password
           description: Denominazione paese estero
           pattern: ^.*$
           maxLength: 256
@@ -1458,7 +885,6 @@ components:
         - recipientType
         - taxId
       type: object
-      additionalProperties: false
       properties:
         recipientType:
           type: string
@@ -1468,9 +894,6 @@ components:
             - PG
         taxId:
           $ref: '#/components/schemas/TaxId'
-        internalId:
-          type: string
-          description: id interno anonimizzato
         denomination:
           $ref: '#/components/schemas/Denomination'
         digitalDomicile:
@@ -1537,14 +960,12 @@ components:
               description: Identificativo del template di messaggio da utilizzare per il destinatario.
             email:
               type: string
-              x-field-extra-annotation: '@lombok.ToString.Exclude'
               example: account@domain.it
               description: Indirizzo email che il mittente della notifica intende utilizzare per  raggiungere il destinatario.
               pattern: ^(?:[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?|\[(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?|[a-zA-Z0-9-]*[a-zA-Z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])$
               maxLength: 320
             phoneNumber:
               type: string
-              x-field-extra-annotation: '@lombok.ToString.Exclude'
               example: '+3900000000'
               description: Numero di telefono che il mittente della notifica intende utilizzare per raggiungere il destinatario, espresso in formato internazionale con prefisso `+` oppure `00`.
               pattern: ^(\+|00)[1-9]\d{0,3}[\s.-]?\d{1,4}[\s.-]?\d{1,4}[\s.-]?\d{1,9}$
@@ -1630,970 +1051,6 @@ components:
           $ref: '#/components/schemas/PaProtocolNumber'
         idempotenceToken:
           $ref: '#/components/schemas/IdempotenceToken'
-    NotificationAttachmentDownloadMetadataResponse:
-      title: Url e metadati per il download di un allegato di una notifica
-      description: |-
-        I due campi più importanti sono __url__ e __retryAfter__. <br/>
-          - __url__ è presente se il file è pronto per essere scaricato ed indica l'url a cui fare GET.
-          - __retryAfter__ indica che il file è stato archiviato e bisognerà aspettare un numero di
-            secondi non inferiore a quanto indicato dal campo _retryAfter_. <br/>
-      type: object
-      required:
-        - filename
-        - contentType
-        - contentLength
-        - sha256
-      properties:
-        filename:
-          type: string
-        contentType:
-          type: string
-          example: application/pdf
-        contentLength:
-          type: integer
-          format: int32
-          example: 54092
-          description: dimensione, in byte, del contenuto.
-        sha256:
-          type: string
-          description: SHA256 del contenuto del file.
-        url:
-          type: string
-          description: URL preautorizzato a cui effettuare una richiesta GET per ottenere il  contenuto del documento. Presente solo se il documento è pronto per il download.
-        retryAfter:
-          type: integer
-          format: int32
-          description: Stima del numero di secondi da aspettare prima che il contenuto del  documento sia disponibile per il download.
-        numberOfPages:
-          type: integer
-          format: int32
-          description: numero di pagine del documento. Valorizzato solo se il documento è di tipo PDF
-    FullInformalNotificationRecipientV1:
-      allOf:
-        - $ref: '#/components/schemas/InformalNotificationRecipientV1'
-        - type: object
-          required:
-            - message
-          properties:
-            message:
-              $ref: '#/components/schemas/NewMessageRequest'
-    UsedServices:
-      description: Servizi utilizzati per la creazione della notifica
-      type: object
-      properties:
-        physicalAddressLookup:
-          type: boolean
-    InformalSentNotificationV1:
-      description: Informazioni complete di una notifica informale accettata, incluse le caratteristiche della richiesta originaria e i metadati di invio.
-      allOf:
-        - $ref: '#/components/schemas/InformalNotificationRequestV1'
-        - type: object
-          required:
-            - iun
-            - sentAt
-            - senderTaxId
-            - senderPaId
-            - recipients
-          properties:
-            recipients:
-              type: array
-              description: Informazioni sui destinatari
-              items:
-                $ref: '#/components/schemas/FullInformalNotificationRecipientV1'
-              minItems: 1
-            senderTaxId:
-              $ref: '#/components/schemas/paTaxId'
-            senderPaId:
-              type: string
-              description: Identificativo (non IPA) della PA mittente che ha eseguito l'onboarding su SelfCare.
-              pattern: ^.*$
-              maxLength: 256
-            iun:
-              $ref: '#/components/schemas/InformalIUN'
-            sentAt:
-              type: string
-              description: Momento di ricezione della notifica da parte di PN
-              format: date-time
-            version:
-              type: string
-              description: Indica la versione della notifica
-            usedServices:
-              $ref: '#/components/schemas/UsedServices'
-    TimelineElementId:
-      type: string
-    InformalNotificationStatusHistoryElementV1:
-      description: elenco degli avanzamenti effettuati dal processo di notifica bonaria
-      type: object
-      required:
-        - status
-        - activeFrom
-        - relatedTimelineElements
-      properties:
-        status:
-          $ref: '#/components/schemas/InformalNotificationStatusV1'
-        activeFrom:
-          type: string
-          description: data e ora di raggiungimento dello stato di avanzamento
-          format: date-time
-        relatedTimelineElements:
-          type: array
-          description: Eventi avvenuti nello stato
-          items:
-            $ref: '#/components/schemas/TimelineElementId'
-    InformalTimelineElementCategoryV1:
-      type: string
-      description: |
-        Categorie degli elementi della timeline nel dominio delle notifiche bonarie:
-          * `REQUEST_ACCEPTED` - Richiesta di notifica accettata a seguito dei controlli di validazione
-          * `REQUEST_REFUSED` - Richiesta di notifica rifiutata per fallimento dei controlli di validazione
-          * `COVERPAGE_CREATION_REQUEST` - Richiesta di generazione della pagina di copertina o dei moduli di pagamento
-          * `SEND_DIGITAL_MESSAGE` - Tentativo di invio del messaggio sui canali digitali (App IO, Email, SMS)
-          * `SEND_DIGITAL_MESSAGE_PROGRESS` - Aggiornamento sullo stato di avanzamento dell'invio digitale
-          * `SEND_DIGITAL_MESSAGE_FEEDBACK` - Ricezione del feedback di consegna (esito) del messaggio digitale
-          * `SEND_DIGITAL_MESSAGE_SKIP` - Salto programmato dell'invio digitale (es. canale non configurato o non disponibile)
-          * `PREPARE_ANALOG_DELIVERY` - Avvio della fase di preparazione per la spedizione cartacea/analogica
-          * `SEND_ANALOG_MESSAGE` - Affidamento della richiesta di spedizione al vettore analogico (es. Poste/vettore)
-          * `SEND_ANALOG_MESSAGE_PROGRESS` - Aggiornamento sullo stato di avanzamento della spedizione analogica
-          * `SEND_ANALOG_MESSAGE_FEEDBACK` - Ricezione dell'esito o feedback di consegna della spedizione cartacea
-          * `DELIVERED` - Notifica o messaggio consegnato con successo al destinatario
-          * `INFORMAL_NOTIFICATION_VIEWED` - Presa visione o lettura della notifica bonaria da parte del destinatario
-          * `PAYMENT` - Registrazione del pagamento associato alla notifica bonaria
-          * `WORKFLOW_ENDED_REACHED` - Flusso terminato: il destinatario è stato raggiunto con successo
-          * `WORKFLOW_ENDED_UNREACHED` - Flusso terminato: il destinatario non è stato raggiunto nei tempi previsti
-          * `WORKFLOW_ENDED_UNDELIVERABLE` - Flusso terminato: la notifica è definitivamente irrecapitabile su ogni canale
-          * `WORKFLOW_DONE_REACHED` - Elaborazione del workflow completata con esito positivo (destinatario raggiunto)
-          * `WORKFLOW_DONE_UNREACHED` - Elaborazione del workflow completata con esito negativo (destinatario non raggiunto)
-      enum:
-        - SEND_DIGITAL_MESSAGE
-        - SEND_DIGITAL_MESSAGE_PROGRESS
-        - SEND_DIGITAL_MESSAGE_FEEDBACK
-        - PREPARE_ANALOG_DELIVERY
-        - SEND_ANALOG_MESSAGE
-        - SEND_ANALOG_MESSAGE_PROGRESS
-        - SEND_ANALOG_MESSAGE_FEEDBACK
-        - DELIVERED
-        - WORKFLOW_ENDED_REACHED
-        - WORKFLOW_ENDED_UNREACHED
-        - WORKFLOW_ENDED_UNDELIVERABLE
-        - WORKFLOW_DONE_REACHED
-        - WORKFLOW_DONE_UNREACHED
-        - INFORMAL_NOTIFICATION_VIEWED
-        - COVERPAGE_CREATION_REQUEST
-        - SEND_DIGITAL_MESSAGE_SKIP
-        - PAYMENT
-        - REQUEST_ACCEPTED
-        - REQUEST_REFUSED
-    RecIndex:
-      type: integer
-      description: Index destinatario notifica digitale
-      format: int32
-    DigitalAddress:
-      description: Indirizzo di invio della notifica
-      required:
-        - address
-        - type
-      type: object
-      properties:
-        type:
-          x-field-extra-annotation: '@lombok.ToString.Exclude'
-          format: password
-          type: string
-          description: tipo di indirizzo PEC, REM, SERCQ, SMS, EMAIL, APPIO ...
-        address:
-          x-field-extra-annotation: '@lombok.ToString.Exclude'
-          format: password
-          type: string
-          description: account@domain
-    DigitalAddressSource:
-      type: string
-      description: sorgente indirizzo di invio della notifica
-      enum:
-        - PLATFORM
-        - SPECIAL
-        - GENERAL
-    DigitalChannels:
-      type: string
-      description: |
-        Canale di invio digitale per il quale è stato ricevuto il feedback __APPIO__: invio tramite App IO __PEC__: invio tramite PEC __EMAIL__: invio tramite email __SMS__: invio tramite SMS
-      enum:
-        - APPIO
-        - PEC
-        - EMAIL
-        - SMS
-    SendDigitalMessageDetails:
-      x-discriminator-value: SEND_DIGITAL_MESSAGE
-      type: object
-      required:
-        - recIndex
-        - categoryType
-        - channel
-      properties:
-        recIndex:
-          $ref: '#/components/schemas/RecIndex'
-        categoryType:
-          type: string
-        digitalAddress:
-          $ref: '#/components/schemas/DigitalAddress'
-        digitalAddressSource:
-          $ref: '#/components/schemas/DigitalAddressSource'
-        channel:
-          $ref: '#/components/schemas/DigitalChannels'
-        retryNumber:
-          type: integer
-          description: numero dei tentativi effettuati
-          format: int32
-    DigitalDeliveryDetail:
-      description: Dettaglio di un avanzamento di consegna digitale
-      type: object
-      properties:
-        code:
-          type: string
-          maxLength: 20
-          description: |
-            Stato - Codice relativo all'evento - Descrizione:
-              - PROGRESS   C000 = PREACCETTAZIONE
-              - PROGRESS   C001 = ACCETTAZIONE
-              - PROGRESS   C005 = PRESA_IN_CARICO
-              - PROGRESS   C007 = PREAVVISO_ERRORE_CONSEGNA
-              - PROGRESS   DP00 = RE-INVIO PEC CAUSA FALLIMENTO TEMPORANEO
-              - PROGRESS   DP10 = TIMEOUT RICEZIONE RISULTATO
-              - PROGRESS   READ = LETTURA MESSAGGIO DA PARTE DEL DESTINATARIO
-              - PROGRESS   PAID = PAGAMENTO POSIZIONE DEBITORIA
-              - ERROR      C002 = NON_ACCETTAZIONE
-              - ERROR      C004 = ERRORE_CONSEGNA
-              - ERROR      C006 = RILEVAZIONE_VIRUS
-              - ERROR      C008 = ERRORE_COMUNICAZIONE_SERVER_PEC
-              - ERROR      C009 = ERRORE_DOMINIO_PEC_NON_VALIDO
-              - ERROR      C010 = ERROR_INVIO_PEC
-              - OK         C003 = AVVENUTA_CONSEGNA
-        failureCause:
-          type: string
-          maxLength: 10
-          description: Codice errore, vuoto in caso di successo
-        eventTimestamp:
-          type: string
-          description: Data evento di avanzamento della notifica
-          format: date-time
-    SendDigitalMessageProgressDetails:
-      x-discriminator-value: SEND_DIGITAL_MESSAGE_PROGRESS
-      type: object
-      required:
-        - recIndex
-        - categoryType
-        - channel
-      properties:
-        recIndex:
-          $ref: '#/components/schemas/RecIndex'
-        categoryType:
-          type: string
-        deliveryDetail:
-          $ref: '#/components/schemas/DigitalDeliveryDetail'
-        digitalAddress:
-          $ref: '#/components/schemas/DigitalAddress'
-        digitalAddressSource:
-          $ref: '#/components/schemas/DigitalAddressSource'
-        channel:
-          $ref: '#/components/schemas/DigitalChannels'
-        retryNumber:
-          type: integer
-          description: numero dei tentativi effettuati
-          format: int32
-        eventTimestamp:
-          type: string
-          description: Data evento
-          format: date-time
-        requestId:
-          type: string
-          description: Id della richiesta di invio digitale che ha generato questo avanzamento
-          maxLength: 512
-    ResponseStatus:
-      type: string
-      description: stato risposta ricevuta da externalChannel
-      enum:
-        - OK
-        - KO
-    SendingReceipt:
-      type: object
-      properties:
-        id:
-          type: string
-          description: messageId del server mittente
-          maxLength: 1024
-        system:
-          type: string
-          description: nome del server mittente
-          maxLength: 128
-    SendDigitalMessageFeedbackDetails:
-      x-discriminator-value: SEND_DIGITAL_MESSAGE_FEEDBACK
-      type: object
-      required:
-        - recIndex
-        - digitalAddress
-        - responseStatus
-        - notificationDate
-        - categoryType
-        - channel
-      properties:
-        categoryType:
-          type: string
-        recIndex:
-          $ref: '#/components/schemas/RecIndex'
-        digitalAddress:
-          $ref: '#/components/schemas/DigitalAddress'
-        digitalAddressSource:
-          $ref: '#/components/schemas/DigitalAddressSource'
-        responseStatus:
-          $ref: '#/components/schemas/ResponseStatus'
-        notificationDate:
-          type: string
-          description: data notifica
-          format: date-time
-        channel:
-          $ref: '#/components/schemas/DigitalChannels'
-        deliveryDetail:
-          $ref: '#/components/schemas/DigitalDeliveryDetail'
-        sendingReceipts:
-          type: array
-          items:
-            $ref: '#/components/schemas/SendingReceipt'
-        requestId:
-          type: string
-          description: Id della richiesta di invio digitale che ha generato questo feedback
-          maxLength: 512
-    PhysicalAddress:
-      type: object
-      required:
-        - address
-        - municipality
-      properties:
-        at:
-          x-field-extra-annotation: '@lombok.ToString.Exclude'
-          format: password
-          type: string
-          description: Campo "presso" dell'indirizzo
-        address:
-          x-field-extra-annotation: '@lombok.ToString.Exclude'
-          format: password
-          type: string
-          description: Indirizzo del domicilio fisico
-        addressDetails:
-          x-field-extra-annotation: '@lombok.ToString.Exclude'
-          format: password
-          type: string
-          description: Seconda riga dell'indirizzo fisico
-        zip:
-          x-field-extra-annotation: '@lombok.ToString.Exclude'
-          format: password
-          type: string
-          description: Codice di avviamento postale. In caso di invio estero diventa facoltativo
-        municipality:
-          x-field-extra-annotation: '@lombok.ToString.Exclude'
-          format: password
-          type: string
-          description: Comune in cui l'indirizzo si trova
-        municipalityDetails:
-          x-field-extra-annotation: '@lombok.ToString.Exclude'
-          format: password
-          type: string
-          description: Frazione o località
-        province:
-          x-field-extra-annotation: '@lombok.ToString.Exclude'
-          format: password
-          type: string
-          description: Provincia in cui si trova l'indirizzo
-        foreignState:
-          x-field-extra-annotation: '@lombok.ToString.Exclude'
-          format: password
-          type: string
-          description: Denominazione paese estero
-      description: Indirizzo fisico scoperto durante fase di consegna
-    ServiceLevel:
-      type: string
-      description: Livello Servizio
-      enum:
-        - AR_REGISTERED_LETTER
-        - REGISTERED_LETTER_890
-    AnalogDeliveryType:
-      type: string
-      description: |
-        Tipologia di consegna analogica preparata __RS__: Raccomandata Semplice
-      enum:
-        - RS
-    PrepareAnalogDeliveryDetails:
-      x-discriminator-value: PREPARE_ANALOG_DELIVERY
-      type: object
-      required:
-        - recIndex
-        - physicalAddress
-        - categoryType
-        - deliveryType
-      properties:
-        categoryType:
-          type: string
-        recIndex:
-          $ref: '#/components/schemas/RecIndex'
-        physicalAddress:
-          $ref: '#/components/schemas/PhysicalAddress'
-        serviceLevel:
-          $ref: '#/components/schemas/ServiceLevel'
-        deliveryType:
-          $ref: '#/components/schemas/AnalogDeliveryType'
-        sentAttemptMade:
-          type: integer
-          description: numero dei tentativi effettuati
-          format: int32
-        relatedRequestId:
-          type: string
-          description: Id relativo alla eventuale precedente richiesta di invio cartaceo
-          maxLength: 512
-        foreignState:
-          type: string
-    ResultFilter:
-      type: object
-      properties:
-        fileKey:
-          type: string
-        result:
-          type: string
-          enum:
-            - SUCCESS
-            - DISCARD
-            - NEXT
-        reasonCode:
-          type: string
-        reasonDescription:
-          type: string
-    CategorizedAttachmentsResult:
-      type: object
-      properties:
-        acceptedAttachments:
-          type: array
-          items:
-            $ref: '#/components/schemas/ResultFilter'
-        discardedAttachments:
-          type: array
-          items:
-            $ref: '#/components/schemas/ResultFilter'
-    SendAnalogMessageDetails:
-      x-discriminator-value: SEND_ANALOG_MESSAGE
-      type: object
-      required:
-        - recIndex
-        - physicalAddress
-        - categoryType
-        - deliveryType
-      properties:
-        categoryType:
-          type: string
-        recIndex:
-          $ref: '#/components/schemas/RecIndex'
-        physicalAddress:
-          $ref: '#/components/schemas/PhysicalAddress'
-        serviceLevel:
-          $ref: '#/components/schemas/ServiceLevel'
-        deliveryType:
-          $ref: '#/components/schemas/AnalogDeliveryType'
-        sentAttemptMade:
-          type: integer
-          description: numero dei tentativi effettuati
-          format: int32
-        foreignState:
-          type: string
-        relatedRequestId:
-          type: string
-          description: Id relativo alla eventuale precedente richiesta di invio cartaceo
-          maxLength: 512
-        productType:
-          type: string
-          maxLength: 10
-          description: |
-            Tipo di invio cartaceo effettivamente inviato - __RS__: Raccomandata nazionale Semplice (per Avviso di mancato Recapito) - __RIS__: Raccomandata internazionale Semplice - __AR__: Raccomandata nazionale Andata e Ritorno - __890__: Recapito a norma della legge 890/1982 - __RIR__: Raccomandata internazionale Andata e Ritorno
-        analogCost:
-          type: integer
-          description: costo in eurocent dell'invio
-          format: int32
-        numberOfPages:
-          type: integer
-          description: numero delle pagina che compongono la spedizione cartacea
-          format: int32
-        envelopeWeight:
-          type: integer
-          description: peso in grammi della busta
-          format: int32
-        prepareRequestId:
-          type: string
-          description: request id della relativa richiesta di prepare
-          maxLength: 512
-        f24Attachments:
-          type: array
-          items:
-            type: string
-        categorizedAttachmentsResult:
-          $ref: '#/components/schemas/CategorizedAttachmentsResult'
-        vat:
-          type: integer
-    AnalogDeliveryDetail:
-      description: Dettaglio di un avanzamento di consegna analogico
-      type: object
-      properties:
-        code:
-          type: string
-          maxLength: 20
-          description: |
-            Formato: - __deliveryDetailCode__- [prodotto] - [statusCode] - statusDescription
-              - __CON020__- [ALL] - [PROGRESS] - Originale dell’AAR (documento nativo digitale) reso disponibile dal Consolidatore e firmato digitalmente da PagoPA
-              - __CON080__- [ALL] - [PROGRESS] - Stampato ed Imbustato
-              - __RECRS001C__- [RS] - [OK] - Consegnato - Fascicolo Chiuso
-              - __RECRS002C__- [RS] - [KO] - Mancata consegna - Fascicolo Chiuso
-              - __RECRS002F__- [RS] - [KO] - Irreperibilità Assoluta - Fascicolo Chiuso
-              - __RECRS003C__- [RS] - [OK] - Consegnato presso Punti di Giacenza - Fascicolo Chiuso
-              - __RECRS004C__- [RS] - [OK] - Mancata consegna presso Punti di Giacenza - Fascicolo Chiuso
-              - __RECRS005C__- [RS] - [OK] - Compiuta giacenza - Fascicolo Chiuso
-              - __RECRS006__- [RS] - [PROGRESS] - Furto/Smarrimento/deterioramento
-              - __RECRN001C__- [AR] - [OK] - Consegnato - Fascicolo Chiuso
-              - __RECRN002C__- [AR] - [KO] - Mancata consegna - Fascicolo Chiuso
-              - __RECRN002F__- [AR] - [KO] - Irreperibilità Assoluta - Fascicolo Chiuso
-              - __RECRN003C__- [AR] - [OK] - Consegnato presso Punti di Giacenza - Fascicolo Chiuso
-              - __RECRN004C__- [AR] - [KO] - Mancata consegna presso Punti di Giacenza - Fascicolo Chiuso
-              - __RECRN005C__- [AR] - [OK] - Compiuta giacenza - Fascicolo Chiuso
-              - __RECRN006__- [AR] - [PROGRESS] - Furto/Smarrimento/deterioramento
-              - __RECAG001C__- [890] - [OK] - Consegnato - Fascicolo Chiuso
-              - __RECAG002C__- [890] - [OK] - Consegnato a persona abilitata - Fascicolo Chiuso
-              - __RECAG003C__- [890] - [KO] - Mancata consegna - Fascicolo Chiuso
-              - __RECAG003F__- [890] - [KO] - Irreperibilità Assoluta - Fascicolo Chiuso
-              - __RECAG004__- [890] - [PROGRESS] - Furto/Smarrimento/deterioramento
-              - __RECAG005C__- [890] - [OK | PROGRESS] - Consegnato presso Punti di Giacenza - Fascicolo Chiuso
-              - __RECAG006C__- [890] - [OK | PROGRESS] - Consegna a persona abilitata presso Punti di Giacenza - Fas. Ch.
-              - __RECAG007C__- [890] - [KO | PROGRESS] - Mancata consegna presso Punti di Giacenza - Fascicolo Chiuso
-              - __RECAG008C__- [890] - [PROGRESS] - Compiuta giacenza - Fascicolo Chiuso
-              - __PNAG012__- [890] - [KO] - Distacco d'ufficio 23L - Fascicolo Chiuso
-              - __RECRI003C__- [RIR] - [OK] - Consegnato - Fascicolo Chiuso
-              - __RECRI004C__- [RIR] - [KO] - Non Consegnato - fascicolo Chiuso
-              - __RECRI005__- [RIR] - [PROGRESS] - Furto/Smarrimento/deterioramento
-              - __RECRSI003C__- [RIS] - [OK] - Consegnato - Fascicolo Chiuso
-              - __RECRSI004C__- [RIS] - [KO] - Non Consegnato - fascicolo Chiuso
-              - __RECRSI005__- [RIS] - [PROGRESS] - Furto/Smarrimento/deterioramento
-        failureCause:
-          type: string
-          maxLength: 10
-          description: |
-            __Motivazione di mancata consegna__ obbligatorie negli stati di mancata consegna
-              - __M01__ destinatario irreperibile
-              - __M02__ destinatario deceduto
-              - __M03__ destinatario sconosciuto
-              - __M04__ destinatario trasferito
-              - __M05__ invio rifiutato
-              - __M06__ indirizzo inesatto
-              - __M07__ indirizzo inesistente
-              - __M08__ indirizzo insufficiente
-              - __F01__ - in caso di furto
-              - __F02__ - in caso di smarrimento
-              - __F03__ - in caso di deterioramento
-        eventTimestamp:
-          type: string
-          description: Data evento di avanzamento della notifica
-          format: date-time
-    AttachmentDetails:
-      type: object
-      properties:
-        id:
-          type: string
-          maxLength: 128
-        documentType:
-          type: string
-          maxLength: 20
-          description: |
-            Codici documentType: - Plico: Indica il plico cartaceo - AR: Indica la ricevuta di ritorno - Indagine: Indica la ricevuta dell'analisi dell'indagine - 23L: Indica la ricevuta 23L
-        url:
-          type: string
-          maxLength: 128
-        date:
-          type: string
-          format: date-time
-    SendAnalogMessageProgressDetails:
-      x-discriminator-value: SEND_ANALOG_MESSAGE_PROGRESS
-      type: object
-      required:
-        - recIndex
-        - categoryType
-        - deliveryType
-      properties:
-        categoryType:
-          type: string
-        recIndex:
-          $ref: '#/components/schemas/RecIndex'
-        notificationDate:
-          type: string
-          format: date-time
-        deliveryDetail:
-          $ref: '#/components/schemas/AnalogDeliveryDetail'
-        deliveryType:
-          $ref: '#/components/schemas/AnalogDeliveryType'
-        attachments:
-          type: array
-          items:
-            $ref: '#/components/schemas/AttachmentDetails'
-        sendRequestId:
-          type: string
-          description: RequestId della richiesta d'invio
-          maxLength: 512
-        registeredLetterCode:
-          type: string
-          description: Codice della raccomandata
-          maxLength: 128
-        serviceLevel:
-          $ref: '#/components/schemas/ServiceLevel'
-    SendAnalogMessageFeedbackDetails:
-      x-discriminator-value: SEND_ANALOG_MESSAGE_FEEDBACK
-      type: object
-      required:
-        - recIndex
-        - serviceLevel
-        - sentAttemptMade
-        - responseStatus
-        - categoryType
-        - deliveryType
-      properties:
-        categoryType:
-          type: string
-        recIndex:
-          $ref: '#/components/schemas/RecIndex'
-        physicalAddress:
-          $ref: '#/components/schemas/PhysicalAddress'
-        serviceLevel:
-          $ref: '#/components/schemas/ServiceLevel'
-        sentAttemptMade:
-          type: integer
-          description: numero dei tentativi effettuati
-          format: int32
-        newAddress:
-          $ref: '#/components/schemas/PhysicalAddress'
-        deliveryDetail:
-          $ref: '#/components/schemas/AnalogDeliveryDetail'
-        deliveryType:
-          $ref: '#/components/schemas/AnalogDeliveryType'
-        responseStatus:
-          $ref: '#/components/schemas/ResponseStatus'
-        sendingReceipts:
-          type: array
-          items:
-            $ref: '#/components/schemas/SendingReceipt'
-        requestTimelineId:
-          type: string
-        notificationDate:
-          type: string
-          format: date-time
-        attachments:
-          type: array
-          items:
-            $ref: '#/components/schemas/AttachmentDetails'
-        sendRequestId:
-          type: string
-          description: RequestId della richiesta d'invio
-          maxLength: 512
-        registeredLetterCode:
-          type: string
-          description: Codice della raccomandata
-          maxLength: 128
-    DeliveredDetails:
-      x-discriminator-value: DELIVERED
-      type: object
-      required:
-        - recIndex
-        - categoryType
-      properties:
-        categoryType:
-          type: string
-        recIndex:
-          $ref: '#/components/schemas/RecIndex'
-        channel:
-          type: string
-          description: |
-            __Canale di raggiungimento del destinatario__ - __APPIO__ - __PEC__ - __EMAIL__ - __SMS__ - __ANALOG__
-        sourceElementId:
-          type: string
-          description: Id dell'elemento che ha generato il raggiungimento
-          maxLength: 512
-    WorkflowEndedReachedDetails:
-      x-discriminator-value: WORKFLOW_ENDED_REACHED
-      type: object
-      required:
-        - recIndex
-        - categoryType
-        - sourceElementId
-      properties:
-        categoryType:
-          type: string
-        recIndex:
-          $ref: '#/components/schemas/RecIndex'
-        sourceElementId:
-          type: string
-        notificationDate:
-          description: data del primo evento di raggiungimento del destinatario
-          type: string
-          format: date-time
-    WorkflowEndedUnreachedDetails:
-      x-discriminator-value: WORKFLOW_ENDED_UNREACHED
-      type: object
-      required:
-        - recIndex
-        - categoryType
-        - sourceElementId
-      properties:
-        categoryType:
-          type: string
-        recIndex:
-          $ref: '#/components/schemas/RecIndex'
-        sourceElementId:
-          type: string
-    WorkflowEndedUndeliverableDetails:
-      x-discriminator-value: WORKFLOW_ENDED_UNDELIVERABLE
-      type: object
-      required:
-        - recIndex
-        - categoryType
-      properties:
-        categoryType:
-          type: string
-        recIndex:
-          $ref: '#/components/schemas/RecIndex'
-    WorkflowDoneReachedDetails:
-      x-discriminator-value: 'WORKFLOW_DONE_REACHED '
-      type: object
-      required:
-        - recIndex
-        - categoryType
-      properties:
-        categoryType:
-          type: string
-        recIndex:
-          $ref: '#/components/schemas/RecIndex'
-        sourceElementId:
-          type: string
-          description: Id dell'elemento che ha generato la conclusione del workflow
-          maxLength: 512
-    WorkflowDoneUnreachedDetails:
-      x-discriminator-value: 'WORKFLOW_DONE_UNREACHED '
-      type: object
-      required:
-        - recIndex
-        - categoryType
-      properties:
-        categoryType:
-          type: string
-        recIndex:
-          $ref: '#/components/schemas/RecIndex'
-        sourceElementId:
-          type: string
-          description: Id dell'elemento che ha generato la conclusione del workflow
-          maxLength: 512
-    InformalNotificationViewedDetails:
-      x-discriminator-value: INFORMAL_NOTIFICATION_VIEWED
-      type: object
-      required:
-        - recIndex
-        - categoryType
-        - eventTimestamp
-        - sourceChannel
-      properties:
-        categoryType:
-          type: string
-        recIndex:
-          type: integer
-          description: Index destinatario notifica digitale
-          format: int32
-        eventTimestamp:
-          type: string
-          description: Data ricezione richiesta visualizzazione notifica
-          format: date-time
-        sourceChannel:
-          type: string
-          description: |
-            Canale di provenienza della richiesta di visualizzazione notifica bonaria - __APPIO__: richiesta tramite App IO - __WEB__: richiesta tramite Portale WEB
-        sourceChannelDetails:
-          type: string
-          description: |
-            Dettaglio del canale di provenienza della richiesta di visualizzazione notifica bonaria
-    CoverpageCreationRequestDetails:
-      x-discriminator-value: COVERPAGE_CREATION_REQUEST
-      type: object
-      required:
-        - recIndex
-        - categoryType
-        - fileKey
-      properties:
-        categoryType:
-          type: string
-        recIndex:
-          type: integer
-          description: Index destinatario notifica digitale
-          format: int32
-        fileKey:
-          type: string
-          maxLength: 128
-          description: Identificativo del frontespizio per il quale è stata richiesta la creazione
-    SendDigitalMessageSkipDetails:
-      x-discriminator-value: SEND_DIGITAL_MESSAGE_SKIP
-      type: object
-      required:
-        - recIndex
-        - categoryType
-        - channel
-      properties:
-        recIndex:
-          $ref: '#/components/schemas/RecIndex'
-        categoryType:
-          type: string
-        channel:
-          $ref: '#/components/schemas/DigitalChannels'
-        digitalAddressSource:
-          $ref: '#/components/schemas/DigitalAddressSource'
-        retryNumber:
-          type: integer
-          description: numero dei tentativi effettuati
-          format: int32
-    NotificationRequestAcceptedDetailsV28:
-      x-discriminator-value: REQUEST_ACCEPTED
-      type: object
-      required:
-        - categoryType
-      properties:
-        categoryType:
-          type: string
-        notificationRequestId:
-          type: string
-          description: identificativo univoco di una richiesta di invio notifica, non è lo IUN
-        paProtocolNumber:
-          type: string
-          description: Numero di protocollo associato alla notifica, può essere riutilizzato per rettifiche.
-          pattern: ^.*$
-          maxLength: 256
-        idempotenceToken:
-          type: string
-          description: token usato per disambiguare "richieste di notificazione" effettuate con lo stesso  numero di protocollo.
-          pattern: ^[ -~]*$
-          maxLength: 256
-    NotificationRefusedErrorV27:
-      type: object
-      properties:
-        errorCode:
-          type: string
-          maxLength: 128
-          description: |-
-            Errori di rifiuto della notifica.
-              - FILE_NOTFOUND - I riferimenti dei documenti nella notifica non sono corretti o i documenti non sono stati caricati con successo.
-              - FILE_GONE - Allegato non disponibile: superati i termini di conservazione
-              - FILE_SHA_ERROR - Il digest calcolato con algoritmi sha256 dei documenti inseriti non è corrispondete a quello del file referenziato.
-              - FILE_PDF_INVALID_ERROR - Il file inserito non è in formato pdf.
-              - FILE_PDF_TOOBIG_ERROR - Il file pdf ha una dimensione eccedente il limite di 200MB.
-              - F24_METADATA_NOT_VALID - I dati contenuti del file dei metadati F24 non rispettano lo schema di validazione.
-              - TAXID_NOT_VALID - Codice fiscale del destinatario non corretto (non ancora implementato).
-              - RECIPIENT_ID_NOT_VALID - Destinatario non Valido (utilizzato solo per funzionalità non ancora implementate)
-              - NOT_VALID_ADDRESS - L'indirizzo di invio cartaceo inserito per il destinatario non ha superato i controlli di correttezza.
-              - PAYMENT_NOT_VALID - I dati del pagamento non sono sono registrati sulla piattaforma GPD (modalità asincrona di integrazione pagoPA)
-              - SERVICE_UNAVAILABLE - Il sistema non è attualmente disponibile.
-              - ADDRESS_NOT_FOUND - La ricerca dell’indirizzo effettuata con il servizio di LookupAddress non ha prodotto risultati.
-              - ADDRESS_SEARCH_FAILED - C'è stato un problema con la ricerca dell'indirizzo effettuata con il servizio di LookupAddess.
-              ...
-        detail:
-          type: string
-          maxLength: 2048
-        recIndex:
-          type: integer
-          description: Index destinatario notifica digitale con errore che ha portato al rifiuto della notifica
-          format: int32
-    RequestRefusedDetailsV27:
-      x-discriminator-value: REQUEST_REFUSED
-      type: object
-      required:
-        - categoryType
-      properties:
-        categoryType:
-          type: string
-        refusalReasons:
-          type: array
-          description: Motivazioni che hanno portato al rifiuto della notifica
-          items:
-            $ref: '#/components/schemas/NotificationRefusedErrorV27'
-        notificationRequestId:
-          type: string
-          description: identificativo univoco di una richiesta di invio notifica, non è lo IUN
-        paProtocolNumber:
-          type: string
-          description: Numero di protocollo associato alla notifica, può essere riutilizzato per rettifiche.
-          pattern: ^.*$
-          maxLength: 256
-        idempotenceToken:
-          type: string
-          description: token usato per disambiguare "richieste di notificazione" effettuate con lo stesso  numero di protocollo.
-          pattern: ^[ -~]*$
-          maxLength: 256
-    RecipientType:
-      type: string
-      enum:
-        - PF
-        - PG
-    NotificationPaidDetails:
-      x-discriminator-value: PAYMENT
-      type: object
-      required:
-        - recIndex
-        - recipientType
-        - paymentSourceChannel
-        - categoryType
-      properties:
-        categoryType:
-          type: string
-        recIndex:
-          type: integer
-          description: Index destinatario che ha effettuato il pagamento della notifica
-          format: int32
-        recipientType:
-          $ref: '#/components/schemas/RecipientType'
-        amount:
-          type: integer
-          description: Importo di pagamento in eurocent
-          format: int32
-        creditorTaxId:
-          $ref: '#/components/schemas/paTaxId'
-        noticeCode:
-          $ref: '#/components/schemas/noticeCode'
-        paymentSourceChannel:
-          type: string
-          description: Canale sorgente della richiesta di pagamento
-          maxLength: 512
-        uncertainPaymentDate:
-          deprecated: true
-          type: boolean
-          description: Indica se la data di pagamento é certa
-        eventTimestamp:
-          type: string
-          description: Data evento pagamento
-          format: date-time
-    InformalTimelineElementDetailsV1:
-      description: The raw event payload that will be different based on the event.
-      oneOf:
-        - $ref: '#/components/schemas/SendDigitalMessageDetails'
-        - $ref: '#/components/schemas/SendDigitalMessageProgressDetails'
-        - $ref: '#/components/schemas/SendDigitalMessageFeedbackDetails'
-        - $ref: '#/components/schemas/PrepareAnalogDeliveryDetails'
-        - $ref: '#/components/schemas/SendAnalogMessageDetails'
-        - $ref: '#/components/schemas/SendAnalogMessageProgressDetails'
-        - $ref: '#/components/schemas/SendAnalogMessageFeedbackDetails'
-        - $ref: '#/components/schemas/DeliveredDetails'
-        - $ref: '#/components/schemas/WorkflowEndedReachedDetails'
-        - $ref: '#/components/schemas/WorkflowEndedUnreachedDetails'
-        - $ref: '#/components/schemas/WorkflowEndedUndeliverableDetails'
-        - $ref: '#/components/schemas/WorkflowDoneReachedDetails'
-        - $ref: '#/components/schemas/WorkflowDoneUnreachedDetails'
-        - $ref: '#/components/schemas/InformalNotificationViewedDetails'
-        - $ref: '#/components/schemas/CoverpageCreationRequestDetails'
-        - $ref: '#/components/schemas/SendDigitalMessageSkipDetails'
-        - $ref: '#/components/schemas/NotificationRequestAcceptedDetailsV28'
-        - $ref: '#/components/schemas/RequestRefusedDetailsV27'
-        - $ref: '#/components/schemas/NotificationPaidDetails'
-      discriminator:
-        propertyName: categoryType
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
