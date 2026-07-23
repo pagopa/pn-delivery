@@ -409,7 +409,7 @@ components:
       name: size
       description: dimensione della pagina di risultati
       in: query
-      required: true
+      required: false
       schema:
         type: integer
         format: int32
