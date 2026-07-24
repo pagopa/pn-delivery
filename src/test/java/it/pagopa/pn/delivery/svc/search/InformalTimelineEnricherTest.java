@@ -4,9 +4,7 @@ import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.*;
 import it.pagopa.pn.delivery.models.InformalNotificationDetail;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
+import it.pagopa.pn.delivery.models.internal.notification.*;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import org.junit.jupiter.api.BeforeEach;
@@ -262,7 +260,11 @@ class InformalTimelineEnricherTest {
     @Test
     void shouldSetDocumentsAvailableTrueWhenNotificationHasPaymentsAndNoDocuments() {
         InternalNotification notification = buildNotification("IUN_PAYMENTS_NO_DOCS");
-        notification.getRecipients().get(0).setPayment(List.of(new NotificationPaymentInfo()));
+        NotificationPaymentInfo notificationPayment = new NotificationPaymentInfo();
+        PagoPaPayment pagoPaPayment = new PagoPaPayment();
+        pagoPaPayment.setAttachment(new MetadataAttachment());
+        notificationPayment.setPagoPa(pagoPaPayment);
+        notification.getRecipients().get(0).setPayment(List.of(notificationPayment));
 
         InformalNotificationDetail detail = InformalNotificationDetail.builder()
                 .notification(notification)

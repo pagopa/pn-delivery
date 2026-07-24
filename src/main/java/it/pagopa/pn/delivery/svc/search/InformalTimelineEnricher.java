@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static it.pagopa.pn.delivery.utils.NotificationUtils.hasDocumentsOrPaymentAttachmentsPresent;
 import static it.pagopa.pn.delivery.utils.NotificationUtils.removeDocuments;
 
 @Service
@@ -103,23 +104,21 @@ public class InformalTimelineEnricher implements TimelineEnricher<InformalNotifi
     private void checkDocumentsAvailability(InformalNotificationDetail informalNotificationDetail, OffsetDateTime acceptanceDate) {
         InternalNotification notification = informalNotificationDetail.getNotification();
         log.debug("Check if documents are available for iun={}", notification.getIun());
-        notification.setDocumentsAvailable(hasDocumentsOrPayments(notification));
+        boolean documentsAvailable = hasDocumentsOrPaymentAttachmentsPresent(notification);
+        notification.setDocumentsAvailable(documentsAvailable);
+        if (!documentsAvailable) {
+            log.debug("Documents or Payments not available for iun={}", notification.getIun());
+            return;
+        }
         if (acceptanceDate != null) {
-            long daysBetween = ChronoUnit.DAYS.between(acceptanceDate.toInstant().truncatedTo(ChronoUnit.DAYS),
-                    clock.instant().truncatedTo(ChronoUnit.DAYS));
+            long daysBetween = ChronoUnit.DAYS.between(
+                    acceptanceDate.toInstant().truncatedTo(ChronoUnit.DAYS),
+                    clock.instant().truncatedTo(ChronoUnit.DAYS)
+            );
             if (daysBetween > Long.parseLong(cfg.getInformalMaxDocumentsAvailableDays())) {
                 log.debug("Documents not more available for iun={} from={}", notification.getIun(), acceptanceDate);
                 removeDocuments(notification);
             }
         }
-    }
-
-    private boolean hasDocumentsOrPayments(InternalNotification notification) {
-        boolean hasDocuments = notification.getDocuments() != null && !notification.getDocuments().isEmpty();
-        boolean hasPayments = notification.getRecipients() != null
-                && notification.getRecipients().stream()
-                .anyMatch(recipient -> recipient.getPayments() != null && !recipient.getPayments().isEmpty());
-
-        return hasDocuments || hasPayments;
     }
 }
