@@ -4,7 +4,7 @@ import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.*;
 import it.pagopa.pn.delivery.models.InformalNotificationDetail;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
+import it.pagopa.pn.delivery.models.internal.notification.*;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,14 +47,16 @@ class InformalTimelineEnricherTest {
     @ParameterizedTest
     @CsvSource(
             {
-                    "2026-06-15T19:00:00Z, 2026-06-15T10:00:00Z, true", // same day as the instant time
-                    "2026-06-15T19:00:00Z, 2026-06-14T10:00:00Z, true", // 1 day before the instant time
-                    "2026-06-15T19:00:00Z, 2026-06-05T10:00:00Z, true", // 10 days before the instant time
-                    "2026-06-15T19:00:00Z, 2026-06-04T10:00:00Z, false" // 11 days before the instant time
+                    "2026-06-15T19:00:00Z, 2026-06-15T10:00:00Z, true",
+                    "2026-06-15T19:00:00Z, 2026-06-14T10:00:00Z, true",
+                    "2026-06-15T19:00:00Z, 2026-06-05T10:00:00Z, true",
+                    "2026-06-15T19:00:00Z, 2026-06-04T10:00:00Z, false"
             }
     )
     void shouldEnrichNotificationDetailWithNotificationAccepted(String instantTime, String acceptanceTime, boolean expectedDocumentsAvailable) {
         InternalNotification notification = buildNotification("IUN_TEST");
+        notification.setDocuments(List.of(new NotificationDocument()));
+
         InformalNotificationDetail detail = InformalNotificationDetail.builder()
                 .notification(notification)
                 .build();
@@ -148,7 +150,7 @@ class InformalTimelineEnricherTest {
                 detail.getNotificationStatus()
         );
 
-        assertTrue(detail.getNotification().getDocumentsAvailable());
+        assertFalse(detail.getNotification().getDocumentsAvailable());
 
         verify(pnDeliveryPushClient).getInformalNotificationHistory(
                 "IUN_TEST",
@@ -164,6 +166,130 @@ class InformalTimelineEnricherTest {
                 statusHistoryElement,
                 it.pagopa.pn.delivery.generated.openapi.server.v1.dto.InformalNotificationStatusHistoryElementV1.class
         );
+    }
+
+    @Test
+    void shouldSetDocumentsAvailableFalseWhenAcceptedNotificationHasNoDocumentsAndNoPayments() {
+        InternalNotification notification = buildNotification("IUN_NO_DOCS_NO_PAYMENTS_ACCEPTED");
+        InformalNotificationDetail detail = InformalNotificationDetail.builder()
+                .notification(notification)
+                .build();
+
+        when(clock.instant()).thenReturn(Instant.parse("2026-06-15T19:00:00Z"));
+
+        InformalTimelineElementV1 timelineElement = new InformalTimelineElementV1();
+        timelineElement.setCategory(InformalTimelineElementCategoryV1.REQUEST_ACCEPTED);
+        timelineElement.setIngestionTimestamp(OffsetDateTime.parse("2026-06-15T10:00:00Z"));
+
+        InformalNotificationHistoryResponse historyResponse = new InformalNotificationHistoryResponse();
+        historyResponse.setTimeline(List.of(timelineElement));
+        historyResponse.setInformalNotificationStatusHistory(List.of(new InformalNotificationStatusHistoryElementV1()));
+        historyResponse.setInformalNotificationStatus(InformalNotificationStatusV1.ACCEPTED);
+
+        when(pnDeliveryPushClient.getInformalNotificationHistory(
+                "IUN_NO_DOCS_NO_PAYMENTS_ACCEPTED",
+                notification.getRecipients().size(),
+                notification.getSentAt()
+        )).thenReturn(historyResponse);
+
+        enricher.enrichNotificationDetail(detail, false);
+
+        assertFalse(detail.getNotification().getDocumentsAvailable());
+    }
+
+    @Test
+    void shouldSetDocumentsAvailableFalseWhenNotAcceptedNotificationHasNoDocumentsAndNoPayments() {
+        InternalNotification notification = buildNotification("IUN_NO_DOCS_NO_PAYMENTS_REFUSED");
+        InformalNotificationDetail detail = InformalNotificationDetail.builder()
+                .notification(notification)
+                .build();
+
+        when(clock.instant()).thenReturn(Instant.parse("2026-06-15T19:00:00Z"));
+
+        InformalTimelineElementV1 timelineElement = new InformalTimelineElementV1();
+        timelineElement.setCategory(InformalTimelineElementCategoryV1.REQUEST_REFUSED);
+        timelineElement.setIngestionTimestamp(OffsetDateTime.parse("2026-06-15T10:00:00Z"));
+
+        InformalNotificationHistoryResponse historyResponse = new InformalNotificationHistoryResponse();
+        historyResponse.setTimeline(List.of(timelineElement));
+        historyResponse.setInformalNotificationStatusHistory(List.of(new InformalNotificationStatusHistoryElementV1()));
+        historyResponse.setInformalNotificationStatus(InformalNotificationStatusV1.ACCEPTED);
+
+        when(pnDeliveryPushClient.getInformalNotificationHistory(
+                "IUN_NO_DOCS_NO_PAYMENTS_REFUSED",
+                notification.getRecipients().size(),
+                notification.getSentAt()
+        )).thenReturn(historyResponse);
+
+        enricher.enrichNotificationDetail(detail, false);
+
+        assertFalse(detail.getNotification().getDocumentsAvailable());
+    }
+
+    @Test
+    void shouldSetDocumentsAvailableTrueWhenNotificationHasDocumentsAndNoPayments() {
+        InternalNotification notification = buildNotification("IUN_DOCS_NO_PAYMENTS");
+        notification.setDocuments(List.of(new NotificationDocument()));
+
+        InformalNotificationDetail detail = InformalNotificationDetail.builder()
+                .notification(notification)
+                .build();
+
+        when(clock.instant()).thenReturn(Instant.parse("2026-06-15T19:00:00Z"));
+
+        InformalTimelineElementV1 timelineElement = new InformalTimelineElementV1();
+        timelineElement.setCategory(InformalTimelineElementCategoryV1.REQUEST_ACCEPTED);
+        timelineElement.setIngestionTimestamp(OffsetDateTime.parse("2026-06-15T10:00:00Z"));
+
+        InformalNotificationHistoryResponse historyResponse = new InformalNotificationHistoryResponse();
+        historyResponse.setTimeline(List.of(timelineElement));
+        historyResponse.setInformalNotificationStatusHistory(List.of(new InformalNotificationStatusHistoryElementV1()));
+        historyResponse.setInformalNotificationStatus(InformalNotificationStatusV1.ACCEPTED);
+
+        when(pnDeliveryPushClient.getInformalNotificationHistory(
+                "IUN_DOCS_NO_PAYMENTS",
+                notification.getRecipients().size(),
+                notification.getSentAt()
+        )).thenReturn(historyResponse);
+
+        enricher.enrichNotificationDetail(detail, false);
+
+        assertTrue(detail.getNotification().getDocumentsAvailable());
+    }
+
+    @Test
+    void shouldSetDocumentsAvailableTrueWhenNotificationHasPaymentsAndNoDocuments() {
+        InternalNotification notification = buildNotification("IUN_PAYMENTS_NO_DOCS");
+        NotificationPaymentInfo notificationPayment = new NotificationPaymentInfo();
+        PagoPaPayment pagoPaPayment = new PagoPaPayment();
+        pagoPaPayment.setAttachment(new MetadataAttachment());
+        notificationPayment.setPagoPa(pagoPaPayment);
+        notification.getRecipients().get(0).setPayment(List.of(notificationPayment));
+
+        InformalNotificationDetail detail = InformalNotificationDetail.builder()
+                .notification(notification)
+                .build();
+
+        when(clock.instant()).thenReturn(Instant.parse("2026-06-15T19:00:00Z"));
+
+        InformalTimelineElementV1 timelineElement = new InformalTimelineElementV1();
+        timelineElement.setCategory(InformalTimelineElementCategoryV1.REQUEST_ACCEPTED);
+        timelineElement.setIngestionTimestamp(OffsetDateTime.parse("2026-06-15T10:00:00Z"));
+
+        InformalNotificationHistoryResponse historyResponse = new InformalNotificationHistoryResponse();
+        historyResponse.setTimeline(List.of(timelineElement));
+        historyResponse.setInformalNotificationStatusHistory(List.of(new InformalNotificationStatusHistoryElementV1()));
+        historyResponse.setInformalNotificationStatus(InformalNotificationStatusV1.ACCEPTED);
+
+        when(pnDeliveryPushClient.getInformalNotificationHistory(
+                "IUN_PAYMENTS_NO_DOCS",
+                notification.getRecipients().size(),
+                notification.getSentAt()
+        )).thenReturn(historyResponse);
+
+        enricher.enrichNotificationDetail(detail, false);
+
+        assertTrue(detail.getNotification().getDocumentsAvailable());
     }
 
     private InternalNotification buildNotification(String iun) {
