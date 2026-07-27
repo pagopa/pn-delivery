@@ -631,7 +631,7 @@ components:
           minLength: 80
           maxLength: 9000
           description: Corpo esteso del messaggio in formato Markdown
-          example: Gentile cittadino, la informiamo che dobbiamo raggiungere 80 caratteri per il corpo del messaggio, quindi questo è un esempio di testo che supera i 80 caratteri. Il messaggio può essere più lungo, fino a 10.000 caratteri.
+          example: Gentile cittadino, la informiamo che dobbiamo raggiungere 80 caratteri per il corpo del messaggio, quindi questo è un esempio di testo che supera i 80 caratteri. Il messaggio può essere più lungo
         shortBody:
           type: string
           maxLength: 160
