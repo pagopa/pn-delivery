@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: whJG9K0lp/L9RVoWAYvaS4mzZzoza0cW8NpMWBIA5zw=
+  version: Vjh/8Tq1CFNYcKWWxTr7HP+RGSwrRj72na2VmMMumrw=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -104,7 +104,11 @@ paths:
             example:
               primaryMessage:
                 subject: Oggetto IT
-                longBody: Test body IT
+                longBody: >-
+                  Gentile cittadino, la informiamo che dobbiamo raggiungere 80
+                  caratteri per il corpo del messaggio, quindi questo è un
+                  esempio di testo che supera i 80 caratteri. Il messaggio può
+                  essere più lungo, fino a 10.000 caratteri.
                 shortBody: Short IT
                 language: IT
       responses:
@@ -117,7 +121,11 @@ paths:
               example:
                 primaryMessage:
                   subject: Oggetto IT
-                  longBody: Test body IT
+                  longBody: >-
+                    Gentile cittadino, la informiamo che dobbiamo raggiungere 80
+                    caratteri per il corpo del messaggio, quindi questo è un
+                    esempio di testo che supera i 80 caratteri. Il messaggio può
+                    essere più lungo, fino a 10.000 caratteri.
                   shortBody: Short IT
                   language: IT
                 messageId: 94484841-57e5-496f-8f2d-eec053c539e3
@@ -206,8 +214,12 @@ paths:
               example:
                 primaryMessage:
                   subject: Oggetto IT
-                  longBody: Test body IT
-                  shortBody: Short IT
+                  longBody: >-
+                    Gentile cittadino, la informiamo che dobbiamo raggiungere 80
+                    caratteri per il corpo del messaggio, quindi questo è un
+                    esempio di testo che supera i 80 caratteri. Il messaggio può
+                    essere più lungo, fino a 10.000 caratteri.
+                  shortBody: Short more than 10 characters
                   language: IT
                 messageId: 94484841-57e5-496f-8f2d-eec053c539e3
                 createdAt: '2026-06-26T13:35:00.000Z'
@@ -1327,13 +1339,13 @@ components:
           example: Sollecito di pagamento Tari 2023
         longBody:
           type: string
-          maxLength: 10000
+          minLength: 80
+          maxLength: 9000
           description: Corpo esteso del messaggio in formato Markdown
           example: >-
-            Gentile cittadino, la informiamo che dobbiamoraggiungere 80
+            Gentile cittadino, la informiamo che dobbiamo raggiungere 80
             caratteri per il corpo del messaggio, quindi questo è un esempio di
-            testo che supera i 80 caratteri. Il messaggio può essere più lungo,
-            fino a 10.000 caratteri.
+            testo che supera i 80 caratteri. Il messaggio può essere più lungo
         shortBody:
           type: string
           maxLength: 160
