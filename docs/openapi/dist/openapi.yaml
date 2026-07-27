@@ -23,8 +23,6 @@ tags:
     description: Invocazioni per effettuare il pre-caricamento dei documenti della notifica e inviare notifiche bonarie.
   - name: SenderReadInformalNotificationB2B
     description: Invocazioni utilizzabili dai mittenti per verificare lo stato delle richieste di notifica inviate e delle notifiche accettate.
-  - name: InformalNotificationTermination
-    description: Invocazioni per interrompere il workflow di una notifica non legale in stato di attesa o accettata.
   - name: HealthCheck
     description: Invocazioni per sapere lo stato del microservizio
 paths:
@@ -889,6 +887,7 @@ components:
         - recipientType
         - taxId
       type: object
+      additionalProperties: false
       properties:
         recipientType:
           type: string
