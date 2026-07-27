@@ -56,7 +56,7 @@ class InformalMessageControllerTest {
         String validBody = "{" +
                 "\"primaryMessage\": {" +
                 "  \"subject\": \"Oggetto di test\"," +
-                "  \"longBody\": \"Corpo lungo di test lungo almeno 80 caratteri: bla bla bla quanti ne mancano ancora?\"\"," +
+                "  \"longBody\": \"Corpo lungo di test\"," +
                 "  \"shortBody\": \"Breve corpo\"," +
                 "  \"language\": \"IT\"" +
                 "}}";
