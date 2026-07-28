@@ -18,9 +18,9 @@ info:
     name: 'SEND: supporto enti'
     url: https://pagopa.atlassian.net/servicedesk/customer/portal/5
 servers:
-  - url: https://api.notifichedigitali.it
+  - url: https://api.notifichedigitali.it/informal
     description: Ambiente di produzione
-  - url: https://api.uat.notifichedigitali.it
+  - url: https://api.uat.notifichedigitali.it/informal
     description: Ambiente di collaudo
 tags:
   - name: Messages
