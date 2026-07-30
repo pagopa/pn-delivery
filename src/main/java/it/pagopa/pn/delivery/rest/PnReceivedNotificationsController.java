@@ -72,6 +72,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi, Reci
         logEvent.log();
         InputSearchNotificationDto searchDto = new InputSearchNotificationDto().toBuilder()
                 .bySender(false)
+                .skipGroupLabelization(true)
                 .senderReceiverId(xPagopaPnCxId)
                 .startDate(startDate.toInstant())
                 .endDate(endDate.toInstant())
