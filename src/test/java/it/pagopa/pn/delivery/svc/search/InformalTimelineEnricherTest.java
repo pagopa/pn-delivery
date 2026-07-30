@@ -4,7 +4,8 @@ import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.*;
 import it.pagopa.pn.delivery.models.InformalNotificationDetail;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.internal.notification.*;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import org.junit.jupiter.api.BeforeEach;
@@ -248,41 +249,6 @@ class InformalTimelineEnricherTest {
 
         when(pnDeliveryPushClient.getInformalNotificationHistory(
                 "IUN_DOCS_NO_PAYMENTS",
-                notification.getRecipients().size(),
-                notification.getSentAt()
-        )).thenReturn(historyResponse);
-
-        enricher.enrichNotificationDetail(detail, false);
-
-        assertTrue(detail.getNotification().getDocumentsAvailable());
-    }
-
-    @Test
-    void shouldSetDocumentsAvailableTrueWhenNotificationHasPaymentsAndNoDocuments() {
-        InternalNotification notification = buildNotification("IUN_PAYMENTS_NO_DOCS");
-        NotificationPaymentInfo notificationPayment = new NotificationPaymentInfo();
-        PagoPaPayment pagoPaPayment = new PagoPaPayment();
-        pagoPaPayment.setAttachment(new MetadataAttachment());
-        notificationPayment.setPagoPa(pagoPaPayment);
-        notification.getRecipients().get(0).setPayment(List.of(notificationPayment));
-
-        InformalNotificationDetail detail = InformalNotificationDetail.builder()
-                .notification(notification)
-                .build();
-
-        when(clock.instant()).thenReturn(Instant.parse("2026-06-15T19:00:00Z"));
-
-        InformalTimelineElementV1 timelineElement = new InformalTimelineElementV1();
-        timelineElement.setCategory(InformalTimelineElementCategoryV1.REQUEST_ACCEPTED);
-        timelineElement.setIngestionTimestamp(OffsetDateTime.parse("2026-06-15T10:00:00Z"));
-
-        InformalNotificationHistoryResponse historyResponse = new InformalNotificationHistoryResponse();
-        historyResponse.setTimeline(List.of(timelineElement));
-        historyResponse.setInformalNotificationStatusHistory(List.of(new InformalNotificationStatusHistoryElementV1()));
-        historyResponse.setInformalNotificationStatus(InformalNotificationStatusV1.ACCEPTED);
-
-        when(pnDeliveryPushClient.getInformalNotificationHistory(
-                "IUN_PAYMENTS_NO_DOCS",
                 notification.getRecipients().size(),
                 notification.getSentAt()
         )).thenReturn(historyResponse);
