@@ -252,6 +252,7 @@ class NotificationSearchControllerTest {
 
         InputSearchNotificationDto searchDto = new InputSearchNotificationDto().toBuilder()
                 .bySender(false)
+                .skipGroupLabelization(true)
                 .senderReceiverId(RECIPIENT_ID)
                 .mandateId( MANDATE_ID )
                 .startDate(Instant.parse(START_DATE))

@@ -66,6 +66,8 @@ public class InputSearchNotificationDto {
 
     private boolean byCampaign;
 
+    private boolean skipGroupLabelization;
+
     private Integer maxPageNumber;
     
 }
