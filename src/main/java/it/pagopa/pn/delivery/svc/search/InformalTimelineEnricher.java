@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static it.pagopa.pn.delivery.utils.NotificationUtils.hasDocumentsOrPaymentAttachmentsPresent;
 import static it.pagopa.pn.delivery.utils.NotificationUtils.removeDocuments;
 
 @Service
@@ -104,10 +103,10 @@ public class InformalTimelineEnricher implements TimelineEnricher<InformalNotifi
     private void checkDocumentsAvailability(InformalNotificationDetail informalNotificationDetail, OffsetDateTime acceptanceDate) {
         InternalNotification notification = informalNotificationDetail.getNotification();
         log.debug("Check if documents are available for iun={}", notification.getIun());
-        boolean documentsAvailable = hasDocumentsOrPaymentAttachmentsPresent(notification);
+        boolean documentsAvailable = hasDocumentsPresent(notification);
         notification.setDocumentsAvailable(documentsAvailable);
         if (!documentsAvailable) {
-            log.debug("Documents or Payments not available for iun={}", notification.getIun());
+            log.debug("Documents not available for iun={}", notification.getIun());
             return;
         }
         if (acceptanceDate != null) {
@@ -120,5 +119,8 @@ public class InformalTimelineEnricher implements TimelineEnricher<InformalNotifi
                 removeDocuments(notification);
             }
         }
+    }
+    private static boolean hasDocumentsPresent(InternalNotification notification) {
+        return Objects.nonNull(notification.getDocuments()) && !notification.getDocuments().isEmpty();
     }
 }
