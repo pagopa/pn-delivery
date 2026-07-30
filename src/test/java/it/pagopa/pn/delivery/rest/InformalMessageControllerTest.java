@@ -1,8 +1,8 @@
 package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewMessageRequest;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.MessageResponseDto;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewMessageRequest;
 import it.pagopa.pn.delivery.svc.InformalMessageService;
 import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import org.junit.jupiter.api.Test;
@@ -79,6 +79,13 @@ class InformalMessageControllerTest {
         when(informalMessageService.createInformalMessage(any(NewMessageRequest.class), any(String.class)))
                 .thenThrow(new PnBadRequestException("Primary message language must be IT", "Primary message language must be IT", "PRIMARY_LANGUAGE_NOT_IT"));
 
+        String validBody = "{" +
+                "\"primaryMessage\": {" +
+                "  \"subject\": \"Oggetto di test\"," +
+                "  \"longBody\": \"Gentile cittadino, la informiamo che dobbiamo raggiungere 80 caratteri per il corpo del messaggio, quindi questo è un esempio di testo che supera i 80 caratteri. Il messaggio può essere più lungo, fino a 9.000 caratteri\"," +
+                "  \"shortBody\": \"Breve corpo\"," +
+                "  \"language\": \"DE\"" +
+                "}}";
         webTestClient.post()
                 .uri("/delivery/v1/messages")
                 .header(PnDeliveryRestConstants.CX_ID_HEADER, senderId.toString())
@@ -87,7 +94,7 @@ class InformalMessageControllerTest {
                 .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "Group1")
                 .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "Group2")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue("{}")
+                .bodyValue(validBody)
                 .exchange()
                 .expectStatus().isBadRequest();
     }
