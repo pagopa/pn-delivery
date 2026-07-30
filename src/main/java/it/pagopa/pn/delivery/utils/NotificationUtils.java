@@ -111,17 +111,4 @@ public class NotificationUtils {
         }
     }
 
-    public static boolean hasDocumentsOrPaymentAttachmentsPresent(InternalNotification notification) {
-        boolean hasDocuments = Objects.nonNull(notification.getDocuments()) && !notification.getDocuments().isEmpty();
-        boolean hasPaymentAttachments = Objects.nonNull(notification.getRecipients())
-                && notification.getRecipients().stream()
-                .filter(Objects::nonNull)
-                .anyMatch(recipient -> Objects.nonNull(recipient.getPayments())
-                        && recipient.getPayments().stream()
-                        .filter(Objects::nonNull)
-                        .anyMatch(payment ->
-                                (Objects.nonNull(payment.getPagoPa()) && Objects.nonNull(payment.getPagoPa().getAttachment()))
-                        ));
-        return hasDocuments || hasPaymentAttachments;
-    }
 }

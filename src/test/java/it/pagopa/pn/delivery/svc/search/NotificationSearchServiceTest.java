@@ -110,6 +110,30 @@ class NotificationSearchServiceTest {
     }
 
     @Test
+    void searchNotificationShouldNotLabelizeGroupsWhenRequestedByReceivedPfSearch() {
+        InputSearchNotificationDto searchDto = baseSearchDto(false).toBuilder()
+                .senderReceiverId("recipient-1")
+                .skipGroupLabelization(true)
+                .build();
+        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> searchResult = ResultPaginationDto.<NotificationSearchRow, PnLastEvaluatedKey>builder()
+                .resultsPage(List.of(NotificationSearchRow.builder()
+                        .group("group-code")
+                        .iun("IUN_1")
+                        .build()))
+                .moreResult(false)
+                .nextPagesKey(Collections.emptyList())
+                .build();
+
+        when(notificationSearchFactory.getMultiPageSearch(eq(searchDto), isNull())).thenReturn(notificationSearch);
+        when(notificationSearch.searchNotificationMetadata()).thenReturn(searchResult);
+
+        ResultPaginationDto<NotificationSearchRow, String> result = service.searchNotification(searchDto, "PF", null);
+
+        Assertions.assertEquals("group-code", result.getResultsPage().get(0).getGroup());
+        verify(externalRegistriesClient, never()).getGroups(any(), eq(false));
+    }
+
+    @Test
     void searchNotificationShouldOpaquePivaFilterIdForSender() {
         InputSearchNotificationDto searchDto = baseSearchDto(true).toBuilder()
                 .filterId(FILTER_ID)

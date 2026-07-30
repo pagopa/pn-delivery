@@ -139,8 +139,11 @@ public class NotificationSearchService {
 			searchResult.getResultsPage().forEach(row -> row.setMandateId(searchDto.getMandateId()));
 		}
 
-		// labelize groups
-		labelizeGroups(searchResult, searchDto.getSenderReceiverId());
+		if (!searchDto.isSkipGroupLabelization()) {
+			labelizeGroups(searchResult, searchDto.getSenderReceiverId());
+		} else {
+			log.debug("Skipping group labelization for notification search");
+		}
 
 		ResultPaginationDto.ResultPaginationDtoBuilder<NotificationSearchRow,String> builder = ResultPaginationDto.builder();
 		builder.moreResult(searchResult.isMoreResult() )

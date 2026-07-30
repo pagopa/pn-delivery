@@ -330,6 +330,7 @@ components:
         - RECEIVED
         - PAID
         - SKIP
+        - SENT
       example: READ
 
     CampaignStatus:
