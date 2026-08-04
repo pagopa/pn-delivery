@@ -149,6 +149,24 @@ describe("RestClient", () => {
       expect(JSON.parse(request.data)).to.deep.equal({ action: "ACCEPT" });
       expect(request.headers["Content-Type"]).to.include("application/json");
     });
+
+    it("should include channel in the request body when provided", async () => {
+      mock.onPut().reply(200, { success: true });
+
+      await RestClient.putConsents("TOS", "v1.0", "user123", "PF", "anonymous-123", "BOTTOM_SHEET");
+
+      const request = mock.history.put[0];
+      expect(JSON.parse(request.data)).to.deep.equal({ action: "ACCEPT", channel: "BOTTOM_SHEET" });
+    });
+
+    it("should omit channel from the request body when not provided", async () => {
+      mock.onPut().reply(200, { success: true });
+
+      await RestClient.putConsents("TOS", "v1.0", "user123", "PF", "anonymous-123", null);
+
+      const request = mock.history.put[0];
+      expect(JSON.parse(request.data)).to.deep.equal({ action: "ACCEPT" });
+    });
   });
 
   describe("checkQrCode", () => {
@@ -324,6 +342,85 @@ describe("RestClient", () => {
       expect(request.headers["x-correlation-id"]).to.equal("corr-789");
       expect(request.headers["accept-language"]).to.equal("it-IT");
       expect(request.headers["user-agent"]).to.equal("TestAgent/1.0");
+    });
+  });
+
+  describe("getNotificationByIun", () => {
+    let mockUserInfo;
+    let mockHeadersToForward;
+
+    beforeEach(() => {
+      mockUserInfo = {
+        cxType: "PF",
+        cxId: "user123",
+        taxId: "RSSMRA80A01H501U",
+      };
+      mockHeadersToForward = {
+        "x-custom-header": "custom-value",
+      };
+    });
+
+    it("should successfully retrieve the notification by iun", async () => {
+      const mockResponse = { iun: "IUN-123" };
+
+      mock
+        .onGet("https://api.test.com/delivery/notifications/received/IUN-123")
+        .reply(200, mockResponse);
+
+      const result = await RestClient.getNotificationByIun(
+        "IUN-123",
+        mockHeadersToForward,
+        mockUserInfo
+      );
+
+      expect(result).to.deep.equal({
+        statusCode: 200,
+        body: JSON.stringify(mockResponse),
+      });
+
+      const request = mock.history.get[0];
+      expect(request.headers["x-pagopa-pn-cx-type"]).to.equal("PF");
+      expect(request.headers["x-pagopa-pn-cx-id"]).to.equal("user123");
+      expect(request.headers["x-pagopa-cx-taxid"]).to.equal("RSSMRA80A01H501U");
+      expect(request.headers["x-pagopa-pn-src-ch"]).to.equal("IO");
+      expect(request.headers["x-custom-header"]).to.equal("custom-value");
+    });
+
+    it("should handle HTTP error responses from server", async () => {
+      const errorResponse = { error: "Notification not found" };
+
+      mock
+        .onGet("https://api.test.com/delivery/notifications/received/IUN-404")
+        .reply(404, errorResponse);
+
+      const result = await RestClient.getNotificationByIun(
+        "IUN-404",
+        mockHeadersToForward,
+        mockUserInfo
+      );
+
+      expect(result).to.deep.equal({
+        statusCode: 404,
+        body: JSON.stringify(errorResponse),
+      });
+    });
+
+    it("should handle request errors and throw them", async () => {
+      mock
+        .onGet("https://api.test.com/delivery/notifications/received/IUN-123")
+        .networkError();
+
+      try {
+        await RestClient.getNotificationByIun(
+          "IUN-123",
+          mockHeadersToForward,
+          mockUserInfo
+        );
+        expect.fail("Should have thrown an error");
+      } catch (error) {
+        expect(error).to.be.an.instanceOf(Error);
+        expect(error.message).to.include("Network Error");
+      }
     });
   });
 });
