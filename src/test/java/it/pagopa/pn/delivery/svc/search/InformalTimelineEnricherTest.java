@@ -47,14 +47,15 @@ class InformalTimelineEnricherTest {
 
     @ParameterizedTest
     @CsvSource(
-            {
+            nullValues = "null",
+            value = {
                     "2026-06-15T19:00:00Z, 2026-06-15T10:00:00Z, true",
                     "2026-06-15T19:00:00Z, 2026-06-14T10:00:00Z, true",
                     "2026-06-15T19:00:00Z, 2026-06-05T10:00:00Z, true",
                     "2026-06-15T19:00:00Z, 2026-06-04T10:00:00Z, false"
             }
     )
-    void shouldEnrichNotificationDetailWithNotificationAccepted(String instantTime, String acceptanceTime, boolean expectedDocumentsAvailable) {
+    void shouldEnrichNotificationDetailWithNotificationAccepted(String instantTime, String acceptanceTime, Boolean expectedDocumentsAvailable) {
         InternalNotification notification = buildNotification("IUN_TEST");
         notification.setDocuments(List.of(new NotificationDocument()));
 
@@ -151,7 +152,7 @@ class InformalTimelineEnricherTest {
                 detail.getNotificationStatus()
         );
 
-        assertFalse(detail.getNotification().getDocumentsAvailable());
+        assertNull(detail.getNotification().getDocumentsAvailable());
 
         verify(pnDeliveryPushClient).getInformalNotificationHistory(
                 "IUN_TEST",
@@ -195,7 +196,7 @@ class InformalTimelineEnricherTest {
 
         enricher.enrichNotificationDetail(detail, false);
 
-        assertFalse(detail.getNotification().getDocumentsAvailable());
+        assertNull(detail.getNotification().getDocumentsAvailable());
     }
 
     @Test
@@ -224,7 +225,69 @@ class InformalTimelineEnricherTest {
 
         enricher.enrichNotificationDetail(detail, false);
 
+        assertNull(detail.getNotification().getDocumentsAvailable());
+    }
+
+    @Test
+    void shouldSetDocumentsAvailableNullWhenDocumentsAreExpired() {
+        InternalNotification notification = buildNotification("IUN_DOCS_EXPIRED");
+        notification.setDocuments(List.of(new NotificationDocument()));
+
+        InformalNotificationDetail detail = InformalNotificationDetail.builder()
+                .notification(notification)
+                .build();
+
+        when(clock.instant()).thenReturn(Instant.parse("2026-06-25T19:00:00Z"));
+
+        InformalTimelineElementV1 timelineElement = new InformalTimelineElementV1();
+        timelineElement.setCategory(InformalTimelineElementCategoryV1.REQUEST_ACCEPTED);
+        timelineElement.setIngestionTimestamp(OffsetDateTime.parse("2026-06-04T10:00:00Z"));
+
+        InformalNotificationHistoryResponse historyResponse = new InformalNotificationHistoryResponse();
+        historyResponse.setTimeline(List.of(timelineElement));
+        historyResponse.setInformalNotificationStatusHistory(List.of(new InformalNotificationStatusHistoryElementV1()));
+        historyResponse.setInformalNotificationStatus(InformalNotificationStatusV1.ACCEPTED);
+
+        when(pnDeliveryPushClient.getInformalNotificationHistory(
+                "IUN_DOCS_EXPIRED",
+                notification.getRecipients().size(),
+                notification.getSentAt()
+        )).thenReturn(historyResponse);
+
+        enricher.enrichNotificationDetail(detail, false);
+
         assertFalse(detail.getNotification().getDocumentsAvailable());
+        assertTrue(detail.getNotification().getDocuments().isEmpty());
+    }
+
+    @Test
+    void shouldSetDocumentsAvailableNullWhenNoDocuments() {
+        InternalNotification notification = buildNotification("IUN_NO_DOCS");
+
+        InformalNotificationDetail detail = InformalNotificationDetail.builder()
+                .notification(notification)
+                .build();
+
+        when(clock.instant()).thenReturn(Instant.parse("2026-06-15T19:00:00Z"));
+
+        InformalTimelineElementV1 timelineElement = new InformalTimelineElementV1();
+        timelineElement.setCategory(InformalTimelineElementCategoryV1.REQUEST_ACCEPTED);
+        timelineElement.setIngestionTimestamp(OffsetDateTime.parse("2026-06-15T10:00:00Z"));
+
+        InformalNotificationHistoryResponse historyResponse = new InformalNotificationHistoryResponse();
+        historyResponse.setTimeline(List.of(timelineElement));
+        historyResponse.setInformalNotificationStatusHistory(List.of(new InformalNotificationStatusHistoryElementV1()));
+        historyResponse.setInformalNotificationStatus(InformalNotificationStatusV1.ACCEPTED);
+
+        when(pnDeliveryPushClient.getInformalNotificationHistory(
+                "IUN_NO_DOCS",
+                notification.getRecipients().size(),
+                notification.getSentAt()
+        )).thenReturn(historyResponse);
+
+        enricher.enrichNotificationDetail(detail, false);
+
+        assertNull(detail.getNotification().getDocumentsAvailable());
     }
 
     @Test
@@ -249,6 +312,100 @@ class InformalTimelineEnricherTest {
 
         when(pnDeliveryPushClient.getInformalNotificationHistory(
                 "IUN_DOCS_NO_PAYMENTS",
+                notification.getRecipients().size(),
+                notification.getSentAt()
+        )).thenReturn(historyResponse);
+
+        enricher.enrichNotificationDetail(detail, false);
+
+        assertTrue(detail.getNotification().getDocumentsAvailable());
+    }
+
+    @Test
+    void shouldSetDocumentsAvailableFalseWhenDocumentsAreExpired() {
+        InternalNotification notification = buildNotification("IUN_DOCS_EXPIRED");
+        notification.setDocuments(List.of(new NotificationDocument()));
+
+        InformalNotificationDetail detail = InformalNotificationDetail.builder()
+                .notification(notification)
+                .build();
+
+        when(clock.instant()).thenReturn(Instant.parse("2026-06-25T19:00:00Z"));
+
+        InformalTimelineElementV1 timelineElement = new InformalTimelineElementV1();
+        timelineElement.setCategory(InformalTimelineElementCategoryV1.REQUEST_ACCEPTED);
+        timelineElement.setIngestionTimestamp(OffsetDateTime.parse("2026-06-04T10:00:00Z"));
+
+        InformalNotificationHistoryResponse historyResponse = new InformalNotificationHistoryResponse();
+        historyResponse.setTimeline(List.of(timelineElement));
+        historyResponse.setInformalNotificationStatusHistory(List.of(new InformalNotificationStatusHistoryElementV1()));
+        historyResponse.setInformalNotificationStatus(InformalNotificationStatusV1.ACCEPTED);
+
+        when(pnDeliveryPushClient.getInformalNotificationHistory(
+                "IUN_DOCS_EXPIRED",
+                notification.getRecipients().size(),
+                notification.getSentAt()
+        )).thenReturn(historyResponse);
+
+        enricher.enrichNotificationDetail(detail, false);
+
+        assertFalse(detail.getNotification().getDocumentsAvailable());
+        assertTrue(detail.getNotification().getDocuments().isEmpty());
+    }
+
+    @Test
+    void shouldSetDocumentsAvailableTrueWhenDocumentsNotExpired() {
+        InternalNotification notification = buildNotification("IUN_DOCS_VALID");
+        notification.setDocuments(List.of(new NotificationDocument()));
+
+        InformalNotificationDetail detail = InformalNotificationDetail.builder()
+                .notification(notification)
+                .build();
+
+        when(clock.instant()).thenReturn(Instant.parse("2026-06-20T19:00:00Z"));
+
+        InformalTimelineElementV1 timelineElement = new InformalTimelineElementV1();
+        timelineElement.setCategory(InformalTimelineElementCategoryV1.REQUEST_ACCEPTED);
+        timelineElement.setIngestionTimestamp(OffsetDateTime.parse("2026-06-15T10:00:00Z"));
+
+        InformalNotificationHistoryResponse historyResponse = new InformalNotificationHistoryResponse();
+        historyResponse.setTimeline(List.of(timelineElement));
+        historyResponse.setInformalNotificationStatusHistory(List.of(new InformalNotificationStatusHistoryElementV1()));
+        historyResponse.setInformalNotificationStatus(InformalNotificationStatusV1.ACCEPTED);
+
+        when(pnDeliveryPushClient.getInformalNotificationHistory(
+                "IUN_DOCS_VALID",
+                notification.getRecipients().size(),
+                notification.getSentAt()
+        )).thenReturn(historyResponse);
+
+        enricher.enrichNotificationDetail(detail, false);
+
+        assertTrue(detail.getNotification().getDocumentsAvailable());
+    }
+
+    @Test
+    void shouldSetDocumentsAvailableTrueWhenAcceptanceDateNullButDocumentsPresent() {
+        InternalNotification notification = buildNotification("IUN_NO_ACCEPTANCE_DATE");
+        notification.setDocuments(List.of(new NotificationDocument()));
+
+        InformalNotificationDetail detail = InformalNotificationDetail.builder()
+                .notification(notification)
+                .build();
+
+        when(clock.instant()).thenReturn(Instant.parse("2026-06-15T19:00:00Z"));
+
+        InformalTimelineElementV1 timelineElement = new InformalTimelineElementV1();
+        timelineElement.setCategory(InformalTimelineElementCategoryV1.REQUEST_REFUSED);
+        timelineElement.setIngestionTimestamp(OffsetDateTime.parse("2026-06-15T10:00:00Z"));
+
+        InformalNotificationHistoryResponse historyResponse = new InformalNotificationHistoryResponse();
+        historyResponse.setTimeline(List.of(timelineElement));
+        historyResponse.setInformalNotificationStatusHistory(List.of(new InformalNotificationStatusHistoryElementV1()));
+        historyResponse.setInformalNotificationStatus(InformalNotificationStatusV1.ACCEPTED);
+
+        when(pnDeliveryPushClient.getInformalNotificationHistory(
+                "IUN_NO_ACCEPTANCE_DATE",
                 notification.getRecipients().size(),
                 notification.getSentAt()
         )).thenReturn(historyResponse);

@@ -103,22 +103,27 @@ public class InformalTimelineEnricher implements TimelineEnricher<InformalNotifi
     private void checkDocumentsAvailability(InformalNotificationDetail informalNotificationDetail, OffsetDateTime acceptanceDate) {
         InternalNotification notification = informalNotificationDetail.getNotification();
         log.debug("Check if documents are available for iun={}", notification.getIun());
-        boolean documentsAvailable = hasDocumentsPresent(notification);
-        notification.setDocumentsAvailable(documentsAvailable);
-        if (!documentsAvailable) {
-            log.debug("Documents not available for iun={}", notification.getIun());
+        
+        if (!hasDocumentsPresent(notification)) {
+            log.debug("Documents not present for iun={}", notification.getIun());
+            notification.setDocumentsAvailable(null);
             return;
         }
+        
         if (acceptanceDate != null) {
             long daysBetween = ChronoUnit.DAYS.between(
                     acceptanceDate.toInstant().truncatedTo(ChronoUnit.DAYS),
                     clock.instant().truncatedTo(ChronoUnit.DAYS)
             );
             if (daysBetween > Long.parseLong(cfg.getInformalMaxDocumentsAvailableDays())) {
-                log.debug("Documents not more available for iun={} from={}", notification.getIun(), acceptanceDate);
+                log.debug("Documents expired for iun={} from={}", notification.getIun(), acceptanceDate);
                 removeDocuments(notification);
+                notification.setDocumentsAvailable(false);
+                return;
             }
         }
+        
+        notification.setDocumentsAvailable(true);
     }
     private static boolean hasDocumentsPresent(InternalNotification notification) {
         return Objects.nonNull(notification.getDocuments()) && !notification.getDocuments().isEmpty();
