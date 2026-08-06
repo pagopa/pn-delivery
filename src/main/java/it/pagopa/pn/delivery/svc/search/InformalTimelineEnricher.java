@@ -118,7 +118,6 @@ public class InformalTimelineEnricher implements TimelineEnricher<InformalNotifi
             if (daysBetween > Long.parseLong(cfg.getInformalMaxDocumentsAvailableDays())) {
                 log.debug("Documents expired for iun={} from={}", notification.getIun(), acceptanceDate);
                 removeDocuments(notification);
-                notification.setDocumentsAvailable(false);
                 return;
             }
         }
