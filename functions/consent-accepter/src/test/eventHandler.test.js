@@ -366,7 +366,7 @@ describe('Consent Handler Tests', () => {
   });
 
   describe('Notification flow (WI-3)', () => {
-    it('should call getNotificationByIun with BOTTOM_SHEET channel when resourcePath is the notification GET one', async () => {
+    it('should call getNotificationByIun with IO channel when resourcePath is the notification GET one', async () => {
       const mockEvent = {
         headers: {},
         pathParameters: { iun: 'IUN-123' },
@@ -382,7 +382,7 @@ describe('Consent Handler Tests', () => {
 
       const result = await handler.handle(mockEvent);
 
-      expect(RestClientStub.putConsents.calledWith('TOS', 'v1', 'user123', 'PF', 'anonymous-123', 'BOTTOM_SHEET')).to.be.true;
+      expect(RestClientStub.putConsents.calledWith('TOS', 'v1', 'user123', 'PF', 'anonymous-123', 'IO')).to.be.true;
       expect(RestClientStub.getNotificationByIun.calledOnce).to.be.true;
       expect(RestClientStub.getNotificationByIun.calledWith('IUN-123', sinon.match.object, mockUserInfo)).to.be.true;
       expect(RestClientStub.checkQrCode.called).to.be.false;

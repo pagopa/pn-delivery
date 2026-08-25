@@ -153,10 +153,10 @@ describe("RestClient", () => {
     it("should include channel in the request body when provided", async () => {
       mock.onPut().reply(200, { success: true });
 
-      await RestClient.putConsents("TOS", "v1.0", "user123", "PF", "anonymous-123", "BOTTOM_SHEET");
+      await RestClient.putConsents("TOS", "v1.0", "user123", "PF", "anonymous-123", "IO");
 
       const request = mock.history.put[0];
-      expect(JSON.parse(request.data)).to.deep.equal({ action: "ACCEPT", channel: "BOTTOM_SHEET" });
+      expect(JSON.parse(request.data)).to.deep.equal({ action: "ACCEPT", channel: "IO" });
     });
 
     it("should omit channel from the request body when not provided", async () => {
