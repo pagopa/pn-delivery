@@ -1547,6 +1547,9 @@ components:
           * `WORKFLOW_ENDED_UNDELIVERABLE` - Flusso terminato: la notifica è definitivamente irrecapitabile su ogni canale
           * `WORKFLOW_DONE_REACHED` - Elaborazione del workflow completata per riscontro su un feedback desiderato e destinatario raggiunto
           * `WORKFLOW_DONE_UNREACHED` - Elaborazione del workflow completata per riscontro su un feedback desiderato e destinatario non raggiunto
+          * `SEND_COURTESY_MESSAGE` - Invio di un messaggio di cortesia
+          * `GET_ADDRESS` - Disponibilità dell’indirizzo specifico (domicilio digitale di piattaforma, domicilio digitale speciale, domicilio digitale generale, indirizzo fisico sulla notifica o sui registri nazionali)
+          * `PUBLIC_REGISTRY_CALL` - Richiesta ai registri pubblici per ottenere domicilio digitale generale o per ottenere indirizzo fisico da ANPR, da registro della imprese, da anagrafe tributaria.
       enum:
         - PUBLIC_REGISTRY_VALIDATION_CALL
         - PUBLIC_REGISTRY_VALIDATION_RESPONSE
@@ -1571,6 +1574,9 @@ components:
         - INFORMAL_NOTIFICATION_VIEWED
         - COVERPAGE_CREATION_REQUEST
         - PAYMENT
+        - GET_ADDRESS
+        - PUBLIC_REGISTRY_CALL
+        - SEND_COURTESY_MESSAGE
     DeliveryMode:
       type: string
       description: Tipologia Domiciliazione
@@ -2276,8 +2282,6 @@ components:
           $ref: '#/components/schemas/RecIndex'
         channel:
           $ref: '#/components/schemas/DigitalNotificationChannel'
-        digitalAddressSource:
-          $ref: '#/components/schemas/DigitalAddressSource'
         retryNumber:
           type: integer
           description: numero dei tentativi effettuati
@@ -2324,6 +2328,96 @@ components:
           type: string
           description: Data evento pagamento
           format: date-time
+    GetAddressInfoDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddressSource
+        - isAvailable
+        - attemptDate
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        isAvailable:
+          type: boolean
+          description: Disponibilità indirizzo
+        attemptDate:
+          type: string
+          description: Data tentativo
+          format: date-time
+    InformalGetAddressInfoDetails:
+      allOf:
+        - $ref: '#/components/schemas/GetAddressInfoDetails'
+        - type: object
+          properties:
+            isTosAccepted:
+              type: boolean
+              description: Indica se l'utente ha accettato i termini di servizio per la consultazione dell'indirizzo
+            digitalAddress:
+              $ref: '#/components/schemas/DigitalAddress'
+            channel:
+              $ref: '#/components/schemas/DigitalNotificationChannel'
+    ContactPhase:
+      type: string
+      description: Fase in cui è avvenuta la richiesta
+      enum:
+        - CHOOSE_DELIVERY
+        - SEND_ATTEMPT
+    PublicRegistryCallDetails:
+      type: object
+      required:
+        - recIndex
+        - deliveryMode
+        - contactPhase
+        - sentAttemptMade
+        - sendDate
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        deliveryMode:
+          $ref: '#/components/schemas/DeliveryMode'
+        contactPhase:
+          $ref: '#/components/schemas/ContactPhase'
+        sentAttemptMade:
+          type: integer
+          description: Numero di tentativi di notificazione già effettuati
+          format: int32
+        sendDate:
+          type: string
+          description: Data invio richiesta ai public registry
+          format: date-time
+    IoSendMessageResult:
+      type: string
+      description: Risultato invio messaggio su IO
+      enum:
+        - NOT_SENT_OPTIN_ALREADY_SENT
+        - SENT_COURTESY
+        - SENT_OPTIN
+    SendCourtesyMessageDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+        - sendDate
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: '#/components/schemas/DigitalAddress'
+        sendDate:
+          type: string
+          description: data invio messaggio di cortesia
+          format: date-time
+        ioSendMessageResult:
+          $ref: '#/components/schemas/IoSendMessageResult'
     InformalTimelineElementDetailsV1:
       description: The raw event payload that will be different based on the event.
       oneOf:
@@ -2349,6 +2443,9 @@ components:
         - $ref: '#/components/schemas/CoverpageCreationRequestDetails'
         - $ref: '#/components/schemas/SendDigitalMessageSkipDetails'
         - $ref: '#/components/schemas/NotificationPaidDetailsV23'
+        - $ref: '#/components/schemas/InformalGetAddressInfoDetails'
+        - $ref: '#/components/schemas/PublicRegistryCallDetails'
+        - $ref: '#/components/schemas/SendCourtesyMessageDetails'
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
