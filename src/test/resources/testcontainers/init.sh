@@ -315,4 +315,42 @@ event_bus_name="pn-CoreEventBus"
 aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
   events create-event-bus --name $event_bus_name
 
+aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
+    dynamodb create-table \
+    --table-name pn-Campaigns \
+    --attribute-definitions \
+        AttributeName=senderId,AttributeType=S \
+        AttributeName=campaignId,AttributeType=S \
+    --key-schema \
+        AttributeName=senderId,KeyType=HASH \
+        AttributeName=campaignId,KeyType=RANGE \
+    --provisioned-throughput \
+        ReadCapacityUnits=10,WriteCapacityUnits=5
+
+echo "### INSERT TEST CAMPAIGNS - OK CASES ###"
+
+Campaigns_ok=(
+    # Case 1: Campagna completa con workflow IO
+    '{"senderId": {"S": "550e8400-e29b-41d4-a716-446655440001"}, "campaignId": {"S": "camp-001-io"}, "title": {"S": "Avviso Notifica IO"}, "descriptionScope": {"S": "Avviso importante tramite IO"}, "status": {"S": "IN_PROGRESS"}, "serviceId": {"S": "svc-001"}, "serviceName": {"S": "Notifiche"}, "senderContact": {"S": "notifiche@example.com"}, "sensitiveContent": {"BOOL": true}, "stopOnViewed": {"BOOL": true}, "startDate": {"S": "2024-01-01T00:00:00Z"}, "endDate": {"S": "2025-12-31T23:59:59Z"}, "taxonomyCode": {"S": "TAX-001"}, "workflow": {"L": [{"M": {"channel": {"S": "IO"}, "recipientType": {"SS": ["PF", "PG"]}, "timeout": {"S": "PT24H"}, "desiredFeedback": {"SS": ["READ", "RECEIVED"]}, "includeAttachment": {"BOOL": true}}}]}}'
+
+    # Case 2: Campagna EMAIL
+    '{"senderId": {"S": "550e8400-e29b-41d4-a716-446655440001"}, "campaignId": {"S": "camp-002-email"}, "title": {"S": "Campagna Newsletter"}, "descriptionScope": {"S": "Newsletter mensile"}, "status": {"S": "DRAFT"}, "serviceId": {"S": "svc-001"}, "serviceName": {"S": "Marketing"}, "senderContact": {"S": "marketing@example.com"}, "sensitiveContent": {"BOOL": false}, "stopOnViewed": {"BOOL": false}, "startDate": {"S": "2025-03-01T00:00:00Z"}, "endDate": {"S": "2025-03-08T23:59:59Z"}, "taxonomyCode": {"S": "TAX-002"}, "workflow": {"L": [{"M": {"channel": {"S": "EMAIL"}, "recipientType": {"SS": ["PF"]}, "timeout": {"S": "PT48H"}, "desiredFeedback": {"SS": ["SENT", "RECEIVED"]}, "includeAttachment": {"BOOL": false}}}]}}'
+
+    # Case 3: Campagna Multi-Canale (IO + SMS + EMAIL)
+    '{"senderId": {"S": "550e8400-e29b-41d4-a716-446655440002"}, "campaignId": {"S": "camp-003-multi"}, "title": {"S": "Campagna Multi-Canale"}, "descriptionScope": {"S": "Comunicazione su più canali"}, "status": {"S": "IN_PROGRESS"}, "serviceId": {"S": "svc-002"}, "serviceName": {"S": "Comunicazioni"}, "senderContact": {"S": "comms@example.com"}, "sensitiveContent": {"BOOL": false}, "stopOnViewed": {"BOOL": false}, "startDate": {"S": "2024-02-01T00:00:00Z"}, "endDate": {"S": "2024-02-02T00:00:00Z"}, "taxonomyCode": {"S": "TAX-003"}, "workflow": {"L": [{"M": {"channel": {"S": "IO"}, "recipientType": {"SS": ["PF"]}, "timeout": {"S": "PT12H"}, "desiredFeedback": {"SS": ["READ"]}, "includeAttachment": {"BOOL": true}}}, {"M": {"channel": {"S": "SMS"}, "recipientType": {"SS": ["PF", "PG"]}, "timeout": {"S": "PT6H"}, "desiredFeedback": {"SS": ["SENT"]}, "includeAttachment": {"BOOL": false}}}, {"M": {"channel": {"S": "EMAIL"}, "recipientType": {"SS": ["PG"]}, "timeout": {"S": "PT72H"}, "desiredFeedback": {"SS": ["RECEIVED", "PAID"]}, "includeAttachment": {"BOOL": true}}}]}}'
+
+    # Case 4: Campagna PEC
+    '{"senderId": {"S": "550e8400-e29b-41d4-a716-446655440003"}, "campaignId": {"S": "camp-004-pec"}, "title": {"S": "Comunicazione Legale"}, "descriptionScope": {"S": "Comunicazione tramite PEC"}, "status": {"S": "CONCLUDED"}, "serviceId": {"S": "svc-003"}, "serviceName": {"S": "Legale"}, "senderContact": {"S": "legal@example.com"}, "sensitiveContent": {"BOOL": true}, "stopOnViewed": {"BOOL": false}, "startDate": {"S": "2023-01-01T00:00:00Z"}, "endDate": {"S": "2023-03-01T23:59:59Z"}, "taxonomyCode": {"S": "TAX-004"}, "workflow": {"L": [{"M": {"channel": {"S": "PEC"}, "recipientType": {"SS": ["PG"]}, "timeout": {"S": "PT168H"}, "desiredFeedback": {"SS": ["SKIP"]}, "includeAttachment": {"BOOL": true}}}]}}'
+
+    # Case 5: Campagna ANALOG
+    '{"senderId": {"S": "550e8400-e29b-41d4-a716-446655440002"}, "campaignId": {"S": "camp-005-analog"}, "title": {"S": "Campagna Postale"}, "descriptionScope": {"S": "Comunicazione cartacea"}, "status": {"S": "IN_PROGRESS"}, "serviceId": {"S": "svc-002"}, "serviceName": {"S": "Comunicazioni"}, "senderContact": {"S": "postal@example.com"}, "sensitiveContent": {"BOOL": false}, "stopOnViewed": {"BOOL": false}, "startDate": {"S": "2024-01-01T00:00:00Z"}, "endDate": {"S": "2025-12-31T23:59:59Z"}, "taxonomyCode": {"S": "TAX-005"}, "workflow": {"L": [{"M": {"channel": {"S": "ANALOG"}, "recipientType": {"SS": ["PF", "PG"]}, "timeout": {"S": "PT720H"}, "desiredFeedback": {"SS": ["RECEIVED", "PAID"]}, "includeAttachment": {"BOOL": true}}}]}}'
+)
+
+for campaign in "${Campaigns_ok[@]}"; do
+    aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
+        dynamodb put-item \
+        --table-name pn-Campaigns \
+        --item "$campaign"
+done
+
 echo "Initialization terminated"
