@@ -15,6 +15,7 @@ describe('Consent Handler Tests', () => {
     RestClientStub = {
       putConsents: sinon.stub(),
       checkQrCode: sinon.stub(),
+      getNotificationByIun: sinon.stub(),
       getLastVersion: sinon.stub()
     };
 
@@ -123,8 +124,8 @@ describe('Consent Handler Tests', () => {
       expect(utilsStub.getUserInfoFromEvent.calledOnce).to.be.true;
       expect(utilsStub.getUserInfoFromEvent.calledWith(mockEvent)).to.be.true;
       expect(RestClientStub.putConsents.callCount).to.equal(2);
-      expect(RestClientStub.putConsents.firstCall.args).to.deep.equal(['TOS', 'v1', 'user123', 'PF', 'anonymous-123']);
-      expect(RestClientStub.putConsents.secondCall.args).to.deep.equal(['PRIVACY', 'v2', 'user123', 'PF', 'anonymous-123']);
+      expect(RestClientStub.putConsents.firstCall.args).to.deep.equal(['TOS', 'v1', 'user123', 'PF', 'anonymous-123', null]);
+      expect(RestClientStub.putConsents.secondCall.args).to.deep.equal(['PRIVACY', 'v2', 'user123', 'PF', 'anonymous-123', null]);
       expect(RestClientStub.checkQrCode.calledOnce).to.be.true;
       expect(RestClientStub.checkQrCode.calledWith(
         'qrCodeData',
@@ -300,7 +301,7 @@ describe('Consent Handler Tests', () => {
 
       // Assert
       expect(RestClientStub.putConsents.calledOnce).to.be.true;
-      expect(RestClientStub.putConsents.calledWith('TOS', 'v3', 'user123', 'PF', 'anonymous-123')).to.be.true;
+      expect(RestClientStub.putConsents.calledWith('TOS', 'v3', 'user123', 'PF', 'anonymous-123', null)).to.be.true;
       expect(mockCacheManagerInstance.get.called).to.be.false;
     });
 
@@ -328,7 +329,7 @@ describe('Consent Handler Tests', () => {
       // Assert
       expect(mockCacheManagerInstance.get.calledOnce).to.be.true;
       expect(mockCacheManagerInstance.get.calledWith('PG', 'PRIVACY')).to.be.true;
-      expect(RestClientStub.putConsents.calledWith('PRIVACY', 'v5', 'user123', 'PG', 'anonymous-123')).to.be.true;
+      expect(RestClientStub.putConsents.calledWith('PRIVACY', 'v5', 'user123', 'PG', 'anonymous-123', null)).to.be.true;
     });
   });
 
@@ -362,6 +363,52 @@ describe('Consent Handler Tests', () => {
       expect(result.statusCode).to.equal(200);
     });
 
+  });
+
+  describe('Notification flow (WI-3)', () => {
+    it('should call getNotificationByIun with IO channel when resourcePath is the notification GET one', async () => {
+      const mockEvent = {
+        headers: {},
+        pathParameters: { iun: 'IUN-123' },
+        requestContext: { resourcePath: '/delivery/notifications/received/{iun}' }
+      };
+
+      const mockUserInfo = { uid: 'user123', cxType: 'PF', cxId: 'anonymous-123' };
+      utilsStub.getUserInfoFromEvent.returns(mockUserInfo);
+      utilsStub.retrieveHeadersToForward.returns({});
+      RestClientStub.putConsents.resolves({});
+      RestClientStub.getNotificationByIun.resolves({ statusCode: 200, body: '{}' });
+      mockCacheManagerInstance.get.returns('v1');
+
+      const result = await handler.handle(mockEvent);
+
+      expect(RestClientStub.putConsents.calledWith('TOS', 'v1', 'user123', 'PF', 'anonymous-123', 'IO')).to.be.true;
+      expect(RestClientStub.getNotificationByIun.calledOnce).to.be.true;
+      expect(RestClientStub.getNotificationByIun.calledWith('IUN-123', sinon.match.object, mockUserInfo)).to.be.true;
+      expect(RestClientStub.checkQrCode.called).to.be.false;
+      expect(result).to.deep.equal({ statusCode: 200, body: '{}' });
+    });
+
+    it('should still call checkQrCode with null channel when resourcePath is the check-qr-code one', async () => {
+      const mockEvent = {
+        body: 'qrCodeData',
+        headers: {},
+        requestContext: { resourcePath: '/delivery/notifications/received/check-qr-code' }
+      };
+
+      const mockUserInfo = { uid: 'user123', cxType: 'PF', cxId: 'anonymous-123' };
+      utilsStub.getUserInfoFromEvent.returns(mockUserInfo);
+      utilsStub.retrieveHeadersToForward.returns({});
+      RestClientStub.putConsents.resolves({});
+      RestClientStub.checkQrCode.resolves({ statusCode: 200 });
+      mockCacheManagerInstance.get.returns('v1');
+
+      await handler.handle(mockEvent);
+
+      expect(RestClientStub.putConsents.calledWith('TOS', 'v1', 'user123', 'PF', 'anonymous-123', null)).to.be.true;
+      expect(RestClientStub.getNotificationByIun.called).to.be.false;
+      expect(RestClientStub.checkQrCode.calledOnce).to.be.true;
+    });
   });
 
   describe('Error response format', () => {
