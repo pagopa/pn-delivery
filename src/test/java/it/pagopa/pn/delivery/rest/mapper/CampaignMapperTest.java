@@ -1,19 +1,19 @@
 package it.pagopa.pn.delivery.rest.mapper;
 
+import it.pagopa.pn.commons.utils.qr.models.RecipientTypeInt;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignDetail;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignSummary;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.WorkflowEntity;
-import it.pagopa.pn.delivery.models.internal.campaign.*;
-import it.pagopa.pn.commons.utils.qr.models.RecipientTypeInt;
+import it.pagopa.pn.delivery.models.internal.campaign.Campaign;
+import it.pagopa.pn.delivery.models.internal.campaign.CampaignStatus;
+import it.pagopa.pn.delivery.models.internal.campaign.ChannelType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 class CampaignMapperTest {
 
@@ -329,5 +329,49 @@ class CampaignMapperTest {
         // Then
         Assertions.assertEquals(detail.getCampaignStatus(), it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignStatus.fromValue("CONCLUDED"));
     }
-}
 
+    @Test
+    void toInternalCampaign_mapsEntityToInternalModel() {
+        Instant start = Instant.parse("2026-01-10T10:15:30Z");
+        Instant end = Instant.parse("2026-02-10T10:15:30Z");
+
+        it.pagopa.pn.commons.db.campaign.entity.CampaignEntity entity =
+                it.pagopa.pn.commons.db.campaign.entity.CampaignEntity.builder()
+                        .campaignId(CAMPAIGN_ID)
+                        .senderId(SENDER_ID)
+                        .title(TITLE)
+                        .descriptionScope(DESCRIPTION)
+                        .status(it.pagopa.pn.commons.db.campaign.entity.CampaignStatus.IN_PROGRESS)
+                        .startDate(start)
+                        .endDate(end)
+                        .senderContact("contact@example.com")
+                        .serviceId("service-1")
+                        .sensitiveContent(true)
+                        .stopOnViewed(false)
+                        .workflow(List.of(
+                                it.pagopa.pn.commons.db.campaign.entity.WorkflowEntity.builder()
+                                        .channel(it.pagopa.pn.commons.db.campaign.entity.CampaignChannel.IO)
+                                        .recipientType(Set.of(RecipientTypeInt.PF))
+                                        .timeout(Duration.ofHours(24))
+                                        .desiredFeedback(Set.of(it.pagopa.pn.commons.db.campaign.entity.DesiredFeedback.READ))
+                                        .includeAttachment(true)
+                                        .build()
+                        ))
+                        .build();
+
+        Campaign campaign = CampaignMapper.toInternalCampaign(entity);
+
+        Assertions.assertNotNull(campaign);
+        Assertions.assertEquals(CAMPAIGN_ID, campaign.getCampaignId());
+        Assertions.assertEquals(OffsetDateTime.parse("2026-01-10T10:15:30Z"), campaign.getStartDate());
+        Assertions.assertEquals(OffsetDateTime.parse("2026-02-10T10:15:30Z"), campaign.getEndDate());
+        Assertions.assertEquals(CampaignStatus.IN_PROGRESS, campaign.getStatus());
+        Assertions.assertEquals(1, campaign.getWorkflow().size());
+        Assertions.assertEquals(ChannelType.IO, campaign.getWorkflow().get(0).getChannel());
+    }
+
+    @Test
+    void toInternalCampaign_returnsNullWhenEntityIsNull() {
+        Assertions.assertNull(CampaignMapper.toInternalCampaign(null));
+    }
+}
