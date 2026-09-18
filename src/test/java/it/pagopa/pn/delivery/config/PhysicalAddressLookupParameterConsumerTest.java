@@ -12,41 +12,74 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 class PhysicalAddressLookupParameterConsumerTest {
+    private static final String LEGAL_PARAMETER_NAME = "PaActiveForPhysicalAddressLookup";
+    private static final String INFORMAL_PARAMETER_NAME = "InformalPaActiveForPhysicalAddressLookup";
+
     private ParameterConsumer parameterConsumer;
     private PhysicalAddressLookupParameterConsumer physicalAddressLookupParameterConsumer;
 
-    @BeforeEach
-    void setUp() {
+    @BeforeEach void setUp() {
         parameterConsumer = mock(ParameterConsumer.class);
         physicalAddressLookupParameterConsumer = new PhysicalAddressLookupParameterConsumer(parameterConsumer);
     }
 
-    @Test
-    void returnsEmptyListWhenNoActivePAsFound() {
-        when(parameterConsumer.getParameterValue(anyString(), any())).thenReturn(Optional.empty());
+    @Test void getActivePAsForPhysicalAddressLookupReturnsEmptyListWhenParameterIsMissing() {
+        when(parameterConsumer.getParameterValue(eq(LEGAL_PARAMETER_NAME), eq(String[].class)))
+                .thenReturn(Optional.empty());
 
         List<String> result = physicalAddressLookupParameterConsumer.getActivePAsForPhysicalAddressLookup();
 
         assertTrue(result.isEmpty());
+        verify(parameterConsumer).getParameterValue(eq(LEGAL_PARAMETER_NAME), eq(String[].class));
     }
 
-    @Test
-    void returnsListOfActivePAsWhenFound() {
-        String[] activePAs = {"PA1", "PA2"};
-        when(parameterConsumer.getParameterValue(anyString(), any())).thenReturn(Optional.of(activePAs));
+    @Test void getActivePAsForPhysicalAddressLookupReturnsListWhenParameterExists() {
+        when(parameterConsumer.getParameterValue(eq(LEGAL_PARAMETER_NAME), eq(String[].class)))
+                .thenReturn(Optional.of(new String[]{"PA1", "PA2"}));
 
         List<String> result = physicalAddressLookupParameterConsumer.getActivePAsForPhysicalAddressLookup();
 
         assertEquals(List.of("PA1", "PA2"), result);
+        verify(parameterConsumer).getParameterValue(eq(LEGAL_PARAMETER_NAME), eq(String[].class));
     }
 
-    @Test
-    void returnsEmptyListWhenActivePAsArrayIsEmpty() {
-        String[] activePAs = {};
-        when(parameterConsumer.getParameterValue(anyString(), any())).thenReturn(Optional.of(activePAs));
+    @Test void getActivePAsForPhysicalAddressLookupReturnsEmptyListWhenArrayIsEmpty() {
+        when(parameterConsumer.getParameterValue(eq(LEGAL_PARAMETER_NAME), eq(String[].class)))
+                .thenReturn(Optional.of(new String[]{}));
 
         List<String> result = physicalAddressLookupParameterConsumer.getActivePAsForPhysicalAddressLookup();
 
         assertTrue(result.isEmpty());
+        verify(parameterConsumer).getParameterValue(eq(LEGAL_PARAMETER_NAME), eq(String[].class));
+    }
+
+    @Test void getInformalActivePAsForPhysicalAddressLookupReturnsEmptyListWhenParameterIsMissing() {
+        when(parameterConsumer.getParameterValue(eq(INFORMAL_PARAMETER_NAME), eq(String[].class)))
+                .thenReturn(Optional.empty());
+
+        List<String> result = physicalAddressLookupParameterConsumer.getInformalActivePAsForPhysicalAddressLookup();
+
+        assertTrue(result.isEmpty());
+        verify(parameterConsumer).getParameterValue(eq(INFORMAL_PARAMETER_NAME), eq(String[].class));
+    }
+
+    @Test void getInformalActivePAsForPhysicalAddressLookupReturnsListWhenParameterExists() {
+        when(parameterConsumer.getParameterValue(eq(INFORMAL_PARAMETER_NAME), eq(String[].class)))
+                .thenReturn(Optional.of(new String[]{"IPA1", "IPA2"}));
+
+        List<String> result = physicalAddressLookupParameterConsumer.getInformalActivePAsForPhysicalAddressLookup();
+
+        assertEquals(List.of("IPA1", "IPA2"), result);
+        verify(parameterConsumer).getParameterValue(eq(INFORMAL_PARAMETER_NAME), eq(String[].class));
+    }
+
+    @Test void getInformalActivePAsForPhysicalAddressLookupReturnsEmptyListWhenArrayIsEmpty() {
+        when(parameterConsumer.getParameterValue(eq(INFORMAL_PARAMETER_NAME), eq(String[].class)))
+                .thenReturn(Optional.of(new String[]{}));
+
+        List<String> result = physicalAddressLookupParameterConsumer.getInformalActivePAsForPhysicalAddressLookup();
+
+        assertTrue(result.isEmpty());
+        verify(parameterConsumer).getParameterValue(eq(INFORMAL_PARAMETER_NAME), eq(String[].class));
     }
 }
