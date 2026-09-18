@@ -31,6 +31,10 @@ public final class CampaignMapper {
     }
 
     public static CampaignDetail toDetail(Campaign campaign) {
+        if (campaign == null) {
+            return null;
+        }
+        
         CampaignDetail detail = new CampaignDetail()
                 .campaignId(campaign.getCampaignId())
                 .senderId(UUID.fromString(campaign.getSenderId()))

@@ -9,7 +9,6 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignSearchRespo
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.time.Duration;
 import java.time.OffsetDateTime;
@@ -18,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class CampaignServiceTest {
@@ -29,7 +29,7 @@ class CampaignServiceTest {
 
     @BeforeEach
     void setup() {
-        campaignServiceProvider = Mockito.mock(CampaignServiceCachedProvider.class);
+        campaignServiceProvider = mock(CampaignServiceCachedProvider.class);
         campaignService = new CampaignService(campaignServiceProvider);
     }
 
