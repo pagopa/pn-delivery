@@ -111,11 +111,11 @@ Parameters:
     Type: String
     Description: "ARN of dynamodb table containing pa notification limits"
 
-  CampaignsDynamoTableName:
+  CampaignsTableName:
     Type: String
     Description: "Campaigns Dynamo table name"
 
-  CampaignsDynamoTableArn:
+  CampaignsTableArn:
     Type: String
     Description: "ARN of dynamodb table containing campaigns"
 
@@ -1143,11 +1143,10 @@ Resources:
               - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/InformalNotificationSendPaWhiteList'
           - Effect: Allow
             Action:
-              - "dynamodb:Scan"
-              - "dynamodb:Query"
+              - 'dynamodb:Scan'
             Resource:
-              - !Sub "${CampaignsDynamoTableArn}"
-              - !Sub "${CampaignsDynamoTableArn}/*"
+              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CampaignsTableName}
+              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CampaignsTableName}/*
 
   # Expose PN-Delivery microservice public API with API-GW for B2B usage
   DeliveryMicroservicePublicAPI:

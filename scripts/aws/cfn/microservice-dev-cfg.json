@@ -73,6 +73,7 @@
     "MetricFormatType": "EMF",
     "LatestInformalNotificationVersion": "1.0",
     "InformalServiceApiPathOverrideV2": "informal/delivery",
-    "EnableInformalB2BApiGateway": "true"
+    "EnableInformalB2BApiGateway": "true",
+    "CampaignsTableName": "pn-Campaigns"
   }
 }
