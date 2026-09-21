@@ -74,6 +74,7 @@
     "LatestInformalNotificationVersion": "1.0",
     "InformalServiceApiPathOverrideV2": "informal/delivery",
     "EnableInformalB2BApiGateway": "true",
-    "CampaignsTableName": "pn-Campaigns"
+    "CampaignsTableName": "pn-Campaigns",
+    "CpuArchitecture": "AMD"
   }
 }

@@ -58,7 +58,7 @@ class PnInformalSentNotificationsControllerTest {
 
         ResponseEntity<InformalNotificationSearchResponse> response = controller.searchInformalSentNotification(
                 UID, CxTypeAuthFleet.PA, CX_ID, CAMPAIGN_ID, START, END, List.of("G1"),
-                RECIPIENT_ID, null, InformalNotificationStatusV1.PROCESSING, true, false, 10, null);
+                RECIPIENT_ID, null, List.of(InformalNotificationStatusV1.PROCESSING), true, false, 10, null);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertSame(mapped, response.getBody());
