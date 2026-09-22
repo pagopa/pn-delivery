@@ -1550,6 +1550,7 @@ components:
           * `SEND_COURTESY_MESSAGE` - Invio di un messaggio di cortesia
           * `GET_ADDRESS` - Disponibilità dell’indirizzo specifico (domicilio digitale di piattaforma, domicilio digitale speciale, domicilio digitale generale, indirizzo fisico sulla notifica o sui registri nazionali)
           * `PUBLIC_REGISTRY_CALL` - Richiesta ai registri pubblici per ottenere domicilio digitale generale o per ottenere indirizzo fisico da ANPR, da registro della imprese, da anagrafe tributaria.
+          * `PUBLIC_REGISTRY_RESPONSE` - Ricevuta la risposta dei registri pubblici
       enum:
         - PUBLIC_REGISTRY_VALIDATION_CALL
         - PUBLIC_REGISTRY_VALIDATION_RESPONSE
@@ -1576,6 +1577,7 @@ components:
         - PAYMENT
         - GET_ADDRESS
         - PUBLIC_REGISTRY_CALL
+        - PUBLIC_REGISTRY_RESPONSE
         - SEND_COURTESY_MESSAGE
     DeliveryMode:
       type: string
@@ -2446,6 +2448,7 @@ components:
         - $ref: '#/components/schemas/InformalGetAddressInfoDetails'
         - $ref: '#/components/schemas/PublicRegistryCallDetails'
         - $ref: '#/components/schemas/SendCourtesyMessageDetails'
+        - $ref: '#/components/schemas/PublicRegistryResponseDetails'
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

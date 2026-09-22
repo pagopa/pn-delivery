@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: N+WgcHXMW6ESrEU/HtpM/bE/LzEoeAWgkfdQLELtUBk=
+  version: FHPBLMY3qu6KROzNgNzPxnDtw0tZ7ZkZznwAqQxJh7M=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1955,6 +1955,7 @@ components:
           * `SEND_COURTESY_MESSAGE` - Invio di un messaggio di cortesia
           * `GET_ADDRESS` - Disponibilità dell’indirizzo specifico (domicilio digitale di piattaforma, domicilio digitale speciale, domicilio digitale generale, indirizzo fisico sulla notifica o sui registri nazionali)
           * `PUBLIC_REGISTRY_CALL` - Richiesta ai registri pubblici per ottenere domicilio digitale generale o per ottenere indirizzo fisico da ANPR, da registro della imprese, da anagrafe tributaria.
+          * `PUBLIC_REGISTRY_RESPONSE` - Ricevuta la risposta dei registri pubblici
       enum:
         - PUBLIC_REGISTRY_VALIDATION_CALL
         - PUBLIC_REGISTRY_VALIDATION_RESPONSE
@@ -1981,6 +1982,7 @@ components:
         - PAYMENT
         - GET_ADDRESS
         - PUBLIC_REGISTRY_CALL
+        - PUBLIC_REGISTRY_RESPONSE
         - SEND_COURTESY_MESSAGE
     DeliveryMode:
       type: string
@@ -2869,6 +2871,7 @@ components:
         - $ref: '#/components/schemas/InformalGetAddressInfoDetails'
         - $ref: '#/components/schemas/PublicRegistryCallDetails'
         - $ref: '#/components/schemas/SendCourtesyMessageDetails'
+        - $ref: '#/components/schemas/PublicRegistryResponseDetails'
   responses: {}
   securitySchemes:
     api_key_openapi:
