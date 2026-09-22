@@ -111,6 +111,10 @@ Parameters:
     Type: String
     Description: "ARN of dynamodb table containing pa notification limits"
 
+  CampaignsTableName:
+    Type: String
+    Description: "Campaigns Dynamo table name"
+
   CheckTaxonomyCodeEnabled:
     Type: String
     Description: "Flag to enable taxonomy code validation"
@@ -1144,7 +1148,12 @@ Resources:
               - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/PaActiveForPhysicalAddressLookup"
               - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/AARQrUrlConfigs'
               - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/InformalNotificationSendPaWhiteList'
-              - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MVPCampaigns'
+          - Effect: Allow
+            Action:
+              - 'dynamodb:Scan'
+            Resource:
+              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CampaignsTableName}
+              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CampaignsTableName}/*
 
   # Expose PN-Delivery microservice public API with API-GW for B2B usage
   DeliveryMicroservicePublicAPI:
