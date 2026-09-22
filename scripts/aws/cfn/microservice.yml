@@ -115,10 +115,6 @@ Parameters:
     Type: String
     Description: "Campaigns Dynamo table name"
 
-  CampaignsTableArn:
-    Type: String
-    Description: "ARN of dynamodb table containing campaigns"
-
   CheckTaxonomyCodeEnabled:
     Type: String
     Description: "Flag to enable taxonomy code validation"
