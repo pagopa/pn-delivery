@@ -27,14 +27,18 @@ public class MessageEnricher {
             return;
         }
         for (NotificationRecipient recipient : notification.getRecipients()) {
-            MessageResponseDto messageDto = retrieveInformalMessageById(recipient, notification);
+            try {
+                MessageResponseDto messageDto = retrieveInformalMessageById(recipient, notification);
 
-            recipient.setMessage(
-                    NewMessageRequest.builder()
-                            .primaryMessage(mapToServerLocalizedContent(messageDto.getPrimaryContent()))
-                            .additionalMessage(mapToServerLocalizedContent(messageDto.getSecondaryContent()))
-                            .build()
-            );
+                recipient.setMessage(
+                        NewMessageRequest.builder()
+                                .primaryMessage(mapToServerLocalizedContent(messageDto.getPrimaryContent()))
+                                .additionalMessage(mapToServerLocalizedContent(messageDto.getSecondaryContent()))
+                                .build()
+                );
+            } catch (Exception ex) {
+                log.error("Error enriching message for recipient with id={}!", recipient.getInternalId(), ex);
+            }
         }
     }
 

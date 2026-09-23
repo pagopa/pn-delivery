@@ -81,9 +81,9 @@ class MessageEnricherTest {
 
         NotificationRecipient recipient = buildRecipient(MESSAGE_ID);
         InternalNotification notification = buildNotification(SENDER_PA_ID, List.of(recipient));
-
-        assertThrows(PnInternalException.class, () ->
+        assertDoesNotThrow(() ->
                 messageEnricher.enrichInternalNotification(notification));
+
     }
 
     @Test
@@ -91,7 +91,7 @@ class MessageEnricherTest {
         NotificationRecipient recipient = buildRecipient("not-a-valid-uuid");
         InternalNotification notification = buildNotification(SENDER_PA_ID, List.of(recipient));
 
-        assertThrows(PnInternalException.class, () ->
+        assertDoesNotThrow(() ->
                 messageEnricher.enrichInternalNotification(notification));
     }
 
@@ -100,7 +100,7 @@ class MessageEnricherTest {
         NotificationRecipient recipient = buildRecipient(MESSAGE_ID);
         InternalNotification notification = buildNotification("not-a-valid-uuid", List.of(recipient));
 
-        assertThrows(PnInternalException.class, () ->
+        assertDoesNotThrow(() ->
                 messageEnricher.enrichInternalNotification(notification));
     }
 
