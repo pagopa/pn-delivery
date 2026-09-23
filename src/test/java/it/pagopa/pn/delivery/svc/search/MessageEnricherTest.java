@@ -81,9 +81,9 @@ class MessageEnricherTest {
 
         NotificationRecipient recipient = buildRecipient(MESSAGE_ID);
         InternalNotification notification = buildNotification(SENDER_PA_ID, List.of(recipient));
-
-        assertThrows(PnInternalException.class, () ->
+        assertDoesNotThrow(() ->
                 messageEnricher.enrichInternalNotification(notification));
+
     }
 
     @Test

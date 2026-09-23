@@ -37,7 +37,7 @@ public class MessageEnricher {
                                 .build()
                 );
             } catch (Exception ex) {
-                log.error("Error enriching message for recipient with id={}", recipient.getInternalId(), ex);
+                log.error("Error enriching message for recipient with id={}!", recipient.getInternalId(), ex);
             }
         }
     }
