@@ -19,12 +19,12 @@ class RestClient {
       throw error
     }
   }
-  static async putConsents(consentType, lastVersion, uid, cxType, cxId) {
+  static async putConsents(consentType, lastVersion, uid, cxType, cxId, channel) {
     logger.info(`Accepting consent ${consentType} (version: ${lastVersion}) for user ${uid} and cxType ${cxType}`);
     try {
       const response = await axios.put(
         `${process.env.API_BASE_URL}/user-consents/v1/consents/${consentType}?version=${encodeURIComponent(lastVersion)}`,
-        { action: "ACCEPT" },
+        { action: "ACCEPT", ...(channel && { channel }) },
         {
           headers: {
             "x-pagopa-pn-uid": uid,
@@ -52,6 +52,41 @@ class RestClient {
             "x-pagopa-pn-cx-id": userInfo.cxId,
             "x-pagopa-cx-taxid": userInfo.taxId,
             "Content-Type": "application/json",
+            "x-pagopa-pn-src-ch": "IO",
+            "X-Amzn-Trace-Id": getTraceIdFromEnv(),
+            ...headersToForward
+          }
+        }
+      );
+
+      return{
+       statusCode: response.status,
+       body: JSON.stringify(response.data)
+      };
+    } catch (error) {
+      if(error.response){
+          logger.info("Error response from server");
+          return {
+            statusCode: error.response.status,
+            body: JSON.stringify(error.response.data)
+          };
+      }
+      else {
+          logger.info("Error for the request:", error.request);
+          throw error;
+        }
+      }
+  }
+
+  static async getNotificationByIun(iun, headersToForward, userInfo) {
+    try {
+      const response = await axios.get(
+        `${process.env.API_BASE_URL}/delivery/notifications/received/${iun}`,
+        {
+          headers: {
+            "x-pagopa-pn-cx-type": userInfo.cxType,
+            "x-pagopa-pn-cx-id": userInfo.cxId,
+            "x-pagopa-cx-taxid": userInfo.taxId,
             "x-pagopa-pn-src-ch": "IO",
             "X-Amzn-Trace-Id": getTraceIdFromEnv(),
             ...headersToForward

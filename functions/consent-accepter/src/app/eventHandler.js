@@ -17,14 +17,21 @@ exports.handle = async (event) => {
     const userInfo = getUserInfoFromEvent(event);
     const consentsToAccept = validateConsentsToAccept();
     await cacheManager.connect();
-    const promiseList = consentsToAccept.map(consent => acceptConsent(consent, userInfo));
+    const resourcePath = (event.requestContext || {}).resourcePath || "";
+    const isNotificationFlow = resourcePath === "/delivery/notifications/received/{iun}";
+    const channel = isNotificationFlow ? "IO" : null;
+    const promiseList = consentsToAccept.map(consent => acceptConsent(consent, userInfo, channel));
     await Promise.all(promiseList);
     logger.info("All consents accepted successfully.");
     const headersToForward = {
        ...retrieveHeadersToForward(event.headers || {}),
        ...retrieveAuthorizerHeaders((event.requestContext || {}).authorizer || {}  || {})
     };
-    return deliveryResponse = await RestClient.checkQrCode(event.body, headersToForward, userInfo);
+    if (isNotificationFlow) {
+      const iun = (event.pathParameters || {}).iun;
+      return await RestClient.getNotificationByIun(iun, headersToForward, userInfo);
+    }
+    return await RestClient.checkQrCode(event.body, headersToForward, userInfo);
   } catch (error) {
     logger.error("Error: ", error.message);
     return {
@@ -36,7 +43,7 @@ exports.handle = async (event) => {
   }
 };
 
-async function acceptConsent(consent, userInfo) {
+async function acceptConsent(consent, userInfo, channel) {
   let lastVersion = consent.version;
   if (!lastVersion) {
     lastVersion = await cacheManager.get(userInfo.cxType, consent.consentType);
@@ -46,7 +53,8 @@ async function acceptConsent(consent, userInfo) {
     lastVersion,
     userInfo.uid,
     userInfo.cxType,
-    userInfo.cxId
+    userInfo.cxId,
+    channel
   );
 }
 
