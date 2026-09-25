@@ -2252,6 +2252,10 @@ components:
           type: string
           description: Data ricezione richiesta visualizzazione notifica
           format: date-time
+        firstView:
+          type: boolean
+          description: |
+            Indica se il destinatario ha già aperto la notifica almeno una volta (true = la notifica è stata aperta in precedenza)
         sourceChannel:
           type: string
           description: |
