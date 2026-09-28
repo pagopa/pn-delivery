@@ -50,7 +50,7 @@ class CampaignControllerTest {
                 .moreResult(false)
                 .nextPagesKey(Collections.emptyList());
 
-        when(campaignService.listCampaigns(eq(SENDER_ID.toString()), eq(10), isNull()))
+        when(campaignService.listCampaigns(SENDER_ID.toString(), 10, null))
                 .thenReturn(response);
 
         // When & Then
@@ -101,7 +101,7 @@ class CampaignControllerTest {
                 .moreResult(true)
                 .nextPagesKey(List.of(nextPageKey));
 
-        when(campaignService.listCampaigns(eq(SENDER_ID.toString()), eq(20), isNull()))
+        when(campaignService.listCampaigns(SENDER_ID.toString(), 20, null))
                 .thenReturn(response);
 
         // When & Then
@@ -131,7 +131,7 @@ class CampaignControllerTest {
                 .moreResult(false)
                 .nextPagesKey(Collections.emptyList());
 
-        when(campaignService.listCampaigns(eq(SENDER_ID.toString()), eq(10), eq(nextPagesKey)))
+        when(campaignService.listCampaigns(SENDER_ID.toString(), 10, nextPagesKey))
                 .thenReturn(response);
 
         webTestClient.get()
@@ -145,7 +145,7 @@ class CampaignControllerTest {
                 .expectStatus()
                 .isOk();
 
-        verify(campaignService).listCampaigns(eq(SENDER_ID.toString()), eq(10), eq(nextPagesKey));
+        verify(campaignService).listCampaigns(SENDER_ID.toString(), 10, nextPagesKey);
     }
 
     @Test
@@ -172,7 +172,7 @@ class CampaignControllerTest {
                 .moreResult(false)
                 .nextPagesKey(Collections.emptyList());
 
-        when(campaignService.listCampaigns(eq(SENDER_ID.toString()), eq(10), isNull()))
+        when(campaignService.listCampaigns(SENDER_ID.toString(), 10, null))
                 .thenReturn(response);
 
         // When & Then
@@ -327,7 +327,7 @@ class CampaignControllerTest {
                 .moreResult(false)
                 .nextPagesKey(Collections.emptyList());
 
-        when(campaignService.listCampaigns(eq(SENDER_ID.toString()), eq(10), isNull()))
+        when(campaignService.listCampaigns(SENDER_ID.toString(), 10, null))
                 .thenReturn(response);
 
         // When & Then - /campaigns/?senderId=... targets listCampaigns endpoint
@@ -343,7 +343,7 @@ class CampaignControllerTest {
                     org.junit.jupiter.api.Assertions.assertFalse(result.getMoreResult());
                 });
 
-        verify(campaignService).listCampaigns(eq(SENDER_ID.toString()), eq(10), isNull());
+        verify(campaignService).listCampaigns(SENDER_ID.toString(), 10, null);
         verify(campaignService, never()).getCampaign(anyString(), anyString());
     }
 }

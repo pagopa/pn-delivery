@@ -3,6 +3,8 @@ package it.pagopa.pn.delivery.utils;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -51,27 +53,15 @@ class CampaignPaginationUtilsTest {
                 () -> CampaignPaginationUtils.decodeOffset("not-base64!!"));
     }
 
-    @Test
-    void decodeOffset_rejectsUnknownVersion() {
-        String key = encode("v2:10");
-        Assertions.assertThrows(PnInvalidInputException.class, () -> CampaignPaginationUtils.decodeOffset(key));
-    }
-
-    @Test
-    void decodeOffset_rejectsMalformedPayload() {
-        String key = encode("10");
-        Assertions.assertThrows(PnInvalidInputException.class, () -> CampaignPaginationUtils.decodeOffset(key));
-    }
-
-    @Test
-    void decodeOffset_rejectsNonNumericOffset() {
-        String key = encode("v1:abc");
-        Assertions.assertThrows(PnInvalidInputException.class, () -> CampaignPaginationUtils.decodeOffset(key));
-    }
-
-    @Test
-    void decodeOffset_rejectsNegativeOffset() {
-        String key = encode("v1:-1");
+    @ParameterizedTest(name = "[{index}] payload \"{0}\"")
+    @ValueSource(strings = {
+            "v2:10",  // versione sconosciuta
+            "10",     // payload malformato
+            "v1:abc", // offset non numerico
+            "v1:-1"   // offset negativo
+    })
+    void decodeOffset_rejectsInvalidPayload(String payload) {
+        String key = encode(payload);
         Assertions.assertThrows(PnInvalidInputException.class, () -> CampaignPaginationUtils.decodeOffset(key));
     }
 
