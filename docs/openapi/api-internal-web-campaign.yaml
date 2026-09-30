@@ -122,7 +122,7 @@ components:
       name: nextPagesKey
       in: query
       required: false
-      description: Chiave della pagina successiva ritornata dalla precedente invocazione.
+      description: Chiave della pagina successiva ritornata dalla precedente invocazione. Deve essere rinviata senza modifiche; una chiave malformata o non piu' valida produce un errore 400.
       schema:
         type: string
 
@@ -144,7 +144,7 @@ components:
           description: Indica se sono presenti ulteriori pagine di risultati.
         nextPagesKey:
           type: array
-          description: Elenco delle chiavi utilizzabili per richiedere le pagine successive.
+          description: Elenco delle chiavi utilizzabili per richiedere la pagina successiva; vuoto quando moreResult e' false.
           items:
             type: string
 
