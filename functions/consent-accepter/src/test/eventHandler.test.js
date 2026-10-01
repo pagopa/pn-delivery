@@ -370,7 +370,7 @@ describe('Consent Handler Tests', () => {
       const mockEvent = {
         headers: {},
         pathParameters: { iun: 'IUN-123' },
-        requestContext: { resourcePath: '/delivery/notifications/received/{iun}' }
+        requestContext: { resourcePath: '/notifications/received/{iun}' }
       };
 
       const mockUserInfo = { uid: 'user123', cxType: 'PF', cxId: 'anonymous-123' };
@@ -395,7 +395,7 @@ describe('Consent Handler Tests', () => {
         headers: {},
         pathParameters: { iun: 'IUN-123' },
         queryStringParameters: { mandateId: 'MANDATE-1' },
-        requestContext: { resourcePath: '/delivery/notifications/received/{iun}' }
+        requestContext: { resourcePath: '/notifications/received/{iun}' }
       };
 
       const mockUserInfo = { uid: 'user123', cxType: 'PF', cxId: 'anonymous-123' };
@@ -415,7 +415,7 @@ describe('Consent Handler Tests', () => {
       const mockEvent = {
         body: 'qrCodeData',
         headers: {},
-        requestContext: { resourcePath: '/delivery/notifications/received/check-qr-code' }
+        requestContext: { resourcePath: '/notifications/received/check-qr-code' }
       };
 
       const mockUserInfo = { uid: 'user123', cxType: 'PF', cxId: 'anonymous-123' };

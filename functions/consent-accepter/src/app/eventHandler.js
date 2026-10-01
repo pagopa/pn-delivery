@@ -18,7 +18,7 @@ exports.handle = async (event) => {
     const consentsToAccept = validateConsentsToAccept();
     await cacheManager.connect();
     const resourcePath = (event.requestContext || {}).resourcePath || "";
-    const isNotificationFlow = resourcePath === "/delivery/notifications/received/{iun}";
+    const isNotificationFlow = resourcePath === "/notifications/received/{iun}";
     const channel = isNotificationFlow ? "IO" : null;
     const promiseList = consentsToAccept.map(consent => acceptConsent(consent, userInfo, channel));
     await Promise.all(promiseList);
