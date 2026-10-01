@@ -32,7 +32,7 @@ class PhysicalAddressLookupUtilTest {
     @Test
     void shouldReturnTrueWhenFeatureEnabledAndActivePaListIsEmpty() {
         when(featureFlagUtils.isPhysicalAddressLookupEnabled()).thenReturn(true);
-        when(physicalAddressLookupParameter.getActivePAsForPhysicalAddressLookup()).thenReturn(Collections.emptyList());
+        when(physicalAddressLookupParameter.getInformalActivePAsForPhysicalAddressLookup()).thenReturn(Collections.emptyList());
 
         assertThat(physicalAddressLookupUtil.checkPhysicalAddressLookupIsEnabled("anyPaId")).isTrue();
     }
@@ -40,7 +40,7 @@ class PhysicalAddressLookupUtilTest {
     @Test
     void shouldReturnTrueWhenFeatureEnabledAndPaIdIsInActiveList() {
         when(featureFlagUtils.isPhysicalAddressLookupEnabled()).thenReturn(true);
-        when(physicalAddressLookupParameter.getActivePAsForPhysicalAddressLookup()).thenReturn(List.of("pa1", "pa2"));
+        when(physicalAddressLookupParameter.getInformalActivePAsForPhysicalAddressLookup()).thenReturn(List.of("pa1", "pa2"));
 
         assertThat(physicalAddressLookupUtil.checkPhysicalAddressLookupIsEnabled("pa1")).isTrue();
     }
@@ -48,7 +48,7 @@ class PhysicalAddressLookupUtilTest {
     @Test
     void shouldReturnFalseWhenFeatureEnabledButPaIdIsNotInActiveList() {
         when(featureFlagUtils.isPhysicalAddressLookupEnabled()).thenReturn(true);
-        when(physicalAddressLookupParameter.getActivePAsForPhysicalAddressLookup()).thenReturn(List.of("pa1", "pa2"));
+        when(physicalAddressLookupParameter.getInformalActivePAsForPhysicalAddressLookup()).thenReturn(List.of("pa1", "pa2"));
 
         assertThat(physicalAddressLookupUtil.checkPhysicalAddressLookupIsEnabled("pa3")).isFalse();
     }
@@ -56,7 +56,7 @@ class PhysicalAddressLookupUtilTest {
     @Test
     void shouldReturnFalseWhenFeatureIsDisabled() {
         when(featureFlagUtils.isPhysicalAddressLookupEnabled()).thenReturn(false);
-        when(physicalAddressLookupParameter.getActivePAsForPhysicalAddressLookup()).thenReturn(Collections.emptyList());
+        when(physicalAddressLookupParameter.getInformalActivePAsForPhysicalAddressLookup()).thenReturn(Collections.emptyList());
 
         assertThat(physicalAddressLookupUtil.checkPhysicalAddressLookupIsEnabled("anyPaId")).isFalse();
     }
@@ -64,7 +64,7 @@ class PhysicalAddressLookupUtilTest {
     @Test
     void shouldReturnFalseWhenFeatureIsDisabledEvenIfPaIdIsInActiveList() {
         when(featureFlagUtils.isPhysicalAddressLookupEnabled()).thenReturn(false);
-        when(physicalAddressLookupParameter.getActivePAsForPhysicalAddressLookup()).thenReturn(List.of("pa1"));
+        when(physicalAddressLookupParameter.getInformalActivePAsForPhysicalAddressLookup()).thenReturn(List.of("pa1"));
 
         assertThat(physicalAddressLookupUtil.checkPhysicalAddressLookupIsEnabled("pa1")).isFalse();
     }

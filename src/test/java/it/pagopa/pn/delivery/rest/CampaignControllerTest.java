@@ -50,7 +50,7 @@ class CampaignControllerTest {
                 .moreResult(false)
                 .nextPagesKey(Collections.emptyList());
 
-        when(campaignService.listCampaigns(eq(SENDER_ID.toString()), eq(10), isNull()))
+        when(campaignService.listCampaigns(SENDER_ID.toString(), 10, null))
                 .thenReturn(response);
 
         // When & Then
@@ -101,7 +101,7 @@ class CampaignControllerTest {
                 .moreResult(true)
                 .nextPagesKey(List.of(nextPageKey));
 
-        when(campaignService.listCampaigns(eq(SENDER_ID.toString()), eq(20), isNull()))
+        when(campaignService.listCampaigns(SENDER_ID.toString(), 20, null))
                 .thenReturn(response);
 
         // When & Then
@@ -124,6 +124,47 @@ class CampaignControllerTest {
     }
 
     @Test
+    void listCampaigns_forwardsNextPagesKeyToService() {
+        String nextPagesKey = "djE6MTA";
+        CampaignSearchResponse response = new CampaignSearchResponse()
+                .resultsPage(Collections.emptyList())
+                .moreResult(false)
+                .nextPagesKey(Collections.emptyList());
+
+        when(campaignService.listCampaigns(SENDER_ID.toString(), 10, nextPagesKey))
+                .thenReturn(response);
+
+        webTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path(BASE_PATH)
+                        .queryParam("senderId", SENDER_ID.toString())
+                        .queryParam("nextPagesKey", nextPagesKey)
+                        .build())
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus()
+                .isOk();
+
+        verify(campaignService).listCampaigns(SENDER_ID.toString(), 10, nextPagesKey);
+    }
+
+    @Test
+    void listCampaigns_sizeOverMaximumIsRejected() {
+        webTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path(BASE_PATH)
+                        .queryParam("senderId", SENDER_ID.toString())
+                        .queryParam("size", 51)
+                        .build())
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus()
+                .isBadRequest();
+
+        verify(campaignService, never()).listCampaigns(anyString(), anyInt(), any());
+    }
+
+    @Test
     void listCampaigns_empty() {
         // Given
         CampaignSearchResponse response = new CampaignSearchResponse()
@@ -131,7 +172,7 @@ class CampaignControllerTest {
                 .moreResult(false)
                 .nextPagesKey(Collections.emptyList());
 
-        when(campaignService.listCampaigns(eq(SENDER_ID.toString()), eq(10), isNull()))
+        when(campaignService.listCampaigns(SENDER_ID.toString(), 10, null))
                 .thenReturn(response);
 
         // When & Then
@@ -286,7 +327,7 @@ class CampaignControllerTest {
                 .moreResult(false)
                 .nextPagesKey(Collections.emptyList());
 
-        when(campaignService.listCampaigns(eq(SENDER_ID.toString()), eq(10), isNull()))
+        when(campaignService.listCampaigns(SENDER_ID.toString(), 10, null))
                 .thenReturn(response);
 
         // When & Then - /campaigns/?senderId=... targets listCampaigns endpoint
@@ -302,7 +343,7 @@ class CampaignControllerTest {
                     org.junit.jupiter.api.Assertions.assertFalse(result.getMoreResult());
                 });
 
-        verify(campaignService).listCampaigns(eq(SENDER_ID.toString()), eq(10), isNull());
+        verify(campaignService).listCampaigns(SENDER_ID.toString(), 10, null);
         verify(campaignService, never()).getCampaign(anyString(), anyString());
     }
 }

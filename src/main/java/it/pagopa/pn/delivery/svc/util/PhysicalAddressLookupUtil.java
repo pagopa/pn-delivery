@@ -15,8 +15,8 @@ public class PhysicalAddressLookupUtil {
     private final PhysicalAddressLookupParameterConsumer physicalAddressLookupParameter;
     private final FeatureFlagUtils featureFlagUtils;
 
-    public boolean checkPhysicalAddressLookupIsEnabled (String paId){
-        List<String> activePAsForPhysicalAddressLookup = physicalAddressLookupParameter.getActivePAsForPhysicalAddressLookup();
+    public boolean checkPhysicalAddressLookupIsEnabled(String paId){
+        List<String> activePAsForPhysicalAddressLookup = physicalAddressLookupParameter.getInformalActivePAsForPhysicalAddressLookup();
 
         boolean isActive = featureFlagUtils.isPhysicalAddressLookupEnabled() &&
                 (activePAsForPhysicalAddressLookup.isEmpty() ||

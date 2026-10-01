@@ -15,7 +15,6 @@ import it.pagopa.pn.delivery.utils.InformalNotificationStatusValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.OffsetDateTime;
@@ -47,7 +46,7 @@ public class PnInformalSentNotificationsController implements SenderInformalRead
                                                                                              List<String> xPagopaPnCxGroups,
                                                                                              String recipientId,
                                                                                              String iunMatch,
-                                                                                             InformalNotificationStatusV1 status,
+                                                                                             List<InformalNotificationStatusV1> statuses,
                                                                                              Boolean viewed,
                                                                                              Boolean delivered,
                                                                                              Integer size,
@@ -61,7 +60,7 @@ public class PnInformalSentNotificationsController implements SenderInformalRead
                 .endDate(endDate.toInstant())
                 .filterId(recipientId)
                 .iunMatch(iunMatch)
-                .informalStatuses(status == null ? List.of() : List.of(status))
+                .informalStatuses(statuses != null ? statuses : List.of())
                 .groups(xPagopaPnCxGroups)
                 .viewed(viewed)
                 .delivered(delivered)

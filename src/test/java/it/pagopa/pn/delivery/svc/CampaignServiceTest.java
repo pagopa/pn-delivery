@@ -1,45 +1,49 @@
 package it.pagopa.pn.delivery.svc;
 
-import it.pagopa.pn.delivery.config.CampaignsParameterConsumer;
+import it.pagopa.pn.commons.db.campaign.CampaignServiceCachedProvider;
+import it.pagopa.pn.commons.db.campaign.entity.*;
+import it.pagopa.pn.commons.utils.qr.models.RecipientTypeInt;
 import it.pagopa.pn.delivery.exception.PnCampaignNotFoundException;
+import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignDetail;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignSearchResponse;
-import it.pagopa.pn.delivery.models.internal.campaign.*;
-import it.pagopa.pn.commons.utils.qr.models.RecipientTypeInt;
+import it.pagopa.pn.delivery.utils.CampaignPaginationUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class CampaignServiceTest {
 
     private static final String SENDER_ID = "5b994d4a-0fa8-47ac-9c7b-354f1d44a1ce";
+    private static final OffsetDateTime FIXED_START_DATE = OffsetDateTime.parse("2026-02-01T00:00:00Z");
 
-    private CampaignsParameterConsumer campaignsParameterConsumer;
+    private CampaignServiceCachedProvider campaignServiceProvider;
     private CampaignService campaignService;
 
     @BeforeEach
     void setup() {
-        campaignsParameterConsumer = Mockito.mock(CampaignsParameterConsumer.class);
-        campaignService = new CampaignService(campaignsParameterConsumer);
+        campaignServiceProvider = mock(CampaignServiceCachedProvider.class);
+        campaignService = new CampaignService(campaignServiceProvider);
     }
 
     @Test
     void listCampaigns_returnsAllCampaigns() {
         // Arrange
-        when(campaignsParameterConsumer.getCampaignsBySenderId(SENDER_ID))
+        when(campaignServiceProvider.getBySenderId(SENDER_ID))
                 .thenReturn(List.of(
-                        validCampaign("c1"),
-                        validCampaign("c2"),
-                        validCampaign("c3")
+                        validCampaignEntity("c1"),
+                        validCampaignEntity("c2"),
+                        validCampaignEntity("c3")
                 ));
 
         // Act
@@ -54,7 +58,7 @@ class CampaignServiceTest {
     @Test
     void listCampaigns_emptyList() {
         // Arrange
-        when(campaignsParameterConsumer.getCampaignsBySenderId(SENDER_ID))
+        when(campaignServiceProvider.getBySenderId(SENDER_ID))
                 .thenReturn(Collections.emptyList());
 
         // Act
@@ -67,53 +71,118 @@ class CampaignServiceTest {
     }
 
     @Test
-    void listCampaigns_ignoresPaginationParameters() {
+    void listCampaigns_appliesPageSizeAndReturnsNextPagesKey() {
         // Arrange
-        when(campaignsParameterConsumer.getCampaignsBySenderId(SENDER_ID))
+        when(campaignServiceProvider.getBySenderId(SENDER_ID))
                 .thenReturn(List.of(
-                        validCampaign("c1"),
-                        validCampaign("c2")
+                        validCampaignEntity("c1"),
+                        validCampaignEntity("c2")
                 ));
 
-        // Act: Passiamo parametri di paginazione stringenti e una chiave teoricamente invalida
-        // Il servizio deve ignorarli completamente e restituire tutto senza lanciare eccezioni
-        CampaignSearchResponse response = campaignService.listCampaigns(SENDER_ID, 1, "any-string-not-base64");
+        // Act
+        CampaignSearchResponse response = campaignService.listCampaigns(SENDER_ID, 1, null);
 
         // Assert
+        Assertions.assertEquals(1, response.getResultsPage().size());
+        Assertions.assertEquals("c1", response.getResultsPage().get(0).getCampaignId());
+        Assertions.assertTrue(response.getMoreResult());
+        Assertions.assertEquals(1, response.getNextPagesKey().size());
+    }
+
+    @Test
+    void listCampaigns_navigatesToNextPageWithReturnedKey() {
+        when(campaignServiceProvider.getBySenderId(SENDER_ID))
+                .thenReturn(List.of(
+                        validCampaignEntity("c1"),
+                        validCampaignEntity("c2"),
+                        validCampaignEntity("c3")
+                ));
+
+        CampaignSearchResponse firstPage = campaignService.listCampaigns(SENDER_ID, 2, null);
+        CampaignSearchResponse secondPage = campaignService.listCampaigns(SENDER_ID, 2,
+                firstPage.getNextPagesKey().get(0));
+
+        Assertions.assertEquals(List.of("c1", "c2"), firstPage.getResultsPage().stream()
+                .map(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignSummary::getCampaignId).toList());
+        Assertions.assertEquals(List.of("c3"), secondPage.getResultsPage().stream()
+                .map(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignSummary::getCampaignId).toList());
+        Assertions.assertFalse(secondPage.getMoreResult());
+        Assertions.assertTrue(secondPage.getNextPagesKey().isEmpty());
+    }
+
+    @Test
+    void listCampaigns_lastPageExactlyFull() {
+        when(campaignServiceProvider.getBySenderId(SENDER_ID))
+                .thenReturn(List.of(validCampaignEntity("c1"), validCampaignEntity("c2")));
+
+        CampaignSearchResponse response = campaignService.listCampaigns(SENDER_ID, 2, null);
+
         Assertions.assertEquals(2, response.getResultsPage().size());
         Assertions.assertFalse(response.getMoreResult());
         Assertions.assertTrue(response.getNextPagesKey().isEmpty());
     }
 
     @Test
+    void listCampaigns_sortsByStartDateDescThenCampaignId() {
+        OffsetDateTime now = OffsetDateTime.now();
+        when(campaignServiceProvider.getBySenderId(SENDER_ID))
+                .thenReturn(List.of(
+                        campaignEntityWithStartDate("cB", now),
+                        campaignEntityWithStartDate("cOld", now.minusDays(5)),
+                        campaignEntityWithStartDate("cA", now)
+                ));
+
+        CampaignSearchResponse response = campaignService.listCampaigns(SENDER_ID, null, null);
+
+        Assertions.assertEquals(List.of("cA", "cB", "cOld"), response.getResultsPage().stream()
+                .map(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignSummary::getCampaignId).toList());
+    }
+
+    @Test
+    void listCampaigns_invalidNextPagesKeyThrows() {
+        when(campaignServiceProvider.getBySenderId(SENDER_ID))
+                .thenReturn(List.of(validCampaignEntity("c1")));
+
+        Assertions.assertThrows(PnInvalidInputException.class,
+                () -> campaignService.listCampaigns(SENDER_ID, 1, "any-string-not-base64"));
+    }
+
+    @Test
+    void listCampaigns_outOfRangeNextPagesKeyThrows() {
+        when(campaignServiceProvider.getBySenderId(SENDER_ID))
+                .thenReturn(List.of(validCampaignEntity("c1")));
+
+        String staleKey = CampaignPaginationUtils.encodeOffset(5);
+
+        Assertions.assertThrows(PnInvalidInputException.class,
+                () -> campaignService.listCampaigns(SENDER_ID, 1, staleKey));
+    }
+
+    @Test
+    void listCampaigns_invalidSizeThrows() {
+        Assertions.assertThrows(PnInvalidInputException.class,
+                () -> campaignService.listCampaigns(SENDER_ID, 0, null));
+        Assertions.assertThrows(PnInvalidInputException.class,
+                () -> campaignService.listCampaigns(SENDER_ID, 51, null));
+    }
+
+    @Test
+    void listCampaigns_filtersNullCampaignEntities() {
+        when(campaignServiceProvider.getBySenderId(SENDER_ID))
+                .thenReturn(Arrays.asList(validCampaignEntity("c1"), null, validCampaignEntity("c2")));
+
+        CampaignSearchResponse response = campaignService.listCampaigns(SENDER_ID, null, null);
+
+        Assertions.assertEquals(2, response.getResultsPage().size());
+    }
+
+    @Test
     void getCampaign_success() {
         // Arrange
-        OffsetDateTime now = OffsetDateTime.now();
-        Campaign campaign = Campaign.builder()
-                .campaignId("c1")
-                .senderId(SENDER_ID)
-                .title("Campaign 1")
-                .descriptionScope("Description")
-                .status(CampaignStatus.IN_PROGRESS)
-                .startDate(now)
-                .endDate(now.plusDays(30))
-                .senderContact("contact@example.com")
-                .serviceId("service-1")
-                .sensitiveContent(false)
-                .stopOnViewed(false)
-                .workflow(List.of(
-                        WorkFlowEntity.builder()
-                                .channel(ChannelType.IO)
-                                .recipientType(Set.of(RecipientTypeInt.PF))
-                                .timeout(Duration.ofDays(1))
-                                .desiredFeedback(Set.of(DesiredFeedbackType.READ))
-                                .includeAttachment(false)
-                                .build()
-                ))
-                .build();
+        CampaignEntity campaignEntity = validCampaignEntity("c1");
 
-        when(campaignsParameterConsumer.getCampaignByCampaignIdAndSenderId("c1", SENDER_ID))
-                .thenReturn(campaign);
+        when(campaignServiceProvider.getByCampaignIdAndSenderId("c1", SENDER_ID))
+                .thenReturn(campaignEntity);
 
         // Act
         CampaignDetail result = campaignService.getCampaign("c1", SENDER_ID);
@@ -121,12 +190,13 @@ class CampaignServiceTest {
         // Assert
         Assertions.assertNotNull(result);
         Assertions.assertEquals("c1", result.getCampaignId());
-        Assertions.assertEquals("Campaign 1", result.getTitle());
-        Assertions.assertEquals("Description", result.getDescriptionScope());
+        Assertions.assertEquals("title-c1", result.getTitle());
+        Assertions.assertEquals("description-c1", result.getDescriptionScope());
         Assertions.assertEquals(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignStatus.IN_PROGRESS, result.getCampaignStatus());
         Assertions.assertEquals("contact@example.com", result.getSenderContact());
         Assertions.assertEquals(1, result.getWorkflow().size());
         Assertions.assertEquals(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ChannelType.fromValue("IO"), result.getWorkflow().get(0).getChannel());
+
         Set<it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RecipientTypeInt> recipients = result.getWorkflow().get(0).getRecipientType();
         Assertions.assertEquals(1, recipients.size());
         Assertions.assertTrue(recipients.contains(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RecipientTypeInt.fromValue("PF")));
@@ -135,7 +205,7 @@ class CampaignServiceTest {
     @Test
     void getCampaign_notFound() {
         // Arrange
-        when(campaignsParameterConsumer.getCampaignByCampaignIdAndSenderId("missing", SENDER_ID))
+        when(campaignServiceProvider.getByCampaignIdAndSenderId("missing", SENDER_ID))
                 .thenThrow(new PnCampaignNotFoundException("Campaign not found"));
 
         // Act & Assert
@@ -143,25 +213,29 @@ class CampaignServiceTest {
                 () -> campaignService.getCampaign("missing", SENDER_ID));
     }
 
-    private Campaign validCampaign(String campaignId) {
-        OffsetDateTime now = OffsetDateTime.now();
-        return Campaign.builder()
+    private CampaignEntity validCampaignEntity(String campaignId) {
+        return campaignEntityWithStartDate(campaignId, FIXED_START_DATE);
+    }
+
+    private CampaignEntity campaignEntityWithStartDate(String campaignId, OffsetDateTime startDate) {
+        return CampaignEntity.builder()
                 .campaignId(campaignId)
                 .senderId(SENDER_ID)
                 .title("title-" + campaignId)
                 .descriptionScope("description-" + campaignId)
                 .status(CampaignStatus.IN_PROGRESS)
-                .startDate(now)
-                .endDate(now.plusDays(30))
+                .startDate(startDate.toInstant())
+                .endDate(startDate.plusDays(30).toInstant())
+                .senderContact("contact@example.com")
                 .serviceId("service-" + campaignId)
                 .sensitiveContent(false)
                 .stopOnViewed(false)
                 .workflow(List.of(
-                        WorkFlowEntity.builder()
-                                .channel(ChannelType.IO)
+                        WorkflowEntity.builder()
+                                .channel(CampaignChannel.IO)
                                 .recipientType(Set.of(RecipientTypeInt.PF))
                                 .timeout(Duration.ofDays(1))
-                                .desiredFeedback(Set.of(DesiredFeedbackType.READ))
+                                .desiredFeedback(Set.of(DesiredFeedback.READ))
                                 .includeAttachment(false)
                                 .build()
                 ))
