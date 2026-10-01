@@ -29,7 +29,8 @@ exports.handle = async (event) => {
     };
     if (isNotificationFlow) {
       const iun = (event.pathParameters || {}).iun;
-      return await RestClient.getNotificationByIun(iun, headersToForward, userInfo);
+      const mandateId = (event.queryStringParameters || {}).mandateId;
+      return await RestClient.getNotificationByIun(iun, headersToForward, userInfo, mandateId);
     }
     return await RestClient.checkQrCode(event.body, headersToForward, userInfo);
   } catch (error) {

@@ -384,6 +384,34 @@ describe("RestClient", () => {
       expect(request.headers["x-pagopa-cx-taxid"]).to.equal("RSSMRA80A01H501U");
       expect(request.headers["x-pagopa-pn-src-ch"]).to.equal("IO");
       expect(request.headers["x-custom-header"]).to.equal("custom-value");
+      expect(axios.getUri(request)).to.equal("https://api.test.com/delivery/notifications/received/IUN-123");
+    });
+
+    it("should forward mandateId as query parameter when provided", async () => {
+      mock.onGet().reply(200, {});
+
+      await RestClient.getNotificationByIun(
+        "IUN-123",
+        mockHeadersToForward,
+        mockUserInfo,
+        "MANDATE-1"
+      );
+
+      const request = mock.history.get[0];
+      expect(axios.getUri(request)).to.equal("https://api.test.com/delivery/notifications/received/IUN-123?mandateId=MANDATE-1");
+    });
+
+    it("should encode iun in the request path", async () => {
+      mock.onGet().reply(200, {});
+
+      await RestClient.getNotificationByIun(
+        "IUN/123",
+        mockHeadersToForward,
+        mockUserInfo
+      );
+
+      const request = mock.history.get[0];
+      expect(axios.getUri(request)).to.equal("https://api.test.com/delivery/notifications/received/IUN%2F123");
     });
 
     it("should handle HTTP error responses from server", async () => {

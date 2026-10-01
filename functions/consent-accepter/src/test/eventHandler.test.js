@@ -387,6 +387,28 @@ describe('Consent Handler Tests', () => {
       expect(RestClientStub.getNotificationByIun.calledWith('IUN-123', sinon.match.object, mockUserInfo)).to.be.true;
       expect(RestClientStub.checkQrCode.called).to.be.false;
       expect(result).to.deep.equal({ statusCode: 200, body: '{}' });
+      expect(RestClientStub.getNotificationByIun.firstCall.args[3]).to.be.undefined;
+    });
+
+    it('should forward mandateId query parameter to getNotificationByIun', async () => {
+      const mockEvent = {
+        headers: {},
+        pathParameters: { iun: 'IUN-123' },
+        queryStringParameters: { mandateId: 'MANDATE-1' },
+        requestContext: { resourcePath: '/delivery/notifications/received/{iun}' }
+      };
+
+      const mockUserInfo = { uid: 'user123', cxType: 'PF', cxId: 'anonymous-123' };
+      utilsStub.getUserInfoFromEvent.returns(mockUserInfo);
+      utilsStub.retrieveHeadersToForward.returns({});
+      RestClientStub.putConsents.resolves({});
+      RestClientStub.getNotificationByIun.resolves({ statusCode: 200, body: '{}' });
+      mockCacheManagerInstance.get.returns('v1');
+
+      await handler.handle(mockEvent);
+
+      expect(RestClientStub.getNotificationByIun.calledOnce).to.be.true;
+      expect(RestClientStub.getNotificationByIun.calledWith('IUN-123', sinon.match.object, mockUserInfo, 'MANDATE-1')).to.be.true;
     });
 
     it('should still call checkQrCode with null channel when resourcePath is the check-qr-code one', async () => {

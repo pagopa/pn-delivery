@@ -78,11 +78,12 @@ class RestClient {
       }
   }
 
-  static async getNotificationByIun(iun, headersToForward, userInfo) {
+  static async getNotificationByIun(iun, headersToForward, userInfo, mandateId) {
     try {
       const response = await axios.get(
-        `${process.env.API_BASE_URL}/delivery/notifications/received/${iun}`,
+        `${process.env.API_BASE_URL}/delivery/notifications/received/${encodeURIComponent(iun)}`,
         {
+          params: mandateId ? { mandateId } : undefined,
           headers: {
             "x-pagopa-pn-cx-type": userInfo.cxType,
             "x-pagopa-pn-cx-id": userInfo.cxId,
