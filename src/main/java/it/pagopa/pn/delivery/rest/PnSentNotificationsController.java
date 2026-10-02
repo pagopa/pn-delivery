@@ -172,7 +172,13 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
             default -> response.setNotificationRequestStatus("ACCEPTED");
         }
 
-        logEvent.generateSuccess().log();
+        logEvent.generateSuccess(
+                "getNotificationRequestStatus notificationRequestId={} paProtocolNumber={} idempotenceToken={} notificationRequestStatus={}",
+                notificationRequestId,
+                paProtocolNumber,
+                idempotenceToken,
+                response.getNotificationRequestStatus()
+        ).log();
         return ResponseEntity.ok( response );
     }
 
@@ -274,7 +280,13 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
             default -> response.setNotificationRequestStatus("ACCEPTED");
         }
 
-        logEvent.generateSuccess().log();
+        logEvent.generateSuccess(
+                "getInformalNotificationRequestStatusV1 notificationRequestId={} paProtocolNumber={} idempotenceToken={} notificationRequestStatus={}",
+                notificationRequestId,
+                paProtocolNumber,
+                idempotenceToken,
+                response.getNotificationRequestStatus()
+        ).log();
         return ResponseEntity.ok( response );
     }
 
