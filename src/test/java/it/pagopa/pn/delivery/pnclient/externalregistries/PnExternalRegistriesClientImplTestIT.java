@@ -1,12 +1,16 @@
 package it.pagopa.pn.delivery.pnclient.externalregistries;
 
 import it.pagopa.pn.delivery.MockAWSObjectsTest;
+import it.pagopa.pn.delivery.exception.PnDeliveryGroupsUnavailableException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaymentInfo;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaymentStatus;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.integration.ClientAndServer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_GROUPS_UNAVAILABLE;
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
@@ -49,6 +56,29 @@ class PnExternalRegistriesClientImplTestIT extends MockAWSObjectsTest {
     @AfterAll
     public static void stopMockServer() {
         mockServer.stop();
+    }
+
+    @BeforeEach
+    void resetMockServer() {
+        mockServer.reset();
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void getGroupsShouldExposeBadGatewayWhenExternalRegistriesFails(boolean onlyActive) {
+        mockServer.when(request()
+                        .withMethod("GET")
+                        .withPath("/ext-registry-private/pa/v1/groups-all"))
+                .respond(response().withStatusCode(500));
+
+        PnDeliveryGroupsUnavailableException exception = assertThrows(
+                PnDeliveryGroupsUnavailableException.class,
+                () -> externalRegistriesClient.getGroups(SENDER_ID, onlyActive));
+
+        assertEquals(502, exception.getStatus());
+        assertEquals(502, exception.getProblem().getStatus().intValue());
+        assertEquals(ERROR_CODE_DELIVERY_GROUPS_UNAVAILABLE,
+                exception.getProblem().getErrors().get(0).getCode());
     }
 
 
