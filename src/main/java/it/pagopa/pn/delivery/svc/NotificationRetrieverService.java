@@ -18,7 +18,7 @@ import it.pagopa.pn.delivery.svc.search.TimelineEnricher;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -31,13 +31,14 @@ import java.util.Optional;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_USER_ID_NOT_RECIPIENT_OR_DELEGATOR;
 
-@Component
+@Service
 @Slf4j
 @AllArgsConstructor
 public class NotificationRetrieverService {
     private final NotificationDao notificationDao;
     private final PnExternalRegistriesClientImpl pnExternalRegistriesClient;
     private final PnMandateClientImpl pnMandateClient;
+    private final PaGroupService paGroupService;
 
     public InternalNotification getInternalNotification(String iun) {
         Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(iun, true);
@@ -96,7 +97,7 @@ public class NotificationRetrieverService {
         if (notificationGroup == null || notificationGroup.isEmpty() || senderId == null) {
             return;
         }
-        List<PaGroup> groups = pnExternalRegistriesClient.getGroups(senderId, false);
+        List<PaGroup> groups = paGroupService.getGroupsForLabelization(senderId);
         if (!groups.isEmpty()) {
             groups.stream()
                     .filter(g -> Objects.requireNonNull(g.getId()).equals(notificationGroup))
