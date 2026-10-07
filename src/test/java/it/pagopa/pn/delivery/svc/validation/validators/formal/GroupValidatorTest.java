@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.svc.validation.validators.formal;
 
+import it.pagopa.pn.delivery.exception.PnDeliveryGroupsUnavailableException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
@@ -17,6 +18,8 @@ import java.util.List;
 import static it.pagopa.pn.delivery.svc.validation.validators.ValidatorTestSupport.assertSingleErrorContaining;
 import static it.pagopa.pn.delivery.svc.validation.validators.ValidatorTestSupport.assertSuccess;
 import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class GroupValidatorTest {
     @Mock
@@ -39,6 +42,17 @@ class GroupValidatorTest {
                 .thenReturn(List.of(new PaGroup().id("validGroup")));
 
         assertSuccess(groupValidator.validate(context));
+    }
+
+    @Test
+    void validateShouldPropagateGroupsUnavailableInsteadOfReturningValidationErrors() {
+        NotificationContext context = notificationContext("validGroup", List.of("validGroup"));
+        PnDeliveryGroupsUnavailableException exception =
+                new PnDeliveryGroupsUnavailableException("Groups unavailable");
+        when(pnExternalRegistriesClient.getGroups(DEFAULT_SENDER_ID, true)).thenThrow(exception);
+
+        assertSame(exception, assertThrows(PnDeliveryGroupsUnavailableException.class,
+                () -> groupValidator.validate(context)));
     }
 
     @Test
@@ -84,4 +98,3 @@ class GroupValidatorTest {
                 .build();
     }
 }
-
