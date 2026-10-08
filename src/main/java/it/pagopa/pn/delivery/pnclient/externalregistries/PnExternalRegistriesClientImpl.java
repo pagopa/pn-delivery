@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.pnclient.externalregistries;
 
 import it.pagopa.pn.commons.log.PnLogger;
+import it.pagopa.pn.delivery.exception.PnDeliveryGroupsUnavailableException;
 import it.pagopa.pn.delivery.exception.PnRootIdNonFountException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.InfoPaApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.InternalOnlyApi;
@@ -12,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
 import java.util.List;
 
 @CustomLog
@@ -35,8 +35,9 @@ public class PnExternalRegistriesClientImpl {
             log.logInvokingExternalService(PnLogger.EXTERNAL_SERVICES.PN_EXTERNAL_REGISTRIES, "getGroups");
             return internalOnlyApi.getAllGroupsPrivate(senderId, onlyActive ? PaGroupStatus.ACTIVE : null);
         } catch (Exception exc) {
-            log.error("Error during retrieve of the groups", exc);
-            return Collections.emptyList();
+            String description = String.format("Error during retrieve of the groups for senderId = %s [exception received = %s]", senderId, exc);
+            log.error(description,exc);
+            throw new PnDeliveryGroupsUnavailableException(description);
         }
     }
 
