@@ -4,7 +4,7 @@
     <parent>
         <groupId>it.pagopa.pn</groupId>
         <artifactId>pn-parent</artifactId>
-        <version>2.1.1</version>
+        <version>2.3.0-SPRINGBOOT3</version>
         <relativePath>../pn-parent</relativePath>
     </parent>
     <artifactId>pn-delivery</artifactId>
@@ -40,7 +40,7 @@
         <dependency>
             <groupId>it.pagopa.pn</groupId>
             <artifactId>pn-commons</artifactId>
-            <version>2.22.0</version>
+            <version>2.27.0-SPRINGBOOT3</version>
         </dependency>
         <dependency>
             <groupId>it.pagopa.pn</groupId>
@@ -50,7 +50,7 @@
         <dependency>
             <groupId>it.pagopa.pn</groupId>
             <artifactId>pn-model</artifactId>
-            <version>2.13.0</version>
+            <version>2.16.0-SPRINGBOOT3</version>
         </dependency>
         <dependency>
             <groupId>net.logstash.logback</groupId>
@@ -95,12 +95,13 @@
             <version>1.6.5</version>
         </dependency>
         <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.0.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -132,6 +133,7 @@
         <dependency>
             <groupId>io.awspring.cloud</groupId>
             <artifactId>spring-cloud-starter-aws-messaging</artifactId>
+            <version>2.4.2</version>
             <scope>test</scope>
         </dependency>
 
@@ -219,7 +221,7 @@
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
-                <version>5.4.0</version>
+                <version>7.4.0</version>
                 <executions>
                     <execution>
                         <id>pn-delivery-server-internal-b2b-pa</id>
@@ -234,13 +236,19 @@
                             <modelNameSuffix />
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/server</templateDirectory>
                             <configOptions>
+                                <useOneOfInterfaces>false</useOneOfInterfaces>
+                                <useSpringBoot3>true</useSpringBoot3>
+                                <generatedConstructorWithRequiredArgs>false</generatedConstructorWithRequiredArgs>
                                 <basePackage>${project.groupId}.delivery.generated.openapi.server.v1</basePackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.server.v1.dto</modelPackage>
                                 <apiPackage>${project.groupId}.delivery.generated.openapi.server.v1.api</apiPackage>
                                 <configPackage>${project.groupId}.delivery.generated.openapi.server.v1.config</configPackage>
-                                <additionalModelTypeAnnotations>@lombok.Builder; @lombok.NoArgsConstructor; @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
+                                <additionalModelTypeAnnotations>
+                                    @lombok.Builder;
+                                    @lombok.NoArgsConstructor;
+                                    @lombok.AllArgsConstructor
+                                </additionalModelTypeAnnotations>
                                 <dateLibrary>java8</dateLibrary>
                                 <delegatePattern>true</delegatePattern>
                                 <interfaceOnly>true</interfaceOnly>
@@ -266,13 +274,19 @@
                             <modelNameSuffix />
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/server</templateDirectory>
                             <configOptions>
+                                <useSpringBoot3>true</useSpringBoot3>
+                                <useOneOfInterfaces>false</useOneOfInterfaces>
+                                <generatedConstructorWithRequiredArgs>false</generatedConstructorWithRequiredArgs>
                                 <basePackage>${project.groupId}.delivery.generated.openapi.server.v1</basePackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.server.v1.dto</modelPackage>
                                 <apiPackage>${project.groupId}.delivery.generated.openapi.server.v1.api</apiPackage>
                                 <configPackage>${project.groupId}.delivery.generated.openapi.server.v1.config</configPackage>
-                                <additionalModelTypeAnnotations>@lombok.Builder; @lombok.NoArgsConstructor; @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
+                                <additionalModelTypeAnnotations>
+                                    @lombok.Builder;
+                                    @lombok.NoArgsConstructor;
+                                    @lombok.AllArgsConstructor
+                                </additionalModelTypeAnnotations>
                                 <dateLibrary>java8</dateLibrary>
                                 <delegatePattern>true</delegatePattern>
                                 <interfaceOnly>true</interfaceOnly>
@@ -298,8 +312,10 @@
                             <modelNameSuffix />
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/server</templateDirectory>
                             <configOptions>
+                                <useSpringBoot3>true</useSpringBoot3>
+                                <useOneOfInterfaces>false</useOneOfInterfaces>
+                                <generatedConstructorWithRequiredArgs>false</generatedConstructorWithRequiredArgs>
                                 <basePackage>${project.groupId}.delivery.generated.openapi.server.v1</basePackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.server.v1.dto</modelPackage>
                                 <apiPackage>${project.groupId}.delivery.generated.openapi.server.v1.api</apiPackage>
@@ -334,13 +350,19 @@
                             <modelNameSuffix />
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/server</templateDirectory>
                             <configOptions>
+                                <useSpringBoot3>true</useSpringBoot3>
+                                <useOneOfInterfaces>false</useOneOfInterfaces>
+                                <generatedConstructorWithRequiredArgs>false</generatedConstructorWithRequiredArgs>
                                 <basePackage>${project.groupId}.delivery.generated.openapi.server.v1</basePackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.server.v1.dto</modelPackage>
                                 <apiPackage>${project.groupId}.delivery.generated.openapi.server.v1.api</apiPackage>
                                 <configPackage>${project.groupId}.delivery.generated.openapi.server.v1.config</configPackage>
-                                <additionalModelTypeAnnotations>@lombok.Builder; @lombok.NoArgsConstructor; @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
+                                <additionalModelTypeAnnotations>
+                                    @lombok.Builder;
+                                    @lombok.NoArgsConstructor;
+                                    @lombok.AllArgsConstructor
+                                </additionalModelTypeAnnotations>
                                 <dateLibrary>java8</dateLibrary>
                                 <delegatePattern>true</delegatePattern>
                                 <interfaceOnly>true</interfaceOnly>
@@ -366,13 +388,19 @@
                             <modelNameSuffix />
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/server</templateDirectory>
                             <configOptions>
+                                <useSpringBoot3>true</useSpringBoot3>
+                                <useOneOfInterfaces>false</useOneOfInterfaces>
+                                <generatedConstructorWithRequiredArgs>false</generatedConstructorWithRequiredArgs>
                                 <basePackage>${project.groupId}.delivery.generated.openapi.server.v1</basePackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.server.v1.dto</modelPackage>
                                 <apiPackage>${project.groupId}.delivery.generated.openapi.server.v1.api</apiPackage>
                                 <configPackage>${project.groupId}.delivery.generated.openapi.server.v1.config</configPackage>
-                                <additionalModelTypeAnnotations>@lombok.Builder; @lombok.NoArgsConstructor; @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
+                                <additionalModelTypeAnnotations>
+                                    @lombok.Builder;
+                                    @lombok.NoArgsConstructor;
+                                    @lombok.AllArgsConstructor
+                                </additionalModelTypeAnnotations>
                                 <dateLibrary>java8</dateLibrary>
                                 <delegatePattern>true</delegatePattern>
                                 <interfaceOnly>true</interfaceOnly>
@@ -398,13 +426,18 @@
                             <modelNameSuffix />
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/server</templateDirectory>
                             <configOptions>
+                                <useSpringBoot3>true</useSpringBoot3>
+                                <generatedConstructorWithRequiredArgs>false</generatedConstructorWithRequiredArgs>
                                 <basePackage>${project.groupId}.delivery.generated.openapi.server.v1</basePackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.server.v1.dto</modelPackage>
                                 <apiPackage>${project.groupId}.delivery.generated.openapi.server.v1.api</apiPackage>
                                 <configPackage>${project.groupId}.delivery.generated.openapi.server.v1.config</configPackage>
-                                <additionalModelTypeAnnotations>@lombok.Builder; @lombok.NoArgsConstructor; @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
+                                <additionalModelTypeAnnotations>
+                                    @lombok.Builder;
+                                    @lombok.NoArgsConstructor;
+                                    @lombok.AllArgsConstructor
+                                </additionalModelTypeAnnotations>
                                 <dateLibrary>java8</dateLibrary>
                                 <delegatePattern>true</delegatePattern>
                                 <interfaceOnly>true</interfaceOnly>
@@ -430,13 +463,19 @@
                             <modelNameSuffix />
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/server</templateDirectory>
                             <configOptions>
+                                <useSpringBoot3>true</useSpringBoot3>
+                                <useOneOfInterfaces>false</useOneOfInterfaces>
+                                <generatedConstructorWithRequiredArgs>false</generatedConstructorWithRequiredArgs>
                                 <basePackage>${project.groupId}.delivery.generated.openapi.server.v1</basePackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.server.v1.dto</modelPackage>
                                 <apiPackage>${project.groupId}.delivery.generated.openapi.server.v1.api</apiPackage>
                                 <configPackage>${project.groupId}.delivery.generated.openapi.server.v1.config</configPackage>
-                                <additionalModelTypeAnnotations>@lombok.Builder; @lombok.NoArgsConstructor; @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
+                                <additionalModelTypeAnnotations>
+                                    @lombok.Builder;
+                                    @lombok.NoArgsConstructor;
+                                    @lombok.AllArgsConstructor
+                                </additionalModelTypeAnnotations>
                                 <dateLibrary>java8</dateLibrary>
                                 <delegatePattern>true</delegatePattern>
                                 <interfaceOnly>true</interfaceOnly>
@@ -462,13 +501,19 @@
                             <modelNameSuffix />
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/server</templateDirectory>
                             <configOptions>
+                                <useSpringBoot3>true</useSpringBoot3>
+                                <useOneOfInterfaces>false</useOneOfInterfaces>
+                                <generatedConstructorWithRequiredArgs>false</generatedConstructorWithRequiredArgs>
                                 <basePackage>${project.groupId}.delivery.generated.openapi.server.v1</basePackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.server.v1.dto</modelPackage>
                                 <apiPackage>${project.groupId}.delivery.generated.openapi.server.v1.api</apiPackage>
                                 <configPackage>${project.groupId}.delivery.generated.openapi.server.v1.config</configPackage>
-                                <additionalModelTypeAnnotations>@lombok.Builder; @lombok.NoArgsConstructor; @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
+                                <additionalModelTypeAnnotations>
+                                    @lombok.Builder;
+                                    @lombok.NoArgsConstructor;
+                                    @lombok.AllArgsConstructor
+                                </additionalModelTypeAnnotations>
                                 <dateLibrary>java8</dateLibrary>
                                 <delegatePattern>true</delegatePattern>
                                 <interfaceOnly>true</interfaceOnly>
@@ -494,13 +539,18 @@
                             <modelNameSuffix />
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/server</templateDirectory>
                             <configOptions>
+                                <useSpringBoot3>true</useSpringBoot3>
+                                <generatedConstructorWithRequiredArgs>false</generatedConstructorWithRequiredArgs>
                                 <basePackage>${project.groupId}.delivery.generated.openapi.server.appio.v1</basePackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.server.appio.v1.dto</modelPackage>
                                 <apiPackage>${project.groupId}.delivery.generated.openapi.server.appio.v1.api</apiPackage>
                                 <configPackage>${project.groupId}.delivery.generated.openapi.server.appio.v1.config</configPackage>
-                                <additionalModelTypeAnnotations>@lombok.Builder; @lombok.NoArgsConstructor; @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
+                                <additionalModelTypeAnnotations>
+                                    @lombok.Builder;
+                                    @lombok.NoArgsConstructor;
+                                    @lombok.AllArgsConstructor
+                                </additionalModelTypeAnnotations>
                                 <dateLibrary>java8</dateLibrary>
                                 <delegatePattern>true</delegatePattern>
                                 <interfaceOnly>true</interfaceOnly>
@@ -525,8 +575,8 @@
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
                             <configOptions>
+                                <useJakartaEe>true</useJakartaEe>
                                 <apiPackage>${project.groupId}.delivery.generated.openapi.msclient.externalregistries.v1.api</apiPackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.msclient.externalregistries.v1.model</modelPackage>
                                 <dateLibrary>java8</dateLibrary>
@@ -550,8 +600,8 @@
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
                             <configOptions>
+                                <useJakartaEe>true</useJakartaEe>
                                 <apiPackage>${project.groupId}.delivery.generated.openapi.msclient.externalregistries.v1.api</apiPackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.msclient.externalregistries.v1.model</modelPackage>
                                 <dateLibrary>java8</dateLibrary>
@@ -575,8 +625,8 @@
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
                             <configOptions>
+                                <useJakartaEe>true</useJakartaEe>
                                 <apiPackage>${project.groupId}.delivery.generated.openapi.msclient.externalregistries.v1.api</apiPackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.msclient.externalregistries.v1.model</modelPackage>
                                 <dateLibrary>java8</dateLibrary>
@@ -600,8 +650,8 @@
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
                             <configOptions>
+                                <useJakartaEe>true</useJakartaEe>
                                 <apiPackage>${project.groupId}.delivery.generated.openapi.msclient.mandate.v1.api</apiPackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.msclient.mandate.v1.model</modelPackage>
                                 <dateLibrary>java8</dateLibrary>
@@ -625,8 +675,8 @@
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
                             <configOptions>
+                                <useJakartaEe>true</useJakartaEe>
                                 <apiPackage>${project.groupId}.delivery.generated.openapi.msclient.safestorage.v1.api</apiPackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.msclient.safestorage.v1.model</modelPackage>
                                 <dateLibrary>java8</dateLibrary>
@@ -650,8 +700,9 @@
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.basedir}/src/main/resources/templates/5.4.0/client</templateDirectory>
                             <configOptions>
+                                <useJakartaEe>true</useJakartaEe>
+                                <useOneOfInterfaces>true</useOneOfInterfaces>
                                 <apiPackage>${project.groupId}.delivery.generated.openapi.msclient.deliverypush.v1.api</apiPackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.msclient.deliverypush.v1.model</modelPackage>
                                 <dateLibrary>java8</dateLibrary>
@@ -675,8 +726,8 @@
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
                             <configOptions>
+                                <useJakartaEe>true</useJakartaEe>
                                 <apiPackage>${project.groupId}.delivery.generated.openapi.msclient.datavault.v1.api</apiPackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.msclient.datavault.v1.model</modelPackage>
                                 <dateLibrary>java8</dateLibrary>
@@ -700,8 +751,8 @@
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
                             <configOptions>
+                                <useJakartaEe>true</useJakartaEe>
                                 <apiPackage>${project.groupId}.delivery.generated.openapi.msclient.F24.v1.api</apiPackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.msclient.F24.v1.model</modelPackage>
                                 <dateLibrary>java8</dateLibrary>
@@ -725,8 +776,8 @@
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
                             <configOptions>
+                                <useJakartaEe>true</useJakartaEe>
                                 <apiPackage>${project.groupId}.delivery.generated.openapi.msclient.nationalregistries.v1.api</apiPackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.msclient.nationalregistries.v1.model</modelPackage>
                                 <dateLibrary>java8</dateLibrary>
@@ -751,8 +802,8 @@
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
                             <configOptions>
+                                <useJakartaEe>true</useJakartaEe>
                                 <apiPackage>${project.groupId}.delivery.generated.openapi.msclient.notificationcostservice.v1.api</apiPackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.msclient.notificationcostservice.v1.model</modelPackage>
                                 <dateLibrary>java8</dateLibrary>
@@ -777,8 +828,8 @@
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
                             <configOptions>
+                                <useJakartaEe>true</useJakartaEe>
                                 <apiPackage>${project.groupId}.delivery.generated.openapi.msclient.timelineservice.v1.api</apiPackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.msclient.timelineservice.v1.model</modelPackage>
                                 <dateLibrary>java8</dateLibrary>

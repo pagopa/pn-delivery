@@ -6,8 +6,8 @@ import it.pagopa.pn.api.dto.events.StandardEventHeader;
 import it.pagopa.pn.delivery.utils.AsseverationMoreFieldSerializer;
 import lombok.*;
 
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotEmpty;
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotEmpty;
 
 @NoArgsConstructor
 @AllArgsConstructor

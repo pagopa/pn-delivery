@@ -97,8 +97,9 @@ class ModelMapperConfigLegalStatusTest {
                 () -> LegalNotificationStatusValidator.assertLegalCompatible(page(row)));
 
         assertEquals(PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_INCOMPATIBLE_NOTIFICATION_STATUS,
-                ex.getProblem().getErrors().get(0).getCode());
-        assertTrue(ex.getMessage().contains(status.getValue()));
+                ex.getProblem().getErrors().getFirst().getCode());
+        assertNotNull(ex.getProblem().getDetail());
+        assertTrue(ex.getProblem().getDetail().contains(status.getValue()));
     }
 
     @SafeVarargs

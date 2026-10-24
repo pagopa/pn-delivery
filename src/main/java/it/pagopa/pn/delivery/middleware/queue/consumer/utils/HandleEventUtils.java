@@ -1,13 +1,17 @@
-package it.pagopa.pn.delivery.middleware.queue.consumer.handler.utils;
+package it.pagopa.pn.delivery.middleware.queue.consumer.utils;
 
 import it.pagopa.pn.api.dto.events.StandardEventHeader;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
+import it.pagopa.pn.commons.utils.MDCUtils;
 
 import java.time.Instant;
+import java.util.UUID;
 
 import static it.pagopa.pn.api.dto.events.GenericEventHeader.*;
 import static it.pagopa.pn.api.dto.events.GenericEventHeader.PN_EVENT_HEADER_PUBLISHER;
@@ -45,6 +49,23 @@ public class HandleEventUtils {
 
     private static Instant mapInstant(Object createdAt) {
         return createdAt != null ? Instant.parse((CharSequence) createdAt) : null;
+    }
+
+    public static void setMdc(Message<?> message) {
+        MessageHeaders messageHeaders = message.getHeaders();
+        MDCUtils.clearMDCKeys();
+
+        if (messageHeaders.containsKey("aws_messageId")){
+            String awsMessageId = messageHeaders.get("aws_messageId", String.class);
+            MDC.put(MDCUtils.MDC_PN_CTX_MESSAGE_ID, awsMessageId);
+        }
+
+        if (messageHeaders.containsKey("X-Amzn-Trace-Id")){
+            String traceId = messageHeaders.get("X-Amzn-Trace-Id", String.class);
+            MDC.put(MDCUtils.MDC_TRACE_ID_KEY, traceId);
+        } else {
+            MDC.put(MDCUtils.MDC_TRACE_ID_KEY, String.valueOf(UUID.randomUUID()));
+        }
     }
 
 }
