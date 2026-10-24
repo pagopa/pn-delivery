@@ -27,10 +27,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.web.client.RestClientException;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Path;
-import javax.validation.Validation;
-import javax.validation.ValidatorFactory;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Path;
+import jakarta.validation.Validation;
+import jakarta.validation.ValidatorFactory;
 import java.util.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;

@@ -3,7 +3,7 @@ package it.pagopa.pn.delivery.utils;
 
 import lombok.extern.slf4j.Slf4j;
 
-import javax.el.PropertyNotFoundException;
+import jakarta.el.PropertyNotFoundException;
 
 
 @Slf4j

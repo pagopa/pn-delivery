@@ -1,31 +1,35 @@
-package it.pagopa.pn.delivery.middleware.queue.consumer.handler;
+package it.pagopa.pn.delivery.middleware.queue.consumer;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.messaging.Message;
 import it.pagopa.pn.delivery.models.NotificationRefusedPayload;
 import it.pagopa.pn.delivery.svc.PaNotificationLimitService;
+import org.springframework.messaging.MessageHeaders;
 
-class NotificationRefusedHandlerTest {
+class NotificationRefusedConsumerTest {
 
     private PaNotificationLimitService paNotificationLimitService;
-    private NotificationRefusedHandler notificationRefusedHandler;
+    private NotificationRefusedConsumer notificationRefusedConsumer;
 
     @BeforeEach
     void setUp() {
         paNotificationLimitService = mock(PaNotificationLimitService.class);
-        notificationRefusedHandler = new NotificationRefusedHandler(paNotificationLimitService);
+        notificationRefusedConsumer = new NotificationRefusedConsumer(paNotificationLimitService);
     }
 
     @Test
     void pnDeliveryNotificationRefusedConsumer_processesMessageSuccessfully() {
         Message<NotificationRefusedPayload> message = mock(Message.class);
+        MessageHeaders headers = mock(MessageHeaders.class);
+        when(message.getHeaders()).thenReturn(headers);
         NotificationRefusedPayload payload = new NotificationRefusedPayload();
         when(message.getPayload()).thenReturn(payload);
 
-        notificationRefusedHandler.pnDeliveryNotificationRefusedConsumer().accept(message);
+        notificationRefusedConsumer.consume(message);
 
         verify(paNotificationLimitService, times(1)).handleNotificationRefused(payload);
     }
@@ -33,12 +37,14 @@ class NotificationRefusedHandlerTest {
     @Test
     void pnDeliveryNotificationRefusedConsumer_logsAndThrowsExceptionOnError() {
         Message<NotificationRefusedPayload> message = mock(Message.class);
+        MessageHeaders headers = mock(MessageHeaders.class);
+        when(message.getHeaders()).thenReturn(headers);
         NotificationRefusedPayload payload = new NotificationRefusedPayload();
         when(message.getPayload()).thenReturn(payload);
         doThrow(new RuntimeException("Test Exception")).when(paNotificationLimitService).handleNotificationRefused(payload);
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            notificationRefusedHandler.pnDeliveryNotificationRefusedConsumer().accept(message);
+            notificationRefusedConsumer.consume(message);
         });
 
         assertEquals("Test Exception", exception.getMessage());

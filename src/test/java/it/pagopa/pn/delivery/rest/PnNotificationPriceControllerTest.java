@@ -10,12 +10,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,7 +29,7 @@ class PnNotificationPriceControllerTest {
     @Autowired
     WebTestClient webTestClient;
 
-    @MockBean
+    @MockitoBean
     private NotificationPriceService service;
 
     @Test
