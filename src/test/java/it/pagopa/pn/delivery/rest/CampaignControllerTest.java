@@ -6,8 +6,8 @@ import it.pagopa.pn.delivery.svc.CampaignService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.time.OffsetDateTime;
@@ -25,7 +25,7 @@ class CampaignControllerTest {
     @Autowired
     WebTestClient webTestClient;
 
-    @MockBean
+    @MockitoBean
     CampaignService campaignService;
 
     private static final String CAMPAIGN_ID = "c1";
@@ -336,14 +336,10 @@ class CampaignControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus()
-                .isOk()
-                .expectBody(CampaignSearchResponse.class)
-                .value(result -> {
-                    org.junit.jupiter.api.Assertions.assertTrue(result.getResultsPage().isEmpty());
-                    org.junit.jupiter.api.Assertions.assertFalse(result.getMoreResult());
-                });
+                .is4xxClientError()
+                        .expectBody(Problem.class);
 
-        verify(campaignService).listCampaigns(SENDER_ID.toString(), 10, null);
+        verify(campaignService, never()).listCampaigns(SENDER_ID.toString(), 10, null);
         verify(campaignService, never()).getCampaign(anyString(), anyString());
     }
 }

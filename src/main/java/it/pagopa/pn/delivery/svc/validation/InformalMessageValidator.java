@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.svc.validation;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewMessageRequest;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewMessageRequestPrimaryMessage;
 import it.pagopa.pn.delivery.svc.search.AllowedAdditionalLanguages;
 import it.pagopa.pn.delivery.svc.util.LanguageUtils;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
@@ -29,7 +30,7 @@ public class InformalMessageValidator {
         validateBodyLengths(request, pnDeliveryConfigs);
     }
 
-    private static void validatePrimaryLanguage(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.LocalizedContent primary) {
+    private static void validatePrimaryLanguage(NewMessageRequestPrimaryMessage primary) {
         if (!"IT".equalsIgnoreCase(primary.getLanguage())) {
             throw new PnBadRequestException(
                 "Primary message language must be IT",

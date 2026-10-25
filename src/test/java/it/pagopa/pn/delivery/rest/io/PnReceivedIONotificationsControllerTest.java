@@ -22,15 +22,17 @@ import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
 import it.pagopa.pn.delivery.svc.InformalNotificationDetailRetrieverStrategy;
 import it.pagopa.pn.delivery.svc.LegalNotificationDetailRetrieverStrategy;
 import it.pagopa.pn.delivery.svc.NotificationQRService;
+import it.pagopa.pn.delivery.utils.ModelMapperConfig;
 import it.pagopa.pn.delivery.utils.io.IOMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
@@ -42,34 +44,35 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @WebFluxTest(controllers = {PnReceivedIONotificationsController.class})
+@Import({ModelMapperConfig.class, IOMapper.class})
 class PnReceivedIONotificationsControllerTest {
 
     private static final String IUN = "AAAA-AAAA-AAAA-202301-C-1";
     private static final String USER_ID = "USER_ID";
     private static final String PA_ID = "PA_ID";
-    private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
+    private static final String X_PAGOPA_PN_SRC_CH = "B2B";
     private static final String X_PAGOPA_PN_SRC_CH_DET = "sourceChannelDetails";
     private static final String MANDATE_ID = "3766e7f2-70b2-4264-8ca8-4548fe728b0d";
 
     @Autowired
     WebTestClient webTestClient;
 
-    @MockBean
+    @MockitoBean
     private InformalNotificationDetailRetrieverStrategy informalNotificationDetailRetrieverStrategy;
 
-    @MockBean
+    @MockitoBean
     private LegalNotificationDetailRetrieverStrategy legalNotificationDetailRetrieverStrategy;
 
-    @MockBean
+    @MockitoBean
     private NotificationQRService notificationQRService;
 
-    @SpyBean
+    @MockitoSpyBean
     private IOMapper ioMapper;
 
     @Autowired
     ObjectMapper objectMapper;
 
-    @SpyBean
+    @MockitoSpyBean
     ModelMapper modelMapper;
 
     @Test
@@ -192,7 +195,7 @@ class PnReceivedIONotificationsControllerTest {
         webTestClient.post()
                 .uri("/delivery/notifications/received/check-qr-code")
                 .header("x-pagopa-pn-cx-id", "IO-" +USER_ID )
-                .header("x-pagopa-cx-taxid", "FAKE_TAX_ID")
+                .header("x-pagopa-cx-taxid", "AAABBB90C12D345E")
                 .header("x-pagopa-pn-cx-type", "PF" )
                 .body(Mono.just(requestCheckQrMandateDto), RequestCheckQrMandateDto.class)
                 .exchange()
@@ -216,7 +219,7 @@ class PnReceivedIONotificationsControllerTest {
         webTestClient.post()
                 .uri("/delivery/notifications/received/check-qr-code")
                 .header("x-pagopa-pn-cx-id", "IO-" +USER_ID )
-                .header("x-pagopa-cx-taxid", "FAKE_TAX_ID")
+                .header("x-pagopa-cx-taxid", "AAABBB90C12D345E")
                 .header("x-pagopa-pn-cx-type", "PF" )
                 .body(Mono.just(requestCheckQrMandateDto), RequestCheckQrMandateDto.class)
                 .exchange()

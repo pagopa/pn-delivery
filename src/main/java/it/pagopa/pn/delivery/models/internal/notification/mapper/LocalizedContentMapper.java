@@ -1,5 +1,9 @@
 package it.pagopa.pn.delivery.models.internal.notification.mapper;
 
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.LocalizedContent;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewMessageRequestAdditionalMessage;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewMessageRequestPrimaryMessage;
+
 public class LocalizedContentMapper {
     private LocalizedContentMapper() {
         // do nothing
@@ -16,14 +20,27 @@ public class LocalizedContentMapper {
      * @return il contenuto localizzato convertito nel formato server-side, oppure {@code null} se il parametro in input è {@code null}
      * @throws NullPointerException se uno dei campi obbligatori del contenuto sorgente è assente
      */
-    public static it.pagopa.pn.delivery.generated.openapi.server.v1.dto.LocalizedContent mapToServerLocalizedContent(
-            it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.LocalizedContent source) {
+    public static NewMessageRequestPrimaryMessage mapToServerPrimaryMessage(LocalizedContent source) {
         if (source == null) {
             return null;
         }
 
-        it.pagopa.pn.delivery.generated.openapi.server.v1.dto.LocalizedContent target =
-                new it.pagopa.pn.delivery.generated.openapi.server.v1.dto.LocalizedContent();
+        NewMessageRequestPrimaryMessage target = new NewMessageRequestPrimaryMessage();
+
+        target.setLanguage(source.getLanguage().getValue());
+        target.setLongBody(source.getLongBody());
+        target.setShortBody(source.getShortBody());
+        target.setSubject(source.getSubject());
+
+        return target;
+    }
+
+    public static NewMessageRequestAdditionalMessage mapToServerAdditionalMessage(LocalizedContent source) {
+        if (source == null) {
+            return null;
+        }
+
+        NewMessageRequestAdditionalMessage target = new NewMessageRequestAdditionalMessage();
 
         target.setLanguage(source.getLanguage().getValue());
         target.setLongBody(source.getLongBody());

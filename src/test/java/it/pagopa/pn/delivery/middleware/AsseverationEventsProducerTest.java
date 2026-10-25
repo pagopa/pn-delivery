@@ -40,7 +40,6 @@ class AsseverationEventsProducerTest {
                 .queueUrl( "queueUrl" )
                 .build();
 
-        Mockito.when( sqsClient.getQueueUrl( Mockito.any( software.amazon.awssdk.services.sqs.model.GetQueueUrlRequest.class ))).thenReturn( response );
         asseverationEventsProducer = new SqsAsseverationEventsProducer(sqsClient, objectMapper, cfg);
     }
 
