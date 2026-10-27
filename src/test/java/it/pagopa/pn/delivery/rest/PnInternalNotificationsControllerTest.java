@@ -16,6 +16,8 @@ import it.pagopa.pn.delivery.svc.*;
 import it.pagopa.pn.delivery.svc.search.NotificationSearchService;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -250,6 +252,57 @@ class PnInternalNotificationsControllerTest {
     }
 
     @Test
+    void searchNotificationsPrivateWithAuditHeadersKeepsCxTypeFilter() {
+        ResultPaginationDto<NotificationSearchRow,String> result =
+                ResultPaginationDto.<NotificationSearchRow,String>builder()
+                        .resultsPage(Collections.emptyList())
+                        .moreResult(false)
+                        .nextPagesKey(null).build();
+
+        when(notificationSearchService.searchNotification(Mockito.any(InputSearchNotificationDto.class), any(), any()))
+                .thenReturn(result);
+
+        webTestClient.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path( "/delivery-private/search")
+                                .queryParam( "recipientId", RECIPIENT_INTERNAL_ID)
+                                .queryParam( "recipientIdOpaque", "true")
+                                .queryParam("startDate", START_DATE)
+                                .queryParam("endDate", END_DATE)
+                                .queryParam("cxType", "PF")
+                                .build())
+                .accept(MediaType.ALL)
+                .header("x-pagopa-pn-uid", "operator-uid")
+                .header("x-pagopa-pn-cx-id", "sd-cx-id")
+                .header("x-pagopa-pn-cx-type", "SD")
+                .exchange()
+                .expectStatus()
+                .isOk();
+
+        verify(notificationSearchService).searchNotification(any(InputSearchNotificationDto.class), eq("PF"), Mockito.isNull());
+    }
+
+    @Test
+    void searchNotificationsPrivateWithInvalidCxTypeHeaderFailure() {
+        webTestClient.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path( "/delivery-private/search")
+                                .queryParam( "recipientId", RECIPIENT_INTERNAL_ID)
+                                .queryParam("startDate", START_DATE)
+                                .queryParam("endDate", END_DATE)
+                                .build())
+                .accept(MediaType.ALL)
+                .header("x-pagopa-pn-cx-type", "NOT_A_CX_TYPE")
+                .exchange()
+                .expectStatus()
+                .isBadRequest();
+
+        Mockito.verifyNoInteractions(notificationSearchService);
+    }
+
+    @Test
     void searchNotificationsPrivateIllegalArgExcFailure() {
         //Given
         NotificationSearchRow searchRow = NotificationSearchRow.builder()
@@ -427,6 +480,71 @@ class PnInternalNotificationsControllerTest {
         verify( qrService ).getNotificationByQR( dto );
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = {"RADD", "SD"})
+    void getNotificationQRWithAuditHeadersSuccess(String cxType){
+        ResponseCheckAarDto qrResponse = ResponseCheckAarDto.builder()
+                .iun( "iun" )
+                .build();
+
+        RequestCheckAarDto dto = RequestCheckAarDto.builder()
+                .aarQrCodeValue(AAR_QR_CODE_VALUE)
+                .recipientInternalId( "recipientInternalId" )
+                .recipientType( "PF" )
+                .build();
+
+        when( qrService.getNotificationByQR( Mockito.any( RequestCheckAarDto.class ) )).thenReturn( qrResponse );
+
+        webTestClient.post()
+                .uri( "/delivery-private/check-aar-qr-code")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("x-pagopa-pn-uid", "operator-uid")
+                .header("x-pagopa-pn-cx-id", "radd-cx-id")
+                .header("x-pagopa-pn-cx-type", cxType)
+                .body(Mono.just(dto), RequestCheckAarDto.class)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(ResponseCheckAarDto.class );
+
+        verify( qrService ).getNotificationByQR( dto );
+    }
+
+    @Test
+    void getNotificationDocumentPrivateWithAuditHeadersSuccess() {
+        NotificationAttachmentDownloadMetadataResponse response = NotificationAttachmentDownloadMetadataResponse.builder()
+                .url( REDIRECT_URL )
+                .contentType( "application/pdf" )
+                .sha256( SHA256_BODY )
+                .filename( FILENAME )
+                .build();
+
+        when( attachmentService.downloadDocumentWithRedirect(
+                Mockito.anyString(),
+                Mockito.any( InternalAuthHeader.class ),
+                Mockito.isNull(),
+                Mockito.anyInt(),
+                Mockito.anyBoolean()
+        )).thenReturn( response );
+
+        webTestClient.get()
+                .uri( uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-private/notifications/received/"+ IUN +"/attachments/documents/"+DOCUMENT_IDX)
+                                .queryParam( "recipientInternalId", RECIPIENT_INTERNAL_ID )
+                                .build())
+                .accept( MediaType.APPLICATION_JSON )
+                .header("x-pagopa-pn-uid", "operator-uid")
+                .header("x-pagopa-pn-cx-id", "radd-cx-id")
+                .header("x-pagopa-pn-cx-type", "RADD")
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody( NotificationAttachmentDownloadMetadataResponse.class );
+
+        verify( attachmentService ).downloadDocumentWithRedirect( IUN, INTERNAL_AUTH_HEADER, null, DOCUMENT_IDX, false );
+    }
 
     @Test
     void getNotificationUrlQRSuccess(){
@@ -517,6 +635,44 @@ class PnInternalNotificationsControllerTest {
                 .expectBody( NotificationAttachmentDownloadMetadataResponse.class );
 
         verify( attachmentService ).downloadAttachmentWithRedirect( IUN, INTERNAL_AUTH_HEADER, MANDATE_ID, null, ATTACHMENT_NAME, null, false );
+    }
+
+    @Test
+    void getNotificationAttachmentPrivateWithAuditHeadersSuccess() {
+        NotificationAttachmentDownloadMetadataResponse response = NotificationAttachmentDownloadMetadataResponse.builder()
+                .url( REDIRECT_URL )
+                .contentType( "application/pdf" )
+                .sha256( SHA256_BODY )
+                .filename( FILENAME )
+                .build();
+
+        when( attachmentService.downloadAttachmentWithRedirect(
+                Mockito.anyString(),
+                Mockito.any( InternalAuthHeader.class ),
+                Mockito.any(),
+                Mockito.isNull(),
+                Mockito.anyString(),
+                Mockito.any(),
+                Mockito.anyBoolean()
+        )).thenReturn( response );
+
+        webTestClient.get()
+                .uri( uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-private/notifications/received/{iun}/attachments/payment/{attachmentName}".replace("{iun}", IUN)
+                                        .replace("{attachmentName}",ATTACHMENT_NAME ))
+                                .queryParam( "recipientInternalId", RECIPIENT_INTERNAL_ID )
+                                .build())
+                .accept( MediaType.APPLICATION_JSON )
+                .header("x-pagopa-pn-uid", "operator-uid")
+                .header("x-pagopa-pn-cx-id", "sd-cx-id")
+                .header("x-pagopa-pn-cx-type", "SD")
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody( NotificationAttachmentDownloadMetadataResponse.class );
+
+        verify( attachmentService ).downloadAttachmentWithRedirect( IUN, INTERNAL_AUTH_HEADER, null, null, ATTACHMENT_NAME, null, false );
     }
 
     @Test
