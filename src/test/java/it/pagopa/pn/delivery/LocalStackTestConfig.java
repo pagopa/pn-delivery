@@ -1,5 +1,7 @@
 package it.pagopa.pn.delivery;
 
+import io.awspring.cloud.autoconfigure.sqs.SqsAutoConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.core.io.ClassPathResource;
 import org.testcontainers.containers.BindMode;
@@ -11,7 +13,7 @@ import org.testcontainers.utility.DockerImageName;
 import java.io.IOException;
 import java.time.Duration;
 
-import static org.testcontainers.containers.localstack.LocalStackContainer.Service.DYNAMODB;
+import static org.testcontainers.containers.localstack.LocalStackContainer.Service.*;
 
 /**
  * Classe che permette di creare un container Docker di LocalStack.
@@ -21,6 +23,7 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
  *
  */
 @TestConfiguration
+@EnableAutoConfiguration(exclude= {SqsAutoConfiguration.class})
 public class LocalStackTestConfig {
     static LocalStackContainer localStack =
             new LocalStackContainer(DockerImageName.parse("localstack/localstack:1.0.4").asCompatibleSubstituteFor("localstack/localstack"))
