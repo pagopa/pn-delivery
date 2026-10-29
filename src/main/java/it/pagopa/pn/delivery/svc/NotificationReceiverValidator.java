@@ -28,8 +28,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import software.amazon.awssdk.utils.CollectionUtils;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;

@@ -2,8 +2,8 @@ package it.pagopa.pn.delivery.models;
 
 import lombok.*;
 
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotEmpty;
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotEmpty;
 
 @NoArgsConstructor
 @AllArgsConstructor

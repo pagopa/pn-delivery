@@ -19,15 +19,11 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_USER_ID_NOT_RECIPIENT_OR_DELEGATOR;
 
@@ -87,7 +83,7 @@ public class NotificationRetrieverService {
             String msg = String.format("Unable to find requestId for senderId=%s paProtocolNumber=%s idempotenceToken=%s", senderId, paProtocolNumber, idempotenceToken);
             throw new PnNotificationNotFoundException(msg);
         }
-        return new String(Base64Utils.decodeFromString(optionalRequestId.get()));
+        return new String(Base64.getDecoder().decode(optionalRequestId.get()));
     }
 
     private void labelizeGroup(InternalNotification notification, String senderId) {

@@ -145,10 +145,6 @@ public class ModelMapperConfig {
         modelMapper.getConfiguration().setMatchingStrategy( MatchingStrategies.STRICT );
         modelMapper.createTypeMap( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusHistoryElementV26.class, NotificationStatusHistoryElementV26 .class )
                 .addMapping( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusHistoryElementV26::getActiveFrom, NotificationStatusHistoryElementV26::setActiveFrom );
-        modelMapper.createTypeMap(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28.class, TimelineElementV28.class)
-                .setPostConverter(ModelMapperConfig.timelineElementConverter);
-        modelMapper.createTypeMap(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalTimelineElementV1.class, InformalTimelineElementV1.class)
-                .setPostConverter(ModelMapperConfig.informalTimelineElementConverter);
         modelMapper.createTypeMap( NotificationRecipient.class, NotificationRecipientEntity.class )
                 .addMapping( NotificationRecipient::getTaxId, NotificationRecipientEntity::setRecipientId );
         modelMapper.createTypeMap( NotificationRecipientEntity.class, NotificationRecipient.class )
@@ -186,7 +182,55 @@ public class ModelMapperConfig {
 
         mapFromInformalNotificationDetailToInformalSentNotificationV1(modelMapper);
 
+        mapFromClientTimelineElementModelToServerTimelineElementModel(modelMapper);
+
+        mapFromClientInformalTimelineElementModelToServerInformalTimelineElementModel(modelMapper);
+
         return modelMapper;
+    }
+
+    /**
+     * Configura il mapping tra i modelli TimelineElement del client e del server.
+     * Questo mapping è necessario per gestire correttamente la conversione dei dettagli della timeline, poichè
+     * in assenza di questo mapping il model mapper non riesce in automatico a settare nell'oggetto server il details mappato.
+     *
+     * @param modelMapper l'istanza di ModelMapper da configurare
+     */
+    private void mapFromClientTimelineElementModelToServerTimelineElementModel(ModelMapper modelMapper) {
+        modelMapper.createTypeMap(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28.class, TimelineElementV28.class)
+                .setPostConverter(ModelMapperConfig.timelineElementConverter);
+
+        Converter<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementDetailsV28, TimelineElementDetailsV28> detailsConverter =
+                ctx -> ctx.getSource() == null
+                        ? null
+                        : modelMapper.map(ctx.getSource(), TimelineElementDetailsV28.class);
+
+        modelMapper.typeMap(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28.class, TimelineElementV28.class)
+                .addMappings(m -> m.using(detailsConverter)
+                        .map(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV28::getDetails,
+                                TimelineElementV28::setDetails));
+    }
+
+    /**
+     * Configura il mapping tra i modelli InformalTimelineElement del client e del server.
+     * Questo mapping è necessario per gestire correttamente la conversione dei dettagli della timeline informale, poichè
+     * in assenza di questo mapping il model mapper non riesce in automatico a settare nell'oggetto server il details mappato.
+     *
+     * @param modelMapper l'istanza di ModelMapper da configurare
+     */
+    private void mapFromClientInformalTimelineElementModelToServerInformalTimelineElementModel(ModelMapper modelMapper) {
+        modelMapper.createTypeMap(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalTimelineElementV1.class, InformalTimelineElementV1.class)
+                .setPostConverter(ModelMapperConfig.informalTimelineElementConverter);
+
+        Converter<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalTimelineElementDetailsV1, InformalTimelineElementDetailsV1> informalDetailsConverter =
+                ctx -> ctx.getSource() == null
+                        ? null
+                        : modelMapper.map(ctx.getSource(), InformalTimelineElementDetailsV1.class);
+
+        modelMapper.typeMap(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalTimelineElementV1.class, InformalTimelineElementV1.class)
+                .addMappings(m -> m.using(informalDetailsConverter)
+                        .map(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.InformalTimelineElementV1::getDetails,
+                                InformalTimelineElementV1::setDetails));
     }
 
     private static void mapFromInformalNotificationDetailToInformalSentNotificationV1(ModelMapper modelMapper) {

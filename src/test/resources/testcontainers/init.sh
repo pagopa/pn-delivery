@@ -1,3 +1,5 @@
+#!/bin/bash
+
 echo "### CREATE QUEUES FIFO ###"
 queues_fifo="local-delivery-push-inputs.fifo"
 
@@ -14,11 +16,16 @@ done
 
 echo "### CREATE QUEUES ###"
 
+queues="local-asseveration-inputs pn-notification_refused pn-mandate_to_delivery"
+for qn in  $( echo $queues | tr " " "\n" ) ; do
+
+    echo creating queue $qn ...
+
 aws --profile default --region us-east-1 --endpoint-url http://localstack:4566 \
     sqs create-queue \
     --attributes '{"DelaySeconds":"2"}' \
-    --queue-name "local-asseveration-inputs"
-
+        --queue-name $qn
+done
 
 echo " - Create pn-delivery TABLES"
 
@@ -272,11 +279,6 @@ aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
         AttributeName=pk,KeyType=HASH \
     --provisioned-throughput \
         ReadCapacityUnits=10,WriteCapacityUnits=5
-
-aws --profile default --region us-east-1 --endpoint-url http://localstack:4566 \
-    sqs create-queue \
-    --attributes '{"DelaySeconds":"2"}' \
-    --queue-name "pn-notification_refused"
 
 aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
     ssm put-parameter \

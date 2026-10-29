@@ -1,29 +1,37 @@
 package it.pagopa.pn.delivery;
 
-import io.awspring.cloud.autoconfigure.messaging.SqsAutoConfiguration;
+import io.awspring.cloud.autoconfigure.sqs.SqsAutoConfiguration;
 import it.pagopa.pn.commons.db.campaign.CampaignServiceCachedProvider;
 import it.pagopa.pn.delivery.config.InformalNotificationSendPaParameterConsumer;
+import it.pagopa.pn.delivery.config.PhysicalAddressLookupParameterConsumer;
 import it.pagopa.pn.delivery.middleware.AsseverationEventsProducer;
-import it.pagopa.pn.delivery.middleware.notificationviewedproducer.strategy.producer.NotificationViewedProducer;
 import it.pagopa.pn.delivery.middleware.PaymentEventsProducer;
+import it.pagopa.pn.delivery.middleware.notificationviewedproducer.strategy.producer.NotificationViewedProducer;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 
 @EnableAutoConfiguration(exclude= {SqsAutoConfiguration.class})
 public abstract class MockAWSObjectsTest {
 
-    @MockBean(name = "sqsNotificationViewedProducer")
+    @MockitoBean(name = "sqsNotificationViewedProducer")
     private NotificationViewedProducer pnDeliveryNotificationViewedEventMomProducer;
 
-    @MockBean
+    @MockitoBean
     private PaymentEventsProducer pnDeliveryPaymentEventMomProducer;
 
-    @MockBean
+    @MockitoBean
     private AsseverationEventsProducer asseverationEventsProducer;
 
-    @MockBean
+    @MockitoBean
     private InformalNotificationSendPaParameterConsumer informalNotificationSendPaParameterConsumer;
 
-    @MockBean
+    @MockitoBean
     private CampaignServiceCachedProvider campaignServiceCachedProvider;
+
+    @MockitoBean
+    private SqsAsyncClient sqsAsyncClient;
+
+    @MockitoBean
+    private PhysicalAddressLookupParameterConsumer physicalAddressLookupParameterConsumer;
 }
