@@ -41,6 +41,7 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.*;
 
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_DOCUMENTNOTFOUND;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -832,6 +833,36 @@ class NotificationAttachmentServiceTest {
 
         Assertions.assertThrows(PnInternalException.class, () -> attachmentService.computeFileInfo(fileDownloadIdentify, notification));
 
+    }
+
+    @Test
+    void computeFileInfoDocumentIndexOutOfRange() {
+        InternalNotification notification = buildNotification("iun", "taxid");
+        NotificationAttachmentService.FileDownloadIdentify identify = NotificationAttachmentService.FileDownloadIdentify.create(1, 0, null, null);
+
+        PnNotFoundException ex = assertThrows(PnNotFoundException.class,
+                () -> attachmentService.computeFileInfo(identify, notification));
+
+        assertEquals(ERROR_CODE_DELIVERY_DOCUMENTNOTFOUND, ex.getProblem().getErrors().get(0).getCode());
+    }
+
+    @Test
+    void computeFileInfoNegativeDocumentIndex() {
+        InternalNotification notification = buildNotification("iun", "taxid");
+        NotificationAttachmentService.FileDownloadIdentify identify = NotificationAttachmentService.FileDownloadIdentify.create(-1, 0, null, null);
+
+        assertThrows(PnNotFoundException.class,
+                () -> attachmentService.computeFileInfo(identify, notification));
+    }
+
+    @Test
+    void computeFileInfoNullDocuments() {
+        InternalNotification notification = buildNotification("iun", "taxid");
+        notification.setDocuments(null);
+        NotificationAttachmentService.FileDownloadIdentify identify = NotificationAttachmentService.FileDownloadIdentify.create(0, 0, null, null);
+
+        assertThrows(PnNotFoundException.class,
+                () -> attachmentService.computeFileInfo(identify, notification));
     }
 
     private InternalNotification buildNotification(String iun, String taxid) {

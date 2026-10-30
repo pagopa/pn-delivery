@@ -387,7 +387,14 @@ public class NotificationAttachmentService {
         String attachmentName = fileDownloadIdentify.attachmentName;
 
         if (documentIndex != null) {
-            NotificationDocument doc = notification.getDocuments().get(documentIndex);
+            List<NotificationDocument> documents = notification.getDocuments();
+
+            if (documents == null || documentIndex < 0 || documentIndex >= documents.size()) {
+                String exMessage = String.format("Unable to find document with documentIndex=%s iun=%s", documentIndex, iun);
+                log.error(exMessage);
+                throw new PnNotFoundException("Document not found", exMessage, ERROR_CODE_DELIVERY_DOCUMENTNOTFOUND);
+            }
+            NotificationDocument doc = documents.get(documentIndex);
             name = doc.getTitle();
             fileKey = doc.getRef().getKey();
         } else {
