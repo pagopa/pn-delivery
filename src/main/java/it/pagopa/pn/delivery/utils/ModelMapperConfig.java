@@ -101,6 +101,7 @@ public class ModelMapperConfig {
                 CommunicationOutcomes outcomes = new CommunicationOutcomes();
                 outcomes.setViewed(source.getViewed());
                 outcomes.setDelivered(source.getDelivered());
+                outcomes.setPaid(source.getPaid());
                 destination.setCommunicationOutcomes(outcomes);
             }
             return destination;

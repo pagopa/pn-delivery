@@ -53,4 +53,6 @@ public class NotificationSearchRow {
 
     private Boolean desiredFeedback;
 
+    private Boolean paid;
+
 }
