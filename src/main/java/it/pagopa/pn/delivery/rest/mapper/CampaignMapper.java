@@ -47,6 +47,7 @@ public final class CampaignMapper {
                 .serviceId(campaign.getServiceId())
                 .sensitiveContent(Boolean.TRUE.equals(campaign.getSensitiveContent()))
                 .stopOnViewed(Boolean.TRUE.equals(campaign.getStopOnViewed()))
+                .stopOnPaid(Boolean.TRUE.equals(campaign.getStopOnPaid()))
                 .taxonomyCode(campaign.getTaxonomyCode())
                 .serviceName(campaign.getServiceName());
 
@@ -78,6 +79,7 @@ public final class CampaignMapper {
                 .serviceId(campaignEntity.getServiceId())
                 .sensitiveContent(campaignEntity.getSensitiveContent())
                 .stopOnViewed(campaignEntity.getStopOnViewed())
+                .stopOnPaid(campaignEntity.getStopOnPaid())
                 .taxonomyCode(campaignEntity.getTaxonomyCode())
                 .serviceName(campaignEntity.getServiceName())
                 .workflow(campaignEntity.getWorkflow() == null
