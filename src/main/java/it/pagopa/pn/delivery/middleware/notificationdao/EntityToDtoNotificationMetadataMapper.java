@@ -50,6 +50,7 @@ public class EntityToDtoNotificationMetadataMapper {
                 .viewed( entity.getViewed() )
                 .delivered( entity.getDelivered() )
                 .desiredFeedback( entity.getDesiredFeedback() )
+                .paid( entity.getPaid() )
                 .build();
     }
 

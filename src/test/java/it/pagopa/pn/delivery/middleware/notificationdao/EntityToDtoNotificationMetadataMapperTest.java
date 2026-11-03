@@ -69,6 +69,7 @@ class EntityToDtoNotificationMetadataMapperTest {
         metadataEntity.setRecipientOne( true );
         metadataEntity.setSentAt( Instant.parse(SENT_AT) );
         metadataEntity.setTableRow( TABLE_ROW );
+        metadataEntity.setPaid( true );
 
         // When
         NotificationSearchRow result = mapper.entity2Dto( metadataEntity );
@@ -82,6 +83,7 @@ class EntityToDtoNotificationMetadataMapperTest {
         assertEquals( SUBJECT, result.getSubject() );
         assertEquals( NOTIFICATION_STATUS, result.getNotificationStatus().getValue() );
         assertEquals( NOTIFICATION_GROUP, result.getGroup() );
+        assertEquals( Boolean.TRUE, result.getPaid() );
     }
 
     @Test
