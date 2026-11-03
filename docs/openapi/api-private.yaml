@@ -125,6 +125,9 @@ paths:
         - $ref: './parameters-notification-search.yaml#/components/parameters/cxType'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchPageSize'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchNextPagesKey'
+        - $ref: '#/components/parameters/xPagoPaPnUid'
+        - $ref: '#/components/parameters/xPagoPaPnCxId'
+        - $ref: '#/components/parameters/xPagoPaPnCxType'
       responses:
         '200':
           description: OK
@@ -202,6 +205,10 @@ paths:
       tags:
       - internal-only
       operationId: checkAarQrCode
+      parameters:
+        - $ref: '#/components/parameters/xPagoPaPnUid'
+        - $ref: '#/components/parameters/xPagoPaPnCxId'
+        - $ref: '#/components/parameters/xPagoPaPnCxType'
       requestBody:
         content:
           application/json:
@@ -267,6 +274,9 @@ paths:
         - $ref: '#/components/parameters/pathDocumentIdx'
         - $ref: '#/components/parameters/queryRecipientInternalId'
         - $ref: '#/components/parameters/queryMandateId'
+        - $ref: '#/components/parameters/xPagoPaPnUid'
+        - $ref: '#/components/parameters/xPagoPaPnCxId'
+        - $ref: '#/components/parameters/xPagoPaPnCxType'
       responses:
         '200':
           description: OK
@@ -301,6 +311,9 @@ paths:
         - $ref: '#/components/parameters/queryRecipientInternalId'
         - $ref: '#/components/parameters/queryMandateId'
         - $ref: '#/components/parameters/attachmentIdx'
+        - $ref: '#/components/parameters/xPagoPaPnUid'
+        - $ref: '#/components/parameters/xPagoPaPnCxId'
+        - $ref: '#/components/parameters/xPagoPaPnCxType'
       responses:
         '200':
           description: OK
@@ -488,6 +501,24 @@ components:
           # ASCII printable characters
           pattern: ^[ -~]*$
           maxLength: 1024
+    xPagoPaPnUid:
+      name: x-pagopa-pn-uid
+      in: header
+      required: false
+      schema:
+        $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/e84d3140222de3b5dae0f067c55e841281ce5c2d/docs/openapi/authenticationParameters-v1.yaml#/components/schemas/UidAuthFleet'
+    xPagoPaPnCxId:
+      name: x-pagopa-pn-cx-id
+      in: header
+      required: false
+      schema:
+        $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/e84d3140222de3b5dae0f067c55e841281ce5c2d/docs/openapi/authenticationParameters-v1.yaml#/components/schemas/CxIdAuthFleet'
+    xPagoPaPnCxType:
+      name: x-pagopa-pn-cx-type
+      in: header
+      required: false
+      schema:
+        $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/e84d3140222de3b5dae0f067c55e841281ce5c2d/docs/openapi/authenticationParameters-v1.yaml#/components/schemas/CxTypeAuthFleet'
   responses:
     UnauthorizedError:
       description: Access token is missing or invalid
