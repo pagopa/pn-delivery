@@ -3,9 +3,12 @@ package it.pagopa.pn.delivery.pnclient.externalregistries;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_GROUPS_UNAVAILABLE;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import it.pagopa.pn.delivery.exception.PnDeliveryGroupsUnavailableException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.InternalOnlyApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.PaymentInfoApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.RootSenderIdApi;
@@ -20,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,6 +88,25 @@ class PnExternalRegistriesClientImplTest {
         assertSame(paGroupList, actualGroups);
         assertTrue(actualGroups.isEmpty());
         verify(internalOnlyApi).getAllGroupsPrivate(Mockito.<String>any(), Mockito.<PaGroupStatus>any());
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void getGroupsShouldWrapClientFailureWithBadGateway(boolean onlyActive) {
+        PaGroupStatus status = onlyActive ? PaGroupStatus.ACTIVE : null;
+        when(internalOnlyApi.getAllGroupsPrivate("senderId", status))
+                .thenThrow(new RestClientException("External registries unavailable"));
+
+        PnDeliveryGroupsUnavailableException exception = assertThrows(
+                PnDeliveryGroupsUnavailableException.class,
+                () -> pnExternalRegistriesClientImpl.getGroups("senderId", onlyActive));
+
+        assertEquals(502, exception.getStatus());
+        assertEquals(ERROR_CODE_DELIVERY_GROUPS_UNAVAILABLE,
+                exception.getProblem().getErrors().get(0).getCode());
+        assertTrue(exception.getProblem().getDetail().contains("senderId"));
+        assertTrue(exception.getProblem().getDetail().contains("External registries unavailable"));
+        verify(internalOnlyApi).getAllGroupsPrivate("senderId", status);
     }
 
     /**
