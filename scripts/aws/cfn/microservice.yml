@@ -2506,6 +2506,8 @@ Resources:
           - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName" : [ "INSERT" ], "dynamodb" : { "NewImage" : { "category" : { "S": [ "DELIVERED" ] } } } } }'
           - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName" : [ "INSERT" ], "dynamodb" : { "NewImage" : { "category" : { "S": [ "WORKFLOW_DONE_REACHED" ] } } } } }'
           - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName" : [ "INSERT" ], "dynamodb" : { "NewImage" : { "category" : { "S": [ "WORKFLOW_DONE_UNREACHED" ] } } } } }'
+          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName" : [ "INSERT" ], "dynamodb" : { "NewImage" : { "category" : { "S": [ "PAYMENT" ] } } } } }'
+          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName" : [ "INSERT" ], "dynamodb" : { "NewImage" : { "category" : { "S": [ "PAYMENT_NOTICE_PAID" ] } } } } }'
       FunctionName: !Ref MetadataUpdaterLambda
       FunctionResponseTypes:
         - ReportBatchItemFailures

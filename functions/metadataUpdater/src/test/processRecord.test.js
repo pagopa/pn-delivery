@@ -120,6 +120,51 @@ describe('processRecord tests', () => {
     expect(updateMetadataStub.firstCall.args[2]).to.deep.equal({ desiredFeedback: true });
   });
 
+  it('should set paid=true for PAYMENT on the correct recipient', async () => {
+    decodePayloadStub.returns(makeKinesisPayload('PAYMENT', { recIndex: 0 }));
+
+    await processRecord(record);
+
+    expect(updateMetadataStub.callCount).to.equal(1);
+    expect(updateMetadataStub.firstCall.args).to.deep.equal([
+      'pn-NotificationsMetadata',
+      { iun_recipientId: 'mockedIun##recipientId1', sentAt: '2025-01-01T00:00:00Z' },
+      { paid: true },
+    ]);
+  });
+
+  it('should set paid=true for PAYMENT_NOTICE_PAID on the correct recipient', async () => {
+    decodePayloadStub.returns(makeKinesisPayload('PAYMENT_NOTICE_PAID', { recIndex: 1 }));
+
+    await processRecord(record);
+
+    expect(updateMetadataStub.callCount).to.equal(1);
+    expect(updateMetadataStub.firstCall.args).to.deep.equal([
+      'pn-NotificationsMetadata',
+      { iun_recipientId: 'mockedIun##recipientId2', sentAt: '2025-01-01T00:00:00Z' },
+      { paid: true },
+    ]);
+  });
+
+  it('should not update metadata for a LEGAL notification with a PAYMENT event', async () => {
+    decodePayloadStub.returns(makeKinesisPayload('PAYMENT', { recIndex: 0 }));
+    getItemStub.resolves({ ...notificationMock, communicationType: 'LEGAL' });
+
+    await processRecord(record);
+
+    expect(updateMetadataStub.called).to.be.false;
+  });
+
+  it('should not update metadata for a legacy notification with a PAYMENT_NOTICE_PAID event', async () => {
+    decodePayloadStub.returns(makeKinesisPayload('PAYMENT_NOTICE_PAID', { recIndex: 0 }));
+    const { communicationType, ...legacyNotification } = notificationMock;
+    getItemStub.resolves(legacyNotification);
+
+    await processRecord(record);
+
+    expect(updateMetadataStub.called).to.be.false;
+  });
+
   // Common tests
   it('should skip unknown category', async () => {
     decodePayloadStub.returns(makeKinesisPayload('UNKNOWN_CATEGORY'));
