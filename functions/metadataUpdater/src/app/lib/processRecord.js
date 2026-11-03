@@ -7,6 +7,8 @@ const CATEGORY_FIELD_MAP = {
   DELIVERED: () => ({ delivered: true }),
   WORKFLOW_DONE_REACHED: () => ({ desiredFeedback: true }),
   WORKFLOW_DONE_UNREACHED: () => ({ desiredFeedback: true }),
+  PAYMENT: () => ({ paid: true }),
+  PAYMENT_NOTICE_PAID: () => ({ paid: true }),
 };
 
 const processRecord = async (record) => {
