@@ -61,7 +61,18 @@ function retrieveAuthorizerHeaders(authorizer) {
     };
 }
 
+function retrieveNotificationAuthorizerHeaders(authorizer) {
+    return {
+        "x-pagopa-pn-uid":            authorizer.uid                  || '',
+        "x-pagopa-pn-cx-role":        authorizer.cx_role              || '',
+        "x-pagopa-pn-jti":            authorizer.cx_jti               || '',
+        "x-pagopa-pn-cx-groups":      authorizer.cx_groups            || '',
+        "x-pagopa-pn-src-ch-details": authorizer.sourceChannelDetails || ''
+    };
+}
+
 exports.getUserInfoFromEvent = getUserInfoFromEvent;
 exports.retrieveHeadersToForward = retrieveHeadersToForward;
 exports.removeCxPrefix = removeCxPrefix;
 exports.retrieveAuthorizerHeaders = retrieveAuthorizerHeaders;
+exports.retrieveNotificationAuthorizerHeaders = retrieveNotificationAuthorizerHeaders;

@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 const sinon = require('sinon');
-const { getUserInfoFromEvent, retrieveHeadersToForward, removeCxPrefix, retrieveAuthorizerHeaders } = require('../app/utils');
+const { getUserInfoFromEvent, retrieveHeadersToForward, removeCxPrefix, retrieveAuthorizerHeaders, retrieveNotificationAuthorizerHeaders } = require('../app/utils');
 
 describe('utils', () => {
 
@@ -438,5 +438,40 @@ describe('utils', () => {
        });
      });
 
+  });
+
+  describe('retrieveNotificationAuthorizerHeaders', () => {
+
+    it('should map the authorizer context to the headers expected by the notification API', () => {
+      const authorizer = {
+        uid: 'user123',
+        cx_role: 'role',
+        cx_jti: 'jti',
+        cx_groups: 'g1,g2',
+        sourceChannelDetails: 'NONQRCODE'
+      };
+
+      const result = retrieveNotificationAuthorizerHeaders(authorizer);
+
+      expect(result).to.deep.equal({
+        'x-pagopa-pn-uid': 'user123',
+        'x-pagopa-pn-cx-role': 'role',
+        'x-pagopa-pn-jti': 'jti',
+        'x-pagopa-pn-cx-groups': 'g1,g2',
+        'x-pagopa-pn-src-ch-details': 'NONQRCODE'
+      });
+    });
+
+    it('should return the headers as empty string when authorizer is an empty object', () => {
+      const result = retrieveNotificationAuthorizerHeaders({});
+
+      expect(result).to.deep.equal({
+        'x-pagopa-pn-uid': '',
+        'x-pagopa-pn-cx-role': '',
+        'x-pagopa-pn-jti': '',
+        'x-pagopa-pn-cx-groups': '',
+        'x-pagopa-pn-src-ch-details': ''
+      });
+    });
   });
 });
