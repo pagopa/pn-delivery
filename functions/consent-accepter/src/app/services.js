@@ -95,17 +95,11 @@ class RestClient {
         }
       );
 
-      return{
-       statusCode: response.status,
-       body: JSON.stringify(response.data)
-      };
+      return toProxyResponse(response);
     } catch (error) {
       if(error.response){
           logger.info("Error response from server");
-          return {
-            statusCode: error.response.status,
-            body: JSON.stringify(error.response.data)
-          };
+          return toProxyResponse(error.response);
       }
       else {
           logger.info("Error for the request:", error.request);
@@ -113,6 +107,15 @@ class RestClient {
         }
       }
   }
+}
+
+function toProxyResponse(response) {
+  const contentType = (response.headers || {})["content-type"];
+  return {
+    statusCode: response.status,
+    ...(contentType && { headers: { "Content-Type": contentType } }),
+    body: JSON.stringify(response.data)
+  };
 }
 
 module.exports = RestClient;

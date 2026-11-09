@@ -1,5 +1,5 @@
 const RestClient = require("./services");
-const { getUserInfoFromEvent, retrieveHeadersToForward, retrieveAuthorizerHeaders } = require("./utils");
+const { getUserInfoFromEvent, retrieveHeadersToForward, retrieveAuthorizerHeaders, retrieveNotificationAuthorizerHeaders } = require("./utils");
 const defaultProblem = "Error executing request";
 const CacheManager = require('./cache/CacheManager');
 const logger = require("./logger");
@@ -30,7 +30,11 @@ exports.handle = async (event) => {
     if (isNotificationFlow) {
       const iun = (event.pathParameters || {}).iun;
       const mandateId = (event.queryStringParameters || {}).mandateId;
-      return await RestClient.getNotificationByIun(iun, headersToForward, userInfo, mandateId);
+      const notificationHeaders = {
+        ...headersToForward,
+        ...retrieveNotificationAuthorizerHeaders((event.requestContext || {}).authorizer || {})
+      };
+      return await RestClient.getNotificationByIun(iun, notificationHeaders, userInfo, mandateId);
     }
     return await RestClient.checkQrCode(event.body, headersToForward, userInfo);
   } catch (error) {

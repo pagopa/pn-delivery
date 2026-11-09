@@ -433,6 +433,31 @@ describe("RestClient", () => {
       });
     });
 
+    it("should forward the content-type of a successful response", async () => {
+      mock.onGet().reply(200, { iun: "IUN-123" }, { "content-type": "application/io+json" });
+
+      const result = await RestClient.getNotificationByIun(
+        "IUN-123",
+        mockHeadersToForward,
+        mockUserInfo
+      );
+
+      expect(result.headers).to.deep.equal({ "Content-Type": "application/io+json" });
+    });
+
+    it("should forward the content-type of an error response", async () => {
+      mock.onGet().reply(404, { title: "Not found" }, { "content-type": "application/problem+json" });
+
+      const result = await RestClient.getNotificationByIun(
+        "IUN-404",
+        mockHeadersToForward,
+        mockUserInfo
+      );
+
+      expect(result.statusCode).to.equal(404);
+      expect(result.headers).to.deep.equal({ "Content-Type": "application/problem+json" });
+    });
+
     it("should handle request errors and throw them", async () => {
       mock
         .onGet("https://api.test.com/delivery/notifications/received/IUN-123")

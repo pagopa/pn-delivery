@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 3uOoliJTUEBRg9AOjLlRuQBuUMGLhzb035FIULuVz6A=
+  version: UlAEq8GM1IntuT9OIbX28pwtssIvIEi9BzW4r6CXsm8=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -105,6 +105,8 @@ paths:
       tags:
         - AppIO-PN-Notification
       operationId: getReceivedNotification
+      x-pagopa-lambda-name: pn-consent-accepter:live
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/queryMandateId'
@@ -137,9 +139,8 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/{iun}
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-consent-accepter:live/invocations
+        httpMethod: POST
         requestParameters:
           integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
@@ -154,22 +155,9 @@ paths:
           integration.request.header.x-pagopa-pn-result-code: context.authorizer.resultCode
           integration.request.path.iun: method.request.path.iun
         passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
+        contentHandling: CONVERT_TO_TEXT
         timeoutInMillis: 29000
-        type: http_proxy
-    options:
-      operationId: Options for /notifications/received/{iun} API CORS
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/{iun}
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters:
-          integration.request.path.iun: method.request.path.iun
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
+        type: aws_proxy
   /notifications/received/{iun}/attachments/documents/{docIdx}:
     get:
       summary: Download documento notificato
