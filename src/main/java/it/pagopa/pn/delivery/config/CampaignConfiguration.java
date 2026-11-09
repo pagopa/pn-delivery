@@ -1,6 +1,6 @@
 package it.pagopa.pn.delivery.config;
 
-import it.pagopa.pn.commons.db.campaign.CampaignServiceCachedProvider;
+import it.pagopa.pn.commons.db.campaign.provider.CampaignServiceCachedProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
