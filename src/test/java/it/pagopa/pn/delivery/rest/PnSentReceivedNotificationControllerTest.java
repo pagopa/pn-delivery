@@ -26,6 +26,7 @@ import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -36,6 +37,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -526,6 +529,81 @@ class PnSentReceivedNotificationControllerTest {
                 Arguments.of(DELIVERY_REQUESTS_PATH, NewNotificationRequestStatusResponseV26.class),
                 Arguments.of(DELIVERY_INFORMAL_REQUESTS_PATH, NewInformalNotificationRequestStatusResponseV1.class)
         );
+    }
+
+    private static Stream<Arguments> provideRequestStatusAuditArgs() {
+        return Stream.of(false, true).flatMap(informal ->
+                Stream.of(false, true).flatMap(byRequestId ->
+                        Stream.of("IN_VALIDATION", "REFUSED", "ACCEPTED")
+                                .map(status -> Arguments.of(informal, byRequestId, status,
+                                        "IN_VALIDATION".equals(status) ? "WAITING" : status))));
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideRequestStatusAuditArgs")
+    @ExtendWith(OutputCaptureExtension.class)
+    void getNotificationRequestStatusLogsCompleteAuditMessage(
+            boolean informal, boolean byRequestId, String status, String expectedStatus, CapturedOutput output) {
+        String path;
+        String auditType;
+        String methodName;
+        if (informal) {
+            InformalNotificationDetail detail = newInformalNotification();
+            detail.setNotificationStatusHistory(List.of(InformalNotificationStatusHistoryElementV1.builder()
+                    .status(InformalNotificationStatusV1.fromValue(status))
+                    .build()));
+            detail.setTimeline(Collections.emptyList());
+            when(informalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
+                    .thenReturn(detail);
+            when(informalNotificationDetailRetrieverStrategy.getNotificationInformation(anyString(), anyString(), anyString(), anyList()))
+                    .thenReturn(detail);
+            path = DELIVERY_INFORMAL_REQUESTS_PATH;
+            auditType = "AUD_COM_CHECK";
+            methodName = "getInformalNotificationRequestStatusV1";
+        } else {
+            LegalNotificationDetail detail = newLegalNotification();
+            detail.setNotificationStatusHistory(List.of(NotificationStatusHistoryElementV26.builder()
+                    .status(NotificationStatusV26.fromValue(status))
+                    .build()));
+            detail.setTimeline(Collections.emptyList());
+            when(legalNotificationDetailRetrieverStrategy.getNotificationInformationWithSenderIdCheck(anyString(), anyString(), anyList()))
+                    .thenReturn(detail);
+            when(legalNotificationDetailRetrieverStrategy.getNotificationInformation(anyString(), anyString(), anyString(), anyList()))
+                    .thenReturn(detail);
+            path = DELIVERY_REQUESTS_PATH;
+            auditType = "AUD_NT_CHECK";
+            methodName = "getNotificationRequestStatus";
+        }
+
+        webTestClient.get()
+                .uri(uriBuilder -> {
+                    uriBuilder.path(path);
+                    if (byRequestId) {
+                        uriBuilder.queryParam("notificationRequestId", REQUEST_ID);
+                    } else {
+                        uriBuilder.queryParam("paProtocolNumber", PA_PROTOCOL_NUMBER)
+                                .queryParam("idempotenceToken", IDEMPOTENCE_TOKEN);
+                    }
+                    return uriBuilder.build();
+                })
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, UID)
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PA)
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(0))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.notificationRequestStatus").isEqualTo(expectedStatus);
+
+        String originalMessage = methodName
+                + " notificationRequestId=" + (byRequestId ? REQUEST_ID : "null")
+                + " paProtocolNumber=" + (byRequestId ? "null" : PA_PROTOCOL_NUMBER)
+                + " idempotenceToken=" + (byRequestId ? "null" : IDEMPOTENCE_TOKEN);
+        assertTrue(output.getAll().contains("[" + auditType + "] BEFORE - " + originalMessage),
+                "Missing original audit message");
+        assertTrue(output.getAll().contains("[" + auditType + "] SUCCESS - " + originalMessage
+                        + " notificationRequestStatus=" + expectedStatus),
+                "Missing complete success audit message with response status");
     }
 
     @Test
