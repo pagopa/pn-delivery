@@ -24,6 +24,7 @@ public class Campaign {
     private String serviceId;
     private Boolean sensitiveContent;
     private Boolean stopOnViewed;
+    private Boolean stopOnPaid;
     private List<WorkFlowEntity> workflow;
     private String taxonomyCode;
     private String serviceName;
