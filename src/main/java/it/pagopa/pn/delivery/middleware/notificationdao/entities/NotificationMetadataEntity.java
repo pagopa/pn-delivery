@@ -41,6 +41,7 @@ public class NotificationMetadataEntity {
     public static final String FIELD_VIEWED = "viewed";
     public static final String FIELD_DELIVERED = "delivered";
     public static final String FIELD_DESIRED_FEEDBACK = "desiredFeedback";
+    public static final String FIELD_PAID = "paid";
 
 
 
@@ -65,6 +66,7 @@ public class NotificationMetadataEntity {
     private Boolean viewed;
     private Boolean delivered;
     private Boolean desiredFeedback;
+    private Boolean paid;
 
     @DynamoDbPartitionKey
     @DynamoDbAttribute(value = FIELD_IUN_RECIPIENT_ID)
@@ -266,4 +268,9 @@ public class NotificationMetadataEntity {
     public void setDesiredFeedback(Boolean desiredFeedback) {
         this.desiredFeedback = desiredFeedback;
     }
+
+    @DynamoDbAttribute(value = FIELD_PAID)
+    public Boolean getPaid () {return paid; }
+
+    public void setPaid (Boolean paid) { this.paid = paid; }
 }

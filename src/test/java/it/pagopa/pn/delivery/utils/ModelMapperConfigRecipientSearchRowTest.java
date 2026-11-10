@@ -70,6 +70,7 @@ class ModelMapperConfigRecipientSearchRowTest {
                 .communicationType("INFORMAL")
                 .viewed(true)
                 .delivered(false)
+                .paid(true)
                 .build();
 
         FullNotificationSearchRow result = modelMapper.map(source, FullNotificationSearchRow.class);
@@ -78,6 +79,7 @@ class ModelMapperConfigRecipientSearchRowTest {
         assertNotNull(outcomes);
         assertEquals(Boolean.TRUE, outcomes.getViewed());
         assertEquals(Boolean.FALSE, outcomes.getDelivered());
+        assertEquals(Boolean.TRUE, outcomes.getPaid());
     }
 
     @Test
