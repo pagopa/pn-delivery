@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.svc.search;
 
+import it.pagopa.pn.delivery.exception.PnDeliveryGroupsUnavailableException;
 import it.pagopa.pn.delivery.exception.PnForbiddenException;
 import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
@@ -17,6 +18,7 @@ import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.svc.NotificationRetrieverService;
+import it.pagopa.pn.delivery.svc.PaGroupService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -59,7 +61,8 @@ class NotificationRetrieverServiceTest {
         this.service = new NotificationRetrieverService(
                 notificationDao,
                 externalRegistriesClient,
-                pnMandateClient
+                pnMandateClient,
+                new PaGroupService(externalRegistriesClient)
         );
     }
 
@@ -105,6 +108,48 @@ class NotificationRetrieverServiceTest {
         Assertions.assertSame(notification, result.getNotification());
         Assertions.assertEquals(GROUP_NAME, notification.getGroup());
         verify(enricher).enrichNotificationDetail(detail, false);
+    }
+
+    @Test
+    void loadAndEnrichNotificationDetailShouldKeepGroupIdWhenGroupsUnavailable() {
+        InternalNotification notification = buildNotification();
+        notification.setGroup(GROUP_ID);
+        LegalNotificationDetail detail = new LegalNotificationDetail();
+        @SuppressWarnings("unchecked")
+        TimelineEnricher<LegalNotificationDetail> enricher = Mockito.mock(TimelineEnricher.class);
+
+        when(notificationDao.getNotificationByIun(IUN, true)).thenReturn(Optional.of(notification));
+        when(externalRegistriesClient.getGroups(SENDER_ID, false))
+                .thenThrow(new PnDeliveryGroupsUnavailableException("Groups unavailable"));
+
+        LegalNotificationDetail result = service.loadAndEnrichNotificationDetail(
+                IUN, true, false, SENDER_ID, detail, enricher);
+
+        Assertions.assertSame(detail, result);
+        Assertions.assertSame(notification, result.getNotification());
+        Assertions.assertEquals(GROUP_ID, result.getNotification().getGroup());
+        verify(enricher).enrichNotificationDetail(detail, false);
+    }
+
+    @Test
+    void loadCheckAndEnrichNotificationDetailShouldKeepGroupIdWhenGroupsUnavailable() {
+        InternalNotification notification = buildNotification();
+        notification.setGroup(GROUP_ID);
+        LegalNotificationDetail detail = new LegalNotificationDetail();
+        @SuppressWarnings("unchecked")
+        TimelineEnricher<LegalNotificationDetail> enricher = Mockito.mock(TimelineEnricher.class);
+
+        when(notificationDao.getNotificationByIun(IUN, true)).thenReturn(Optional.of(notification));
+        when(externalRegistriesClient.getGroups(SENDER_ID, false))
+                .thenThrow(new PnDeliveryGroupsUnavailableException("Groups unavailable"));
+
+        LegalNotificationDetail result = service.loadCheckAndEnrichNotificationDetail(
+                IUN, SENDER_ID, List.of(GROUP_ID), detail, enricher);
+
+        Assertions.assertSame(detail, result);
+        Assertions.assertSame(notification, result.getNotification());
+        Assertions.assertEquals(GROUP_ID, result.getNotification().getGroup());
+        verify(enricher).enrichNotificationDetail(detail, true);
     }
 
     @Test

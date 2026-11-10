@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.svc.search;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
+import it.pagopa.pn.delivery.exception.PnDeliveryGroupsUnavailableException;
 import it.pagopa.pn.delivery.exception.PnForbiddenException;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
@@ -20,6 +21,7 @@ import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
+import it.pagopa.pn.delivery.svc.PaGroupService;
 import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -74,9 +76,9 @@ class NotificationSearchServiceTest {
         this.service = new NotificationSearchService(
                 pnMandateClient,
                 dataVaultClient,
-                externalRegistriesClient,
                 notificationSearchFactory,
-                refinementLocalDateUtils
+                refinementLocalDateUtils,
+                new PaGroupService(externalRegistriesClient)
         );
     }
 
@@ -107,6 +109,37 @@ class NotificationSearchServiceTest {
         Assertions.assertEquals("Group Name", result.getResultsPage().get(0).getGroup());
         Assertions.assertEquals(1, result.getNextPagesKey().size());
         Assertions.assertFalse(result.getNextPagesKey().get(0).isBlank());
+    }
+
+    @Test
+    void searchNotificationShouldKeepResultsAndPaginationWhenGroupsUnavailable() {
+        InputSearchNotificationDto searchDto = baseSearchDto(true).toBuilder()
+                .senderReceiverId(SENDER_ID)
+                .build();
+        PnLastEvaluatedKey nextKey = buildLastEvaluatedKey("external-key", "pk", "value-1");
+        NotificationSearchRow row = NotificationSearchRow.builder()
+                .group("group-code")
+                .iun("IUN_1")
+                .build();
+        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> searchResult =
+                ResultPaginationDto.<NotificationSearchRow, PnLastEvaluatedKey>builder()
+                        .resultsPage(List.of(row))
+                        .moreResult(true)
+                        .nextPagesKey(List.of(nextKey))
+                        .build();
+
+        when(notificationSearchFactory.getMultiPageSearch(eq(searchDto), isNull())).thenReturn(notificationSearch);
+        when(notificationSearch.searchNotificationMetadata()).thenReturn(searchResult);
+        when(externalRegistriesClient.getGroups(SENDER_ID, false))
+                .thenThrow(new PnDeliveryGroupsUnavailableException("Groups unavailable"));
+
+        ResultPaginationDto<NotificationSearchRow, String> result = service.searchNotification(searchDto, "PA", null);
+
+        Assertions.assertEquals(List.of(row), result.getResultsPage());
+        Assertions.assertEquals("group-code", result.getResultsPage().get(0).getGroup());
+        Assertions.assertTrue(result.isMoreResult());
+
+        verify(externalRegistriesClient).getGroups(SENDER_ID, false);
     }
 
     @Test

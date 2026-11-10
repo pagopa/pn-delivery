@@ -11,6 +11,7 @@ import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.config.PhysicalAddressLookupParameterConsumer;
 import it.pagopa.pn.delivery.config.SendActiveParameterConsumer;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
+import it.pagopa.pn.delivery.exception.PnDeliveryGroupsUnavailableException;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroupStatus;
@@ -513,6 +514,26 @@ class NotificationReceiverTest {
 
 		// Then
 		Assertions.assertNotNull( response );
+	}
+
+	@Test
+	void receiveNotificationShouldPropagateGroupsUnavailableWithoutSaving() {
+		defaultMockConfigAndParameterForVas();
+		NewNotificationRequestV26 request = newNotificationRequest();
+		request.setGroup("group1");
+		PnDeliveryGroupsUnavailableException exception =
+				new PnDeliveryGroupsUnavailableException("Groups unavailable");
+		when(pnExternalRegistriesClient.getGroups(PAID, true)).thenThrow(exception);
+
+		PnDeliveryGroupsUnavailableException actual = assertThrows(
+				PnDeliveryGroupsUnavailableException.class,
+				() -> deliveryService.receiveNotification(
+						PAID, request, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS, null));
+
+		assertSame(exception, actual);
+		assertEquals(502, actual.getStatus());
+		verify(notificationDao, never()).addNotification(any(InternalNotification.class));
+		verifyNoInteractions(paNotificationLimitService, pnF24Client);
 	}
 
 	@Test
@@ -1213,4 +1234,3 @@ class NotificationReceiverTest {
 	}
 
 }
-

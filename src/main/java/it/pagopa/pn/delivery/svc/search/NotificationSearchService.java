@@ -4,20 +4,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import it.pagopa.pn.commons.exceptions.ExceptionHelper;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.dto.ProblemError;
-import it.pagopa.pn.delivery.exception.PnBadRequestException;
-import it.pagopa.pn.delivery.exception.PnForbiddenException;
-import it.pagopa.pn.delivery.exception.PnInvalidInputException;
-import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
-import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.exception.*;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
-import it.pagopa.pn.delivery.models.*;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementCategoryV28;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementV28;
+import it.pagopa.pn.delivery.models.*;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
-import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
+import it.pagopa.pn.delivery.svc.PaGroupService;
 import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,9 +30,7 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.*;
 
-import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND;
-import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_INVALID_MANDATE_COMMUNICATION_TYPE;
-import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_UNSUPPORTED_LAST_EVALUATED_KEY;
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.*;
 import static it.pagopa.pn.delivery.utils.PgUtils.checkAuthorizationPG;
 
 @Service
@@ -46,22 +40,21 @@ public class NotificationSearchService {
 	private static final Instant PN_EPOCH = Instant.ofEpochSecond( 1651399200 ); // 2022-05-01T12:00:00.000 GMT+2:00
     private final PnMandateClientImpl pnMandateClient;
 	private final PnDataVaultClientImpl dataVaultClient;
-	private final PnExternalRegistriesClientImpl pnExternalRegistriesClient;
     private final NotificationSearchFactory notificationSearchFactory;
 	private final RefinementLocalDate refinementLocalDateUtils;
+	private final PaGroupService paGroupService;
 
 
     @Autowired
 	public NotificationSearchService(PnMandateClientImpl pnMandateClient,
                                      PnDataVaultClientImpl dataVaultClient,
-                                     PnExternalRegistriesClientImpl pnExternalRegistriesClient,
                                      NotificationSearchFactory notificationSearchFactory,
-                                     RefinementLocalDate refinementLocalDateUtils) {
+                                     RefinementLocalDate refinementLocalDateUtils, PaGroupService paGroupService) {
         this.pnMandateClient = pnMandateClient;
 		this.dataVaultClient = dataVaultClient;
-		this.pnExternalRegistriesClient = pnExternalRegistriesClient;
         this.notificationSearchFactory = notificationSearchFactory;
 		this.refinementLocalDateUtils = refinementLocalDateUtils;
+        this.paGroupService = paGroupService;
     }
 
 	public ResultPaginationDto<NotificationSearchRow, String> searchNotification(InputSearchNotificationDto searchDto,
@@ -360,7 +353,9 @@ public class NotificationSearchService {
 		if (notifications == null || notifications.isEmpty() || senderId == null) {
 			return;
 		}
-		List<PaGroup> groups = pnExternalRegistriesClient.getGroups(senderId, false);
+
+		List<PaGroup> groups = paGroupService.getGroupsForLabelization(senderId);
+
 		for (NotificationSearchRow notification : notifications) {
 			String notificationGroup = notification.getGroup();
 			if (!groups.isEmpty() && notificationGroup != null && !notificationGroup.isEmpty()) {
