@@ -100,7 +100,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     }
 
     @Override
-    public ResponseEntity<ResponseCheckAarDto> checkAarQrCode(RequestCheckAarDto requestCheckAarDto) {
+    public ResponseEntity<ResponseCheckAarDto> checkAarQrCode(RequestCheckAarDto requestCheckAarDto, String xPagopaPnUid, String xPagopaPnCxId, CxTypeAuthFleet xPagopaPnCxType) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         String aarQrCodeValue = requestCheckAarDto.getAarQrCodeValue();
         String recipientType = requestCheckAarDto.getRecipientType();
@@ -162,7 +162,8 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     public  ResponseEntity<LegalNotificationSearchResponse> searchNotificationsPrivate(OffsetDateTime startDate, OffsetDateTime endDate,
                                                                                   String recipientId, Boolean recipientIdOpaque,
                                                                                   String senderId, List<NotificationStatusV26> status,
-                                                                                  String mandateId, String cxType, Integer size, String nextPagesKey) {
+                                                                                  String mandateId, String cxType, Integer size, String nextPagesKey,
+                                                                                  String xPagopaPnUid, String xPagopaPnCxId, CxTypeAuthFleet xPagopaPnCxType) {
 
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
@@ -186,7 +187,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                 .nextPagesKey(nextPagesKey)
                 .build();
         ResultPaginationDto<NotificationSearchRow,String> serviceResult;
-        LegalNotificationSearchResponse response = new LegalNotificationSearchResponse();
+        LegalNotificationSearchResponse response;
         try {
             serviceResult = retrieveSvc.searchNotification(searchDto, cxType, null);
             LegalNotificationStatusValidator.assertLegalCompatible( serviceResult );
@@ -201,7 +202,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     }
 
     @Override
-    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationAttachmentPrivate(String iun, String attachmentName, String recipientInternalId, String mandateId, Integer attachmentIdx) {
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationAttachmentPrivate(String iun, String attachmentName, String recipientInternalId, String mandateId, Integer attachmentIdx, String xPagopaPnUid, String xPagopaPnCxId, CxTypeAuthFleet xPagopaPnCxType) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEventType eventType = PnAuditLogEventType.AUD_NT_ATCHOPEN_RCP;
         String logMsg = "getReceivedNotificationAttachmentPrivate attachment name={} attachment index={}";
@@ -209,7 +210,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
             eventType = PnAuditLogEventType.AUD_NT_ATCHOPEN_DEL;
             logMsg = "getReceivedAndDelegatedNotificationAttachmentPrivate attachment name={}, attachment index={} and mandateId={}";
         }
-        NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
+        NotificationAttachmentDownloadMetadataResponse response;
         PnAuditLogEvent logEvent = auditLogBuilder.before(eventType, logMsg, attachmentName, attachmentIdx, mandateId)
                 .iun(iun)
                 .build();
@@ -239,9 +240,9 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     }
 
     @Override
-    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationDocumentPrivate(String iun, Integer docIdx, String recipientInternalId, String mandateId) {
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationDocumentPrivate(String iun, Integer docIdx, String recipientInternalId, String mandateId, String xPagopaPnUid, String xPagopaPnCxId, CxTypeAuthFleet xPagopaPnCxType) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
+        NotificationAttachmentDownloadMetadataResponse response;
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_DOCOPEN_RCP, "getReceivedNotificationDocumentPrivate from documents array with index={}", docIdx)
                 .iun(iun)

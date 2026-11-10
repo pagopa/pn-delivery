@@ -15,13 +15,15 @@ describe('Consent Handler Tests', () => {
     RestClientStub = {
       putConsents: sinon.stub(),
       checkQrCode: sinon.stub(),
+      getNotificationByIun: sinon.stub(),
       getLastVersion: sinon.stub()
     };
 
     utilsStub = {
       getUserInfoFromEvent: sinon.stub(),
       retrieveHeadersToForward: sinon.stub(),
-      retrieveAuthorizerHeaders: sinon.stub().returns({})
+      retrieveAuthorizerHeaders: sinon.stub().returns({}),
+      retrieveNotificationAuthorizerHeaders: sinon.stub().returns({})
     };
 
     mockCacheManagerInstance = {
@@ -123,8 +125,8 @@ describe('Consent Handler Tests', () => {
       expect(utilsStub.getUserInfoFromEvent.calledOnce).to.be.true;
       expect(utilsStub.getUserInfoFromEvent.calledWith(mockEvent)).to.be.true;
       expect(RestClientStub.putConsents.callCount).to.equal(2);
-      expect(RestClientStub.putConsents.firstCall.args).to.deep.equal(['TOS', 'v1', 'user123', 'PF', 'anonymous-123']);
-      expect(RestClientStub.putConsents.secondCall.args).to.deep.equal(['PRIVACY', 'v2', 'user123', 'PF', 'anonymous-123']);
+      expect(RestClientStub.putConsents.firstCall.args).to.deep.equal(['TOS', 'v1', 'user123', 'PF', 'anonymous-123', null]);
+      expect(RestClientStub.putConsents.secondCall.args).to.deep.equal(['PRIVACY', 'v2', 'user123', 'PF', 'anonymous-123', null]);
       expect(RestClientStub.checkQrCode.calledOnce).to.be.true;
       expect(RestClientStub.checkQrCode.calledWith(
         'qrCodeData',
@@ -300,7 +302,7 @@ describe('Consent Handler Tests', () => {
 
       // Assert
       expect(RestClientStub.putConsents.calledOnce).to.be.true;
-      expect(RestClientStub.putConsents.calledWith('TOS', 'v3', 'user123', 'PF', 'anonymous-123')).to.be.true;
+      expect(RestClientStub.putConsents.calledWith('TOS', 'v3', 'user123', 'PF', 'anonymous-123', null)).to.be.true;
       expect(mockCacheManagerInstance.get.called).to.be.false;
     });
 
@@ -328,7 +330,7 @@ describe('Consent Handler Tests', () => {
       // Assert
       expect(mockCacheManagerInstance.get.calledOnce).to.be.true;
       expect(mockCacheManagerInstance.get.calledWith('PG', 'PRIVACY')).to.be.true;
-      expect(RestClientStub.putConsents.calledWith('PRIVACY', 'v5', 'user123', 'PG', 'anonymous-123')).to.be.true;
+      expect(RestClientStub.putConsents.calledWith('PRIVACY', 'v5', 'user123', 'PG', 'anonymous-123', null)).to.be.true;
     });
   });
 
@@ -362,6 +364,139 @@ describe('Consent Handler Tests', () => {
       expect(result.statusCode).to.equal(200);
     });
 
+  });
+
+  describe('Notification flow (WI-3)', () => {
+    it('should call getNotificationByIun with IO channel when resourcePath is the notification GET one', async () => {
+      const mockEvent = {
+        headers: {},
+        pathParameters: { iun: 'IUN-123' },
+        requestContext: { resourcePath: '/notifications/received/{iun}' }
+      };
+
+      const mockUserInfo = { uid: 'user123', cxType: 'PF', cxId: 'anonymous-123' };
+      utilsStub.getUserInfoFromEvent.returns(mockUserInfo);
+      utilsStub.retrieveHeadersToForward.returns({});
+      RestClientStub.putConsents.resolves({});
+      RestClientStub.getNotificationByIun.resolves({ statusCode: 200, body: '{}' });
+      mockCacheManagerInstance.get.returns('v1');
+
+      const result = await handler.handle(mockEvent);
+
+      expect(RestClientStub.putConsents.calledWith('TOS', 'v1', 'user123', 'PF', 'anonymous-123', 'IO')).to.be.true;
+      expect(RestClientStub.getNotificationByIun.calledOnce).to.be.true;
+      expect(RestClientStub.getNotificationByIun.calledWith('IUN-123', sinon.match.object, mockUserInfo)).to.be.true;
+      expect(RestClientStub.checkQrCode.called).to.be.false;
+      expect(result).to.deep.equal({ statusCode: 200, body: '{}' });
+      expect(RestClientStub.getNotificationByIun.firstCall.args[3]).to.be.undefined;
+    });
+
+    it('should forward mandateId query parameter to getNotificationByIun', async () => {
+      const mockEvent = {
+        headers: {},
+        pathParameters: { iun: 'IUN-123' },
+        queryStringParameters: { mandateId: 'MANDATE-1' },
+        requestContext: { resourcePath: '/notifications/received/{iun}' }
+      };
+
+      const mockUserInfo = { uid: 'user123', cxType: 'PF', cxId: 'anonymous-123' };
+      utilsStub.getUserInfoFromEvent.returns(mockUserInfo);
+      utilsStub.retrieveHeadersToForward.returns({});
+      RestClientStub.putConsents.resolves({});
+      RestClientStub.getNotificationByIun.resolves({ statusCode: 200, body: '{}' });
+      mockCacheManagerInstance.get.returns('v1');
+
+      await handler.handle(mockEvent);
+
+      expect(RestClientStub.getNotificationByIun.calledOnce).to.be.true;
+      expect(RestClientStub.getNotificationByIun.calledWith('IUN-123', sinon.match.object, mockUserInfo, 'MANDATE-1')).to.be.true;
+    });
+
+    it('should forward notification authorizer headers to getNotificationByIun', async () => {
+      const authorizer = { uid: 'user123', cx_role: 'role', cx_jti: 'jti', cx_groups: 'g1', sourceChannelDetails: 'NONQRCODE' };
+      const mockEvent = {
+        headers: {},
+        pathParameters: { iun: 'IUN-123' },
+        requestContext: { resourcePath: '/notifications/received/{iun}', authorizer }
+      };
+
+      utilsStub.getUserInfoFromEvent.returns({ uid: 'user123', cxType: 'PF', cxId: 'PF-user123' });
+      utilsStub.retrieveHeadersToForward.returns({ 'x-pagopa-pn-src-ch': 'IO' });
+      utilsStub.retrieveAuthorizerHeaders.returns({ 'x-pagopa-pn-name': 'Mario' });
+      utilsStub.retrieveNotificationAuthorizerHeaders.returns({ 'x-pagopa-pn-uid': 'user123', 'x-pagopa-pn-cx-groups': 'g1' });
+      RestClientStub.putConsents.resolves({});
+      RestClientStub.getNotificationByIun.resolves({ statusCode: 200, body: '{}' });
+      mockCacheManagerInstance.get.returns('v1');
+
+      await handler.handle(mockEvent);
+
+      expect(utilsStub.retrieveNotificationAuthorizerHeaders.calledOnceWith(authorizer)).to.be.true;
+      expect(RestClientStub.getNotificationByIun.firstCall.args[1]).to.deep.equal({
+        'x-pagopa-pn-src-ch': 'IO',
+        'x-pagopa-pn-name': 'Mario',
+        'x-pagopa-pn-uid': 'user123',
+        'x-pagopa-pn-cx-groups': 'g1'
+      });
+    });
+
+    it('should return 500 and not retrieve the notification when consent acceptance fails', async () => {
+      const mockEvent = {
+        headers: {},
+        pathParameters: { iun: 'IUN-123' },
+        requestContext: { resourcePath: '/notifications/received/{iun}' }
+      };
+
+      utilsStub.getUserInfoFromEvent.returns({ uid: 'user123', cxType: 'PF', cxId: 'PF-user123' });
+      utilsStub.retrieveHeadersToForward.returns({});
+      RestClientStub.putConsents.rejects(new Error('user-attributes down'));
+      mockCacheManagerInstance.get.returns('v1');
+
+      const result = await handler.handle(mockEvent);
+
+      expect(result.statusCode).to.equal(500);
+      expect(RestClientStub.getNotificationByIun.called).to.be.false;
+      expect(RestClientStub.checkQrCode.called).to.be.false;
+    });
+
+    it('should not add notification authorizer headers in the check-qr-code flow', async () => {
+      const mockEvent = {
+        body: 'qrCodeData',
+        headers: {},
+        requestContext: { resourcePath: '/notifications/received/check-qr-code', authorizer: { uid: 'user123' } }
+      };
+
+      utilsStub.getUserInfoFromEvent.returns({ uid: 'user123', cxType: 'PF', cxId: 'PF-user123' });
+      utilsStub.retrieveHeadersToForward.returns({});
+      RestClientStub.putConsents.resolves({});
+      RestClientStub.checkQrCode.resolves({ statusCode: 200 });
+      mockCacheManagerInstance.get.returns('v1');
+
+      await handler.handle(mockEvent);
+
+      expect(utilsStub.retrieveNotificationAuthorizerHeaders.called).to.be.false;
+      expect(RestClientStub.checkQrCode.calledOnce).to.be.true;
+    });
+
+    it('should still call checkQrCode with null channel when resourcePath is the check-qr-code one', async () => {
+      const mockEvent = {
+        body: 'qrCodeData',
+        headers: {},
+        requestContext: { resourcePath: '/notifications/received/check-qr-code' }
+      };
+
+      const mockUserInfo = { uid: 'user123', cxType: 'PF', cxId: 'anonymous-123' };
+      utilsStub.getUserInfoFromEvent.returns(mockUserInfo);
+      utilsStub.retrieveHeadersToForward.returns({});
+      RestClientStub.putConsents.resolves({});
+      RestClientStub.checkQrCode.resolves({ statusCode: 200 });
+      mockCacheManagerInstance.get.returns('v1');
+
+      await handler.handle(mockEvent);
+
+      expect(RestClientStub.putConsents.calledWith('TOS', 'v1', 'user123', 'PF', 'anonymous-123', null)).to.be.true;
+      expect(RestClientStub.getNotificationByIun.called).to.be.false;
+      expect(RestClientStub.checkQrCode.calledOnce).to.be.true;
+    });
   });
 
   describe('Error response format', () => {
