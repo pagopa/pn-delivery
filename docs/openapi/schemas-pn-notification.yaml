@@ -965,6 +965,9 @@ components:
         delivered:
           type: boolean
           description: Indica se la comunicazione è stata consegnata al destinatario
+        paid:
+          type: boolean
+          description: Indica se la comunicazione è stata pagata
 
     UnifiedNotificationStatus:
       description: >-

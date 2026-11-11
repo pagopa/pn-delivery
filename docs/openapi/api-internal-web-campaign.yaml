@@ -258,6 +258,9 @@ components:
         stopOnViewed:
           type: boolean
           description: Se true, il workflow si interrompe al primo evento di visualizzazione.
+        stopOnPaid:
+          type: boolean
+          description: Se true, il workflow si interrompe al primo evento di pagamento.
         taxonomyCode:
           $ref: './schemas-pn-notification.yaml#/components/schemas/taxonomyCode'
         workflow:
@@ -328,7 +331,6 @@ components:
       enum:
         - READ
         - RECEIVED
-        - PAID
         - SKIP
         - SENT
       example: READ

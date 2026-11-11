@@ -1,6 +1,6 @@
 package it.pagopa.pn.delivery.svc;
 
-import it.pagopa.pn.commons.db.campaign.CampaignServiceCachedProvider;
+import it.pagopa.pn.commons.db.campaign.provider.CampaignServiceCachedProvider;
 import it.pagopa.pn.commons.db.campaign.entity.*;
 import it.pagopa.pn.commons.utils.qr.models.RecipientTypeInt;
 import it.pagopa.pn.delivery.exception.PnCampaignNotFoundException;

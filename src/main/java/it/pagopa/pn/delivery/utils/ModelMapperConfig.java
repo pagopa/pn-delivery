@@ -97,10 +97,11 @@ public class ModelMapperConfig {
                             ? FullNotificationSearchRow.CommunicationTypeEnum.fromValue(source.getCommunicationType())
                             : FullNotificationSearchRow.CommunicationTypeEnum.LEGAL);
 
-            if (source.getViewed() != null || source.getDelivered() != null) {
+            if (source.getViewed() != null || source.getDelivered() != null || source.getPaid() != null) {
                 CommunicationOutcomes outcomes = new CommunicationOutcomes();
                 outcomes.setViewed(source.getViewed());
                 outcomes.setDelivered(source.getDelivered());
+                outcomes.setPaid(source.getPaid());
                 destination.setCommunicationOutcomes(outcomes);
             }
             return destination;

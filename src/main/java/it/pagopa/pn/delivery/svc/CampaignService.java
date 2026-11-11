@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.svc;
 
 
-import it.pagopa.pn.commons.db.campaign.CampaignServiceCachedProvider;
+import it.pagopa.pn.commons.db.campaign.provider.CampaignServiceCachedProvider;
 import it.pagopa.pn.commons.db.campaign.entity.CampaignEntity;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignDetail;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CampaignSearchResponse;
