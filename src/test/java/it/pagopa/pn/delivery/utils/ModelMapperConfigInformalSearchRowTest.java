@@ -80,6 +80,27 @@ class ModelMapperConfigInformalSearchRowTest {
     }
 
     @Test
+    void paidOutcomeIsMappedToInformalNotificationSearchResponse() {
+        NotificationSearchRow row = baseRow(UnifiedNotificationStatus.PROCESSING).toBuilder()
+                .communicationType("INFORMAL")
+                .paid(true)
+                .build();
+        ResultPaginationDto<NotificationSearchRow, String> page = new ResultPaginationDto<>();
+        page.setResultsPage(List.of(row));
+        page.setMoreResult(false);
+        page.setNextPagesKey(List.of());
+
+        InformalNotificationSearchResponse response =
+                modelMapper.map(page, InformalNotificationSearchResponse.class);
+
+        assertNotNull(response.getResultsPage());
+        assertEquals(1, response.getResultsPage().size());
+        CommunicationOutcomes outcomes = response.getResultsPage().get(0).getCommunicationOutcomes();
+        assertNotNull(outcomes);
+        assertEquals(Boolean.TRUE, outcomes.getPaid());
+    }
+
+    @Test
     void communicationOutcomesNullWhenNoEsitoPresent() {
         NotificationSearchRow source = baseRow(UnifiedNotificationStatus.PROCESSING).toBuilder()
                 .communicationType("INFORMAL")
