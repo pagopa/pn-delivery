@@ -22,6 +22,7 @@ import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.svc.*;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService.InternalAttachmentWithFileKey;
 import it.pagopa.pn.delivery.svc.search.NotificationSearchService;
+import it.pagopa.pn.delivery.utils.ModelMapperConfig;
 import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Assertions;
@@ -35,15 +36,15 @@ import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.util.Base64Utils;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
@@ -52,6 +53,7 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
@@ -62,6 +64,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @WebFluxTest(controllers = {PnSentNotificationsController.class, PnReceivedNotificationsController.class})
+@Import(ModelMapperConfig.class)
 class PnSentReceivedNotificationControllerTest {
 
     private static final String IUN = "AAAA-AAAA-AAAA-202301-C-1";
@@ -69,7 +72,7 @@ class PnSentReceivedNotificationControllerTest {
     private static final String CX_ID = "CX_ID";
     private static final String UID = "UID";
     private static final String PA_ID = "PA_ID";
-    private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
+    private static final String X_PAGOPA_PN_SRC_CH = "B2B";
     private static final String X_PAGOPA_PN_SRC_CH_DET = "sourceChannelDetails";
     private static final int DOCUMENT_INDEX = 0;
     private static final String REDIRECT_URL = "http://redirectUrl?token=fakeToken";
@@ -100,28 +103,28 @@ class PnSentReceivedNotificationControllerTest {
     @Autowired
     WebTestClient webTestClient;
 
-    @MockBean
+    @MockitoBean
     private InformalNotificationDetailRetrieverStrategy informalNotificationDetailRetrieverStrategy;
 
-    @MockBean
+    @MockitoBean
     private LegalNotificationDetailRetrieverStrategy legalNotificationDetailRetrieverStrategy;
 
-    @MockBean
+    @MockitoBean
     SenderContactsService senderContactsService;
 
-    @MockBean
+    @MockitoBean
     NotificationSearchService svc;
 
-    @MockBean
+    @MockitoBean
     NotificationAttachmentService attachmentService;
 
-    @MockBean
+    @MockitoBean
     NotificationQRService qrService;
 
-    @MockBean
+    @MockitoBean
     PnDeliveryConfigs cfg;
 
-    @SpyBean
+    @MockitoSpyBean
     ModelMapper modelMapper;
 
     @Test
@@ -237,7 +240,7 @@ class PnSentReceivedNotificationControllerTest {
                 .isOk()
                 .expectBody(NewNotificationRequestStatusResponseV26.class);
 
-        verify(legalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS);
+        verify(legalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(new String(Base64.getDecoder().decode(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS);
     }
 
     @Test
@@ -650,7 +653,7 @@ class PnSentReceivedNotificationControllerTest {
                 .expectBody(NewNotificationRequestStatusResponseV26.class);
 
         verify(legalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(
-                new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8),
+                new String(Base64.getDecoder().decode(REQUEST_ID), StandardCharsets.UTF_8),
                 PA_ID,
                 GROUPS
         );
@@ -700,7 +703,7 @@ class PnSentReceivedNotificationControllerTest {
                 .expectBody(NewInformalNotificationRequestStatusResponseV1.class);
 
         verify(informalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(
-                new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8),
+                new String(Base64.getDecoder().decode(REQUEST_ID), StandardCharsets.UTF_8),
                 PA_ID,
                 GROUPS
         );
@@ -732,7 +735,7 @@ class PnSentReceivedNotificationControllerTest {
                 .expectBody(NewNotificationRequestStatusResponseV26.class);
 
         verify(legalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(
-                new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8),
+                new String(Base64.getDecoder().decode(REQUEST_ID), StandardCharsets.UTF_8),
                 PA_ID,
                 GROUPS
         );
@@ -764,7 +767,7 @@ class PnSentReceivedNotificationControllerTest {
                 .expectBody(NewInformalNotificationRequestStatusResponseV1.class);
 
         verify(informalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(
-                new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8),
+                new String(Base64.getDecoder().decode(REQUEST_ID), StandardCharsets.UTF_8),
                 PA_ID,
                 GROUPS
         );
@@ -802,7 +805,7 @@ class PnSentReceivedNotificationControllerTest {
                 .expectBody(NewNotificationRequestStatusResponseV26.class);
 
         verify(legalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(
-                new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8),
+                new String(Base64.getDecoder().decode(REQUEST_ID), StandardCharsets.UTF_8),
                 PA_ID,
                 GROUPS
         );
@@ -840,7 +843,7 @@ class PnSentReceivedNotificationControllerTest {
                 .expectBody(NewInformalNotificationRequestStatusResponseV1.class);
 
         verify(informalNotificationDetailRetrieverStrategy).getNotificationInformationWithSenderIdCheck(
-                new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8),
+                new String(Base64.getDecoder().decode(REQUEST_ID), StandardCharsets.UTF_8),
                 PA_ID,
                 GROUPS
         );

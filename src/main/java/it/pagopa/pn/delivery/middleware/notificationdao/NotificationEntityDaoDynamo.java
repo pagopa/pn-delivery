@@ -7,7 +7,6 @@ import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import software.amazon.awssdk.enhanced.dynamodb.*;
@@ -79,7 +78,7 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
 
         NotificationEntity.NotificationEntityBuilder controlIdempotenceTokenBuilder = NotificationEntity.builder()
                 .iun( getControlIdempotenceToken(notificationEntity) )
-                .requestId( Base64Utils.encodeToString( notificationEntity.getIun().getBytes(StandardCharsets.UTF_8) ) );
+                .requestId( Base64.getEncoder().encodeToString( notificationEntity.getIun().getBytes(StandardCharsets.UTF_8) ) );
 
 
         // This field will be populated only for informal communications (comunicazioni bonarie)
@@ -224,7 +223,7 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
 
     private String generateToken(String iun, String taxId) {
       byte[] bytes = (iun + "_" + taxId + "_" + UUID.randomUUID()).getBytes(StandardCharsets.UTF_8);
-      return Base64Utils.encodeToUrlSafeString( bytes ).replace("=","");
+      return Base64.getUrlEncoder().encodeToString( bytes ).replace("=","");
     }
 
 }

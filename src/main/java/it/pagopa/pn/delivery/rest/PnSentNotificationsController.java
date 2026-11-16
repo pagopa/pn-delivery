@@ -30,13 +30,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.Base64Utils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -152,7 +152,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
                 internalNotification,
                 NewNotificationRequestStatusResponseV26.class
         );
-        response.setNotificationRequestId( Base64Utils.encodeToString( internalNotification.getIun().getBytes(StandardCharsets.UTF_8) ));
+        response.setNotificationRequestId( Base64.getEncoder().encodeToString( internalNotification.getIun().getBytes(StandardCharsets.UTF_8) ));
 
         NotificationStatusV26 lastStatus = getNotificationLastStatus(notificationRequestId, legalNotificationDetail);
 
@@ -205,7 +205,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
         NotificationDetail notificationDetail;
         InternalNotification internalNotification;
         if (StringUtils.hasText( notificationRequestId )) {
-            String iun = new String(Base64Utils.decodeFromString(notificationRequestId), StandardCharsets.UTF_8);
+            String iun = new String(Base64.getDecoder().decode(notificationRequestId), StandardCharsets.UTF_8);
             logEvent.getMdc().put(MDC_PN_IUN_KEY, iun);
             notificationDetail = retrieverStrategy.getNotificationInformationWithSenderIdCheck( iun, xPagopaPnCxId, xPagopaPnCxGroups );
         } else {
@@ -260,7 +260,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi, SenderRe
                 internalNotification,
                 NewInformalNotificationRequestStatusResponseV1.class
         );
-        response.setNotificationRequestId( Base64Utils.encodeToString( internalNotification.getIun().getBytes(StandardCharsets.UTF_8) ));
+        response.setNotificationRequestId( Base64.getEncoder().encodeToString( internalNotification.getIun().getBytes(StandardCharsets.UTF_8) ));
 
         InformalNotificationStatusV1 lastStatus = getInformalNotificationLastStatus(notificationRequestId, informalNotificationDetail);
 

@@ -8,6 +8,7 @@ import it.pagopa.pn.delivery.middleware.notificationdao.TaxonomyCodeDaoDynamo;
 import it.pagopa.pn.delivery.models.TaxonomyCodeDto;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
+import it.pagopa.pn.delivery.utils.ModelMapperConfig;
 import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import it.pagopa.pn.delivery.utils.PreloadRequest;
 import org.junit.jupiter.api.Test;
@@ -19,12 +20,12 @@ import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.util.Base64Utils;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
@@ -36,6 +37,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 
 @WebFluxTest(PnNotificationInputController.class)
+@Import(ModelMapperConfig.class)
 class PnNotificationInputControllerTest {
 
 	private static final String PA_ID = "paId";
@@ -45,7 +47,7 @@ class PnNotificationInputControllerTest {
 	private static final String SECRET = "secret";
 	private static final String URL = "url";
 	public static final List<String> GROUPS = List.of("Group1", "Group2");
-	private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
+	private static final String X_PAGOPA_PN_SRC_CH = "B2B";
 	private static final String X_PAGOPA_PN_SRC_CH_DETAILS = "sourceChannelDetails";
 	private static final String FILE_SHA_256 = "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=";
 	public static final String DELIVERY_REQUESTS_PATH = "/delivery/v2.6/requests";
@@ -56,19 +58,19 @@ class PnNotificationInputControllerTest {
 	@Autowired
     WebTestClient webTestClient;
 
-	@SpyBean
+	@MockitoSpyBean
 	private ModelMapper modelMapper;
 	
-	@MockBean
+	@MockitoBean
 	private NotificationReceiverService deliveryService;
 
-	@MockBean
+	@MockitoBean
 	private NotificationAttachmentService attachmentService;
 
-	@MockBean
+	@MockitoBean
 	private PnDeliveryConfigs cfg;
 
-	@MockBean
+	@MockitoBean
 	TaxonomyCodeDaoDynamo taxonomyCodeDaoDynamo;
 
 	@ParameterizedTest
@@ -78,7 +80,7 @@ class PnNotificationInputControllerTest {
 		NewNotificationRequestV26 notificationRequest = newNotificationRequest();
 
 		NewNotificationResponse savedNotification = NewNotificationResponse.builder()
-						.notificationRequestId( Base64Utils.encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) )
+						.notificationRequestId( Base64.getEncoder().encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) )
 						.paProtocolNumber("protocol_number").build();
 
 		// When
@@ -178,7 +180,7 @@ class PnNotificationInputControllerTest {
 		NewNotificationRequestV26 notificationRequest = newNotificationRequest();
 
 		NewNotificationResponse savedNotification = NewNotificationResponse.builder()
-				.notificationRequestId( Base64Utils.encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) )
+				.notificationRequestId( Base64.getEncoder().encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) )
 				.paProtocolNumber("protocol_number").build();
 
 		// When
@@ -232,7 +234,7 @@ class PnNotificationInputControllerTest {
 		NewNotificationRequestV26 notificationRequest = newNotificationRequest();
 
 		NewNotificationResponse savedNotification = NewNotificationResponse.builder()
-				.notificationRequestId( Base64Utils.encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) )
+				.notificationRequestId( Base64.getEncoder().encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) )
 				.paProtocolNumber("protocol_number").build();
 
 		// When
@@ -499,7 +501,7 @@ class PnNotificationInputControllerTest {
 				.build();
 
 		NewNotificationResponse savedNotification = NewNotificationResponse.builder()
-				.notificationRequestId( Base64Utils.encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) )
+				.notificationRequestId( Base64.getEncoder().encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) )
 				.paProtocolNumber( "protocol_number" ).build();
 
 		// When
@@ -651,7 +653,7 @@ class PnNotificationInputControllerTest {
 		InformalNotificationRequestV1 request = newInformalNotificationRequest();
 
 		NewInformalNotificationResponse savedNotification = NewInformalNotificationResponse.builder()
-				.notificationRequestId( Base64Utils.encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) )
+				.notificationRequestId( Base64.getEncoder().encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) )
 				.paProtocolNumber("protocol_number").build();
 
 		Mockito.when(deliveryService.receiveInformalNotification(

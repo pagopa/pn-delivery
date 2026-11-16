@@ -5,6 +5,7 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.Messa
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.MessageResponseDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.MessageResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewMessageRequest;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewMessageRequestPrimaryMessage;
 import org.junit.jupiter.api.Test;
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -15,19 +16,19 @@ class InformalMessageMapperTest {
     @Test
     void testToMsAndToApiLocalizedContent() {
         // from API to MS
-        var apiContent = new it.pagopa.pn.delivery.generated.openapi.server.v1.dto.LocalizedContent();
+        var apiContent = new NewMessageRequestPrimaryMessage();
         apiContent.setSubject("subject");
         apiContent.setLongBody("longBody");
         apiContent.setShortBody("shortBody");
         apiContent.setLanguage("IT");
-        LocalizedContent msContent = InformalMessageMapper.toMs(apiContent);
+        LocalizedContent msContent = InformalMessageMapper.toMsPrimaryMessage(apiContent);
         assertEquals("subject", msContent.getSubject());
         assertEquals("longBody", msContent.getLongBody());
         assertEquals("shortBody", msContent.getShortBody());
         assertEquals(LocalizedContent.LanguageEnum.IT, msContent.getLanguage());
 
         // from MS to API
-        var apiContent2 = InformalMessageMapper.toApi(msContent);
+        var apiContent2 = InformalMessageMapper.toApiPrimaryMessage(msContent);
         assertEquals("subject", apiContent2.getSubject());
         assertEquals("longBody", apiContent2.getLongBody());
         assertEquals("shortBody", apiContent2.getShortBody());
@@ -36,7 +37,7 @@ class InformalMessageMapperTest {
 
     @Test
     void testToMsFromNewMessageRequest() {
-        var apiContent = new it.pagopa.pn.delivery.generated.openapi.server.v1.dto.LocalizedContent();
+        var apiContent = new NewMessageRequestPrimaryMessage();
         apiContent.setSubject("subject");
         apiContent.setLongBody("longBody");
         apiContent.setShortBody("shortBody");

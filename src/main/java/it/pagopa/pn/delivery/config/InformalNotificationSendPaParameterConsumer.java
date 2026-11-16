@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.config;
 
-import io.micrometer.core.instrument.util.StringUtils;
+
+import io.micrometer.common.util.StringUtils;
 import it.pagopa.pn.commons.abstractions.ParameterConsumer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;

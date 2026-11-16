@@ -18,7 +18,6 @@ import software.amazon.awssdk.services.sqs.model.GetQueueUrlResponse;
 import java.time.Instant;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class PaymentEventsProducerTest {
@@ -40,7 +39,6 @@ class PaymentEventsProducerTest {
                 .queueUrl( "queueUrl" )
                 .build();
 
-        Mockito.when( sqsClient.getQueueUrl( Mockito.any( software.amazon.awssdk.services.sqs.model.GetQueueUrlRequest.class ))).thenReturn( response );
         paymentEventsProducer = new SqsPaymentEventsProducer( sqsClient, objectMapper, cfg );
     }
 

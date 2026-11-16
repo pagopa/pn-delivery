@@ -3,8 +3,8 @@ package it.pagopa.pn.delivery.models;
 import it.pagopa.pn.api.dto.events.PnDeliveryPaymentEvent;
 import lombok.*;
 
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 
 @NoArgsConstructor
