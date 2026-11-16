@@ -14,12 +14,12 @@ import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.NativeWebRequest;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,7 +70,7 @@ public class PnNotificationInputController implements NewNotificationApi, NewInf
         }
         @NotNull String requestId = svcRes.getNotificationRequestId();
         @NotNull String protocolNumber = svcRes.getPaProtocolNumber();
-        String iun = new String(Base64Utils.decodeFromString(requestId), StandardCharsets.UTF_8);
+        String iun = new String(Base64.getDecoder().decode(requestId), StandardCharsets.UTF_8);
         logEvent.getMdc().put(MDC_PN_IUN_KEY, iun);
         logEvent.generateSuccess("sendNewNotification requestId={}, protocolNumber={}, idempotenceToken={}", requestId, protocolNumber, paIdempotenceToken).log();
         return ResponseEntity.accepted().body( svcRes );
@@ -164,7 +164,7 @@ public class PnNotificationInputController implements NewNotificationApi, NewInf
         }
         @NotNull String requestId = svcRes.getNotificationRequestId();
         @NotNull String protocolNumber = svcRes.getPaProtocolNumber();
-        String iun = new String(Base64Utils.decodeFromString(requestId), StandardCharsets.UTF_8);
+        String iun = new String(Base64.getDecoder().decode(requestId), StandardCharsets.UTF_8);
         logEvent.getMdc().put(MDC_PN_IUN_KEY, iun);
         logEvent.generateSuccess("sendNewInformalNotification requestId={}, protocolNumber={}, idempotenceToken={}", requestId, protocolNumber, paIdempotenceToken).log();
         return ResponseEntity.accepted().body( svcRes );

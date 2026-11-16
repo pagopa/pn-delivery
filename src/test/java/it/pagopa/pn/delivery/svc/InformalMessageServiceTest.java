@@ -33,7 +33,7 @@ class InformalMessageServiceTest {
     @Test
     void createInformalMessage_primaryLanguageNotIT_shouldThrow() {
         NewMessageRequest req = new NewMessageRequest();
-        var primary = new it.pagopa.pn.delivery.generated.openapi.server.v1.dto.LocalizedContent();
+        var primary = new it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewMessageRequestPrimaryMessage();
         primary.setLanguage("FR");
         primary.setLongBody("test");
         req.setPrimaryMessage(primary);
@@ -43,11 +43,11 @@ class InformalMessageServiceTest {
     @Test
     void createInformalMessage_additionalLanguageInvalid_shouldThrow() {
         NewMessageRequest req = new NewMessageRequest();
-        var primary = new it.pagopa.pn.delivery.generated.openapi.server.v1.dto.LocalizedContent();
+        var primary = new it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewMessageRequestPrimaryMessage();
         primary.setLanguage("IT");
         primary.setLongBody("test");
         req.setPrimaryMessage(primary);
-        var secondary = new it.pagopa.pn.delivery.generated.openapi.server.v1.dto.LocalizedContent();
+        var secondary = new it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewMessageRequestAdditionalMessage();
         secondary.setLanguage("IT");
         secondary.setLongBody("test");
         req.setAdditionalMessage(secondary);
@@ -57,7 +57,7 @@ class InformalMessageServiceTest {
     @Test
     void createInformalMessage_bodyLengthExceeded_shouldThrow() {
         NewMessageRequest req = new NewMessageRequest();
-        var primary = new it.pagopa.pn.delivery.generated.openapi.server.v1.dto.LocalizedContent();
+        var primary = new it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewMessageRequestPrimaryMessage();
         primary.setLanguage("IT");
         primary.setLongBody("a".repeat(101));
         req.setPrimaryMessage(primary);
@@ -67,7 +67,7 @@ class InformalMessageServiceTest {
     @Test
     void createInformalMessage_validRequest_shouldCallClient() {
         NewMessageRequest req = new NewMessageRequest();
-        var primary = new it.pagopa.pn.delivery.generated.openapi.server.v1.dto.LocalizedContent();
+        var primary = new it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewMessageRequestPrimaryMessage();
         primary.setLanguage("IT");
         primary.setLongBody("test");
         req.setPrimaryMessage(primary);

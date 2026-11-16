@@ -2,8 +2,9 @@ package it.pagopa.pn.delivery.svc.validation;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewMessageRequest;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.LocalizedContent;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewMessageRequestAdditionalMessage;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewMessageRequestPrimaryMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +31,7 @@ class InformalMessageValidatorTest {
     @Test
     void validate_primaryLanguageNotIT_shouldThrow() {
         NewMessageRequest req = new NewMessageRequest();
-        LocalizedContent primary = new LocalizedContent();
+        NewMessageRequestPrimaryMessage primary = new NewMessageRequestPrimaryMessage();
         primary.setLanguage("FR");
         primary.setLongBody("test");
         req.setPrimaryMessage(primary);
@@ -41,11 +42,11 @@ class InformalMessageValidatorTest {
     @Test
     void validate_invalidAdditionalLanguage_shouldThrow() {
         NewMessageRequest req = new NewMessageRequest();
-        LocalizedContent primary = new LocalizedContent();
+        NewMessageRequestPrimaryMessage primary = new NewMessageRequestPrimaryMessage();
         primary.setLanguage("IT");
         primary.setLongBody("test");
         req.setPrimaryMessage(primary);
-        LocalizedContent secondary = new LocalizedContent();
+        NewMessageRequestAdditionalMessage secondary = new NewMessageRequestAdditionalMessage();
         secondary.setLanguage("IT"); // non valido come additional
         secondary.setLongBody("test");
         req.setAdditionalMessage(secondary);
@@ -56,7 +57,7 @@ class InformalMessageValidatorTest {
     @Test
     void validate_bodyLengthExceeded_shouldThrow() {
         NewMessageRequest req = new NewMessageRequest();
-        LocalizedContent primary = new LocalizedContent();
+        NewMessageRequestPrimaryMessage primary = new NewMessageRequestPrimaryMessage();
         primary.setLanguage("IT");
         primary.setLongBody("a".repeat(101));
         req.setPrimaryMessage(primary);
@@ -67,7 +68,7 @@ class InformalMessageValidatorTest {
     @Test
     void validate_validRequest_shouldNotThrow() {
         NewMessageRequest req = new NewMessageRequest();
-        LocalizedContent primary = new LocalizedContent();
+        NewMessageRequestPrimaryMessage primary = new NewMessageRequestPrimaryMessage();
         primary.setLanguage("IT");
         primary.setLongBody("test");
         req.setPrimaryMessage(primary);
@@ -77,11 +78,11 @@ class InformalMessageValidatorTest {
     @Test
     void validate_validRequestWithAdditional_shouldNotThrow() {
         NewMessageRequest req = new NewMessageRequest();
-        LocalizedContent primary = new LocalizedContent();
+        NewMessageRequestPrimaryMessage primary = new NewMessageRequestPrimaryMessage();
         primary.setLanguage("IT");
         primary.setLongBody("test");
         req.setPrimaryMessage(primary);
-        LocalizedContent secondary = new LocalizedContent();
+        NewMessageRequestAdditionalMessage secondary = new NewMessageRequestAdditionalMessage();
         secondary.setLanguage("DE"); // valido
         secondary.setLongBody("test");
         req.setAdditionalMessage(secondary);
@@ -91,7 +92,7 @@ class InformalMessageValidatorTest {
     @Test
     void validate_primaryLongBodyNotNull_shouldNotThrow() {
         NewMessageRequest req = new NewMessageRequest();
-        LocalizedContent primary = new LocalizedContent();
+        NewMessageRequestPrimaryMessage primary = new NewMessageRequestPrimaryMessage();
         primary.setLanguage("IT");
         primary.setLongBody("test long body");
         req.setPrimaryMessage(primary);
@@ -101,11 +102,11 @@ class InformalMessageValidatorTest {
     @Test
     void validate_secondaryLongBodyNotNull_shouldNotThrow() {
         NewMessageRequest req = new NewMessageRequest();
-        LocalizedContent primary = new LocalizedContent();
+        NewMessageRequestPrimaryMessage primary = new NewMessageRequestPrimaryMessage();
         primary.setLanguage("IT");
         primary.setLongBody("test long body");
         req.setPrimaryMessage(primary);
-        LocalizedContent secondary = new LocalizedContent();
+        NewMessageRequestAdditionalMessage secondary = new NewMessageRequestAdditionalMessage();
         secondary.setLanguage("DE");
         secondary.setLongBody("test secondary long body");
         req.setAdditionalMessage(secondary);
@@ -115,7 +116,7 @@ class InformalMessageValidatorTest {
     @Test
     void validate_primaryShortBodyNotNull_shouldNotThrow() {
         NewMessageRequest req = new NewMessageRequest();
-        LocalizedContent primary = new LocalizedContent();
+        NewMessageRequestPrimaryMessage primary = new NewMessageRequestPrimaryMessage();
         primary.setLanguage("IT");
         primary.setLongBody("test");
         primary.setShortBody("short");
@@ -126,12 +127,12 @@ class InformalMessageValidatorTest {
     @Test
     void validate_secondaryShortBodyNotNull_shouldNotThrow() {
         NewMessageRequest req = new NewMessageRequest();
-        LocalizedContent primary = new LocalizedContent();
+        NewMessageRequestPrimaryMessage primary = new NewMessageRequestPrimaryMessage();
         primary.setLanguage("IT");
         primary.setLongBody("test");
         primary.setShortBody("short");
         req.setPrimaryMessage(primary);
-        LocalizedContent secondary = new LocalizedContent();
+        NewMessageRequestAdditionalMessage secondary = new NewMessageRequestAdditionalMessage();
         secondary.setLanguage("DE");
         secondary.setLongBody("test");
         secondary.setShortBody("short");
@@ -142,12 +143,12 @@ class InformalMessageValidatorTest {
     @Test
     void validate_primaryShortBodyPresentButSecondaryMissing_shouldThrow() {
         NewMessageRequest req = new NewMessageRequest();
-        LocalizedContent primary = new LocalizedContent();
+        NewMessageRequestPrimaryMessage primary = new NewMessageRequestPrimaryMessage();
         primary.setLanguage("IT");
         primary.setLongBody("test");
         primary.setShortBody("short");
         req.setPrimaryMessage(primary);
-        LocalizedContent secondary = new LocalizedContent();
+        NewMessageRequestAdditionalMessage secondary = new NewMessageRequestAdditionalMessage();
         secondary.setLanguage("DE");
         secondary.setLongBody("test");
         secondary.setShortBody(null);
@@ -159,12 +160,12 @@ class InformalMessageValidatorTest {
     @Test
     void validate_secondaryShortBodyPresentButPrimaryMissing_shouldThrow() {
         NewMessageRequest req = new NewMessageRequest();
-        LocalizedContent primary = new LocalizedContent();
+        NewMessageRequestPrimaryMessage primary = new NewMessageRequestPrimaryMessage();
         primary.setLanguage("IT");
         primary.setLongBody("test");
         primary.setShortBody(null);
         req.setPrimaryMessage(primary);
-        LocalizedContent secondary = new LocalizedContent();
+        NewMessageRequestAdditionalMessage secondary = new NewMessageRequestAdditionalMessage();
         secondary.setLanguage("DE");
         secondary.setLongBody("test");
         secondary.setShortBody("short");

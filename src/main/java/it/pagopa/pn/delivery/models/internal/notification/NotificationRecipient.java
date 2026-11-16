@@ -4,7 +4,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewMessageRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV24;
 import lombok.*;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.util.List;
 
 @EqualsAndHashCode

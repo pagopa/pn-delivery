@@ -14,7 +14,7 @@ import javax.annotation.Nonnull;
 import java.util.UUID;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_GENERIC_ERROR;
-import static it.pagopa.pn.delivery.models.internal.notification.mapper.LocalizedContentMapper.mapToServerLocalizedContent;
+import static it.pagopa.pn.delivery.models.internal.notification.mapper.LocalizedContentMapper.*;
 
 @Component
 @Slf4j
@@ -32,8 +32,8 @@ public class MessageEnricher {
 
                 recipient.setMessage(
                         NewMessageRequest.builder()
-                                .primaryMessage(mapToServerLocalizedContent(messageDto.getPrimaryContent()))
-                                .additionalMessage(mapToServerLocalizedContent(messageDto.getSecondaryContent()))
+                                .primaryMessage(mapToServerPrimaryMessage(messageDto.getPrimaryContent()))
+                                .additionalMessage(mapToServerAdditionalMessage(messageDto.getSecondaryContent()))
                                 .build()
                 );
             } catch (Exception ex) {

@@ -5,7 +5,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PaymentEventF24;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PaymentEventsRequestF24;
 import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 @Component

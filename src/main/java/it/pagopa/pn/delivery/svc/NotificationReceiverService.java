@@ -27,7 +27,6 @@ import lombok.CustomLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
@@ -36,6 +35,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
@@ -291,7 +291,7 @@ public class NotificationReceiverService {
 	}
 
 	private NewNotificationResponse generateResponse(InternalNotification internalNotification, String iun) {
-		String notificationId = Base64Utils.encodeToString(iun.getBytes(StandardCharsets.UTF_8));
+		String notificationId = Base64.getEncoder().encodeToString(iun.getBytes(StandardCharsets.UTF_8));
 
 		return NewNotificationResponse.builder()
 				.notificationRequestId(notificationId)
@@ -375,7 +375,7 @@ public class NotificationReceiverService {
 		return paInfo.getTaxId();
 	}
 	private NewInformalNotificationResponse generateInformalResponse(InternalNotification internalNotification, String iun) {
-		String notificationId = Base64Utils.encodeToString(iun.getBytes(StandardCharsets.UTF_8));
+		String notificationId = Base64.getEncoder().encodeToString(iun.getBytes(StandardCharsets.UTF_8));
 
 		return NewInformalNotificationResponse.builder()
 				.notificationRequestId(notificationId)
