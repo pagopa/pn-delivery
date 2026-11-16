@@ -1,6 +1,6 @@
 package it.pagopa.pn.delivery;
 
-import io.awspring.cloud.autoconfigure.messaging.SqsAutoConfiguration;
+import io.awspring.cloud.autoconfigure.sqs.SqsAutoConfiguration;
 import it.pagopa.pn.commons.db.campaign.provider.CampaignServiceCachedProvider;
 import it.pagopa.pn.delivery.config.InformalNotificationSendPaParameterConsumer;
 import it.pagopa.pn.delivery.config.PhysicalAddressLookupParameterConsumer;
