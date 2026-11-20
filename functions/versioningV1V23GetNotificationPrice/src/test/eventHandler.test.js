@@ -84,5 +84,42 @@ describe("eventHandler tests", function () {
         expect(response.statusCode).to.equal(200);
     });
 
+    it("does not register retry interceptors on every invocation", async () => {
+        process.env = Object.assign(process.env, {
+            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
+            ATTEMPT_TIMEOUT_SEC: "7",
+            NUM_RETRY: "3"
+        });
+
+        const paTaxId = "77777777777";
+        const noticeCode = "302011695374606354";
+        const url = `${process.env.PN_DELIVERY_URL}/price/${paTaxId}/${noticeCode}`;
+
+        mock.onGet(url).reply(200, {});
+
+        const event = {
+            pathParameters: { paTaxId, noticeCode },
+            headers: {},
+            requestContext: { authorizer: {} },
+            resource: "/delivery/price/{paTaxId}/{noticeCode}",
+            path: "/delivery/price",
+            httpMethod: "GET"
+        };
+
+        const activeCount = (interceptors) =>
+            interceptors.handlers.filter(Boolean).length;
+
+        await handleEvent(event);
+        const requestCount = activeCount(axios.interceptors.request);
+        const responseCount = activeCount(axios.interceptors.response);
+
+        await handleEvent(event);
+
+        console.debug("Request interceptors count: ", activeCount(axios.interceptors.request));
+        expect(activeCount(axios.interceptors.request)).to.equal(requestCount);
+        console.debug("Response interceptors count: ", activeCount(axios.interceptors.response));
+        expect(activeCount(axios.interceptors.response)).to.equal(responseCount);
+    });
+
     
 })

@@ -5,6 +5,8 @@ const { headerMapper } = require('./utils')
 const axios = require("axios");
 const axiosRetry = require("axios-retry").default;
 
+
+
 exports.handleEvent = async (event) => {
     const path = "/price/";
 
@@ -20,16 +22,7 @@ exports.handleEvent = async (event) => {
 
     const url = `${process.env.PN_DELIVERY_URL}${path}${paTaxId}/${noticeCode}`;
     const attemptTimeout = `${process.env.ATTEMPT_TIMEOUT_SEC}` * 1000;
-    const numRetry = `${process.env.NUM_RETRY}`;
-    axiosRetry(axios, {
-        retries: numRetry,
-        shouldResetTimeout: true ,
-        retryCondition: (error) => {
-          return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.code === 'ECONNABORTED';
-        },
-        onRetry: retryCallback,
-        onMaxRetryTimesExceeded: retryTimesExceededCallback
-    });
+
 
     const headers = headerMapper(event);
 
