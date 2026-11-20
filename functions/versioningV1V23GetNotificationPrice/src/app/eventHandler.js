@@ -78,11 +78,5 @@ exports.handleEvent = async (event) => {
 
         return responseV1;
     }
-      function retryCallback(retryCount, error, requestConfig) {
-        console.warn(`Retry num ${retryCount} - error:${error.message}`);
-      }
 
-      function retryTimesExceededCallback(error, retryCount) {
-        console.warn(`Retries exceeded: ${retryCount} - error:${error.message}`);
-      }
 };

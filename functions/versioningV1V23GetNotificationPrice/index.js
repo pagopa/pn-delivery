@@ -15,6 +15,15 @@ axiosRetry(axios, {
     onMaxRetryTimesExceeded: retryTimesExceededCallback
 });
 
+
+function retryCallback(retryCount, error, requestConfig) {
+    console.error(`Retry num ${retryCount} - error:${error.message}`);;
+}
+
+function retryTimesExceededCallback(error, retryCount) {
+    console.error(`Retries exceeded: ${retryCount} - error:${error.message}`);
+}
+
 exports.handler = async (event) => {
   return handleEvent(event);
 };
