@@ -17,11 +17,11 @@ axiosRetry(axios, {
 
 
 function retryCallback(retryCount, error, requestConfig) {
-    console.error(`Retry num ${retryCount} - error:${error.message}`);;
+    console.warn(`Retry num ${retryCount} - error:${error.message}`);;
 }
 
 function retryTimesExceededCallback(error, retryCount) {
-    console.error(`Retries exceeded: ${retryCount} - error:${error.message}`);
+    console.warn(`Retries exceeded: ${retryCount} - error:${error.message}`);
 }
 
 exports.handler = async (event) => {

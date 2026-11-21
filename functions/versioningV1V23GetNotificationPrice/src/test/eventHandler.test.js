@@ -85,6 +85,50 @@ describe("eventHandler tests", function () {
         expect(response.statusCode).to.equal(200);
     });
 
+
+    it("have only one timeout", async () => {
+        process.env = Object.assign(process.env, {
+            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
+            ATTEMPT_TIMEOUT_SEC: "7",
+            NUM_RETRY: "3"
+        });
+
+        const paTaxId = "77777777777";
+        const noticeCode = "302011695374606354";
+        const url = `${process.env.PN_DELIVERY_URL}/price/${paTaxId}/${noticeCode}`;
+
+        // index.js registers axios-retry when it is first imported.
+        const { handler } = require("../../index.js");
+mock.reset();
+        mock.onGet(url).reply(200, {});
+
+
+        const event = {
+            pathParameters: { paTaxId, noticeCode },
+            headers: {},
+            requestContext: { authorizer: {} },
+            resource: "/delivery/price/{paTaxId}/{noticeCode}",
+            path: "/delivery/price",
+            httpMethod: "GET"
+        };
+        const originalWarn = console.warn;
+const warnings = [];
+console.warn = (...args) => warnings.push(args);
+
+        await handleEvent(event);
+
+mock.onGet(url).timeout();
+
+
+        await handleEvent(event);
+
+console.warn = originalWarn;
+let warningsCount = 0;
+warnings.forEach(warning => { if (warning.toString().includes("Retries exceeded: 3 - error:timeout of 7000ms exceeded") )warningsCount++ });
+       console.log("********** " + warningsCount + " warnings with timeout of 7000ms exceeded");
+       expect(warningsCount).to.equal(1); // 1 initial request + 1 retry
+    });
+
     it("does not register retry interceptors on every invocation", async () => {
         process.env = Object.assign(process.env, {
             PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
