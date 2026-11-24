@@ -11,7 +11,7 @@ exports.handleEvent = async (event) => {
     const path = "/price/";
 
     const validationErrors = validateRequest(event)
-    if(validationErrors.length > 0 ){
+    if (validationErrors.length > 0) {
         return generateResponse({ resultCode: '404.00', resultDescription: 'Not found', errorList: validationErrors }, 404, {})
     }
 
@@ -25,13 +25,25 @@ exports.handleEvent = async (event) => {
 
 
     const headers = headerMapper(event);
+    if (process.env.OLD_AXIOS_RETRY === 'true') {
+      console.log("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB")
 
-    console.log ('calling ', url);
+        axiosRetry(axios, {
+            retries: `${process.env.NUM_RETRY}`,
+            shouldResetTimeout: true,
+            retryCondition: (error) => {
+                return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.code === 'ECONNABORTED';
+            },
+            onRetry: retryCallback,
+            onMaxRetryTimesExceeded: retryTimesExceededCallback
+        });
+    }
+    console.log('calling ', url);
     // get verso pn-delivery
     let response;
     let lastError = null;
     try {
-        response = await axios.get(url, { headers: headers, timeout: attemptTimeout} );
+        response = await axios.get(url, { headers: headers, timeout: attemptTimeout });
 
         const transformedObject = transformFromV23ToV1(response.data);
         const ret = {
@@ -79,4 +91,15 @@ exports.handleEvent = async (event) => {
         return responseV1;
     }
 
+    if (process.env.OLD_AXIOS_RETRY === 'true') {
+      console.log("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB")
+
+        function retryCallback(retryCount, error, requestConfig) {
+            console.warn(`Retry num ${retryCount} - error:${error.message}`);;
+        }
+
+        function retryTimesExceededCallback(error, retryCount) {
+            console.warn(`Retries exceeded: ${retryCount} - error:${error.message}`);
+        }
+    }
 };
