@@ -76,7 +76,7 @@ describe('RedisClientProvider', () => {
         username: process.env.USER_ID_REDIS,
         socket: {
           tls: true,
-          rejectUnauthorized: false
+          rejectUnauthorized: true
         }
       });
       expect(result).to.equal(mockClient);
