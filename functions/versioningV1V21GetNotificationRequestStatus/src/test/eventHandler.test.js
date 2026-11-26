@@ -1,3 +1,8 @@
+process.env.NUM_RETRY = "2";
+process.env.ATTEMPT_TIMEOUT_SEC = "1";
+
+const CONFIGURED_NUM_RETRY = Number(process.env.NUM_RETRY);
+
 const { handleEvent } = require("../app/eventHandler.js");
 const { expect } = require("chai");
 const fs = require("fs");
@@ -472,6 +477,61 @@ describe("eventHandler tests", function () {
         const res = await handleEvent(event)
         expect(res.statusCode).to.equal(400);
 
+    });
+
+    describe("axios-retry configured only once", function () {
+        const EXPECTED_CALLS_ON_FAILURE = 1 + CONFIGURED_NUM_RETRY; // initial attempt + retry
+
+        const buildEvent = () => ({
+            path: '/delivery/requests',
+            httpMethod: "GET",
+            headers: {},
+            requestContext: {
+                authorizer: {},
+            },
+            queryStringParameters: {
+                notificationRequestId: 'validNotificationRequestId'
+            }
+        });
+
+        let url;
+
+        beforeEach(() => {
+            process.env = Object.assign(process.env, {
+                PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery",
+            });
+            url = `${process.env.PN_DELIVERY_URL}/requests?`;
+            mock.reset();
+        });
+
+        after(() => {
+            mock.reset();
+        });
+
+        it("constant number of attempts across successive invocations", async () => {
+            mock.onGet(url).reply(500, { error: "ERROR" }, { "Content-Type": "application/json" });
+
+            for (let i = 0; i < 3; i++) {
+                mock.resetHistory();
+                const res = await handleEvent(buildEvent());
+                expect(res.statusCode).to.equal(500);
+                expect(mock.history.get.length).to.equal(EXPECTED_CALLS_ON_FAILURE);
+            }
+        });
+
+        it("axios interceptors do not increase with each invocation", async () => {
+            mock.onGet(url).reply(404, {}, { "Content-Type": "application/json" });
+
+            await handleEvent(buildEvent());
+            const requestHandlers = axios.interceptors.request.handlers.length;
+            const responseHandlers = axios.interceptors.response.handlers.length;
+
+            await handleEvent(buildEvent());
+            await handleEvent(buildEvent());
+
+            expect(axios.interceptors.request.handlers.length).to.equal(requestHandlers);
+            expect(axios.interceptors.response.handlers.length).to.equal(responseHandlers);
+        });
     });
 
 
